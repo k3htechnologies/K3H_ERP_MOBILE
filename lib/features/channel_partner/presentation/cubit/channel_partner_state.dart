@@ -2,6 +2,8 @@ part of 'channel_partner_cubit.dart';
 
 class ChannelPartnerState extends BaseState {
   final List<ChannelPartnerModel> channelPartnerList;
+  final ChannelPartnerDashboardModel? channelPartnerDashboardModel;
+  final List<ChannelPartnerDashboardModel> channelPartnerDashboardModelList;
   final int totalNumberOfRecord;
   final int currentPage;
   final String searchText;
@@ -13,6 +15,8 @@ class ChannelPartnerState extends BaseState {
     super.isLoading,
     super.stateType,
     required this.channelPartnerList,
+    this.channelPartnerDashboardModel,
+    required this.channelPartnerDashboardModelList,
     required this.totalNumberOfRecord,
     required this.currentPage,
     required this.searchText,
@@ -23,6 +27,7 @@ class ChannelPartnerState extends BaseState {
 
   factory ChannelPartnerState.initial() => ChannelPartnerState(
     channelPartnerList: [],
+    channelPartnerDashboardModelList: [],
     totalNumberOfRecord: 0,
     currentPage: 1,
     searchText: "",
@@ -36,6 +41,8 @@ class ChannelPartnerState extends BaseState {
     bool? isLoading,
     StateType? stateType,
     List<ChannelPartnerModel>? channelPartnerList,
+    ChannelPartnerDashboardModel? channelPartnerDashboardModel,
+    List<ChannelPartnerDashboardModel>? channelPartnerDashboardModelList,
     int? totalNumberOfRecord,
     int? currentPage,
     String? searchText,
@@ -47,6 +54,11 @@ class ChannelPartnerState extends BaseState {
       isLoading: isLoading ?? this.isLoading,
       stateType: stateType ?? this.stateType,
       channelPartnerList: channelPartnerList ?? this.channelPartnerList,
+      channelPartnerDashboardModel:
+          channelPartnerDashboardModel ?? this.channelPartnerDashboardModel,
+      channelPartnerDashboardModelList:
+          channelPartnerDashboardModelList ??
+          this.channelPartnerDashboardModelList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
       searchText: searchText ?? this.searchText,
@@ -61,6 +73,8 @@ class ChannelPartnerState extends BaseState {
     isLoading,
     stateType,
     channelPartnerList,
+    channelPartnerDashboardModel,
+    channelPartnerDashboardModelList,
     totalNumberOfRecord,
     currentPage,
     searchText,

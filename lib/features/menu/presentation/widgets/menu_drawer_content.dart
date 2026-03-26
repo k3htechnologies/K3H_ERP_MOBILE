@@ -241,7 +241,8 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
         menu.moduleName.trim().toLowerCase() == 'redevelopment';
 
     final isSalesDashboard = menu.moduleName.trim().toLowerCase() == 'sale';
-    final isPayrollDashboard = menu.moduleName.trim().toLowerCase() == 'payroll';
+    final isPayrollDashboard =
+        menu.moduleName.trim().toLowerCase() == 'payroll';
     final isInventoryDashboard =
         menu.moduleName.trim().toLowerCase() == 'inventory';
     final isSettingsDashboard =
@@ -249,6 +250,8 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
 
     final isLitigationDashboard =
         menu.moduleName.trim().toLowerCase() == "legal";
+    final isChannelPartnerDashboard =
+        menu.moduleName.trim().toLowerCase() == "channel partner";
     bool isCurrentModuleActive = menu.subModuleData.any(
       (sub) => _isActiveModule(sub),
     );
@@ -283,7 +286,15 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
     if (isLitigationDashboard) {
       isCurrentModuleActive =
           isCurrentModuleActive ||
-          _isRouteActive(_currentPathForBuild, AppRoutes.settingDashboard);
+          _isRouteActive(_currentPathForBuild, AppRoutes.litigationDashboard);
+    }
+    if (isChannelPartnerDashboard) {
+      isCurrentModuleActive =
+          isCurrentModuleActive ||
+          _isRouteActive(
+            _currentPathForBuild,
+            AppRoutes.channelPartnerDashboard,
+          );
     }
 
     final tile = CustomModuleTile(
@@ -297,15 +308,16 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
           await _onItemTap(navigateToPath: AppRoutes.redevelopmentDashboard);
         } else if (isSalesDashboard) {
           await _onItemTap(navigateToPath: AppRoutes.salesDashboard);
-        }else if (isPayrollDashboard) {
+        } else if (isPayrollDashboard) {
           await _onItemTap(navigateToPath: AppRoutes.payrollDashboard);
-        }
-        else if (isInventoryDashboard) {
+        } else if (isInventoryDashboard) {
           await _onItemTap(navigateToPath: AppRoutes.inventoryDashboard);
         } else if (isSettingsDashboard) {
           await _onItemTap(navigateToPath: AppRoutes.settingDashboard);
         } else if (isLitigationDashboard) {
           await _onItemTap(navigateToPath: AppRoutes.litigationDashboard);
+        } else if (isChannelPartnerDashboard) {
+          await _onItemTap(navigateToPath: AppRoutes.channelPartnerDashboard);
         }
       },
       items:

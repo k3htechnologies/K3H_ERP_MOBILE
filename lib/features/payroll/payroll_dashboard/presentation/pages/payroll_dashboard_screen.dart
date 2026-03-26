@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_dashboard/presentation/cubit/payroll_dashboard_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
@@ -215,7 +217,9 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     CustomIconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        goRouter.pushNamed(AppRoutes.applyLeave);
+                      },
                       icon: SvgPicture.asset(
                         AppAssets.applyLeaveIcon,
                         height: 16,
@@ -236,7 +240,9 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     CustomIconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        goRouter.pushNamed(AppRoutes.compOff);
+                      },
                       icon: SvgPicture.asset(
                         AppAssets.regularizeIcon,
                         height: 18,
@@ -260,7 +266,9 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     CustomIconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        goRouter.pushNamed(AppRoutes.addOutdoor);
+                      },
                       icon: Icon(Icons.add, size: 16, color: AppColor.primary),
                     ),
                     Text("Add Outdoor", style: AppTextStyle.ts12M()),
@@ -276,6 +284,13 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
 
   // ATTENDANCE OVERVIEW
   Widget _attendanceOverview(PayrollDashboardState state) {
+    final table5 = state.payrollDashboardModel?.table5;
+
+    if (table5 == null || table5.isEmpty) {
+      return const SizedBox();
+    }
+
+    final data = table5.first;
     return Container(
       padding: EdgeInsets.all(10),
       margin: EdgeInsets.only(bottom: 10),
@@ -289,17 +304,21 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
           ),
           verticalSpacing(height: 25),
           CommonRadialChart(
-            total: 12,
+            total: data.totalEmployees,
             items: [
               RadialChartItem(
                 title: "Present",
-                value: 9,
+                value: data.presentCount,
                 color: AppColor.primary,
               ),
-              RadialChartItem(title: "Absent", value: 2, color: AppColor.blue),
+              RadialChartItem(
+                title: "Absent",
+                value: data.absentCount,
+                color: AppColor.blue,
+              ),
               RadialChartItem(
                 title: "On Leave",
-                value: 1,
+                value: data.onLeaveCount,
                 color: AppColor.grey50,
               ),
             ],
@@ -427,7 +446,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
           Row(
             children: [
               Text(
-                "Leave Management",
+                "Outdoor Management",
                 style: AppTextStyle.ts14M(color: AppColor.grey),
               ),
             ],
@@ -623,15 +642,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
             ],
           ),
           verticalSpacing(),
-          Center(
-            child: Text(
-              "No Resignation Found",
-              style: AppTextStyle.ts14M(
-                color: AppColor.black.withValues(alpha: 0.5),
-              ),
-            ),
-          ),
-          /*
+
           SizedBox(
             height: 300,
             child: ListView.builder(
@@ -695,7 +706,14 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
               },
             ),
           ),
-          */
+          Center(
+            child: Text(
+              "No Resignation Found",
+              style: AppTextStyle.ts14M(
+                color: AppColor.black.withValues(alpha: 0.5),
+              ),
+            ),
+          ),
         ],
       ),
     );

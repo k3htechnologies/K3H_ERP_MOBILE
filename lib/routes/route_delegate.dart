@@ -19,6 +19,7 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_channel_partner_screen.dart';
+import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
@@ -2956,6 +2957,13 @@ final GoRouter goRouter = GoRouter(
             );
           },
           routes: [
+            GoRoute(
+              name: AppRoutes.channelPartnerDashboard,
+              path: AppRoutes.channelPartnerDashboard,
+              builder: (context, state) {
+                return const ChannelPartnerDashboardScreen();
+              },
+            ),
             GoRoute(
               name: AppRoutes.channelPartner,
               path: AppRoutes.channelPartner,

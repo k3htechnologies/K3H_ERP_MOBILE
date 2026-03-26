@@ -7,6 +7,9 @@ abstract interface class SalesDashboardDatasource {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>> apicallMarkTimeOutEnquiry({
+    required Map<String, dynamic> body,
+  });
 }
 
 class SalesDashboardDatasourceImpl extends SalesDashboardDatasource {
@@ -44,6 +47,32 @@ class SalesDashboardDatasourceImpl extends SalesDashboardDatasource {
           queryParams: queryParams,
           projectId: projectId,
         );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallMarkTimeOutEnquiry({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      String markTimeOutEnquiryUrl = "Enquiry/EnquiryOutTime";
+
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        markTimeOutEnquiryUrl,
+        body,
+      );
+      return {
+        'isSuccess': networkResponse["IsSuccess"],
+        'message':
+            (networkResponse["SuccessMessage"] as List?)?.isNotEmpty == true
+                ? networkResponse["SuccessMessage"][0]
+                : "Success",
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallMarkTimeOutEnquiry(body: body);
       }
       rethrow;
     }

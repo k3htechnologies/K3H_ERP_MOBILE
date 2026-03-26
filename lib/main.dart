@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
+import 'package:k3h_erp_app/firebase_options.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/theme/theme.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -22,8 +23,10 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   // INITIAL SETUP
   await initialSetup();
+  print("the app started");
   // RUN APP
   runApp(const MyApp());
 }
@@ -48,8 +51,11 @@ class MyHttpOverrides extends HttpOverrides {
 }
 
 Future<void> initialSetup() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  try {
+    await initializeApp();
+  } catch (e) {
+    print("Init error: $e");
+  }
   // LOCK ORIENTATION
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   // LOCAL STORAGE
@@ -73,6 +79,17 @@ Future<void> initialSetup() async {
 
   // ROUTING
   GoRouter.optionURLReflectsImperativeAPIs = true;
+}
+
+Future<void> initializeApp() async {
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print("Firebase initialized");
+  } catch (e) {
+    print("Firebase error: $e");
+  }
 }
 
 class MyApp extends StatelessWidget {

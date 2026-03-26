@@ -11,7 +11,6 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -559,7 +558,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                             verticalSpacing(),
                             _caseField(
                               "Hearing Date",
-                              formatDate(item.hearingDate),
+                              formatDateTimeAsDDMMMYYYY(item.hearingDate),
                             ),
                           ],
                         ),
@@ -667,9 +666,18 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                                         "Case No: ${item.caseNumber}",
                                         style: AppTextStyle.ts14M(),
                                       ),
-                                      Text(
-                                        formatDate(item.hearingDate),
-                                        style: AppTextStyle.ts14M(),
+                                      verticalSpacing(),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            formatDateTimeAsDDMMMYYYY(
+                                              item.hearingDate,
+                                            ),
+                                            style: AppTextStyle.ts14M(),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -712,7 +720,9 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                                             color: AppColor.purple,
                                           ),
                                           child: Text(
-                                            "in ${item.daysRemaining} Days",
+                                            item.daysRemaining == 0
+                                                ? "Today"
+                                                : "in ${item.daysRemaining} Days",
                                             style: AppTextStyle.ts14M(
                                               color: AppColor.white,
                                             ),
@@ -952,6 +962,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
         LineChartBarData(
           isCurved: true,
           color: Colors.blue,
+          preventCurveOverShooting: true,
           curveSmoothness: 0.35,
           isStrokeCapRound: true,
           barWidth: 2,
@@ -963,6 +974,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
         LineChartBarData(
           isCurved: true,
           color: Colors.pink,
+          preventCurveOverShooting: true,
           curveSmoothness: 0.35,
           isStrokeCapRound: true,
           barWidth: 2,
@@ -981,27 +993,35 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
         }
         final litigationDashboardModel = state.litigationDashboardModel;
         final table6 = litigationDashboardModel?.table6;
+        List<Map<String, String>> getDocuments(Table6 item) {
+          List<Map<String, String>> docs = [];
 
-        String getDocumentType(Table6 item) {
-          if ((item.closureAttachementUrl).isNotEmpty) {
-            return "Closure Document";
-          } else if ((item.hearingAttachementUrl).isNotEmpty) {
-            return "Hearing Document";
-          } else if ((item.documentUrl).isNotEmpty) {
-            return "Document";
+          if (item.closureAttachementUrl.trim().isNotEmpty) {
+            docs.add({
+              "title": "Closure Document",
+              "url": item.closureAttachementUrl,
+            });
           }
-          return "-";
-        }
 
-        String? getDocumentUrl(Table6 item) {
-          if ((item.closureAttachementUrl).trim().isNotEmpty) {
-            return item.closureAttachementUrl;
-          } else if ((item.hearingAttachementUrl).trim().isNotEmpty) {
-            return item.hearingAttachementUrl;
-          } else if ((item.documentUrl).trim().isNotEmpty) {
-            return item.documentUrl;
+          if (item.hearingAttachementUrl.trim().isNotEmpty) {
+            docs.add({
+              "title": "Hearing Document",
+              "url": item.hearingAttachementUrl,
+            });
           }
-          return null;
+
+          if (item.documentUrl.trim().isNotEmpty) {
+            // ⚠️ handle multiple URLs (comma separated)
+            final urls = item.documentUrl.split(",");
+
+            for (var url in urls) {
+              if (url.trim().isNotEmpty) {
+                docs.add({"title": "Case Document", "url": url.trim()});
+              }
+            }
+          }
+
+          return docs;
         }
 
         return Container(
@@ -1034,6 +1054,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                     itemBuilder: (context, int index) {
                       var item = table6[index];
                       final bool isLast = index == table6.length - 1;
+                      final documents = getDocuments(item);
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1051,22 +1072,48 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                           ),
                           verticalSpacing(height: 9.0),
 
-                          Row(
-                            children: [
-                              Text(
-                                getDocumentType(item),
-                                style: AppTextStyle.ts14M(
-                                  color: AppColor.black.withValues(alpha: 0.5),
-                                ),
-                              ),
-                              horizontalSpacing(),
-                              CustomButton.documentOutline(
-                                onPressed: () {
-                                  final url = getDocumentUrl(item);
-                                  showFilePreviewDialog(context, [url!]);
-                                },
-                              ),
-                            ],
+                          Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            children:
+                                documents.map((doc) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      showFilePreviewDialog(context, [
+                                        doc["url"]!,
+                                      ]);
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 10,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: AppColor.primary,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            doc["title"]!,
+                                            style: AppTextStyle.ts12M(
+                                              color: AppColor.primary,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Icon(
+                                            Icons.remove_red_eye_outlined,
+                                            color: AppColor.primary,
+                                            size: 18,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
                           ),
                           verticalSpacing(height: 9.0),
                           !isLast

@@ -4,6 +4,7 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
+import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner_dashboard.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/repository/channel_partner.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -358,6 +359,32 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
           exportType.toLowerCase() == "pdf"
               ? "channel_partner_${DateTime.now()}.pdf"
               : "channel_partner_${DateTime.now()}.xlsx",
+        );
+      },
+    );
+  }
+
+  // <---- GET CHANNEL PARTNER LIST ---->
+  Future getChannelPartnerDashboardList(BuildContext context) async {
+    emit(state.copyWith(isLoading: true));
+
+    var result =
+        await _channelPartnerRepository.getChannelPartnerDashboardList();
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final ChannelPartnerDashboardModel? model = response['data'];
+
+        emit(
+          state.copyWith(
+            channelPartnerDashboardModel: model,
+            channelPartnerDashboardModelList: model != null ? [model] : [],
+            isLoading: false,
+          ),
         );
       },
     );

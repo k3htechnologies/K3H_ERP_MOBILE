@@ -9,14 +9,9 @@ class CommonRadialChart extends StatelessWidget {
   final List<RadialChartItem> items;
   final int? total;
 
-  const CommonRadialChart({
-    super.key,
-    required this.items,
-    this.total,
-  });
+  const CommonRadialChart({super.key, required this.items, this.total});
 
-  int get calculatedTotal =>
-      total ?? items.fold(0, (sum, e) => sum + e.value);
+  int get calculatedTotal => total ?? items.fold(0, (sum, e) => sum + e.value);
 
   @override
   Widget build(BuildContext context) {
@@ -28,30 +23,27 @@ class CommonRadialChart extends StatelessWidget {
         SizedBox(
           height: 120,
           width: 120,
-          child: CustomPaint(
-            painter: RadialPainter(items: items),
-          ),
+          child: CustomPaint(painter: RadialPainter(items: items)),
         ),
 
         verticalSpacing(height: 12),
 
         Text(
           "Total: $totalValue",
-          style: AppTextStyle.ts12SB(
-            color: AppColor.black,
-          ),
+          style: AppTextStyle.ts12SB(color: AppColor.black),
         ),
 
         verticalSpacing(height: 16),
 
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: items.map((e) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: _legend(e.color, e.value, e.title),
-            );
-          }).toList(),
+          children:
+              items.map((e) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _legend(e.color, e.value, e.title),
+                );
+              }).toList(),
         ),
       ],
     );
@@ -69,14 +61,12 @@ class CommonRadialChart extends StatelessWidget {
           ),
         ),
         horizontalSpacing(width: 8),
-        Text(
-          text,
-          style: AppTextStyle.ts14M(
-            color: color,
-          ),
-        ),
+        Text(text, style: AppTextStyle.ts14M(color: color)),
         Spacer(),
-        Text(value.toString().padLeft(2, '0'), style: AppTextStyle.ts14SB(color: color)),
+        Text(
+          value.toString().padLeft(2, '0'),
+          style: AppTextStyle.ts14SB(color: color),
+        ),
       ],
     );
   }
@@ -100,10 +90,11 @@ class RadialPainter extends CustomPainter {
     final radius = size.width / 2.2;
     final rect = Rect.fromCircle(center: center, radius: radius);
 
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = stroke
-      ..strokeCap = StrokeCap.round;
+    final paint =
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = stroke
+          ..strokeCap = StrokeCap.round;
 
     final gapCount = items.length;
     final usable = 360 - (gapDegrees * gapCount);
@@ -111,8 +102,9 @@ class RadialPainter extends CustomPainter {
     double start = -240;
 
     for (var item in items) {
+      if (item.value <= 0) continue;
       final sweep = (item.value / total) * usable;
-
+      if (sweep <= 0) continue;
       final adjustedSweep = sweep - 4;
 
       paint.color = item.color;

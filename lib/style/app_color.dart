@@ -48,6 +48,7 @@ class AppColor {
   static const Color lightGreen50 = Color(0x7FCFFFCF);
   static const Color red = Color(0xffD60000);
   static const Color lightRed = Color(0xffFEE2E2);
+  static const Color missingInformationRed = Color(0xffE92C2C);
 
   // COMMON
   static const Color cursorColor = Color(0xFF0B3251);
