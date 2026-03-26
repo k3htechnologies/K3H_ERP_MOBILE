@@ -51,7 +51,7 @@ class ApproveRejectWidget extends StatelessWidget {
                 ],
               ),
             ),
-            isActionAlreadyPerformed
+            (isActionAlreadyPerformed && onThirdTap != null)
                 ? Row(
                   children: [
                     CustomIconButton(
@@ -83,11 +83,16 @@ class ApproveRejectWidget extends StatelessWidget {
                       backgroundColor: AppColor.lightRed,
                       icon: Icon(rejectIcon, size: 16, color: AppColor.red),
                     ),
-                    CustomIconButton(
-                      onPressed: onThirdTap!,
+                    if (onThirdTap != null)
+                      CustomIconButton(
+                        onPressed: onThirdTap!,
 
-                      icon: Icon(thirdIcon, size: 16, color: AppColor.primary),
-                    ),
+                        icon: Icon(
+                          thirdIcon,
+                          size: 16,
+                          color: AppColor.primary,
+                        ),
+                      ),
                   ],
                 ),
           ],

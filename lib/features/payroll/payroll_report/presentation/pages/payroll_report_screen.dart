@@ -1,18 +1,14 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/cubit/payroll_report_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/pages/route_map_screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
-import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -47,7 +43,6 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
   // CUBIT
   late PayrollReportCubit _payrollReportCubit;
-  late LoginCubit _loginCubit;
 
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
@@ -61,26 +56,35 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   // ATTENDANCE PAGINATION
   late ScrollController _attendanceScrollController;
   Timer? _attendanceDebounce;
+  // REGULARIZATION PAGINATION
+  late ScrollController _regularizationReportController;
+  late ScrollController _regularizationApprovalController;
+  Timer? _regularizationReportDebounce;
+  Timer? _regularizationApprovalDebounce;
 
-  //COMPOFF PAGINATION
-  late ScrollController _regularizationScrollerController;
-  Timer? _regurizationDebounce;
-
-  //COMPOFF PAGINATION
-  late ScrollController _compOffScrollerController;
-  Timer? _compOffDebounce;
+  // COMPOFF PAGINATION
+  late ScrollController _compOffReportController;
+  late ScrollController _compOffApprovalController;
+  Timer? _compOffReportDebounce;
+  Timer? _compOffApprovalDebounce;
 
   // LEAVE PAGINATION
-  late ScrollController _leaveScrollController;
-  Timer? _leaveDebounce;
+  late ScrollController _leaveReportController;
+  late ScrollController _leaveApprovalController;
+  Timer? _leaveReportDebounce;
+  Timer? _leaveApprovalDebounce;
 
   // OUTDOOR PAGINATION
-  late ScrollController _outdoorScrollController;
-  Timer? _outdoorDebounce;
+  late ScrollController _outdoorReportController;
+  late ScrollController _outdoorApprovalController;
+  Timer? _outdoorReportDebounce;
+  Timer? _outdoorApprovalDebounce;
 
   // RESIGNATION PAGINATION
-  late ScrollController _resignationScrollController;
-  Timer? _resignationDebounce;
+  late ScrollController _resignationReportController;
+  late ScrollController _resignationApprovalController;
+  Timer? _resignationReportDebounce;
+  Timer? _resignationApprovalDebounce;
 
   // FILTER
   final ValueNotifier<DateTime?> _startDateNotifier = ValueNotifier<DateTime?>(
@@ -93,13 +97,15 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   @override
   void initState() {
     super.initState();
+
     _project = getProject();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.payrollReport]!;
     _payrollReportCubit = context.read<PayrollReportCubit>();
-    _loginCubit = context.read<LoginCubit>();
     _searchC = TextEditingController();
     _selectedDateNotifier = ValueNotifier(DateTime.now());
+
+    // TAB CONTROLLERS
     _tabController = TabController(length: 6, vsync: this);
     _regularizationTabController = TabController(length: 2, vsync: this);
     _compOffTabController = TabController(length: 2, vsync: this);
@@ -107,31 +113,147 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     _outdoorTabController = TabController(length: 2, vsync: this);
     _resignationTabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
+
+    // SCROLL CONTROLLERS
     _attendanceScrollController = ScrollController();
-    _regularizationScrollerController = ScrollController();
-    _compOffScrollerController = ScrollController();
-    _leaveScrollController = ScrollController();
-    _outdoorScrollController = ScrollController();
-    _resignationScrollController = ScrollController();
-    _setupAttendancePagination();
-    _setupRegularizationPagination();
-    _setupCompOffPagination();
-    _setupLeavePagination();
-    _setupOutdoorPagination();
-    _setupResignationPagination();
+
+    // Report & Approval ScrollControllers
+    _regularizationReportController = ScrollController();
+    _regularizationApprovalController = ScrollController();
+
+    _compOffReportController = ScrollController();
+    _compOffApprovalController = ScrollController();
+
+    _leaveReportController = ScrollController();
+    _leaveApprovalController = ScrollController();
+
+    _outdoorReportController = ScrollController();
+    _outdoorApprovalController = ScrollController();
+
+    _resignationReportController = ScrollController();
+    _resignationApprovalController = ScrollController();
+
+    // Attach all pagination listeners
+    _initializePagination();
+
+    // Selected date listener
     _selectedDateNotifier.addListener(_onSelectedDateChanged);
+
+    // Load data for the default tab
     _loadDataForTab(_tabController.index);
 
+    // Attach inner tab listeners
+    _initializeInnerTabListeners();
+  }
+
+  /// Initializes pagination listeners for both reports and approvals
+  void _initializePagination() {
+    _setupAttendancePagination();
+
+    // REGULARIZATION
+    _setupRegularizationPagination();
+    _setupRegularizationApprovalPagination();
+
+    // COMPOFF
+    _setupCompOffPagination();
+    _setupCompOffApprovalPagination();
+
+    // LEAVE
+    _setupLeavePagination();
+    _setupLeaveApprovalPagination();
+
+    // OUTDOOR
+    _setupOutdoorPagination();
+    _setupOutdoorApprovalPagination();
+
+    // RESIGNATION
+    _setupResignationPagination();
+    _setupResignationApprovalPagination();
+  }
+
+  /// Initializes inner tab listeners for all sections
+  void _initializeInnerTabListeners() {
+    // LEAVE
     _leaveTabController.addListener(() {
       if (!_leaveTabController.indexIsChanging) {
-        _payrollReportCubit.onLeaveInnerTabChanged(_leaveTabController.index);
+        final innerIndex = _leaveTabController.index;
+        _payrollReportCubit.onLeaveInnerTabChanged(innerIndex);
+        final date = _selectedDateNotifier.value;
+
+        _payrollReportCubit.getLeaveList(
+          context: context,
+          pageNumber: 1,
+          startDate: date,
+          endDate: date,
+          canApprove: innerIndex == 1,
+        );
       }
     });
 
+    // COMPOFF
     _compOffTabController.addListener(() {
       if (!_compOffTabController.indexIsChanging) {
-        _payrollReportCubit.onCompOffInnerTabChanged(
-          _compOffTabController.index,
+        final innerIndex = _compOffTabController.index;
+        _payrollReportCubit.onCompOffInnerTabChanged(innerIndex);
+        final date = _selectedDateNotifier.value;
+
+        _payrollReportCubit.getCompOffList(
+          context: context,
+          pageNumber: 1,
+          startDate: date,
+          endDate: date,
+          canApprove: innerIndex == 1,
+        );
+      }
+    });
+
+    // REGULARIZATION
+    _regularizationTabController.addListener(() {
+      if (!_regularizationTabController.indexIsChanging) {
+        final innerIndex = _regularizationTabController.index;
+        _payrollReportCubit.onRegularizationInnerTabChanged(innerIndex);
+        final date = _selectedDateNotifier.value;
+
+        _payrollReportCubit.getAttendanceRegularizationList(
+          context: context,
+          pageNumber: 1,
+          startDate: date,
+          endDate: date,
+          canApprove: innerIndex == 1,
+        );
+      }
+    });
+
+    // OUTDOOR
+    _outdoorTabController.addListener(() {
+      if (!_outdoorTabController.indexIsChanging) {
+        final innerIndex = _outdoorTabController.index;
+        _payrollReportCubit.onOutdoorInnerTabChanged(innerIndex);
+        final date = _selectedDateNotifier.value;
+
+        _payrollReportCubit.getOutdoorList(
+          context: context,
+          pageNumber: 1,
+          startDate: date,
+          endDate: date,
+          canApprove: innerIndex == 1,
+        );
+      }
+    });
+
+    // RESIGNATION
+    _resignationTabController.addListener(() {
+      if (!_resignationTabController.indexIsChanging) {
+        final innerIndex = _resignationTabController.index;
+        _payrollReportCubit.onResignationInnerTabChanged(innerIndex);
+        final date = _selectedDateNotifier.value;
+
+        _payrollReportCubit.getResignationList(
+          context: context,
+          pageNumber: 1,
+          startDate: date,
+          endDate: date,
+          canApprove: innerIndex == 1,
         );
       }
     });
@@ -140,20 +262,50 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   @override
   void dispose() {
     _selectedDateNotifier.removeListener(_onSelectedDateChanged);
+
+    // Dispose TabControllers
     _tabController.dispose();
+    _regularizationTabController.dispose();
+    _compOffTabController.dispose();
+    _leaveTabController.dispose();
+    _outdoorTabController.dispose();
+    _resignationTabController.dispose();
+
+    // Dispose TextControllers
     _searchC.dispose();
     _selectedDateNotifier.dispose();
+
+    // Cancel Debounce timers
     _attendanceDebounce?.cancel();
-    _leaveDebounce?.cancel();
-    _outdoorDebounce?.cancel();
-    _resignationDebounce?.cancel();
+    _regularizationReportDebounce?.cancel();
+    _regularizationApprovalDebounce?.cancel();
+    _compOffReportDebounce?.cancel();
+    _compOffApprovalDebounce?.cancel();
+    _leaveReportDebounce?.cancel();
+    _leaveApprovalDebounce?.cancel();
+    _outdoorReportDebounce?.cancel();
+    _outdoorApprovalDebounce?.cancel();
+    _resignationReportDebounce?.cancel();
+    _resignationApprovalDebounce?.cancel();
+
+    // Dispose ScrollControllers
     _attendanceScrollController.dispose();
-    _leaveScrollController.dispose();
-    _outdoorScrollController.dispose();
-    _resignationScrollController.dispose();
-    super.dispose();
+    _regularizationReportController.dispose();
+    _regularizationApprovalController.dispose();
+    _compOffReportController.dispose();
+    _compOffApprovalController.dispose();
+    _leaveReportController.dispose();
+    _leaveApprovalController.dispose();
+    _outdoorReportController.dispose();
+    _outdoorApprovalController.dispose();
+    _resignationReportController.dispose();
+    _resignationApprovalController.dispose();
+
+    // Dispose Date filters
     _startDateNotifier.dispose();
     _endDateNotifier.dispose();
+
+    super.dispose();
   }
 
   // HANDLE TAB CHANGE
@@ -194,43 +346,65 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         );
         break;
       case 1:
-        _payrollReportCubit.getAttendanceRegularizationList(
-          context,
-          1,
-          startDate: date,
-          endDate: date,
-        );
+        if (!_regularizationTabController.indexIsChanging) {
+          _payrollReportCubit.getAttendanceRegularizationList(
+            context: context,
+            pageNumber: 1,
+
+            startDate: date,
+            endDate: date,
+            canApprove: _regularizationTabController.index == 1,
+          );
+        }
+        break;
       case 2:
-        _payrollReportCubit.getCompOffList(
-          context,
-          1,
-          startDate: date,
-          endDate: date,
-        );
+        if (!_compOffTabController.indexIsChanging) {
+          _payrollReportCubit.getCompOffList(
+            context: context,
+            pageNumber: 1,
+
+            startDate: date,
+            endDate: date,
+            canApprove: _compOffTabController.index == 1,
+          );
+        }
+        break;
 
       case 3:
-        _payrollReportCubit.getLeaveList(
-          context: context,
-          pageNumber: 1,
-          startDate: date,
-          endDate: date,
-        );
+        if (!_leaveTabController.indexIsChanging) {
+          _payrollReportCubit.getLeaveList(
+            context: context,
+            pageNumber: 1,
+
+            startDate: date,
+            endDate: date,
+            canApprove: _leaveTabController.index == 1,
+          );
+        }
         break;
       case 4:
-        _payrollReportCubit.getOutdoorList(
-          context,
-          1,
-          startDate: date,
-          endDate: date,
-        );
+        if (!_outdoorTabController.indexIsChanging) {
+          _payrollReportCubit.getOutdoorList(
+            context: context,
+            pageNumber: 1,
+
+            startDate: date,
+            endDate: date,
+            canApprove: _outdoorTabController.index == 1,
+          );
+        }
         break;
       case 5:
-        _payrollReportCubit.getResignationList(
-          context,
-          1,
-          startDate: date,
-          endDate: date,
-        );
+        if (!_resignationTabController.indexIsChanging) {
+          _payrollReportCubit.getResignationList(
+            context: context,
+            pageNumber: 1,
+
+            startDate: date,
+            endDate: date,
+            canApprove: _resignationTabController.index == 1,
+          );
+        }
         break;
       default:
         break;
@@ -240,6 +414,8 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   // LOAD DATA BASED ON CURRENT TAB
   void _loadDataForTab(int index) {
     final date = _selectedDateNotifier.value;
+    _payrollReportCubit.resetApprovalTab();
+
     switch (index) {
       case 0: // Attendance
         if (_payrollReportCubit.state.attendanceList.isEmpty) {
@@ -252,55 +428,59 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           );
         }
         break;
-      case 1: // Regularize
-        if (_payrollReportCubit.state.regularizationList.isEmpty) {
-          _payrollReportCubit.getAttendanceRegularizationList(
-            context,
-            1,
-            startDate: date,
-            endDate: date,
-          );
-        }
+
+      case 1: // REGULARIZE
+        _regularizationTabController.index = 0;
+        _payrollReportCubit.getAttendanceRegularizationList(
+          context: context,
+          pageNumber: 1,
+          startDate: date,
+          endDate: date,
+        );
         break;
-      case 2: //Comp Off
-        if (_payrollReportCubit.state.compOffList.isEmpty) {
-          _payrollReportCubit.getCompOffList(
-            context,
-            1,
-            startDate: date,
-            endDate: date,
-          );
-        }
+
+      case 2: // Comp Off
+        _compOffTabController.index = 0;
+        _payrollReportCubit.getCompOffList(
+          context: context,
+          pageNumber: 1,
+
+          startDate: date,
+          endDate: date,
+        );
         break;
+
       case 3: // Leave
+        _leaveTabController.index = 0;
         _payrollReportCubit.getLeaveList(
           context: context,
           pageNumber: 1,
           startDate: date,
           endDate: date,
         );
+        break;
 
-        break;
       case 4: // Outdoor
-        if (_payrollReportCubit.state.outdoorList.isEmpty) {
-          _payrollReportCubit.getOutdoorList(
-            context,
-            1,
-            startDate: date,
-            endDate: date,
-          );
-        }
+        _outdoorTabController.index = 0;
+        _payrollReportCubit.getOutdoorList(
+          context: context,
+          pageNumber: 1,
+          startDate: date,
+          endDate: date,
+        );
         break;
+
       case 5: // Resignation
-        if (_payrollReportCubit.state.resignationList.isEmpty) {
-          _payrollReportCubit.getResignationList(
-            context,
-            1,
-            startDate: date,
-            endDate: date,
-          );
-        }
+        _resignationTabController.index = 0;
+        _payrollReportCubit.getResignationList(
+          context: context,
+          pageNumber: 1,
+
+          startDate: date,
+          endDate: date,
+        );
         break;
+
       default:
         break;
     }
@@ -333,44 +513,47 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
   // <---- REGULARIZATION PAGINATION ---->
   void _setupRegularizationPagination() {
-    _regularizationScrollerController.addListener(() {
+    _regularizationReportController.addListener(() {
       final state = _payrollReportCubit.state;
-      if (_regularizationScrollerController.position.pixels >=
-              _regularizationScrollerController.position.maxScrollExtent -
-                  100 &&
+      if (_regularizationReportController.position.pixels >=
+              _regularizationReportController.position.maxScrollExtent - 100 &&
           !(state.isLoading ?? false) &&
           state.regularizationList.length <
               state.totalNumberOfRecordRegurization) {
-        if (_regurizationDebounce?.isActive ?? false) {
-          _regurizationDebounce?.cancel();
+        if (_regularizationReportDebounce?.isActive ?? false) {
+          _regularizationReportDebounce?.cancel();
         }
         final date = _selectedDateNotifier.value;
-        _regurizationDebounce = Timer(const Duration(milliseconds: 300), () {
-          _payrollReportCubit.getAttendanceRegularizationList(
-            context,
-            state.currentPageRegurization + 1,
-            startDate: date,
-            endDate: date,
-          );
-        });
+        _regularizationReportDebounce = Timer(
+          const Duration(milliseconds: 300),
+          () {
+            _payrollReportCubit.getAttendanceRegularizationList(
+              context: context,
+              pageNumber: state.currentPageRegurization + 1,
+              startDate: date,
+              endDate: date,
+            );
+          },
+        );
       }
     });
   }
 
   // <---- COMPOFF PAGINATION ---->
   void _setupCompOffPagination() {
-    _compOffScrollerController.addListener(() {
+    _compOffReportController.addListener(() {
       final state = _payrollReportCubit.state;
-      if (_compOffScrollerController.position.pixels >=
-              _compOffScrollerController.position.maxScrollExtent - 100 &&
+      if (_compOffReportController.position.pixels >=
+              _compOffReportController.position.maxScrollExtent - 100 &&
           !(state.isLoading ?? false) &&
           state.compOffList.length < state.totalNumberOfRecordCompOff) {
-        if (_compOffDebounce?.isActive ?? false) _compOffDebounce?.cancel();
+        if (_compOffReportDebounce?.isActive ?? false)
+          _compOffReportDebounce?.cancel();
         final date = _selectedDateNotifier.value;
-        _compOffDebounce = Timer(const Duration(milliseconds: 300), () {
+        _compOffReportDebounce = Timer(const Duration(milliseconds: 300), () {
           _payrollReportCubit.getCompOffList(
-            context,
-            state.currentPageCompOff + 1,
+            context: context,
+            pageNumber: state.currentPageCompOff + 1,
             startDate: date,
             endDate: date,
           );
@@ -381,15 +564,16 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
   // <---- LEAVE PAGINATION ---->
   void _setupLeavePagination() {
-    _leaveScrollController.addListener(() {
+    _leaveReportController.addListener(() {
       final state = _payrollReportCubit.state;
-      if (_leaveScrollController.position.pixels >=
-              _leaveScrollController.position.maxScrollExtent - 100 &&
+      if (_leaveReportController.position.pixels >=
+              _leaveReportController.position.maxScrollExtent - 100 &&
           !(state.isLoading ?? false) &&
           state.leaveList.length < state.totalNumberOfRecordLeave) {
-        if (_leaveDebounce?.isActive ?? false) _leaveDebounce?.cancel();
+        if (_leaveReportDebounce?.isActive ?? false)
+          _leaveReportDebounce?.cancel();
         final date = _selectedDateNotifier.value;
-        _leaveDebounce = Timer(const Duration(milliseconds: 300), () {
+        _leaveReportDebounce = Timer(const Duration(milliseconds: 300), () {
           _payrollReportCubit.getLeaveList(
             context: context,
             pageNumber: state.currentPageLeave + 1,
@@ -403,19 +587,20 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
   // <---- OUTDOOR PAGINATION ---->
   void _setupOutdoorPagination() {
-    _outdoorScrollController.addListener(() {
+    _outdoorReportController.addListener(() {
       final state = _payrollReportCubit.state;
-      if (_outdoorScrollController.position.pixels >=
-              _outdoorScrollController.position.maxScrollExtent - 100 &&
+      if (_outdoorReportController.position.pixels >=
+              _outdoorReportController.position.maxScrollExtent - 100 &&
           !(state.isLoading ?? false) &&
           state.outdoorList.length < state.totalNumberOfRecordOutdoor) {
         // TO HANDLE MULTIPLE TIME API CALLS
-        if (_outdoorDebounce?.isActive ?? false) _outdoorDebounce?.cancel();
+        if (_outdoorReportDebounce?.isActive ?? false)
+          _outdoorReportDebounce?.cancel();
         final date = _selectedDateNotifier.value;
-        _outdoorDebounce = Timer(const Duration(milliseconds: 300), () {
+        _outdoorReportDebounce = Timer(const Duration(milliseconds: 300), () {
           _payrollReportCubit.getOutdoorList(
-            context,
-            state.currentPageOutdoor + 1,
+            context: context,
+            pageNumber: state.currentPageOutdoor + 1,
             startDate: date,
             endDate: date,
           );
@@ -426,24 +611,159 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
   // <---- RESIGNATION PAGINATION ---->
   void _setupResignationPagination() {
-    _resignationScrollController.addListener(() {
+    _resignationReportController.addListener(() {
       final state = _payrollReportCubit.state;
-      if (_resignationScrollController.position.pixels >=
-              _resignationScrollController.position.maxScrollExtent - 100 &&
+      if (_resignationReportController.position.pixels >=
+              _resignationReportController.position.maxScrollExtent - 100 &&
           !(state.isLoading ?? false) &&
           state.resignationList.length < state.totalNumberOfRecordResignation) {
-        if (_resignationDebounce?.isActive ?? false) {
-          _resignationDebounce?.cancel();
+        if (_resignationReportDebounce?.isActive ?? false) {
+          _resignationReportDebounce?.cancel();
         }
         final date = _selectedDateNotifier.value;
-        _resignationDebounce = Timer(const Duration(milliseconds: 300), () {
-          _payrollReportCubit.getResignationList(
-            context,
-            state.currentPageResignation + 1,
+        _resignationReportDebounce = Timer(
+          const Duration(milliseconds: 300),
+          () {
+            _payrollReportCubit.getResignationList(
+              context: context,
+              pageNumber: state.currentPageResignation + 1,
+              startDate: date,
+              endDate: date,
+            );
+          },
+        );
+      }
+    });
+  }
+
+  // <---- LEAVE APPROVAL PAGINATION ---->
+  void _setupLeaveApprovalPagination() {
+    _leaveApprovalController.addListener(() {
+      final state = _payrollReportCubit.state;
+      if (_leaveApprovalController.position.pixels >=
+              _leaveApprovalController.position.maxScrollExtent - 100 &&
+          !(state.isLoading ?? false) &&
+          state.approvalLeaveList.length <
+              state.totalNumberOfRecordApprovalLeave) {
+        if (_leaveApprovalDebounce?.isActive ?? false)
+          _leaveApprovalDebounce?.cancel();
+        final date = _selectedDateNotifier.value;
+        _leaveApprovalDebounce = Timer(const Duration(milliseconds: 300), () {
+          _payrollReportCubit.getLeaveList(
+            context: context,
+            pageNumber: state.currentPageApprovalLeave + 1,
             startDate: date,
             endDate: date,
+            canApprove: true,
           );
         });
+      }
+    });
+  }
+
+  // <---- COMPOFF APPROVAL PAGINATION ---->
+  void _setupCompOffApprovalPagination() {
+    _compOffApprovalController.addListener(() {
+      final state = _payrollReportCubit.state;
+      if (_compOffApprovalController.position.pixels >=
+              _compOffApprovalController.position.maxScrollExtent - 100 &&
+          !(state.isLoading ?? false) &&
+          state.approvalCompOffList.length <
+              state.totalNumberOfRecordApprovalCompOff) {
+        if (_compOffApprovalDebounce?.isActive ?? false)
+          _compOffApprovalDebounce?.cancel();
+        final date = _selectedDateNotifier.value;
+        _compOffApprovalDebounce = Timer(const Duration(milliseconds: 300), () {
+          _payrollReportCubit.getCompOffList(
+            context: context,
+            pageNumber: state.currentPageApprovalCompOff + 1,
+            startDate: date,
+            endDate: date,
+            canApprove: true,
+          );
+        });
+      }
+    });
+  }
+
+  // <---- OUTDOOR APPROVAL PAGINATION ---->
+  void _setupOutdoorApprovalPagination() {
+    _outdoorApprovalController.addListener(() {
+      final state = _payrollReportCubit.state;
+      if (_outdoorApprovalController.position.pixels >=
+              _outdoorApprovalController.position.maxScrollExtent - 100 &&
+          !(state.isLoading ?? false) &&
+          state.approvalOutdoorList.length <
+              state.totalNumberOfRecordApprovalOutdoor) {
+        if (_outdoorApprovalDebounce?.isActive ?? false)
+          _outdoorApprovalDebounce?.cancel();
+        final date = _selectedDateNotifier.value;
+        _outdoorApprovalDebounce = Timer(const Duration(milliseconds: 300), () {
+          _payrollReportCubit.getOutdoorList(
+            context: context,
+            pageNumber: state.currentPageApprovalOutdoor + 1,
+            startDate: date,
+            endDate: date,
+            canApprove: true,
+          );
+        });
+      }
+    });
+  }
+
+  // <---- RESIGNATION APPROVAL PAGINATION ---->
+  void _setupResignationApprovalPagination() {
+    _resignationApprovalController.addListener(() {
+      final state = _payrollReportCubit.state;
+      if (_resignationApprovalController.position.pixels >=
+              _resignationApprovalController.position.maxScrollExtent - 100 &&
+          !(state.isLoading ?? false) &&
+          state.approvalResignationList.length <
+              state.totalNumberOfRecordApprovalResignation) {
+        if (_resignationApprovalDebounce?.isActive ?? false)
+          _resignationApprovalDebounce?.cancel();
+        final date = _selectedDateNotifier.value;
+        _resignationApprovalDebounce = Timer(
+          const Duration(milliseconds: 300),
+          () {
+            _payrollReportCubit.getResignationList(
+              context: context,
+              pageNumber: state.currentPageApprovalResignation + 1,
+              startDate: date,
+              endDate: date,
+              canApprove: true,
+            );
+          },
+        );
+      }
+    });
+  }
+
+  // <---- REGULARIZATION APPROVAL PAGINATION ---->
+  void _setupRegularizationApprovalPagination() {
+    _regularizationApprovalController.addListener(() {
+      final state = _payrollReportCubit.state;
+      if (_regularizationApprovalController.position.pixels >=
+              _regularizationApprovalController.position.maxScrollExtent -
+                  100 &&
+          !(state.isLoading ?? false) &&
+          state.approvalRegularizationList.length <
+              state.totalNumberOfRecordApprovalRegularization) {
+        if (_regularizationApprovalDebounce?.isActive ?? false)
+          _regularizationApprovalDebounce?.cancel();
+        final date = _selectedDateNotifier.value;
+        _regularizationApprovalDebounce = Timer(
+          const Duration(milliseconds: 300),
+          () {
+            _payrollReportCubit.getAttendanceRegularizationList(
+              context: context,
+              pageNumber: state.currentPageApprovalRegularization + 1,
+              startDate: date,
+              endDate: date,
+              canApprove: true,
+            );
+          },
+        );
       }
     });
   }
@@ -572,8 +892,11 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     );
   }
 
+  final bool isActionAllowed = false;
+
   @override
   Widget build(BuildContext context) {
+    isActionAllowed == _routeAuthorizationModel.isAction;
     return Scaffold(
       backgroundColor: AppColor.white,
       appBar: CustomAppBar(
@@ -1132,96 +1455,288 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   Widget buildRegularizeSection() {
     return BlocBuilder<PayrollReportCubit, PayrollReportState>(
       builder: (context, state) {
-        final isLoading = state.isLoading ?? true;
+        return Column(
+          children: [
+            // APPROVE/REJECT WIDGET ON APPROVAL TAB
+            if (state.regularizationInnerTabIndex == 1) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: ApproveRejectWidget(
+                  title: "Pending",
+                  isActionAlreadyPerformed: !isActionAllowed,
+                  isMaster: true,
+                  onApprove: (val) async {
+                    await _payrollReportCubit.approveRejectSelected(
+                      context: context,
+                      isApproved: true,
+                      remark: val.trim(),
+                      projectId: _project.projectId,
+                    );
+                  },
+                  onReject: (val) async {
+                    await _payrollReportCubit.approveRejectSelected(
+                      context: context,
+                      isApproved: false,
+                      remark: val.trim(),
+                      projectId: _project.projectId,
+                    );
+                  },
+                ),
+              ),
+              verticalSpacing(),
+            ],
 
-        if (isLoading && state.regularizationList.isEmpty) {
-          return Center(child: loader());
-        }
+            // INNER TAB BAR
+            ChipStyleTabBar(
+              controller: _regularizationTabController,
+              isSecondaryStyle: true,
+              tabs: ['Report', 'Approval'],
+            ),
 
-        if (state.regularizationList.isEmpty) {
-          return Center(child: noDataWidget());
-        }
-
-        return ListView.builder(
-          controller: _regularizationScrollerController,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          itemCount: state.regularizationList.length + 1,
-          itemBuilder: (context, index) {
-            if (index == state.regularizationList.length) {
-              return state.regularizationList.length <
-                      state.totalNumberOfRecordRegurization
-                  ? const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                  : const SizedBox.shrink();
-            }
-
-            final attendanceRegularize = state.regularizationList[index];
-
-            return Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.all(12),
-              decoration: commonCardDecoration(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            // TABBAR VIEW
+            Expanded(
+              child: TabBarView(
+                controller: _regularizationTabController,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Employee Name",
-                            style: AppTextStyle.ts16M(),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            "Designation",
-                            style: AppTextStyle.ts14M(color: AppColor.grey),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                      _statusButton(''),
-                    ],
+                  // REPORT TAB
+                  Builder(
+                    builder: (context) {
+                      final isLoading = state.isLoading ?? true;
+
+                      if (isLoading && state.regularizationList.isEmpty) {
+                        return Center(child: loader());
+                      }
+
+                      if (state.regularizationList.isEmpty) {
+                        return Center(child: noDataWidget());
+                      }
+
+                      return ListView.builder(
+                        controller: _regularizationReportController,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        itemCount: state.regularizationList.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == state.regularizationList.length) {
+                            return state.regularizationList.length <
+                                    state.totalNumberOfRecordRegurization
+                                ? const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                                : const SizedBox.shrink();
+                          }
+
+                          final reg = state.regularizationList[index];
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(12),
+                            decoration: commonCardDecoration(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Employee Name",
+                                          style: AppTextStyle.ts16M(),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        Text(
+                                          "Designation",
+                                          style: AppTextStyle.ts14M(
+                                            color: AppColor.grey,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                    _statusButton(''),
+                                  ],
+                                ),
+                                verticalSpacing(height: 10),
+                                buildRowTitleValue(
+                                  title: "Punch In",
+                                  value:
+                                      reg.punchIn != null
+                                          ? DateFormat(
+                                            'hh:mm a',
+                                          ).format(reg.punchIn!)
+                                          : "-",
+                                ),
+                                buildRowTitleValue(
+                                  title: "Punch Out",
+                                  value:
+                                      reg.punchOut != null
+                                          ? DateFormat(
+                                            'hh:mm a',
+                                          ).format(reg.punchOut!)
+                                          : "-",
+                                ),
+                                buildRowTitleValue(
+                                  title: "Date",
+                                  value: formatDateTimeAsDDMMMYYYY(
+                                    reg.attendanceDate,
+                                  ),
+                                ),
+                                buildRowTitleValue(
+                                  title: "Reason",
+                                  value: reg.reason ?? "-",
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
-                  verticalSpacing(height: 10),
-                  buildRowTitleValue(
-                    title: "Punch In",
-                    value:
-                        attendanceRegularize.punchIn != null
-                            ? DateFormat(
-                              'hh:mm a',
-                            ).format(attendanceRegularize.punchIn!)
-                            : "-",
-                  ),
-                  buildRowTitleValue(
-                    title: "Punch Out",
-                    value:
-                        attendanceRegularize.punchOut != null
-                            ? DateFormat(
-                              'hh:mm a',
-                            ).format(attendanceRegularize.punchOut!)
-                            : "-",
-                  ),
-                  buildRowTitleValue(
-                    title: "Date",
-                    value: formatDateTimeAsDDMMMYYYY(
-                      attendanceRegularize.attendanceDate,
-                    ),
-                  ),
-                  buildRowTitleValue(
-                    title: "Reason",
-                    value: attendanceRegularize.reason,
+
+                  // APPROVAL TAB
+                  Builder(
+                    builder: (context) {
+                      final isLoading = state.isLoading ?? true;
+
+                      if (isLoading &&
+                          state.approvalRegularizationList.isEmpty) {
+                        return Center(child: loader());
+                      }
+
+                      if (state.approvalRegularizationList.isEmpty) {
+                        return Center(child: noDataWidget());
+                      }
+
+                      return ListView.builder(
+                        controller: _regularizationReportController,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        itemCount: state.approvalRegularizationList.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index ==
+                              state.approvalRegularizationList.length) {
+                            return state.approvalRegularizationList.length <
+                                    state
+                                        .totalNumberOfRecordApprovalRegularization
+                                ? const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                                : const SizedBox.shrink();
+                          }
+
+                          final reg = state.approvalRegularizationList[index];
+
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Checkbox(
+                                value: state.selectedRegularizationIds.contains(
+                                  reg.attendanceRegularizationId,
+                                ),
+                                onChanged: (_) {
+                                  _payrollReportCubit.toggleSelection(
+                                    id: reg.attendanceRegularizationId,
+                                    listLength:
+                                        state.approvalRegularizationList.length,
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 10),
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: commonCardDecoration(),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Employee Name",
+                                                style: AppTextStyle.ts16M(),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              Text(
+                                                "Designation",
+                                                style: AppTextStyle.ts14M(
+                                                  color: AppColor.grey,
+                                                ),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ],
+                                          ),
+                                          _statusButton(''),
+                                        ],
+                                      ),
+                                      verticalSpacing(height: 10),
+                                      buildRowTitleValue(
+                                        title: "Punch In",
+                                        value:
+                                            reg.punchIn != null
+                                                ? DateFormat(
+                                                  'hh:mm a',
+                                                ).format(reg.punchIn!)
+                                                : "-",
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Punch Out",
+                                        value:
+                                            reg.punchOut != null
+                                                ? DateFormat(
+                                                  'hh:mm a',
+                                                ).format(reg.punchOut!)
+                                                : "-",
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Date",
+                                        value: formatDateTimeAsDDMMMYYYY(
+                                          reg.attendanceDate,
+                                        ),
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Reason",
+                                        value: reg.reason ?? "-",
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   ),
                 ],
               ),
-            );
-          },
+            ),
+          ],
         );
       },
     );
@@ -1231,77 +1746,256 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   Widget buildCompOffSection() {
     return BlocBuilder<PayrollReportCubit, PayrollReportState>(
       builder: (context, state) {
-        final isLoading = state.isLoading ?? true;
-
-        if (isLoading && state.compOffList.isEmpty) {
-          return Center(child: loader());
-        }
-
-        if (state.compOffList.isEmpty) {
-          return Center(child: noDataWidget());
-        }
-
-        return ListView.builder(
-          controller: _compOffScrollerController,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          itemCount: state.compOffList.length + 1,
-          itemBuilder: (context, index) {
-            if (index == state.compOffList.length) {
-              return state.compOffList.length < state.totalNumberOfRecordCompOff
-                  ? const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                  : const SizedBox.shrink();
-            }
-
-            final compOff = state.compOffList[index];
-
-            return Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.all(12),
-              decoration: commonCardDecoration(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        return Column(
+          children: [
+            if (state.compOffInnerTabIndex == 1) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: ApproveRejectWidget(
+                  title: "Pending",
+                  isActionAlreadyPerformed: !isActionAllowed,
+                  isMaster: true,
+                  onApprove: (val) async {
+                    await _payrollReportCubit.approveRejectSelected(
+                      context: context,
+                      isApproved: true,
+                      remark: val.trim(),
+                      projectId: _project.projectId,
+                    );
+                  },
+                  onReject: (val) async {
+                    await _payrollReportCubit.approveRejectSelected(
+                      context: context,
+                      isApproved: false,
+                      remark: val.trim(),
+                      projectId: _project.projectId,
+                    );
+                  },
+                ),
+              ),
+              verticalSpacing(),
+            ],
+            ChipStyleTabBar(
+              controller: _compOffTabController,
+              isSecondaryStyle: true,
+              tabs: ['Report', 'Approval'],
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: _compOffTabController,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: ListTile(
-                          leading: NetworkImageWidget(
-                            imageUrl:
-                                "https://plus.unsplash.com/premium_photo-1667358091118-29e916ddbcc5?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fGh1c2t5fGVufDB8fDB8fHww",
-                            width: 30,
-                            height: 30,
-                            fit: BoxFit.cover,
-                            borderRadius: BorderRadius.circular(55),
-                          ),
-                          title: Text('Employee Name'),
-                          subtitle: Text(
-                            "Designation",
-                            style: AppTextStyle.ts14M(color: AppColor.grey),
-                          ),
-                          contentPadding: EdgeInsets.zero,
+                  // REPORT
+                  Builder(
+                    builder: (context) {
+                      final isLoading = state.isLoading ?? true;
+
+                      if (isLoading && state.compOffList.isEmpty) {
+                        return Center(child: loader());
+                      }
+
+                      if (state.compOffList.isEmpty) {
+                        return Center(child: noDataWidget());
+                      }
+
+                      return ListView.builder(
+                        controller: _compOffReportController,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
                         ),
-                      ),
-                      _statusButton(''),
-                    ],
+                        itemCount: state.compOffList.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == state.compOffList.length) {
+                            return state.compOffList.length <
+                                    state.totalNumberOfRecordCompOff
+                                ? const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                                : const SizedBox.shrink();
+                          }
+
+                          final compOff = state.compOffList[index];
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(12),
+                            decoration: commonCardDecoration(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: ListTile(
+                                        leading: NetworkImageWidget(
+                                          imageUrl:
+                                              "https://plus.unsplash.com/premium_photo-1667358091118-29e916ddbcc5?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fGh1c2t5fGVufDB8fDB8fHww",
+                                          width: 30,
+                                          height: 30,
+                                          fit: BoxFit.cover,
+                                          borderRadius: BorderRadius.circular(
+                                            55,
+                                          ),
+                                        ),
+                                        title: Text('Employee Name'),
+                                        subtitle: Text(
+                                          "Designation",
+                                          style: AppTextStyle.ts14M(
+                                            color: AppColor.grey,
+                                          ),
+                                        ),
+                                        contentPadding: EdgeInsets.zero,
+                                      ),
+                                    ),
+                                    _statusButton(''),
+                                  ],
+                                ),
+                                verticalSpacing(height: 10),
+                                buildRowTitleValue(
+                                  title: "CompOff Date",
+                                  value: formatDateTimeAsDDMMMYYYY(
+                                    compOff.compOffDate,
+                                  ),
+                                ),
+                                buildRowTitleValue(
+                                  title: "Working Date",
+                                  value: formatDateTimeAsDDMMMYYYY(
+                                    compOff.workingDate,
+                                  ),
+                                ),
+                                buildRowTitleValue(
+                                  title: "Reason",
+                                  value: compOff.reason,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
-                  verticalSpacing(height: 10),
-                  buildRowTitleValue(
-                    title: "CompOff Date",
-                    value: formatDateTimeAsDDMMMYYYY(compOff.compOffDate),
+
+                  // APPROVAL
+                  Builder(
+                    builder: (context) {
+                      final isLoading = state.isLoading ?? true;
+
+                      if (isLoading && state.approvalCompOffList.isEmpty) {
+                        return Center(child: loader());
+                      }
+
+                      if (state.approvalCompOffList.isEmpty) {
+                        return Center(child: noDataWidget());
+                      }
+
+                      return ListView.builder(
+                        controller: _compOffReportController,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        itemCount: state.approvalCompOffList.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == state.approvalCompOffList.length) {
+                            return state.approvalCompOffList.length <
+                                    state.totalNumberOfRecordApprovalCompOff
+                                ? const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                                : const SizedBox.shrink();
+                          }
+
+                          final compOff = state.approvalCompOffList[index];
+
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Checkbox(
+                                value: state.selectedCompOffIds.contains(
+                                  compOff.compOffId,
+                                ),
+                                onChanged: (_) {
+                                  _payrollReportCubit.toggleSelection(
+                                    id: compOff.compOffId,
+                                    listLength:
+                                        state.approvalCompOffList.length,
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 10),
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: commonCardDecoration(),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: ListTile(
+                                              leading: NetworkImageWidget(
+                                                imageUrl:
+                                                    "https://plus.unsplash.com/premium_photo-1667358091118-29e916ddbcc5?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fGh1c2t5fGVufDB8fDB8fHww",
+                                                width: 30,
+                                                height: 30,
+                                                fit: BoxFit.cover,
+                                                borderRadius:
+                                                    BorderRadius.circular(55),
+                                              ),
+                                              title: Text('Employee Name'),
+                                              subtitle: Text(
+                                                "Designation",
+                                                style: AppTextStyle.ts14M(
+                                                  color: AppColor.grey,
+                                                ),
+                                              ),
+                                              contentPadding: EdgeInsets.zero,
+                                            ),
+                                          ),
+                                          _statusButton(''),
+                                        ],
+                                      ),
+                                      verticalSpacing(height: 10),
+                                      buildRowTitleValue(
+                                        title: "CompOff Date",
+                                        value: formatDateTimeAsDDMMMYYYY(
+                                          compOff.compOffDate,
+                                        ),
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Working Date",
+                                        value: formatDateTimeAsDDMMMYYYY(
+                                          compOff.workingDate,
+                                        ),
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Reason",
+                                        value: compOff.reason,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   ),
-                  buildRowTitleValue(
-                    title: "Working Date",
-                    value: formatDateTimeAsDDMMMYYYY(compOff.workingDate),
-                  ),
-                  buildRowTitleValue(title: "Reason", value: compOff.reason),
                 ],
               ),
-            );
-          },
+            ),
+          ],
         );
       },
     );
@@ -1311,74 +2005,37 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   Widget buildLeaveSection() {
     return BlocBuilder<PayrollReportCubit, PayrollReportState>(
       builder: (context, state) {
-        final isLoading = state.isLoading ?? true;
-
-        if (isLoading && state.leaveList.isEmpty) {
-          return Center(child: loader());
-        }
-
-        if (state.leaveList.isEmpty) {
-          return Center(child: noDataWidget());
-        }
-        final bool isActionAllowed = _routeAuthorizationModel.isAction;
-
         return Column(
           children: [
-            ApproveRejectWidget(
-              title: "Pending",
-              isActionAlreadyPerformed: !isActionAllowed,
-              isMaster: true,
+            if (state.leaveInnerTabIndex == 1) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: ApproveRejectWidget(
+                  title: "Pending",
+                  isActionAlreadyPerformed: !isActionAllowed,
+                  isMaster: true,
 
-              onApprove: (val) async {
-                await _payrollReportCubit.approveRejectSelected(
-                  context: context,
-                  isApproved: true,
-                  remark: val.trim(),
-                  projectId: _project.projectId,
-                );
-              },
-
-              onReject: (val) async {
-                await _payrollReportCubit.approveRejectSelected(
-                  context: context,
-                  isApproved: false,
-                  remark: val.trim(),
-                  projectId: _project.projectId,
-                );
-              },
-              onThirdTap: () async {
-                final approvalLogHistoryList = await _loginCubit
-                    .getApprovalLogHistory(
+                  onApprove: (val) async {
+                    await _payrollReportCubit.approveRejectSelected(
                       context: context,
+                      isApproved: true,
+                      remark: val.trim(),
                       projectId: _project.projectId,
-                      id: 0,
-                      moduleName: "LEAVE",
                     );
+                  },
 
-                if (context.mounted) {
-                  goRouter.pushNamed(
-                    AppRoutes.approvalLogHistory,
-                    queryParameters: {
-                      "subTitle": Uri.encodeComponent(
-                        EncryptionManager.encryptData(""),
-                      ),
-                      "title": Uri.encodeComponent(
-                        EncryptionManager.encryptData("Leave Log History"),
-                      ),
-                      "approvalList": Uri.encodeComponent(
-                        EncryptionManager.encryptData(
-                          jsonEncode(
-                            approvalLogHistoryList
-                                .map((e) => e.toJson())
-                                .toList(),
-                          ),
-                        ),
-                      ),
-                    },
-                  );
-                }
-              },
-            ),
+                  onReject: (val) async {
+                    await _payrollReportCubit.approveRejectSelected(
+                      context: context,
+                      isApproved: false,
+                      remark: val.trim(),
+                      projectId: _project.projectId,
+                    );
+                  },
+                ),
+              ),
+              verticalSpacing(),
+            ],
             ChipStyleTabBar(
               controller: _leaveTabController,
               isSecondaryStyle: true,
@@ -1389,96 +2046,122 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                 controller: _leaveTabController,
                 children: [
                   //REPORT
-                  ListView.builder(
-                    controller: _leaveScrollController,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    itemCount: state.leaveList.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index == state.leaveList.length) {
-                        return state.leaveList.length <
-                                state.totalNumberOfRecordLeave
-                            ? const Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Center(child: CircularProgressIndicator()),
-                            )
-                            : const SizedBox.shrink();
+                  Builder(
+                    builder: (context) {
+                      final isLoading = state.isLoading ?? true;
+
+                      if (isLoading && state.leaveList.isEmpty) {
+                        return Center(child: loader());
                       }
 
-                      final leave = state.leaveList[index];
-
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.all(12),
-                        decoration: commonCardDecoration(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              leave.createdBy,
-                              style: AppTextStyle.ts16M(),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            verticalSpacing(height: 10),
-                            buildRowTitleValue(
-                              title: "Leave Type",
-                              value: leave.leaveType,
-                            ),
-                            buildRowTitleValue(
-                              title: "Start Date",
-                              value: formatDateTimeAsDDMMMYYYY(leave.startDate),
-                            ),
-                            buildRowTitleValue(
-                              title: "End Date",
-                              value: formatDateTimeAsDDMMMYYYY(leave.endDate),
-                            ),
-                            buildRowTitleValue(
-                              title: "No Of Days",
-                              value: leave.noOfDays.toString(),
-                            ),
-                            buildRowTitleValue(
-                              title: "Reason",
-                              value: leave.reason,
-                            ),
-                            buildRowTitleValue(
-                              title: "Leave Status",
-                              value: leave.leaveStatus,
-                            ),
-                          ],
+                      if (state.leaveList.isEmpty) {
+                        return Center(child: noDataWidget());
+                      }
+                      return ListView.builder(
+                        controller: _leaveReportController,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
                         ),
+                        itemCount: state.leaveList.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == state.leaveList.length) {
+                            return state.leaveList.length <
+                                    state.totalNumberOfRecordLeave
+                                ? const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                                : const SizedBox.shrink();
+                          }
+
+                          final leave = state.leaveList[index];
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(12),
+                            decoration: commonCardDecoration(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  leave.createdBy,
+                                  style: AppTextStyle.ts16M(),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                verticalSpacing(height: 10),
+                                buildRowTitleValue(
+                                  title: "Leave Type",
+                                  value: leave.leaveType,
+                                ),
+                                buildRowTitleValue(
+                                  title: "Start Date",
+                                  value: formatDateTimeAsDDMMMYYYY(
+                                    leave.startDate,
+                                  ),
+                                ),
+                                buildRowTitleValue(
+                                  title: "End Date",
+                                  value: formatDateTimeAsDDMMMYYYY(
+                                    leave.endDate,
+                                  ),
+                                ),
+                                buildRowTitleValue(
+                                  title: "No Of Days",
+                                  value: leave.noOfDays.toString(),
+                                ),
+                                buildRowTitleValue(
+                                  title: "Reason",
+                                  value: leave.reason,
+                                ),
+                                buildRowTitleValue(
+                                  title: "Leave Status",
+                                  value: leave.leaveStatus,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       );
                     },
                   ),
                   // APPROVAL
-                  ListView.builder(
-                    controller: _leaveScrollController,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    itemCount: state.leaveList.length + 1, // only loader
-                    itemBuilder: (context, index) {
-                      /// loader
-                      if (index == state.leaveList.length) {
-                        return state.leaveList.length <
-                                state.totalNumberOfRecordLeave
-                            ? const Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Center(child: CircularProgressIndicator()),
-                            )
-                            : const SizedBox.shrink();
+                  Builder(
+                    builder: (context) {
+                      final isLoading = state.isLoading ?? true;
+
+                      if (isLoading && state.approvalLeaveList.isEmpty) {
+                        return Center(child: loader());
                       }
 
-                      final leave = state.leaveList[index];
+                      if (state.approvalLeaveList.isEmpty) {
+                        return Center(child: noDataWidget());
+                      }
+                      return ListView.builder(
+                        controller: _leaveReportController,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        itemCount: state.approvalLeaveList.length + 1,
+                        itemBuilder: (context, index) {
+                          /// loader
+                          if (index == state.approvalLeaveList.length) {
+                            return state.approvalLeaveList.length <
+                                    state.totalNumberOfRecordApprovalLeave
+                                ? const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                                : const SizedBox.shrink();
+                          }
 
-                      return BlocBuilder<
-                        PayrollReportCubit,
-                        PayrollReportState
-                      >(
-                        builder: (context, state) {
+                          final leave = state.approvalLeaveList[index];
                           final selectedIds = state.selectedLeaveIds;
 
                           return Row(
@@ -1489,7 +2172,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                                 onChanged: (_) {
                                   _payrollReportCubit.toggleSelection(
                                     id: leave.leaveId,
-                                    listLength: state.leaveList.length,
+                                    listLength: state.approvalLeaveList.length,
                                   );
                                 },
                               ),
@@ -1549,76 +2232,248 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   Widget buildOutdoorSection() {
     return BlocBuilder<PayrollReportCubit, PayrollReportState>(
       builder: (context, state) {
-        final isLoading = state.isLoading ?? true;
-
-        if (isLoading && state.outdoorList.isEmpty) {
-          return Center(child: loader());
-        }
-
-        if (state.outdoorList.isEmpty) {
-          return Center(child: noDataWidget());
-        }
-
-        return ListView.builder(
-          controller: _outdoorScrollController,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          itemCount: state.outdoorList.length + 1,
-          itemBuilder: (context, index) {
-            if (index == state.outdoorList.length) {
-              return state.outdoorList.length < state.totalNumberOfRecordOutdoor
-                  ? const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                  : const SizedBox.shrink();
-            }
-
-            final outdoor = state.outdoorList[index];
-
-            return Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.all(12),
-              decoration: commonCardDecoration(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        return Column(
+          children: [
+            if (state.outdoorInnerTabIndex == 1) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: ApproveRejectWidget(
+                  title: "Pending",
+                  isActionAlreadyPerformed: !isActionAllowed,
+                  isMaster: true,
+                  onApprove: (val) async {
+                    await _payrollReportCubit.approveRejectSelected(
+                      context: context,
+                      isApproved: true,
+                      remark: val.trim(),
+                      projectId: _project.projectId,
+                    );
+                  },
+                  onReject: (val) async {
+                    await _payrollReportCubit.approveRejectSelected(
+                      context: context,
+                      isApproved: false,
+                      remark: val.trim(),
+                      projectId: _project.projectId,
+                    );
+                  },
+                ),
+              ),
+              verticalSpacing(),
+            ],
+            ChipStyleTabBar(
+              controller: _outdoorTabController,
+              isSecondaryStyle: true,
+              tabs: ['Report', 'Approval'],
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: _outdoorTabController,
                 children: [
-                  Text(
-                    outdoor.createdBy,
-                    style: AppTextStyle.ts16M(),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  // REPORT
+                  Builder(
+                    builder: (context) {
+                      final isLoading = state.isLoading ?? true;
+
+                      if (isLoading && state.outdoorList.isEmpty) {
+                        return Center(child: loader());
+                      }
+
+                      if (state.outdoorList.isEmpty) {
+                        return Center(child: noDataWidget());
+                      }
+
+                      return ListView.builder(
+                        controller: _outdoorReportController,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        itemCount: state.outdoorList.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == state.outdoorList.length) {
+                            return state.outdoorList.length <
+                                    state.totalNumberOfRecordOutdoor
+                                ? const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                                : const SizedBox.shrink();
+                          }
+
+                          final outdoor = state.outdoorList[index];
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(12),
+                            decoration: commonCardDecoration(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  outdoor.createdBy,
+                                  style: AppTextStyle.ts16M(),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                verticalSpacing(height: 10),
+                                buildRowTitleValue(
+                                  title: "Date",
+                                  value: formatDateTimeAsDDMMMYYYY(
+                                    outdoor.outDoorDate,
+                                  ),
+                                ),
+                                buildRowTitleValue(
+                                  title: "Time",
+                                  value: DateFormat(
+                                    'hh:mm a',
+                                  ).format(outdoor.outDoorTime),
+                                ),
+                                buildRowTitleValue(
+                                  title: "Company",
+                                  value: outdoor.companyName,
+                                ),
+                                buildRowTitleValue(
+                                  title: "Department",
+                                  value: outdoor.departmentName,
+                                ),
+                                buildRowTitleValue(
+                                  title: "Accompanied By",
+                                  value: outdoor.accompaniedByName,
+                                ),
+                                buildRowTitleValue(
+                                  title: "Purpose",
+                                  value: outdoor.purpose,
+                                ),
+                                if (outdoor.conclusion.isNotEmpty)
+                                  buildRowTitleValue(
+                                    title: "Conclusion",
+                                    value: outdoor.conclusion,
+                                  ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
-                  verticalSpacing(height: 10),
-                  buildRowTitleValue(
-                    title: "Date",
-                    value: formatDateTimeAsDDMMMYYYY(outdoor.outDoorDate),
+
+                  // APPROVAL
+                  Builder(
+                    builder: (context) {
+                      final isLoading = state.isLoading ?? true;
+
+                      if (isLoading && state.approvalOutdoorList.isEmpty) {
+                        return Center(child: loader());
+                      }
+
+                      if (state.approvalOutdoorList.isEmpty) {
+                        return Center(child: noDataWidget());
+                      }
+
+                      return ListView.builder(
+                        controller: _outdoorReportController,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        itemCount: state.approvalOutdoorList.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == state.approvalOutdoorList.length) {
+                            return state.approvalOutdoorList.length <
+                                    state.totalNumberOfRecordApprovalOutdoor
+                                ? const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                                : const SizedBox.shrink();
+                          }
+
+                          final outdoor = state.approvalOutdoorList[index];
+
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Checkbox(
+                                value: state.selectedOutdoorIds.contains(
+                                  outdoor.outdoorId,
+                                ),
+                                onChanged: (_) {
+                                  _payrollReportCubit.toggleSelection(
+                                    id: outdoor.outdoorId,
+                                    listLength:
+                                        state.approvalOutdoorList.length,
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 10),
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: commonCardDecoration(),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        outdoor.createdBy,
+                                        style: AppTextStyle.ts16M(),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      verticalSpacing(height: 10),
+                                      buildRowTitleValue(
+                                        title: "Date",
+                                        value: formatDateTimeAsDDMMMYYYY(
+                                          outdoor.outDoorDate,
+                                        ),
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Time",
+                                        value: DateFormat(
+                                          'hh:mm a',
+                                        ).format(outdoor.outDoorTime),
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Company",
+                                        value: outdoor.companyName,
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Department",
+                                        value: outdoor.departmentName,
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Accompanied By",
+                                        value: outdoor.accompaniedByName,
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Purpose",
+                                        value: outdoor.purpose,
+                                      ),
+                                      if (outdoor.conclusion.isNotEmpty)
+                                        buildRowTitleValue(
+                                          title: "Conclusion",
+                                          value: outdoor.conclusion,
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   ),
-                  buildRowTitleValue(
-                    title: "Time",
-                    value: DateFormat('hh:mm a').format(outdoor.outDoorTime),
-                  ),
-                  buildRowTitleValue(
-                    title: "Company",
-                    value: outdoor.companyName,
-                  ),
-                  buildRowTitleValue(
-                    title: "Department",
-                    value: outdoor.departmentName,
-                  ),
-                  buildRowTitleValue(
-                    title: "Accompanied By",
-                    value: outdoor.accompaniedByName,
-                  ),
-                  buildRowTitleValue(title: "Purpose", value: outdoor.purpose),
-                  if (outdoor.conclusion.isNotEmpty)
-                    buildRowTitleValue(
-                      title: "Conclusion",
-                      value: outdoor.conclusion,
-                    ),
                 ],
               ),
-            );
-          },
+            ),
+          ],
         );
       },
     );
@@ -1628,83 +2483,258 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   Widget buildResignationSection() {
     return BlocBuilder<PayrollReportCubit, PayrollReportState>(
       builder: (context, state) {
-        final isLoading = state.isLoading ?? true;
-
-        if (isLoading && state.resignationList.isEmpty) {
-          return Center(child: loader());
-        }
-
-        if (state.resignationList.isEmpty) {
-          return Center(child: noDataWidget());
-        }
-
-        return ListView.builder(
-          controller: _resignationScrollController,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          itemCount: state.resignationList.length + 1,
-          itemBuilder: (context, index) {
-            if (index == state.resignationList.length) {
-              return state.resignationList.length <
-                      state.totalNumberOfRecordResignation
-                  ? const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                  : const SizedBox.shrink();
-            }
-
-            final resignation = state.resignationList[index];
-
-            return Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.all(12),
-              decoration: commonCardDecoration(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        return Column(
+          children: [
+            if (state.resignationInnerTabIndex == 1) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: ApproveRejectWidget(
+                  title: "Pending",
+                  isActionAlreadyPerformed: !isActionAllowed,
+                  isMaster: true,
+                  onApprove: (val) async {
+                    await _payrollReportCubit.approveRejectSelected(
+                      context: context,
+                      isApproved: true,
+                      remark: val.trim(),
+                      projectId: _project.projectId,
+                    );
+                  },
+                  onReject: (val) async {
+                    await _payrollReportCubit.approveRejectSelected(
+                      context: context,
+                      isApproved: false,
+                      remark: val.trim(),
+                      projectId: _project.projectId,
+                    );
+                  },
+                ),
+              ),
+              verticalSpacing(),
+            ],
+            ChipStyleTabBar(
+              controller: _resignationTabController,
+              isSecondaryStyle: true,
+              tabs: ['Report', 'Approval'],
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: _resignationTabController,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          resignation.employeeName,
-                          style: AppTextStyle.ts16M(),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                  // REPORT
+                  Builder(
+                    builder: (context) {
+                      final isLoading = state.isLoading ?? true;
+
+                      if (isLoading && state.resignationList.isEmpty) {
+                        return Center(child: loader());
+                      }
+
+                      if (state.resignationList.isEmpty) {
+                        return Center(child: noDataWidget());
+                      }
+
+                      return ListView.builder(
+                        controller: _resignationReportController,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
                         ),
-                      ),
-                      _statusButton(resignation.approvalStatus),
-                    ],
+                        itemCount: state.resignationList.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == state.resignationList.length) {
+                            return state.resignationList.length <
+                                    state.totalNumberOfRecordResignation
+                                ? const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                                : const SizedBox.shrink();
+                          }
+
+                          final resignation = state.resignationList[index];
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(12),
+                            decoration: commonCardDecoration(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        resignation.employeeName,
+                                        style: AppTextStyle.ts16M(),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    _statusButton(resignation.approvalStatus),
+                                  ],
+                                ),
+                                verticalSpacing(height: 10),
+                                buildRowTitleValue(
+                                  title: "Resignation Date",
+                                  value: formatDateTimeAsDDMMMYYYY(
+                                    resignation.resignationDate,
+                                  ),
+                                ),
+                                buildRowTitleValue(
+                                  title: "Expected Relieving Date",
+                                  value: formatDateTimeAsDDMMMYYYY(
+                                    resignation.expectedRelievingDate,
+                                  ),
+                                ),
+                                buildRowTitleValue(
+                                  title: "Reason Of Leaving",
+                                  value: resignation.reasonOfLeaving,
+                                ),
+                                buildRowTitleValue(
+                                  title: "Offer In Hand",
+                                  value:
+                                      resignation.isAnyOfferInHand
+                                          ? "Yes"
+                                          : "No",
+                                ),
+                                buildRowTitleValue(
+                                  title: "Offer Amount",
+                                  value: resignation.offerAmount.toString(),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
-                  verticalSpacing(height: 10),
-                  buildRowTitleValue(
-                    title: "Resignation Date",
-                    value: formatDateTimeAsDDMMMYYYY(
-                      resignation.resignationDate,
-                    ),
-                  ),
-                  buildRowTitleValue(
-                    title: "Expected Relieving Date",
-                    value: formatDateTimeAsDDMMMYYYY(
-                      resignation.expectedRelievingDate,
-                    ),
-                  ),
-                  buildRowTitleValue(
-                    title: "Reason Of Leaving",
-                    value: resignation.reasonOfLeaving,
-                  ),
-                  buildRowTitleValue(
-                    title: "Offer In Hand",
-                    value: resignation.isAnyOfferInHand ? "Yes" : "No",
-                  ),
-                  buildRowTitleValue(
-                    title: "Offer Amount",
-                    value: resignation.offerAmount.toString(),
+
+                  // APPROVAL
+                  Builder(
+                    builder: (context) {
+                      final isLoading = state.isLoading ?? true;
+
+                      if (isLoading && state.approvalResignationList.isEmpty) {
+                        return Center(child: loader());
+                      }
+
+                      if (state.approvalResignationList.isEmpty) {
+                        return Center(child: noDataWidget());
+                      }
+
+                      return ListView.builder(
+                        controller: _resignationReportController,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        itemCount: state.approvalResignationList.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == state.approvalResignationList.length) {
+                            return state.approvalResignationList.length <
+                                    state.totalNumberOfRecordApprovalResignation
+                                ? const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                                : const SizedBox.shrink();
+                          }
+
+                          final resignation =
+                              state.approvalResignationList[index];
+
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Checkbox(
+                                value: state.selectedResignationIds.contains(
+                                  resignation.employeeResignationId,
+                                ),
+                                onChanged: (_) {
+                                  _payrollReportCubit.toggleSelection(
+                                    id: resignation.employeeResignationId,
+                                    listLength:
+                                        state.approvalResignationList.length,
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 10),
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: commonCardDecoration(),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              resignation.employeeName,
+                                              style: AppTextStyle.ts16M(),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          _statusButton(
+                                            resignation.approvalStatus,
+                                          ),
+                                        ],
+                                      ),
+                                      verticalSpacing(height: 10),
+                                      buildRowTitleValue(
+                                        title: "Resignation Date",
+                                        value: formatDateTimeAsDDMMMYYYY(
+                                          resignation.resignationDate,
+                                        ),
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Expected Relieving Date",
+                                        value: formatDateTimeAsDDMMMYYYY(
+                                          resignation.expectedRelievingDate,
+                                        ),
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Reason Of Leaving",
+                                        value: resignation.reasonOfLeaving,
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Offer In Hand",
+                                        value:
+                                            resignation.isAnyOfferInHand
+                                                ? "Yes"
+                                                : "No",
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Offer Amount",
+                                        value:
+                                            resignation.offerAmount.toString(),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   ),
                 ],
               ),
-            );
-          },
+            ),
+          ],
         );
       },
     );

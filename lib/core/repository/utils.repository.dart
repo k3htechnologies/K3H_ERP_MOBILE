@@ -40,7 +40,6 @@ abstract interface class UtilsRepository {
     int? subId,
     int? subSubId,
     int? subSubSubId,
-    List<int>? approvalIds,
   });
   Future<Either<Failure, Map<String, dynamic>>> pullModuleApprovalStatus({
     required String moduleName,
@@ -201,7 +200,6 @@ class UtilsRepositoryImpl implements UtilsRepository {
     int? subId,
     int? subSubId,
     int? subSubSubId,
-    List<int>? approvalIds,
   }) async {
     try {
       var result = await _utilsDatasource.apiCallUpdateModulesWorkflowApproval(
@@ -213,7 +211,6 @@ class UtilsRepositoryImpl implements UtilsRepository {
         subId: subId,
         subSubId: subSubId,
         subSubSubId: subSubSubId,
-        approvalIds: approvalIds,
       );
 
       return right(result);

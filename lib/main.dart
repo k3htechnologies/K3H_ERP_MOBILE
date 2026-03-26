@@ -20,7 +20,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/scheduler.dart';
 
-
 // NAVIGATOR KEY
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -34,8 +33,7 @@ Future<void> main() async {
 
   print("STEP 1 - before Firebase");
 
-    await Firebase.initializeApp(
-    );
+  await Firebase.initializeApp();
 
   print("STEP 2 - after Firebase");
 
@@ -54,7 +52,7 @@ Future<void> main() async {
 }
 
 Future<void> requestPhonePermission() async {
-  if(Platform.isAndroid) {
+  if (Platform.isAndroid) {
     final status = await Permission.phone.request();
 
     if (status.isGranted) {
@@ -84,7 +82,8 @@ Future initialSetup() async {
   HttpOverrides.global = MyHttpOverrides();
 
   final notificationService = NotificationService();
-  await notificationService.setupFlutterNotifications(); // The local notifications setup
+  await notificationService
+      .setupFlutterNotifications(); // The local notifications setup
   await notificationService.initNotifications();
   final info = await PackageInfo.fromPlatform();
   final currentVersion = info.version;
@@ -129,7 +128,7 @@ class MyApp extends StatelessWidget {
         // THEME
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system,
+        themeMode: ThemeMode.light,
         //  ROUTING
         routeInformationParser: goRouter.routeInformationParser,
         routerDelegate: goRouter.routerDelegate,

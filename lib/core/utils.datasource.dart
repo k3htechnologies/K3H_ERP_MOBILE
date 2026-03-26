@@ -41,7 +41,6 @@ abstract interface class UtilsDatasource {
     int? subId,
     int? subSubId,
     int? subSubSubId,
-    List<int>? approvalIds,
   });
 
   Future<Map<String, dynamic>> apiCallAddUpdateModulesWorkflowApproval({
@@ -263,36 +262,21 @@ class UtilsDatasourceImpl implements UtilsDatasource {
     int? subId,
     int? subSubId,
     int? subSubSubId,
-    List<int>? approvalIds,
   }) async {
     try {
       final String url =
           "ModulesWorkflowApproval/UpdateModulesWorkflowApproval";
-      final List<Map<String, dynamic>> approvalList =
-          (approvalIds ?? [id]).map((e) {
-            return {
-              "ModuleName": moduleName,
-              "Id": e,
-              "Status": isApproved ? "Approved" : "Rejected",
-              "Remarks": remark,
-            };
-          }).toList();
-      final payload =
-          approvalIds != null
-              ? {
-                "ApprovalJson": jsonEncode(approvalList),
-                "ProjectId": projectId,
-              }
-              : {
-                "ModuleName": moduleName,
-                "Id": id,
-                "ProjectId": projectId,
-                "IsApproved": isApproved,
-                "Remarks": remark,
-                if (subId != null) "SubId": subId,
-                if (subSubId != null) "SubSubId": subSubId,
-                if (subSubSubId != null) "SubSubSubId": subSubSubId,
-              };
+
+      final payload = {
+        "ModuleName": moduleName,
+        "Id": id,
+        "ProjectId": projectId,
+        "IsApproved": isApproved,
+        "Remarks": remark,
+        if (subId != null) "SubId": subId,
+        if (subSubId != null) "SubSubId": subSubId,
+        if (subSubSubId != null) "SubSubSubId": subSubSubId,
+      };
 
       var networkResponse = await client.postRequestWithAuthentication(
         url,
