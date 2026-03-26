@@ -92,43 +92,6 @@ class LeaveCubit extends Cubit<LeaveState> {
     );
   }
 
-  // <---- GET LEAVE TYPE LIST ---->
-  Future<void> getLeaveTypeList(
-    BuildContext context,
-    int pageNumber,
-    int pageSize,
-  ) async {
-    emit(state.copyWith(isLoading: true));
-
-    final result = await _leaveTypeMasterRepository.getLeaveTypeList(
-      pageNumber: pageNumber,
-      pageSize: pageSize,
-    );
-
-    result.fold(
-      (failure) {
-        emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
-      },
-      (response) {
-        final newData = List<LeaveTypeModel>.from(response['data']);
-
-        final List<LeaveTypeModel> updatedList =
-            pageNumber == 1 ? newData : [...state.leaveTypeList, ...newData];
-
-        final totalCount = response['totalNumberOfRecord'] ?? 0;
-
-        emit(
-          state.copyWith(
-            isLoading: false,
-            leaveTypeList: updatedList,
-            totalNumberOfRecord: totalCount,
-          ),
-        );
-      },
-    );
-  }
-
   // <---- APPLY LEAVE ---->
   Future<void> applyLeave({
     required BuildContext context,

@@ -389,7 +389,7 @@ class _InventoryScreenState extends State<InventoryScreen>
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (index == 0)
+                if (index == 0) ...[
                   ApproveRejectWidget(
                     title: wing.approvalStatus,
                     isActionAlreadyPerformed: !isActionAllowed,
@@ -466,7 +466,8 @@ class _InventoryScreenState extends State<InventoryScreen>
                       }
                     },
                   ),
-                verticalSpacing(),
+                  verticalSpacing(),
+                ],
                 Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
@@ -739,19 +740,10 @@ class _InventoryScreenState extends State<InventoryScreen>
       return const SizedBox.shrink();
     }
 
-    return TabBar(
+    return ChipStyleTabBar(
       controller: _wingTabController!,
-      isScrollable: true,
-      labelColor: AppColor.primary,
-      unselectedLabelColor: AppColor.grey,
-      labelStyle: AppTextStyle.ts14SB(),
-      unselectedLabelStyle: AppTextStyle.ts14M(),
-      tabAlignment: TabAlignment.start,
-      dividerColor: AppColor.lightBlue,
-      indicator: UnderlineTabIndicator(
-        borderSide: BorderSide(width: 2, color: AppColor.primary),
-      ),
-      tabs: wingList.map((w) => Tab(text: w.wing.toString())).toList(),
+      isSecondaryStyle: true,
+      tabs: wingList.map((w) => w.wing.toString()).toList(),
     );
   }
 

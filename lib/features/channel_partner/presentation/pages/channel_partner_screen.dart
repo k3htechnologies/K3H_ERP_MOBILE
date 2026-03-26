@@ -31,7 +31,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
   late ChannelPartnerCubit _channelPartnerCubit;
 
   // AUTHORIZATION
-  late AuthorizationModel _routAuthorizationModel;
+  late AuthorizationModel _routeAuthorizationModel;
 
   // TEXT EDIT CONTROLLER
   late TextEditingController _searchC;
@@ -43,7 +43,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
   @override
   void initState() {
     super.initState();
-    _routAuthorizationModel =
+    _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.channelPartner]!;
     _initControllers();
     _channelPartnerCubit = context.read<ChannelPartnerCubit>();
@@ -98,7 +98,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
     return Scaffold(
       appBar: CustomAppBar(
         screenTitle: "Channel Partner",
-        authorization: _routAuthorizationModel,
+        authorization: _routeAuthorizationModel,
         textController: _searchC,
         onSearchSubmit: (value) {
           _channelPartnerCubit.searchChannelPartner(context, value);

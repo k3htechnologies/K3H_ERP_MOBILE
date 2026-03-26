@@ -45,7 +45,7 @@ class _AddInventorySpecificationScreenState
   late InventoryCubit _inventoryCubit;
 
   // AUTHORIZATION
-  late AuthorizationModel _routAuthorizationModel;
+  late AuthorizationModel _routeAuthorizationModel;
 
   // CURRENT PROJECT
   late ProjectModel _project;
@@ -121,7 +121,7 @@ class _AddInventorySpecificationScreenState
   void initState() {
     super.initState();
     _project = getProject();
-    _routAuthorizationModel = AuthorizationModel();
+    _routeAuthorizationModel = AuthorizationModel();
     _inventoryCubit = context.read<InventoryCubit>();
     _initControllers();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -467,7 +467,7 @@ class _AddInventorySpecificationScreenState
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: "Inventory Management",
-        authorization: _routAuthorizationModel,
+        authorization: _routeAuthorizationModel,
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),

@@ -27,10 +27,58 @@ class PayrollReportState extends BaseState {
   final int currentPageRegurization;
   final int totalNumberOfRecordRegurization;
 
+  // LEAVE APPROVAL
+  final List<LeaveModel> approvalLeaveList;
+  final int currentPageApprovalLeave;
+  final int totalNumberOfRecordApprovalLeave;
+
+  // REGULARIZATION APPROVAL
+  final List<AttendanceRegularizationModel> approvalRegularizationList;
+  final int currentPageApprovalRegularization;
+  final int totalNumberOfRecordApprovalRegularization;
+
+  // COMPOFF APPROVAL
+  final List<CompOffModel> approvalCompOffList;
+  final int currentPageApprovalCompOff;
+  final int totalNumberOfRecordApprovalCompOff;
+
+  // OUTDOOR APPROVAL
+  final List<OutdoorModel> approvalOutdoorList;
+  final int currentPageApprovalOutdoor;
+  final int totalNumberOfRecordApprovalOutdoor;
+
+  // RESIGNATION APPROVAL
+  final List<ResignationModel> approvalResignationList;
+  final int currentPageApprovalResignation;
+  final int totalNumberOfRecordApprovalResignation;
+
   final int currentTabIndex;
   final String searchText;
   final DateTime? filterStartDate;
   final DateTime? filterEndDate;
+
+  // Selection tracking
+  final Set<int> selectedLeaveIds;
+  final bool isAllLeaveSelected;
+
+  final Set<int> selectedOutdoorIds;
+  final bool isAllOutdoorSelected;
+
+  final Set<int> selectedResignationIds;
+  final bool isAllResignationSelected;
+
+  final Set<int> selectedCompOffIds;
+  final bool isAllCompOffSelected;
+
+  final Set<int> selectedRegularizationIds;
+  final bool isAllRegularizationSelected;
+
+  // Inner tab indexes
+  final int leaveInnerTabIndex;
+  final int compOffInnerTabIndex;
+  final int outdoorInnerTabIndex;
+  final int resignationInnerTabIndex;
+  final int regularizationInnerTabIndex;
 
   const PayrollReportState({
     super.isLoading,
@@ -54,10 +102,47 @@ class PayrollReportState extends BaseState {
     required this.regularizationList,
     required this.currentPageRegurization,
     required this.totalNumberOfRecordRegurization,
+
+    // APPROVAL
+    required this.approvalLeaveList,
+    required this.currentPageApprovalLeave,
+    required this.totalNumberOfRecordApprovalLeave,
+
+    required this.approvalRegularizationList,
+    required this.currentPageApprovalRegularization,
+    required this.totalNumberOfRecordApprovalRegularization,
+
+    required this.approvalCompOffList,
+    required this.currentPageApprovalCompOff,
+    required this.totalNumberOfRecordApprovalCompOff,
+
+    required this.approvalOutdoorList,
+    required this.currentPageApprovalOutdoor,
+    required this.totalNumberOfRecordApprovalOutdoor,
+
+    required this.approvalResignationList,
+    required this.currentPageApprovalResignation,
+    required this.totalNumberOfRecordApprovalResignation,
+
     required this.currentTabIndex,
     required this.searchText,
     this.filterStartDate,
     this.filterEndDate,
+    required this.selectedLeaveIds,
+    required this.isAllLeaveSelected,
+    required this.selectedOutdoorIds,
+    required this.isAllOutdoorSelected,
+    required this.selectedResignationIds,
+    required this.isAllResignationSelected,
+    required this.selectedCompOffIds,
+    required this.isAllCompOffSelected,
+    required this.selectedRegularizationIds,
+    required this.isAllRegularizationSelected,
+    required this.leaveInnerTabIndex,
+    required this.compOffInnerTabIndex,
+    required this.outdoorInnerTabIndex,
+    required this.resignationInnerTabIndex,
+    required this.regularizationInnerTabIndex,
   });
 
   factory PayrollReportState.initial() => PayrollReportState(
@@ -82,10 +167,47 @@ class PayrollReportState extends BaseState {
     regularizationList: [],
     currentPageRegurization: 1,
     totalNumberOfRecordRegurization: 0,
+
+    // APPROVAL LISTS
+    approvalLeaveList: [],
+    currentPageApprovalLeave: 1,
+    totalNumberOfRecordApprovalLeave: 0,
+
+    approvalRegularizationList: [],
+    currentPageApprovalRegularization: 1,
+    totalNumberOfRecordApprovalRegularization: 0,
+
+    approvalCompOffList: [],
+    currentPageApprovalCompOff: 1,
+    totalNumberOfRecordApprovalCompOff: 0,
+
+    approvalOutdoorList: [],
+    currentPageApprovalOutdoor: 1,
+    totalNumberOfRecordApprovalOutdoor: 0,
+
+    approvalResignationList: [],
+    currentPageApprovalResignation: 1,
+    totalNumberOfRecordApprovalResignation: 0,
+
     currentTabIndex: 0,
     searchText: '',
     filterStartDate: null,
     filterEndDate: null,
+    selectedLeaveIds: {},
+    isAllLeaveSelected: false,
+    selectedOutdoorIds: {},
+    isAllOutdoorSelected: false,
+    selectedResignationIds: {},
+    isAllResignationSelected: false,
+    selectedCompOffIds: {},
+    isAllCompOffSelected: false,
+    selectedRegularizationIds: {},
+    isAllRegularizationSelected: false,
+    leaveInnerTabIndex: 0,
+    compOffInnerTabIndex: 0,
+    outdoorInnerTabIndex: 0,
+    resignationInnerTabIndex: 0,
+    regularizationInnerTabIndex: 0,
   );
 
   PayrollReportState copyWith({
@@ -115,6 +237,41 @@ class PayrollReportState extends BaseState {
     DateTime? filterStartDate,
     DateTime? filterEndDate,
     bool clearFilters = false,
+    Set<int>? selectedLeaveIds,
+    bool? isAllLeaveSelected,
+    Set<int>? selectedOutdoorIds,
+    bool? isAllOutdoorSelected,
+    Set<int>? selectedResignationIds,
+    bool? isAllResignationSelected,
+    Set<int>? selectedCompOffIds,
+    bool? isAllCompOffSelected,
+    Set<int>? selectedRegularizationIds,
+    bool? isAllRegularizationSelected,
+    int? leaveInnerTabIndex,
+    int? compOffInnerTabIndex,
+    int? outdoorInnerTabIndex,
+    int? resignationInnerTabIndex,
+    int? regularizationInnerTabIndex,
+    // Approval lists
+    List<LeaveModel>? approvalLeaveList,
+    int? currentPageApprovalLeave,
+    int? totalNumberOfRecordApprovalLeave,
+
+    List<AttendanceRegularizationModel>? approvalRegularizationList,
+    int? currentPageApprovalRegularization,
+    int? totalNumberOfRecordApprovalRegularization,
+
+    List<CompOffModel>? approvalCompOffList,
+    int? currentPageApprovalCompOff,
+    int? totalNumberOfRecordApprovalCompOff,
+
+    List<OutdoorModel>? approvalOutdoorList,
+    int? currentPageApprovalOutdoor,
+    int? totalNumberOfRecordApprovalOutdoor,
+
+    List<ResignationModel>? approvalResignationList,
+    int? currentPageApprovalResignation,
+    int? totalNumberOfRecordApprovalResignation,
   }) {
     return PayrollReportState(
       isLoading: isLoading ?? this.isLoading,
@@ -154,6 +311,65 @@ class PayrollReportState extends BaseState {
           clearFilters ? null : (filterStartDate ?? this.filterStartDate),
       filterEndDate:
           clearFilters ? null : (filterEndDate ?? this.filterEndDate),
+      selectedLeaveIds: selectedLeaveIds ?? this.selectedLeaveIds,
+      isAllLeaveSelected: isAllLeaveSelected ?? this.isAllLeaveSelected,
+      selectedOutdoorIds: selectedOutdoorIds ?? this.selectedOutdoorIds,
+      isAllOutdoorSelected: isAllOutdoorSelected ?? this.isAllOutdoorSelected,
+      selectedResignationIds:
+          selectedResignationIds ?? this.selectedResignationIds,
+      isAllResignationSelected:
+          isAllResignationSelected ?? this.isAllResignationSelected,
+      selectedCompOffIds: selectedCompOffIds ?? this.selectedCompOffIds,
+      isAllCompOffSelected: isAllCompOffSelected ?? this.isAllCompOffSelected,
+      selectedRegularizationIds:
+          selectedRegularizationIds ?? this.selectedRegularizationIds,
+      isAllRegularizationSelected:
+          isAllRegularizationSelected ?? this.isAllRegularizationSelected,
+      leaveInnerTabIndex: leaveInnerTabIndex ?? this.leaveInnerTabIndex,
+      compOffInnerTabIndex: compOffInnerTabIndex ?? this.compOffInnerTabIndex,
+      outdoorInnerTabIndex: outdoorInnerTabIndex ?? this.outdoorInnerTabIndex,
+      resignationInnerTabIndex:
+          resignationInnerTabIndex ?? this.resignationInnerTabIndex,
+      regularizationInnerTabIndex:
+          regularizationInnerTabIndex ?? this.regularizationInnerTabIndex,
+      // Approval lists
+      approvalLeaveList: approvalLeaveList ?? this.approvalLeaveList,
+      currentPageApprovalLeave:
+          currentPageApprovalLeave ?? this.currentPageApprovalLeave,
+      totalNumberOfRecordApprovalLeave:
+          totalNumberOfRecordApprovalLeave ??
+          this.totalNumberOfRecordApprovalLeave,
+
+      approvalRegularizationList:
+          approvalRegularizationList ?? this.approvalRegularizationList,
+      currentPageApprovalRegularization:
+          currentPageApprovalRegularization ??
+          this.currentPageApprovalRegularization,
+      totalNumberOfRecordApprovalRegularization:
+          totalNumberOfRecordApprovalRegularization ??
+          this.totalNumberOfRecordApprovalRegularization,
+
+      approvalCompOffList: approvalCompOffList ?? this.approvalCompOffList,
+      currentPageApprovalCompOff:
+          currentPageApprovalCompOff ?? this.currentPageApprovalCompOff,
+      totalNumberOfRecordApprovalCompOff:
+          totalNumberOfRecordApprovalCompOff ??
+          this.totalNumberOfRecordApprovalCompOff,
+
+      approvalOutdoorList: approvalOutdoorList ?? this.approvalOutdoorList,
+      currentPageApprovalOutdoor:
+          currentPageApprovalOutdoor ?? this.currentPageApprovalOutdoor,
+      totalNumberOfRecordApprovalOutdoor:
+          totalNumberOfRecordApprovalOutdoor ??
+          this.totalNumberOfRecordApprovalOutdoor,
+
+      approvalResignationList:
+          approvalResignationList ?? this.approvalResignationList,
+      currentPageApprovalResignation:
+          currentPageApprovalResignation ?? this.currentPageApprovalResignation,
+      totalNumberOfRecordApprovalResignation:
+          totalNumberOfRecordApprovalResignation ??
+          this.totalNumberOfRecordApprovalResignation,
     );
   }
 
@@ -184,5 +400,36 @@ class PayrollReportState extends BaseState {
     searchText,
     filterStartDate,
     filterEndDate,
+    selectedLeaveIds,
+    isAllLeaveSelected,
+    selectedOutdoorIds,
+    isAllOutdoorSelected,
+    selectedResignationIds,
+    isAllResignationSelected,
+    selectedCompOffIds,
+    isAllCompOffSelected,
+    selectedRegularizationIds,
+    isAllRegularizationSelected,
+    leaveInnerTabIndex,
+    compOffInnerTabIndex,
+    outdoorInnerTabIndex,
+    resignationInnerTabIndex,
+    regularizationInnerTabIndex,
+    // Approval lists
+    approvalLeaveList,
+    currentPageApprovalLeave,
+    totalNumberOfRecordApprovalLeave,
+    approvalRegularizationList,
+    currentPageApprovalRegularization,
+    totalNumberOfRecordApprovalRegularization,
+    approvalCompOffList,
+    currentPageApprovalCompOff,
+    totalNumberOfRecordApprovalCompOff,
+    approvalOutdoorList,
+    currentPageApprovalOutdoor,
+    totalNumberOfRecordApprovalOutdoor,
+    approvalResignationList,
+    currentPageApprovalResignation,
+    totalNumberOfRecordApprovalResignation,
   ];
 }

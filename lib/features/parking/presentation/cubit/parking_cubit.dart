@@ -18,24 +18,52 @@ class ParkingCubit extends Cubit<ParkingState> {
   final ParkingRepository _parkingRepository =
       serviceLocator<ParkingRepository>();
 
-  // <---- SEARCH PARKING ---->
+  // <----LOCAL SEARCH PARKING ---->
   Future searchParking(
     BuildContext context,
     String value,
     int projectId,
   ) async {
-    emit(state.copyWith(searchText: value, parkingList: []));
-    await getParking(context, projectId);
+    final searchText = value.trim().toLowerCase();
+    if (state.originalWingGroupedData == null ||
+        state.wingCurrentPageKey == null) {
+      return;
+    }
+
+    final currentWingKey = state.wingCurrentPageKey!;
+
+    final originalList = state.originalWingGroupedData![currentWingKey] ?? [];
+
+    final filteredList =
+        searchText.isEmpty
+            ? originalList
+            : originalList.where((e) {
+              final matchesParking = e.parkingNumber.toLowerCase().contains(
+                searchText,
+              );
+              return matchesParking;
+            }).toList();
+
+    final updatedWingData = Map<String, List<ParkingModel>>.from(
+      state.originalWingGroupedData!,
+    );
+
+    updatedWingData[currentWingKey] = filteredList;
+
+    emit(state.copyWith(searchText: value, wingGroupedData: updatedWingData));
   }
 
   // GET PARKING
   Future getParking(BuildContext context, int projectId) async {
     emit(state.copyWith(isLoading: true, parkingList: []));
-    Map<String, dynamic> queryParams = {"ParkingNumber": state.searchText};
-    final result = await _parkingRepository.getParking(
-      projectId: projectId,
-      queryParams: queryParams,
-    );
+    if (projectId == 0) {
+      showErrorMessage(context, "Error Message", "Project Not Selected");
+      ParkingCubit();
+      emit(state.copyWith(isLoading: false));
+
+      return;
+    }
+    final result = await _parkingRepository.getParking(projectId: projectId);
 
     result.fold(
       (failure) {
@@ -49,16 +77,36 @@ class ParkingCubit extends Cubit<ParkingState> {
                 ? groupBy(parkingList, (element) => element.buildingNumber)
                 : null;
         if (groupedData != null) {
-          int buildingCurrentPage = 0;
-          String buildingCurrentPageKey = groupedData.keys.last;
-          int wingCurrentPage = 0;
+          //  Preserve building
+          String buildingCurrentPageKey =
+              state.buildingCurrentPageKey != null &&
+                      groupedData.containsKey(state.buildingCurrentPageKey)
+                  ? state.buildingCurrentPageKey!
+                  : groupedData.keys.first;
+
+          int buildingCurrentPage = groupedData.keys.toList().indexOf(
+            buildingCurrentPageKey,
+          );
+
+          //  Create wing grouped data
           var wingGroupedData = groupBy(
             groupedData[buildingCurrentPageKey]!,
-            (element) => element.wing,
+            (element) => "${element.wing} / ${element.floor}",
           );
-          String? wingCurrentPageKey =
-              wingGroupedData.isNotEmpty ? wingGroupedData.keys.first : null;
 
+          //  Preserve wing
+          String? wingCurrentPageKey =
+              state.wingCurrentPageKey != null &&
+                      wingGroupedData.containsKey(state.wingCurrentPageKey)
+                  ? state.wingCurrentPageKey
+                  : wingGroupedData.isNotEmpty
+                  ? wingGroupedData.keys.first
+                  : null;
+
+          int wingCurrentPage =
+              wingCurrentPageKey != null
+                  ? wingGroupedData.keys.toList().indexOf(wingCurrentPageKey)
+                  : 0;
           // Calculate parking counts
           int availableParking = 0;
           int bookedParking = 0;
@@ -90,11 +138,12 @@ class ParkingCubit extends Cubit<ParkingState> {
               wingCurrentPage: wingCurrentPage,
               wingCurrentPageKey: wingCurrentPageKey,
               wingGroupedData: wingGroupedData,
+              originalWingGroupedData: wingGroupedData,
               availableParking: availableParking,
               bookedParking: bookedParking,
               blockedParking: blockedParking,
               holdParking: holdParking,
-              memberParking: memberParking,
+              allotedParking: memberParking,
             ),
           );
           return;
@@ -112,7 +161,10 @@ class ParkingCubit extends Cubit<ParkingState> {
     var buildingData = state.groupedData![building];
     if (buildingData == null || buildingData.isEmpty) return;
 
-    var wingGroupedData = groupBy(buildingData, (element) => element.wing);
+    var wingGroupedData = groupBy(
+      buildingData,
+      (element) => "${element.wing} / ${element.floor}",
+    );
     String? wingCurrentPageKey =
         wingGroupedData.isNotEmpty ? wingGroupedData.keys.first : null;
 
@@ -121,19 +173,29 @@ class ParkingCubit extends Cubit<ParkingState> {
     int bookedParking = 0;
     int blockedParking = 0;
     int holdParking = 0;
-    int memberParking = 0;
+    int allotedParking = 0;
 
     if (wingCurrentPageKey != null) {
       final floorData = wingGroupedData[wingCurrentPageKey]!;
-      availableParking =
-          floorData.where((e) => e.parkingStatus == "Available").length;
-      bookedParking =
-          floorData.where((e) => e.parkingStatus == "Booked").length;
-      blockedParking =
-          floorData.where((e) => e.parkingStatus == "Block").length;
-      holdParking = floorData.where((e) => e.parkingStatus == "Hold").length;
-      memberParking =
-          floorData.where((e) => e.parkingStatus == "Member").length;
+      for (var e in floorData) {
+        switch (e.parkingStatus) {
+          case "Available":
+            availableParking++;
+            break;
+          case "Booked":
+            bookedParking++;
+            break;
+          case "Block":
+            blockedParking++;
+            break;
+          case "Hold":
+            holdParking++;
+            break;
+          case "Alloted":
+            allotedParking++;
+            break;
+        }
+      }
     }
 
     emit(
@@ -141,13 +203,14 @@ class ParkingCubit extends Cubit<ParkingState> {
         buildingCurrentPage: index,
         buildingCurrentPageKey: building,
         wingGroupedData: wingGroupedData,
+        originalWingGroupedData: wingGroupedData,
         wingCurrentPage: 0,
         wingCurrentPageKey: wingCurrentPageKey,
         availableParking: availableParking,
         bookedParking: bookedParking,
         blockedParking: blockedParking,
         holdParking: holdParking,
-        memberParking: memberParking,
+        allotedParking: allotedParking,
       ),
     );
   }
@@ -178,7 +241,7 @@ class ParkingCubit extends Cubit<ParkingState> {
         bookedParking: bookedParking,
         blockedParking: blockedParking,
         holdParking: holdParking,
-        memberParking: memberParking,
+        allotedParking: memberParking,
       ),
     );
   }
@@ -230,86 +293,74 @@ class ParkingCubit extends Cubit<ParkingState> {
       },
       (response) {
         goRouter.pop();
-
-        // Find and update the parking item in the list
-        int index = state.parkingList.indexWhere(
-          (e) => e.uniquekey == uniqueKey,
-        );
-
-        if (index == -1) {
-          // If not found, refresh the entire list
-          getParking(context, projectId);
-          showSuccessMessage(context, subTitle: "Parking Updated Successfully");
-          return;
-        }
-
-        final updatedList = List<ParkingModel>.from(state.parkingList);
-        if (response['data'] != null && (response['data'] as List).isNotEmpty) {
-          updatedList[index] = ParkingModel.fromJson(response['data'][0]);
-        } else {
-          // If response doesn't have data, refresh the list
-          getParking(context, projectId);
-          showSuccessMessage(context, subTitle: "Parking Updated Successfully");
-          return;
-        }
-
-        // Regroup the data
-        var groupedData = groupBy(
-          updatedList,
-          (element) => element.buildingNumber,
-        );
-
-        // Get current building and wing keys
-        final currentBuilding = state.buildingCurrentPageKey;
-        final currentWing = state.wingCurrentPageKey;
-
-        if (currentBuilding != null &&
-            groupedData.containsKey(currentBuilding)) {
-          var wingGroupedData = groupBy(
-            groupedData[currentBuilding]!,
-            (element) => element.wing,
+        final updatedParking = response['data'][0] as ParkingModel;
+        if (state.parkingList.isNotEmpty) {
+          final updatedList =
+              state.parkingList.map((item) {
+                return item.parkingId == updatedParking.parkingId
+                    ? updatedParking
+                    : item;
+              }).toList();
+          // Regroup the data
+          var groupedData = groupBy(
+            updatedList,
+            (element) => element.buildingNumber,
           );
 
-          // Calculate parking counts for current wing
-          int availableParking = 0;
-          int bookedParking = 0;
-          int blockedParking = 0;
-          int holdParking = 0;
-          int memberParking = 0;
+          // Get current building and wing keys
+          final currentBuilding = state.buildingCurrentPageKey;
+          final currentWing = state.wingCurrentPageKey;
 
-          if (currentWing != null && wingGroupedData.containsKey(currentWing)) {
-            final wingData = wingGroupedData[currentWing]!;
-            availableParking =
-                wingData.where((e) => e.parkingStatus == "Available").length;
-            bookedParking =
-                wingData.where((e) => e.parkingStatus == "Booked").length;
-            blockedParking =
-                wingData.where((e) => e.parkingStatus == "Block").length;
-            holdParking =
-                wingData.where((e) => e.parkingStatus == "Hold").length;
-            memberParking =
-                wingData.where((e) => e.parkingStatus == "Member").length;
+          if (currentBuilding != null &&
+              groupedData.containsKey(currentBuilding)) {
+            var wingGroupedData = groupBy(
+              groupedData[currentBuilding]!,
+              (element) => "${element.wing} / ${element.floor}",
+            );
+
+            // Calculate parking counts for current wing
+            int availableParking = 0;
+            int bookedParking = 0;
+            int blockedParking = 0;
+            int holdParking = 0;
+            int memberParking = 0;
+
+            if (currentWing != null &&
+                wingGroupedData.containsKey(currentWing)) {
+              final wingData = wingGroupedData[currentWing]!;
+              availableParking =
+                  wingData.where((e) => e.parkingStatus == "Available").length;
+              bookedParking =
+                  wingData.where((e) => e.parkingStatus == "Booked").length;
+              blockedParking =
+                  wingData.where((e) => e.parkingStatus == "Block").length;
+              holdParking =
+                  wingData.where((e) => e.parkingStatus == "Hold").length;
+              memberParking =
+                  wingData.where((e) => e.parkingStatus == "Member").length;
+            }
+
+            emit(
+              state.copyWith(
+                isLoading: false,
+                parkingList: updatedList,
+                groupedData: groupedData,
+                wingGroupedData: wingGroupedData,
+                originalWingGroupedData: wingGroupedData,
+                availableParking: availableParking,
+                bookedParking: bookedParking,
+                blockedParking: blockedParking,
+                holdParking: holdParking,
+                allotedParking: memberParking,
+              ),
+            );
+          } else {
+            // If building changed, refresh the entire list
+            getParking(context, projectId);
           }
 
-          emit(
-            state.copyWith(
-              isLoading: false,
-              parkingList: updatedList,
-              groupedData: groupedData,
-              wingGroupedData: wingGroupedData,
-              availableParking: availableParking,
-              bookedParking: bookedParking,
-              blockedParking: blockedParking,
-              holdParking: holdParking,
-              memberParking: memberParking,
-            ),
-          );
-        } else {
-          // If building changed, refresh the entire list
-          getParking(context, projectId);
+          showSuccessMessage(context, subTitle: "Parking Updated Successfully");
         }
-
-        showSuccessMessage(context, subTitle: "Parking Updated Successfully");
       },
     );
   }

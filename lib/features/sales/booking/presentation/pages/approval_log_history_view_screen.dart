@@ -29,7 +29,25 @@ class ApprovalLogHistoryScreen extends StatelessWidget {
       ),
       body:
           items.isEmpty
-              ? Center(child: noDataWidget(message: "No $title Found"))
+              ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      subTitle,
+                      style: AppTextStyle.ts16M(color: AppColor.grey),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  Expanded(
+                    child: Center(
+                      child: noDataWidget(message: "No $title Found"),
+                    ),
+                  ),
+                ],
+              )
               : SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
                 child: Container(

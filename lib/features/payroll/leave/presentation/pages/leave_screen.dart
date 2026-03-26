@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/data/model/leave_type_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/data/repository/leave_type_master.repository.dart';
 import 'package:k3h_erp_app/features/payroll/leave/model/leave.model.dart';
 import 'package:k3h_erp_app/features/payroll/leave/presentation/cubit/leave_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -36,6 +39,9 @@ class _LeaveScreenState extends State<LeaveScreen>
 
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
+
+  final LeaveTypeMasterRepository _leaveTypeMasterRepository =
+      serviceLocator<LeaveTypeMasterRepository>();
 
   // PAGINATION
   late ScrollController scrollController;
@@ -70,7 +76,6 @@ class _LeaveScreenState extends State<LeaveScreen>
         Authorization.routeAuthorizationMap[AppRoutes.leave]!;
     _initializeTextEditingController();
     _onScroll();
-    _leaveCubit.getLeaveTypeList(context, 1, 100);
     _leaveCubit.getLeaveList(context, 1);
     _tabController = TabController(
       length: _statusTabs.length,
@@ -155,59 +160,33 @@ class _LeaveScreenState extends State<LeaveScreen>
     int pageNumber, {
     String? value,
   }) async {
-    final totalCount = _leaveCubit.state.totalNumberOfRecord;
-    final pageSize = 15;
+    final result = await _leaveTypeMasterRepository.getLeaveTypeList(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      queryParams:
+          value != null && value.isNotEmpty ? {"DepartmentName": value} : {},
+    );
 
-    // SEARCH MODE
-    if (value != null && value.isNotEmpty) {
-      final leaveTypeList = _leaveCubit.state.leaveTypeList;
-      final filteredLeaveType =
-          leaveTypeList
-              .where(
-                (leaveType) => leaveType.leaveType
-                    .toString()
-                    .toLowerCase()
-                    .contains(value.toString().toLowerCase()),
-              )
-              .toList();
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final departments = response['data'] as List<LeaveTypeModel>;
 
-      final Map<int, Map<String, dynamic>> uniqueFiltered = {};
-
-      for (final leaveType in filteredLeaveType) {
-        uniqueFiltered[leaveType.leaveTypeMasterId] = {
-          "zAttributesId": leaveType.leaveTypeMasterId.toString(),
-          "DisplayName": leaveType.leaveType,
+        return {
+          "itemList":
+              departments.map((department) {
+                return {
+                  "zAttributesId": department.leaveTypeMasterId,
+                  "DisplayName": department.leaveType,
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
-      }
-
-      return {
-        "itemList": uniqueFiltered.values.toList(),
-        "totalNumberOfRecord": uniqueFiltered.length,
-      };
-    }
-
-    final currentLoadedCount = _leaveCubit.state.leaveTypeList.length;
-
-    if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
-      await _leaveCubit.getLeaveTypeList(context, pageNumber, pageSize);
-    }
-
-    final leaveTypeListList = _leaveCubit.state.leaveTypeList;
-
-    final Map<int, Map<String, dynamic>> uniqueLeaveType = {};
-
-    for (final leaveType in leaveTypeListList) {
-      uniqueLeaveType[leaveType.leaveTypeMasterId] = {
-        "zAttributesId": leaveType.leaveTypeMasterId.toString(),
-        "DisplayName": leaveType.leaveType,
-      };
-    }
-
-    return {
-      "itemList": uniqueLeaveType.values.toList(),
-      "totalNumberOfRecord":
-          totalCount > 0 ? totalCount : uniqueLeaveType.length,
-    };
+      },
+    );
   }
 
   // <---- DELETE LEAVE ---->
@@ -237,6 +216,9 @@ class _LeaveScreenState extends State<LeaveScreen>
   Future<void> _showBottomSheetToFilterLeave(BuildContext context) async {
     _prefillFilterFromState();
     final state = _leaveCubit.state;
+    _selectedLeaveTypeNotifier.value = [
+      {"DisplayName": state.filterLeaveType},
+    ];
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(
       state.filterLeaveType != null ||
           state.filterStartDate != null ||

@@ -5,15 +5,13 @@ class InventoryState extends BaseState {
   final int currentTabIndex;
   final InventoryDashboardModel? inventoryDashboardModel;
   final List<InventoryDashboardModel> inventoryDashboardModelList;
-
-  // ✅ ADD THIS
   final Map<String, Map<String, int>> wingCounts;
 
   const InventoryState({
     super.isLoading,
     required this.buildingList,
     required this.currentTabIndex,
-    this.wingCounts = const {}, // ✅ default
+    this.wingCounts = const {},
     this.inventoryDashboardModel,
     required this.inventoryDashboardModelList,
   });
@@ -22,7 +20,7 @@ class InventoryState extends BaseState {
     buildingList: [],
     isLoading: true,
     currentTabIndex: 0,
-    wingCounts: const {}, // ✅ add
+    wingCounts: const {},
     inventoryDashboardModelList: [],
   );
 

@@ -809,7 +809,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     if (_applicants.value.isEmpty) {
       _tabController.animateTo(0);
       _bookingCubit.onTabChangedAddForm(0, context);
-      showErrorMessage(context, "", "Add Applicant");
+      showErrorMessage(context, "", "At least one applicant is required");
       return false;
     }
 

@@ -289,7 +289,7 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   // <----MODULES WORKFLOW APPROVAL  ---->
-  Future<void> updateModulesWorkflowApproval({
+  Future<bool> updateModulesWorkflowApproval({
     required BuildContext context,
     required String moduleName,
     required int id,
@@ -315,17 +315,21 @@ class LoginCubit extends Cubit<LoginState> {
 
     goRouter.pop();
 
-    result.fold(
+    final isSuccess = result.fold(
       (failure) {
         showErrorMessage(context, "Approval Failed", failure.message);
+        return false;
       },
       (response) {
         showSuccessMessage(
           context,
           subTitle: response['message'] ?? "Updated Successfully",
         );
+        return true;
       },
     );
+
+    return isSuccess;
   }
 
   //  GET APPROVAL LOG HISTORY LIST
