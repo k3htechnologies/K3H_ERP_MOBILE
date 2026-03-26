@@ -183,7 +183,7 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
 
           showSuccessMessage(
             context,
-            subTitle: "Asset Mapping Inactive Successfully",
+            subTitle: "Asset return Successfully",
           );
         }
       },

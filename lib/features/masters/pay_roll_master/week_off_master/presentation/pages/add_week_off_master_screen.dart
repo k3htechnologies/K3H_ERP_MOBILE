@@ -183,7 +183,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
 
   String get selectedMonthNames => _selectNotApplicableForMonth
       .map((month) => month["DisplayName"])
-      .join(", ");
+      .join(",");
 
   // SUBMIT FORM
   void _submitForm() {

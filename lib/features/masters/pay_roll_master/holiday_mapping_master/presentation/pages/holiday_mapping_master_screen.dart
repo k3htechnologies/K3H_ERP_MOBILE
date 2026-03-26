@@ -41,7 +41,7 @@ class _HolidayMappingMasterScreenState
   Timer? _debounce;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC, _filterBranchNameC;
+  late TextEditingController _searchC, _filterBranchNameC,_filterDepartmentNameC;
 
   @override
   void initState() {
@@ -63,7 +63,7 @@ class _HolidayMappingMasterScreenState
     scrollController.dispose();
     _searchC.dispose();
     _filterBranchNameC.dispose();
-
+    _filterDepartmentNameC.dispose();
     super.dispose();
   }
 
@@ -71,6 +71,7 @@ class _HolidayMappingMasterScreenState
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
     _filterBranchNameC = TextEditingController();
+    _filterDepartmentNameC = TextEditingController();
   }
 
   // <---- PAGINATION ---->
@@ -118,6 +119,7 @@ class _HolidayMappingMasterScreenState
     final state = _holidayMappingMasterCubit.state;
 
     _filterBranchNameC.text = state.filterBranchName;
+    _filterDepartmentNameC.text = state.filterDepartmentName;
 
     String? selectedDirection =
         state.currentSortColumn == "Holiday Name"
@@ -125,6 +127,7 @@ class _HolidayMappingMasterScreenState
             : null;
 
     final String initialBranchName = _filterBranchNameC.text;
+    final String initialDepartmentName = _filterDepartmentNameC.text;
     final String? initialDirection = selectedDirection;
 
     DateTime? filterFromDate = state.filterFromHolidayDate;
@@ -141,6 +144,7 @@ class _HolidayMappingMasterScreenState
       innerState(() {
         manualClose =
             (_filterBranchNameC.text.trim() != initialBranchName) ||
+            (_filterDepartmentNameC.text.trim() != initialDepartmentName) ||
             (selectedDirection != initialDirection) ||
             (filterFromDate != initialFromDate) ||
             (filterToDate != initialToDate);
@@ -234,6 +238,12 @@ class _HolidayMappingMasterScreenState
                     title: "Branch Name",
                     onChangeFunction: (_) => updateApplyState(innerState),
                   ),
+                  CustomTextField(
+                    textController: _filterDepartmentNameC,
+                    hint: "Enter Department Name",
+                    title: "Department Name",
+                    onChangeFunction: (_) => updateApplyState(innerState),
+                  ),
 
                   CustomDatePicker(
                     title: "Date of Holiday (From)",
@@ -318,7 +328,7 @@ class _HolidayMappingMasterScreenState
       ),
       onClear: () {
         _filterBranchNameC.clear();
-
+        _filterDepartmentNameC.clear();
         _holidayMappingMasterCubit.applyFilterAndSort(
           context: context,
           filterFromHolidayDate: null,
@@ -326,6 +336,7 @@ class _HolidayMappingMasterScreenState
           sortColumn: "Created Date",
           sortDirection: "DESC",
           filterBranchName: '',
+          filterDepartmentName: '',
         );
       },
       onApply: () {
@@ -334,6 +345,7 @@ class _HolidayMappingMasterScreenState
           _holidayMappingMasterCubit.applyFilterAndSort(
             context: context,
             filterBranchName: _filterBranchNameC.text,
+            filterDepartmentName: _filterDepartmentNameC.text,
             filterFromHolidayDate: filterFromDate,
             filterToHolidayDate: filterToDate,
             sortColumn: selectedDirection != null ? "Holiday Name" : null,
@@ -348,6 +360,7 @@ class _HolidayMappingMasterScreenState
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
       _filterBranchNameC.clear();
+      _filterDepartmentNameC.clear();
     }
   }
 

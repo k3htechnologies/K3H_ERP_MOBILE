@@ -37,7 +37,12 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
       _personalEmailC,
       _personalMobileNumberC,
       _communicationAddressC,
-      _permanentAddressC;
+      _permanentAddressC,
+      _aadharNumberC,
+      _panNumberC,
+      _drivingLicenceNumberC,
+      _voterIdNumberC,
+      _passportNumberC;
 
   // DATES
   DateTime? dateOfBirth;
@@ -98,6 +103,11 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
     _personalMobileNumberC = TextEditingController();
     _communicationAddressC = TextEditingController();
     _permanentAddressC = TextEditingController();
+    _aadharNumberC = TextEditingController();
+    _panNumberC = TextEditingController();
+    _drivingLicenceNumberC = TextEditingController();
+    _voterIdNumberC = TextEditingController();
+    _passportNumberC = TextEditingController();
   }
 
   @override
@@ -110,6 +120,11 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
     _personalMobileNumberC.dispose();
     _communicationAddressC.dispose();
     _permanentAddressC.dispose();
+    _aadharNumberC.dispose();
+    _panNumberC.dispose();
+    _drivingLicenceNumberC.dispose();
+    _voterIdNumberC.dispose();
+    _passportNumberC.dispose();
     super.dispose();
   }
 
@@ -148,6 +163,11 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
 
     // DATES
     dateOfBirth = model.dateOfBirth;
+    _aadharNumberC.text = model.aadharCardNumber;
+    _panNumberC.text = model.panCardNumber;
+    _drivingLicenceNumberC.text = model.drivingLicenceNumber;
+    _voterIdNumberC.text = model.voterCardNumber;
+    _passportNumberC.text = model.passportNumber;
   }
 
   // UPDATE USER BASIC DETAILS
@@ -167,6 +187,11 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
         "CommunicationAddress": _communicationAddressC.text.trim(),
         "PermanentAddress": _permanentAddressC.text.trim(),
         "BloodGroup": selectedBloodGroup!["DisplayName"],
+        "AadharCardNumber": _aadharNumberC.text.trim(),
+        "PanCardNumber": _panNumberC.text.trim(),
+        "DrivingLicenceNumber": _drivingLicenceNumberC.text.trim(),
+        "VoterCardNumber": _voterIdNumberC.text.trim(),
+        "PassportNumber": _passportNumberC.text.trim(),
       };
       //  SUBMIT USER BASIC DETAILS
       await _profileCubit.updateUserBasicDetails(
@@ -334,6 +359,55 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                       ],
                     ),
                   ),
+                ),
+                CustomTextField(
+                  title: "Aadhaar Number",
+                  isRequired: true,
+                  hint: "Enter Aadhaar Number",
+                  textController: _aadharNumberC,
+                  inputFormatterList:
+                      InputValidator.aadhaarNumberInputFormatter(),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Aadhaar Card Number is required';
+                    }
+                    return null;
+                  },
+                ),
+                CustomTextField(
+                  title: "PAN Number",
+                  isRequired: true,
+                  hint: "Enter PAN Number",
+                  textController: _panNumberC,
+                  inputFormatterList: InputValidator.panInputFormatters(),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'PAN Card Number is required';
+                    }
+                    return null;
+                  },
+                ),
+                CustomTextField(
+                  title: "Passport Number",
+                  isRequired: true,
+                  hint: "Enter Passport Number",
+                  textController: _passportNumberC,
+                  inputFormatterList: InputValidator.passportInputFormatters(),
+                ),
+                CustomTextField(
+                  title: "Driving License Number",
+                  isRequired: true,
+                  hint: "Enter Driving License Number",
+                  textController: _drivingLicenceNumberC,
+                  inputFormatterList:
+                      InputValidator.drivingLicenceInputFormatters(),
+                ),
+                CustomTextField(
+                  title: "Voting Card Number",
+                  isRequired: true,
+                  hint: "Enter Voting Card Number",
+                  textController: _voterIdNumberC,
+                  inputFormatterList: InputValidator.voterIdInputFormatters(),
                 ),
                 CustomTextField(
                   title: 'Communication Address',

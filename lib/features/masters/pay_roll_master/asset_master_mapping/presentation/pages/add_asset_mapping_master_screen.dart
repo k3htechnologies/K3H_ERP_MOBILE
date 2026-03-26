@@ -160,6 +160,7 @@ class _AddAssetMappingMasterScreenState
           'reportingPerson': employee.reportPersonName,
           'email': employee.emailId,
           'personalNumber': employee.personalMobileNumber,
+          "joiningDate": employee.joiningDate,
         },
       ];
     });
@@ -197,6 +198,7 @@ class _AddAssetMappingMasterScreenState
                   "reportingPerson": employee.reportPersonName,
                   "email": employee.emailId,
                   "personalNumber": employee.personalMobileNumber,
+                  "joiningDate": employee.joiningDate,
                 };
               }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
@@ -462,7 +464,7 @@ class _AddAssetMappingMasterScreenState
                               dataFetchCallBack: _fetchEmployees,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Employee is required";
+                                  return "Employee Name is required";
                                 }
                                 return null;
                               },
@@ -540,6 +542,11 @@ class _AddAssetMappingMasterScreenState
                                         ),
                                       ],
                                     ),
+                                    Row(
+                                      children: [
+                                        buildColumnTitleValue(title: "Joining Date", value:  formatDateTimeAsDDMMMYYYY(selectedEmployee.first["joiningDate"]))
+                                      ],
+                                    )
                                   ],
                                 ),
                               ),

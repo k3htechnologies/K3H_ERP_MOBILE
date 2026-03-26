@@ -16,7 +16,6 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
-import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -63,7 +62,6 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
   List<Map<String, dynamic>>? selectedStateList = [];
   // GENDER LIST
   List<Map<String, dynamic>> genderList = [
-    {"zAttributesId": -1, "DisplayName": "Select Gender"},
     {"zAttributesId": 1, "DisplayName": "Male"},
     {"zAttributesId": 2, "DisplayName": "Female"},
     {"zAttributesId": 3, "DisplayName": "Other"},
@@ -116,7 +114,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
     {"DisplayName": "Ex-Gratia", "zAttributesId": 31},
     {"DisplayName": "Relocation Allowance", "zAttributesId": 32},
   ];
- 
+
   // SELECTED VALUES
   Map<String, dynamic>? selectedGender;
   List<Map<String, dynamic>> selectedNameList = [];
@@ -132,11 +130,15 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
     apiCallPullCountryStateCityDistrictVillage();
     _deductionMasterCubit = context.read<DeductionMasterCubit>();
     _routeAuthorizationModel = AuthorizationModel();
-    selectedGender = genderList.first;
     if (_isEditMode && widget.deductionMasterModel != null) {
       final model = widget.deductionMasterModel!;
-      final isPercentage = model.applicable == "Percentage";
-      applicableType = ValueNotifier(isPercentage ? "Percentage" : "Lumpsum");
+
+      applicableType = ValueNotifier(
+        (model.applicable).toLowerCase().trim() == 'percentage'
+            ? 'Percentage'
+            : 'Lumpsum',
+      );
+
       _populateFormFields(model);
     } else {
       applicableType = ValueNotifier("Percentage");
@@ -169,10 +171,14 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
     _valueC.text = deductionMasterModel.value.toString();
     _minSalaryC.text = deductionMasterModel.minSalary.toString();
     _maxSalaryC.text = deductionMasterModel.maxSalary.toString();
-    selectedGender = genderList.firstWhere(
-      (item) => item['DisplayName'] == deductionMasterModel.gender,
-      orElse: () => genderList.first,
-    );
+    selectedGender =
+        genderList
+            .where(
+              (item) =>
+                  item['DisplayName'].toString().toLowerCase().trim() ==
+                  (deductionMasterModel.gender).toLowerCase().trim(),
+            )
+            .firstOrNull;
     selectedNameList = [
       nameList.firstWhere(
         (item) => item['DisplayName'] == deductionMasterModel.name,
@@ -198,7 +204,10 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
         "DisplayName": deductionMasterModel.stateName,
       },
     ];
-    applicableType.value = deductionMasterModel.applicable;
+    applicableType.value =
+        (deductionMasterModel.applicable).toLowerCase().trim() == 'percentage'
+            ? 'Percentage'
+            : 'Lumpsum';
   }
 
   // API CALL FOR PULL COUNTRY STATE CITY DISTRICT VILLAGE
@@ -626,11 +635,37 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
                         LengthLimitingTextInputFormatter(10),
                       ],
                     ),
-                    CustomDropDownWidget(
-                      title: 'Gender',
-                      initialValue: selectedGender,
+                    CustomMultipleSelectPopup(
+                      initialValue:
+                          selectedGender != null ? [selectedGender!] : [],
+                      title: "Gender",
+                      hintText: "Select Gender",
+                      isMultiSelect: false,
+                      dataFetchCallBack: (
+                        int pageNumber, {
+                        String? value,
+                      }) async {
+                        final filteredList =
+                            value == null || value.isEmpty
+                                ? genderList
+                                : genderList
+                                    .where(
+                                      (e) => e["DisplayName"]
+                                          .toString()
+                                          .toLowerCase()
+                                          .contains(value.toLowerCase()),
+                                    )
+                                    .toList();
+
+                        return {
+                          "itemList": filteredList,
+                          "totalNumberOfRecord": filteredList.length,
+                        };
+                      },
                       dataList: genderList,
-                      onSelected: (value) => selectedGender = value,
+                      onSelected: (value) {
+                        selectedGender = value.isNotEmpty ? value.first : null;
+                      },
                     ),
                     CustomMultipleSelectPopup(
                       initialValue: selectedStateList,

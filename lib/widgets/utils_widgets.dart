@@ -47,41 +47,43 @@ Widget bulletText(String text) {
 }
 
 Widget loader() {
-  return Container(
-    decoration: const BoxDecoration(color: Colors.transparent),
-    child: Stack(
-      children: [
-        // BLUR BACKGROUND
-        BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-          child: Container(
-            width: 160,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15), // glass transparency
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.3),
-                width: 1.2,
+  return SafeArea(
+    child: Container(
+      decoration: const BoxDecoration(color: Colors.transparent),
+      child: Stack(
+        children: [
+          // BLUR BACKGROUND
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+            child: Container(
+              width: 160,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15), // glass transparency
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.3),
+                  width: 1.2,
+                ),
               ),
             ),
           ),
-        ),
-
-        Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Image.asset("assets/images/appLogo.png", width: 100, height: 100),
-              verticalSpacing(),
-              CircularProgressIndicator(
-                color: AppColor.primary,
-                strokeWidth: 2,
-              ),
-            ],
+    
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset("assets/images/appLogo.png", width: 100, height: 100),
+                verticalSpacing(),
+                CircularProgressIndicator(
+                  color: AppColor.primary,
+                  strokeWidth: 2,
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }

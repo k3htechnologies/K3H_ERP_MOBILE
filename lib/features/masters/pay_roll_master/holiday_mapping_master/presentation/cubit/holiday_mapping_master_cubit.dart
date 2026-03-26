@@ -43,6 +43,7 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
       "HolidayName": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
       "BranchName": state.filterBranchName,
+      "DepartmentName": state.filterDepartmentName,
     };
 
     if (state.filterFromHolidayDate != null) {
@@ -239,6 +240,7 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
   Future<void> applyFilterAndSort({
     required BuildContext context,
     required String filterBranchName,
+    required String filterDepartmentName,
     required DateTime? filterFromHolidayDate,
     required DateTime? filterToHolidayDate,
     String? sortColumn,
@@ -247,6 +249,7 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
     emit(
       state.copyWith(
         filterBranchName: filterBranchName,
+        filterDepartmentName: filterDepartmentName,
         filterFromHolidayDate: filterFromHolidayDate,
         filterToHolidayDate: filterToHolidayDate,
         currentSortColumn: sortColumn ?? state.currentSortColumn,

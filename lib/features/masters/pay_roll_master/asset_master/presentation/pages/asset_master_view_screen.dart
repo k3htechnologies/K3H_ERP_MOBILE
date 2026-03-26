@@ -324,9 +324,14 @@ class _AssetMasterViewScreenState extends State<AssetMasterViewScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       buildColumnTitleValue(
-                        title: "Duration Date",
+                        title: "Duration From",
                         value:
-                            "${formatDateTimeAsDDMMMYYYY(assetMapping.assignedDate)} to ${formatDateTimeAsDDMMMYYYY(assetMapping.returnDate!)}",
+                            formatDateTimeAsDDMMMYYYY(assetMapping.assignedDate),
+                      ),
+                      buildColumnTitleValue(
+                        title: "Duration to",
+                        value:
+                            formatDateTimeAsDDMMMYYYY(assetMapping.returnDate!),
                       ),
                     ],
                   ),

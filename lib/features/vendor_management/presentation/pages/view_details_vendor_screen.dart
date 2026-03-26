@@ -259,7 +259,7 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
                 title: "Available Material",
                 value: widget.vendor.submaterialList
                     .map((e) => e.materialName)
-                    .join(", "),
+                    .join(","),
               ),
             ],
           ),

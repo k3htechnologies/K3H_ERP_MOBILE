@@ -366,7 +366,7 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
                       buildRowTitleValue(
                         title: "Gender",
                         value: deduction.gender,
-                        customValueWidget: Container(
+                        customValueWidget: deduction.gender.isNotEmpty? Container(
                           padding: EdgeInsets.symmetric(
                             horizontal: 12,
                             vertical: 4,
@@ -381,7 +381,7 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
                             overflow: TextOverflow.ellipsis,
                             style: AppTextStyle.ts14R(color: AppColor.primary),
                           ),
-                        ),
+                        ):Text("-"),
                       ),
                       buildRowTitleValue(
                         title: "State Name",

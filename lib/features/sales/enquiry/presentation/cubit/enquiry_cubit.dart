@@ -192,7 +192,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     String? value,
     int? employeeId,
   }) async {
-    final Map<String, dynamic> queryParams = {};
+    final Map<String, dynamic> queryParams = {"IsCheckPermission": "false",};
 
     queryParams["DepartmentName"] = "Sale";
 

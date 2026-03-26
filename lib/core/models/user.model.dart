@@ -53,6 +53,11 @@ class UserModel {
   String districtName;
   int cityMasterId;
   String cityName;
+  String aadharCardNumber;
+  String passportNumber;
+  String panCardNumber;
+  String drivingLicenceNumber;
+  String voterCardNumber;
   int clientRegistrationId;
   int createdById;
   String createdBy;
@@ -118,6 +123,11 @@ class UserModel {
     required this.districtName,
     required this.cityMasterId,
     required this.cityName,
+    required this.aadharCardNumber,
+    required this.passportNumber,
+    required this.panCardNumber,
+    required this.drivingLicenceNumber,
+    required this.voterCardNumber,
     required this.clientRegistrationId,
     required this.createdById,
     required this.createdBy,
@@ -204,6 +214,11 @@ class UserModel {
     districtName: parseValue<String>(json, "DistrictName"),
     cityMasterId: parseValue<int>(json, "CityMasterId"),
     cityName: parseValue<String>(json, "CityName"),
+    aadharCardNumber: parseValue<String>(json, "AadharCardNumber"),
+    passportNumber: parseValue<String>(json, "PassportNumber"),
+    panCardNumber: parseValue<String>(json, "PanCardNumber"),
+    drivingLicenceNumber: parseValue<String>(json, "DrivingLicenceNumber"),
+    voterCardNumber: parseValue<String>(json, "VoterCardNumber"),
     clientRegistrationId: parseValue<int>(json, "ClientRegistrationId"),
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
@@ -283,6 +298,11 @@ class UserModel {
     "DistrictName": districtName,
     "CityMasterId": cityMasterId,
     "CityName": cityName,
+    "AadharCardNumber": aadharCardNumber,
+    "PassportNumber": passportNumber,
+    "PanCardNumber": panCardNumber,
+    "DrivingLicenceNumber": drivingLicenceNumber,
+    "VoterCardNumber": voterCardNumber,
     "ClientRegistrationId": clientRegistrationId,
     "CreatedById": createdById,
     "CreatedBy": createdBy,

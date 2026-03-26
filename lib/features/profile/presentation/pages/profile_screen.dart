@@ -886,7 +886,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               _buildInfoCard(
                 title: 'Basic Details',
                 items: [
-                  {'label': 'Full Name', 'value': overview.fullName},
+                  {'label': 'Full Name', 'value': overview.fullName,'fullWidth':'true'},
                   {'label': 'Gender', 'value': overview.gender},
                   {'label': 'Marital Status', 'value': overview.maritalStatus},
                   {'label': 'Blood Group', 'value': overview.bloodGroup},
@@ -897,6 +897,13 @@ class _ProfileScreenState extends State<ProfileScreen>
                             ? formatDateTimeAsDDMMMYYYY(overview.dateOfBirth!)
                             : '-',
                   },
+                  {'label': 'Email ID', 'value': overview.emailId},
+                  {'label': 'Personal Mobile No.', 'value': overview.personalMobileNumber},
+                  {'label': 'Aadhaar Card Number', 'value': overview.aadharCardNumber},
+                  {'label': 'PAN Number', 'value': overview.panCardNumber},
+                  {'label': 'Passport Number', 'value': overview.passportNumber},
+                  {'label': 'Driving / Licence Number', 'value': overview.drivingLicenceNumber},
+                  {'label': 'Voter Card Number', 'value': overview.voterCardNumber},
 
                   {
                     'label': 'Communication Address',
@@ -924,59 +931,6 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
               verticalSpacing(),
               _buildInfoCard(
-                title: 'Contact Information',
-                items: [
-                  {
-                    'label': 'Personal Mobile No.',
-                    'value': overview.personalMobileNumber,
-                  },
-                  {
-                    'label': 'Office Mobile',
-                    'value': overview.officeMobileNumber,
-                  },
-                  {'label': 'Email Id', 'value': overview.emailId},
-                  {'label': 'Office Email Id', 'value': overview.officeEmailId},
-                  {
-                    'label': 'Relation to Emergency Contact',
-                    'value': overview.emergencyContactPersonRelationship,
-                  },
-                  {
-                    'label': 'Emergency Contact No.',
-                    'value': overview.emergencyMobileNumber,
-                  },
-                ],
-              ),
-              verticalSpacing(),
-              _buildInfoCard(
-                title: 'Professional Information',
-                items: [
-                  {'label': 'Company Name', 'value': overview.companyName},
-                  {'label': 'Department', 'value': overview.department},
-                  {'label': 'Designation', 'value': overview.designation},
-                  {'label': 'Branch', 'value': overview.branch},
-                  {'label': 'Employment Type', 'value': overview.employeeType},
-                  {
-                    'label': 'Reporting Person',
-                    'value': overview.reportPersonName,
-                  },
-                  {
-                    'label': 'Joining Date',
-                    'value':
-                        overview.joiningDate != null
-                            ? formatDateTimeAsDDMMMYYYY(overview.joiningDate!)
-                            : "-",
-                  },
-                  {
-                    'label': 'Probation Date',
-                    'value':
-                        overview.probationDate != null
-                            ? formatDateTimeAsDDMMMYYYY(overview.probationDate!)
-                            : "-",
-                  },
-                ],
-              ),
-              verticalSpacing(),
-              _buildInfoCard(
                 title: 'Address Information',
                 items: [
                   {'label': 'Country', 'value': overview.countryName},
@@ -986,16 +940,62 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ],
               ),
               verticalSpacing(),
+              _buildInfoCard(
+                title: 'Employee Information',
+                items: [
+                  {'label': 'Company Name', 'value': overview.companyName},
+                  {'label': 'Branch', 'value': overview.branch},
+                  {'label': 'Department', 'value': overview.department},
+                  {'label': 'Designation', 'value': overview.designation},
+                  {
+                    'label': 'Joining Date',
+                    'value':
+                    overview.joiningDate != null
+                        ? formatDateTimeAsDDMMMYYYY(overview.joiningDate!)
+                        : "-",
+                  },
+                  {
+                    'label': 'Reporting Person',
+                    'value': overview.reportPersonName,
+                  },
+                  {'label': 'Employment Type', 'value': overview.employeeType},
+                  {'label': 'Office Number', 'value': overview.officeMobileNumber},
+                  {'label': 'Office E-mail ID', 'value': overview.officeEmailId},
+                  {
+                    'label': 'Probation Date',
+                    'value':
+                        overview.probationDate != null
+                            ? formatDateTimeAsDDMMMYYYY(overview.probationDate!)
+                            : "-",
+                  },
+                  {
+                    'label': 'Id Card Issued Date',
+                    'value':
+                    overview.idCardIssuedDate != null
+                        ? formatDateTimeAsDDMMMYYYY(overview.idCardIssuedDate!)
+                        : "-",
+                  },
+                ],
+              ),
+              verticalSpacing(),
               if (_hasBankDetails(overview))
                 _buildInfoCard(
                   title: 'Bank Details',
                   items: [
                     {'label': 'Bank Name', 'value': overview.bankName},
-                    {'label': 'Bank Branch', 'value': overview.bankBranchName},
-                    {'label': 'IFSC Code', 'value': overview.ifscCode},
                     {'label': 'Account Number', 'value': overview.accountNo},
+                    {'label': 'Bank Branch Name', 'value': overview.bankBranchName},
+                    {'label': 'IFSC Code', 'value': overview.ifscCode},
                   ],
                 ),
+              verticalSpacing(),
+              _buildInfoCard(
+                title: 'Emergency Contact Details',
+                items: [
+                  {'label': 'Relation to Emergency Contact', 'value': overview.emergencyContactPersonRelationship,'fullWidth':"true"},
+                  {'label': 'Emergency Contact Number', 'value': overview.emergencyMobileNumber,'fullWidth':"true"},
+                ],
+              ),
               if (_hasBankDetails(overview)) verticalSpacing(),
               if (overview.employeeReportingCycleData.isNotEmpty)
                 _buildEmployeeReportingCycleCard(

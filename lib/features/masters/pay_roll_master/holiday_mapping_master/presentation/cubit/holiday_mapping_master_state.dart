@@ -8,6 +8,7 @@ class HolidayMappingMasterState extends BaseState {
   final String currentSortColumn;
   final String currentSortDirection;
   final String filterBranchName;
+  final String filterDepartmentName;
   final DateTime? filterFromHolidayDate;
   final DateTime? filterToHolidayDate;
 
@@ -20,6 +21,7 @@ class HolidayMappingMasterState extends BaseState {
     required this.currentSortColumn,
     required this.currentSortDirection,
     this.filterBranchName = "",
+    this.filterDepartmentName = "",
     this.filterFromHolidayDate,
     this.filterToHolidayDate,
   });
@@ -33,6 +35,7 @@ class HolidayMappingMasterState extends BaseState {
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
     filterBranchName: "",
+    filterDepartmentName: "",
     filterFromHolidayDate: null,
     filterToHolidayDate: null,
   );
@@ -46,7 +49,7 @@ class HolidayMappingMasterState extends BaseState {
     String? currentSortColumn,
     String? currentSortDirection,
     String? filterBranchName,
-
+    String? filterDepartmentName,
     Object? filterFromHolidayDate = _noChange,
     Object? filterToHolidayDate = _noChange,
   }) {
@@ -59,7 +62,7 @@ class HolidayMappingMasterState extends BaseState {
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
       filterBranchName: filterBranchName ?? this.filterBranchName,
-
+      filterDepartmentName: filterDepartmentName ?? this.filterDepartmentName,
       filterFromHolidayDate:
           filterFromHolidayDate == _noChange
               ? this.filterFromHolidayDate
@@ -84,6 +87,7 @@ class HolidayMappingMasterState extends BaseState {
     currentSortColumn,
     currentSortDirection,
     filterBranchName,
+    filterDepartmentName,
     filterFromHolidayDate,
     filterToHolidayDate,
   ];

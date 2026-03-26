@@ -37,6 +37,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       GlobalKey<FormState>();
 
   // DROPDOWN VALUES
+  Map<String, dynamic>? selectedBusinessCategory;
   Map<String, dynamic>? selectedProjectStatus;
   Map<String, dynamic>? selectedProjectSubScheme;
 
@@ -61,7 +62,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       _projectLocationC,
       _projectScopeC,
       _ctsNumberC,
-      _businessCategoryC,
       _fileNumberC,
       _architectNameC,
       _architectMobileNumberC,
@@ -84,6 +84,13 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     fileNameList: [],
     deletedFileList: "",
   );
+
+  // BUSINESS CATEGORY
+  List<Map<String, dynamic>> businessCategoryList = [
+    {"zAttributesId": 1, "DisplayName": "Commercial"},
+    {"zAttributesId": 2, "DisplayName": "Mixed Use"},
+    {"zAttributesId": 3, "DisplayName": "Residential"},
+  ];
 
   // STATIC LISTS
   List<Map<String, dynamic>> projectSchemeList = [
@@ -167,7 +174,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _projectLocationC.dispose();
     _projectScopeC.dispose();
     _ctsNumberC.dispose();
-    _businessCategoryC.dispose();
     _fileNumberC.dispose();
     _architectNameC.dispose();
     _architectMobileNumberC.dispose();
@@ -188,7 +194,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _projectLocationC = TextEditingController();
     _projectScopeC = TextEditingController();
     _ctsNumberC = TextEditingController();
-    _businessCategoryC = TextEditingController();
     _fileNumberC = TextEditingController();
     _architectNameC = TextEditingController();
     _architectMobileNumberC = TextEditingController();
@@ -208,7 +213,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _projectNameC.text = widget.project!.projectName;
     _projectLocationC.text = widget.project!.projectLocation;
     _ctsNumberC.text = widget.project!.ctsNumber;
-    _businessCategoryC.text = widget.project!.bussinessCategory;
     _fileNumberC.text = widget.project!.fileNumber;
     _architectNameC.text = widget.project!.architectName;
     _architectMobileNumberC.text = widget.project!.architectMobileNumber;
@@ -228,6 +232,15 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     executionStartDate = widget.project!.executionStartDate;
     reraCertificateDate = widget.project!.reraCertificateDate;
     reraCompletionDate = widget.project!.reraComplitionDate;
+
+    if (widget.project!.bussinessCategory.isNotEmpty) {
+      selectedBusinessCategory = businessCategoryList.firstWhere(
+        (businessCategory) =>
+            businessCategory["DisplayName"] ==
+            widget.project!.bussinessCategory,
+        orElse: () => businessCategoryList.first,
+      );
+    }
 
     if (widget.project!.projectStatus.isNotEmpty) {
       selectedProjectStatus = projectStatusList.firstWhere(
@@ -282,7 +295,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             ctsNumber:
                 isRedevelopmentNotifier.value == false ? _ctsNumberC.text : "",
             projectPhotoMap: projectPhotoImage,
-            businessCategory: _businessCategoryC.text,
+            businessCategory: selectedBusinessCategory?["DisplayName"] ?? "",
             fileNumber: _fileNumberC.text,
             architectName: _architectNameC.text,
             architectMobileNumber: _architectMobileNumberC.text,
@@ -336,7 +349,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             ctsNumber:
                 isRedevelopmentNotifier.value == false ? _ctsNumberC.text : "",
             projectPhotoMap: projectPhotoImage,
-            businessCategory: _businessCategoryC.text,
+            businessCategory: selectedBusinessCategory?["DisplayName"] ?? "-",
             fileNumber: _fileNumberC.text,
             architectName: _architectNameC.text,
             architectMobileNumber: _architectMobileNumberC.text,
@@ -406,7 +419,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                   style: AppTextStyle.ts16SB(),
                 ),
                 verticalSpacing(),
-
+                // BASIC DETAILS
                 Container(
                   padding: EdgeInsets.all(12),
                   margin: EdgeInsets.only(bottom: 10),
@@ -506,38 +519,15 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                           return null;
                         },
                       ),
-                      AddressWidget(
-                        formKey: _projectMasterAddUpdateKey,
-                        incomingStateId: _stateMasterId,
-                        incomingDistrictId: _stateMasterId,
-                        incomingCityId: widget.project?.cityMasterId,
-                        incomingVillageId: _villageMasterId,
-                        stateChange: (selectedState) {
-                          _stateMasterId = selectedState['zAttributesId'];
-                        },
-                        districtChange: (selectedDistrict) {
-                          _districtMasterId = selectedDistrict['zAttributesId'];
-                        },
-                        cityChange: (selectedCity) {
-                          _cityMasterId = selectedCity['zAttributesId'];
-                        },
-                        villageChange: (selectedVillage) {
-                          _villageMasterId = selectedVillage['zAttributesId'];
-                        },
-                      ),
-                      CustomTextField(
-                        title: 'PIN Code',
-                        textController: _pinCodeC,
-                        hint: "Enter PIN Code",
-                        inputFormatterList: InputValidator.digit(6),
-                      ),
-                      CustomTextField(
+
+                      CustomDropDownWidget(
                         title: 'Business Category',
-                        textController: _businessCategoryC,
-                        hint: "Enter Business Category",
-                        inputFormatterList: [
-                          LengthLimitingTextInputFormatter(100),
-                        ],
+                        hintText: "Select Business Category",
+                        initialValue: selectedBusinessCategory,
+                        dataList: businessCategoryList,
+                        onSelected: (value) {
+                          selectedBusinessCategory = value;
+                        },
                       ),
                       CustomTextField(
                         title: 'File Number',
@@ -575,10 +565,24 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                             ],
                           ),
                         ),
-                        inputFormatterList: InputValidator.digit(
-                          10,
-                        ),
+                        inputFormatterList: InputValidator.digit(10),
                       ),
+                    ],
+                  ),
+                ),
+                // LOCATION
+                Container(
+                  decoration: commonCardDecoration(),
+                  padding: EdgeInsets.all(12),
+                  margin: EdgeInsets.only(bottom: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Location Details",
+                        style: AppTextStyle.ts16SB(color: AppColor.grey),
+                      ),
+                      verticalSpacing(),
                       CustomTextField(
                         title: 'Project Location',
                         hint: "Enter Project Location",
@@ -632,6 +636,31 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
 
                           return null;
                         },
+                      ),
+                      AddressWidget(
+                        formKey: _projectMasterAddUpdateKey,
+                        incomingStateId: _stateMasterId,
+                        incomingDistrictId: _stateMasterId,
+                        incomingCityId: widget.project?.cityMasterId,
+                        incomingVillageId: _villageMasterId,
+                        stateChange: (selectedState) {
+                          _stateMasterId = selectedState['zAttributesId'];
+                        },
+                        districtChange: (selectedDistrict) {
+                          _districtMasterId = selectedDistrict['zAttributesId'];
+                        },
+                        cityChange: (selectedCity) {
+                          _cityMasterId = selectedCity['zAttributesId'];
+                        },
+                        villageChange: (selectedVillage) {
+                          _villageMasterId = selectedVillage['zAttributesId'];
+                        },
+                      ),
+                      CustomTextField(
+                        title: 'PIN Code',
+                        textController: _pinCodeC,
+                        hint: "Enter PIN Code",
+                        inputFormatterList: InputValidator.digit(6),
                       ),
                     ],
                   ),

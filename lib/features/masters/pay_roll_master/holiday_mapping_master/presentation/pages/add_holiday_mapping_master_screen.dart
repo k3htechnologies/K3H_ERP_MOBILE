@@ -291,6 +291,7 @@ class _AddHolidayMappingMasterScreenState
                           title: 'Holiday Name',
                           isRequired: true,
                           isMultiSelect: false,
+                          hintText: "Select Holiday Name",
                           initialValue: _selectedHoliday,
                           dataList: [],
                           onSelected: (value) {
@@ -325,6 +326,7 @@ class _AddHolidayMappingMasterScreenState
                         CustomMultipleSelectPopup(
                           title: 'Branch',
                           isMultiSelect: false,
+                          hintText: "Select Branch Name",
                           initialValue: _selectedBranch,
                           dataList: [],
                           onSelected: (value) {
@@ -337,6 +339,7 @@ class _AddHolidayMappingMasterScreenState
                         CustomMultipleSelectPopup(
                           title: 'Department',
                           isMultiSelect: true,
+                          hintText: "Select Department Name",
                           initialValue: _selectedDepartment,
                           dataList: [],
                           onSelected: (value) {

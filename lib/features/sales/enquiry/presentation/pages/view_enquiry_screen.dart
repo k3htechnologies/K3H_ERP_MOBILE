@@ -284,20 +284,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                     enquiry.systemGeneratedCode,
                     style: AppTextStyle.ts16SB(color: AppColor.primary),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColor.lightBlue,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      "Enquiry",
-                      style: AppTextStyle.ts12SB(color: AppColor.primary),
-                    ),
-                  ),
+                  statusWidget(enquiry.finalStage)
                 ],
               ),
 

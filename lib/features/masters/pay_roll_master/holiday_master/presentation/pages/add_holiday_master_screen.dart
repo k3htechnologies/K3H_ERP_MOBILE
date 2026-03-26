@@ -131,6 +131,7 @@ class _AddHolidayMasterScreenState extends State<AddHolidayMasterScreen> {
                       initialFileList: holidayFile.fileNameList,
                       title: "Holiday Image",
                       isRequired: true,
+                      maxFiles: 1,
                       onFilePickedCallback: (fileByteList, fileNameList) {
                         holidayFile.fileBytesList = fileByteList;
                         holidayFile.fileNameList = fileNameList;
