@@ -111,6 +111,7 @@ class AppRoutes {
   static String viewEnquiry = "/viewEnquiry";
 
   // SALES CHANNEL PARTNER
+  static String channelPartnerDashboard = "/channelPartnerDashboard";
   static String channelPartner = "/channelPartner";
   static String addChannelPartner = "/addChannelPartner";
   static String channelPartnerView = "/channelPartnerView";

@@ -842,80 +842,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           Center(
             child: Text(
-              "No Scheduled Task Available",
+              "Coming Soon",
               style: AppTextStyle.ts12M(
                 color: AppColor.black.withValues(alpha: 0.50),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget scheduledTaskCard() {
-    return Container(
-      margin: const EdgeInsets.only(top: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: AppColor.lightGreyBackground,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 4,
-            height: 72,
-            decoration: BoxDecoration(
-              color: AppColor.priorityHighColor,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(2),
-                topRight: Radius.circular(8),
-                bottomLeft: Radius.circular(2),
-                bottomRight: Radius.circular(8),
-              ),
-            ),
-          ),
-
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "HR Dashboard Redesign",
-                        style: AppTextStyle.ts16M(),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        "Due: Today, 5:00 PM",
-                        style: AppTextStyle.ts12R(
-                          color: AppColor.black.withValues(alpha: 0.50),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 4,
-                      horizontal: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColor.priorityHighColor.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      "High",
-                      style: AppTextStyle.ts12M(
-                        color: AppColor.priorityHighColor,
-                      ),
-                    ),
-                  ),
-                ],
               ),
             ),
           ),

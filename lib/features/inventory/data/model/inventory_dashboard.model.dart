@@ -122,17 +122,63 @@ class Table1 {
 }
 
 class Table2 {
-  Table2();
+  final String building;
+  final int basement;
+  final int podiums;
+  final int wings;
+  final int floors;
+  final int units;
+  final int parking;
+  Table2({
+    required this.building,
+    required this.basement,
+    required this.podiums,
+    required this.wings,
+    required this.floors,
+    required this.units,
+    required this.parking,
+  });
 
-  factory Table2.fromJson(Map<String, dynamic> json) => Table2();
+  factory Table2.fromJson(Map<String, dynamic> json) => Table2(
+    building: parseValue<String>(json, "Building"),
+    basement: parseValue<int>(json, "Basement"),
+    podiums: parseValue<int>(json, "Podiums"),
+    wings: parseValue<int>(json, "Wings"),
+    floors: parseValue<int>(json, "Floors"),
+    units: parseValue<int>(json, "Units"),
+    parking: parseValue<int>(json, "Parking"),
+  );
 
-  Map<String, dynamic> toJson() => {};
+  Map<String, dynamic> toJson() => {
+    "Building": building,
+    "Basement": basement,
+    "Podiums": podiums,
+    "Wings": wings,
+    "Floors": floors,
+    "Units": units,
+    "Parking": parking,
+  };
 }
 
 class Table3 {
-  Table3();
+  final String buildingName;
+  final String unitNumber;
+  final String issue;
+  Table3({
+    required this.buildingName,
+    required this.unitNumber,
+    required this.issue,
+  });
 
-  factory Table3.fromJson(Map<String, dynamic> json) => Table3();
+  factory Table3.fromJson(Map<String, dynamic> json) => Table3(
+    buildingName: parseValue<String>(json, "BuildingName"),
+    unitNumber: parseValue<String>(json, "UnitNumber"),
+    issue: parseValue<String>(json, "Issue"),
+  );
 
-  Map<String, dynamic> toJson() => {};
+  Map<String, dynamic> toJson() => {
+    "BuildingName": buildingName,
+    "UnitNumber": unitNumber,
+    "Issue": issue,
+  };
 }

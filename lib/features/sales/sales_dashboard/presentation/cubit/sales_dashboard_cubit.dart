@@ -4,7 +4,9 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/data/model/sales.dashboard.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/data/repository/sales.dashboard.repository.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'sales_dashboard_state.dart';
 
@@ -38,6 +40,33 @@ class SalesDashboardCubit extends Cubit<SalesDashboardState> {
             isLoading: false,
           ),
         );
+      },
+    );
+  }
+
+  // <---- MARK TIME OUT ENQUIRY ---->
+  Future markTimeOutEnquiry({
+    required BuildContext context,
+    required int enquiryId,
+    required int projectId,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, dynamic> requestBody = {
+      "EnquiryId": enquiryId,
+      "ProjectId": projectId,
+    };
+    var addResult = await _salesDashboardRepository.markTimeOutEnquiry(
+      body: requestBody,
+    );
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(context, subTitle: response['message']);
+        getSalesDashboardList(context, projectId);
       },
     );
   }

@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
@@ -128,7 +129,9 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                     color: AppColor.white,
                                   ),
                                   text: "Add Inventory",
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    goRouter.pushNamed(AppRoutes.inventory);
+                                  },
                                 ),
                               ),
                             ],
@@ -648,8 +651,8 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                       final parkingDetails = table1[index];
                       return _buildParkingRow(
                         title: parkingDetails.floorName,
-                        used: 100,
-                        total: 300,
+                        used: parkingDetails.availableParking,
+                        total: parkingDetails.totalParking,
                       );
                     },
                   ),
@@ -751,10 +754,11 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
               verticalSpacing(),
               if (table2 != null && table2.isNotEmpty) ...[
                 ListView.builder(
-                  itemCount: 3,
+                  itemCount: table2.length,
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
                   itemBuilder: (context, int index) {
+                    final buildingOverview = table2[index];
                     return Container(
                       margin: EdgeInsets.only(bottom: 16.0),
                       padding: EdgeInsets.symmetric(
@@ -769,24 +773,45 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Ratan Nagar 1", style: AppTextStyle.ts14SB()),
+                          Text(
+                            buildingOverview.building,
+                            style: AppTextStyle.ts14SB(),
+                          ),
                           verticalSpacing(height: 20.0),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
                                 children: [
-                                  _buildOverviewItem("02", "Basement"),
-                                  _buildOverviewItem("02", "Podiums"),
-                                  _buildOverviewItem("05", "Wings"),
+                                  _buildOverviewItem(
+                                    buildingOverview.basement.toString(),
+                                    "Basement",
+                                  ),
+                                  _buildOverviewItem(
+                                    buildingOverview.podiums.toString(),
+                                    "Podiums",
+                                  ),
+                                  _buildOverviewItem(
+                                    buildingOverview.wings.toString(),
+                                    "Wings",
+                                  ),
                                 ],
                               ),
                               verticalSpacing(height: 20),
                               Row(
                                 children: [
-                                  _buildOverviewItem("20", "Floor"),
-                                  _buildOverviewItem("400", "Units"),
-                                  _buildOverviewItem("800", "Parkings"),
+                                  _buildOverviewItem(
+                                    buildingOverview.floors.toString(),
+                                    "Floor",
+                                  ),
+                                  _buildOverviewItem(
+                                    buildingOverview.units.toString(),
+                                    "Units",
+                                  ),
+                                  _buildOverviewItem(
+                                    buildingOverview.parking.toString(),
+                                    "Parkings",
+                                  ),
                                 ],
                               ),
                             ],
@@ -860,36 +885,39 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
               ),
               verticalSpacing(),
               if (table3 != null && table3.isNotEmpty) ...[
-                ListView.builder(
-                  itemCount: 2,
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemBuilder: (context, int index) {
-                    return Container(
-                      margin: EdgeInsets.only(bottom: 6.0),
-                      padding: EdgeInsets.symmetric(
-                        vertical: 12.0,
-                        horizontal: 16.0,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6.0),
-                        color: AppColor.red.withValues(alpha: 0.1),
-                        border: Border(
-                          left: BorderSide(width: 4, color: AppColor.red),
+                SizedBox(
+                  height: 200.0,
+                  child: ListView.builder(
+                    itemCount: table3.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, int index) {
+                      final alerts = table3[index];
+                      return Container(
+                        margin: EdgeInsets.only(bottom: 6.0),
+                        padding: EdgeInsets.symmetric(
+                          vertical: 12.0,
+                          horizontal: 16.0,
                         ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Basement 2", style: AppTextStyle.ts16M()),
-                          Text(
-                            "87% Occupancy Reached In Building A",
-                            style: AppTextStyle.ts14R(),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6.0),
+                          color: AppColor.red.withValues(alpha: 0.1),
+                          border: Border(
+                            left: BorderSide(width: 4, color: AppColor.red),
                           ),
-                        ],
-                      ),
-                    );
-                  },
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              alerts.buildingName,
+                              style: AppTextStyle.ts16M(),
+                            ),
+                            Text(alerts.issue, style: AppTextStyle.ts14R()),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ] else ...[
                 Center(
