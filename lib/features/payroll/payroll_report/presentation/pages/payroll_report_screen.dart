@@ -547,8 +547,9 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
               _compOffReportController.position.maxScrollExtent - 100 &&
           !(state.isLoading ?? false) &&
           state.compOffList.length < state.totalNumberOfRecordCompOff) {
-        if (_compOffReportDebounce?.isActive ?? false)
+        if (_compOffReportDebounce?.isActive ?? false) {
           _compOffReportDebounce?.cancel();
+        }
         final date = _selectedDateNotifier.value;
         _compOffReportDebounce = Timer(const Duration(milliseconds: 300), () {
           _payrollReportCubit.getCompOffList(
@@ -570,8 +571,9 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
               _leaveReportController.position.maxScrollExtent - 100 &&
           !(state.isLoading ?? false) &&
           state.leaveList.length < state.totalNumberOfRecordLeave) {
-        if (_leaveReportDebounce?.isActive ?? false)
+        if (_leaveReportDebounce?.isActive ?? false) {
           _leaveReportDebounce?.cancel();
+        }
         final date = _selectedDateNotifier.value;
         _leaveReportDebounce = Timer(const Duration(milliseconds: 300), () {
           _payrollReportCubit.getLeaveList(
@@ -594,8 +596,9 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           !(state.isLoading ?? false) &&
           state.outdoorList.length < state.totalNumberOfRecordOutdoor) {
         // TO HANDLE MULTIPLE TIME API CALLS
-        if (_outdoorReportDebounce?.isActive ?? false)
+        if (_outdoorReportDebounce?.isActive ?? false) {
           _outdoorReportDebounce?.cancel();
+        }
         final date = _selectedDateNotifier.value;
         _outdoorReportDebounce = Timer(const Duration(milliseconds: 300), () {
           _payrollReportCubit.getOutdoorList(
@@ -645,8 +648,9 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           !(state.isLoading ?? false) &&
           state.approvalLeaveList.length <
               state.totalNumberOfRecordApprovalLeave) {
-        if (_leaveApprovalDebounce?.isActive ?? false)
+        if (_leaveApprovalDebounce?.isActive ?? false) {
           _leaveApprovalDebounce?.cancel();
+        }
         final date = _selectedDateNotifier.value;
         _leaveApprovalDebounce = Timer(const Duration(milliseconds: 300), () {
           _payrollReportCubit.getLeaveList(
@@ -670,8 +674,9 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           !(state.isLoading ?? false) &&
           state.approvalCompOffList.length <
               state.totalNumberOfRecordApprovalCompOff) {
-        if (_compOffApprovalDebounce?.isActive ?? false)
+        if (_compOffApprovalDebounce?.isActive ?? false) {
           _compOffApprovalDebounce?.cancel();
+        }
         final date = _selectedDateNotifier.value;
         _compOffApprovalDebounce = Timer(const Duration(milliseconds: 300), () {
           _payrollReportCubit.getCompOffList(
@@ -695,8 +700,9 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           !(state.isLoading ?? false) &&
           state.approvalOutdoorList.length <
               state.totalNumberOfRecordApprovalOutdoor) {
-        if (_outdoorApprovalDebounce?.isActive ?? false)
+        if (_outdoorApprovalDebounce?.isActive ?? false) {
           _outdoorApprovalDebounce?.cancel();
+        }
         final date = _selectedDateNotifier.value;
         _outdoorApprovalDebounce = Timer(const Duration(milliseconds: 300), () {
           _payrollReportCubit.getOutdoorList(
@@ -720,8 +726,9 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           !(state.isLoading ?? false) &&
           state.approvalResignationList.length <
               state.totalNumberOfRecordApprovalResignation) {
-        if (_resignationApprovalDebounce?.isActive ?? false)
+        if (_resignationApprovalDebounce?.isActive ?? false) {
           _resignationApprovalDebounce?.cancel();
+        }
         final date = _selectedDateNotifier.value;
         _resignationApprovalDebounce = Timer(
           const Duration(milliseconds: 300),
@@ -749,8 +756,9 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           !(state.isLoading ?? false) &&
           state.approvalRegularizationList.length <
               state.totalNumberOfRecordApprovalRegularization) {
-        if (_regularizationApprovalDebounce?.isActive ?? false)
+        if (_regularizationApprovalDebounce?.isActive ?? false) {
           _regularizationApprovalDebounce?.cancel();
+        }
         final date = _selectedDateNotifier.value;
         _regularizationApprovalDebounce = Timer(
           const Duration(milliseconds: 300),
@@ -1594,7 +1602,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                                 ),
                                 buildRowTitleValue(
                                   title: "Reason",
-                                  value: reg.reason ?? "-",
+                                  value: reg.reason,
                                 ),
                               ],
                             ),
@@ -1721,7 +1729,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                                       ),
                                       buildRowTitleValue(
                                         title: "Reason",
-                                        value: reg.reason ?? "-",
+                                        value: reg.reason,
                                       ),
                                     ],
                                   ),

@@ -20,9 +20,6 @@ class LeaveCubit extends Cubit<LeaveState> {
   // REPOSITORY
   final LeaveRepository _leaveRepository = serviceLocator<LeaveRepository>();
 
-  final LeaveTypeMasterRepository _leaveTypeMasterRepository =
-      serviceLocator<LeaveTypeMasterRepository>();
-
   static const List<String> _statusTabs = [
     "All",
     "Pending",
