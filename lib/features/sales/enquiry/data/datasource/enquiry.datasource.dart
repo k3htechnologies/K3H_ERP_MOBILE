@@ -46,6 +46,11 @@ abstract interface class EnquiryDatasource {
     required int followUpId,
     required String uniqueKey,
   });
+  Future<Map<String, dynamic>> apicallDeleteEnquiry({
+    required int enquiryId,
+    required int projectId,
+    required String uniqueKey,
+  });
 }
 
 class EnquiryDatasourceImpl extends EnquiryDatasource {
@@ -335,6 +340,51 @@ class EnquiryDatasourceImpl extends EnquiryDatasource {
       if (error is TokenExpiredException) {
         return apicallDeleteEnquiryFollowUp(
           followUpId: followUpId,
+          uniqueKey: uniqueKey,
+          enquiryId: enquiryId,
+          projectId: projectId,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  // DELETE ENQUIRY
+  @override
+  Future<Map<String, dynamic>> apicallDeleteEnquiry({
+    required int enquiryId,
+    required int projectId,
+    required String uniqueKey,
+  }) async {
+    String deleteFollowUpUrl({
+      required int enquiryId,
+      required int projectId,
+      required String uniqueKey,
+    }) {
+      return "Enquiry/DeleteEnquiry?"
+          "Uniquekey=$uniqueKey"
+          "&EnquiryId=$enquiryId"
+          "&ProjectId=$projectId";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteFollowUpUrl(
+          uniqueKey: uniqueKey,
+          enquiryId: enquiryId,
+          projectId: projectId,
+        ),
+      );
+
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        'message': networkResponse["message"],
+      };
+    } catch (error) {
+      // Handle token expiration by retrying once
+      if (error is TokenExpiredException) {
+        return apicallDeleteEnquiry(
           uniqueKey: uniqueKey,
           enquiryId: enquiryId,
           projectId: projectId,

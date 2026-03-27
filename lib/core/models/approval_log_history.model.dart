@@ -11,7 +11,7 @@ class ApprovalLogHistory {
   String branch;
   String approvalStatus;
   String remarks;
-  DateTime date;
+  DateTime? date;
 
   ApprovalLogHistory({
     required this.employeeCode,
@@ -27,21 +27,20 @@ class ApprovalLogHistory {
     required this.date,
   });
 
-  factory ApprovalLogHistory.fromJson(
-    Map<String, dynamic> json,
-  ) => ApprovalLogHistory(
-    employeeCode: parseValue<String>(json, "EmployeeCode"),
-    fullName: parseValue<String>(json, "FullName"),
-    emailId: parseValue<String>(json, "EmailId"),
-    officeEmailId: parseValue<String>(json, "OfficeEmailId"),
-    personalMobileNumber: parseValue<String>(json, "PersonalMobileNumber"),
-    department: parseValue<String>(json, "Department"),
-    designation: parseValue<String>(json, "Designation"),
-    branch: parseValue<String>(json, "Branch"),
-    approvalStatus: parseValue<String>(json, "ApprovalStatus"),
-    remarks: parseValue<String>(json, "Remarks"),
-    date: json["Date"] != null ? DateTime.parse(json["Date"]) : DateTime.now(),
-  );
+  factory ApprovalLogHistory.fromJson(Map<String, dynamic> json) =>
+      ApprovalLogHistory(
+        employeeCode: parseValue<String>(json, "EmployeeCode"),
+        fullName: parseValue<String>(json, "FullName"),
+        emailId: parseValue<String>(json, "EmailId"),
+        officeEmailId: parseValue<String>(json, "OfficeEmailId"),
+        personalMobileNumber: parseValue<String>(json, "PersonalMobileNumber"),
+        department: parseValue<String>(json, "Department"),
+        designation: parseValue<String>(json, "Designation"),
+        branch: parseValue<String>(json, "Branch"),
+        approvalStatus: parseValue<String>(json, "ApprovalStatus"),
+        remarks: parseValue<String>(json, "Remarks"),
+        date: json["Date"] != null ? DateTime.parse(json["Date"]) : null,
+      );
 
   Map<String, dynamic> toJson() => {
     "EmployeeCode": employeeCode,
@@ -54,6 +53,6 @@ class ApprovalLogHistory {
     "Branch": branch,
     "ApprovalStatus": approvalStatus,
     "Remarks": remarks,
-    "Date": date.toIso8601String(),
+    "Date": date?.toIso8601String(),
   };
 }

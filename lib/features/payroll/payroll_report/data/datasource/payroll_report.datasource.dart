@@ -1,3 +1,4 @@
+import 'package:k3h_erp_app/features/payroll/payroll_report/data/model/payroll_report.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
@@ -16,7 +17,7 @@ abstract interface class PayrollReportDatasource {
 class PayrollReportDatasourceImpl implements PayrollReportDatasource {
   final baseClient = BaseClient();
 
-  /// -------------------- GET: Pull Approval Status --------------------
+  /// PULL APPROVAL STATUS
   @override
   Future<Map<String, dynamic>> apicallPullApprovalStatus({
     int? id,
@@ -39,7 +40,9 @@ class PayrollReportDatasourceImpl implements PayrollReportDatasource {
       );
 
       return {
-        'data': networkResponse["data"] ?? [],
+        'data': List<PayrollApprovalModel>.from(
+          networkResponse["data"].map((e) => PayrollApprovalModel.fromJson(e)),
+        ),
         'message': networkResponse["message"] ?? "",
       };
     } catch (error) {
@@ -54,7 +57,7 @@ class PayrollReportDatasourceImpl implements PayrollReportDatasource {
     }
   }
 
-  /// -------------------- POST: Add Approval --------------------
+  /// ADD APPROVAL
   @override
   Future<Map<String, dynamic>> apicallAddApproval({
     required Map<String, dynamic> body,

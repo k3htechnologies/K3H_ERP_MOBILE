@@ -20,7 +20,7 @@ class PayrollReportRepositoryImpl implements PayrollReportRepository {
 
   PayrollReportRepositoryImpl({required this.payrollReportDatasource});
 
-  /// -------------------- GET: Pull Approval Status --------------------
+  /// PULL APPROVAL STATUS
   @override
   Future<Either<Failure, Map<String, dynamic>>> getApprovalStatus({
     int? id,
@@ -39,7 +39,7 @@ class PayrollReportRepositoryImpl implements PayrollReportRepository {
     }
   }
 
-  /// -------------------- POST: Add Approval --------------------
+  ///  ADD APPROVAL
   @override
   Future<Either<Failure, Map<String, dynamic>>> addApproval({
     required Map<String, dynamic> body,

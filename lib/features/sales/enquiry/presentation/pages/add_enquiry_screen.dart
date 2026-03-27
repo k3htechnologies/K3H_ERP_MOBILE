@@ -986,7 +986,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     return BlocBuilder<EnquiryCubit, EnquiryState>(
       builder: (context, state) {
         final bool isNRI = state.selectedNationality == 'NRI';
-        return _card("Basic Enquiry Details", [
+        return _card("Enquiry Details", [
           CustomTimePicker(
             title: 'Customer Time In',
             isRequired: true,
@@ -1393,12 +1393,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                             children: [
                               if (!hasManualEntry)
                                 CustomMultipleSelectPopup(
-                                  key: ValueKey(
-                                    hasTeamMemberSelected
-                                        ? selectedTeamMember
-                                            .first['zAttributesId']
-                                        : 'empty',
-                                  ),
                                   title: 'Team Member',
                                   isRequired: false,
                                   isMultiSelect: false,
@@ -1953,14 +1947,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       ),
       CustomDatePicker(
         title: "Next Follow-Up Date",
-        isRequired: true,
         startDate: DateTime.now(),
         initialDate: _nextFollowUpDate,
         setValue: (v) => _nextFollowUpDate = v,
-        validator: (value) {
-          if (value == null) return "Next Follow-Up Date is required";
-          return null;
-        },
       ),
     ]);
   }

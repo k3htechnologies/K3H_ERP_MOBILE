@@ -43,6 +43,12 @@ abstract interface class EnquiryRepository {
     required int enquiryId,
     required int projectId,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> deleteEnquiry({
+    required String uniqueKey,
+    required int enquiryId,
+    required int projectId,
+  });
 }
 
 class EnquiryRepositoryImpl extends EnquiryRepository {
@@ -173,6 +179,26 @@ class EnquiryRepositoryImpl extends EnquiryRepository {
     try {
       var result = await enquiryDatasource.apicallDeleteEnquiryFollowUp(
         followUpId: followUpId,
+        uniqueKey: uniqueKey,
+        enquiryId: enquiryId,
+        projectId: projectId,
+      );
+
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  /// DELETE ENQUIRY
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteEnquiry({
+    required String uniqueKey,
+    required int enquiryId,
+    required int projectId,
+  }) async {
+    try {
+      var result = await enquiryDatasource.apicallDeleteEnquiry(
         uniqueKey: uniqueKey,
         enquiryId: enquiryId,
         projectId: projectId,

@@ -24,8 +24,8 @@ class PayrollReportState extends BaseState {
   final int totalNumberOfRecordCompOff;
 
   final List<AttendanceRegularizationModel> regularizationList;
-  final int currentPageRegurization;
-  final int totalNumberOfRecordRegurization;
+  final int currentPageRegularization;
+  final int totalNumberOfRecordRegularization;
 
   // LEAVE APPROVAL
   final List<LeaveModel> approvalLeaveList;
@@ -100,8 +100,8 @@ class PayrollReportState extends BaseState {
     required this.currentPageCompOff,
     required this.totalNumberOfRecordCompOff,
     required this.regularizationList,
-    required this.currentPageRegurization,
-    required this.totalNumberOfRecordRegurization,
+    required this.currentPageRegularization,
+    required this.totalNumberOfRecordRegularization,
 
     // APPROVAL
     required this.approvalLeaveList,
@@ -165,8 +165,8 @@ class PayrollReportState extends BaseState {
     currentPageCompOff: 1,
     totalNumberOfRecordCompOff: 0,
     regularizationList: [],
-    currentPageRegurization: 1,
-    totalNumberOfRecordRegurization: 0,
+    currentPageRegularization: 1,
+    totalNumberOfRecordRegularization: 0,
 
     // APPROVAL LISTS
     approvalLeaveList: [],
@@ -230,8 +230,8 @@ class PayrollReportState extends BaseState {
     int? currentPageCompOff,
     int? totalNumberOfRecordCompOff,
     List<AttendanceRegularizationModel>? regularizationList,
-    int? currentPageRegurization,
-    int? totalNumberOfRecordRegurization,
+    int? currentPageRegularization,
+    int? totalNumberOfRecordRegularization,
     int? currentTabIndex,
     String? searchText,
     DateTime? filterStartDate,
@@ -300,11 +300,11 @@ class PayrollReportState extends BaseState {
       totalNumberOfRecordCompOff:
           totalNumberOfRecordCompOff ?? this.totalNumberOfRecordCompOff,
       regularizationList: regularizationList ?? this.regularizationList,
-      currentPageRegurization:
-          currentPageRegurization ?? this.currentPageRegurization,
-      totalNumberOfRecordRegurization:
-          totalNumberOfRecordRegurization ??
-          this.totalNumberOfRecordRegurization,
+      currentPageRegularization:
+          currentPageRegularization ?? this.currentPageRegularization,
+      totalNumberOfRecordRegularization:
+          totalNumberOfRecordRegularization ??
+          this.totalNumberOfRecordRegularization,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
       searchText: searchText ?? this.searchText,
       filterStartDate:
@@ -332,7 +332,6 @@ class PayrollReportState extends BaseState {
           resignationInnerTabIndex ?? this.resignationInnerTabIndex,
       regularizationInnerTabIndex:
           regularizationInnerTabIndex ?? this.regularizationInnerTabIndex,
-      // Approval lists
       approvalLeaveList: approvalLeaveList ?? this.approvalLeaveList,
       currentPageApprovalLeave:
           currentPageApprovalLeave ?? this.currentPageApprovalLeave,
@@ -394,8 +393,8 @@ class PayrollReportState extends BaseState {
     currentPageCompOff,
     totalNumberOfRecordCompOff,
     regularizationList,
-    currentPageRegurization,
-    totalNumberOfRecordRegurization,
+    currentPageRegularization,
+    totalNumberOfRecordRegularization,
     currentTabIndex,
     searchText,
     filterStartDate,
@@ -415,7 +414,6 @@ class PayrollReportState extends BaseState {
     outdoorInnerTabIndex,
     resignationInnerTabIndex,
     regularizationInnerTabIndex,
-    // Approval lists
     approvalLeaveList,
     currentPageApprovalLeave,
     totalNumberOfRecordApprovalLeave,

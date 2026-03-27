@@ -1,4 +1,5 @@
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
+import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance_regularization.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
@@ -90,8 +91,10 @@ class AttendanceDataSourceImpl implements AttendanceDataSource {
         ),
       );
       return {
-        'data': List<AttendanceModel>.from(
-          networkResponse["data"].map((e) => AttendanceModel.fromJson(e)),
+        'data': List<AttendanceRegularizationModel>.from(
+          networkResponse["data"].map(
+            (e) => AttendanceRegularizationModel.fromJson(e),
+          ),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
