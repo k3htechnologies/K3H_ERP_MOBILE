@@ -189,7 +189,10 @@ class EnquiryModel {
       finalStage: parseValue<String>(json, "FinalStage"),
       finalStageDetail: parseValue<String>(json, "FinalStageDetail"),
       enquiryDate: parseValue<DateTime>(json, "EnquiryDate"),
-      nextFollowUpDate: parseValue<DateTime>(json, "NextFollowUpDate"),
+      nextFollowUpDate:
+          json["NextFollowUpDate"] == null
+              ? null
+              : parseValue<DateTime>(json, "NextFollowUpDate"),
       salesAdvisor: parseValue<String>(json, "SalesAdvisor"),
       sourcingManager: parseValue<String>(json, "SourcingManager"),
       salesAdvisorId: parseValue<int>(json, "SalesAdvisorId"),
@@ -241,7 +244,10 @@ class EnquiryModel {
       createdDate: parseValue<DateTime>(json, "CreatedDate"),
       modifiedById: parseValue<int>(json, "ModifiedById"),
       modifiedBy: parseValue<String>(json, "ModifiedBy"),
-      modifiedDate: parseValue<DateTime>(json, "ModifiedDate"),
+      modifiedDate:
+          json["ModifiedDate"] == null
+              ? null
+              : DateTime.parse(json["ModifiedDate"]),
     );
   }
 

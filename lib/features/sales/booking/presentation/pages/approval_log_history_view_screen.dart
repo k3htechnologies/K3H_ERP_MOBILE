@@ -143,10 +143,12 @@ class ApprovalLogHistoryScreen extends StatelessWidget {
                                                     item.fullName,
                                                     style: AppTextStyle.ts14M(),
                                                   ),
-                                                  Text(
-                                                    formatDate(item.date),
-                                                    style: AppTextStyle.ts12M(),
-                                                  ),
+                                                  if (item.date != null)
+                                                    Text(
+                                                      formatDate(item.date),
+                                                      style:
+                                                          AppTextStyle.ts12M(),
+                                                    ),
                                                 ],
                                               ),
                                             ),
@@ -158,12 +160,14 @@ class ApprovalLogHistoryScreen extends StatelessWidget {
                                         const SizedBox(height: 6),
 
                                         /// DESIGNATION + DEPARTMENT
-                                        Text(
-                                          "(${item.designation} | ${item.department})",
-                                          style: AppTextStyle.ts14R(
-                                            color: AppColor.grey,
+                                        if (item.designation.isNotEmpty &&
+                                            item.department.isNotEmpty)
+                                          Text(
+                                            "(${item.designation} | ${item.department})",
+                                            style: AppTextStyle.ts14R(
+                                              color: AppColor.grey,
+                                            ),
                                           ),
-                                        ),
                                         if (item.remarks.isNotEmpty) ...[
                                           const SizedBox(height: 6),
                                           Text(

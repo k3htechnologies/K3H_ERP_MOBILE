@@ -30,7 +30,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
       serviceLocator<EmployeeMasterRepository>();
 
   // SEARCH
-  void searchEnquiry(BuildContext context, String searchText,int projectId) {
+  void searchEnquiry(BuildContext context, String searchText, int projectId) {
     emit(state.copyWith(searchText: searchText.trim()));
     getEnquiryList(context, 1, projectId);
   }
@@ -66,7 +66,12 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
-
+    if (projectId == 0) {
+      showErrorMessage(context, "Error Message", "Project Not Selected");
+      EnquiryCubit();
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
     Map<String, dynamic> queryParams = {
       "Name": state.searchText.trim(),
       "SystemGeneratedCode": state.filterSystemCode,
@@ -192,7 +197,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     String? value,
     int? employeeId,
   }) async {
-    final Map<String, dynamic> queryParams = {"IsCheckPermission": "false",};
+    final Map<String, dynamic> queryParams = {"IsCheckPermission": "false"};
 
     queryParams["DepartmentName"] = "Sale";
 
@@ -365,6 +370,47 @@ class EnquiryCubit extends Cubit<EnquiryState> {
                   ? 'Enquiry FollowUp Updated Successfully'
                   : 'Enquiry FollowUp Added Successfully',
         );
+      },
+    );
+  }
+
+  // <---- DELETE ENQUIRY  ---->
+  Future<void> deleteEnquiry({
+    required int index,
+    required EnquiryModel enquiryModel,
+    required BuildContext context,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    var result = await _enquiryRepository.deleteEnquiry(
+      uniqueKey: enquiryModel.uniquekey,
+      enquiryId: enquiryModel.enquiryId,
+      projectId: getProject().projectId,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (success) async {
+        // Update follow-up list
+        final updatedEnquiryUpList = List<EnquiryModel>.from(state.enquiryList);
+        updatedEnquiryUpList.removeAt(index);
+
+        emit(
+          state.copyWith(
+            enquiryList: updatedEnquiryUpList,
+            isLoading: false,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
+        );
+
+        showSuccessMessage(context, subTitle: success['message']);
       },
     );
   }

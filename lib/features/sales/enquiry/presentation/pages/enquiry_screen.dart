@@ -7,6 +7,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_state.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -100,6 +101,27 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     return phone;
   }
 
+  void _showPopupToDeleteEnquiry({
+    required int index,
+    required EnquiryModel enquiryModel,
+
+    required BuildContext context,
+  }) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete this Enquiry',
+      'Deleting this Enquiry will permanently remove its contents.',
+    );
+
+    if (result && context.mounted) {
+      _enquiryCubit.deleteEnquiry(
+        index: index,
+        enquiryModel: enquiryModel,
+        context: context,
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -109,7 +131,9 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         Authorization.routeAuthorizationMap[AppRoutes.enquiry]!;
     _initializeTextEditingController();
     _onScroll();
-    _enquiryCubit.getEnquiryList(context, 1, _project.projectId);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _enquiryCubit.getEnquiryList(context, 1, _project.projectId);
+    });
   }
 
   @override
@@ -461,6 +485,10 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
           _enquiryCubit.searchEnquiry(context, value, _project.projectId);
         },
         onExportCallback: (value) {
+          if (_enquiryCubit.state.totalNumberOfRecord == 0) {
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _enquiryCubit.exportExcelPdf(context, value);
         },
         onProjectChangeCallback: (value) {
@@ -545,25 +573,38 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                           ),
                         ),
                         horizontalSpacing(),
-                        CustomIconButton.edit(
-                          onPressed: () {
-                            goRouter.pushNamed(
-                              AppRoutes.addEnquiry,
-                              queryParameters: {
-                                "enquiry": Uri.encodeQueryComponent(
-                                  EncryptionManager.encryptData(
-                                    jsonEncode(enquiry.toJson()),
+                        if (_routeAuthorizationModel.isAction) ...[
+                          CustomIconButton.edit(
+                            onPressed: () {
+                              goRouter.pushNamed(
+                                AppRoutes.addEnquiry,
+                                queryParameters: {
+                                  "enquiry": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(enquiry.toJson()),
+                                    ),
                                   ),
-                                ),
-                                'index': index.toString(),
-                              },
-                            );
-                          },
-                        ),
+                                  'index': index.toString(),
+                                },
+                              );
+                            },
+                          ),
+                          horizontalSpacing(),
+                          CustomIconButton.delete(
+                            isDisabled: enquiry.nextFollowUpDate != null,
+                            onPressed: () {
+                              _showPopupToDeleteEnquiry(
+                                context: context,
+                                enquiryModel: enquiry,
+                                index: index,
+                              );
+                            },
+                          ),
+                        ],
                       ],
                     ),
                     buildRowTitleValue(
-                      title: "Unique Code",
+                      title: "System Generated Code",
                       value: enquiry.systemGeneratedCode,
                     ),
                     buildRowTitleValue(

@@ -1,14 +1,18 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
+import 'package:k3h_erp_app/features/payroll/payroll_report/data/model/payroll_report.model.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/cubit/payroll_report_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/pages/route_map_screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -16,6 +20,8 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
@@ -171,20 +177,26 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     _setupResignationApprovalPagination();
   }
 
-  /// Initializes inner tab listeners for all sections
+  /// INITIALIZES INNER TAB LISTENERS
   void _initializeInnerTabListeners() {
     // LEAVE
     _leaveTabController.addListener(() {
+      final startDate =
+          _payrollReportCubit.state.filterStartDate ??
+          _selectedDateNotifier.value;
+      final endDate =
+          _payrollReportCubit.state.filterEndDate ??
+          _selectedDateNotifier.value;
+
       if (!_leaveTabController.indexIsChanging) {
         final innerIndex = _leaveTabController.index;
         _payrollReportCubit.onLeaveInnerTabChanged(innerIndex);
-        final date = _selectedDateNotifier.value;
 
         _payrollReportCubit.getLeaveList(
           context: context,
           pageNumber: 1,
-          startDate: date,
-          endDate: date,
+          startDate: startDate,
+          endDate: endDate,
           canApprove: innerIndex == 1,
         );
       }
@@ -192,16 +204,22 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
     // COMPOFF
     _compOffTabController.addListener(() {
+      final startDate =
+          _payrollReportCubit.state.filterStartDate ??
+          _selectedDateNotifier.value;
+      final endDate =
+          _payrollReportCubit.state.filterEndDate ??
+          _selectedDateNotifier.value;
+
       if (!_compOffTabController.indexIsChanging) {
         final innerIndex = _compOffTabController.index;
         _payrollReportCubit.onCompOffInnerTabChanged(innerIndex);
-        final date = _selectedDateNotifier.value;
 
         _payrollReportCubit.getCompOffList(
           context: context,
           pageNumber: 1,
-          startDate: date,
-          endDate: date,
+          startDate: startDate,
+          endDate: endDate,
           canApprove: innerIndex == 1,
         );
       }
@@ -209,16 +227,22 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
     // REGULARIZATION
     _regularizationTabController.addListener(() {
+      final startDate =
+          _payrollReportCubit.state.filterStartDate ??
+          _selectedDateNotifier.value;
+      final endDate =
+          _payrollReportCubit.state.filterEndDate ??
+          _selectedDateNotifier.value;
+
       if (!_regularizationTabController.indexIsChanging) {
         final innerIndex = _regularizationTabController.index;
         _payrollReportCubit.onRegularizationInnerTabChanged(innerIndex);
-        final date = _selectedDateNotifier.value;
 
         _payrollReportCubit.getAttendanceRegularizationList(
           context: context,
           pageNumber: 1,
-          startDate: date,
-          endDate: date,
+          startDate: startDate,
+          endDate: endDate,
           canApprove: innerIndex == 1,
         );
       }
@@ -226,16 +250,22 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
     // OUTDOOR
     _outdoorTabController.addListener(() {
+      final startDate =
+          _payrollReportCubit.state.filterStartDate ??
+          _selectedDateNotifier.value;
+      final endDate =
+          _payrollReportCubit.state.filterEndDate ??
+          _selectedDateNotifier.value;
+
       if (!_outdoorTabController.indexIsChanging) {
         final innerIndex = _outdoorTabController.index;
         _payrollReportCubit.onOutdoorInnerTabChanged(innerIndex);
-        final date = _selectedDateNotifier.value;
 
         _payrollReportCubit.getOutdoorList(
           context: context,
           pageNumber: 1,
-          startDate: date,
-          endDate: date,
+          startDate: startDate,
+          endDate: endDate,
           canApprove: innerIndex == 1,
         );
       }
@@ -243,16 +273,22 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
     // RESIGNATION
     _resignationTabController.addListener(() {
+      final startDate =
+          _payrollReportCubit.state.filterStartDate ??
+          _selectedDateNotifier.value;
+      final endDate =
+          _payrollReportCubit.state.filterEndDate ??
+          _selectedDateNotifier.value;
+
       if (!_resignationTabController.indexIsChanging) {
         final innerIndex = _resignationTabController.index;
         _payrollReportCubit.onResignationInnerTabChanged(innerIndex);
-        final date = _selectedDateNotifier.value;
 
         _payrollReportCubit.getResignationList(
           context: context,
           pageNumber: 1,
-          startDate: date,
-          endDate: date,
+          startDate: startDate,
+          endDate: endDate,
           canApprove: innerIndex == 1,
         );
       }
@@ -263,7 +299,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   void dispose() {
     _selectedDateNotifier.removeListener(_onSelectedDateChanged);
 
-    // Dispose TabControllers
+    // DISPOSE TAB CONTROLLERS
     _tabController.dispose();
     _regularizationTabController.dispose();
     _compOffTabController.dispose();
@@ -271,11 +307,11 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     _outdoorTabController.dispose();
     _resignationTabController.dispose();
 
-    // Dispose TextControllers
+    // DISPOSE TEXTCONTROLLERS
     _searchC.dispose();
     _selectedDateNotifier.dispose();
 
-    // Cancel Debounce timers
+    //CANCEL DEBOUNCE TIMERS
     _attendanceDebounce?.cancel();
     _regularizationReportDebounce?.cancel();
     _regularizationApprovalDebounce?.cancel();
@@ -288,7 +324,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     _resignationReportDebounce?.cancel();
     _resignationApprovalDebounce?.cancel();
 
-    // Dispose ScrollControllers
+    // DISPOSE SCROLLCONTROLLERS
     _attendanceScrollController.dispose();
     _regularizationReportController.dispose();
     _regularizationApprovalController.dispose();
@@ -301,7 +337,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     _resignationReportController.dispose();
     _resignationApprovalController.dispose();
 
-    // Dispose Date filters
+    // DISPOSE DATE FILTERS
     _startDateNotifier.dispose();
     _endDateNotifier.dispose();
 
@@ -333,16 +369,20 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
   // WHEN SELECTED DATE CHANGES, REFETCH CURRENT TAB DATA
   void _onSelectedDateChanged() {
-    final date = _selectedDateNotifier.value;
+    final startDate =
+        _payrollReportCubit.state.filterStartDate ??
+        _selectedDateNotifier.value;
+    final endDate =
+        _payrollReportCubit.state.filterEndDate ?? _selectedDateNotifier.value;
+
     _payrollReportCubit.resetApprovalTabSelection();
     switch (_tabController.index) {
       case 0:
         _payrollReportCubit.getAttendanceList(
           context,
           1,
-          startDate: date,
-          endDate: date,
-          isReport: 1,
+          startDate: startDate,
+          endDate: endDate,
         );
         break;
       case 1:
@@ -351,8 +391,8 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             context: context,
             pageNumber: 1,
 
-            startDate: date,
-            endDate: date,
+            startDate: startDate,
+            endDate: endDate,
             canApprove: _regularizationTabController.index == 1,
           );
         }
@@ -363,8 +403,8 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             context: context,
             pageNumber: 1,
 
-            startDate: date,
-            endDate: date,
+            startDate: startDate,
+            endDate: endDate,
             canApprove: _compOffTabController.index == 1,
           );
         }
@@ -376,8 +416,8 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             context: context,
             pageNumber: 1,
 
-            startDate: date,
-            endDate: date,
+            startDate: startDate,
+            endDate: endDate,
             canApprove: _leaveTabController.index == 1,
           );
         }
@@ -388,8 +428,8 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             context: context,
             pageNumber: 1,
 
-            startDate: date,
-            endDate: date,
+            startDate: startDate,
+            endDate: endDate,
             canApprove: _outdoorTabController.index == 1,
           );
         }
@@ -400,8 +440,8 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             context: context,
             pageNumber: 1,
 
-            startDate: date,
-            endDate: date,
+            startDate: startDate,
+            endDate: endDate,
             canApprove: _resignationTabController.index == 1,
           );
         }
@@ -413,7 +453,11 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
   // LOAD DATA BASED ON CURRENT TAB
   void _loadDataForTab(int index) {
-    final date = _selectedDateNotifier.value;
+    final startDate =
+        _payrollReportCubit.state.filterStartDate ??
+        _selectedDateNotifier.value;
+    final endDate =
+        _payrollReportCubit.state.filterEndDate ?? _selectedDateNotifier.value;
     _payrollReportCubit.resetApprovalTab();
 
     switch (index) {
@@ -422,9 +466,8 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           _payrollReportCubit.getAttendanceList(
             context,
             1,
-            startDate: date,
-            endDate: date,
-            isReport: 1,
+            startDate: startDate,
+            endDate: endDate,
           );
         }
         break;
@@ -434,8 +477,8 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         _payrollReportCubit.getAttendanceRegularizationList(
           context: context,
           pageNumber: 1,
-          startDate: date,
-          endDate: date,
+          startDate: startDate,
+          endDate: endDate,
         );
         break;
 
@@ -445,8 +488,8 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           context: context,
           pageNumber: 1,
 
-          startDate: date,
-          endDate: date,
+          startDate: startDate,
+          endDate: endDate,
         );
         break;
 
@@ -455,8 +498,8 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         _payrollReportCubit.getLeaveList(
           context: context,
           pageNumber: 1,
-          startDate: date,
-          endDate: date,
+          startDate: startDate,
+          endDate: endDate,
         );
         break;
 
@@ -465,8 +508,8 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         _payrollReportCubit.getOutdoorList(
           context: context,
           pageNumber: 1,
-          startDate: date,
-          endDate: date,
+          startDate: startDate,
+          endDate: endDate,
         );
         break;
 
@@ -476,8 +519,8 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           context: context,
           pageNumber: 1,
 
-          startDate: date,
-          endDate: date,
+          startDate: startDate,
+          endDate: endDate,
         );
         break;
 
@@ -497,14 +540,19 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         if (_attendanceDebounce?.isActive ?? false) {
           _attendanceDebounce?.cancel();
         }
-        final date = _selectedDateNotifier.value;
+        final startDate =
+            _payrollReportCubit.state.filterStartDate ??
+            _selectedDateNotifier.value;
+        final endDate =
+            _payrollReportCubit.state.filterEndDate ??
+            _selectedDateNotifier.value;
+
         _attendanceDebounce = Timer(const Duration(milliseconds: 300), () {
           _payrollReportCubit.getAttendanceList(
             context,
             state.currentPageAttendance + 1,
-            startDate: date,
-            endDate: date,
-            isReport: 1,
+            startDate: startDate,
+            endDate: endDate,
           );
         });
       }
@@ -519,19 +567,25 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
               _regularizationReportController.position.maxScrollExtent - 100 &&
           !(state.isLoading ?? false) &&
           state.regularizationList.length <
-              state.totalNumberOfRecordRegurization) {
+              state.totalNumberOfRecordRegularization) {
         if (_regularizationReportDebounce?.isActive ?? false) {
           _regularizationReportDebounce?.cancel();
         }
-        final date = _selectedDateNotifier.value;
+        final startDate =
+            _payrollReportCubit.state.filterStartDate ??
+            _selectedDateNotifier.value;
+        final endDate =
+            _payrollReportCubit.state.filterEndDate ??
+            _selectedDateNotifier.value;
+
         _regularizationReportDebounce = Timer(
           const Duration(milliseconds: 300),
           () {
             _payrollReportCubit.getAttendanceRegularizationList(
               context: context,
-              pageNumber: state.currentPageRegurization + 1,
-              startDate: date,
-              endDate: date,
+              pageNumber: state.currentPageRegularization + 1,
+              startDate: startDate,
+              endDate: endDate,
             );
           },
         );
@@ -550,13 +604,18 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         if (_compOffReportDebounce?.isActive ?? false) {
           _compOffReportDebounce?.cancel();
         }
-        final date = _selectedDateNotifier.value;
+        final startDate =
+            _payrollReportCubit.state.filterStartDate ??
+            _selectedDateNotifier.value;
+        final endDate =
+            _payrollReportCubit.state.filterEndDate ??
+            _selectedDateNotifier.value;
         _compOffReportDebounce = Timer(const Duration(milliseconds: 300), () {
           _payrollReportCubit.getCompOffList(
             context: context,
             pageNumber: state.currentPageCompOff + 1,
-            startDate: date,
-            endDate: date,
+            startDate: startDate,
+            endDate: endDate,
           );
         });
       }
@@ -574,13 +633,18 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         if (_leaveReportDebounce?.isActive ?? false) {
           _leaveReportDebounce?.cancel();
         }
-        final date = _selectedDateNotifier.value;
+        final startDate =
+            _payrollReportCubit.state.filterStartDate ??
+            _selectedDateNotifier.value;
+        final endDate =
+            _payrollReportCubit.state.filterEndDate ??
+            _selectedDateNotifier.value;
         _leaveReportDebounce = Timer(const Duration(milliseconds: 300), () {
           _payrollReportCubit.getLeaveList(
             context: context,
             pageNumber: state.currentPageLeave + 1,
-            startDate: date,
-            endDate: date,
+            startDate: startDate,
+            endDate: endDate,
           );
         });
       }
@@ -599,13 +663,18 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         if (_outdoorReportDebounce?.isActive ?? false) {
           _outdoorReportDebounce?.cancel();
         }
-        final date = _selectedDateNotifier.value;
+        final startDate =
+            _payrollReportCubit.state.filterStartDate ??
+            _selectedDateNotifier.value;
+        final endDate =
+            _payrollReportCubit.state.filterEndDate ??
+            _selectedDateNotifier.value;
         _outdoorReportDebounce = Timer(const Duration(milliseconds: 300), () {
           _payrollReportCubit.getOutdoorList(
             context: context,
             pageNumber: state.currentPageOutdoor + 1,
-            startDate: date,
-            endDate: date,
+            startDate: startDate,
+            endDate: endDate,
           );
         });
       }
@@ -623,15 +692,20 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         if (_resignationReportDebounce?.isActive ?? false) {
           _resignationReportDebounce?.cancel();
         }
-        final date = _selectedDateNotifier.value;
+        final startDate =
+            _payrollReportCubit.state.filterStartDate ??
+            _selectedDateNotifier.value;
+        final endDate =
+            _payrollReportCubit.state.filterEndDate ??
+            _selectedDateNotifier.value;
         _resignationReportDebounce = Timer(
           const Duration(milliseconds: 300),
           () {
             _payrollReportCubit.getResignationList(
               context: context,
               pageNumber: state.currentPageResignation + 1,
-              startDate: date,
-              endDate: date,
+              startDate: startDate,
+              endDate: endDate,
             );
           },
         );
@@ -651,13 +725,18 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         if (_leaveApprovalDebounce?.isActive ?? false) {
           _leaveApprovalDebounce?.cancel();
         }
-        final date = _selectedDateNotifier.value;
+        final startDate =
+            _payrollReportCubit.state.filterStartDate ??
+            _selectedDateNotifier.value;
+        final endDate =
+            _payrollReportCubit.state.filterEndDate ??
+            _selectedDateNotifier.value;
         _leaveApprovalDebounce = Timer(const Duration(milliseconds: 300), () {
           _payrollReportCubit.getLeaveList(
             context: context,
             pageNumber: state.currentPageApprovalLeave + 1,
-            startDate: date,
-            endDate: date,
+            startDate: startDate,
+            endDate: endDate,
             canApprove: true,
           );
         });
@@ -677,13 +756,18 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         if (_compOffApprovalDebounce?.isActive ?? false) {
           _compOffApprovalDebounce?.cancel();
         }
-        final date = _selectedDateNotifier.value;
+        final startDate =
+            _payrollReportCubit.state.filterStartDate ??
+            _selectedDateNotifier.value;
+        final endDate =
+            _payrollReportCubit.state.filterEndDate ??
+            _selectedDateNotifier.value;
         _compOffApprovalDebounce = Timer(const Duration(milliseconds: 300), () {
           _payrollReportCubit.getCompOffList(
             context: context,
             pageNumber: state.currentPageApprovalCompOff + 1,
-            startDate: date,
-            endDate: date,
+            startDate: startDate,
+            endDate: endDate,
             canApprove: true,
           );
         });
@@ -703,13 +787,18 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         if (_outdoorApprovalDebounce?.isActive ?? false) {
           _outdoorApprovalDebounce?.cancel();
         }
-        final date = _selectedDateNotifier.value;
+        final startDate =
+            _payrollReportCubit.state.filterStartDate ??
+            _selectedDateNotifier.value;
+        final endDate =
+            _payrollReportCubit.state.filterEndDate ??
+            _selectedDateNotifier.value;
         _outdoorApprovalDebounce = Timer(const Duration(milliseconds: 300), () {
           _payrollReportCubit.getOutdoorList(
             context: context,
             pageNumber: state.currentPageApprovalOutdoor + 1,
-            startDate: date,
-            endDate: date,
+            startDate: startDate,
+            endDate: endDate,
             canApprove: true,
           );
         });
@@ -729,15 +818,20 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         if (_resignationApprovalDebounce?.isActive ?? false) {
           _resignationApprovalDebounce?.cancel();
         }
-        final date = _selectedDateNotifier.value;
+        final startDate =
+            _payrollReportCubit.state.filterStartDate ??
+            _selectedDateNotifier.value;
+        final endDate =
+            _payrollReportCubit.state.filterEndDate ??
+            _selectedDateNotifier.value;
         _resignationApprovalDebounce = Timer(
           const Duration(milliseconds: 300),
           () {
             _payrollReportCubit.getResignationList(
               context: context,
               pageNumber: state.currentPageApprovalResignation + 1,
-              startDate: date,
-              endDate: date,
+              startDate: startDate,
+              endDate: endDate,
               canApprove: true,
             );
           },
@@ -759,15 +853,20 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         if (_regularizationApprovalDebounce?.isActive ?? false) {
           _regularizationApprovalDebounce?.cancel();
         }
-        final date = _selectedDateNotifier.value;
+        final startDate =
+            _payrollReportCubit.state.filterStartDate ??
+            _selectedDateNotifier.value;
+        final endDate =
+            _payrollReportCubit.state.filterEndDate ??
+            _selectedDateNotifier.value;
         _regularizationApprovalDebounce = Timer(
           const Duration(milliseconds: 300),
           () {
             _payrollReportCubit.getAttendanceRegularizationList(
               context: context,
               pageNumber: state.currentPageApprovalRegularization + 1,
-              startDate: date,
-              endDate: date,
+              startDate: startDate,
+              endDate: endDate,
               canApprove: true,
             );
           },
@@ -940,7 +1039,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
-                    mainAxisSize: MainAxisSize.min, // ✅ IMPORTANT
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       InkWell(
                         onTap: _onBackArrowClicked,
@@ -992,56 +1091,6 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                       ),
 
                       Spacer(),
-                      BlocBuilder<PayrollReportCubit, PayrollReportState>(
-                        builder: (context, state) {
-                          bool isAllSelected = false;
-                          bool showSelectAll = false;
-
-                          switch (state.currentTabIndex) {
-                            case 3: // Leave
-                              isAllSelected = state.isAllLeaveSelected;
-                              showSelectAll = state.leaveInnerTabIndex == 1;
-                              break;
-                            case 2: // CompOff
-                              isAllSelected = state.isAllCompOffSelected;
-                              showSelectAll = state.compOffInnerTabIndex == 1;
-                              break;
-                            case 4:
-                              isAllSelected = state.isAllOutdoorSelected;
-                              showSelectAll = state.outdoorInnerTabIndex == 1;
-                              break;
-                            case 5:
-                              isAllSelected = state.isAllResignationSelected;
-                              showSelectAll =
-                                  state.resignationInnerTabIndex == 1;
-                              break;
-                          }
-
-                          return !showSelectAll
-                              ? const SizedBox.shrink()
-                              : InkWell(
-                                onTap: () {
-                                  _payrollReportCubit.toggleSelectAll();
-                                },
-                                child: Row(
-                                  children: [
-                                    SizedBox(
-                                      height: 18,
-                                      width: 18,
-                                      child: Checkbox(
-                                        value: isAllSelected,
-                                        onChanged: (_) {
-                                          _payrollReportCubit.toggleSelectAll();
-                                        },
-                                      ),
-                                    ),
-                                    horizontalSpacing(width: 5),
-                                    Text("Select All"),
-                                  ],
-                                ),
-                              );
-                        },
-                      ),
                     ],
                   ),
                 );
@@ -1466,34 +1515,6 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         return Column(
           children: [
             // APPROVE/REJECT WIDGET ON APPROVAL TAB
-            if (state.regularizationInnerTabIndex == 1) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: ApproveRejectWidget(
-                  title: "Pending",
-                  isActionAlreadyPerformed: !isActionAllowed,
-                  isMaster: true,
-                  onApprove: (val) async {
-                    await _payrollReportCubit.approveRejectSelected(
-                      context: context,
-                      isApproved: true,
-                      remark: val.trim(),
-                      projectId: _project.projectId,
-                    );
-                  },
-                  onReject: (val) async {
-                    await _payrollReportCubit.approveRejectSelected(
-                      context: context,
-                      isApproved: false,
-                      remark: val.trim(),
-                      projectId: _project.projectId,
-                    );
-                  },
-                ),
-              ),
-              verticalSpacing(),
-            ],
-
             // INNER TAB BAR
             ChipStyleTabBar(
               controller: _regularizationTabController,
@@ -1516,7 +1537,11 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                       }
 
                       if (state.regularizationList.isEmpty) {
-                        return Center(child: noDataWidget());
+                        return Center(
+                          child: noDataWidget(
+                            message: 'No Regularize Report Available',
+                          ),
+                        );
                       }
 
                       return ListView.builder(
@@ -1529,7 +1554,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                         itemBuilder: (context, index) {
                           if (index == state.regularizationList.length) {
                             return state.regularizationList.length <
-                                    state.totalNumberOfRecordRegurization
+                                    state.totalNumberOfRecordRegularization
                                 ? const Padding(
                                   padding: EdgeInsets.all(16),
                                   child: Center(
@@ -1552,27 +1577,63 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Employee Name",
-                                          style: AppTextStyle.ts16M(),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        Text(
-                                          "Designation",
-                                          style: AppTextStyle.ts14M(
-                                            color: AppColor.grey,
-                                          ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
+                                    Text(
+                                      reg.createdBy,
+                                      style: AppTextStyle.ts16M(),
                                     ),
-                                    _statusButton(''),
+                                    CustomButton(
+                                      onPressed: () async {
+                                        final approvalList =
+                                            await _payrollReportCubit
+                                                .getApprovalStatus(
+                                                  requestId:
+                                                      reg.createdById
+                                                          .toString(),
+                                                  id:
+                                                      reg.attendanceRegularizationId,
+                                                  moduleName:
+                                                      _payrollReportCubit
+                                                          .getModuleName(),
+                                                );
+
+                                        final mappedList =
+                                            approvalList
+                                                .toApprovalLogHistoryList();
+
+                                        if (context.mounted) {
+                                          goRouter.pushNamed(
+                                            AppRoutes.approvalLogHistory,
+                                            queryParameters: {
+                                              "subTitle": Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  "${reg.createdBy} > ${formatDateTimeAsDDMMMYYYY(reg.attendanceDate)}",
+                                                ),
+                                              ),
+                                              "title": Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  "Regularize Approval History",
+                                                ),
+                                              ),
+                                              "approvalList": Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(
+                                                    mappedList
+                                                        .map((e) => e.toJson())
+                                                        .toList(),
+                                                  ),
+                                                ),
+                                              ),
+                                            },
+                                          );
+                                        }
+                                      },
+                                      leading: Icon(
+                                        Icons.watch_later_outlined,
+                                        size: 16,
+                                        color: AppColor.white,
+                                      ),
+                                      text: "History",
+                                    ),
                                   ],
                                 ),
                                 verticalSpacing(height: 10),
@@ -1623,7 +1684,11 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                       }
 
                       if (state.approvalRegularizationList.isEmpty) {
-                        return Center(child: noDataWidget());
+                        return Center(
+                          child: noDataWidget(
+                            message: "No Regularize Approval Report Available",
+                          ),
+                        );
                       }
 
                       return ListView.builder(
@@ -1650,90 +1715,223 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
                           final reg = state.approvalRegularizationList[index];
 
-                          return Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          return Column(
                             children: [
-                              Checkbox(
-                                value: state.selectedRegularizationIds.contains(
-                                  reg.attendanceRegularizationId,
+                              if (state.regularizationInnerTabIndex == 1 &&
+                                  isActionAllowed) ...[
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                  ),
+                                  child: ApproveRejectWidget(
+                                    title: "Pending",
+                                    isActionAlreadyPerformed: !isActionAllowed,
+                                    isMaster: true,
+                                    onApprove: (val) async {
+                                      final isSuccess =
+                                          await _payrollReportCubit
+                                              .approveRejectSelected(
+                                                context: context,
+                                                isApproved: true,
+                                                remark: val.trim(),
+                                                projectId: _project.projectId,
+                                              );
+                                      if (context.mounted && isSuccess) {
+                                        final startDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterStartDate ??
+                                            _selectedDateNotifier.value;
+                                        final endDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterEndDate ??
+                                            _selectedDateNotifier.value;
+
+                                        _payrollReportCubit.getResignationList(
+                                          context: context,
+                                          pageNumber: 1,
+                                          startDate: startDate,
+                                          endDate: endDate,
+                                          canApprove:
+                                              _regularizationTabController
+                                                  .index ==
+                                              1,
+                                        );
+                                      }
+                                    },
+                                    onReject: (val) async {
+                                      final isSuccess =
+                                          await _payrollReportCubit
+                                              .approveRejectSelected(
+                                                context: context,
+                                                isApproved: false,
+                                                remark: val.trim(),
+                                                projectId: _project.projectId,
+                                              );
+                                      if (context.mounted && isSuccess) {
+                                        final startDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterStartDate ??
+                                            _selectedDateNotifier.value;
+                                        final endDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterEndDate ??
+                                            _selectedDateNotifier.value;
+
+                                        _payrollReportCubit.getResignationList(
+                                          context: context,
+                                          pageNumber: 1,
+                                          startDate: startDate,
+                                          endDate: endDate,
+                                          canApprove:
+                                              _regularizationTabController
+                                                  .index ==
+                                              1,
+                                        );
+                                      }
+                                    },
+                                    customWidget: _selectAllWidget(),
+                                  ),
                                 ),
-                                onChanged: (_) {
-                                  _payrollReportCubit.toggleSelection(
-                                    id: reg.attendanceRegularizationId,
-                                    listLength:
-                                        state.approvalRegularizationList.length,
-                                  );
-                                },
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Container(
-                                  margin: const EdgeInsets.only(bottom: 10),
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: commonCardDecoration(),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                verticalSpacing(),
+                              ],
+
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (isActionAllowed) ...[
+                                    Checkbox(
+                                      value: state.selectedRegularizationIds
+                                          .contains(
+                                            reg.attendanceRegularizationId,
+                                          ),
+                                      onChanged: (_) {
+                                        _payrollReportCubit.toggleSelection(
+                                          id: reg.attendanceRegularizationId,
+                                          listLength:
+                                              state
+                                                  .approvalRegularizationList
+                                                  .length,
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(width: 8),
+                                  ],
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.only(bottom: 10),
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: commonCardDecoration(),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(
-                                                "Employee Name",
+                                                reg.createdBy,
                                                 style: AppTextStyle.ts16M(),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
                                               ),
-                                              Text(
-                                                "Designation",
-                                                style: AppTextStyle.ts14M(
-                                                  color: AppColor.grey,
+                                              CustomButton(
+                                                onPressed: () async {
+                                                  final approvalList =
+                                                      await _payrollReportCubit
+                                                          .getApprovalStatus(
+                                                            requestId:
+                                                                reg.createdById
+                                                                    .toString(),
+                                                            id:
+                                                                reg.attendanceRegularizationId,
+                                                            moduleName:
+                                                                _payrollReportCubit
+                                                                    .getModuleName(),
+                                                          );
+
+                                                  final mappedList =
+                                                      approvalList
+                                                          .toApprovalLogHistoryList();
+
+                                                  if (context.mounted) {
+                                                    goRouter.pushNamed(
+                                                      AppRoutes
+                                                          .approvalLogHistory,
+                                                      queryParameters: {
+                                                        "subTitle": Uri.encodeComponent(
+                                                          EncryptionManager.encryptData(
+                                                            "${reg.createdBy} > ${formatDateTimeAsDDMMMYYYY(reg.attendanceDate)}",
+                                                          ),
+                                                        ),
+                                                        "title": Uri.encodeComponent(
+                                                          EncryptionManager.encryptData(
+                                                            "Regularize Approval History",
+                                                          ),
+                                                        ),
+                                                        "approvalList":
+                                                            Uri.encodeComponent(
+                                                              EncryptionManager.encryptData(
+                                                                jsonEncode(
+                                                                  mappedList
+                                                                      .map(
+                                                                        (e) =>
+                                                                            e.toJson(),
+                                                                      )
+                                                                      .toList(),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                      },
+                                                    );
+                                                  }
+                                                },
+                                                leading: Icon(
+                                                  Icons.watch_later_outlined,
+                                                  size: 16,
+                                                  color: AppColor.white,
                                                 ),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
+                                                text: "History",
                                               ),
                                             ],
                                           ),
-                                          _statusButton(''),
+
+                                          verticalSpacing(height: 10),
+                                          buildRowTitleValue(
+                                            title: "Punch In",
+                                            value:
+                                                reg.punchIn != null
+                                                    ? DateFormat(
+                                                      'hh:mm a',
+                                                    ).format(reg.punchIn!)
+                                                    : "-",
+                                          ),
+                                          buildRowTitleValue(
+                                            title: "Punch Out",
+                                            value:
+                                                reg.punchOut != null
+                                                    ? DateFormat(
+                                                      'hh:mm a',
+                                                    ).format(reg.punchOut!)
+                                                    : "-",
+                                          ),
+                                          buildRowTitleValue(
+                                            title: "Date",
+                                            value: formatDateTimeAsDDMMMYYYY(
+                                              reg.attendanceDate,
+                                            ),
+                                          ),
+                                          buildRowTitleValue(
+                                            title: "Reason",
+                                            value: reg.reason,
+                                          ),
                                         ],
                                       ),
-                                      verticalSpacing(height: 10),
-                                      buildRowTitleValue(
-                                        title: "Punch In",
-                                        value:
-                                            reg.punchIn != null
-                                                ? DateFormat(
-                                                  'hh:mm a',
-                                                ).format(reg.punchIn!)
-                                                : "-",
-                                      ),
-                                      buildRowTitleValue(
-                                        title: "Punch Out",
-                                        value:
-                                            reg.punchOut != null
-                                                ? DateFormat(
-                                                  'hh:mm a',
-                                                ).format(reg.punchOut!)
-                                                : "-",
-                                      ),
-                                      buildRowTitleValue(
-                                        title: "Date",
-                                        value: formatDateTimeAsDDMMMYYYY(
-                                          reg.attendanceDate,
-                                        ),
-                                      ),
-                                      buildRowTitleValue(
-                                        title: "Reason",
-                                        value: reg.reason,
-                                      ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
                             ],
                           );
@@ -1756,33 +1954,6 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
       builder: (context, state) {
         return Column(
           children: [
-            if (state.compOffInnerTabIndex == 1) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: ApproveRejectWidget(
-                  title: "Pending",
-                  isActionAlreadyPerformed: !isActionAllowed,
-                  isMaster: true,
-                  onApprove: (val) async {
-                    await _payrollReportCubit.approveRejectSelected(
-                      context: context,
-                      isApproved: true,
-                      remark: val.trim(),
-                      projectId: _project.projectId,
-                    );
-                  },
-                  onReject: (val) async {
-                    await _payrollReportCubit.approveRejectSelected(
-                      context: context,
-                      isApproved: false,
-                      remark: val.trim(),
-                      projectId: _project.projectId,
-                    );
-                  },
-                ),
-              ),
-              verticalSpacing(),
-            ],
             ChipStyleTabBar(
               controller: _compOffTabController,
               isSecondaryStyle: true,
@@ -1797,12 +1968,16 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                     builder: (context) {
                       final isLoading = state.isLoading ?? true;
 
-                      if (isLoading && state.compOffList.isEmpty) {
+                      if (isLoading) {
                         return Center(child: loader());
                       }
 
                       if (state.compOffList.isEmpty) {
-                        return Center(child: noDataWidget());
+                        return Center(
+                          child: noDataWidget(
+                            message: 'No Comp-Off Report Available',
+                          ),
+                        );
                       }
 
                       return ListView.builder(
@@ -1835,31 +2010,65 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Expanded(
-                                      child: ListTile(
-                                        leading: NetworkImageWidget(
-                                          imageUrl:
-                                              "https://plus.unsplash.com/premium_photo-1667358091118-29e916ddbcc5?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fGh1c2t5fGVufDB8fDB8fHww",
-                                          width: 30,
-                                          height: 30,
-                                          fit: BoxFit.cover,
-                                          borderRadius: BorderRadius.circular(
-                                            55,
-                                          ),
-                                        ),
-                                        title: Text('Employee Name'),
-                                        subtitle: Text(
-                                          "Designation",
-                                          style: AppTextStyle.ts14M(
-                                            color: AppColor.grey,
-                                          ),
-                                        ),
-                                        contentPadding: EdgeInsets.zero,
-                                      ),
+                                    Text(
+                                      compOff.createdBy,
+                                      style: AppTextStyle.ts16M(),
                                     ),
-                                    _statusButton(''),
+                                    CustomButton(
+                                      onPressed: () async {
+                                        final approvalList =
+                                            await _payrollReportCubit
+                                                .getApprovalStatus(
+                                                  requestId:
+                                                      compOff.createdById
+                                                          .toString(),
+                                                  id: compOff.compOffId,
+                                                  moduleName:
+                                                      _payrollReportCubit
+                                                          .getModuleName(),
+                                                );
+
+                                        final mappedList =
+                                            approvalList
+                                                .toApprovalLogHistoryList();
+
+                                        if (context.mounted) {
+                                          goRouter.pushNamed(
+                                            AppRoutes.approvalLogHistory,
+                                            queryParameters: {
+                                              "subTitle": Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  "${compOff.createdBy} > ${formatDateTimeAsDDMMMYYYY(compOff.compOffDate)}",
+                                                ),
+                                              ),
+                                              "title": Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  "CompOff Approval History",
+                                                ),
+                                              ),
+                                              "approvalList": Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(
+                                                    mappedList
+                                                        .map((e) => e.toJson())
+                                                        .toList(),
+                                                  ),
+                                                ),
+                                              ),
+                                            },
+                                          );
+                                        }
+                                      },
+                                      leading: Icon(
+                                        Icons.watch_later_outlined,
+                                        size: 16,
+                                        color: AppColor.white,
+                                      ),
+                                      text: "History",
+                                    ),
                                   ],
                                 ),
                                 verticalSpacing(height: 10),
@@ -1892,12 +2101,16 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                     builder: (context) {
                       final isLoading = state.isLoading ?? true;
 
-                      if (isLoading && state.approvalCompOffList.isEmpty) {
+                      if (isLoading) {
                         return Center(child: loader());
                       }
 
                       if (state.approvalCompOffList.isEmpty) {
-                        return Center(child: noDataWidget());
+                        return Center(
+                          child: noDataWidget(
+                            message: 'No Comp-Off Approval Report Available',
+                          ),
+                        );
                       }
 
                       return ListView.builder(
@@ -1922,77 +2135,205 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
                           final compOff = state.approvalCompOffList[index];
 
-                          return Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          return Column(
                             children: [
-                              Checkbox(
-                                value: state.selectedCompOffIds.contains(
-                                  compOff.compOffId,
-                                ),
-                                onChanged: (_) {
-                                  _payrollReportCubit.toggleSelection(
-                                    id: compOff.compOffId,
-                                    listLength:
-                                        state.approvalCompOffList.length,
-                                  );
-                                },
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Container(
-                                  margin: const EdgeInsets.only(bottom: 10),
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: commonCardDecoration(),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: ListTile(
-                                              leading: NetworkImageWidget(
-                                                imageUrl:
-                                                    "https://plus.unsplash.com/premium_photo-1667358091118-29e916ddbcc5?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fGh1c2t5fGVufDB8fDB8fHww",
-                                                width: 30,
-                                                height: 30,
-                                                fit: BoxFit.cover,
-                                                borderRadius:
-                                                    BorderRadius.circular(55),
-                                              ),
-                                              title: Text('Employee Name'),
-                                              subtitle: Text(
-                                                "Designation",
-                                                style: AppTextStyle.ts14M(
-                                                  color: AppColor.grey,
-                                                ),
-                                              ),
-                                              contentPadding: EdgeInsets.zero,
-                                            ),
-                                          ),
-                                          _statusButton(''),
-                                        ],
-                                      ),
-                                      verticalSpacing(height: 10),
-                                      buildRowTitleValue(
-                                        title: "CompOff Date",
-                                        value: formatDateTimeAsDDMMMYYYY(
-                                          compOff.compOffDate,
-                                        ),
-                                      ),
-                                      buildRowTitleValue(
-                                        title: "Working Date",
-                                        value: formatDateTimeAsDDMMMYYYY(
-                                          compOff.workingDate,
-                                        ),
-                                      ),
-                                      buildRowTitleValue(
-                                        title: "Reason",
-                                        value: compOff.reason,
-                                      ),
-                                    ],
+                              if (state.compOffInnerTabIndex == 1 &&
+                                  isActionAllowed) ...[
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                  ),
+                                  child: ApproveRejectWidget(
+                                    title: "Pending",
+                                    isActionAlreadyPerformed: !isActionAllowed,
+                                    isMaster: true,
+                                    onApprove: (val) async {
+                                      final isSuccess =
+                                          await _payrollReportCubit
+                                              .approveRejectSelected(
+                                                context: context,
+                                                isApproved: true,
+                                                remark: val.trim(),
+                                                projectId: _project.projectId,
+                                              );
+                                      if (context.mounted && isSuccess) {
+                                        final startDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterStartDate ??
+                                            _selectedDateNotifier.value;
+                                        final endDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterEndDate ??
+                                            _selectedDateNotifier.value;
+                                        _payrollReportCubit.getCompOffList(
+                                          context: context,
+                                          pageNumber: 1,
+                                          startDate: startDate,
+                                          endDate: endDate,
+                                          canApprove:
+                                              _compOffTabController.index == 1,
+                                        );
+                                      }
+                                    },
+                                    onReject: (val) async {
+                                      final isSuccess =
+                                          await _payrollReportCubit
+                                              .approveRejectSelected(
+                                                context: context,
+                                                isApproved: false,
+                                                remark: val.trim(),
+                                                projectId: _project.projectId,
+                                              );
+                                      if (context.mounted && isSuccess) {
+                                        final startDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterStartDate ??
+                                            _selectedDateNotifier.value;
+                                        final endDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterEndDate ??
+                                            _selectedDateNotifier.value;
+
+                                        _payrollReportCubit.getCompOffList(
+                                          context: context,
+                                          pageNumber: 1,
+                                          startDate: startDate,
+                                          endDate: endDate,
+                                          canApprove:
+                                              _compOffTabController.index == 1,
+                                        );
+                                      }
+                                    },
+                                    customWidget: _selectAllWidget(),
                                   ),
                                 ),
+                                verticalSpacing(),
+                              ],
+
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (isActionAllowed) ...[
+                                    Checkbox(
+                                      value: state.selectedCompOffIds.contains(
+                                        compOff.compOffId,
+                                      ),
+                                      onChanged: (_) {
+                                        _payrollReportCubit.toggleSelection(
+                                          id: compOff.compOffId,
+                                          listLength:
+                                              state.approvalCompOffList.length,
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(width: 8),
+                                  ],
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.only(bottom: 10),
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: commonCardDecoration(),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                compOff.createdBy,
+                                                style: AppTextStyle.ts16M(),
+                                              ),
+                                              CustomButton(
+                                                onPressed: () async {
+                                                  final approvalList =
+                                                      await _payrollReportCubit
+                                                          .getApprovalStatus(
+                                                            requestId:
+                                                                compOff
+                                                                    .createdById
+                                                                    .toString(),
+                                                            id:
+                                                                compOff
+                                                                    .compOffId,
+                                                            moduleName:
+                                                                _payrollReportCubit
+                                                                    .getModuleName(),
+                                                          );
+
+                                                  final mappedList =
+                                                      approvalList
+                                                          .toApprovalLogHistoryList();
+
+                                                  if (context.mounted) {
+                                                    goRouter.pushNamed(
+                                                      AppRoutes
+                                                          .approvalLogHistory,
+                                                      queryParameters: {
+                                                        "subTitle": Uri.encodeComponent(
+                                                          EncryptionManager.encryptData(
+                                                            "${compOff.createdBy} > ${formatDateTimeAsDDMMMYYYY(compOff.compOffDate)}",
+                                                          ),
+                                                        ),
+                                                        "title": Uri.encodeComponent(
+                                                          EncryptionManager.encryptData(
+                                                            "CompOff Approval History",
+                                                          ),
+                                                        ),
+                                                        "approvalList":
+                                                            Uri.encodeComponent(
+                                                              EncryptionManager.encryptData(
+                                                                jsonEncode(
+                                                                  mappedList
+                                                                      .map(
+                                                                        (e) =>
+                                                                            e.toJson(),
+                                                                      )
+                                                                      .toList(),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                      },
+                                                    );
+                                                  }
+                                                },
+                                                leading: Icon(
+                                                  Icons.watch_later_outlined,
+                                                  size: 16,
+                                                  color: AppColor.white,
+                                                ),
+                                                text: "History",
+                                              ),
+                                            ],
+                                          ),
+
+                                          verticalSpacing(height: 10),
+                                          buildRowTitleValue(
+                                            title: "CompOff Date",
+                                            value: formatDateTimeAsDDMMMYYYY(
+                                              compOff.compOffDate,
+                                            ),
+                                          ),
+                                          buildRowTitleValue(
+                                            title: "Working Date",
+                                            value: formatDateTimeAsDDMMMYYYY(
+                                              compOff.workingDate,
+                                            ),
+                                          ),
+                                          buildRowTitleValue(
+                                            title: "Reason",
+                                            value: compOff.reason,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           );
@@ -2015,35 +2356,6 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
       builder: (context, state) {
         return Column(
           children: [
-            if (state.leaveInnerTabIndex == 1) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: ApproveRejectWidget(
-                  title: "Pending",
-                  isActionAlreadyPerformed: !isActionAllowed,
-                  isMaster: true,
-
-                  onApprove: (val) async {
-                    await _payrollReportCubit.approveRejectSelected(
-                      context: context,
-                      isApproved: true,
-                      remark: val.trim(),
-                      projectId: _project.projectId,
-                    );
-                  },
-
-                  onReject: (val) async {
-                    await _payrollReportCubit.approveRejectSelected(
-                      context: context,
-                      isApproved: false,
-                      remark: val.trim(),
-                      projectId: _project.projectId,
-                    );
-                  },
-                ),
-              ),
-              verticalSpacing(),
-            ],
             ChipStyleTabBar(
               controller: _leaveTabController,
               isSecondaryStyle: true,
@@ -2058,12 +2370,16 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                     builder: (context) {
                       final isLoading = state.isLoading ?? true;
 
-                      if (isLoading && state.leaveList.isEmpty) {
+                      if (isLoading) {
                         return Center(child: loader());
                       }
 
                       if (state.leaveList.isEmpty) {
-                        return Center(child: noDataWidget());
+                        return Center(
+                          child: noDataWidget(
+                            message: "No Leave Report Available",
+                          ),
+                        );
                       }
                       return ListView.builder(
                         controller: _leaveReportController,
@@ -2094,12 +2410,69 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  leave.createdBy,
-                                  style: AppTextStyle.ts16M(),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      leave.createdBy,
+                                      style: AppTextStyle.ts16M(),
+                                    ),
+                                    CustomButton(
+                                      onPressed: () async {
+                                        final approvalList =
+                                            await _payrollReportCubit
+                                                .getApprovalStatus(
+                                                  requestId:
+                                                      leave.createdById
+                                                          .toString(),
+                                                  id: leave.leaveId,
+                                                  moduleName:
+                                                      _payrollReportCubit
+                                                          .getModuleName(),
+                                                );
+
+                                        final mappedList =
+                                            approvalList
+                                                .toApprovalLogHistoryList();
+
+                                        if (context.mounted) {
+                                          goRouter.pushNamed(
+                                            AppRoutes.approvalLogHistory,
+                                            queryParameters: {
+                                              "subTitle": Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  "${leave.createdBy} > ${leave.leaveType}",
+                                                ),
+                                              ),
+                                              "title": Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  "Leave Approval History",
+                                                ),
+                                              ),
+                                              "approvalList": Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(
+                                                    mappedList
+                                                        .map((e) => e.toJson())
+                                                        .toList(),
+                                                  ),
+                                                ),
+                                              ),
+                                            },
+                                          );
+                                        }
+                                      },
+                                      leading: Icon(
+                                        Icons.watch_later_outlined,
+                                        size: 16,
+                                        color: AppColor.white,
+                                      ),
+                                      text: "History",
+                                    ),
+                                  ],
                                 ),
+
                                 verticalSpacing(height: 10),
                                 buildRowTitleValue(
                                   title: "Leave Type",
@@ -2141,12 +2514,16 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                     builder: (context) {
                       final isLoading = state.isLoading ?? true;
 
-                      if (isLoading && state.approvalLeaveList.isEmpty) {
+                      if (isLoading) {
                         return Center(child: loader());
                       }
 
                       if (state.approvalLeaveList.isEmpty) {
-                        return Center(child: noDataWidget());
+                        return Center(
+                          child: noDataWidget(
+                            message: "No Leave Approval Report Available",
+                          ),
+                        );
                       }
                       return ListView.builder(
                         controller: _leaveReportController,
@@ -2156,7 +2533,6 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                         ),
                         itemCount: state.approvalLeaveList.length + 1,
                         itemBuilder: (context, index) {
-                          /// loader
                           if (index == state.approvalLeaveList.length) {
                             return state.approvalLeaveList.length <
                                     state.totalNumberOfRecordApprovalLeave
@@ -2172,54 +2548,209 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                           final leave = state.approvalLeaveList[index];
                           final selectedIds = state.selectedLeaveIds;
 
-                          return Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          return Column(
                             children: [
-                              Checkbox(
-                                value: selectedIds.contains(leave.leaveId),
-                                onChanged: (_) {
-                                  _payrollReportCubit.toggleSelection(
-                                    id: leave.leaveId,
-                                    listLength: state.approvalLeaveList.length,
-                                  );
-                                },
-                              ),
+                              if (state.leaveInnerTabIndex == 1 &&
+                                  index == 0 &&
+                                  isActionAllowed) ...[
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                  ),
+                                  child: ApproveRejectWidget(
+                                    title: "Pending",
+                                    isActionAlreadyPerformed: !isActionAllowed,
+                                    isMaster: true,
 
-                              const SizedBox(width: 8),
+                                    onApprove: (val) async {
+                                      final isSuccess =
+                                          await _payrollReportCubit
+                                              .approveRejectSelected(
+                                                context: context,
+                                                isApproved: true,
+                                                remark: val.trim(),
+                                                projectId: _project.projectId,
+                                              );
+                                      if (context.mounted && isSuccess) {
+                                        final startDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterStartDate ??
+                                            _selectedDateNotifier.value;
+                                        final endDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterEndDate ??
+                                            _selectedDateNotifier.value;
 
-                              Expanded(
-                                child: Container(
-                                  margin: const EdgeInsets.only(bottom: 10),
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: commonCardDecoration(),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        leave.createdBy,
-                                        style: AppTextStyle.ts16M(),
-                                      ),
-                                      verticalSpacing(height: 10),
-                                      buildRowTitleValue(
-                                        title: "Leave Type",
-                                        value: leave.leaveType,
-                                      ),
-                                      buildRowTitleValue(
-                                        title: "Start Date",
-                                        value: formatDateTimeAsDDMMMYYYY(
-                                          leave.startDate,
-                                        ),
-                                      ),
-                                      buildRowTitleValue(
-                                        title: "End Date",
-                                        value: formatDateTimeAsDDMMMYYYY(
-                                          leave.endDate,
-                                        ),
-                                      ),
-                                    ],
+                                        _payrollReportCubit.getLeaveList(
+                                          context: context,
+                                          pageNumber: 1,
+                                          startDate: startDate,
+                                          endDate: endDate,
+                                          canApprove:
+                                              _leaveTabController.index == 1,
+                                        );
+                                      }
+                                    },
+
+                                    onReject: (val) async {
+                                      final isSuccess =
+                                          await _payrollReportCubit
+                                              .approveRejectSelected(
+                                                context: context,
+                                                isApproved: false,
+                                                remark: val.trim(),
+                                                projectId: _project.projectId,
+                                              );
+                                      if (context.mounted && isSuccess) {
+                                        final startDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterStartDate ??
+                                            _selectedDateNotifier.value;
+                                        final endDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterEndDate ??
+                                            _selectedDateNotifier.value;
+
+                                        _payrollReportCubit.getLeaveList(
+                                          context: context,
+                                          pageNumber: 1,
+                                          startDate: startDate,
+                                          endDate: endDate,
+                                          canApprove:
+                                              _leaveTabController.index == 1,
+                                        );
+                                      }
+                                    },
+                                    customWidget: _selectAllWidget(),
                                   ),
                                 ),
+
+                                verticalSpacing(),
+                              ],
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (isActionAllowed) ...[
+                                    Checkbox(
+                                      value: selectedIds.contains(
+                                        leave.leaveId,
+                                      ),
+                                      onChanged: (_) {
+                                        _payrollReportCubit.toggleSelection(
+                                          id: leave.leaveId,
+                                          listLength:
+                                              state.approvalLeaveList.length,
+                                        );
+                                      },
+                                    ),
+
+                                    const SizedBox(width: 8),
+                                  ],
+
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.only(bottom: 10),
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: commonCardDecoration(),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                leave.createdBy,
+                                                style: AppTextStyle.ts16M(),
+                                              ),
+                                              CustomButton(
+                                                onPressed: () async {
+                                                  final approvalList =
+                                                      await _payrollReportCubit
+                                                          .getApprovalStatus(
+                                                            requestId:
+                                                                leave
+                                                                    .createdById
+                                                                    .toString(),
+                                                            id: leave.leaveId,
+                                                            moduleName:
+                                                                _payrollReportCubit
+                                                                    .getModuleName(),
+                                                          );
+
+                                                  final mappedList =
+                                                      approvalList
+                                                          .toApprovalLogHistoryList();
+
+                                                  if (context.mounted) {
+                                                    goRouter.pushNamed(
+                                                      AppRoutes
+                                                          .approvalLogHistory,
+                                                      queryParameters: {
+                                                        "subTitle": Uri.encodeComponent(
+                                                          EncryptionManager.encryptData(
+                                                            "${leave.createdBy} > ${leave.leaveType}",
+                                                          ),
+                                                        ),
+                                                        "title": Uri.encodeComponent(
+                                                          EncryptionManager.encryptData(
+                                                            "Leave Approval History",
+                                                          ),
+                                                        ),
+                                                        "approvalList":
+                                                            Uri.encodeComponent(
+                                                              EncryptionManager.encryptData(
+                                                                jsonEncode(
+                                                                  mappedList
+                                                                      .map(
+                                                                        (e) =>
+                                                                            e.toJson(),
+                                                                      )
+                                                                      .toList(),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                      },
+                                                    );
+                                                  }
+                                                },
+                                                leading: Icon(
+                                                  Icons.watch_later_outlined,
+                                                  size: 16,
+                                                  color: AppColor.white,
+                                                ),
+                                                text: "History",
+                                              ),
+                                            ],
+                                          ),
+
+                                          verticalSpacing(height: 10),
+                                          buildRowTitleValue(
+                                            title: "Leave Type",
+                                            value: leave.leaveType,
+                                          ),
+                                          buildRowTitleValue(
+                                            title: "Start Date",
+                                            value: formatDateTimeAsDDMMMYYYY(
+                                              leave.startDate,
+                                            ),
+                                          ),
+                                          buildRowTitleValue(
+                                            title: "End Date",
+                                            value: formatDateTimeAsDDMMMYYYY(
+                                              leave.endDate,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           );
@@ -2242,33 +2773,6 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
       builder: (context, state) {
         return Column(
           children: [
-            if (state.outdoorInnerTabIndex == 1) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: ApproveRejectWidget(
-                  title: "Pending",
-                  isActionAlreadyPerformed: !isActionAllowed,
-                  isMaster: true,
-                  onApprove: (val) async {
-                    await _payrollReportCubit.approveRejectSelected(
-                      context: context,
-                      isApproved: true,
-                      remark: val.trim(),
-                      projectId: _project.projectId,
-                    );
-                  },
-                  onReject: (val) async {
-                    await _payrollReportCubit.approveRejectSelected(
-                      context: context,
-                      isApproved: false,
-                      remark: val.trim(),
-                      projectId: _project.projectId,
-                    );
-                  },
-                ),
-              ),
-              verticalSpacing(),
-            ],
             ChipStyleTabBar(
               controller: _outdoorTabController,
               isSecondaryStyle: true,
@@ -2288,7 +2792,11 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                       }
 
                       if (state.outdoorList.isEmpty) {
-                        return Center(child: noDataWidget());
+                        return Center(
+                          child: noDataWidget(
+                            message: "No Outdoor Report Available",
+                          ),
+                        );
                       }
 
                       return ListView.builder(
@@ -2320,12 +2828,69 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  outdoor.createdBy,
-                                  style: AppTextStyle.ts16M(),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      outdoor.createdBy,
+                                      style: AppTextStyle.ts16M(),
+                                    ),
+                                    CustomButton(
+                                      onPressed: () async {
+                                        final approvalList =
+                                            await _payrollReportCubit
+                                                .getApprovalStatus(
+                                                  requestId:
+                                                      outdoor.createdById
+                                                          .toString(),
+                                                  id: outdoor.outdoorId,
+                                                  moduleName:
+                                                      _payrollReportCubit
+                                                          .getModuleName(),
+                                                );
+
+                                        final mappedList =
+                                            approvalList
+                                                .toApprovalLogHistoryList();
+
+                                        if (context.mounted) {
+                                          goRouter.pushNamed(
+                                            AppRoutes.approvalLogHistory,
+                                            queryParameters: {
+                                              "subTitle": Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  "${outdoor.createdBy} > ${formatDateTimeAsDDMMMYYYY(outdoor.outDoorDate)}",
+                                                ),
+                                              ),
+                                              "title": Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  "Outdoor Approval History",
+                                                ),
+                                              ),
+                                              "approvalList": Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(
+                                                    mappedList
+                                                        .map((e) => e.toJson())
+                                                        .toList(),
+                                                  ),
+                                                ),
+                                              ),
+                                            },
+                                          );
+                                        }
+                                      },
+                                      leading: Icon(
+                                        Icons.watch_later_outlined,
+                                        size: 16,
+                                        color: AppColor.white,
+                                      ),
+                                      text: "History",
+                                    ),
+                                  ],
                                 ),
+
                                 verticalSpacing(height: 10),
                                 buildRowTitleValue(
                                   title: "Date",
@@ -2378,7 +2943,11 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                       }
 
                       if (state.approvalOutdoorList.isEmpty) {
-                        return Center(child: noDataWidget());
+                        return Center(
+                          child: noDataWidget(
+                            message: "No Outdoor Approval Report Available",
+                          ),
+                        );
                       }
 
                       return ListView.builder(
@@ -2403,74 +2972,224 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
                           final outdoor = state.approvalOutdoorList[index];
 
-                          return Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          return Column(
                             children: [
-                              Checkbox(
-                                value: state.selectedOutdoorIds.contains(
-                                  outdoor.outdoorId,
-                                ),
-                                onChanged: (_) {
-                                  _payrollReportCubit.toggleSelection(
-                                    id: outdoor.outdoorId,
-                                    listLength:
-                                        state.approvalOutdoorList.length,
-                                  );
-                                },
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Container(
-                                  margin: const EdgeInsets.only(bottom: 10),
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: commonCardDecoration(),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        outdoor.createdBy,
-                                        style: AppTextStyle.ts16M(),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      verticalSpacing(height: 10),
-                                      buildRowTitleValue(
-                                        title: "Date",
-                                        value: formatDateTimeAsDDMMMYYYY(
-                                          outdoor.outDoorDate,
-                                        ),
-                                      ),
-                                      buildRowTitleValue(
-                                        title: "Time",
-                                        value: DateFormat(
-                                          'hh:mm a',
-                                        ).format(outdoor.outDoorTime),
-                                      ),
-                                      buildRowTitleValue(
-                                        title: "Company",
-                                        value: outdoor.companyName,
-                                      ),
-                                      buildRowTitleValue(
-                                        title: "Department",
-                                        value: outdoor.departmentName,
-                                      ),
-                                      buildRowTitleValue(
-                                        title: "Accompanied By",
-                                        value: outdoor.accompaniedByName,
-                                      ),
-                                      buildRowTitleValue(
-                                        title: "Purpose",
-                                        value: outdoor.purpose,
-                                      ),
-                                      if (outdoor.conclusion.isNotEmpty)
-                                        buildRowTitleValue(
-                                          title: "Conclusion",
-                                          value: outdoor.conclusion,
-                                        ),
-                                    ],
+                              if (state.outdoorInnerTabIndex == 1 &&
+                                  index == 0 &&
+                                  isActionAllowed) ...[
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                  ),
+                                  child: ApproveRejectWidget(
+                                    title: "Pending",
+                                    isActionAlreadyPerformed: !isActionAllowed,
+                                    isMaster: true,
+                                    onApprove: (val) async {
+                                      final isSuccess =
+                                          await _payrollReportCubit
+                                              .approveRejectSelected(
+                                                context: context,
+                                                isApproved: true,
+                                                remark: val.trim(),
+                                                projectId: _project.projectId,
+                                              );
+                                      if (context.mounted && isSuccess) {
+                                        final startDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterStartDate ??
+                                            _selectedDateNotifier.value;
+                                        final endDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterEndDate ??
+                                            _selectedDateNotifier.value;
+
+                                        _payrollReportCubit.getOutdoorList(
+                                          context: context,
+                                          pageNumber: 1,
+                                          startDate: startDate,
+                                          endDate: endDate,
+                                          canApprove:
+                                              _outdoorTabController.index == 1,
+                                        );
+                                      }
+                                    },
+                                    onReject: (val) async {
+                                      final isSuccess =
+                                          await _payrollReportCubit
+                                              .approveRejectSelected(
+                                                context: context,
+                                                isApproved: false,
+                                                remark: val.trim(),
+                                                projectId: _project.projectId,
+                                              );
+                                      if (context.mounted && isSuccess) {
+                                        final startDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterStartDate ??
+                                            _selectedDateNotifier.value;
+                                        final endDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterEndDate ??
+                                            _selectedDateNotifier.value;
+
+                                        _payrollReportCubit.getOutdoorList(
+                                          context: context,
+                                          pageNumber: 1,
+                                          startDate: startDate,
+                                          endDate: endDate,
+                                          canApprove:
+                                              _outdoorTabController.index == 1,
+                                        );
+                                      }
+                                    },
+                                    customWidget: _selectAllWidget(),
                                   ),
                                 ),
+                                verticalSpacing(),
+                              ],
+
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (isActionAllowed) ...[
+                                    Checkbox(
+                                      value: state.selectedOutdoorIds.contains(
+                                        outdoor.outdoorId,
+                                      ),
+                                      onChanged: (_) {
+                                        _payrollReportCubit.toggleSelection(
+                                          id: outdoor.outdoorId,
+                                          listLength:
+                                              state.approvalOutdoorList.length,
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(width: 8),
+                                  ],
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.only(bottom: 10),
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: commonCardDecoration(),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                outdoor.createdBy,
+                                                style: AppTextStyle.ts16M(),
+                                              ),
+                                              CustomButton(
+                                                onPressed: () async {
+                                                  final approvalList =
+                                                      await _payrollReportCubit
+                                                          .getApprovalStatus(
+                                                            requestId:
+                                                                outdoor
+                                                                    .createdById
+                                                                    .toString(),
+                                                            id:
+                                                                outdoor
+                                                                    .outdoorId,
+                                                            moduleName:
+                                                                _payrollReportCubit
+                                                                    .getModuleName(),
+                                                          );
+
+                                                  final mappedList =
+                                                      approvalList
+                                                          .toApprovalLogHistoryList();
+
+                                                  if (context.mounted) {
+                                                    goRouter.pushNamed(
+                                                      AppRoutes
+                                                          .approvalLogHistory,
+                                                      queryParameters: {
+                                                        "subTitle": Uri.encodeComponent(
+                                                          EncryptionManager.encryptData(
+                                                            "${outdoor.createdBy} > ${formatDateTimeAsDDMMMYYYY(outdoor.outDoorDate)}",
+                                                          ),
+                                                        ),
+                                                        "title": Uri.encodeComponent(
+                                                          EncryptionManager.encryptData(
+                                                            "Outdoor Approval History",
+                                                          ),
+                                                        ),
+                                                        "approvalList":
+                                                            Uri.encodeComponent(
+                                                              EncryptionManager.encryptData(
+                                                                jsonEncode(
+                                                                  mappedList
+                                                                      .map(
+                                                                        (e) =>
+                                                                            e.toJson(),
+                                                                      )
+                                                                      .toList(),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                      },
+                                                    );
+                                                  }
+                                                },
+                                                leading: Icon(
+                                                  Icons.watch_later_outlined,
+                                                  size: 16,
+                                                  color: AppColor.white,
+                                                ),
+                                                text: "History",
+                                              ),
+                                            ],
+                                          ),
+
+                                          verticalSpacing(height: 10),
+                                          buildRowTitleValue(
+                                            title: "Date",
+                                            value: formatDateTimeAsDDMMMYYYY(
+                                              outdoor.outDoorDate,
+                                            ),
+                                          ),
+                                          buildRowTitleValue(
+                                            title: "Time",
+                                            value: DateFormat(
+                                              'hh:mm a',
+                                            ).format(outdoor.outDoorTime),
+                                          ),
+                                          buildRowTitleValue(
+                                            title: "Company",
+                                            value: outdoor.companyName,
+                                          ),
+                                          buildRowTitleValue(
+                                            title: "Department",
+                                            value: outdoor.departmentName,
+                                          ),
+                                          buildRowTitleValue(
+                                            title: "Accompanied By",
+                                            value: outdoor.accompaniedByName,
+                                          ),
+                                          buildRowTitleValue(
+                                            title: "Purpose",
+                                            value: outdoor.purpose,
+                                          ),
+                                          if (outdoor.conclusion.isNotEmpty)
+                                            buildRowTitleValue(
+                                              title: "Conclusion",
+                                              value: outdoor.conclusion,
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           );
@@ -2493,33 +3212,6 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
       builder: (context, state) {
         return Column(
           children: [
-            if (state.resignationInnerTabIndex == 1) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: ApproveRejectWidget(
-                  title: "Pending",
-                  isActionAlreadyPerformed: !isActionAllowed,
-                  isMaster: true,
-                  onApprove: (val) async {
-                    await _payrollReportCubit.approveRejectSelected(
-                      context: context,
-                      isApproved: true,
-                      remark: val.trim(),
-                      projectId: _project.projectId,
-                    );
-                  },
-                  onReject: (val) async {
-                    await _payrollReportCubit.approveRejectSelected(
-                      context: context,
-                      isApproved: false,
-                      remark: val.trim(),
-                      projectId: _project.projectId,
-                    );
-                  },
-                ),
-              ),
-              verticalSpacing(),
-            ],
             ChipStyleTabBar(
               controller: _resignationTabController,
               isSecondaryStyle: true,
@@ -2539,7 +3231,11 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                       }
 
                       if (state.resignationList.isEmpty) {
-                        return Center(child: noDataWidget());
+                        return Center(
+                          child: noDataWidget(
+                            message: "No Resignation Report Available",
+                          ),
+                        );
                       }
 
                       return ListView.builder(
@@ -2575,17 +3271,67 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Flexible(
-                                      child: Text(
-                                        resignation.employeeName,
-                                        style: AppTextStyle.ts16M(),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                                    Text(
+                                      resignation.createdBy,
+                                      style: AppTextStyle.ts16M(),
                                     ),
-                                    _statusButton(resignation.approvalStatus),
+                                    CustomButton(
+                                      onPressed: () async {
+                                        final approvalList =
+                                            await _payrollReportCubit
+                                                .getApprovalStatus(
+                                                  requestId:
+                                                      resignation.createdById
+                                                          .toString(),
+                                                  id:
+                                                      resignation
+                                                          .employeeResignationId,
+                                                  moduleName:
+                                                      _payrollReportCubit
+                                                          .getModuleName(),
+                                                );
+
+                                        final mappedList =
+                                            approvalList
+                                                .toApprovalLogHistoryList();
+
+                                        if (context.mounted) {
+                                          goRouter.pushNamed(
+                                            AppRoutes.approvalLogHistory,
+                                            queryParameters: {
+                                              "subTitle": Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  "${resignation.createdBy} > ${formatDateTimeAsDDMMMYYYY(resignation.resignationDate)}",
+                                                ),
+                                              ),
+                                              "title": Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  "Resignation Approval History",
+                                                ),
+                                              ),
+                                              "approvalList": Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(
+                                                    mappedList
+                                                        .map((e) => e.toJson())
+                                                        .toList(),
+                                                  ),
+                                                ),
+                                              ),
+                                            },
+                                          );
+                                        }
+                                      },
+                                      leading: Icon(
+                                        Icons.watch_later_outlined,
+                                        size: 16,
+                                        color: AppColor.white,
+                                      ),
+                                      text: "History",
+                                    ),
                                   ],
                                 ),
+
                                 verticalSpacing(height: 10),
                                 buildRowTitleValue(
                                   title: "Resignation Date",
@@ -2632,7 +3378,11 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                       }
 
                       if (state.approvalResignationList.isEmpty) {
-                        return Center(child: noDataWidget());
+                        return Center(
+                          child: noDataWidget(
+                            message: "No Resignation Report Available",
+                          ),
+                        );
                       }
 
                       return ListView.builder(
@@ -2658,80 +3408,225 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                           final resignation =
                               state.approvalResignationList[index];
 
-                          return Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          return Column(
                             children: [
-                              Checkbox(
-                                value: state.selectedResignationIds.contains(
-                                  resignation.employeeResignationId,
+                              if (state.resignationInnerTabIndex == 1 &&
+                                  index == 0 &&
+                                  isActionAllowed) ...[
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                  ),
+                                  child: ApproveRejectWidget(
+                                    title: "Pending",
+                                    isActionAlreadyPerformed: !isActionAllowed,
+                                    isMaster: true,
+                                    onApprove: (val) async {
+                                      final isSuccess =
+                                          await _payrollReportCubit
+                                              .approveRejectSelected(
+                                                context: context,
+                                                isApproved: true,
+                                                remark: val.trim(),
+                                                projectId: _project.projectId,
+                                              );
+                                      if (context.mounted && isSuccess) {
+                                        final startDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterStartDate ??
+                                            _selectedDateNotifier.value;
+                                        final endDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterEndDate ??
+                                            _selectedDateNotifier.value;
+
+                                        _payrollReportCubit.getResignationList(
+                                          context: context,
+                                          pageNumber: 1,
+                                          startDate: startDate,
+                                          endDate: endDate,
+                                          canApprove:
+                                              _resignationTabController.index ==
+                                              1,
+                                        );
+                                      }
+                                    },
+                                    onReject: (val) async {
+                                      final isSuccess =
+                                          await _payrollReportCubit
+                                              .approveRejectSelected(
+                                                context: context,
+                                                isApproved: false,
+                                                remark: val.trim(),
+                                                projectId: _project.projectId,
+                                              );
+                                      if (context.mounted && isSuccess) {
+                                        final startDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterStartDate ??
+                                            _selectedDateNotifier.value;
+                                        final endDate =
+                                            _payrollReportCubit
+                                                .state
+                                                .filterEndDate ??
+                                            _selectedDateNotifier.value;
+
+                                        _payrollReportCubit.getResignationList(
+                                          context: context,
+                                          pageNumber: 1,
+                                          startDate: startDate,
+                                          endDate: endDate,
+                                          canApprove:
+                                              _resignationTabController.index ==
+                                              1,
+                                        );
+                                      }
+                                    },
+                                    customWidget: _selectAllWidget(),
+                                  ),
                                 ),
-                                onChanged: (_) {
-                                  _payrollReportCubit.toggleSelection(
-                                    id: resignation.employeeResignationId,
-                                    listLength:
-                                        state.approvalResignationList.length,
-                                  );
-                                },
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Container(
-                                  margin: const EdgeInsets.only(bottom: 10),
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: commonCardDecoration(),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                verticalSpacing(),
+                              ],
+
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (isActionAllowed) ...[
+                                    Checkbox(
+                                      value: state.selectedResignationIds
+                                          .contains(
+                                            resignation.employeeResignationId,
+                                          ),
+                                      onChanged: (_) {
+                                        _payrollReportCubit.toggleSelection(
+                                          id: resignation.employeeResignationId,
+                                          listLength:
+                                              state
+                                                  .approvalResignationList
+                                                  .length,
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(width: 8),
+                                  ],
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.only(bottom: 10),
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: commonCardDecoration(),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Flexible(
-                                            child: Text(
-                                              resignation.employeeName,
-                                              style: AppTextStyle.ts16M(),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                resignation.createdBy,
+                                                style: AppTextStyle.ts16M(),
+                                              ),
+                                              CustomButton(
+                                                onPressed: () async {
+                                                  final approvalList =
+                                                      await _payrollReportCubit
+                                                          .getApprovalStatus(
+                                                            requestId:
+                                                                resignation
+                                                                    .createdById
+                                                                    .toString(),
+                                                            id:
+                                                                resignation
+                                                                    .employeeResignationId,
+                                                            moduleName:
+                                                                _payrollReportCubit
+                                                                    .getModuleName(),
+                                                          );
+
+                                                  final mappedList =
+                                                      approvalList
+                                                          .toApprovalLogHistoryList();
+
+                                                  if (context.mounted) {
+                                                    goRouter.pushNamed(
+                                                      AppRoutes
+                                                          .approvalLogHistory,
+                                                      queryParameters: {
+                                                        "subTitle": Uri.encodeComponent(
+                                                          EncryptionManager.encryptData(
+                                                            "${resignation.createdBy} > ${formatDateTimeAsDDMMMYYYY(resignation.resignationDate)}",
+                                                          ),
+                                                        ),
+                                                        "title": Uri.encodeComponent(
+                                                          EncryptionManager.encryptData(
+                                                            "Resignation Approval History",
+                                                          ),
+                                                        ),
+                                                        "approvalList":
+                                                            Uri.encodeComponent(
+                                                              EncryptionManager.encryptData(
+                                                                jsonEncode(
+                                                                  mappedList
+                                                                      .map(
+                                                                        (e) =>
+                                                                            e.toJson(),
+                                                                      )
+                                                                      .toList(),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                      },
+                                                    );
+                                                  }
+                                                },
+                                                leading: Icon(
+                                                  Icons.watch_later_outlined,
+                                                  size: 16,
+                                                  color: AppColor.white,
+                                                ),
+                                                text: "History",
+                                              ),
+                                            ],
+                                          ),
+
+                                          verticalSpacing(height: 10),
+                                          buildRowTitleValue(
+                                            title: "Resignation Date",
+                                            value: formatDateTimeAsDDMMMYYYY(
+                                              resignation.resignationDate,
                                             ),
                                           ),
-                                          _statusButton(
-                                            resignation.approvalStatus,
+                                          buildRowTitleValue(
+                                            title: "Expected Relieving Date",
+                                            value: formatDateTimeAsDDMMMYYYY(
+                                              resignation.expectedRelievingDate,
+                                            ),
+                                          ),
+                                          buildRowTitleValue(
+                                            title: "Reason Of Leaving",
+                                            value: resignation.reasonOfLeaving,
+                                          ),
+                                          buildRowTitleValue(
+                                            title: "Offer In Hand",
+                                            value:
+                                                resignation.isAnyOfferInHand
+                                                    ? "Yes"
+                                                    : "No",
+                                          ),
+                                          buildRowTitleValue(
+                                            title: "Offer Amount",
+                                            value:
+                                                resignation.offerAmount
+                                                    .toString(),
                                           ),
                                         ],
                                       ),
-                                      verticalSpacing(height: 10),
-                                      buildRowTitleValue(
-                                        title: "Resignation Date",
-                                        value: formatDateTimeAsDDMMMYYYY(
-                                          resignation.resignationDate,
-                                        ),
-                                      ),
-                                      buildRowTitleValue(
-                                        title: "Expected Relieving Date",
-                                        value: formatDateTimeAsDDMMMYYYY(
-                                          resignation.expectedRelievingDate,
-                                        ),
-                                      ),
-                                      buildRowTitleValue(
-                                        title: "Reason Of Leaving",
-                                        value: resignation.reasonOfLeaving,
-                                      ),
-                                      buildRowTitleValue(
-                                        title: "Offer In Hand",
-                                        value:
-                                            resignation.isAnyOfferInHand
-                                                ? "Yes"
-                                                : "No",
-                                      ),
-                                      buildRowTitleValue(
-                                        title: "Offer Amount",
-                                        value:
-                                            resignation.offerAmount.toString(),
-                                      ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
                             ],
                           );
@@ -2748,29 +3643,55 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     );
   }
 
-  // HELPER WIDGET FOR STATE
-  Widget _statusButton(String status) {
-    String status;
-    status = '';
+  Widget _selectAllWidget() {
+    return BlocBuilder<PayrollReportCubit, PayrollReportState>(
+      builder: (context, state) {
+        bool isAllSelected = false;
+        bool showSelectAll = false;
 
-    late String buttonText;
-    late Color bgColor;
-    late Color textColor;
+        switch (state.currentTabIndex) {
+          case 3: // Leave
+            isAllSelected = state.isAllLeaveSelected;
+            showSelectAll = state.leaveInnerTabIndex == 1;
+            break;
+          case 2: // CompOff
+            isAllSelected = state.isAllCompOffSelected;
+            showSelectAll = state.compOffInnerTabIndex == 1;
+            break;
+          case 4:
+            isAllSelected = state.isAllOutdoorSelected;
+            showSelectAll = state.outdoorInnerTabIndex == 1;
+            break;
+          case 5:
+            isAllSelected = state.isAllResignationSelected;
+            showSelectAll = state.resignationInnerTabIndex == 1;
+            break;
+        }
 
-    switch (status) {
-      default:
-        buttonText = "Pending";
-        bgColor = AppColor.darkBlue;
-        textColor = AppColor.white;
-    }
-
-    return Container(
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-      child: Text(buttonText, style: AppTextStyle.ts14M(color: textColor)),
+        return !showSelectAll
+            ? const SizedBox.shrink()
+            : InkWell(
+              onTap: () {
+                _payrollReportCubit.toggleSelectAll();
+              },
+              child: Row(
+                children: [
+                  SizedBox(
+                    height: 18,
+                    width: 18,
+                    child: Checkbox(
+                      value: isAllSelected,
+                      onChanged: (_) {
+                        _payrollReportCubit.toggleSelectAll();
+                      },
+                    ),
+                  ),
+                  horizontalSpacing(width: 5),
+                  Text("Select All"),
+                ],
+              ),
+            );
+      },
     );
   }
 }

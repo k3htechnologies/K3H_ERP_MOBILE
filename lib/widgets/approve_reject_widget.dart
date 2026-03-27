@@ -19,6 +19,7 @@ class ApproveRejectWidget extends StatelessWidget {
   final IconData rejectIcon;
   final IconData thirdIcon;
   final bool isMaster;
+  final Widget? customWidget;
 
   const ApproveRejectWidget({
     super.key,
@@ -31,6 +32,7 @@ class ApproveRejectWidget extends StatelessWidget {
     this.rejectIcon = Icons.close,
     this.thirdIcon = Icons.watch_later_outlined,
     this.isMaster = false,
+    this.customWidget,
   });
 
   @override
@@ -39,18 +41,20 @@ class ApproveRejectWidget extends StatelessWidget {
         ? Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            RichText(
-              text: TextSpan(
-                style: AppTextStyle.ts14M(color: AppColor.grey),
-                text: "Approval Status : ",
-                children: [
-                  TextSpan(
-                    style: AppTextStyle.ts14M(color: AppColor.black),
-                    text: title,
+            (customWidget != null)
+                ? customWidget!
+                : RichText(
+                  text: TextSpan(
+                    style: AppTextStyle.ts14M(color: AppColor.grey),
+                    text: "Approval Status : ",
+                    children: [
+                      TextSpan(
+                        style: AppTextStyle.ts14M(color: AppColor.black),
+                        text: title,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
             (isActionAlreadyPerformed && onThirdTap != null)
                 ? Row(
                   children: [

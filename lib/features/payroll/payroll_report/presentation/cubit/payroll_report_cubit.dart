@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/features/payroll/leave/data/repository/leave.reposit
 import 'package:k3h_erp_app/features/payroll/leave/model/leave.model.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/data/model/outdoor.model.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/data/repository/outdoor.repository.dart';
+import 'package:k3h_erp_app/features/payroll/payroll_report/data/model/payroll_report.model.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/data/repository/payroll_report.repository.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/data/model/resignation.model.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/data/repository/resignation.repository.dart';
@@ -104,14 +105,13 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     int pageNumber, {
     required DateTime startDate,
     required DateTime endDate,
-    required int isReport,
   }) async {
     emit(state.copyWith(isLoading: true));
     final queryParams = {
       'EmployeeName': state.searchText,
       'StartDate': DateFormat('yyyy-MM-dd').format(startDate),
       'EndDate': DateFormat('yyyy-MM-dd').format(endDate),
-      'isReport': "true",
+      'isReport': true,
     };
     var result = await _attendanceRepository.getAttendanceList(
       pageNumber: pageNumber,
@@ -388,8 +388,8 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
   }) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
-      "StartDate": startDate.toIso8601String(),
-      "EndDate": endDate.toIso8601String(),
+      'StartDate': DateFormat('yyyy-MM-dd').format(startDate),
+      'EndDate': DateFormat('yyyy-MM-dd').format(endDate),
       "isReport": true,
       "canApprove": canApprove,
     };
@@ -419,8 +419,9 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
             state.copyWith(
               regularizationList: updatedList,
               isLoading: false,
-              totalNumberOfRecordRegurization: response["totalNumberOfRecord"],
-              currentPageRegurization: pageNumber,
+              totalNumberOfRecordRegularization:
+                  response["totalNumberOfRecord"],
+              currentPageRegularization: pageNumber,
             ),
           );
         } else {
@@ -438,7 +439,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     );
   }
 
-  // <---- CLEAR FILTER ON COMP OFF ---->
+  // CLEAR FILTER
   void clearFilterOnPayrollReport(BuildContext context) {
     emit(
       state.copyWith(
@@ -453,20 +454,17 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     switch (state.currentTabIndex) {
       case 0: // Attendance
         emit(state.copyWith(attendanceList: [], currentPageAttendance: 1));
-        getAttendanceList(
-          context,
-          1,
-          startDate: now,
-          endDate: now,
-          isReport: 1,
-        );
+        getAttendanceList(context, 1, startDate: now, endDate: now);
         break;
 
       case 1: // Attendance Regularization
-        if (state.leaveInnerTabIndex == 0) {
+        if (state.regularizationInnerTabIndex == 0) {
           // Report
           emit(
-            state.copyWith(regularizationList: [], currentPageRegurization: 1),
+            state.copyWith(
+              regularizationList: [],
+              currentPageRegularization: 1,
+            ),
           );
           getAttendanceRegularizationList(
             context: context,
@@ -612,7 +610,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     }
   }
 
-  // <---- APPLY FILTER ON COMP OFF ---->
+  // APPLY FILTER
   void applyFilterOnPayrollReport({
     required BuildContext context,
     DateTime? startDate,
@@ -626,20 +624,17 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     switch (state.currentTabIndex) {
       case 0: // Attendance
         emit(state.copyWith(attendanceList: [], currentPageAttendance: 1));
-        getAttendanceList(
-          context,
-          1,
-          startDate: start,
-          endDate: end,
-          isReport: 1,
-        );
+        getAttendanceList(context, 1, startDate: start, endDate: end);
         break;
 
       case 1: // Attendance Regularization
-        if (state.regularizationList.isEmpty || state.leaveInnerTabIndex == 0) {
+        if (state.regularizationInnerTabIndex == 0) {
           // Report
           emit(
-            state.copyWith(regularizationList: [], currentPageRegurization: 1),
+            state.copyWith(
+              regularizationList: [],
+              currentPageRegularization: 1,
+            ),
           );
           getAttendanceRegularizationList(
             context: context,
@@ -786,7 +781,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     }
   }
 
-  // Toggle selection of an individual item
+  //TOGGLE SELECTION OF AN INDIVIDUAL ITEM
   void toggleSelection({required int id, required int listLength}) {
     switch (state.currentTabIndex) {
       case 1: // Regularization
@@ -871,7 +866,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     }
   }
 
-  // Toggle select all items for the current tab
+  // TOGGLE SELECT ALL ITEMS FOR THE CURRENT TAB
   void toggleSelectAll() {
     switch (state.currentTabIndex) {
       case 1: // Regularization
@@ -943,32 +938,32 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     }
   }
 
-  // Update inner tab index for leave
+  // UPDATE INNER TAB INDEX FOR LEAVE
   void onLeaveInnerTabChanged(int index) {
     emit(state.copyWith(leaveInnerTabIndex: index));
   }
 
-  // Update inner tab index for comp off
+  // UPDATE INNER TAB INDEX FOR COMP-OFF
   void onCompOffInnerTabChanged(int index) {
     emit(state.copyWith(compOffInnerTabIndex: index));
   }
 
-  // Update inner tab index for outdoor
+  // UPDATE INNER TAB INDEX FOR OUTDOOR
   void onOutdoorInnerTabChanged(int index) {
     emit(state.copyWith(outdoorInnerTabIndex: index));
   }
 
-  // Update inner tab index for resignation
+  //UPDATE INNER TAB INDEX FOR RESIGNATION
   void onResignationInnerTabChanged(int index) {
     emit(state.copyWith(resignationInnerTabIndex: index));
   }
 
-  // Update inner tab index for regularization
+  // UPDATE INNER TAB INDEX FOR REGULARIZATION
   void onRegularizationInnerTabChanged(int index) {
     emit(state.copyWith(regularizationInnerTabIndex: index));
   }
 
-  // Reset selection for approval tab
+  // RESET SELECTION FOR APPROVAL TAB
   void resetApprovalTabSelection() {
     switch (state.currentTabIndex) {
       case 1: // Regularization
@@ -1007,7 +1002,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     }
   }
 
-  // Reset inner tab index for approval tab
+  // RESET INNER TAB INDEX FOR APPROVAL TAB
   void resetApprovalTab() {
     switch (state.currentTabIndex) {
       case 1: // Regularization
@@ -1032,23 +1027,30 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     }
   }
 
-  String _getModuleName() {
+  //HELPER METHOD : GET MODULE NAME
+  String getModuleName() {
     switch (state.currentTabIndex) {
+      case 1:
+        return 'Regularization';
+
       case 2:
-        return "COMPOFF";
+        return "Compoff";
       case 3:
         return "Leave";
       case 4:
-        return "OUTDOOR";
+        return "Outdoor";
       case 5:
-        return "RESIGNATION";
+        return "Resignation";
       default:
         return "";
     }
   }
 
+  // HELPER METHOD :GET SELECTED ID LIST AS PER TAB
   List<int> _getSelectedApprovalIds() {
     switch (state.currentTabIndex) {
+      case 1:
+        return state.selectedRegularizationIds.toList();
       case 2:
         return state.selectedCompOffIds.toList();
 
@@ -1066,13 +1068,14 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     }
   }
 
+  // APPROVE OR REJECT : REGULARIZATION, COMP-OFF, LEAVE, OUTDOOR, RESIGNATION
   Future<bool> approveRejectSelected({
     required BuildContext context,
     required bool isApproved,
     required String remark,
     required int projectId,
   }) async {
-    final moduleName = _getModuleName();
+    final moduleName = getModuleName();
     final approvalIds = _getSelectedApprovalIds();
 
     if (approvalIds.isEmpty) {
@@ -1107,5 +1110,31 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
 
     resetApprovalTabSelection();
     return isSuccess;
+  }
+
+  // GET APPROVAL STATUS HISTORY
+  Future<List<PayrollApprovalModel>> getApprovalStatus({
+    int? id,
+    String? moduleName,
+    String? requestId,
+  }) async {
+    final response = await _payrollReportRepository.getApprovalStatus(
+      id: id,
+      moduleName: moduleName,
+      requestId: requestId,
+    );
+
+    return response.fold(
+      (failure) {
+        return <PayrollApprovalModel>[];
+      },
+
+      (result) {
+        final List<PayrollApprovalModel> list =
+            (result['data'] as List<PayrollApprovalModel>?) ?? [];
+
+        return list;
+      },
+    );
   }
 }

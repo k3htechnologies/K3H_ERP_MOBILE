@@ -153,7 +153,9 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
       pageNumber: pageNumber,
       pageSize: 15,
       queryParams:
-          value != null && value.isNotEmpty ? {"DepartmentName": value} : {},
+          value != null && value.isNotEmpty
+              ? {"DepartmentName": value, "isCheckPermission": false}
+              : {"isCheckPermission": false},
     );
 
     return result.fold(
@@ -187,6 +189,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
       pageNumber: pageNumber,
       pageSize: 15,
       queryParams: {
+        "isCheckPermission": false,
         "DepartmentName":
             _selectedDepartmentNotifier.value.first['DisplayName'],
       },
