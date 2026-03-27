@@ -328,8 +328,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
     if (channelPartnerMasterModel.designation.isNotEmpty) {
       selectedDesignation.value = designationList.firstWhere(
-            (element) =>
-        element['DisplayName'] == channelPartnerMasterModel.designation,
+        (element) =>
+            element['DisplayName'] == channelPartnerMasterModel.designation,
         orElse: () => designationList.first,
       );
     }
@@ -441,13 +441,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
           "Document Details": isDocumentValid,
           "Address Details": true,
         },
-        onResendOTP: () {
-          _loginCubit.sendOTPModuleBased(
-            context: context,
-            mobileNumber: _mobileNumberC.text.trim(),
-            module: "CHANNEL PARTNER",
-          );
-        },
+
         onVerifyOTP: () {
           _submitForm();
         },
@@ -826,7 +820,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                               return "Designation is required";
                             }
 
-                            if (selectedCompanyType.value['zAttributesId'] == 2 &&
+                            if (selectedCompanyType.value['zAttributesId'] ==
+                                    2 &&
                                 val['zAttributesId'] == 3) {
                               return "You can't be Owner";
                             }
@@ -884,9 +879,12 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                       child: Checkbox(
                                         value: hasRera,
                                         onChanged:
-                                        (hasRera &&
-                                            selectedDesignation.value != null &&
-                                            selectedDesignation.value!["zAttributesId"] != 3)
+                                            (hasRera &&
+                                                    selectedDesignation.value !=
+                                                        null &&
+                                                    selectedDesignation
+                                                            .value!["zAttributesId"] !=
+                                                        3)
                                                 ? null
                                                 : (value) {
                                                   hasReraNumber.value =
@@ -914,8 +912,11 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                 CustomTextField(
                                   title: 'RERA Number',
                                   isRequired: hasRera,
-                                  readOnly:selectedDesignation.value != null &&
-                                      selectedDesignation.value!["zAttributesId"] != 3,
+                                  readOnly:
+                                      selectedDesignation.value != null &&
+                                      selectedDesignation
+                                              .value!["zAttributesId"] !=
+                                          3,
                                   hint: "Enter RERA Number",
                                   textController: _reraNumberC,
                                   inputFormatterList:

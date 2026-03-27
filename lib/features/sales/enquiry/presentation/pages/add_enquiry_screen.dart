@@ -100,6 +100,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   final ValueNotifier<List<Map<String, dynamic>>> _selectedTeamMemberNotifier =
       ValueNotifier([]);
   final ValueNotifier<String> _channelPartnerMobileNotifier = ValueNotifier('');
+  final ValueNotifier<Map<String, dynamic>?> _selectedFinalStage =
+      ValueNotifier(null);
 
   // DROPDOWN VARIABLES
   Map<String, dynamic>? _selectedOccupationType;
@@ -108,7 +110,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   Map<String, dynamic>? _selectedFloorBand;
   Map<String, dynamic>? _selectedFunding;
   Map<String, dynamic>? _selectedEthnicity;
-  Map<String, dynamic>? _selectedFinalStage;
+  Map<String, dynamic>? _selectedFinalStageDetail;
   List<Map<String, dynamic>> _selectedLocations = [];
   List<Map<String, dynamic>> _selectedSourcingManager = [];
 
@@ -152,7 +154,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   ];
 
   final List<Map<String, dynamic>> residentialType = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Unit Type'},
+    {'zAttributesId': -1, 'DisplayName': 'Select Residential Type'},
     {'zAttributesId': 1, 'DisplayName': '1 RK'},
     {'zAttributesId': 2, 'DisplayName': '1 BHK'},
     {'zAttributesId': 3, 'DisplayName': '2 BHK'},
@@ -189,7 +191,12 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   ];
 
   final List<Map<String, dynamic>> commercialUnitTypeList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Type'},
+    {'zAttributesId': -1, 'DisplayName': 'Select Commercial Type'},
+    {'zAttributesId': 1, 'DisplayName': 'OFFICE'},
+    {'zAttributesId': 2, 'DisplayName': 'SHOP'},
+  ];
+  final List<Map<String, dynamic>> commercialLeasingTypeList = [
+    {'zAttributesId': -1, 'DisplayName': 'Select Commercial Leasing Type'},
     {'zAttributesId': 1, 'DisplayName': 'OFFICE'},
     {'zAttributesId': 2, 'DisplayName': 'SHOP'},
   ];
@@ -236,6 +243,26 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     {'zAttributesId': 8, 'DisplayName': 'Re-Visit Proposed'},
     {'zAttributesId': 9, 'DisplayName': 'Site Visit'},
     {'zAttributesId': 10, 'DisplayName': 'Unit Selection / Blocked'},
+  ];
+
+  //  finalStageDetail: ['Purchased with competition', 'Purchased somewhere else', 'Not connected calls >7', 'Low Budget', 'Ready Posession', 'Location', 'Product Issue', 'Pricing Issue', 'Payment Issue', 'Loan Issue', 'Inventory Issue', 'General Enquiry', 'Wrong Number', 'Dropped The Idea Of Buying', 'Booked Somewhere Else'],
+  final List<Map<String, dynamic>> finalStageDetailsList = [
+    {'zAttributesId': -1, 'DisplayName': 'Select Final Stage Detail'},
+    {'zAttributesId': 1, 'DisplayName': 'Purchased with competition'},
+    {'zAttributesId': 2, 'DisplayName': 'Purchased somewhere else'},
+    {'zAttributesId': 3, 'DisplayName': 'Not connected calls >7'},
+    {'zAttributesId': 4, 'DisplayName': 'Low Budget'},
+    {'zAttributesId': 5, 'DisplayName': 'Ready Possession'},
+    {'zAttributesId': 6, 'DisplayName': 'Location'},
+    {'zAttributesId': 7, 'DisplayName': 'Product Issue'},
+    {'zAttributesId': 8, 'DisplayName': 'Pricing Issue'},
+    {'zAttributesId': 9, 'DisplayName': 'Payment Issue'},
+    {'zAttributesId': 10, 'DisplayName': 'Loan Issue'},
+    {'zAttributesId': 11, 'DisplayName': 'Inventory Issue'},
+    {'zAttributesId': 12, 'DisplayName': 'General Enquiry'},
+    {'zAttributesId': 13, 'DisplayName': 'Wrong Number'},
+    {'zAttributesId': 14, 'DisplayName': 'Dropped The Idea Of Buying'},
+    {'zAttributesId': 15, 'DisplayName': 'Booked Somewhere Else'},
   ];
 
   final List<Map<String, dynamic>> channelPartnerActivityList = [
@@ -454,7 +481,11 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _selectedFloorBand = findItem(floorBrand, model.desiredFloorBand);
     _selectedFunding = findItem(fundingSourceList, model.sourceOfFunding);
     _selectedEthnicity = findItem(ethnicityList, model.ethnicity);
-    _selectedFinalStage = findItem(stageTypeList, model.finalStage);
+    _selectedFinalStage.value = findItem(stageTypeList, model.finalStage);
+    _selectedFinalStageDetail = findItem(
+      finalStageDetailsList,
+      model.finalStageDetail,
+    );
     _selectedTimeline = findItem(timelineTypeList, model.timeline);
 
     // DEPENDENT REQUIREMENT TYPE DROPDOWNS
@@ -471,7 +502,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       );
     } else if (reqDisplay == "Commercial Leasing") {
       _selectedCommercialLeasingNotifier.value = findItem(
-        commercialUnitTypeList,
+        commercialLeasingTypeList,
         model.requirementType,
       );
     }
@@ -624,13 +655,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
           "Property Preferences": true,
           "Follow-up Details": true,
         },
-        onResendOTP: () {
-          _loginCubit.sendOTPModuleBased(
-            context: context,
-            mobileNumber: _mobileC.text.trim(),
-            module: "ENQUIRY",
-          );
-        },
+
         onVerifyOTP: () {
           _submitEnquiryData();
           goRouter.pop();
@@ -742,8 +767,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       "CustomerClassification": customerClassification,
       "SourceOfFunding": getDisplayOrEmpty(_selectedFunding),
       "Ethnicity": getDisplayOrEmpty(_selectedEthnicity),
-      "FinalStage": getDisplayOrEmpty(_selectedFinalStage),
-      "FinalStageDetail": "",
+      "FinalStage": getDisplayOrEmpty(_selectedFinalStage.value),
+      "FinalStageDetail": getDisplayOrEmpty(_selectedFinalStageDetail),
       "EnquiryDate": _enquiryDate?.toIso8601String(),
       "NextFollowUpDate": _nextFollowUpDate?.toIso8601String(),
       "SalesAdvisorId":
@@ -799,7 +824,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       pageNumber: pageNumber,
       pageSize: 15,
       queryParams:
-          value != null && value.isNotEmpty ? {"EmployeeName": value} : {},
+          value != null && value.isNotEmpty
+              ? {"EmployeeName": value, "isCheckPermission": false}
+              : {"isCheckPermission": false},
     );
 
     return result.fold(
@@ -907,6 +934,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       pageNumber: pageNumber,
       pageSize: 15,
       projectId: projectId,
+      queryParams: {"FlatStatus": "booked"},
     );
 
     return result.fold(
@@ -972,7 +1000,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               color: AppColor.white,
               size: 18,
             ),
-            text: !_isEditMode ? 'Add Enquiry' : 'Update Enquiry',
+            text: !_isEditMode ? 'Add' : 'Update',
             onPressed: _submitForm,
             backgroundColor: AppColor.primary,
           ),
@@ -1178,6 +1206,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   _selectedTeamMemberNotifier.value = [];
                   _teamMemberNameC.clear();
                   _teamMemberMobileC.clear();
+                  _enquiryCubit.clearChannelPartner();
+                  _selectedProjectNotifier.value = [];
+                  _selectedFlatNotifier.value = [];
                 },
                 validator: (value) {
                   if (value?['zAttributesId'] == -1) {
@@ -1224,7 +1255,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   },
                 ),
 
-              if (isChannelPartner && subSourceId != -1) ...[
+              if (isChannelPartner) ...[
                 CustomTextField(
                   title: "Channel Partner",
                   hint: "Search by Channel Partner Mobile No.",
@@ -1817,9 +1848,10 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             final reqVal = selectedRequirement["DisplayName"] ?? "";
             if (reqVal == "Residential") {
               dependentList = residentialType;
-            } else if (reqVal == "Commercial" ||
-                reqVal == "Commercial Leasing") {
+            } else if (reqVal == "Commercial") {
               dependentList = commercialUnitTypeList;
+            } else if (reqVal == "Commercial Leasing") {
+              dependentList = commercialLeasingTypeList;
             }
           }
           return Column(
@@ -1839,14 +1871,15 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                         commercialUnitTypeList.first;
                   } else if (v["DisplayName"] == "Commercial Leasing") {
                     _selectedCommercialLeasingNotifier.value =
-                        commercialUnitTypeList.first;
+                        commercialLeasingTypeList.first;
                   }
                 },
               ),
               const SizedBox(height: 8),
               if (dependentList.isNotEmpty)
                 CustomDropDownWidget(
-                  title: "Select Type",
+                  title: "Select ${selectedRequirement?["DisplayName"]}",
+                  hintText: "Select ${selectedRequirement?["DisplayName"]}",
                   initialValue: () {
                     if (selectedRequirement?["DisplayName"] == "Residential") {
                       return _selectedResidentialTypeNotifier.value;
@@ -1928,9 +1961,26 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     return _card("Enquiry Information", [
       CustomDropDownWidget(
         title: "Stage",
-        initialValue: _selectedFinalStage ?? stageTypeList.first,
+        initialValue: _selectedFinalStage.value ?? stageTypeList.first,
         dataList: stageTypeList,
-        onSelected: (v) => _selectedFinalStage = v,
+        onSelected: (v) {
+          _selectedFinalStage.value = v;
+          _selectedFinalStageDetail = finalStageDetailsList.first;
+        },
+      ),
+      ValueListenableBuilder(
+        valueListenable: _selectedFinalStage,
+        builder: (context, finalStage, child) {
+          return finalStage?["zAttributesId"] == 5
+              ? CustomDropDownWidget(
+                title: "Final Stage Detail",
+                initialValue:
+                    _selectedFinalStageDetail ?? finalStageDetailsList.first,
+                dataList: finalStageDetailsList,
+                onSelected: (v) => _selectedFinalStageDetail = v,
+              )
+              : SizedBox.shrink();
+        },
       ),
     ]);
   }

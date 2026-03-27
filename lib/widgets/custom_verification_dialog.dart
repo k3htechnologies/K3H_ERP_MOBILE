@@ -10,7 +10,6 @@ Future<void> showCompleteVerificationDialog(
   BuildContext context, {
   required TextEditingController otpController,
   required VoidCallback onVerifyOTP,
-  required VoidCallback onResendOTP,
   required Map<String, bool> verificationSteps,
 }) {
   otpController.clear();
@@ -58,22 +57,6 @@ Future<void> showCompleteVerificationDialog(
               borderRadius: BorderRadius.circular(6),
               borderSide: BorderSide(color: AppColor.primary),
             ),
-          ),
-        ),
-
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton(
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.only(top: 10),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            onPressed: () {
-              otpController.clear();
-              onResendOTP();
-            },
-            child: Text("Resend OTP", style: AppTextStyle.ts12R()),
           ),
         ),
       ],
