@@ -444,6 +444,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
         onVerifyOTP: () {
           _submitForm();
+          _otpController.clear();
         },
       );
     } else {

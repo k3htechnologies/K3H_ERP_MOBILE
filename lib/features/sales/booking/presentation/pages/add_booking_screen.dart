@@ -942,6 +942,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         },
         onVerifyOTP: () async {
           _submitDetails();
+          _otpController.clear();
           goRouter.pop();
         },
       );

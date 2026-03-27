@@ -655,9 +655,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
           "Property Preferences": true,
           "Follow-up Details": true,
         },
-
         onVerifyOTP: () {
           _submitEnquiryData();
+          otpController.clear();
           goRouter.pop();
         },
       );
