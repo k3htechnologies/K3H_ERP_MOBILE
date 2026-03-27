@@ -1098,6 +1098,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           Expanded(
             child: TabBarView(
               controller: _tabController,
+              physics: NeverScrollableScrollPhysics(),
               children: [
                 buildAttendanceSection(),
                 buildRegularizeSection(),
@@ -1524,6 +1525,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             Expanded(
               child: TabBarView(
                 controller: _regularizationTabController,
+                physics: NeverScrollableScrollPhysics(),
                 children: [
                   // REPORT TAB
                   Builder(
@@ -1960,6 +1962,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             Expanded(
               child: TabBarView(
                 controller: _compOffTabController,
+                physics: NeverScrollableScrollPhysics(),
                 children: [
                   // REPORT
                   Builder(
@@ -2362,6 +2365,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             Expanded(
               child: TabBarView(
                 controller: _leaveTabController,
+                physics: NeverScrollableScrollPhysics(),
                 children: [
                   //REPORT
                   Builder(
@@ -2779,6 +2783,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             Expanded(
               child: TabBarView(
                 controller: _outdoorTabController,
+                physics: NeverScrollableScrollPhysics(),
                 children: [
                   // REPORT
                   Builder(
@@ -3217,6 +3222,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             ),
             Expanded(
               child: TabBarView(
+                physics: NeverScrollableScrollPhysics(),
                 controller: _resignationTabController,
                 children: [
                   // REPORT

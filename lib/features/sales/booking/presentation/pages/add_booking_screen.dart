@@ -940,15 +940,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
           "Payment Details": isPaymentDetails,
           "Other Charge Details": isOtherDetails,
         },
-        onResendOTP: () {
-          _loginCubit.sendOTPModuleBased(
-            context: context,
-            mobileNumber: applicantMobile,
-            module: "BOOKING",
-          );
-        },
         onVerifyOTP: () async {
           _submitDetails();
+          _otpController.clear();
           goRouter.pop();
         },
       );

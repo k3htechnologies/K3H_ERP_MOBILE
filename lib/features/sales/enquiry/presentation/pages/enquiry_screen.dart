@@ -485,6 +485,10 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
           _enquiryCubit.searchEnquiry(context, value, _project.projectId);
         },
         onExportCallback: (value) {
+          if (_project.projectId == 0) {
+            showErrorMessage(context, "Error", "Please select a project");
+            return;
+          }
           if (_enquiryCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
             return;
@@ -500,6 +504,10 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
           _showBottomSheetToFilterEnquiry(context);
         },
         onAddCallback: () {
+          if (_project.projectId == 0) {
+            showErrorMessage(context, "Error", "Please select a project");
+            return;
+          }
           goRouter.pushNamed(AppRoutes.addEnquiry);
         },
       ),

@@ -333,7 +333,7 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                                                     selectedValues
                                                             .first['DisplayName'] ??
                                                         '',
-                                                    style: AppTextStyle.ts14M(),
+                                                    style: AppTextStyle.ts14R(),
                                                     maxLines: 1,
                                                     overflow:
                                                         TextOverflow.ellipsis,
