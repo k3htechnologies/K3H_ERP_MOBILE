@@ -148,7 +148,25 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                   ],
                 ),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    buildColumnTitleValue(
+                      title: "Architect Name",
+                      value: widget.project.architectName,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Architect Mobile Number",
+                      value: widget.project.architectMobileNumber,
+                    ),
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "File Number",
+                      value: widget.project.fileNumber,
+                    ),
                     buildColumnTitleValue(
                       title: "CTS Number",
                       value: widget.project.ctsNumber,
@@ -282,7 +300,7 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                 Row(
                   children: [
                     buildColumnTitleValue(
-                      title: "Project Sub Scope",
+                      title: "Project Sub Scheme",
                       value: widget.project.projectSubScheme,
                     ),
                   ],

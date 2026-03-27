@@ -21,31 +21,28 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
   Future searchPaymentScheduleMaster(
     BuildContext context,
     String value, {
-    required int paymentScheduleSchemeMasterId,
+    required PaymentScheduleSchemeModel scheme,
   }) async {
     emit(state.copyWith(searchText: value, paymentScheduleMasterList: []));
-    await getPaymentScheduleMasterList(
-      context,
-      1,
-      paymentScheduleSchemeMasterId: paymentScheduleSchemeMasterId,
-    );
+    await getPaymentScheduleMasterList(context, 1, scheme: scheme);
   }
 
   // GET LIST
   Future getPaymentScheduleMasterList(
     BuildContext context,
     int pageNumber, {
-    required int paymentScheduleSchemeMasterId,
+    required PaymentScheduleSchemeModel scheme,
   }) async {
     emit(state.copyWith(isLoading: true));
 
     Map<String, dynamic> queryParams = {
       "Stage": state.searchText,
-      "PaymentScheduleSchemeMasterId": paymentScheduleSchemeMasterId,
-      "InventoryBuildingId": state.selectedScheme!.inventoryBuildingId,
+      "PaymentScheduleSchemeMasterId": scheme.paymentScheduleSchemeMasterId,
+      "InventoryBuildingId": scheme.inventoryBuildingId,
       "InventoryFlatFloorBasementPodiumWingId":
-          state.selectedScheme!.inventoryFlatFloorBasementPodiumWingId,
+          scheme.inventoryFlatFloorBasementPodiumWingId,
     };
+    ;
 
     var result = await _repository.getPaymentScheduleMasterList(
       pageNumber: pageNumber,
@@ -92,7 +89,7 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
     required int inventoryFlatFloorBasementPodiumWingId,
     required String stage,
     required double paymentSchedulePercentage,
-    required int paymentScheduleSchemeMasterId,
+    required PaymentScheduleSchemeModel scheme,
   }) async {
     final double cumulativePercentage =
         state.totalCumulativePercentage + paymentSchedulePercentage;
@@ -117,7 +114,7 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
       "Stage": stage,
       "PaymentSchedulePercentage": paymentSchedulePercentage,
       "PaymentCummulativePercentage": cumulativePercentage,
-      "PaymentScheduleSchemeMasterId": paymentScheduleSchemeMasterId,
+      "PaymentScheduleSchemeMasterId": scheme.paymentScheduleSchemeMasterId,
     };
 
     var result = await _repository.addUpdatePaymentScheduleMaster(
@@ -131,13 +128,13 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
       (response) {
         showSuccessMessage(
           context,
-          subTitle: "Payment Schedule Master Added Successfully!!!",
+          subTitle: "Payment Schedule added successfully",
         );
 
         getPaymentScheduleMasterList(
           context,
           1,
-          paymentScheduleSchemeMasterId: paymentScheduleSchemeMasterId,
+          scheme: scheme,
         );
 
         goRouter.pop();
@@ -213,7 +210,7 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
 
         showSuccessMessage(
           context,
-          subTitle: "Payment Schedule Master Updated Successfully!!!",
+          subTitle: "Payment Schedule updated successfully",
         );
 
         goRouter.pop();

@@ -360,20 +360,6 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
     }
   }
 
-  // ALLOW EDIT FOR LAST 3 DAYS
-  bool _isWithinLastThreeDays(DateTime? date) {
-    if (date == null) return false;
-
-    final now = DateTime.now();
-
-    final today = DateTime(now.year, now.month, now.day);
-    final itemDate = DateTime(date.year, date.month, date.day);
-
-    final difference = today.difference(itemDate).inDays;
-
-    return difference >= 0 && difference <= 2;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -742,9 +728,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                             Visibility(
                                               visible:
                                                   index == 0 &&
-                                                  _isWithinLastThreeDays(
-                                                    item.createdDate,
-                                                  ),
+                                                  item.isAction,
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [

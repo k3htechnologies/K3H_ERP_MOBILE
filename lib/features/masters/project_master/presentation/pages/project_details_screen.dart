@@ -28,6 +28,7 @@ import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
+import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -78,10 +79,14 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     pageController = PageController();
 
     projectImages =
-        widget.project.projectPhotoUrl
+        (widget.project.projectPhotoUrl)
             .split(',')
             .map((e) => e.trim())
-            .where((e) => e.isNotEmpty)
+            .where(
+              (e) =>
+                  e.isNotEmpty &&
+                  (e.startsWith('http://') || e.startsWith('https://')),
+            )
             .toList();
 
     _onScroll();
@@ -276,6 +281,18 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                         });
                       },
                       itemBuilder: (context, index) {
+                        if (projectImages.isEmpty) {
+                          return Container(
+                            height: 220,
+                            decoration: BoxDecoration(
+                              color: AppColor.grey30,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Center(
+                              child: Icon(Icons.image_not_supported, size: 40),
+                            ),
+                          );
+                        }
                         return Stack(
                           fit: StackFit.expand,
                           children: [
@@ -285,21 +302,12 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                 sigmaX: 0.8,
                                 sigmaY: 0.2,
                               ),
-                              child: Image.network(
-                                projectImages[index],
+                              child: NetworkImageWidget(
+                                imageUrl: projectImages[index],
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) {
-                                  return Container(
-                                    color: AppColor.grey30,
-                                    alignment: Alignment.center,
-                                    child: const Icon(
-                                      Icons.image_not_supported,
-                                      size: 40,
-                                      color: Colors.grey,
-                                    ),
-                                  );
-                                },
-                              ),
+                                width: double.infinity,
+                                height: double.infinity,
+                              )
                             ),
 
                             Container(
@@ -785,8 +793,8 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                     text:
                         state.employeeByProject.isEmpty ? "Add" : "Add/Update",
                     onPressed: () async {
-                     await  _showEmployeeSelectionBottomSheet(context);
-                     FocusScope.of(context).unfocus();
+                      await _showEmployeeSelectionBottomSheet(context);
+                      FocusScope.of(context).unfocus();
                     },
                     backgroundColor: AppColor.primary,
                     padding: EdgeInsets.symmetric(vertical: 3, horizontal: 10),

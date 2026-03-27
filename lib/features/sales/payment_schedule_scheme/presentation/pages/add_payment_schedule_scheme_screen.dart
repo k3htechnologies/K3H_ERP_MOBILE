@@ -131,6 +131,7 @@ class _AddPaymentScheduleSchemeScreenState
                     CustomDropDownWidget(
                       title: "Select Building",
                       isRequired: true,
+                      isDisabled: (widget.paymentScheduleSchemeModel != null && widget.paymentScheduleSchemeModel!.isExistsPaymentScheduleScheme),
                       dataList: buildingListMap,
                       initialValue: selectedBuildingMap,
                       onSelected: (value) {
@@ -148,6 +149,7 @@ class _AddPaymentScheduleSchemeScreenState
                     CustomDropDownWidget(
                       title: "Select Wing",
                       isRequired: true,
+                      isDisabled: (widget.paymentScheduleSchemeModel != null && widget.paymentScheduleSchemeModel!.isExistsPaymentScheduleScheme),
                       dataList: wingListMap,
                       initialValue: selectedWingMap,
                       onSelected: (value) {

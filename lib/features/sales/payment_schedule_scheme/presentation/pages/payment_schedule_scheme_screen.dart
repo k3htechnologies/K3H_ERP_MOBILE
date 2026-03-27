@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/cubit/payment_schedule_scheme_cubit.dart';
@@ -14,6 +15,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -29,13 +31,21 @@ class PaymentScheduleSchemeScreen extends StatefulWidget {
 
 class _PaymentScheduleSchemeScreenState
     extends State<PaymentScheduleSchemeScreen> {
+  // CUBIT
   late PaymentScheduleSchemeCubit _cubit;
+
+  // AUTHORIZATION MODEL
   late AuthorizationModel _routeAuthorizationModel;
 
+  // SCROLL CONTROLLER
   late ScrollController scrollController;
   Timer? _debounce;
 
+  // TEXT EDITING CONTROLLER
   late TextEditingController _searchC;
+
+  // PROJECT
+  late ProjectModel _project;
 
   @override
   void initState() {
@@ -44,11 +54,10 @@ class _PaymentScheduleSchemeScreenState
     _cubit = context.read<PaymentScheduleSchemeCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.paymentScheduleScheme]!;
-
     _searchC = TextEditingController();
-
+    _project = getProject();
     _onScroll();
-    _cubit.getPaymentScheduleSchemeList(context, 1);
+    _cubit.getPaymentScheduleSchemeList(context, 1, _project.projectId);
   }
 
   @override
@@ -73,6 +82,7 @@ class _PaymentScheduleSchemeScreenState
           _cubit.getPaymentScheduleSchemeList(
             context,
             _cubit.state.currentPage + 1,
+            _project.projectId,
           );
         });
       }
@@ -87,8 +97,8 @@ class _PaymentScheduleSchemeScreenState
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete this scheme?',
-      'Deleting this scheme will permanently remove it.',
+      'You are about to delete a Payment Schedule Scheme ?',
+      'Deleting this Payment Schedule Scheme will permanently remove all associated data.',
     );
 
     if (result && context.mounted) {
@@ -105,10 +115,15 @@ class _PaymentScheduleSchemeScreenState
         authorization: _routeAuthorizationModel,
         textController: _searchC,
         onProjectChangeCallback: (value) {
-          _cubit.resetSearch();
-          _cubit.getPaymentScheduleSchemeList(context, 1);
+          _project = value;
+          _searchC.clear();
+          _cubit.searchPaymentScheduleScheme(context, "", _project.projectId);
         },
         onExportCallback: (value) {
+          if (_project.projectId == 0) {
+            showErrorMessage(context, "Error", "Please select a project");
+            return;
+          }
           if (_cubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
             return;
@@ -116,11 +131,19 @@ class _PaymentScheduleSchemeScreenState
           _cubit.exportExcelPdf(context, value);
         },
         onAddCallback: () async {
+          if (_project.projectId == 0) {
+            showErrorMessage(context, "Error", "Please select a project");
+            return;
+          }
           await goRouter.pushNamed(AppRoutes.addPaymentScheduleScheme);
         },
         searchHintText: "Search by Scheme Name",
         onSearchSubmit: (value) {
-          _cubit.searchPaymentScheduleScheme(context, value);
+          _cubit.searchPaymentScheduleScheme(
+            context,
+            value,
+            _project.projectId,
+          );
         },
       ),
       body: BlocBuilder<PaymentScheduleSchemeCubit, PaymentScheduleSchemeState>(
@@ -163,7 +186,7 @@ class _PaymentScheduleSchemeScreenState
                         Expanded(
                           child: Text(
                             scheme.paymentScheduleSchemeName,
-                            style: AppTextStyle.ts16M(),
+                            style: AppTextStyle.ts16M(color: AppColor.primary),
                           ),
                         ),
                         if (_routeAuthorizationModel.isAction) ...[
@@ -186,6 +209,8 @@ class _PaymentScheduleSchemeScreenState
                               ),
                               horizontalSpacing(),
                               CustomIconButton.delete(
+                                isDisabled:
+                                    scheme.isExistsPaymentScheduleScheme,
                                 onPressed: () async {
                                   _showPaymentScheduleSchemeDeletePopup(
                                     context,

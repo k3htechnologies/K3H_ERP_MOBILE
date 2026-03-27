@@ -11,6 +11,7 @@ class SourcingModel {
   final double? sourcingLatitude;
   final double? sourcingLongitude;
   final String? sourcingLocation;
+  final bool isAction;
   final int? createdById;
   final String? createdBy;
   final DateTime? createdDate;
@@ -29,6 +30,7 @@ class SourcingModel {
     this.sourcingLatitude,
     this.sourcingLongitude,
     this.sourcingLocation,
+    this.isAction = false,
     this.createdById,
     this.createdBy,
     this.createdDate,
@@ -53,6 +55,7 @@ class SourcingModel {
       sourcingLongitude:
       (json["SourcingLongitude"] as num?)?.toDouble(),
       sourcingLocation: parseValue<String>(json, "SourcingLocation"),
+      isAction: parseValue<bool>(json, "IsAction"),
       createdById: parseValue<int>(json, "CreatedById"),
       createdBy: parseValue<String>(json, "CreatedBy"),
       createdDate: json["CreatedDate"] == null
@@ -79,6 +82,7 @@ class SourcingModel {
       "SourcingLatitude": sourcingLatitude,
       "SourcingLongitude": sourcingLongitude,
       "SourcingLocation": sourcingLocation,
+      "IsAction": isAction,
       "CreatedById": createdById,
       "CreatedBy": createdBy,
       "CreatedDate": createdDate?.toIso8601String(),

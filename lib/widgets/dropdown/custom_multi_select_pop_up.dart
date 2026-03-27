@@ -58,10 +58,7 @@ class CustomMultipleSelectPopup extends StatefulWidget {
       backgroundColor: Colors.transparent,
       builder: (context) {
         final screenHeight = MediaQuery.of(context).size.height;
-        final double bottomSheetHeight = (screenHeight * 0.5).clamp(
-          400.0,
-          700.0,
-        );
+        final double bottomSheetHeight = (screenHeight * 0.52);
         return Container(
           height: bottomSheetHeight,
           decoration: const BoxDecoration(
@@ -93,7 +90,7 @@ class CustomMultipleSelectPopup extends StatefulWidget {
                 height: 1.0,
                 decoration: const BoxDecoration(color: AppColor.grey),
               ),
-              Expanded(
+              Flexible(
                 child: DropdownList(
                   dataList: dataList ?? const [],
                   initialValue: initialValue ?? const [],
@@ -128,10 +125,7 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
       backgroundColor: Colors.transparent,
       builder: (context) {
         final screenHeight = MediaQuery.of(context).size.height;
-        final double bottomSheetHeight = (screenHeight * 0.7).clamp(
-          400.0,
-          700.0,
-        );
+        final double bottomSheetHeight = (screenHeight * 0.52);
         return Container(
           height: bottomSheetHeight,
           decoration: const BoxDecoration(
@@ -418,7 +412,7 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                           Flexible(
                             child: Text(
                               formFieldState.errorText ?? '',
-                              style: AppTextStyle.ts14R(color: AppColor.error),
+                              style: AppTextStyle.ts12R(color: AppColor.error),
                             ),
                           ),
                         ],

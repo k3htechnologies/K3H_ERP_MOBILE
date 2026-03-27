@@ -441,13 +441,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
           "Document Details": isDocumentValid,
           "Address Details": true,
         },
-        onResendOTP: () {
-          _loginCubit.sendOTPModuleBased(
-            context: context,
-            mobileNumber: _mobileNumberC.text.trim(),
-            module: "CHANNEL PARTNER",
-          );
-        },
         onVerifyOTP: () {
           _submitForm();
         },

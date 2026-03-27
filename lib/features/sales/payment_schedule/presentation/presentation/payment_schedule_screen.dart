@@ -44,6 +44,10 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
   final PaymentScheduleSchemeRepository _paymentScheduleSchemeRepository =
       serviceLocator<PaymentScheduleSchemeRepository>();
 
+  // SELECTED SCHEME
+  final ValueNotifier<PaymentScheduleSchemeModel?> selectedSchemeNotifier =
+      ValueNotifier(null);
+
   @override
   void initState() {
     _routeAuthorizationModel =
@@ -65,7 +69,7 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
           projectId: getProject().projectId,
           queryParams:
               value != null && value.isNotEmpty
-                  ? {"PaymentScheduleSchemeName": value}
+                  ? {"PaymentScheduleScheme": value}
                   : {},
         );
 
@@ -101,8 +105,8 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete this payment schedule?',
-      'Deleting this payment schedule will permanently remove it.',
+      'You are about to delete a Payment Schedule ?',
+      'Deleting this Payment Schedule will permanently remove all associated data.',
     );
 
     if (result && context.mounted) {
@@ -126,11 +130,10 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
           _paymentScheduleCubit.getPaymentScheduleMasterList(
             context,
             _paymentScheduleCubit.state.currentPage + 1,
-            paymentScheduleSchemeMasterId:
+            scheme:
                 _paymentScheduleCubit
                     .state
-                    .selectedScheme!
-                    .paymentScheduleSchemeMasterId,
+                    .selectedScheme!,
           );
         });
       }
@@ -159,7 +162,8 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
                   key: ValueKey(
                     state.selectedScheme?.paymentScheduleSchemeMasterId ?? 0,
                   ),
-                  title: "Select Scheme",
+                  title: "Payment Schedule Scheme",
+                  hintText: "Select Payment Schedule Scheme",
                   isRequired: true,
                   isMultiSelect: false,
                   initialValue:
@@ -187,19 +191,65 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
 
                       _paymentScheduleCubit.selectScheme(schemeModel);
 
+                      selectedSchemeNotifier.value = schemeModel;
+
                       await _paymentScheduleCubit.getPaymentScheduleMasterList(
                         context,
                         1,
-                        paymentScheduleSchemeMasterId:
-                            schemeModel.paymentScheduleSchemeMasterId,
+                        scheme: schemeModel,
                       );
                     }
                   },
                   onClear: () {
+                    selectedSchemeNotifier.value = null;
                     _paymentScheduleCubit.clearSelectedScheme();
                   },
                 ),
+                ValueListenableBuilder<PaymentScheduleSchemeModel?>(
+                  valueListenable: selectedSchemeNotifier,
+                  builder: (context, scheme, _) {
+                    if (scheme == null) return SizedBox();
 
+                    return Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColor.primary, width: .5),
+                        color: AppColor.lightBlue,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Building",
+                                value:
+                                    selectedSchemeNotifier
+                                        .value!
+                                        .buildingNumber,
+                              ),
+                              buildColumnTitleValue(
+                                title: "Wing",
+                                value: selectedSchemeNotifier.value!.wing,
+                              ),
+                            ],
+                          ),
+                          verticalSpacing(height: 5),
+                          Row(
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Total",
+                                value: "${state.totalCumulativePercentage}%",
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
                 verticalSpacing(height: 5),
 
                 Row(
@@ -270,7 +320,7 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
                                             item.stage,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
-                                            style: AppTextStyle.ts16M(),
+                                            style: AppTextStyle.ts16M(color: AppColor.primary),
                                           ),
                                         ),
                                         if (_routeAuthorizationModel

@@ -22,13 +22,9 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
 
   // SEARCH
 
-  void resetSearch() {
-    emit(state.copyWith(searchText: ""));
-  }
-
-  Future searchPaymentScheduleScheme(BuildContext context, String value) async {
+  Future searchPaymentScheduleScheme(BuildContext context, String value,int projectId) async {
     emit(state.copyWith(searchText: value, paymentScheduleSchemeList: []));
-    await getPaymentScheduleSchemeList(context, 1);
+    await getPaymentScheduleSchemeList(context, 1,projectId);
   }
 
   // GET LIST
@@ -36,6 +32,7 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
   Future getPaymentScheduleSchemeList(
     BuildContext context,
     int pageNumber,
+      int projectId
   ) async {
     emit(state.copyWith(isLoading: true));
 
@@ -47,7 +44,7 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
     var result = await _repository.getPaymentScheduleSchemeList(
       pageNumber: pageNumber,
       pageSize: 10,
-      projectId: getProject().projectId,
+      projectId: projectId,
       queryParams: queryParams,
     );
 
@@ -113,7 +110,7 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
           context,
           subTitle: "Payment Schedule Scheme Added Successfully!!!",
         );
-        getPaymentScheduleSchemeList(context, 1);
+        getPaymentScheduleSchemeList(context, 1,projectId);
       },
     );
   }

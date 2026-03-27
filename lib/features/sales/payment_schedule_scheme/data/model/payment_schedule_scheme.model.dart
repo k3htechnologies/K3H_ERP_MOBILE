@@ -10,6 +10,7 @@ class PaymentScheduleSchemeModel {
   String buildingNumber;
   String wing;
   int inventoryFlatFloorBasementPodiumWingId;
+  bool isExistsPaymentScheduleScheme;
 
   int createdById;
   String createdBy;
@@ -27,6 +28,7 @@ class PaymentScheduleSchemeModel {
     required this.buildingNumber,
     required this.wing,
     required this.inventoryFlatFloorBasementPodiumWingId,
+    required this.isExistsPaymentScheduleScheme,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -61,6 +63,7 @@ class PaymentScheduleSchemeModel {
           json,
           "InventoryFlatFloorBasementPodiumWingId",
         ),
+        isExistsPaymentScheduleScheme: parseValue<bool>(json, "IsExistsPaymentScheduleScheme"),
 
         createdById: parseValue<int>(json, "CreatedById"),
 
@@ -89,6 +92,7 @@ class PaymentScheduleSchemeModel {
     "InventoryBuildingId": inventoryBuildingId,
     "InventoryFlatFloorBasementPodiumWingId":
         inventoryFlatFloorBasementPodiumWingId,
+    "IsExistsPaymentScheduleScheme": isExistsPaymentScheduleScheme,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate?.toIso8601String(),

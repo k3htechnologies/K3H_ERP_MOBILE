@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/features/sales/booking/data/repository/booking.repos
 import 'package:k3h_erp_app/features/sales/payment_schedule/presentation/cubit/payment_schedule_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -149,11 +150,10 @@ class _AddPaymentScheduleScreenState extends State<AddPaymentScheduleScreen> {
                 .state
                 .selectedScheme!
                 .inventoryFlatFloorBasementPodiumWingId,
-        paymentScheduleSchemeMasterId:
+        scheme:
             _paymentScheduleCubit
                 .state
-                .selectedScheme!
-                .paymentScheduleSchemeMasterId,
+                .selectedScheme!,
       );
     }
   }
@@ -208,11 +208,7 @@ class _AddPaymentScheduleScreenState extends State<AddPaymentScheduleScreen> {
                       isRequired: true,
                       hint: "Enter Percentage",
                       title: "Percentage ",
-                      inputFormatterList: [
-                        FilteringTextInputFormatter.allow(
-                          RegExp(r'^\d{0,3}(\.\d{0,2})?$'),
-                        ),
-                      ],
+                      inputFormatterList: InputValidator.percentage(),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return "Percentage is required";
