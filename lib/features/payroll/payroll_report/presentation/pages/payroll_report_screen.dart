@@ -21,11 +21,9 @@ import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
-import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class PayrollReportScreen extends StatefulWidget {
@@ -1100,6 +1098,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           Expanded(
             child: TabBarView(
               controller: _tabController,
+              physics: NeverScrollableScrollPhysics(),
               children: [
                 buildAttendanceSection(),
                 buildRegularizeSection(),
@@ -1526,6 +1525,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             Expanded(
               child: TabBarView(
                 controller: _regularizationTabController,
+                physics: NeverScrollableScrollPhysics(),
                 children: [
                   // REPORT TAB
                   Builder(
@@ -1962,6 +1962,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             Expanded(
               child: TabBarView(
                 controller: _compOffTabController,
+                physics: NeverScrollableScrollPhysics(),
                 children: [
                   // REPORT
                   Builder(
@@ -2364,6 +2365,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             Expanded(
               child: TabBarView(
                 controller: _leaveTabController,
+                physics: NeverScrollableScrollPhysics(),
                 children: [
                   //REPORT
                   Builder(
@@ -2781,6 +2783,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             Expanded(
               child: TabBarView(
                 controller: _outdoorTabController,
+                physics: NeverScrollableScrollPhysics(),
                 children: [
                   // REPORT
                   Builder(
@@ -3219,6 +3222,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             ),
             Expanded(
               child: TabBarView(
+                physics: NeverScrollableScrollPhysics(),
                 controller: _resignationTabController,
                 children: [
                   // REPORT
