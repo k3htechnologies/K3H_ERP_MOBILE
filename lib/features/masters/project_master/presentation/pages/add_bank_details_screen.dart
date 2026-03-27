@@ -106,7 +106,6 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
       }];
 
       final acType = widget.bankDetailsModel!.acType.toLowerCase();
-      print(acType);
       if (acType.contains('current')) {
         selectedAccountType = accountTypeList[0]; // Current
       } else if (acType.contains('demat')) {
