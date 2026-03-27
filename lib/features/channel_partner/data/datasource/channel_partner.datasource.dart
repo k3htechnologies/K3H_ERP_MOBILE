@@ -15,11 +15,6 @@ abstract interface class ChannelPartnerDatasource {
     required List<Map<String, dynamic>> fileList,
   });
 
-  Future<Map<String, dynamic>> apicallDeleteChannelPartnerMaster({
-    required int channelPartnerId,
-    required String uniqueKey,
-  });
-
   Future<Map<String, dynamic>> apicallPullChannelPartnerMasterForExport({
     required int pageNumber,
     required int pageSize,
@@ -105,40 +100,6 @@ class ChannelPartnerDatasourceImpl implements ChannelPartnerDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         apicallAddUpdateChannelPartnerMaster(body: body, fileList: fileList);
-      }
-      rethrow;
-    }
-  }
-
-  @override
-  Future<Map<String, dynamic>> apicallDeleteChannelPartnerMaster({
-    required int channelPartnerId,
-    required String uniqueKey,
-  }) async {
-    String deleteChannelPartnerUrl({
-      required int channelPartnerId,
-      required String uniqueKey,
-    }) {
-      return "ChannelPartner/DeleteChannelPartner?ChannelPartnerId=$channelPartnerId&Uniquekey=$uniqueKey";
-    }
-
-    try {
-      var networkResponse = await baseClient.deleteRequestWithAuthentication(
-        deleteChannelPartnerUrl(
-          channelPartnerId: channelPartnerId,
-          uniqueKey: uniqueKey,
-        ),
-      );
-      return {
-        'data': networkResponse["data"],
-        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
-      };
-    } catch (error) {
-      if (error is TokenExpiredException) {
-        apicallDeleteChannelPartnerMaster(
-          channelPartnerId: channelPartnerId,
-          uniqueKey: uniqueKey,
-        );
       }
       rethrow;
     }

@@ -1,6 +1,7 @@
 part of 'project_master_cubit.dart';
 
 class ProjectMasterState extends BaseState {
+  final bool isEmployeeLoading;
   final List<ProjectModel> projectList;
   final List<ModulesWorkflowApprovalModel> moduleWorkflowApprovalList;
 
@@ -40,6 +41,7 @@ class ProjectMasterState extends BaseState {
   final String filterCTSNumber;
 
   const ProjectMasterState({
+    required this.isEmployeeLoading,
     required this.projectList,
     required this.moduleWorkflowApprovalList,
     required this.companyByProject,
@@ -76,6 +78,7 @@ class ProjectMasterState extends BaseState {
   });
 
   factory ProjectMasterState.initial() => ProjectMasterState(
+    isEmployeeLoading: false,
     projectList: [],
     moduleWorkflowApprovalList: [],
     employeeByProject: [],
@@ -110,6 +113,7 @@ class ProjectMasterState extends BaseState {
   );
 
   ProjectMasterState copyWith({
+    bool? isEmployeeLoading,
     List<ProjectModel>? projectList,
     List<ModulesWorkflowApprovalModel>? moduleWorkflowApprovalList,
     List<CompanyModel>? companyByProject,
@@ -146,6 +150,7 @@ class ProjectMasterState extends BaseState {
     String? currentSortDirection,
   }) {
     return ProjectMasterState(
+      isEmployeeLoading: isEmployeeLoading ?? this.isEmployeeLoading,
       projectList: projectList ?? this.projectList,
       moduleWorkflowApprovalList:
       moduleWorkflowApprovalList ?? this.moduleWorkflowApprovalList,
@@ -195,6 +200,7 @@ class ProjectMasterState extends BaseState {
 
   @override
   List<Object?> get props => [
+    isEmployeeLoading,
     isLoading,
     isAllSelected,
     projectList,

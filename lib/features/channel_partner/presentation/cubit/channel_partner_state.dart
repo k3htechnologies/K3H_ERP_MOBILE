@@ -8,6 +8,8 @@ class ChannelPartnerState extends BaseState {
   final int currentPage;
   final String searchText;
   final String filterByCompanyName;
+  final String filterByMobileNumber;
+  final String filterByVillage;
   final String currentSortColumn;
   final String currentSortDirection;
 
@@ -21,6 +23,8 @@ class ChannelPartnerState extends BaseState {
     required this.currentPage,
     required this.searchText,
     required this.filterByCompanyName,
+    required this.filterByMobileNumber,
+    required this.filterByVillage,
     required this.currentSortColumn,
     required this.currentSortDirection,
   });
@@ -32,6 +36,8 @@ class ChannelPartnerState extends BaseState {
     currentPage: 1,
     searchText: "",
     filterByCompanyName: "",
+    filterByMobileNumber: "",
+    filterByVillage: "",
     isLoading: true,
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
@@ -47,6 +53,8 @@ class ChannelPartnerState extends BaseState {
     int? currentPage,
     String? searchText,
     String? filterByCompanyName,
+    String? filterByMobileNumber,
+    String? filterByVillage,
     String? currentSortColumn,
     String? currentSortDirection,
   }) {
@@ -63,6 +71,8 @@ class ChannelPartnerState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       searchText: searchText ?? this.searchText,
       filterByCompanyName: filterByCompanyName ?? this.filterByCompanyName,
+      filterByMobileNumber: filterByMobileNumber ?? this.filterByMobileNumber,
+      filterByVillage: filterByVillage ?? this.filterByVillage,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
     );
@@ -79,6 +89,8 @@ class ChannelPartnerState extends BaseState {
     currentPage,
     searchText,
     filterByCompanyName,
+    filterByMobileNumber,
+    filterByVillage,
     currentSortColumn,
     currentSortDirection,
   ];

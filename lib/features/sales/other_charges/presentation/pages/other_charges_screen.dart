@@ -93,8 +93,8 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a charges?',
-      'Deleting this chargs will permanently remove its contents.',
+      'You are about to delete a Other Charges ?',
+      'Deleting this Other Charges will permanently remove all associated data.',
     );
     if (result && context.mounted) {
       _otherChargesCubit.deleteOtherCharges(
@@ -114,6 +114,10 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
         searchHintText: "Search by Charges",
         authorization: _routeAuthorizationModel,
         onAddCallback: () async {
+          if(_project.projectId==0){
+            showErrorMessage(context, 'Error', "Please select a project");
+            return;
+          }
           await goRouter.pushNamed(
             AppRoutes.addOtherCharges,
             queryParameters: {'projectId': _project.projectId.toString()},
@@ -127,6 +131,10 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
           }
         },
         onExportCallback: (value) {
+          if(_project.projectId==0){
+            showErrorMessage(context, 'Error', "Please select a project");
+            return;
+          }
           if (_otherChargesCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, 'Error', "No Data Found");
             return;
@@ -186,10 +194,7 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
                             otherCharges.chargeName,
                             style: AppTextStyle.ts14SB(
                               color: AppColor.primary,
-                            ).copyWith(
-                              decoration: TextDecoration.underline,
-                              decorationColor: AppColor.primary,
-                            ),
+                            )
                           ),
                         ),
                         horizontalSpacing(),
@@ -252,6 +257,30 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
                       title: "Value + GST Value (₹)",
                       value: "₹ ${otherCharges.value + otherCharges.gstValue}",
                         fixesWidth: 180
+                    ),
+                    buildRowTitleValue(
+                      title: "Created By",
+                      value: otherCharges.createdBy,
+                        fixesWidth: 180,
+                        singleLine: false
+                    ),
+                    buildRowTitleValue(
+                      title: "Created Date",
+                      value: formatDate(otherCharges.createdDate),
+                        fixesWidth: 180,
+                        singleLine: false
+                    ),
+                    buildRowTitleValue(
+                        title: "Modified By",
+                        value: otherCharges.modifiedBy.isNotEmpty?otherCharges.modifiedBy:"-",
+                        fixesWidth: 180,
+                      singleLine: false
+                    ),
+                    buildRowTitleValue(
+                        title: "Modified Date",
+                        value: otherCharges.modifiedDate!=null? formatDate(otherCharges.modifiedDate):"-",
+                        fixesWidth: 180,
+                        singleLine: false
                     ),
                   ],
                 ),

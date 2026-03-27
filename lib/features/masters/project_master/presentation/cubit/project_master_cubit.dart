@@ -576,14 +576,16 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   Future<void> getProjectWithEmployee({
     required BuildContext context,
     required int projectId,
+    Map<String,dynamic>? queryParams,
   }) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isEmployeeLoading: true));
     var result = await _projectMasterRepository.getProjectWithEmployee(
       projectId: projectId,
+      queryParams: queryParams
     );
     result.fold(
       (failure) {
-        emit(state.copyWith(isLoading: false));
+        emit(state.copyWith(isEmployeeLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
       (response) {
@@ -594,7 +596,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
 
         emit(
           state.copyWith(
-            isLoading: false,
+            isEmployeeLoading: false,
             employeeByProject: allEmployees,
             totalNumberOfRecordEmployee: response['totalNumberOfRecord'],
             currentPageEmployee: 1,
@@ -685,7 +687,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         getProjectWithBankDetails(projectId: projectId, context: context);
         showSuccessMessage(
           context,
-          subTitle: 'Bank Details Deleted Successfully!!!',
+          subTitle: 'Project with bank details deleted successfully',
         );
       },
     );

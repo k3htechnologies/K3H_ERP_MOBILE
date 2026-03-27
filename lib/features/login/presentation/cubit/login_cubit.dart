@@ -120,7 +120,7 @@ class LoginCubit extends Cubit<LoginState> {
         showErrorMessage(context, "Login Failed", failure.message);
       },
       (user) async {
-        goRouter.pop();
+
         emit(state.copyWith(user: user));
 
         // SAVE USER

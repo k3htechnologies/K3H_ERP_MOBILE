@@ -103,12 +103,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   // STATIC LISTS
   List<Map<String, dynamic>> projectSubSchemeList = [
     {"zAttributesId": -1, "DisplayName": "Select Project Sub Scheme"},
-    {"zAttributesId": 1, "DisplayName": "33 (20) B"},
-    {"zAttributesId": 2, "DisplayName": "33 (19)"},
-    {"zAttributesId": 3, "DisplayName": "33 (7) B"},
-    {"zAttributesId": 4, "DisplayName": "33 (7) A"},
-    {"zAttributesId": 5, "DisplayName": "33 (9)"},
-    {"zAttributesId": 6, "DisplayName": "33 (12) B"},
+    {"zAttributesId": 1, "DisplayName": "33 (7)"},
   ];
 
   // STATIC LISTS

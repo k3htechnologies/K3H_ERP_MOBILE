@@ -101,8 +101,8 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a remark?',
-      'Deleting this remark will permanently remove its contents.',
+      'You are about to delete a Remark ?',
+      'Deleting this Remark will permanently remove all associated data.',
     );
     if (result && context.mounted) {
       _sourcingCubit.deleteDepartmentMaster(
@@ -439,7 +439,14 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          verticalSpacing(height: 5),
+          Text(
+            widget.channelPartner.systemGeneratedCode,
+            style: AppTextStyle.ts16SB(color: AppColor.primary),
+          ),
+          verticalSpacing(),
           Container(
             decoration: commonCardDecoration(),
             padding: EdgeInsets.all(16),
@@ -594,42 +601,25 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
           ),
           Container(
             decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(16),
+            margin: const EdgeInsets.only(bottom: 10),
             child: Column(
-              spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "Document Details",
                   style: AppTextStyle.ts14M(color: AppColor.grey),
                 ),
-                Row(
-                  spacing: 5,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "PAN Number",
-                      value: widget.channelPartner.panNumber,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Aadhaar Number",
-                      value: widget.channelPartner.aadhaarCardNumber,
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 5,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "GST Number",
-                      value: widget.channelPartner.gstNumber,
-                    ),
-                  ],
-                ),
+                verticalSpacing(),
+                _buildDocumentCard(context, widget.channelPartner),
               ],
             ),
+          ),
+          actionCardWidget(
+            createdBy: widget.channelPartner.createdBy,
+            createdDate: widget.channelPartner.createdDate,
+            modifiedBy: widget.channelPartner.modifiedBy,
+            modifiedDate: widget.channelPartner.modifiedDate,
           ),
         ],
       ),
@@ -738,8 +728,9 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        // DATE + TIME
                                         Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Flexible(
                                               child: Text(
@@ -747,36 +738,91 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                                 style: AppTextStyle.ts14M(),
                                               ),
                                             ),
+
+                                            Visibility(
+                                              visible:
+                                                  index == 0 &&
+                                                  _isWithinLastThreeDays(
+                                                    item.createdDate,
+                                                  ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  CustomIconButton.edit(
+                                                    onPressed: () {
+                                                      _showBottomSheetToUpdateRemark(
+                                                        context,
+                                                        item,
+                                                      );
+                                                    },
+                                                  ),
+                                                  horizontalSpacing(),
+                                                  CustomIconButton.delete(
+                                                    onPressed: () {
+                                                      _showPopupToDeleteRemark(
+                                                        context,
+                                                        item,
+                                                      );
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                           ],
                                         ),
 
                                         const SizedBox(height: 4),
-
-                                          Row(
-                                            children: [
-                                              Text(
-                                                '${item.createdBy}',
-                                                style: AppTextStyle.ts12M(),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Row(
+                                                children: [
+                                                  Text(
+                                                    '${item.createdBy}',
+                                                    style: AppTextStyle.ts12M(),
+                                                  ),
+                                                  horizontalSpacing(),
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 12,
+                                                          vertical: 3,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          item.isIBM
+                                                              ? AppColor
+                                                                  .purple20
+                                                              : AppColor.yellow
+                                                                  .withValues(
+                                                                    alpha: .2,
+                                                                  ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      item.isIBM
+                                                          ? "IBM"
+                                                          : "OBM",
+                                                      style: AppTextStyle.ts12M(
+                                                        color:
+                                                            item.isIBM
+                                                                ? AppColor
+                                                                    .purple
+                                                                : AppColor
+                                                                    .orange,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                              horizontalSpacing(),
-                                              Container(
-                                                padding: EdgeInsets.symmetric(
-                                                  horizontal: 12,
-                                                  vertical: 3,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color:item.isIBM ? AppColor.purple20:AppColor.yellow.withValues(alpha: .2),
-                                                  borderRadius: BorderRadius.circular(8)
-                                                ),
-                                                child: Text(
-                                                  item.isIBM ? "IBM" : "OBM",
-                                                  style: AppTextStyle.ts12M(color: item.isIBM ?AppColor.purple:AppColor.orange),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
+                                        ),
 
-                                        // SUPPORT
+                                        const SizedBox(height: 4),
                                         if ((item.support ?? "").isNotEmpty)
                                           Text(
                                             'Support: ${item.support}',
@@ -784,8 +830,6 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                           ),
 
                                         const SizedBox(height: 4),
-
-                                        // REMARK
                                         if ((item.sourcingRemark ?? "")
                                             .isNotEmpty)
                                           Text(
@@ -794,38 +838,6 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                               color: AppColor.grey,
                                             ),
                                           ),
-
-                                        verticalSpacing(),
-
-                                        Visibility(
-                                          visible:
-                                              index == 0 &&
-                                              _isWithinLastThreeDays(
-                                                item.createdDate,
-                                              ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              CustomIconButton.edit(
-                                                onPressed: () {
-                                                  _showBottomSheetToUpdateRemark(
-                                                    context,
-                                                    item,
-                                                  );
-                                                },
-                                              ),
-                                              horizontalSpacing(),
-                                              CustomIconButton.delete(
-                                                onPressed: () {
-                                                  _showPopupToDeleteRemark(
-                                                    context,
-                                                    item,
-                                                  );
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ),
                                       ],
                                     ),
                                   ),
@@ -863,6 +875,101 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
           ),
         ),
       ),
+    );
+  }
+
+  // DOCUMENT CARD
+  Widget _buildDocumentCard(
+    BuildContext context,
+    ChannelPartnerModel channelPartner,
+  ) {
+    final List<Map<String, String>> documents = [
+      {
+        "title": "PAN Card",
+        "number": channelPartner.panNumber,
+        "url": channelPartner.panCardUrl,
+      },
+      {
+        "title": "Aadhaar Card",
+        "number": channelPartner.aadhaarCardNumber,
+        "url": channelPartner.aadhaarCardUrl,
+      },
+      {
+        "title": "GST Certificate",
+        "number": channelPartner.gstNumber,
+        "url": channelPartner.gstCertificateUrl,
+      },
+    ];
+
+    final validDocuments =
+        documents.where((doc) => (doc["url"] ?? "").isNotEmpty).toList();
+
+    if (validDocuments.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.insert_drive_file_outlined,
+              size: 40,
+              color: AppColor.grey,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "No Documents Uploaded",
+              style: AppTextStyle.ts14M(color: AppColor.grey),
+            ),
+          ],
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children:
+          validDocuments.map((doc) {
+            return Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: AppColor.white,
+                border: Border.all(color: AppColor.primary, width: 0.3),
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColor.black.withValues(alpha: 0.05),
+                    blurRadius: 2,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        doc["title"] ?? "",
+                        style: AppTextStyle.ts14M(color: AppColor.grey),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(doc["number"] ?? "", style: AppTextStyle.ts14M()),
+                    ],
+                  ),
+                  CustomButton.documentOutline(
+                    onPressed: () {
+                      final url = doc["url"] ?? "";
+                      if (url.isNotEmpty) {
+                        showFilePreviewDialog(context, url.split(","));
+                      }
+                    },
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
     );
   }
 }

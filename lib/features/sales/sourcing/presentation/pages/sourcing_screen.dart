@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -63,6 +64,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
     scrollController.dispose();
   }
 
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
   }
@@ -88,6 +90,112 @@ class _SourcingScreenState extends State<SourcingScreen> {
     });
   }
 
+  Future<void> _showBottomSheetToFilterChannelPartner(
+    BuildContext context,
+  ) async {
+    final state = _sourcingCubit.state;
+
+    String? selectedDirection =
+        state.currentSortColumn == "CP Code"
+            ? state.currentSortDirection
+            : null;
+
+    final String? initialDirection = selectedDirection;
+
+    bool manualClose = false;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose = (selectedDirection != initialDirection);
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter - Channel Partner Sourcing",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
+          return SingleChildScrollView(
+            padding: EdgeInsets.only(right: 15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Sort By CP Code", style: AppTextStyle.ts14M()),
+                verticalSpacing(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+      onClear: () {
+        _sourcingCubit.applyChannelPartnerSourcingFilterAndSort(
+          context: context,
+          isClear: true,
+        );
+      },
+      onApply: () {
+        _sourcingCubit.applyChannelPartnerSourcingFilterAndSort(
+          context: context,
+          sortColumn: selectedDirection != null ? "CP Code" : null,
+          sortDirection: selectedDirection,
+        );
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,9 +207,13 @@ class _SourcingScreenState extends State<SourcingScreen> {
         onSearchSubmit: (value) {
           _sourcingCubit.searchChannelPartner(context, value);
         },
-        onProjectChangeCallback: (value){
+        onProjectChangeCallback: (value) {
           _project = value;
           _sourcingCubit.searchChannelPartner(context, "");
+        },
+        isFilterOn: true,
+        onFilterTap: (){
+          _showBottomSheetToFilterChannelPartner(context);
         },
       ),
       body: BlocBuilder<SourcingCubit, SourcingState>(
@@ -110,7 +222,9 @@ class _SourcingScreenState extends State<SourcingScreen> {
             return Center(child: loader());
           }
           if (state.channelPartnerList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Channel Partner Sourcing found"));
+            return Center(
+              child: noDataWidget(message: "No Channel Partner Sourcing found"),
+            );
           }
           return ListView.builder(
             controller: scrollController,
@@ -155,7 +269,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
                             },
                             child: Text(
                               channelPartner.name,
-                              style: AppTextStyle.ts14R(
+                              style: AppTextStyle.ts16M(
                                 color: AppColor.primary,
                               ).copyWith(
                                 decoration: TextDecoration.underline,
@@ -178,6 +292,11 @@ class _SourcingScreenState extends State<SourcingScreen> {
                           ),
                         ],
                       ],
+                    ),
+                    buildRowTitleValue(
+                        title: "CP Code",
+                        value: channelPartner.systemGeneratedCode,
+                        singleLine: false
                     ),
                     buildRowTitleValue(
                       title: "Mobile No.",
@@ -205,7 +324,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
                     buildRowTitleValue(
                       title: "Office Address",
                       value: channelPartner.officeAddress,
-                      singleLine: false
+                      singleLine: false,
                     ),
                   ],
                 ),

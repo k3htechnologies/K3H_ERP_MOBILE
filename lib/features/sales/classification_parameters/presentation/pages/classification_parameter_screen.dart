@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -41,7 +42,7 @@ class _ClassificationParameterScreenState
   Timer? _debounce;
 
   // PROJECT SELECTION
-  late ProjectModel _selectprojectId;
+  late ProjectModel _project;
 
   @override
   void initState() {
@@ -54,13 +55,13 @@ class _ClassificationParameterScreenState
         AuthorizationModel();
 
     // SET PROJECT ID
-    _selectprojectId = getProject();
+    _project = getProject();
     _onScroll();
     // GET API CALL
     _classificationParametersCubit.getClassificationParametersList(
       context,
       1,
-      _selectprojectId.projectId,
+      _project.projectId,
     );
   }
 
@@ -88,7 +89,7 @@ class _ClassificationParameterScreenState
           _classificationParametersCubit.getClassificationParametersList(
             context,
             _classificationParametersCubit.state.currentPage + 1,
-            _selectprojectId.projectId,
+            _project.projectId,
           );
         });
       }
@@ -114,7 +115,7 @@ class _ClassificationParameterScreenState
         uniqueKey: obj.uniquekey,
         pageNumber: currentPage,
         index: index,
-        projectId: _selectprojectId.projectId,
+        projectId: _project.projectId,
       );
     }
   }
@@ -123,19 +124,23 @@ class _ClassificationParameterScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.lightGreyBackground,
-      appBar: CustomAppBarWithBackButton(
+      appBar: CustomAppBar(
         screenTitle: "Classification Parameters",
-        isMenuButton: true,
+        // isMenuButton: true,
         authorization: _routhAuthorizationModel,
         onProjectChangeCallback: (value) {
-          _selectprojectId = value;
+          _project = value;
           _classificationParametersCubit.getClassificationParametersList(
             context,
             1,
-            _selectprojectId.projectId,
+            value.projectId,
           );
         },
         onExportCallback: (value) {
+          if(_project.projectId==0){
+            showErrorMessage(context, "Error", "Please select a project");
+            return;
+          }
           if (_classificationParametersCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
             return;
@@ -143,10 +148,14 @@ class _ClassificationParameterScreenState
           _classificationParametersCubit.exportExcelPdf(
             context,
             value,
-            _selectprojectId.projectId,
+            _project.projectId,
           );
         },
         onAddCallback: () async {
+          if(_project.projectId==0){
+            showErrorMessage(context, "Error", "Please select a project");
+            return;
+          }
           await goRouter.pushNamed(AppRoutes.addClassificationParameter);
         },
       ),

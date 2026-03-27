@@ -8,6 +8,8 @@ class SourcingState extends BaseState {
   final String searchText;
   final int currentTabIndex;
   final String selectedFilter;
+  final String currentSortColumn;
+  final String currentSortDirection;
 
   const SourcingState({
     super.isLoading,
@@ -18,6 +20,8 @@ class SourcingState extends BaseState {
     required this.searchText,
     required this.currentTabIndex,
     required this.selectedFilter,
+    required this.currentSortColumn,
+    required this.currentSortDirection,
   });
 
   factory SourcingState.initial() => SourcingState(
@@ -29,6 +33,8 @@ class SourcingState extends BaseState {
     isLoading: true,
     currentTabIndex: 0,
     selectedFilter: "ALL",
+    currentSortColumn: "Created Date",
+    currentSortDirection: "DESC",
   );
 
   SourcingState copyWith({
@@ -40,6 +46,8 @@ class SourcingState extends BaseState {
     String? searchText,
     int? currentTabIndex,
     String? selectedFilter,
+    String? currentSortColumn,
+    String? currentSortDirection,
   }) {
     return SourcingState(
       isLoading: isLoading ?? this.isLoading,
@@ -50,6 +58,8 @@ class SourcingState extends BaseState {
       searchText: searchText ?? this.searchText,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
       selectedFilter: selectedFilter ?? this.selectedFilter,
+      currentSortColumn: currentSortColumn ?? this.currentSortColumn,
+      currentSortDirection: currentSortDirection ?? this.currentSortDirection
     );
   }
 
@@ -62,6 +72,8 @@ class SourcingState extends BaseState {
     sourcingList,
     searchText,
     currentTabIndex,
-    selectedFilter
+    selectedFilter,
+    currentSortColumn,
+    currentSortDirection,
   ];
 }

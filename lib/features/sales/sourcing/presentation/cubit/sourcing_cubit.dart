@@ -29,15 +29,11 @@ class SourcingCubit extends Cubit<SourcingState> {
     required int channelPartnerId,
     required int projectId,
   }) {
-    emit(state.copyWith(currentTabIndex: index,));
+    emit(state.copyWith(currentTabIndex: index));
     if (index == 1) {
       getSourcingList(context, 1, channelPartnerId, projectId);
     }
   }
-
-  // void onIBMTabChanged(String value, BuildContext context) {
-  //   emit(state.copyWith(isIBM: value.toLowerCase() == "ibm" ? true : false));
-  // }
 
   void onFilterChanged(String value) {
     emit(state.copyWith(selectedFilter: value));
@@ -53,6 +49,34 @@ class SourcingCubit extends Cubit<SourcingState> {
     emit(state.copyWith(sourcingList: []));
   }
 
+  // <---- FILTER CP SOURCING ---->
+  Future applyChannelPartnerSourcingFilterAndSort({
+    required BuildContext context,
+    String? sortColumn,
+    String? sortDirection,
+    bool? isClear,
+  }) async {
+    if (isClear ?? false) {
+      emit(
+        state.copyWith(
+          currentSortColumn: "Created Date",
+          currentSortDirection: "DESC",
+          currentPageCp: 1,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          currentSortColumn: sortColumn ?? state.currentSortColumn,
+          currentSortDirection: sortDirection ?? state.currentSortDirection,
+          currentPageCp: 1,
+        ),
+      );
+    }
+
+    await getChannelPartnerList(context, 1);
+  }
+
   // <---- GET SOURCING LIST ---->
   Future getSourcingList(
     BuildContext context,
@@ -60,7 +84,7 @@ class SourcingCubit extends Cubit<SourcingState> {
     int channelPartnerId,
     int projectId,
   ) async {
-    emit(state.copyWith(isLoading: true,sourcingList: []));
+    emit(state.copyWith(isLoading: true, sourcingList: []));
     Map<String, dynamic> queryParams = {
       "ChannelPartnerId": channelPartnerId,
       "ProjectId": projectId,
@@ -91,7 +115,11 @@ class SourcingCubit extends Cubit<SourcingState> {
   // <---- GET CHANNEL PARTNER LIST ---->
   Future getChannelPartnerList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {"MobileNumber": state.searchText};
+    Map<String, dynamic> queryParams = {
+      "IsCheckPermission":false,
+      "MobileNumber": state.searchText,
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+    };
     var result = await _channelPartnerRepository.getChannelPartnerList(
       pageNumber: pageNumber,
       pageSize: 10,

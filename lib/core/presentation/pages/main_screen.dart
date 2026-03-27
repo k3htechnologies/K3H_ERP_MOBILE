@@ -133,7 +133,7 @@ class _MainScreenState extends State<MainScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: CustomButton(
                   leading: Icon(Icons.login, size: 18, color: AppColor.white),
-                  text: "Log out",
+                  text: "Logout",
                   backgroundColor: AppColor.error,
                   onPressed: () async {
                     logOutUser(context);

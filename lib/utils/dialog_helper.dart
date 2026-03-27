@@ -112,10 +112,10 @@ class DialogHelper {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 spacing: 10,
                 children: [
-                  Icon(Icons.info_outline, size: 50, color: AppColor.red),
+                  Icon(Icons.info_outline, size: 50, color: AppColor.primary),
                   Text(
-                    "Authorization Changed",
-                    style: AppTextStyle.ts20R(color: AppColor.red),
+                    "Menu Changed",
+                    style: AppTextStyle.ts20R(color: AppColor.primary),
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -279,7 +279,7 @@ class DialogHelper {
                           backgroundColor: AppColor.error,
                           textColor: AppColor.white,
                           onPressed: () => goRouter.pop(true),
-                          text: "Log out",
+                          text: "Logout",
                           padding: const EdgeInsets.symmetric(
                             horizontal: 12,
                             vertical: 9,

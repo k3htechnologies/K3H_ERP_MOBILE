@@ -21,6 +21,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
@@ -60,6 +61,9 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
   late ProjectMasterCubit _projectMasterCubit;
   TabController? _approvalTabController;
 
+  // TEXT CONTROLLER
+  late TextEditingController _searchEmployeeC;
+
   @override
   void initState() {
     super.initState();
@@ -83,6 +87,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     _onScroll();
     _onCompanyScroll();
     _onBankScroll();
+    _searchEmployeeC = TextEditingController();
   }
 
   @override
@@ -95,6 +100,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     _debounce?.cancel();
     _companyDebounce?.cancel();
     _bankDebounce?.cancel();
+    _searchEmployeeC.dispose();
     super.dispose();
   }
 
@@ -778,8 +784,9 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   CustomButton(
                     text:
                         state.employeeByProject.isEmpty ? "Add" : "Add/Update",
-                    onPressed: () {
-                      _showEmployeeSelectionBottomSheet(context);
+                    onPressed: () async {
+                     await  _showEmployeeSelectionBottomSheet(context);
+                     FocusScope.of(context).unfocus();
                     },
                     backgroundColor: AppColor.primary,
                     padding: EdgeInsets.symmetric(vertical: 3, horizontal: 10),
@@ -790,9 +797,25 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
           },
         ),
         verticalSpacing(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: SearchWidget(
+            hintText: "Search by Employee Name or Department",
+            onSubmit: (value) async {
+              await _projectMasterCubit.getProjectWithEmployee(
+                context: context,
+                projectId: widget.project.projectId,
+                queryParams: {"FullName": value},
+              );
+              FocusScope.of(context).unfocus();
+            },
+            textController: _searchEmployeeC,
+          ),
+        ),
+        verticalSpacing(),
         BlocBuilder<ProjectMasterCubit, ProjectMasterState>(
           builder: (context, state) {
-            if ((state.isLoading ?? true) && state.employeeByProject.isEmpty) {
+            if (state.isEmployeeLoading) {
               return Center(child: loader());
             }
             if (state.employeeByProject.isEmpty) {
@@ -1019,8 +1042,8 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
   ) async {
     final result = await DialogHelper.deleteDialog(
       context,
-      'You are about to remove an employee from this project?',
-      'Removing this employee will permanently remove them from the project.',
+      'You are about to delete a employee ?',
+      'Deleting this employee will permanently remove all associated data.',
     );
     if (result && context.mounted) {
       final cubit = context.read<ProjectMasterCubit>();
@@ -1625,7 +1648,9 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
           pageSize: 10,
           context: context,
           queryParams:
-              value != null && value.isNotEmpty ? {"CompanyName": value} : null,
+              value != null && value.isNotEmpty
+                  ? {"CompanyName": value, "IsCheckPermission": "false"}
+                  : {"IsCheckPermission": "false"},
         );
 
         return {
@@ -1693,8 +1718,8 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
   ) async {
     final result = await DialogHelper.deleteDialog(
       context,
-      'You are about to remove a bank from this project?',
-      'Removing this bank will permanently remove it from the project.',
+      'You are about to delete a bank ?',
+      'Deleting this bank will permanently remove all associated data.',
     );
     if (result && context.mounted) {
       final cubit = context.read<ProjectMasterCubit>();

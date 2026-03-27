@@ -28,12 +28,51 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     await getChannelPartnerList(context, 1);
   }
 
+  // <---- FILTER CP ---->
+  Future applyChannelPartnerFilterAndSort({
+    required BuildContext context,
+    String? companyName,
+    String? mobileNumber,
+    String? village,
+    String? sortColumn,
+    String? sortDirection,
+    bool? isClear,
+  }) async {
+    if (isClear ?? false) {
+      emit(
+        state.copyWith(
+          filterByCompanyName: "",
+          filterByVillage: "",
+          filterByMobileNumber: "",
+          currentSortColumn: "Created Date",
+          currentSortDirection: "DESC",
+          currentPage: 1,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          filterByCompanyName: companyName ?? state.filterByCompanyName,
+          filterByVillage: village ?? state.filterByVillage,
+          filterByMobileNumber: mobileNumber ?? state.filterByMobileNumber,
+          currentSortColumn: sortColumn ?? state.currentSortColumn,
+          currentSortDirection: sortDirection ?? state.currentSortDirection,
+          currentPage: 1,
+        ),
+      );
+    }
+
+    await getChannelPartnerList(context, 1);
+  }
+
   // <---- GET CHANNEL PARTNER LIST ---->
   Future getChannelPartnerList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
       "ChannelPartnerName": state.searchText,
       "CompanyName": state.filterByCompanyName,
+      "MobileNumber": state.filterByMobileNumber,
+      "VillageName": state.filterByVillage,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     var result = await _channelPartnerRepository.getChannelPartnerList(
@@ -294,46 +333,6 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     );
   }
 
-  // <---- DELETE CHANNEL PARTNER ---->
-  Future deleteChannelPartner(
-    int index,
-    ChannelPartnerModel channelPartnerModel,
-    BuildContext context,
-  ) async {
-    DialogHelper.showProcessingOverlay(context);
-    var result = await _channelPartnerRepository.deleteChannelPartner(
-      channelPartnerId: channelPartnerModel.channelPartnerId,
-      uniqueKey: channelPartnerModel.uniquekey,
-    );
-    goRouter.pop();
-    result.fold(
-      (failure) {
-        showErrorMessage(context, "Error", failure.message);
-        return;
-      },
-      (success) {
-        final updatedList = List<ChannelPartnerModel>.from(
-          state.channelPartnerList,
-        );
-        updatedList.removeAt(index);
-        emit(
-          state.copyWith(
-            channelPartnerList: updatedList,
-            isLoading: false,
-            totalNumberOfRecord:
-                state.totalNumberOfRecord > 0
-                    ? state.totalNumberOfRecord - 1
-                    : 0,
-          ),
-        );
-        showSuccessMessage(
-          context,
-          subTitle: "Channel Partner Deleted Successfully",
-        );
-      },
-    );
-  }
-
   // <---- EXPORT EXCEL PDF ---->
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
@@ -357,8 +356,8 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "channel_partner_${DateTime.now()}.pdf"
-              : "channel_partner_${DateTime.now()}.xlsx",
+              ? "Channel Partner ${DateTime.now()}.pdf"
+              : "Channel Partner ${DateTime.now()}.xlsx",
         );
       },
     );

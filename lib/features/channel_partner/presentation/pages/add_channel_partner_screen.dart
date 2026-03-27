@@ -69,7 +69,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // SELECT EARNING
-  List<Map<String, dynamic>> _selectedDesignation = [];
+  late ValueNotifier<Map<String, dynamic>?> selectedDesignation;
 
   // STATIC LIST
   List<Map<String, dynamic>> designationList = [
@@ -86,6 +86,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _channelPartnerCubit = context.read<ChannelPartnerCubit>();
     _loginCubit = context.read<LoginCubit>();
     _initializeTextEditingController();
+    selectedDesignation = ValueNotifier(null);
     selectedGSTCertificateForPopUpFile = ValueNotifier(
       MultiFilePickerModel(
         fileBytesList: [],
@@ -127,6 +128,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     selectedCompany.dispose();
     hasReraNumber.dispose();
     selectedGSTCertificateForPopUpFile.dispose();
+    selectedDesignation.dispose();
     super.dispose();
   }
 
@@ -325,13 +327,11 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     }
 
     if (channelPartnerMasterModel.designation.isNotEmpty) {
-      _selectedDesignation = [
-        designationList.firstWhere(
-          (element) =>
-              element['DisplayName'] == channelPartnerMasterModel.designation,
-          orElse: () => designationList.first,
-        ),
-      ];
+      selectedDesignation.value = designationList.firstWhere(
+            (element) =>
+        element['DisplayName'] == channelPartnerMasterModel.designation,
+        orElse: () => designationList.first,
+      );
     }
 
     selectedSpeciality = specialityList.firstWhere(
@@ -500,10 +500,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         companyName: companyName,
         firmsType: firmsTypeValue,
         type: selectedType["DisplayName"],
-        designation:
-            _selectedDesignation.isNotEmpty
-                ? _selectedDesignation.first["DisplayName"]
-                : "",
+        designation: selectedDesignation.value?["DisplayName"] ?? "",
         otp: _otpController.text.trim(),
       );
     } else {
@@ -530,10 +527,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         companyName: companyName,
         firmsType: firmsTypeValue,
         type: selectedType["DisplayName"],
-        designation:
-            _selectedDesignation.isNotEmpty
-                ? _selectedDesignation.first["DisplayName"]
-                : "",
+        designation: selectedDesignation.value?["DisplayName"] ?? "",
         otp: _otpController.text.trim(),
         gstCertificateURL: selectedGSTCertificateForPopUpFile.value,
       );
@@ -815,34 +809,31 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         );
                       },
                     ),
-                    CustomMultipleSelectPopup(
-                      title: 'Designation',
-                      hintText: "Select Designation",
-                      isRequired: true,
-                      isMultiSelect: false,
-                      initialValue: _selectedDesignation,
-                      dataList: designationList,
-                      onSelected: (value) {
-                        _selectedDesignation = value;
-                      },
-                      dataFetchCallBack: (pageNumber, {value}) async {
-                        return {
-                          "itemList": designationList,
-                          "totalNumberOfRecord": designationList.length,
-                        };
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Designation Name is required";
-                        }
+                    ValueListenableBuilder<Map<String, dynamic>?>(
+                      valueListenable: selectedDesignation,
+                      builder: (context, value, _) {
+                        return CustomDropDownWidget(
+                          title: 'Designation',
+                          hintText: "Select Designation",
+                          isRequired: true,
+                          dataList: designationList,
+                          initialValue: value,
+                          onSelected: (val) {
+                            selectedDesignation.value = val;
+                          },
+                          validator: (val) {
+                            if (val == null) {
+                              return "Designation is required";
+                            }
 
-                        if (selectedCompanyType.value['zAttributesId'] == 2 &&
-                            _selectedDesignation.isNotEmpty &&
-                            _selectedDesignation.first['zAttributesId'] == 3) {
-                          return "You can't be Owner";
-                        }
+                            if (selectedCompanyType.value['zAttributesId'] == 2 &&
+                                val['zAttributesId'] == 3) {
+                              return "You can't be Owner";
+                            }
 
-                        return null;
+                            return null;
+                          },
+                        );
                       },
                     ),
                     CustomDropDownWidget(
@@ -893,12 +884,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                       child: Checkbox(
                                         value: hasRera,
                                         onChanged:
-                                            (hasRera &&
-                                                    _selectedDesignation
-                                                        .isNotEmpty &&
-                                                    _selectedDesignation
-                                                            .first["zAttributesId"] !=
-                                                        3)
+                                        (hasRera &&
+                                            selectedDesignation.value != null &&
+                                            selectedDesignation.value!["zAttributesId"] != 3)
                                                 ? null
                                                 : (value) {
                                                   hasReraNumber.value =
@@ -926,12 +914,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                 CustomTextField(
                                   title: 'RERA Number',
                                   isRequired: hasRera,
-                                  readOnly:
-                                      hasRera &&
-                                      _selectedDesignation.isNotEmpty &&
-                                      _selectedDesignation
-                                              .first["zAttributesId"] !=
-                                          3,
+                                  readOnly:selectedDesignation.value != null &&
+                                      selectedDesignation.value!["zAttributesId"] != 3,
                                   hint: "Enter RERA Number",
                                   textController: _reraNumberC,
                                   inputFormatterList:

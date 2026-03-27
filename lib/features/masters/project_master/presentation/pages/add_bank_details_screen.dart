@@ -106,22 +106,22 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
       }];
 
       final acType = widget.bankDetailsModel!.acType.toLowerCase();
+      print(acType);
       if (acType.contains('current')) {
-        selectedAccountType = accountTypeList[1]; // Current
+        selectedAccountType = accountTypeList[0]; // Current
       } else if (acType.contains('demat')) {
-        selectedAccountType = accountTypeList[2]; // DEMAT
+        selectedAccountType = accountTypeList[1]; // DEMAT
       } else if (acType.contains('fixed')) {
-        selectedAccountType = accountTypeList[3]; // Fixed
+        selectedAccountType = accountTypeList[2]; // Fixed
       } else if (acType.contains('salary')) {
-        selectedAccountType = accountTypeList[4]; // Salary
+        selectedAccountType = accountTypeList[3]; // Salary
       } else if (acType.contains('savings')) {
-        selectedAccountType = accountTypeList[5]; // Savings
+        selectedAccountType = accountTypeList[4]; // Savings
       } else {
         selectedAccountType = accountTypeList[0]; // Select
       }
     } else {
       _selectedBankNotifier.value.isNotEmpty;
-      selectedAccountType = accountTypeList[0];
     }
   }
 
@@ -291,7 +291,9 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                     textController: _branchC,
                     hint: "Enter Branch Name",
                     isRequired: true,
-                    inputFormatterList: InputValidator.textOnly(100),
+                    inputFormatterList: [
+                      LengthLimitingTextInputFormatter(200)
+                    ],
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return "Bank Branch Name is required";
@@ -305,10 +307,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                     textController: _ifscCodeC,
                     hint: "Enter IFSC Code",
                     isRequired: true,
-                    inputFormatterList: [
-                      LengthLimitingTextInputFormatter(11),
-                      UpperCaseTextFormatter(),
-                    ],
+                    inputFormatterList: InputValidator.ifscInputFormatters(),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return "IFSC Code is required";

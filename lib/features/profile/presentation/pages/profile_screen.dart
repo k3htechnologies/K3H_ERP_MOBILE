@@ -851,7 +851,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     return Container(
       margin: const EdgeInsets.all(16),
       child: CustomButton(
-        text: "Log Out",
+        text: "Logout",
         leading: Icon(Icons.login, size: 18, color: AppColor.white),
         backgroundColor: AppColor.error,
         onPressed: () async {

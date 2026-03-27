@@ -198,7 +198,7 @@ Future<void> logOutUser(BuildContext context) async {
 
   if (isConfirmed == true) {
     if (context.mounted) {
-      await showSuccessMessage(context, subTitle: "Log out successfully");
+      await showSuccessMessage(context, subTitle: "Logout successfully");
     }
 
     Future.delayed(Duration(seconds: 1), () async {

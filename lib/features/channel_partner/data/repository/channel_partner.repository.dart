@@ -15,11 +15,6 @@ abstract interface class ChannelPartnerRepository {
     required List<Map<String, dynamic>> fileList,
   });
 
-  Future<Either<Failure, Map<String, dynamic>>> deleteChannelPartner({
-    required int channelPartnerId,
-    required String uniqueKey,
-  });
-
   Future<Either<Failure, Map<String, dynamic>>> exportChannelPartner({
     required int pageNumber,
     required int pageSize,
@@ -67,23 +62,6 @@ class ChannelPartnerRepositoryImpl implements ChannelPartnerRepository {
     try {
       var result = await channelPartnerDatasource
           .apicallAddUpdateChannelPartnerMaster(body: body, fileList: fileList);
-      return right(result);
-    } catch (error) {
-      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
-    }
-  }
-
-  @override
-  Future<Either<Failure, Map<String, dynamic>>> deleteChannelPartner({
-    required int channelPartnerId,
-    required String uniqueKey,
-  }) async {
-    try {
-      var result = await channelPartnerDatasource
-          .apicallDeleteChannelPartnerMaster(
-            channelPartnerId: channelPartnerId,
-            uniqueKey: uniqueKey,
-          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
