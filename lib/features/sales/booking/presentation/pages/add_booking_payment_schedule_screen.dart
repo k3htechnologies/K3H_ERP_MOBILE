@@ -110,12 +110,6 @@ class _AddBookingPaymentScheduleScreenState
     final percentage = double.parse(_percentageC.text);
     final isDateTab = _tabController.index == 0;
 
-    /// DATE VALIDATION
-    if (isDateTab && date == null) {
-      showErrorMessage(context, "Date Required", "Please select a date.");
-      return;
-    }
-
     final schedules = List<BookingPaymentScheduleData>.from(
       _bookingCubit.state.bookingPaymentScheduleList,
     );
@@ -158,7 +152,11 @@ class _AddBookingPaymentScheduleScreenState
       );
 
       if (alreadyExists) {
-        showErrorMessage(context, "", "This date is already added.");
+        showErrorMessage(
+          context,
+          "",
+          "A payment schedule with this date already exists",
+        );
         return;
       }
     }
@@ -306,6 +304,12 @@ class _AddBookingPaymentScheduleScreenState
           isRequired: true,
           initialDate: date,
           setValue: (value) => date = value,
+          validator: (value) {
+            if (value == null) {
+              return "Date is required";
+            }
+            return null;
+          },
         ),
         _percentageField(),
       ],
@@ -322,6 +326,7 @@ class _AddBookingPaymentScheduleScreenState
           isMultiSelect: false,
           initialValue: _selectedStage.value,
           dataList: [],
+          onClear: () => _selectedStage.value = null,
           onSelected: (value) => _selectedStage.value = value,
           dataFetchCallBack: fetchStages,
           validator: (value) {

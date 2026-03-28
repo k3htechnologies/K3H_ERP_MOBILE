@@ -816,7 +816,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     if (!_hasPrimaryApplicant(_applicants.value)) {
       _tabController.animateTo(0);
       _bookingCubit.onTabChangedAddForm(0, context);
-      showErrorMessage(context, "", "Add Primary Applicant");
+      showErrorMessage(
+        context,
+        "",
+        "In Applicant List - One Applicant is required",
+      );
       return false;
     }
 
@@ -1235,14 +1239,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               child: Column(
                 children: [
                   BlocConsumer<BookingCubit, BookingState>(
-                    listener: (context, state) {
-                      final hasEnquiry = state.enquiryList.isNotEmpty;
-                      if (hasEnquiry) {
-                        final enquiry = state.enquiryList.first;
-                        _permanentAddressC.text = enquiry.currentLocation;
-                        _communicationAddressC.text = enquiry.currentLocation;
-                      }
-                    },
+                    listener: (context, state) {},
                     builder: (context, state) {
                       final enquiry =
                           state.enquiryList.isNotEmpty
@@ -1251,14 +1248,14 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       return Column(
                         children: [
                           CustomTextField(
-                            title: "Enquiry Unique Code",
+                            title: "Enquiry Code",
                             isRequired: true,
                             readOnly: _isEditMode,
                             inputFormatterList: [
                               UpperCaseTextFormatter(),
                               LengthLimitingTextInputFormatter(18),
                             ],
-                            hint: "Enter Enquiry Unique Code",
+                            hint: "Enter Enquiry Code",
                             textController: _enquiryUniqueCodeC,
                             onChangeFunction: (value) {
                               if (_debounce?.isActive ?? false) {
@@ -1268,8 +1265,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                               if (value.length != 18) {
                                 // CLEAR ANY PREVIOUS ENQUIRY RESULT AND FETCH FLAGS
                                 _bookingCubit.clearEnquiryList();
-                                _permanentAddressC.clear();
-                                _communicationAddressC.clear();
                                 _enquiryFetchTried.value = false;
                                 _isFetchingEnquiry.value = false;
                                 return;
@@ -1295,7 +1290,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                             },
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter Enquiry Unique Code';
+                                return 'Enquiry Code is required';
                               }
                               return null;
                             },
@@ -1457,7 +1452,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                 ),
                               ),
                               child: Text(
-                                "Invalid Enquiry Unique Code",
+                                "No Enquiry details found for this Unique Code",
                                 style: AppTextStyle.ts14M(
                                   color: AppColor.error,
                                 ),
@@ -3107,7 +3102,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         "title": "Agreement GST Amount (₹)",
         "value": _agreementGstAmountC.text.trim(),
       },
-      {"title": "TDS Amount(₹)", "value": _agreementGstAmountC.text.trim()},
+      {"title": "TDS Amount(₹)", "value": _tdsC.text.trim()},
     ]);
   }
 }
