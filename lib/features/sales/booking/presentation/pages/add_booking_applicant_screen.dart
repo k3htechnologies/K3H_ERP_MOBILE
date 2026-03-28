@@ -522,7 +522,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       } else {
                         if (value != null &&
                             value.isNotEmpty &&
-                            InputValidator.isValidDrivingLicence(value)) {
+                            !InputValidator.isValidDrivingLicence(value)) {
                           return "Driving License Number is invalid";
                         }
                       }
