@@ -21,4 +21,6 @@ class StorageKey {
 
 
   static const fcmToken = "";
+
+  static String addressMasterData = "ADDRESS_MASTER_DATA";
 }

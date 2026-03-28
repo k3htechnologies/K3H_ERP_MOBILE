@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/setting_dashboard/presentation/cubit/setting_dashboard_cubit.dart';
-import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/sales_dashboard_screen.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -25,81 +22,73 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
   // CUBIT
   late SettingDashboardCubit _settingDashboardCubit;
 
-  // PROJECT
-  late ProjectModel _selectedProject;
-
   @override
   void initState() {
     super.initState();
     _settingDashboardCubit = context.read<SettingDashboardCubit>();
-    _selectedProject = getProject();
-    _settingDashboardCubit.getSettingDashboardList(
-      context,
-      _selectedProject.projectId,
-    );
+    _settingDashboardCubit.getSettingDashboardList(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SettingDashboardCubit, SettingDashboardState>(
-      builder: (context, state) {
-        if (state.isLoading == true) {
-          return Center(child: loader());
-        }
-        return Scaffold(
-          appBar: CustomAppBarWithBackButton(
-            screenTitle: "Setting",
-            isMenuButton: true,
-            authorization: AuthorizationModel(),
-            onProjectChangeCallback: (value) {
-              _selectedProject = value;
-              _settingDashboardCubit.getSettingDashboardList(
-                context,
-                _selectedProject.projectId,
-              );
-            },
-            showNotification: true,
-          ),
-          body: BlocBuilder<SettingDashboardCubit, SettingDashboardState>(
-            builder: (context, state) {
-              if (state.isLoading == true) {
-                return Center(child: loader());
-              }
-
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20.0,
-                        vertical: 20,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // TOTAL COMPANINES, EMPLOYEES, ACTIVE PROJECT AND REGISTERED VENDORS COUNT WIDGET
-                          _buildSettingsDashboardOverview(context),
-                          // COMPANY SETUP WIDGET
-                          _buildCompanySetupWidget(context),
-                          verticalSpacing(height: 15.0),
-                          // PROCUREMENT MASTER WIDGET
-                          _buildProcurementMasterWidget(context),
-                          verticalSpacing(height: 15.0),
-                          // PROJECT MANAGEMENT WIDGET
-                          _buildProjectManagementWidget(context),
-                          verticalSpacing(height: 15.0),
-                          // VENDOR MANAGEMENT WIDGET
-                          _buildVendorManagementWidget(context),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        );
+    return RefreshIndicator(
+      onRefresh: () async {
+        _settingDashboardCubit.getSettingDashboardList(context);
       },
+      child: BlocBuilder<SettingDashboardCubit, SettingDashboardState>(
+        builder: (context, state) {
+          if (state.isLoading == true) {
+            return Center(child: loader());
+          }
+          return Scaffold(
+            appBar: CustomAppBarWithBackButton(
+              screenTitle: "Setting",
+              isMenuButton: true,
+              authorization: AuthorizationModel(),
+              showNotification: true,
+            ),
+            body: BlocBuilder<SettingDashboardCubit, SettingDashboardState>(
+              builder: (context, state) {
+                if (state.isLoading == true) {
+                  return Center(child: loader());
+                }
+
+                return SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20.0,
+                          vertical: 20,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // TOTAL COMPANINES, EMPLOYEES, ACTIVE PROJECT AND REGISTERED VENDORS COUNT WIDGET
+                            _buildSettingsDashboardOverview(context),
+                            verticalSpacing(),
+                            // COMPANY SETUP WIDGET
+                            _buildCompanySetupWidget(context),
+                            verticalSpacing(height: 15.0),
+                            // PROCUREMENT MASTER WIDGET
+                            _buildProcurementMasterWidget(context),
+                            verticalSpacing(height: 15.0),
+                            // PROJECT MANAGEMENT WIDGET
+                            _buildProjectManagementWidget(context),
+                            verticalSpacing(height: 15.0),
+                            // VENDOR MANAGEMENT WIDGET
+                            _buildVendorManagementWidget(context),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -125,33 +114,36 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
           children: [
             _dashboardCard(
               icon: AppAssets.totalCompaniesIcon,
-              value: table0?.totalCompanies.toInt() ?? 0,
+              value: table0?.totalCompanies.toString() ?? "0.0",
               title: "Total Companies",
-              subtitle: "+2 this month",
+              subtitle:
+                  "+${table0?.companiesAddedThisMonth.toInt() ?? 0} this month",
               subtitleColor: AppColor.green,
             ),
 
             _dashboardCard(
               icon: AppAssets.totalEmployeeeIcon,
-              value: table0?.totalEmployees.toInt() ?? 0,
+              value: table0?.totalEmployees.toString() ?? "0.0",
               title: "Total Employees",
-              subtitle: "+12 this month",
+              subtitle:
+                  "+${table0?.employeesAddedThisMonth.toInt() ?? 0} this month",
               subtitleColor: AppColor.green,
             ),
 
             _dashboardCard(
               icon: AppAssets.activeProjectsIcon,
-              value: table0?.activeProjects.toInt() ?? 0,
+              value: table0?.activeProjects.toString() ?? "0.0",
               title: "Active Projects",
-              subtitle: "8 on hold",
+              subtitle: "${table0?.onHoldProjects.toInt() ?? 0} on hold",
               subtitleColor: Colors.orange,
             ),
 
             _dashboardCard(
               icon: AppAssets.registeredVendorsIcon,
-              value: table0?.registeredVendors.toInt() ?? 0,
+              value: table0?.registeredVendors.toString() ?? "0.0",
               title: "Registered Vendors",
-              subtitle: "12 added recently",
+              subtitle:
+                  "+${table0?.vendorsAddedThisMonth.toInt() ?? 0} this month",
               subtitleColor: AppColor.green,
             ),
           ],
@@ -162,7 +154,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
 
   Widget _dashboardCard({
     required String icon,
-    required int value,
+    required String value,
     required String title,
     required String subtitle,
     required Color subtitleColor,
@@ -223,7 +215,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      "Company Setup",
+                      "Company Master",
                       style: AppTextStyle.ts14M(
                         color: AppColor.black.withValues(alpha: 0.50),
                       ),
@@ -443,6 +435,11 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
             (state.settingDashboardModel?.table4.isNotEmpty ?? false)
                 ? state.settingDashboardModel!.table4.first
                 : null;
+        final table7 =
+            (state.settingDashboardModel?.table7.isNotEmpty ?? false)
+                ? state.settingDashboardModel!.table7.first
+                : null;
+
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           decoration: commonCardDecoration(),
@@ -493,35 +490,46 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                 ],
               ),
               verticalSpacing(height: 20.0),
-              CommonRadialChart(
-                items: [
-                  RadialChartItem(
-                    title: "Ongoing Projects",
-                    value: 9,
-                    color: AppColor.primary,
+              if (table7 != null) ...[
+                CommonRadialChart(
+                  items: [
+                    RadialChartItem(
+                      title: "Ongoing Projects",
+                      value: table7.ongoingProjects,
+                      color: AppColor.primary,
+                    ),
+                    RadialChartItem(
+                      title: "On hold Projects",
+                      value: table7.onHoldProjects,
+                      color: AppColor.yellow,
+                    ),
+                    RadialChartItem(
+                      title: "Completed Projects",
+                      value: table7.completedProjects,
+                      color: AppColor.green,
+                    ),
+                    RadialChartItem(
+                      title: "Cancelled Projects",
+                      value: table7.cancelledProjects,
+                      color: AppColor.grey,
+                    ),
+                    RadialChartItem(
+                      title: "Planning Projects",
+                      value: table7.planningProjects,
+                      color: AppColor.blue,
+                    ),
+                  ],
+                ),
+              ] else ...[
+                Center(
+                  child: Text(
+                    "No Active Follow ups Available",
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
                   ),
-                  RadialChartItem(
-                    title: "On hold Projects",
-                    value: 2,
-                    color: AppColor.yellow,
-                  ),
-                  RadialChartItem(
-                    title: "Completed Projects",
-                    value: 2,
-                    color: AppColor.green,
-                  ),
-                  RadialChartItem(
-                    title: "Cancelled Projects",
-                    value: 2,
-                    color: AppColor.grey,
-                  ),
-                  RadialChartItem(
-                    title: "Planning Projects",
-                    value: 2,
-                    color: AppColor.blue,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ],
           ),
         );
@@ -610,13 +618,6 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                   _verticalDivider(),
                   Expanded(
                     child: _procurementMasterWiget(
-                      table3?.totalMaterial.toString() ?? "0",
-                      "Total Material",
-                    ),
-                  ),
-                  _verticalDivider(),
-                  Expanded(
-                    child: _procurementMasterWiget(
                       table3?.contractCount.toString() ?? "0",
                       "Total Contract",
                     ),
@@ -639,7 +640,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                   Expanded(
                     child: _projectManagementChip(
                       title: "Missing Details",
-                      value: 0,
+                      value: table3?.missingDetails.toInt() ?? 0,
                       bgColor: AppColor.yellow.withValues(alpha: 0.2),
                       valueColor: AppColor.yellow,
                     ),
@@ -666,12 +667,15 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
               verticalSpacing(),
               if (table5 != null && table5.isNotEmpty) ...[
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children:
-                      table5.map((subSourceData) {
-                        return SourceProgressBar(
-                          title: subSourceData.companyType,
-                          percentage: subSourceData.vendorCount,
+                      table5.map((item) {
+                        return VendorDistributionProgressBar(
+                          title: item.companyType,
+                          value: item.vendorCount,
+                          total: table5.fold(
+                            0,
+                            (sum, e) => sum + e.vendorCount,
+                          ),
                         );
                       }).toList(),
                 ),
@@ -719,7 +723,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                       ],
                     ),
                     Text(
-                      "12",
+                      table3?.missingDetails.toString() ?? "0",
                       style: AppTextStyle.ts16SB(color: AppColor.purple),
                     ),
                   ],
@@ -729,6 +733,61 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
           ),
         );
       },
+    );
+  }
+}
+
+class VendorDistributionProgressBar extends StatelessWidget {
+  final String title;
+  final int value;
+  final int total;
+
+  const VendorDistributionProgressBar({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.total,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final double progress = total == 0 ? 0 : value / total;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// Title + Count
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: AppTextStyle.ts14M(color: AppColor.black),
+                ),
+              ),
+              Text(
+                "$value/$total",
+                style: AppTextStyle.ts14M(color: AppColor.black),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 8),
+
+          /// Progress Bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 8,
+              backgroundColor: AppColor.primary.withValues(alpha: 0.2),
+              valueColor: AlwaysStoppedAnimation(AppColor.primary),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

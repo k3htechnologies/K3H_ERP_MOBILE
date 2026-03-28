@@ -22,6 +22,55 @@ class InventoryCubit extends Cubit<InventoryState> {
 
   bool _isApiCallInProgress = false;
 
+  void searchInventory(String value) {
+    final query = value.toLowerCase();
+
+    if (query.isEmpty) {
+      emit(
+        state.copyWith(
+          searchText: value,
+          buildingList: state.originalBuildingList,
+        ),
+      );
+      return;
+    }
+
+    final filteredBuildings =
+        state.originalBuildingList
+            .map((building) {
+              final filteredWings =
+                  building.wingList
+                      .map((wing) {
+                        final filteredFloors =
+                            wing.floorList
+                                .map((floor) {
+                                  final filteredFlats =
+                                      floor.flatList.where((flat) {
+                                        return flat.flat.toLowerCase().contains(
+                                          query,
+                                        ); // 👈 UNIT NO SEARCH
+                                      }).toList();
+
+                                  return floor.copyWith(
+                                    flatList: filteredFlats,
+                                  );
+                                })
+                                .where((floor) => floor.flatList.isNotEmpty)
+                                .toList();
+
+                        return wing.copyWith(floorList: filteredFloors);
+                      })
+                      .where((wing) => wing.floorList.isNotEmpty)
+                      .toList();
+
+              return building.copyWith(wingList: filteredWings);
+            })
+            .where((building) => building.wingList.isNotEmpty)
+            .toList();
+
+    emit(state.copyWith(searchText: value, buildingList: filteredBuildings));
+  }
+
   // GET ENTIRE INVENTORY
   Future<void> getInventory(BuildContext context, int projectId) async {
     if (projectId == 0) {
@@ -58,13 +107,32 @@ class InventoryCubit extends Cubit<InventoryState> {
             wingCounts[wing.wing] = calculateWingCounts(wing);
           }
         }
+        int buildingIndex =
+            state.currentTabIndex < buildings.length
+                ? state.currentTabIndex
+                : 0;
+
+        final selectedBuilding = buildings[buildingIndex];
+        final wingList = selectedBuilding.wingList;
+
+        String? wingKey =
+            state.wingCurrentPageKey != null &&
+                    wingList.any((w) => w.wing == state.wingCurrentPageKey)
+                ? state.wingCurrentPageKey
+                : wingList.isNotEmpty
+                ? wingList.first.wing
+                : null;
+
+        int wingIndex =
+            wingKey != null ? wingList.indexWhere((w) => w.wing == wingKey) : 0;
 
         emit(
           state.copyWith(
             isLoading: false,
             buildingList: buildings,
-            wingCounts: wingCounts,
-            currentTabIndex: 0,
+            currentTabIndex: buildingIndex,
+            wingCurrentPage: wingIndex,
+            wingCurrentPageKey: wingKey,
           ),
         );
       },
@@ -229,6 +297,34 @@ class InventoryCubit extends Cubit<InventoryState> {
     );
   }
 
+  Future<void> addFloor(
+    BuildContext context, {
+    required int projectId,
+    required int inventoryBuildingId,
+    required int inventoryFlatFloorBasementPodiumWingId,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+
+    final payload = {
+      "ProjectId": projectId,
+      "InventoryBuildingId": inventoryBuildingId,
+      "InventoryFlatFloorBasementPodiumWingId":
+          inventoryFlatFloorBasementPodiumWingId,
+    };
+
+    final result = await _inventoryRepository.addFloor(requestBody: payload);
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        getInventory(context, projectId);
+      },
+    );
+  }
+
   // EXPORT DATA
   Future exportInventory(
     BuildContext context,
@@ -291,6 +387,10 @@ class InventoryCubit extends Cubit<InventoryState> {
         }).toList();
 
     emit(state.copyWith(buildingList: updatedBuildingList));
+  }
+
+  void updateWingSelection(int index, String wing) {
+    emit(state.copyWith(wingCurrentPage: index, wingCurrentPageKey: wing));
   }
 
   Map<String, int> calculateWingCounts(WingModel wing) {

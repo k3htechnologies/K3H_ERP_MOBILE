@@ -209,10 +209,11 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                           children: [
                             Text(
                               "Basic Details",
-                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                              style: AppTextStyle.ts16SB(color: AppColor.black),
                             ),
                             verticalSpacing(),
                             Row(
+                              spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
@@ -233,6 +234,7 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                             ),
                             verticalSpacing(),
                             Row(
+                              spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
@@ -251,6 +253,7 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                             ),
                             verticalSpacing(),
                             Row(
+                              spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
@@ -274,8 +277,8 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                             ),
                             verticalSpacing(),
                             Row(
+                              spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
                                   title: "Firm Type",
@@ -289,6 +292,7 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                             ),
                             verticalSpacing(),
                             Row(
+                              spacing: 10,
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
@@ -309,12 +313,12 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                           children: [
                             Text(
                               "RERA Details",
-                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                              style: AppTextStyle.ts16SB(color: AppColor.black),
                             ),
                             verticalSpacing(),
                             Row(
+                              spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
                                   title: "Available RERA No.",
@@ -344,7 +348,7 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                           children: [
                             Text(
                               "Address Details",
-                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                              style: AppTextStyle.ts16SB(color: AppColor.black),
                             ),
                             verticalSpacing(),
                             Row(
@@ -404,13 +408,45 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                           children: [
                             Text(
                               "Document Details",
-                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                              style: AppTextStyle.ts16SB(color: AppColor.black),
                             ),
                             verticalSpacing(),
                             _buildDocumentCard(
                               context,
                               widget.channelPartnerModel,
                             ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        decoration: commonCardDecoration(),
+                        padding: EdgeInsets.all(16),
+                        margin: const EdgeInsets.only(bottom: 10),
+                        child: Column(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Enquiry & Booking Details",style: AppTextStyle.ts16SB(),),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(title: "No Of Enquiry", value: widget.channelPartnerModel.noOfEnquiry.toString()),
+                                buildColumnTitleValue(title: "No Of Booking", value: widget.channelPartnerModel.noOfBooking.toString()),
+                              ],
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(title: "Brokerage Percentage (%)", value: widget.channelPartnerModel.brokeragePercentage.toString()),
+                                buildColumnTitleValue(title: "Brokerage Amount (₹)", value: widget.channelPartnerModel.brokerageAmount.toString()),
+                              ],
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(title: "Paid Brokerage Amount (₹)", value: widget.channelPartnerModel.paidBrokerageAmount.toString()),
+                              ],
+                            )
                           ],
                         ),
                       ),
@@ -596,21 +632,10 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
         documents.where((doc) => (doc["url"] ?? "").isNotEmpty).toList();
 
     if (validDocuments.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.insert_drive_file_outlined,
-              size: 40,
-              color: AppColor.grey,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              "No Documents Uploaded",
-              style: AppTextStyle.ts14M(color: AppColor.grey),
-            ),
-          ],
+      return SizedBox(
+        height: 180,
+        child: Center(
+          child: noDataWidget(message: "No Documents Available",iconSize: 100),
         ),
       );
     }

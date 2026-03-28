@@ -5,7 +5,6 @@ import 'package:k3h_erp_app/features/masters/setting_dashboard/data/datasource/s
 
 abstract interface class SettingDashbaordRepository {
   Future<Either<Failure, Map<String, dynamic>>> getSettingDashboardList({
-    required int projectId,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -17,15 +16,11 @@ class SettingDashbaordRepositoryImpl implements SettingDashbaordRepository {
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> getSettingDashboardList({
-    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     try {
       var result = await settingDashbaordDatasource
-          .apiCallPullSettingsDashboard(
-            projectId: projectId,
-            queryParams: queryParams,
-          );
+          .apiCallPullSettingsDashboard(queryParams: queryParams);
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

@@ -100,9 +100,9 @@ Future initialSetup() async {
     await updateRouteAuthorization(moduleData);
   }
   // LOCATION PERMISSION
-  handleLocationPermission();
+  // handleLocationPermission();
 
-  requestPhonePermission();
+  // requestPhonePermission();
 
   // ROUTING
   GoRouter.optionURLReflectsImperativeAPIs = true;

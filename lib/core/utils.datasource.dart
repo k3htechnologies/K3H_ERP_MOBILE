@@ -77,6 +77,8 @@ abstract interface class UtilsDatasource {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Map<String, dynamic>> pullCountryStateCityDistrictVillage();
 }
 
 class UtilsDatasourceImpl implements UtilsDatasource {
@@ -488,4 +490,14 @@ class UtilsDatasourceImpl implements UtilsDatasource {
       rethrow;
     }
   }
+
+  @override
+  Future<Map<String, dynamic>> pullCountryStateCityDistrictVillage() async {
+    const String url = 'Static/PullCountryStateCityDistrictVillage';
+
+    final response = await client.getRequestWithAuthentication(url);
+
+    return response;
+  }
+
 }

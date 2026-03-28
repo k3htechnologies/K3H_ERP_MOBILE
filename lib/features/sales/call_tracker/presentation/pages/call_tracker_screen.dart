@@ -405,7 +405,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                             Row(
                               children: [
                                 buildColumnTitleValue(
-                                  title: "Receiver’s Name",
+                                  title: "Customer Name",
                                   value: callingData.name,
                                 ),
                                 buildColumnTitleValue(
@@ -433,7 +433,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                             Row(
                               children: [
                                 buildColumnTitleValue(
-                                  title: "Phone No.",
+                                  title: "Mobile No.",
                                   value: callingData.mobileNumber,
                                   customValueWidget: CustomClickToContactText(
                                     value: callingData.mobileNumber,

@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/error_handler.dart';
+import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/city.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -57,7 +61,7 @@ class _AddressWidgetState extends State<AddressWidget> {
   @override
   void initState() {
     baseClient = BaseClient();
-    apiCallPullCountryStateCityDistrictVillage();
+    loadAddressFromCache();
     super.initState();
   }
 
@@ -73,22 +77,26 @@ class _AddressWidgetState extends State<AddressWidget> {
     super.dispose();
   }
 
-  Future apiCallPullCountryStateCityDistrictVillage() async {
-    String pullCountryStateCityDistrictVillage =
-        'Static/PullCountryStateCityDistrictVillage';
-
+  Future<void> loadAddressFromCache() async {
     try {
-      var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullCountryStateCityDistrictVillage,
-      );
+      final storage = LocalStorageManager();
 
-      var dataList = List<CityModel>.from(
-        networkResponse['data']["CountryStateCityDistrictVillageData"].map(
-          (e) => CityModel.fromJson(e),
-        ),
+      final cachedData = storage.getString(StorageKey.addressMasterData);
+
+      if (cachedData == null || cachedData.isEmpty) {
+        debugPrint("No address data found in cache");
+        return;
+      }
+
+      final decoded = jsonDecode(cachedData);
+
+      final dataList = List<CityModel>.from(
+        decoded.map((e) => CityModel.fromJson(e)),
       );
 
       groupedStateData = groupBy(dataList, (e) => e.stateMasterId);
+
+      stateList.clear();
 
       groupedStateData.forEach((key, value) {
         stateList.add({
@@ -96,17 +104,10 @@ class _AddressWidgetState extends State<AddressWidget> {
           "DisplayName": value[0].stateName,
         });
       });
-      if (widget.incomingStateId != null) {
-        stateId.value = widget.incomingStateId!;
-        handleStateChange(stateId.value!);
-        districtId.value = widget.incomingDistrictId!;
-        handleDistrictChange(districtId.value!);
-        cityId.value = widget.incomingCityId!;
-        if (cityId.value != null) {
-          handleCityChange(cityId.value!);
-          villageId.value = widget.incomingVillageId;
-        }
-      }
+
+      _applyPrefill();
+
+      debugPrint("Address loaded from cache");
     } catch (error) {
       ErrorHandler.getErrorMessage(error);
     }
@@ -182,6 +183,27 @@ class _AddressWidgetState extends State<AddressWidget> {
     }
 
     villageList.value = newVillageList;
+  }
+
+  void _applyPrefill() {
+    if (widget.incomingStateId != null) {
+      stateId.value = widget.incomingStateId!;
+      handleStateChange(stateId.value!);
+
+      if (widget.incomingDistrictId != null) {
+        districtId.value = widget.incomingDistrictId!;
+        handleDistrictChange(districtId.value!);
+      }
+
+      if (widget.incomingCityId != null) {
+        cityId.value = widget.incomingCityId!;
+        handleCityChange(cityId.value!);
+      }
+
+      if (widget.incomingVillageId != null) {
+        villageId.value = widget.incomingVillageId;
+      }
+    }
   }
 
   @override

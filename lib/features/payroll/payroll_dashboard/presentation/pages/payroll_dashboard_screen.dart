@@ -9,7 +9,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
@@ -46,36 +46,40 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Payroll Dashboard",
-        authorization: AuthorizationModel(),
-        textController: _searchC,
-        searchHintText: "Search by Employee Name",
-        onSearchSubmit: (value) {},
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: BlocBuilder<PayrollDashboardCubit, PayrollDashboardState>(
-          builder: (context, state) {
-            return Column(
-              children: [
-                _overview(state),
-                verticalSpacing(),
-                _quickAction(),
-                verticalSpacing(),
-                _attendanceOverview(state),
-                verticalSpacing(),
-                _buildLeaveManagementWidget(state),
-                verticalSpacing(),
-                _buildOutdoorManagementWidget(state),
-                verticalSpacing(),
-                _buildCompOffManagementWidget(state),
-                verticalSpacing(),
-                _buildResignationWidget(state),
-              ],
-            );
-          },
+    return RefreshIndicator(
+      onRefresh: () async {
+        _payrollDashboardCubit.getPayrollDashboardList(context);
+      },
+      child: Scaffold(
+        appBar: CustomAppBarWithBackButton(
+          screenTitle: "Payroll Dashboard",
+          isMenuButton: true,
+          authorization: AuthorizationModel(),
+          showNotification: true,
+        ),
+        body: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: BlocBuilder<PayrollDashboardCubit, PayrollDashboardState>(
+            builder: (context, state) {
+              return Column(
+                children: [
+                  _overview(state),
+                  verticalSpacing(),
+                  _quickAction(),
+                  verticalSpacing(),
+                  _attendanceOverview(state),
+                  verticalSpacing(),
+                  _buildLeaveManagementWidget(state),
+                  verticalSpacing(),
+                  _buildOutdoorManagementWidget(state),
+                  verticalSpacing(),
+                  _buildCompOffManagementWidget(state),
+                  verticalSpacing(),
+                  _buildResignationWidget(state),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

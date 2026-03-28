@@ -632,7 +632,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "Flat",
+                      title: "Unit No.",
                       value: bookingModel!.flat,
                     ),
                     buildColumnTitleValue(
@@ -817,8 +817,12 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "Mode Of Payment",
-                      value: bookingModel!.modeOfPayment,
+                      title: "Source Of Funding",
+                      value: bookingModel!.sourceOfFunding,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Number Of Parking",
+                      value: bookingModel!.parkingNumber,
                     ),
                   ],
                 ),
@@ -840,11 +844,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "Agreement Value (₹)",
+                      title: "Agreement Value (₹) With TDS",
                       value: "₹ ${bookingModel!.agreementValue}",
                     ),
                     buildColumnTitleValue(
-                      title: "TDS (₹)",
+                      title: "Agreement Value (₹) Without TDS",
                       value: "₹ ${bookingModel!.agreementValueTDS}",
                     ),
                   ],
@@ -854,41 +858,41 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
+                      title: "TDS (₹)",
+                      value: "₹ ${bookingModel!.agreementValueTDS}",
+                    ),
+                    buildColumnTitleValue(
                       title: "GST (%)",
                       value: "${bookingModel!.agreementValueGSTPercentage}%",
                     ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     buildColumnTitleValue(
                       title: "GST (₹)",
                       value: "₹ ${bookingModel!.agreementValueGSTAmount}",
                     ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
                     buildColumnTitleValue(
                       title: "Stamp Duty (%)",
                       value: "${bookingModel!.stampDutyPercentage}%",
                     ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     buildColumnTitleValue(
                       title: "Stamp Duty (₹)",
                       value: "₹ ${bookingModel!.stampDutyAmount}",
                     ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
                     buildColumnTitleValue(
                       title: "Registration Fees (₹)",
                       value: "₹ ${bookingModel!.registrationFees}",
                     ),
-                    buildColumnTitleValue(
-                      title: "Booking Amount (₹)",
-                      value: "₹ ${bookingModel!.bookingAmount}",
-                    ),
                   ],
                 ),
                 Row(
@@ -896,15 +900,25 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
+                      title: "Booking Amount (₹)",
+                      value: "₹ ${bookingModel!.bookingAmount}",
+                    ),
+                    buildColumnTitleValue(
                       title: "Brokerage (%)",
                       value: "${bookingModel!.brokeragePercentage}%",
                     ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     buildColumnTitleValue(
                       title: "Brokerage Amount (₹)",
                       value: "₹ ${bookingModel!.brokerageAmount}",
                     ),
                   ],
-                ),
+                )
               ],
             ),
           ),
@@ -1504,42 +1518,44 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               Row(
                 children: [
                   buildColumnTitleValue(title: "Type", value: payment.type),
-                  buildColumnTitleValue(title: "Name", value: payment.name),
+                  payment.type.contains("Date")?
+                  buildColumnTitleValue(
+                    title: "Date",
+                    value:
+                    payment.date != null
+                        ? formatDateTimeAsDDMMMYYYY(payment.date!)
+                        : "-",
+                  ):
+                  buildColumnTitleValue(title: "Stage", value: payment.name),
                 ],
               ),
               Row(
                 children: [
-                  buildColumnTitleValue(
-                    title: "Date",
-                    value:
-                        payment.date != null
-                            ? formatDateTimeAsDDMMMYYYY(payment.date!)
-                            : "-",
-                  ),
                   buildColumnTitleValue(
                     title: "Percentage (%)",
                     value: payment.paymentSchedulePercentage.toString(),
                   ),
-                ],
-              ),
-              Row(
-                children: [
                   buildColumnTitleValue(
                     title: "Amount (₹)",
                     value: "₹ ${payment.paymentScheduleAmount}",
                   ),
-                  buildColumnTitleValue(
-                    title: "GST (₹)",
-                    value: "₹ ${payment.paymentScheduleGSTAmount}",
-                  ),
                 ],
               ),
               Row(
                 children: [
                   buildColumnTitleValue(
+                    title: "GST (₹)",
+                    value: "₹ ${payment.paymentScheduleGSTAmount}",
+                  ),
+                  buildColumnTitleValue(
                     title: "TDS (₹)",
                     value: "₹ ${payment.paymentScheduleTDSAmount}",
                   ),
+                ],
+              ),
+              Row(
+                children: [
+
                 ],
               ),
             ],
