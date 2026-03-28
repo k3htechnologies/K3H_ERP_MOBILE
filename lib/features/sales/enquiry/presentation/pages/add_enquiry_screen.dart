@@ -1,6 +1,9 @@
 // SAME IMPORTS (unchanged)
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -20,6 +23,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -102,7 +106,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   final ValueNotifier<String> _channelPartnerMobileNotifier = ValueNotifier('');
   final ValueNotifier<Map<String, dynamic>?> _selectedFinalStage =
       ValueNotifier(null);
-
+  final ValueNotifier<bool> _hasManualEntryNotifier = ValueNotifier(false);
   // DROPDOWN VARIABLES
   Map<String, dynamic>? _selectedOccupationType;
   Map<String, dynamic>? _selectedPossessionType;
@@ -113,6 +117,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   Map<String, dynamic>? _selectedFinalStageDetail;
   List<Map<String, dynamic>> _selectedLocations = [];
   List<Map<String, dynamic>> _selectedSourcingManager = [];
+  late UserModel user;
 
   late TextEditingController _nameC,
       _mobileC,
@@ -130,6 +135,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       _teamMemberMobileC,
       _remarkC,
       otpController;
+  late ProjectModel _project;
 
   // STATIC DROPDOWN LISTS
   final List<Map<String, dynamic>> currentAccommodation = [
@@ -211,7 +217,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     {'zAttributesId': -1, 'DisplayName': 'Select Funding Source'},
     {'zAttributesId': 1, 'DisplayName': 'Loan'},
     {'zAttributesId': 2, 'DisplayName': 'Self-funded'},
-    {'zAttributesId': 3, 'DisplayName': 'Sale Of Property Funding'},
+    {'zAttributesId': 3, 'DisplayName': 'Sale Of Property'},
   ];
 
   final List<Map<String, dynamic>> ethnicityList = [
@@ -239,13 +245,12 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     {'zAttributesId': 4, 'DisplayName': 'Negotiation'},
     {'zAttributesId': 5, 'DisplayName': 'Lost'},
     {'zAttributesId': 6, 'DisplayName': 'Retention'},
-    {'zAttributesId': 7, 'DisplayName': 'Re-Visit Scheduled'},
-    {'zAttributesId': 8, 'DisplayName': 'Re-Visit Proposed'},
+    {'zAttributesId': 7, 'DisplayName': 'Re - Visit Scheduled'},
+    {'zAttributesId': 8, 'DisplayName': 'Re - Visit Proposed'},
     {'zAttributesId': 9, 'DisplayName': 'Site Visit'},
     {'zAttributesId': 10, 'DisplayName': 'Unit Selection / Blocked'},
   ];
 
-  //  finalStageDetail: ['Purchased with competition', 'Purchased somewhere else', 'Not connected calls >7', 'Low Budget', 'Ready Posession', 'Location', 'Product Issue', 'Pricing Issue', 'Payment Issue', 'Loan Issue', 'Inventory Issue', 'General Enquiry', 'Wrong Number', 'Dropped The Idea Of Buying', 'Booked Somewhere Else'],
   final List<Map<String, dynamic>> finalStageDetailsList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Final Stage Detail'},
     {'zAttributesId': 1, 'DisplayName': 'Purchased with competition'},
@@ -295,7 +300,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     {'zAttributesId': 4, 'DisplayName': 'Google Ads'},
     {'zAttributesId': 5, 'DisplayName': 'Newspaper'},
   ];
-
+  final closedStatuses = ['booking done', 'cancelled', 'lost'];
   @override
   void initState() {
     super.initState();
@@ -307,6 +312,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _selectedEmployeeNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     _selectedProjectNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     _selectedFlatNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
+    getCurrentUser();
+    _project = getProject();
     if (_isEditMode) {
       _populateForm(widget.enquiryModel!);
     } else {
@@ -373,6 +380,13 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     otpController = TextEditingController();
   }
 
+  Future getCurrentUser() async {
+    var userJson = jsonDecode(
+      LocalStorageManager().getString(StorageKey.currentUser) ?? "",
+    );
+    user = UserModel.fromJson(userJson);
+  }
+
   // PREFILL
   void _populateForm(EnquiryModel model) async {
     // TEXT CONTROLLERS
@@ -388,8 +402,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     // SOURCE BASED TEXT FIELDS
     _channelPartnerMobileC.text = model.channelPartnerMobileNumber;
     _channelPartnerMobileNotifier.value = model.channelPartnerMobileNumber;
-    _teamMemberNameC.text = model.channelPartnerName;
-    _teamMemberMobileC.text = model.channelPartnerTeamMemberMobileNumber;
 
     // TIME
     _timeInC = model.enquiryTimeIn;
@@ -535,25 +547,26 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
       // AUTO-FETCH TEAM MEMBER BY ID IN EDIT MODE
       if (model.channelPartnerTeamMemberId != 0) {
-        // FETCH BY ID
-        await fetchChannelPartnerTeamMembers(
-          model.channelPartnerTeamMemberId,
-        ).then((result) {
-          if (!mounted) return;
-          final List<Map<String, dynamic>> items =
-              result["itemList"] as List<Map<String, dynamic>>;
-          if (items.isNotEmpty) {
-            final member = items.first;
-            _selectedTeamMemberNotifier.value = [member];
-            // ALSO SET TEXT FIELDS IN CASE DROPDOWN DOESN'T SHOW
-            _teamMemberMobileC.text = member['MobileNo'] ?? '';
-          }
-        });
+        final member = await fetchChannelPartnerTeamMembers(
+          1,
+          value: model.channelPartnerTeamMemberId.toString(),
+        );
+
+        if (!mounted) return;
+
+        final items = member["itemList"] as List<Map<String, dynamic>>;
+
+        if (items.isNotEmpty) {
+          _selectedTeamMemberNotifier.value = [items.first];
+        }
+
+        _hasManualEntryNotifier.value = false;
       } else if (model.channelPartnerTeamMemberMobileNumber.isNotEmpty ||
-          model.channelPartnerName.isNotEmpty) {
+          model.channelPartnerTeamMemberName.isNotEmpty) {
         // NO ID BUT HAS NAME/MOBILE
         _selectedTeamMemberNotifier.value = [];
-        _teamMemberNameC.text = model.channelPartnerName;
+        _hasManualEntryNotifier.value = true;
+        _teamMemberNameC.text = model.channelPartnerTeamMemberName;
         _teamMemberMobileC.text = model.channelPartnerTeamMemberMobileNumber;
       }
     } else {
@@ -644,16 +657,37 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         mobileNumber: _mobileC.text.trim(),
         module: "ENQUIRY",
       );
+      bool isEnquiryCompleted =
+          _nameC.text.isNotEmpty &&
+          _mobileC.text.isNotEmpty &&
+          getDisplayOrEmpty(_selectedAccommodationNotifier.value).isNotEmpty &&
+          getDisplayOrEmpty(_selectedOccupationType).isNotEmpty;
 
+      bool isSourceCompleted =
+          getDisplayOrEmpty(_selectedSourceNotifier.value).isNotEmpty;
+      bool isPropertyCompleted =
+          _budgetC.text.isNotEmpty &&
+          getDisplayOrEmpty(_selectedRequirementNotifier.value).isNotEmpty &&
+          getDisplayOrEmpty(_selectedPossessionType).isNotEmpty &&
+          getDisplayOrEmpty(_selectedRequirementNotifier.value).isNotEmpty &&
+          _areaPrefC.text.isNotEmpty &&
+          getDisplayOrEmpty(_selectedFloorBand).isNotEmpty;
+
+      bool isCustomerCompleted =
+          getDisplayOrEmpty(_selectedFunding).isNotEmpty &&
+          getDisplayOrEmpty(_selectedEthnicity).isNotEmpty;
+
+      bool isFollowUpCompleted = _nextFollowUpDate != null;
       //  THEN SHOW VERIFICATION DIALOG
       showCompleteVerificationDialog(
         context,
         otpController: otpController,
         verificationSteps: {
-          "Basic Details": true,
-          "Source Details": true,
-          "Property Preferences": true,
-          "Follow-up Details": true,
+          "Enquiry Details": isEnquiryCompleted,
+          "Source Details": isSourceCompleted,
+          "Property Preferences": isPropertyCompleted,
+          "Customer Details": isCustomerCompleted,
+          "Follow-up Details": isFollowUpCompleted,
         },
         onVerifyOTP: () {
           _submitEnquiryData();
@@ -788,6 +822,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     await _enquiryCubit.addUpdateEnquiry(
       context: context,
       body: payload,
+      projectId: _project.projectId,
       index: _isEditMode ? widget.index : null,
     );
   }
@@ -866,7 +901,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       pageNumber: pageNumber,
       pageSize: 15,
       queryParams:
-          value != null && value.isNotEmpty ? {"ProjectName": value} : {},
+          value != null && value.isNotEmpty
+              ? {"ProjectName": value, "isCheckPermission": false}
+              : {"isCheckPermission": false},
     );
 
     return result.fold(
@@ -900,7 +937,22 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       pageNumber: pageNumber,
       pageSize: 15,
       queryParams:
-          value != null && value.isNotEmpty ? {"ChannelPartnerId": value} : {},
+          value != null && value.isNotEmpty
+              ? {
+                "ChannelPartnerId": value,
+                "isCheckPermission": false,
+                "CompanyName":
+                    _isEditMode
+                        ? widget.enquiryModel!.channelPartnerCompany
+                        : _enquiryCubit.state.channelPartnerModel!.companyName,
+              }
+              : {
+                "isCheckPermission": false,
+                "CompanyName":
+                    _isEditMode
+                        ? widget.enquiryModel!.channelPartnerCompany
+                        : _enquiryCubit.state.channelPartnerModel!.companyName,
+              },
     );
 
     return result.fold(
@@ -981,11 +1033,15 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               _basicCard(),
               _sourceCard(),
               _addressCard(),
-              _propertyPrefCard(),
-              _customerDetailsCard(),
-              _enquiryInfoCard(),
+              if (user.designation.toLowerCase() != 'GRE'.toLowerCase())
+                _propertyPrefCard(),
+              if (user.designation.toLowerCase() != 'GRE'.toLowerCase())
+                _customerDetailsCard(),
+              if (user.designation.toLowerCase() != 'GRE'.toLowerCase())
+                _enquiryInfoCard(),
               _followUpCard(),
-              _salesCard(),
+              if (user.designation.toLowerCase() != 'GRE'.toLowerCase())
+                _salesCard(),
             ],
           ),
         ),
@@ -1038,6 +1094,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             hint: "Enter Mobile Number",
             keyboardType: TextInputType.phone,
             isRequired: true,
+            readOnly: _isEditMode,
             inputFormatterList: InputValidator.digit(10),
             validator: (val) {
               if (val == null || val.trim().isEmpty) {
@@ -1177,589 +1234,634 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
   // SOURCE
   Widget _sourceCard() {
-    return ValueListenableBuilder<Map<String, dynamic>?>(
-      valueListenable: _selectedSourceNotifier,
-      builder: (context, selectedSource, child) {
-        final bool isChannelPartner = selectedSource?['zAttributesId'] == 1;
-        final bool isDirectWalking = selectedSource?['zAttributesId'] == 2;
-
+    return BlocBuilder<EnquiryCubit, EnquiryState>(
+      builder: (context, state) {
         return ValueListenableBuilder<Map<String, dynamic>?>(
-          valueListenable: _selectedSubSourceNotifier,
-          builder: (context, selectedSubSource, child) {
-            final int subSourceId = selectedSubSource?['zAttributesId'] ?? -1;
+          valueListenable: _selectedSourceNotifier,
+          builder: (context, selectedSource, child) {
+            final bool isChannelPartner = selectedSource?['zAttributesId'] == 1;
+            final bool isDirectWalking = selectedSource?['zAttributesId'] == 2;
 
-            return _card("Source", [
-              CustomDropDownWidget(
-                title: "Source",
-                isRequired: true,
-                initialValue: selectedSource ?? sourceTypeList.first,
-                dataList: sourceTypeList,
-                onSelected: (v) {
-                  _selectedSourceNotifier.value = v;
-                  _selectedSubSourceNotifier.value =
-                      v['zAttributesId'] == 1
-                          ? channelPartnerActivityList.first
-                          : directWalkingSubSourceList.first;
-                  _selectedSubSubSourceNotifier.value = subSubSourceList.first;
-                  _channelPartnerMobileC.clear();
-                  _channelPartnerMobileNotifier.value = '';
-                  _selectedTeamMemberNotifier.value = [];
-                  _teamMemberNameC.clear();
-                  _teamMemberMobileC.clear();
-                  _enquiryCubit.clearChannelPartner();
-                  _selectedProjectNotifier.value = [];
-                  _selectedFlatNotifier.value = [];
-                },
-                validator: (value) {
-                  if (value?['zAttributesId'] == -1) {
-                    return "Source is required";
-                  }
-                  return null;
-                },
-              ),
+            return ValueListenableBuilder<Map<String, dynamic>?>(
+              valueListenable: _selectedSubSourceNotifier,
+              builder: (context, selectedSubSource, child) {
+                final int subSourceId =
+                    selectedSubSource?['zAttributesId'] ?? -1;
 
-              if ((selectedSource?['zAttributesId'] ?? -1) != -1)
-                CustomDropDownWidget(
-                  title: "Sub Source",
-                  isRequired: true,
-                  initialValue:
-                      selectedSubSource ??
-                      (isChannelPartner
-                          ? channelPartnerActivityList.first
-                          : directWalkingSubSourceList.first),
-                  dataList:
-                      isChannelPartner
-                          ? channelPartnerActivityList
-                          : directWalkingSubSourceList,
-                  onSelected: (v) {
-                    _selectedSubSourceNotifier.value = v;
-                    _selectedSubSubSourceNotifier.value =
-                        subSubSourceList.first;
-                    _selectedProjectNotifier.value.clear();
-                    _selectedProjectNotifier.value.clear();
-                    _selectedFlatNotifier.value.clear();
-                    _selectedEmployeeNotifier.value.clear();
-                    if (isChannelPartner) {
+                return _card("Source", [
+                  CustomDropDownWidget(
+                    title: "Source",
+                    isRequired: true,
+                    initialValue: selectedSource ?? sourceTypeList.first,
+                    dataList: sourceTypeList,
+                    onSelected: (v) {
+                      _selectedSourceNotifier.value = v;
+                      _selectedSubSourceNotifier.value =
+                          v['zAttributesId'] == 1
+                              ? channelPartnerActivityList.first
+                              : directWalkingSubSourceList.first;
+                      _selectedSubSubSourceNotifier.value =
+                          subSubSourceList.first;
                       _channelPartnerMobileC.clear();
                       _channelPartnerMobileNotifier.value = '';
                       _selectedTeamMemberNotifier.value = [];
+                      _hasManualEntryNotifier.value = false;
                       _teamMemberNameC.clear();
                       _teamMemberMobileC.clear();
-                    }
-                  },
-                  validator: (value) {
-                    if (value?['zAttributesId'] == -1) {
-                      return "Sub source is required";
-                    }
-                    return null;
-                  },
-                ),
-
-              if (isChannelPartner) ...[
-                CustomTextField(
-                  title: "Channel Partner",
-                  hint: "Search by Channel Partner Mobile No.",
-                  textController: _channelPartnerMobileC,
-                  keyboardType: TextInputType.phone,
-                  isRequired: true,
-                  inputFormatterList: InputValidator.digit(10),
-                  validator: (val) {
-                    if (val == null || val.trim().isEmpty) {
-                      return "Channel Partner mobile number is required";
-                    }
-                    if (val.trim().length != 10) {
-                      return "Mobile number must be 10 digits";
-                    }
-                    return null;
-                  },
-                  onChangeFunction: (value) async {
-                    _channelPartnerMobileNotifier.value = value;
-                    if (value.length != 10) {
-                      _selectedTeamMemberNotifier.value = [];
-                      _teamMemberNameC.clear();
-                      _teamMemberMobileC.clear();
-                      _selectedSubSubSourceNotifier.value = null;
                       _enquiryCubit.clearChannelPartner();
-                      return;
-                    }
-                    final result = await _enquiryCubit.fetchChannelPartners(
-                      1,
-                      value: value,
-                    );
-                    if (result.isNotEmpty) {
-                      _selectedSubSubSourceNotifier.value = {
-                        "zAttributesId":
-                            _enquiryCubit
-                                .state
-                                .channelPartnerModel!
-                                .channelPartnerId,
-                        "DisplayName":
-                            _enquiryCubit.state.channelPartnerModel!.name,
-                      };
-                    }
-                  },
-                ),
-                ValueListenableBuilder<String>(
-                  valueListenable: _channelPartnerMobileNotifier,
-                  builder: (context, mobile, _) {
-                    return BlocBuilder<EnquiryCubit, EnquiryState>(
-                      builder: (context, state) {
-                        final partner = state.channelPartnerModel;
-
-                        final bool hasEnteredMobile = mobile.length == 10;
-
-                        //  NO PARTNER FOUND
-                        if (hasEnteredMobile && partner == null) {
-                          return Container(
-                            padding: const EdgeInsets.all(16),
-                            margin: const EdgeInsets.only(bottom: 10),
-                            decoration: BoxDecoration(
-                              color: AppColor.lightRed,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                width: 0.5,
-                                color: AppColor.red,
-                              ),
-                            ),
-                            child: Text(
-                              "No Channel Partner found for this mobile number",
-                              style: AppTextStyle.ts14R(color: AppColor.red),
-                            ),
-                          );
-                        }
-
-                        //  PARTNER FOUND
-                        if (partner != null) {
-                          return Container(
-                            padding: const EdgeInsets.all(16),
-                            margin: const EdgeInsets.only(bottom: 10),
-                            decoration: BoxDecoration(
-                              color: AppColor.lightBlue,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                width: 0.5,
-                                color: AppColor.primary,
-                              ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildColumnTitleValue(
-                                      title: "Full Name",
-                                      value: partner.name,
-                                    ),
-                                    buildColumnTitleValue(
-                                      title: "Company Name",
-                                      value: partner.companyName,
-                                    ),
-                                  ],
-                                ),
-                                verticalSpacing(),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildColumnTitleValue(
-                                      title: "Firms Type",
-                                      value: partner.firmsType,
-                                    ),
-                                    buildColumnTitleValue(
-                                      title: "Mobile",
-                                      value: partner.mobileNumber,
-                                    ),
-                                  ],
-                                ),
-                                verticalSpacing(),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildColumnTitleValue(
-                                      title: "Designation",
-                                      value: partner.designation,
-                                    ),
-                                    buildColumnTitleValue(
-                                      title: "Type",
-                                      value: partner.type,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-
-                        return const SizedBox.shrink();
-                      },
-                    );
-                  },
-                ),
-              ],
-
-              BlocBuilder<EnquiryCubit, EnquiryState>(
-                builder: (context, state) {
-                  if (state.channelPartnerModel == null) {
-                    return SizedBox.shrink();
-                  }
-                  return ValueListenableBuilder<String>(
-                    valueListenable: _channelPartnerMobileNotifier,
-                    builder: (context, mobileValue, child) {
-                      if (!isChannelPartner ||
-                          subSourceId == -1 ||
-                          mobileValue.length != 10) {
-                        return const SizedBox.shrink();
-                      }
-                      return ValueListenableBuilder<List<Map<String, dynamic>>>(
-                        valueListenable: _selectedTeamMemberNotifier,
-                        builder: (context, selectedTeamMember, child) {
-                          final bool hasTeamMemberSelected =
-                              selectedTeamMember.isNotEmpty;
-
-                          final bool hasManualEntry =
-                              _teamMemberNameC.text.trim().isNotEmpty ||
-                              _teamMemberMobileC.text.trim().isNotEmpty;
-
-                          return Column(
-                            children: [
-                              if (!hasManualEntry)
-                                CustomMultipleSelectPopup(
-                                  title: 'Team Member',
-                                  isRequired: false,
-                                  isMultiSelect: false,
-                                  initialValue: selectedTeamMember,
-                                  dataList: const [],
-                                  dataFetchCallBack:
-                                      fetchChannelPartnerTeamMembers,
-                                  onSelected: (value) {
-                                    _teamMemberNameC.clear();
-                                    _teamMemberMobileC.clear();
-                                    _selectedTeamMemberNotifier.value = value;
-
-                                    if (value.isNotEmpty) {
-                                      final member = value.first;
-                                      _teamMemberNameC.text =
-                                          member['DisplayName'] ?? '';
-                                      _teamMemberMobileC.text =
-                                          member['MobileNo'] ?? '';
-                                    }
-                                  },
-                                ),
-
-                              /// TEXTFIELDS (hide if dropdown selected)
-                              if (!hasTeamMemberSelected) ...[
-                                CustomTextField(
-                                  title: "Team Member Name",
-                                  hint: "Enter Team Member Name",
-                                  textController: _teamMemberNameC,
-                                  isRequired: true,
-                                  onChangeFunction: (_) => setState(() {}),
-                                  validator: (val) {
-                                    if (_teamMemberMobileC.text.isEmpty &&
-                                        (val == null || val.trim().isEmpty)) {
-                                      return "Team Member name is required";
-                                    }
-                                    return null;
-                                  },
-                                ),
-
-                                CustomTextField(
-                                  title: "Team Member Mobile Number",
-                                  hint: "Enter Mobile Number",
-                                  textController: _teamMemberMobileC,
-                                  keyboardType: TextInputType.phone,
-                                  isRequired: true,
-                                  inputFormatterList: InputValidator.digit(10),
-                                  onChangeFunction: (_) => setState(() {}),
-                                  validator: (val) {
-                                    if (_teamMemberNameC.text.isEmpty &&
-                                        (val == null || val.trim().isEmpty)) {
-                                      return "Team Member mobile number is required";
-                                    }
-                                    if (val != null &&
-                                        val.isNotEmpty &&
-                                        val.length != 10) {
-                                      return "Mobile number must be 10 digits";
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ],
-                            ],
-                          );
-                        },
-                      );
+                      _selectedProjectNotifier.value = [];
+                      _selectedFlatNotifier.value = [];
                     },
-                  );
-                },
-              ),
-              if (isDirectWalking && subSourceId == 1)
-                ValueListenableBuilder<Map<String, dynamic>?>(
-                  valueListenable: _selectedSubSubSourceNotifier,
-                  builder: (context, selectedSubSubSource, child) {
-                    return CustomDropDownWidget(
-                      title: "Sub Sub Source",
+                    validator: (value) {
+                      if (value?['zAttributesId'] == -1) {
+                        return "Source is required";
+                      }
+                      return null;
+                    },
+                  ),
+
+                  if ((selectedSource?['zAttributesId'] ?? -1) != -1)
+                    CustomDropDownWidget(
+                      title: "Sub Source",
                       isRequired: true,
                       initialValue:
-                          selectedSubSubSource ?? subSubSourceList.first,
-                      dataList: subSubSourceList,
-                      onSelected:
-                          (v) => _selectedSubSubSourceNotifier.value = v,
+                          selectedSubSource ??
+                          (isChannelPartner
+                              ? channelPartnerActivityList.first
+                              : directWalkingSubSourceList.first),
+                      dataList:
+                          isChannelPartner
+                              ? channelPartnerActivityList
+                              : directWalkingSubSourceList,
+                      onSelected: (v) {
+                        _selectedSubSourceNotifier.value = v;
+                        _selectedSubSubSourceNotifier.value =
+                            subSubSourceList.first;
+                        _selectedProjectNotifier.value.clear();
+                        _selectedProjectNotifier.value.clear();
+                        _selectedFlatNotifier.value.clear();
+                        _selectedEmployeeNotifier.value.clear();
+                        if (isChannelPartner) {
+                          _channelPartnerMobileC.clear();
+                          _channelPartnerMobileNotifier.value = '';
+                          _selectedTeamMemberNotifier.value = [];
+                          _hasManualEntryNotifier.value = false;
+                          _teamMemberNameC.clear();
+                          _teamMemberMobileC.clear();
+                        }
+                      },
                       validator: (value) {
                         if (value?['zAttributesId'] == -1) {
-                          return "Sub Sub Source is required";
+                          return "Sub source is required";
                         }
                         return null;
                       },
-                    );
-                  },
-                ),
+                    ),
 
-              if (isDirectWalking && subSourceId == 3) ...[
-                ValueListenableBuilder<List<Map<String, dynamic>>>(
-                  valueListenable: _selectedEmployeeNotifier,
-                  builder: (context, selectedEmployee, _) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomMultipleSelectPopup(
-                          title: 'Employee',
-                          isRequired: true,
-                          isMultiSelect: false,
-                          initialValue: selectedEmployee,
-                          dataList: const [],
-                          onSelected: (value) {
-                            _selectedEmployeeNotifier.value = value;
+                  if (isChannelPartner) ...[
+                    CustomTextField(
+                      title: "Channel Partner",
+                      hint: "Search by Channel Partner Mobile No.",
+                      textController: _channelPartnerMobileC,
+                      keyboardType: TextInputType.phone,
+                      isRequired: true,
+                      inputFormatterList: InputValidator.digit(10),
+                      validator: (val) {
+                        if (val == null || val.trim().isEmpty) {
+                          return "Channel Partner mobile number is required";
+                        }
+                        if (val.trim().length != 10) {
+                          return "Mobile number must be 10 digits";
+                        }
+                        return null;
+                      },
+                      onChangeFunction: (value) async {
+                        _channelPartnerMobileNotifier.value = value;
+                        if (value.length != 10) {
+                          _selectedTeamMemberNotifier.value = [];
+                          _hasManualEntryNotifier.value = false;
+                          _teamMemberNameC.clear();
+                          _teamMemberMobileC.clear();
+                          _selectedSubSubSourceNotifier.value = null;
+                          _enquiryCubit.clearChannelPartner();
+                          return;
+                        }
+                        final result = await _enquiryCubit.fetchChannelPartners(
+                          1,
+                          value: value,
+                        );
+                        if (result.isNotEmpty) {
+                          _selectedSubSubSourceNotifier.value = {
+                            "zAttributesId":
+                                _enquiryCubit
+                                    .state
+                                    .channelPartnerModel!
+                                    .channelPartnerId,
+                            "DisplayName":
+                                _enquiryCubit.state.channelPartnerModel!.name,
+                          };
+                        }
+                      },
+                    ),
+                    ValueListenableBuilder<String>(
+                      valueListenable: _channelPartnerMobileNotifier,
+                      builder: (context, mobile, _) {
+                        return BlocBuilder<EnquiryCubit, EnquiryState>(
+                          builder: (context, state) {
+                            final partner = state.channelPartnerModel;
+
+                            final bool hasEnteredMobile = mobile.length == 10;
+
+                            //  NO PARTNER FOUND
+                            if (hasEnteredMobile &&
+                                partner == null &&
+                                state.isFetchingChannelPartners == false) {
+                              return Container(
+                                padding: const EdgeInsets.all(16),
+                                margin: const EdgeInsets.only(bottom: 10),
+                                decoration: BoxDecoration(
+                                  color: AppColor.lightRed,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    width: 0.5,
+                                    color: AppColor.red,
+                                  ),
+                                ),
+                                child: Text(
+                                  "No Channel Partner found for this mobile number",
+                                  style: AppTextStyle.ts14R(
+                                    color: AppColor.red,
+                                  ),
+                                ),
+                              );
+                            }
+
+                            //  PARTNER FOUND
+                            if (partner != null) {
+                              return Container(
+                                padding: const EdgeInsets.all(16),
+                                margin: const EdgeInsets.only(bottom: 10),
+                                decoration: BoxDecoration(
+                                  color: AppColor.lightBlue,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    width: 0.5,
+                                    color: AppColor.primary,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Full Name",
+                                          value: partner.name,
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Company Name",
+                                          value: partner.companyName,
+                                        ),
+                                      ],
+                                    ),
+                                    verticalSpacing(),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Firms Type",
+                                          value: partner.firmsType,
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Mobile",
+                                          value: partner.mobileNumber,
+                                        ),
+                                      ],
+                                    ),
+                                    verticalSpacing(),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Designation",
+                                          value: partner.designation,
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Type",
+                                          value: partner.type,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+
+                            return const SizedBox.shrink();
                           },
-                          dataFetchCallBack: _fetchEmployees,
+                        );
+                      },
+                    ),
+                  ],
+
+                  (state.channelPartnerModel == null)
+                      ? SizedBox.shrink()
+                      : ValueListenableBuilder<String>(
+                        valueListenable: _channelPartnerMobileNotifier,
+                        builder: (context, mobileValue, child) {
+                          if (!isChannelPartner ||
+                              subSourceId == -1 ||
+                              mobileValue.length != 10) {
+                            return const SizedBox.shrink();
+                          }
+                          return ValueListenableBuilder<
+                            List<Map<String, dynamic>>
+                          >(
+                            valueListenable: _selectedTeamMemberNotifier,
+                            builder: (context, selectedTeamMember, child) {
+                              final bool hasTeamMemberSelected =
+                                  selectedTeamMember.isNotEmpty;
+
+                              return Column(
+                                children: [
+                                  ValueListenableBuilder(
+                                    valueListenable: _hasManualEntryNotifier,
+                                    builder: (context, value, child) {
+                                      return Visibility(
+                                        visible: !value,
+                                        child: CustomMultipleSelectPopup(
+                                          title: 'Team Member',
+                                          isRequired: false,
+                                          isMultiSelect: false,
+                                          initialValue: selectedTeamMember,
+                                          dataList: const [],
+                                          dataFetchCallBack:
+                                              fetchChannelPartnerTeamMembers,
+                                          onSelected: (value) {
+                                            _teamMemberNameC.clear();
+                                            _teamMemberMobileC.clear();
+                                            _selectedTeamMemberNotifier.value =
+                                                value;
+                                          },
+                                        ),
+                                      );
+                                    },
+                                  ),
+
+                                  /// TEXTFIELDS (hide if dropdown selected)
+                                  if (!hasTeamMemberSelected) ...[
+                                    CustomTextField(
+                                      title: "Team Member Name",
+                                      hint: "Enter Team Member Name",
+                                      textController: _teamMemberNameC,
+                                      isRequired: true,
+                                      onChangeFunction: (_) {
+                                        _selectedTeamMemberNotifier.value = [];
+                                        _hasManualEntryNotifier.value =
+                                            _teamMemberNameC.text
+                                                .trim()
+                                                .isNotEmpty ||
+                                            _teamMemberMobileC.text
+                                                .trim()
+                                                .isNotEmpty;
+                                      },
+                                      validator: (val) {
+                                        if (_teamMemberMobileC.text.isEmpty &&
+                                            (val == null ||
+                                                val.trim().isEmpty)) {
+                                          return "Team Member name is required";
+                                        }
+                                        return null;
+                                      },
+                                    ),
+
+                                    CustomTextField(
+                                      title: "Team Member Mobile Number",
+                                      hint: "Enter Mobile Number",
+                                      textController: _teamMemberMobileC,
+                                      keyboardType: TextInputType.phone,
+                                      isRequired: true,
+                                      inputFormatterList: InputValidator.digit(
+                                        10,
+                                      ),
+                                      onChangeFunction: (_) {
+                                        _selectedTeamMemberNotifier.value = [];
+                                        _hasManualEntryNotifier.value =
+                                            _teamMemberNameC.text
+                                                .trim()
+                                                .isNotEmpty ||
+                                            _teamMemberMobileC.text
+                                                .trim()
+                                                .isNotEmpty;
+                                      },
+                                      validator: (val) {
+                                        if (_teamMemberNameC.text.isEmpty &&
+                                            (val == null ||
+                                                val.trim().isEmpty)) {
+                                          return "Team Member mobile number is required";
+                                        }
+                                        if (val != null &&
+                                            val.isNotEmpty &&
+                                            val.length != 10) {
+                                          return "Mobile number must be 10 digits";
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ],
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      ),
+                  if (isDirectWalking && subSourceId == 1)
+                    ValueListenableBuilder<Map<String, dynamic>?>(
+                      valueListenable: _selectedSubSubSourceNotifier,
+                      builder: (context, selectedSubSubSource, child) {
+                        return CustomDropDownWidget(
+                          title: "Sub Sub Source",
+                          isRequired: true,
+                          initialValue:
+                              selectedSubSubSource ?? subSubSourceList.first,
+                          dataList: subSubSourceList,
+                          onSelected:
+                              (v) => _selectedSubSubSourceNotifier.value = v,
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Employee is required";
+                            if (value?['zAttributesId'] == -1) {
+                              return "Sub Sub Source is required";
                             }
                             return null;
                           },
-                        ),
-                        if (selectedEmployee.isNotEmpty) ...[
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            decoration: BoxDecoration(
-                              color: AppColor.lightBlue,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: AppColor.primary.withValues(alpha: .2),
+                        );
+                      },
+                    ),
+
+                  if (isDirectWalking && subSourceId == 3) ...[
+                    ValueListenableBuilder<List<Map<String, dynamic>>>(
+                      valueListenable: _selectedEmployeeNotifier,
+                      builder: (context, selectedEmployee, _) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomMultipleSelectPopup(
+                              title: 'Employee Reference Name',
+                              isRequired: true,
+                              hintText: "Select Employee Reference Name",
+                              isMultiSelect: false,
+                              initialValue: selectedEmployee,
+                              dataList: const [],
+                              onSelected: (value) {
+                                _selectedEmployeeNotifier.value = value;
+                              },
+                              dataFetchCallBack: _fetchEmployees,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Employee Reference Name is required";
+                                }
+                                return null;
+                              },
+                            ),
+                            if (selectedEmployee.isNotEmpty) ...[
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 10),
+                                decoration: BoxDecoration(
+                                  color: AppColor.lightBlue,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: AppColor.primary.withValues(
+                                      alpha: .2,
+                                    ),
+                                  ),
+                                ),
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  spacing: 10,
+                                  children: [
+                                    Row(
+                                      spacing: 10,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Department",
+                                          value:
+                                              selectedEmployee
+                                                  .first["department"] ??
+                                              '',
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Designation",
+                                          value:
+                                              selectedEmployee
+                                                  .first["designation"] ??
+                                              '',
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      spacing: 10,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Branch",
+                                          value:
+                                              selectedEmployee
+                                                  .first["branch"] ??
+                                              '',
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Reporting Person",
+                                          value:
+                                              selectedEmployee
+                                                  .first["reportingPerson"] ??
+                                              '',
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      spacing: 10,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Email Id",
+                                          value:
+                                              selectedEmployee.first["email"] ??
+                                              '',
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Personal Mobile Number",
+                                          value:
+                                              selectedEmployee
+                                                  .first["personalNumber"] ??
+                                              '',
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              spacing: 10,
-                              children: [
-                                Row(
-                                  spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildColumnTitleValue(
-                                      title: "Department",
-                                      value:
-                                          selectedEmployee
-                                              .first["department"] ??
-                                          '',
-                                    ),
-                                    buildColumnTitleValue(
-                                      title: "Designation",
-                                      value:
-                                          selectedEmployee
-                                              .first["designation"] ??
-                                          '',
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildColumnTitleValue(
-                                      title: "Branch",
-                                      value:
-                                          selectedEmployee.first["branch"] ??
-                                          '',
-                                    ),
-                                    buildColumnTitleValue(
-                                      title: "Reporting Person",
-                                      value:
-                                          selectedEmployee
-                                              .first["reportingPerson"] ??
-                                          '',
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildColumnTitleValue(
-                                      title: "Email Id",
-                                      value:
-                                          selectedEmployee.first["email"] ?? '',
-                                    ),
-                                    buildColumnTitleValue(
-                                      title: "Personal Mobile Number",
-                                      value:
-                                          selectedEmployee
-                                              .first["personalNumber"] ??
-                                          '',
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    );
-                  },
-                ),
-              ],
+                            ],
+                          ],
+                        );
+                      },
+                    ),
+                  ],
 
-              if (isDirectWalking && subSourceId == 5) ...[
-                ValueListenableBuilder<List<Map<String, dynamic>>>(
-                  valueListenable: _selectedProjectNotifier,
-                  builder: (context, selectedProject, _) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomMultipleSelectPopup(
-                          title: 'Project',
-                          isRequired: true,
-                          isMultiSelect: false,
-                          initialValue: selectedProject,
-                          dataList: const [],
-                          onSelected: (value) {
-                            _selectedProjectNotifier.value = value;
-                            _selectedFlatNotifier.value = [];
-                          },
-                          dataFetchCallBack: _fetchProjects,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Project is required";
-                            }
-                            return null;
-                          },
-                        ),
-                        ValueListenableBuilder<List<Map<String, dynamic>>>(
-                          valueListenable: _selectedFlatNotifier,
-                          builder: (context, selectedFlat, _) {
-                            return CustomMultipleSelectPopup(
-                              title: 'Unit Number',
+                  if (isDirectWalking && subSourceId == 5) ...[
+                    ValueListenableBuilder<List<Map<String, dynamic>>>(
+                      valueListenable: _selectedProjectNotifier,
+                      builder: (context, selectedProject, _) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomMultipleSelectPopup(
+                              title: 'Project',
                               isRequired: true,
                               isMultiSelect: false,
-                              initialValue: selectedFlat,
+                              hintText: "Select Project",
+                              initialValue: selectedProject,
                               dataList: const [],
                               onSelected: (value) {
-                                _selectedFlatNotifier.value = value;
+                                _selectedProjectNotifier.value = value;
+                                _selectedFlatNotifier.value = [];
                               },
-                              dataFetchCallBack: (page, {value}) {
-                                if (_selectedProjectNotifier.value.isEmpty) {
-                                  return Future.value({
-                                    "itemList": [],
-                                    "totalNumberOfRecord": 0,
-                                  });
-                                }
-
-                                final projectId =
-                                    _selectedProjectNotifier
-                                        .value
-                                        .first["zAttributesId"];
-
-                                return _fetchFlatsByProjectId(
-                                  page,
-                                  projectId: projectId,
-                                );
-                              },
+                              dataFetchCallBack: _fetchProjects,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Unit Number is required";
+                                  return "Project is required";
                                 }
                                 return null;
                               },
-                            );
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ],
-
-              if (isDirectWalking && subSourceId == 10) ...[
-                ValueListenableBuilder<List<Map<String, dynamic>>>(
-                  valueListenable: _selectedProjectNotifier,
-                  builder: (context, selectedProject, _) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomMultipleSelectPopup(
-                          title: 'Project',
-                          isRequired: true,
-                          isMultiSelect: false,
-                          initialValue: selectedProject,
-                          dataList: const [],
-                          onSelected: (value) {
-                            _selectedProjectNotifier.value = value;
-                            _selectedFlatNotifier.value = [];
-                          },
-                          dataFetchCallBack: _fetchProjects,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Project is required";
-                            }
-                            return null;
-                          },
-                        ),
-                        ValueListenableBuilder<List<Map<String, dynamic>>>(
-                          valueListenable: _selectedFlatNotifier,
-                          builder: (context, selectedFlat, _) {
-                            return CustomMultipleSelectPopup(
-                              title: 'Unit Number',
-                              isRequired: true,
-                              isMultiSelect: false,
-                              initialValue: selectedFlat,
-                              dataList: const [],
-                              onSelected: (value) {
-                                _selectedFlatNotifier.value = value;
-                              },
-                              dataFetchCallBack: (page, {value}) {
-                                if (_selectedProjectNotifier.value.isEmpty) {
-                                  return Future.value({
-                                    "itemList": [],
-                                    "totalNumberOfRecord": 0,
-                                  });
-                                }
-
-                                final projectId =
-                                    _selectedProjectNotifier
+                            ),
+                            ValueListenableBuilder<List<Map<String, dynamic>>>(
+                              valueListenable: _selectedFlatNotifier,
+                              builder: (context, selectedFlat, _) {
+                                return CustomMultipleSelectPopup(
+                                  title: 'Unit Number',
+                                  hintText: "Select Unit Number",
+                                  isRequired: true,
+                                  isMultiSelect: false,
+                                  initialValue: selectedFlat,
+                                  dataList: const [],
+                                  onSelected: (value) {
+                                    _selectedFlatNotifier.value = value;
+                                  },
+                                  dataFetchCallBack: (page, {value}) {
+                                    if (_selectedProjectNotifier
                                         .value
-                                        .first["zAttributesId"];
+                                        .isEmpty) {
+                                      return Future.value({
+                                        "itemList": [],
+                                        "totalNumberOfRecord": 0,
+                                      });
+                                    }
 
-                                return _fetchFlatsByProjectId(
-                                  page,
-                                  projectId: projectId,
+                                    final projectId =
+                                        _selectedProjectNotifier
+                                            .value
+                                            .first["zAttributesId"];
+
+                                    return _fetchFlatsByProjectId(
+                                      page,
+                                      projectId: projectId,
+                                    );
+                                  },
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return "Unit Number is required";
+                                    }
+                                    return null;
+                                  },
                                 );
                               },
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+
+                  if (isDirectWalking && subSourceId == 10) ...[
+                    ValueListenableBuilder<List<Map<String, dynamic>>>(
+                      valueListenable: _selectedProjectNotifier,
+                      builder: (context, selectedProject, _) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomMultipleSelectPopup(
+                              title: 'Project',
+                              isRequired: true,
+                              isMultiSelect: false,
+                              initialValue: selectedProject,
+                              dataList: const [],
+                              onSelected: (value) {
+                                _selectedProjectNotifier.value = value;
+                                _selectedFlatNotifier.value = [];
+                              },
+                              dataFetchCallBack: _fetchProjects,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Unit Number is required";
+                                  return "Project is required";
                                 }
                                 return null;
                               },
-                            );
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ],
-            ]);
+                            ),
+                            ValueListenableBuilder<List<Map<String, dynamic>>>(
+                              valueListenable: _selectedFlatNotifier,
+                              builder: (context, selectedFlat, _) {
+                                return CustomMultipleSelectPopup(
+                                  title: 'Unit Number',
+                                  isRequired: true,
+                                  isMultiSelect: false,
+                                  initialValue: selectedFlat,
+                                  dataList: const [],
+                                  onSelected: (value) {
+                                    _selectedFlatNotifier.value = value;
+                                  },
+                                  dataFetchCallBack: (page, {value}) {
+                                    if (_selectedProjectNotifier
+                                        .value
+                                        .isEmpty) {
+                                      return Future.value({
+                                        "itemList": [],
+                                        "totalNumberOfRecord": 0,
+                                      });
+                                    }
+
+                                    final projectId =
+                                        _selectedProjectNotifier
+                                            .value
+                                            .first["zAttributesId"];
+
+                                    return _fetchFlatsByProjectId(
+                                      page,
+                                      projectId: projectId,
+                                    );
+                                  },
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return "Unit Number is required";
+                                    }
+                                    return null;
+                                  },
+                                );
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ]);
+              },
+            );
           },
         );
       },
@@ -1774,6 +1876,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         isRequired: true,
         hint: "Enter Current Location",
         textController: _locationC,
+        minLines: 3,
+        maxLines: 3,
         validator: (val) {
           if (val == null || val.isEmpty) {
             return "Current location is required.";
@@ -1878,7 +1982,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               const SizedBox(height: 8),
               if (dependentList.isNotEmpty)
                 CustomDropDownWidget(
-                  title: "Select ${selectedRequirement?["DisplayName"]}",
+                  title: "${selectedRequirement?["DisplayName"]} Type",
                   hintText: "Select ${selectedRequirement?["DisplayName"]}",
                   initialValue: () {
                     if (selectedRequirement?["DisplayName"] == "Residential") {
@@ -1903,6 +2007,14 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                         "Commercial Leasing") {
                       _selectedCommercialLeasingNotifier.value = v;
                     }
+                  },
+                  validator: (value) {
+                    if (value == null ||
+                        value.toString().trim().isEmpty ||
+                        value['zAttributesId'] == -1) {
+                      return "${selectedRequirement?["DisplayName"]} Type is required";
+                    }
+                    return null;
                   },
                 ),
             ],
@@ -1961,6 +2073,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     return _card("Enquiry Information", [
       CustomDropDownWidget(
         title: "Stage",
+        isDisabled: _isEditMode,
         initialValue: _selectedFinalStage.value ?? stageTypeList.first,
         dataList: stageTypeList,
         onSelected: (v) {
@@ -1974,6 +2087,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
           return finalStage?["zAttributesId"] == 5
               ? CustomDropDownWidget(
                 title: "Final Stage Detail",
+                isDisabled: _isEditMode,
                 initialValue:
                     _selectedFinalStageDetail ?? finalStageDetailsList.first,
                 dataList: finalStageDetailsList,
@@ -1990,17 +2104,21 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     return _card("Follow Up Details", [
       CustomDatePicker(
         title: "Enquiry Date",
+        readOnly: _isEditMode,
         startDate: DateTime.now().subtract(const Duration(days: 2)),
         isRequired: true,
         initialDate: _enquiryDate,
         setValue: (v) => _enquiryDate = v,
       ),
-      CustomDatePicker(
-        title: "Next Follow-Up Date",
-        startDate: DateTime.now(),
-        initialDate: _nextFollowUpDate,
-        setValue: (v) => _nextFollowUpDate = v,
-      ),
+
+      if (user.designation.toLowerCase() != 'GRE'.toLowerCase())
+        CustomDatePicker(
+          title: "Next Follow-Up Date",
+          readOnly: _isEditMode,
+          startDate: DateTime.now(),
+          initialDate: _nextFollowUpDate,
+          setValue: (v) => _nextFollowUpDate = v,
+        ),
     ]);
   }
 

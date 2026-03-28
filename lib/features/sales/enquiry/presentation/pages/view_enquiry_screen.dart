@@ -4,6 +4,7 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry_followup.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_state.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -12,6 +13,7 @@ import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
@@ -31,6 +33,9 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
     with TickerProviderStateMixin {
   // CUBIT
   late EnquiryCubit _enquiryCubit;
+
+  // AUTHORIZATION
+  late AuthorizationModel _routeAuthorizationModel;
   // TAB CONTROLLER
   late TabController _tabController;
   final ValueNotifier<int> _tabIndexNotifier = ValueNotifier(0);
@@ -55,28 +60,38 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
     {'zAttributesId': 4, 'DisplayName': 'Negotiation'},
     {'zAttributesId': 5, 'DisplayName': 'Lost'},
     {'zAttributesId': 6, 'DisplayName': 'Retention'},
-    {'zAttributesId': 7, 'DisplayName': 'Re-Visit Scheduled'},
-    {'zAttributesId': 8, 'DisplayName': 'Re-Visit Proposed'},
+    {'zAttributesId': 7, 'DisplayName': 'Re - Visit Scheduled'},
+    {'zAttributesId': 8, 'DisplayName': 'Re - Visit Proposed'},
     {'zAttributesId': 9, 'DisplayName': 'Site Visit'},
     {'zAttributesId': 10, 'DisplayName': 'Unit Selection / Blocked'},
   ];
 
   final List<Map<String, dynamic>> _lostReasonList = [
-    {"DisplayName": "Price Issue"},
-    {"DisplayName": "Location Issue"},
-    {"DisplayName": "Competitor"},
-    {"DisplayName": "Budget"},
-    {"DisplayName": "Other"},
-  ];
-  // VARIABLE GET FILLED WHEN TEAM MEMBER ID IS THERE
-  String _teamMemberName = '';
-  String _teamMemberMobile = '';
+    {'DisplayName': 'Purchased with competition'},
+    {'DisplayName': 'Purchased somewhere else'},
+    {'DisplayName': 'Not connected calls >7'},
+    {'DisplayName': 'Low Budget'},
+    {'DisplayName': 'Ready Possession'},
+    {'DisplayName': 'Location'},
+    {'DisplayName': 'Product Issue'},
+    {'DisplayName': 'Pricing Issue'},
+    {'DisplayName': 'Payment Issue'},
+    {'DisplayName': 'Loan Issue'},
+    {'DisplayName': 'Inventory Issue'},
+    {'DisplayName': 'General Enquiry'},
+    {'DisplayName': 'Wrong Number'},
+    {'DisplayName': 'Dropped The Idea Of Buying'},
+    {'DisplayName': 'Booked Somewhere Else'},
+  ]; // VARIABLE GET FILLED WHEN TEAM MEMBER ID IS THERE
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _enquiryCubit = context.read<EnquiryCubit>();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.enquiry]!;
+
     _enquiryCubit.clearEnquiryFollowUp();
     // FOR OVERVIEW
     _enquiryCubit.getEnquiryById(
@@ -90,38 +105,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
         _onTabChange();
       }
     });
-
-    // FETCH TEAM MEMBER ONCE ON INIT
-    _fetchTeamMemberIfNeeded();
-  }
-
-  void _fetchTeamMemberIfNeeded() {
-    final enquiry = _enquiryCubit.state.currentEnquiryDetails;
-
-    if (enquiry == null) return;
-
-    if (enquiry.channelPartnerTeamMemberId != 0 &&
-        (enquiry.channelPartnerTeamMemberName.isEmpty)) {
-      _enquiryCubit
-          .fetchEmployees(1, employeeId: enquiry.channelPartnerTeamMemberId)
-          .then((result) {
-            if (!mounted) return;
-
-            final items = result["itemList"] as List<Map<String, dynamic>>;
-
-            if (items.isNotEmpty) {
-              setState(() {
-                _teamMemberName = items.first['DisplayName'] ?? '';
-                _teamMemberMobile = items.first['MobileNo'] ?? '';
-              });
-            }
-          });
-    } else {
-      setState(() {
-        _teamMemberName = enquiry.channelPartnerTeamMemberName;
-        _teamMemberMobile = enquiry.channelPartnerTeamMemberMobileNumber;
-      });
-    }
   }
 
   void _onTabChange() {
@@ -129,15 +112,9 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
     final projectId = getProject().projectId;
 
     if (_tabController.index == 0) {
-      /// CLEAR PREVIOUS OVERVIEW DATA
-      _enquiryCubit.clearCurrentEnquiry();
-
       /// FETCH FRESH DATA
       _enquiryCubit.getEnquiryById(enquiryId: enquiryId, projectId: projectId);
     } else if (_tabController.index == 1) {
-      ///  CLEAR PREVIOUS FOLLOWUP DATA
-      _enquiryCubit.clearEnquiryFollowUp();
-
       ///  FETCH FRESH FOLLOWUPS
       _enquiryCubit.fetchEnquiryFollowUps(
         enquiryId: enquiryId,
@@ -195,7 +172,8 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
           // 4️. CLOSED STATUS CHECK
           final closedStatuses = ['booking done', 'cancelled', 'lost'];
 
-          if (closedStatuses.contains(enquiry.finalStage.toLowerCase())) {
+          if (closedStatuses.contains(enquiry.finalStage.toLowerCase()) ||
+              !_routeAuthorizationModel.isAction) {
             return const SizedBox.shrink();
           }
 
@@ -204,7 +182,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
               height: 70,
               padding: const EdgeInsets.all(16),
               child: CustomButton(
-                text: "Set Next Activity",
+                text: "Follow Up",
                 onPressed:
                     () => _showAddUpdateEnquiryFollowUpBottomSheet(context),
               ),
@@ -284,7 +262,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                     enquiry.systemGeneratedCode,
                     style: AppTextStyle.ts16SB(color: AppColor.primary),
                   ),
-                  statusWidget(enquiry.finalStage)
+                  statusWidget(enquiry.finalStage),
                 ],
               ),
 
@@ -294,7 +272,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSectionTitle("Lead Information"),
+                    _buildSectionTitle("Enquiry Details"),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -328,11 +306,15 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                           value: enquiry.name.isNotEmpty ? enquiry.name : "-",
                         ),
                         buildColumnTitleValue(
-                          title: "Contact No.",
+                          title: "Mobile No.",
                           value:
                               enquiry.mobileNumber.isNotEmpty
                                   ? enquiry.mobileNumber
                                   : "-",
+                          customValueWidget: CustomClickToContactText(
+                            value: enquiry.mobileNumber,
+                            type: ContactType.phone,
+                          ),
                         ),
                       ],
                     ),
@@ -471,14 +453,14 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
 
                         children: [
                           buildColumnTitleValue(
-                            title: "Channel Partner",
+                            title: "CP Name",
                             value:
                                 enquiry.channelPartnerName.isNotEmpty
                                     ? enquiry.channelPartnerName
                                     : "-",
                           ),
                           buildColumnTitleValue(
-                            title: "Channel Partner No.",
+                            title: "CP Mobile No.",
                             value:
                                 enquiry.channelPartnerMobileNumber.isNotEmpty
                                     ? enquiry.channelPartnerMobileNumber
@@ -488,21 +470,73 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                       ),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
+
                         children: [
                           buildColumnTitleValue(
-                            title: "Team Member Name",
+                            title: "CP Designation",
                             value:
-                                _teamMemberName.isNotEmpty
-                                    ? _teamMemberName
+                                enquiry.channelPartnerDesignation.isNotEmpty
+                                    ? enquiry.channelPartnerDesignation
                                     : "-",
                           ),
                           buildColumnTitleValue(
-                            title: "Team Member Mobile",
+                            title: "CP Company Name",
                             value:
-                                _teamMemberMobile.isNotEmpty
-                                    ? _teamMemberMobile
+                                enquiry.channelPartnerCompany.isNotEmpty
+                                    ? enquiry.channelPartnerCompany
                                     : "-",
                           ),
+                        ],
+                      ),
+
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+
+                        children: [
+                          buildColumnTitleValue(
+                            title: "CP Firms Type",
+                            value:
+                                enquiry.channelPartnerFirmsType.isNotEmpty
+                                    ? enquiry.channelPartnerFirmsType
+                                    : "-",
+                          ),
+                          buildColumnTitleValue(
+                            title: "CP Type",
+                            value:
+                                enquiry.channelPartnerType.isNotEmpty
+                                    ? enquiry.channelPartnerType
+                                    : "-",
+                          ),
+                        ],
+                      ),
+
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (enquiry.channelPartnerTeamMemberName.isNotEmpty)
+                            buildColumnTitleValue(
+                              title: "Team Member Name",
+                              value:
+                                  enquiry
+                                          .channelPartnerTeamMemberName
+                                          .isNotEmpty
+                                      ? enquiry.channelPartnerTeamMemberName
+                                      : "-",
+                            ),
+
+                          if (enquiry
+                              .channelPartnerTeamMemberMobileNumber
+                              .isNotEmpty)
+                            buildColumnTitleValue(
+                              title: "Team Member Mobile",
+                              value:
+                                  enquiry
+                                          .channelPartnerTeamMemberMobileNumber
+                                          .isNotEmpty
+                                      ? enquiry
+                                          .channelPartnerTeamMemberMobileNumber
+                                      : "-",
+                            ),
                         ],
                       ),
                     ],
@@ -529,14 +563,14 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           buildColumnTitleValue(
-                            title: "Employee Name",
+                            title: "Employee Reference Name",
                             value:
                                 enquiry.employeeReferenceName.isNotEmpty
                                     ? enquiry.employeeReferenceName
                                     : "-",
                           ),
                           buildColumnTitleValue(
-                            title: "Employee Mobile",
+                            title: "Employee Reference Mobile No.",
                             value:
                                 enquiry.employeeReferenceMobileNumber.isNotEmpty
                                     ? enquiry.employeeReferenceMobileNumber
@@ -546,7 +580,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                       ),
 
                     // LOYALTY
-                    if (isDirectWalking && isLoyalty)
+                    if (isDirectWalking && isLoyalty) ...[
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -566,28 +600,22 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                           ),
                         ],
                       ),
-
-                    // REFERENCE
-                    if (isDirectWalking && isReference) ...[
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           buildColumnTitleValue(
-                            title: "Referral Name",
+                            title: "Unit Owner",
                             value:
-                                enquiry.referelName.isNotEmpty
-                                    ? enquiry.referelName
-                                    : "-",
-                          ),
-                          buildColumnTitleValue(
-                            title: "Referral Mobile",
-                            value:
-                                enquiry.referelMobileNumber.isNotEmpty
-                                    ? enquiry.referelMobileNumber
+                                enquiry.loyaltyExistingUnitOwnerName.isNotEmpty
+                                    ? enquiry.loyaltyExistingUnitOwnerName
                                     : "-",
                           ),
                         ],
                       ),
+                    ],
+
+                    // REFERENCE
+                    if (isDirectWalking && isReference) ...[
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -603,6 +631,18 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                             value:
                                 enquiry.referelUnitNumber.isNotEmpty
                                     ? enquiry.referelUnitNumber
+                                    : "-",
+                          ),
+                        ],
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Unit Owner",
+                            value:
+                                enquiry.referralUnitOwnerName.isNotEmpty
+                                    ? enquiry.referralUnitOwnerName
                                     : "-",
                           ),
                         ],
@@ -685,8 +725,8 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                         buildColumnTitleValue(
                           title: "Location",
                           value:
-                              enquiry.currentLocation.isNotEmpty
-                                  ? enquiry.currentLocation
+                              enquiry.villageName.isNotEmpty
+                                  ? enquiry.villageName
                                   : "-",
                         ),
                         buildColumnTitleValue(
@@ -738,13 +778,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                   ? enquiry.customerClassification
                                   : "-",
                         ),
-                        buildColumnTitleValue(
-                          title: "Source Of Funding",
-                          value:
-                              enquiry.sourceOfFunding.isNotEmpty
-                                  ? enquiry.sourceOfFunding
-                                  : "-",
-                        ),
                       ],
                     ),
                     Row(
@@ -757,7 +790,13 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                   ? enquiry.ethnicity
                                   : "-",
                         ),
-                        const Expanded(child: SizedBox()),
+                        buildColumnTitleValue(
+                          title: "Source Of Funding",
+                          value:
+                              enquiry.sourceOfFunding.isNotEmpty
+                                  ? enquiry.sourceOfFunding
+                                  : "-",
+                        ),
                       ],
                     ),
                   ],
@@ -781,13 +820,14 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                   ? enquiry.finalStage
                                   : "-",
                         ),
-                        buildColumnTitleValue(
-                          title: "Final Stage Detail",
-                          value:
-                              enquiry.finalStageDetail.isNotEmpty
-                                  ? enquiry.finalStageDetail
-                                  : "-",
-                        ),
+                        if (enquiry.finalStageDetail.isNotEmpty)
+                          buildColumnTitleValue(
+                            title: "Stage Reason",
+                            value:
+                                enquiry.finalStageDetail.isNotEmpty
+                                    ? enquiry.finalStageDetail
+                                    : "-",
+                          ),
                       ],
                     ),
                   ],
@@ -865,7 +905,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
   Widget buildRemarkActivityTimeline() {
     return BlocBuilder<EnquiryCubit, EnquiryState>(
       builder: (context, state) {
-        if (state.isLoading!) {
+        if (state.isLoading ?? false) {
           return loader();
         }
 
@@ -878,19 +918,20 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
         return SingleChildScrollView(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(
+                state.currentEnquiryDetails!.systemGeneratedCode,
+                style: AppTextStyle.ts16SB(color: AppColor.primary),
+              ),
+              verticalSpacing(),
+
               Container(
                 decoration: commonCardDecoration(),
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      state.currentEnquiryDetails!.systemGeneratedCode,
-                      style: AppTextStyle.ts16SB(color: AppColor.primary),
-                    ),
-                    verticalSpacing(),
-
                     // ===================== CUSTOM TIMELINE =====================
                     ListView.builder(
                       physics: const NeverScrollableScrollPhysics(),
@@ -898,7 +939,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                       itemCount: items.length + 1,
                       itemBuilder: (context, index) {
                         final isExtraDot = index == items.length;
-                        final isLastItem = index == items.length - 1;
                         final item = !isExtraDot ? items[index] : items[0];
 
                         return IntrinsicHeight(
@@ -929,10 +969,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                         margin: const EdgeInsets.symmetric(
                                           vertical: 2,
                                         ),
-                                        color:
-                                            isLastItem
-                                                ? AppColor.lightBlue
-                                                : AppColor.primary,
+                                        color: AppColor.primary,
                                       ),
                                     ),
                                 ],
@@ -983,37 +1020,51 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                                 mainAxisAlignment:
                                                     MainAxisAlignment
                                                         .spaceBetween,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
-                                                  Flexible(
-                                                    child: RichText(
-                                                      text: TextSpan(
-                                                        text:
-                                                            dateFormatterDDMMYYYYDAY(
-                                                              item.createdDate!,
-                                                            ),
-                                                        style:
-                                                            AppTextStyle.ts12M(
-                                                              color:
-                                                                  AppColor
-                                                                      .black,
-                                                            ),
-                                                        children: [
-                                                          const TextSpan(
-                                                            text: "  ",
-                                                          ),
-                                                          TextSpan(
-                                                            text: dateFormatterHhMmAm(
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          item.createdBy,
+                                                          style:
+                                                              AppTextStyle.ts14SB(),
+                                                        ),
+                                                        verticalSpacing(),
+
+                                                        RichText(
+                                                          text: TextSpan(
+                                                            text: dateFormatterDDMMYYYYDAY(
                                                               item.createdDate!,
                                                             ),
                                                             style:
                                                                 AppTextStyle.ts12M(
                                                                   color:
                                                                       AppColor
+                                                                          .black,
+                                                                ),
+                                                            children: [
+                                                              const TextSpan(
+                                                                text: "  ",
+                                                              ),
+                                                              TextSpan(
+                                                                text: dateFormatterHhMmAm(
+                                                                  item.createdDate!,
+                                                                ),
+                                                                style: AppTextStyle.ts12M(
+                                                                  color:
+                                                                      AppColor
                                                                           .grey,
                                                                 ),
+                                                              ),
+                                                            ],
                                                           ),
-                                                        ],
-                                                      ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
                                                   if (index == 0 &&
@@ -1025,34 +1076,37 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                                         item.status
                                                             .toLowerCase(),
                                                       ))
-                                                    Row(
-                                                      spacing: 5,
-                                                      children: [
-                                                        CustomIconButton.edit(
-                                                          onPressed: () {
-                                                            _showAddUpdateEnquiryFollowUpBottomSheet(
-                                                              context,
-                                                              followUpModel:
-                                                                  item,
-                                                              index: index,
-                                                            );
-                                                          },
-                                                        ),
-                                                        CustomIconButton.delete(
-                                                          onPressed: () {
-                                                            _showPopupToDeleteFollowUp(
-                                                              index: index,
-                                                              followUpModel:
-                                                                  item,
-                                                              enquiryId:
-                                                                  widget
-                                                                      .enquiryId,
-                                                              context: context,
-                                                            );
-                                                          },
-                                                        ),
-                                                      ],
-                                                    ),
+                                                    if (_routeAuthorizationModel
+                                                        .isAction)
+                                                      Row(
+                                                        spacing: 5,
+                                                        children: [
+                                                          CustomIconButton.edit(
+                                                            onPressed: () {
+                                                              _showAddUpdateEnquiryFollowUpBottomSheet(
+                                                                context,
+                                                                followUpModel:
+                                                                    item,
+                                                                index: index,
+                                                              );
+                                                            },
+                                                          ),
+                                                          CustomIconButton.delete(
+                                                            onPressed: () {
+                                                              _showPopupToDeleteFollowUp(
+                                                                index: index,
+                                                                followUpModel:
+                                                                    item,
+                                                                enquiryId:
+                                                                    widget
+                                                                        .enquiryId,
+                                                                context:
+                                                                    context,
+                                                              );
+                                                            },
+                                                          ),
+                                                        ],
+                                                      ),
                                                 ],
                                               ),
                                               verticalSpacing(),
@@ -1199,7 +1253,8 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
 
           // ===================== CONDITIONAL WIDGETS =====================
           Widget followUpDateWidget() =>
-              (statusId != null && followUpStatusIds.contains(statusId))
+              ((statusId != null && followUpStatusIds.contains(statusId) ||
+                      statusId == null))
                   ? CustomDatePicker(
                     title: "Next Followup Date",
                     initialDate: _nextFollowupDate,
@@ -1243,6 +1298,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                   CustomDropDownWidget(
                     title: "Status",
                     isRequired: true,
+                    hintText: "Select Status",
                     dataList: _statusList,
                     initialValue: _selectedStatus,
                     onSelected:
@@ -1264,6 +1320,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
 
                     textController: _remarkC,
                     maxLines: 3,
+                    minLines: 3,
                     validator:
                         (val) =>
                             val == null || val.trim().isEmpty

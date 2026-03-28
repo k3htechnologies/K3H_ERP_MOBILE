@@ -24,6 +24,7 @@ class EnquiryState extends BaseState {
   final String filterStage;
   final EnquiryModel? currentEnquiryDetails;
   final bool isFetchingEnquiryDetails;
+  final bool isFetchingChannelPartners;
 
   const EnquiryState({
     super.isLoading,
@@ -34,8 +35,8 @@ class EnquiryState extends BaseState {
     this.selectedNationality = 'Indian',
     this.channelPartnerModel,
     this.enquiryFollowUpList = const [],
-    this.currentSortColumn = "Created Date",
-    this.currentSortDirection = "DESC",
+    this.currentSortColumn = "",
+    this.currentSortDirection = "",
     this.filterStartDate,
     this.filterEndDate,
     this.filterSystemCode = "",
@@ -45,6 +46,7 @@ class EnquiryState extends BaseState {
     this.filterStage = "",
     this.currentEnquiryDetails,
     this.isFetchingEnquiryDetails = false,
+    this.isFetchingChannelPartners = false,
   });
 
   factory EnquiryState.initial() => const EnquiryState(
@@ -56,8 +58,8 @@ class EnquiryState extends BaseState {
     selectedNationality: 'Indian',
     channelPartnerModel: null,
     enquiryFollowUpList: [],
-    currentSortColumn: "Created Date",
-    currentSortDirection: "DESC",
+    currentSortColumn: "",
+    currentSortDirection: "",
     filterStartDate: null,
     filterEndDate: null,
     filterSystemCode: "",
@@ -67,6 +69,7 @@ class EnquiryState extends BaseState {
     filterStage: "",
     currentEnquiryDetails: null,
     isFetchingEnquiryDetails: false,
+    isFetchingChannelPartners: false,
   );
 
   static const _noChange = Object();
@@ -92,6 +95,7 @@ class EnquiryState extends BaseState {
     String? filterStage,
     Object? currentEnquiryDetails = _noChange,
     Object? isFetchingEnquiryDetails = _noChange,
+    Object? isFetchingChannelPartners = _noChange,
   }) {
     return EnquiryState(
       isLoading: isLoading ?? this.isLoading,
@@ -131,6 +135,10 @@ class EnquiryState extends BaseState {
           isFetchingEnquiryDetails == _noChange
               ? this.isFetchingEnquiryDetails
               : isFetchingEnquiryDetails as bool,
+      isFetchingChannelPartners:
+          isFetchingChannelPartners == _noChange
+              ? this.isFetchingChannelPartners
+              : isFetchingChannelPartners as bool,
     );
   }
 
@@ -155,5 +163,6 @@ class EnquiryState extends BaseState {
     filterStage,
     currentEnquiryDetails,
     isFetchingEnquiryDetails,
+    isFetchingChannelPartners,
   ];
 }

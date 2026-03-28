@@ -495,12 +495,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       return;
     }
 
-    const limit = 4999999.99;
+    const limit = 2999999.99;
 
     double fees;
 
     if (value <= limit) {
-      //  1% if <= 49,99,999.99
+      //  1% if <= 29,99,999.99
       fees = value * 0.01;
     } else {
       //  Fixed 30,000 if above limit

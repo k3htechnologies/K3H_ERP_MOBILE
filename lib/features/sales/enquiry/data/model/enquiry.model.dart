@@ -42,6 +42,10 @@ class EnquiryModel {
     required this.channelPartnerTeamMemberName,
     required this.channelPartnerTeamMemberMobileNumber,
     required this.channelPartnerMobileNumber,
+    required this.channelPartnerDesignation,
+    required this.channelPartnerFirmsType,
+    required this.channelPartnerType,
+    required this.channelPartnerCompany,
     required this.systemGeneratedCode,
     required this.channelPartnerName,
     required this.villageName,
@@ -51,10 +55,12 @@ class EnquiryModel {
     required this.referelInventoryFlatId,
     required this.referelProjectName,
     required this.referelUnitNumber,
+    required this.referralUnitOwnerName,
     required this.loyaltyProjectId,
     required this.loyaltyInventoryFlatId,
     required this.loyaltyExistingProjectName,
     required this.loyaltyExistingUnitNumber,
+    required this.loyaltyExistingUnitOwnerName,
     required this.employeeReferenceName,
     required this.employeeReferenceMobileNumber,
     required this.remark,
@@ -68,42 +74,42 @@ class EnquiryModel {
     required this.modifiedDate,
   });
 
-  int enquiryId;
-  String uniquekey;
-  int projectId;
-  String enquiryTimeIn;
-  String enquiryTimeOut;
-  String name;
-  String mobileNumber;
-  String emailId;
-  String systemGeneratedCode;
+  final int enquiryId;
+  final String uniquekey;
+  final int projectId;
+  final String enquiryTimeIn;
+  final String enquiryTimeOut;
+  final String name;
+  final String mobileNumber;
+  final String emailId;
+  final String systemGeneratedCode;
 
-  DateTime? dateOfBirth;
-  String channelPartnerMobileNumber;
+  final DateTime? dateOfBirth;
+  final String channelPartnerMobileNumber;
 
-  String accommodation;
-  String occupationType;
-  String nationality;
-  String countryOfResidence;
-  String cityOfResidence;
-  String currentLocation;
-  String possessionType;
-  double areaPreferred;
-  String desiredFloorBand;
-  String budget;
-  String requirement;
-  String requirementType;
-  String customerClassification;
-  String source;
-  String subSource;
-  String subSubSource;
-  String sourceOfFunding;
-  String ethnicity;
-  String timeline;
-  String finalStage;
-  String finalStageDetail;
-  DateTime? enquiryDate;
-  DateTime? nextFollowUpDate;
+  final String accommodation;
+  final String occupationType;
+  final String nationality;
+  final String countryOfResidence;
+  final String cityOfResidence;
+  final String currentLocation;
+  final String possessionType;
+  final double areaPreferred;
+  final String desiredFloorBand;
+  final String budget;
+  final String requirement;
+  final String requirementType;
+  final String customerClassification;
+  final String source;
+  final String subSource;
+  final String subSubSource;
+  final String sourceOfFunding;
+  final String ethnicity;
+  final String timeline;
+  final String finalStage;
+  final String finalStageDetail;
+  final DateTime? enquiryDate;
+  final DateTime? nextFollowUpDate;
 
   /// NAMES
   String salesAdvisor;
@@ -118,6 +124,10 @@ class EnquiryModel {
   String channelPartnerTeamMemberName;
   String channelPartnerTeamMemberMobileNumber;
   String channelPartnerName;
+  String channelPartnerDesignation;
+  String channelPartnerFirmsType;
+  String channelPartnerType;
+  String channelPartnerCompany;
   String villageName;
 
   /// REFERRAL
@@ -127,12 +137,14 @@ class EnquiryModel {
   int referelInventoryFlatId;
   String referelProjectName;
   String referelUnitNumber;
+  String referralUnitOwnerName;
 
   /// LOYALTY
   int loyaltyProjectId;
   int loyaltyInventoryFlatId;
   String loyaltyExistingProjectName;
   String loyaltyExistingUnitNumber;
+  String loyaltyExistingUnitOwnerName;
 
   /// EMPLOYEE REF
   String employeeReferenceName;
@@ -214,6 +226,16 @@ class EnquiryModel {
         "ChannelPartnerMobileNumber",
       ),
       channelPartnerName: parseValue<String>(json, "ChannelPartnerName"),
+      channelPartnerDesignation: parseValue<String>(
+        json,
+        "ChannelPartnerDesignation",
+      ),
+      channelPartnerFirmsType: parseValue<String>(
+        json,
+        "ChannelPartnerFirmsType",
+      ),
+      channelPartnerType: parseValue<String>(json, "ChannelPartnerType"),
+      channelPartnerCompany: parseValue<String>(json, "ChannelPartnerCompany"),
       villageName: parseValue<String>(json, "VillageName"),
       referelName: parseValue<String>(json, "ReferelName"),
       referelMobileNumber: parseValue<String>(json, "ReferelMobileNumber"),
@@ -221,6 +243,7 @@ class EnquiryModel {
       referelInventoryFlatId: parseValue<int>(json, "ReferelInventoryFlatId"),
       referelProjectName: parseValue<String>(json, "ReferelProjectName"),
       referelUnitNumber: parseValue<String>(json, "ReferelUnitNumber"),
+      referralUnitOwnerName: parseValue<String>(json, "ReferralUnitOwnerName"),
       loyaltyProjectId: parseValue<int>(json, "LoyaltyProjectId"),
       loyaltyInventoryFlatId: parseValue<int>(json, "LoyaltyInventoryFlatId"),
       loyaltyExistingProjectName: parseValue<String>(
@@ -230,6 +253,10 @@ class EnquiryModel {
       loyaltyExistingUnitNumber: parseValue<String>(
         json,
         "LoyaltyExistingUnitNumber",
+      ),
+      loyaltyExistingUnitOwnerName: parseValue<String>(
+        json,
+        "LoyaltyExistingUnitOwnerName",
       ),
       employeeReferenceName: parseValue<String>(json, "EmployeeReferenceName"),
       employeeReferenceMobileNumber: parseValue<String>(
@@ -294,6 +321,10 @@ class EnquiryModel {
     "ChannelPartnerTeamMemberMobileNumber":
         channelPartnerTeamMemberMobileNumber,
     "ChannelPartnerName": channelPartnerName,
+    "ChannelPartnerDesignation": channelPartnerDesignation,
+    "ChannelPartnerFirmsType": channelPartnerFirmsType,
+    "ChannelPartnerType": channelPartnerType,
+    "ChannelPartnerCompany": channelPartnerCompany,
     "VillageName": villageName,
     "ReferelName": referelName,
     "ReferelMobileNumber": referelMobileNumber,
@@ -301,10 +332,12 @@ class EnquiryModel {
     "ReferelInventoryFlatId": referelInventoryFlatId,
     "ReferelProjectName": referelProjectName,
     "ReferelUnitNumber": referelUnitNumber,
+    "ReferralUnitOwnerName": referralUnitOwnerName,
     "LoyaltyProjectId": loyaltyProjectId,
     "LoyaltyInventoryFlatId": loyaltyInventoryFlatId,
     "LoyaltyExistingProjectName": loyaltyExistingProjectName,
     "LoyaltyExistingUnitNumber": loyaltyExistingUnitNumber,
+    "LoyaltyExistingUnitOwnerName": loyaltyExistingUnitOwnerName,
     "EmployeeReferenceName": employeeReferenceName,
     "EmployeeReferenceMobileNumber": employeeReferenceMobileNumber,
     "Remark": remark,

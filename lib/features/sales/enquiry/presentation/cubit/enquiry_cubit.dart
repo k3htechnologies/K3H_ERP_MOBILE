@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -46,11 +48,11 @@ class EnquiryCubit extends Cubit<EnquiryState> {
   }
 
   // <---- CLEAR ENQUIRY FOLLOWUP ---->
-  void clearEnquiryFollowUp() {
+  Future<void> clearEnquiryFollowUp() async {
     emit(state.copyWith(enquiryFollowUpList: [], isLoading: true));
   }
 
-  void clearCurrentEnquiry() {
+  Future<void> clearCurrentEnquiry() async {
     emit(
       state.copyWith(
         currentEnquiryDetails: null,
@@ -67,7 +69,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
   ) async {
     emit(state.copyWith(isLoading: true));
     if (projectId == 0) {
-      showErrorMessage(context, "Error Message", "Project Not Selected");
+      showErrorMessage(context, "Error Message", "Please select a project");
       EnquiryCubit();
       emit(state.copyWith(isLoading: false));
       return;
@@ -129,8 +131,8 @@ class EnquiryCubit extends Cubit<EnquiryState> {
 
   Future addUpdateEnquiry({
     required BuildContext context,
-
     int? index,
+    required int projectId,
     required Map<String, dynamic> body,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -152,7 +154,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
         if (index != null) {
           updatedList[index] = newItem;
         } else {
-          getEnquiryList(context, 1, getProject().projectId);
+          getEnquiryList(context, 1, projectId);
         }
 
         emit(state.copyWith(enquiryList: updatedList));
@@ -173,6 +175,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     int pageNumber, {
     String? value,
   }) async {
+    emit(state.copyWith(isFetchingChannelPartners: true));
     final result = await _channelPartnerRepository.getChannelPartnerList(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -186,6 +189,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
       if (partners.isNotEmpty && value != null && value.isNotEmpty) {
         emit(state.copyWith(channelPartnerModel: partners.first));
       }
+      emit(state.copyWith(isFetchingChannelPartners: false));
 
       return partners;
     });
@@ -293,12 +297,13 @@ class EnquiryCubit extends Cubit<EnquiryState> {
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "enquiry_${DateTime.now().millisecondsSinceEpoch}.pdf"
-              : "enquiry_${DateTime.now().millisecondsSinceEpoch}.xlsx",
+              ? "Enquiry Master ${DateTime.now()}.pdf"
+              : "Enquiry Master ${DateTime.now()}.xlsx",
         );
       },
     );
   }
+  
 
   // <---- GET ENQUIRY FOLLOWUPS ---->
   Future<void> fetchEnquiryFollowUps({
@@ -484,9 +489,6 @@ class EnquiryCubit extends Cubit<EnquiryState> {
         currentPage: 1,
       ),
     );
-
-    // Fetch new filtered list
-    await getEnquiryList(context, 1, getProject().projectId);
   }
 
   // <---- GET SINGLE ENQUIRY BY ID ---->
