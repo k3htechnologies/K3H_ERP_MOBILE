@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:fpdart/fpdart.dart';
 import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
+import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/utils.datasource.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
 
 abstract interface class UtilsRepository {
   Future<Either<Failure, Map<String, dynamic>>> getMenu({
@@ -77,6 +81,8 @@ abstract interface class UtilsRepository {
     required int subModulesMasterId,
     required int subSubModulesMasterId,
   });
+
+  Future<Either<Failure, List<dynamic>>> getAddressMaster();
 }
 
 class UtilsRepositoryImpl implements UtilsRepository {
@@ -338,4 +344,36 @@ class UtilsRepositoryImpl implements UtilsRepository {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
     }
   }
+
+  @override
+  Future<Either<Failure, List<dynamic>>> getAddressMaster() async {
+    try {
+      final storage = LocalStorageManager();
+
+      /// ✅ 1. Check cache
+      final cachedData = storage.getString(StorageKey.addressMasterData);
+
+      if (cachedData != null && cachedData.isNotEmpty) {
+        final decoded = jsonDecode(cachedData);
+        return right(decoded);
+      }
+
+      /// ✅ 2. Call API (ONLY FIRST TIME)
+      final result =
+      await _utilsDatasource.pullCountryStateCityDistrictVillage();
+
+      final data = result["data"]["CountryStateCityDistrictVillageData"];
+
+      /// ✅ 3. Store in local
+      await storage.setString(
+        StorageKey.addressMasterData,
+        jsonEncode(data),
+      );
+
+      return right(data);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
 }

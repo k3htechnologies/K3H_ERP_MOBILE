@@ -13,13 +13,13 @@ double verticalSpacingMeasure({double height = 10.0}) => height;
 
 double horizontalSpacingMeasure({double width = 20.0}) => width;
 
-Widget noDataWidget({String? message}) => Container(
+Widget noDataWidget({String? message,double? iconSize}) => Container(
   decoration: const BoxDecoration(color: Colors.transparent),
   child: Column(
     mainAxisSize: MainAxisSize.min,
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
-      Image.asset(AppAssets.noDataImage,width: 200, fit: BoxFit.fitHeight,),
+      Image.asset(AppAssets.noDataImage,width:iconSize?? 200, fit: BoxFit.fitHeight,),
       Text(message??"No Data Available!", style: AppTextStyle.ts14B(color: AppColor.grey)),
     ],
   ),

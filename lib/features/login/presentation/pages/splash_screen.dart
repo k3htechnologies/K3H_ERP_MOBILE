@@ -32,6 +32,7 @@ class _SplashMobileScreenState extends State<SplashScreen> {
 
       final bool isLoggedIn = token != null && token.isNotEmpty;
 
+
       if (!isLoggedIn) {
         goRouter.goNamed(AppRoutes.login);
         return;
@@ -46,7 +47,16 @@ class _SplashMobileScreenState extends State<SplashScreen> {
         final UtilsRepository utilsRepository =
             serviceLocator<UtilsRepository>();
 
+        utilsRepository.getAddressMaster().then((res) {
+          res.fold(
+                (failure) => debugPrint("Address failed"),
+                (data) => debugPrint("Address success"),
+          );
+        });
+
         final userJson = localStorage.getString(StorageKey.currentUser) ?? '';
+
+        await utilsRepository.getAddressMaster();
 
         if (userJson.isEmpty) {
           goRouter.goNamed(AppRoutes.login);
