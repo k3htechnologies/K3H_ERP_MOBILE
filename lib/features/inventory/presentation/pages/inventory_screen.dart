@@ -1,4 +1,8 @@
+// ignore_for_file: deprecated_member_use
+
+import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,9 +18,10 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
@@ -132,9 +137,18 @@ class _InventoryScreenState extends State<InventoryScreen>
     if (_wingTabController == null || !mounted) return;
 
     if (!_wingTabController!.indexIsChanging) {
-      _expandedFloors.value = {};
+      final state = _inventoryCubit.state;
 
-      setState(() {});
+      final selectedBuilding = state.buildingList[state.currentTabIndex];
+      final wingList = selectedBuilding.wingList;
+
+      final index = _wingTabController!.index;
+
+      if (index >= 0 && index < wingList.length) {
+        _inventoryCubit.updateWingSelection(index, wingList[index].wing);
+      }
+
+      _expandedFloors.value = {};
     }
   }
 
@@ -222,12 +236,48 @@ class _InventoryScreenState extends State<InventoryScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBarWithBackButton(
-        isMenuButton: true,
+      appBar: CustomAppBar(
         screenTitle: "Inventory Management",
         authorization: _routeAuthorizationModel,
+        searchHintText: "Search by Unit Number",
+        onSearchSubmit: (value) {
+          _inventoryCubit.searchInventory(value);
+        },
+        textController: _searchC,
         onExportCallback: (value) {
+          if (_project.projectId == 0) {
+            showErrorMessage(context, "Error", "Please Select a project");
+            return;
+          }
           _inventoryCubit.exportInventory(context, _project.projectId, value);
+        },
+        onAddCallback: () {
+          if (_project.projectId == 0) {
+            showErrorMessage(context, "Error", "Please Select a project");
+            return;
+          }
+          final state = _inventoryCubit.state;
+
+          final selectedBuilding = state.buildingList[state.currentTabIndex];
+          final wingList = selectedBuilding.wingList;
+
+          final currentWingIndex = _wingTabController?.index ?? 0;
+          final selectedWing = wingList[currentWingIndex];
+
+          _inventoryCubit.addFloor(
+            context,
+            projectId: _project.projectId,
+            inventoryBuildingId: selectedBuilding.inventoryBuildingId,
+            inventoryFlatFloorBasementPodiumWingId:
+                selectedWing.inventoryFlatFloorBasementPodiumWingId,
+          );
+          log("the project id is: ${_project.projectId}");
+          log(
+            "the inventory Building Id is: ${selectedBuilding.inventoryBuildingId}",
+          );
+          log(
+            "the inventory Flat Floor Basement Podium Wing Id is: ${selectedWing.inventoryFlatFloorBasementPodiumWingId}",
+          );
         },
         onProjectChangeCallback: (project) {
           _project = project;
@@ -262,7 +312,11 @@ class _InventoryScreenState extends State<InventoryScreen>
               final selectedBuilding =
                   state.buildingList[state.currentTabIndex];
               final wingList = selectedBuilding.wingList;
-
+              if (_wingTabController != null &&
+                  state.wingCurrentPage < _wingTabController!.length &&
+                  _wingTabController!.index != state.wingCurrentPage) {
+                _wingTabController!.index = state.wingCurrentPage;
+              }
               if (wingList.isNotEmpty) {
                 if (_wingTabController == null ||
                     _wingTabController!.length != wingList.length) {
@@ -503,171 +557,160 @@ class _InventoryScreenState extends State<InventoryScreen>
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      "Floor : ${floor.floor}",
-                                      style: AppTextStyle.ts14M(),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            "${floor.floor}",
+                                            style: AppTextStyle.ts14M(),
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () async {
+                                                await goRouter.pushNamed(
+                                                  AppRoutes
+                                                      .addInventorySpecification,
+                                                  queryParameters: {
+                                                    "flatModel": Uri.encodeQueryComponent(
+                                                      EncryptionManager.encryptData(
+                                                        jsonEncode(
+                                                          FlatModel(
+                                                            inventoryFlatId: 0,
+                                                            uniquekey: "",
+                                                            inventoryBuildingId:
+                                                                floor
+                                                                    .inventoryBuildingId,
+                                                            buildingNumber:
+                                                                building
+                                                                    .buildingNumber,
+                                                            inventoryFlatFloorBasementPodiumWingId:
+                                                                floor
+                                                                    .inventoryFlatFloorBasementPodiumWingId,
+                                                            wing: wing.wing,
+                                                            inventoryFloorId:
+                                                                floor
+                                                                    .inventoryFloorId,
+                                                            floor: floor.floor,
+                                                            slabHeight:
+                                                                floor
+                                                                    .slabHeight,
+                                                            parkingCount:
+                                                                floor
+                                                                    .parkingCount,
+                                                            flat: "",
+                                                            reraCarpetAreaSqFt:
+                                                                0,
+                                                            flatType: "",
+                                                            flatConfiguration:
+                                                                "",
+                                                            flatStatus: "",
+                                                            ownerName: "",
+                                                            flatFacing: "",
+                                                            createdBy: "",
+                                                            createdById: 0,
+                                                            modifiedBy: "",
+                                                            modifiedById: 0,
+                                                            createdDate:
+                                                                DateTime.now(),
+                                                            modifiedDate:
+                                                                DateTime.now(),
+                                                            bookingId: 0,
+                                                            bookingCreatedById:
+                                                                0,
+                                                            bookingCreatedBy:
+                                                                "",
+                                                            bookingCreatedDate:
+                                                                DateTime.now(),
+                                                            specificationList: [
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    "floorModel":
+                                                        Uri.encodeQueryComponent(
+                                                          EncryptionManager.encryptData(
+                                                            jsonEncode(floor),
+                                                          ),
+                                                        ),
+                                                  },
+                                                );
+                                                if (context.mounted) {
+                                                  _inventoryCubit.getInventory(
+                                                    context,
+                                                    _project.projectId,
+                                                  );
+                                                }
+                                              },
+                                              child: Icon(
+                                                Icons.add,
+                                                size: 18,
+                                                color: AppColor.darkGreen,
+                                              ),
+                                            ),
+                                            Icon(
+                                              isExpanded
+                                                  ? Icons.keyboard_arrow_up
+                                                  : Icons.keyboard_arrow_down,
+                                              color: AppColor.grey,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(height: 4),
                                     Text(
                                       "Total Flats : ${floor.flatList.length}",
                                       style: AppTextStyle.ts12R(
                                         color: AppColor.grey,
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                              Row(
-                                children: [
-                                  IconButton(
-                                    onPressed: () async {
-                                      await goRouter.pushNamed(
-                                        AppRoutes.addInventorySpecification,
-                                        queryParameters: {
-                                          "flatModel": Uri.encodeQueryComponent(
-                                            EncryptionManager.encryptData(
-                                              jsonEncode(
-                                                FlatModel(
-                                                  inventoryFlatId: 0,
-                                                  uniquekey: "",
-                                                  inventoryBuildingId:
-                                                      floor.inventoryBuildingId,
-                                                  buildingNumber:
-                                                      building.buildingNumber,
-                                                  inventoryFlatFloorBasementPodiumWingId:
-                                                      floor
-                                                          .inventoryFlatFloorBasementPodiumWingId,
-                                                  wing: wing.wing,
-                                                  inventoryFloorId:
-                                                      floor.inventoryFloorId,
-                                                  floor: floor.floor,
-                                                  flat: "",
-                                                  reraCarpetAreaSqFt: 0,
-                                                  flatType: "",
-                                                  flatConfiguration: "",
-                                                  flatStatus: "",
-                                                  ownerName: "",
-                                                  flatFacing: "",
-                                                  bookingId: 0,
-                                                  bookingCreatedById: 0,
-                                                  bookingCreatedBy: "",
-                                                  bookingCreatedDate:
-                                                      DateTime.now(),
-                                                  specificationList: [
-                                                    FlatSpecificationModel(
-                                                      inventoryFlatSpecificationId:
-                                                          0,
-                                                      uniquekey: "",
-                                                      inventoryBuildingId:
-                                                          floor
-                                                              .inventoryBuildingId,
-                                                      inventoryFlatFloorBasementPodiumWingId:
-                                                          floor
-                                                              .inventoryFlatFloorBasementPodiumWingId,
-                                                      inventoryFloorId:
-                                                          floor
-                                                              .inventoryFloorId,
-                                                      inventoryFlatId: 0,
-                                                      flatLayout: "Bedroom 1",
-                                                      flatLayoutAreaSqFt: 0,
-                                                      flatLayoutLengthSqFt: 0,
-                                                      flatLayoutWidthSqFt: 0,
-                                                      note: "",
-                                                    ),
-                                                    FlatSpecificationModel(
-                                                      inventoryFlatSpecificationId:
-                                                          0,
-                                                      uniquekey: "",
-                                                      inventoryBuildingId:
-                                                          floor
-                                                              .inventoryBuildingId,
-                                                      inventoryFlatFloorBasementPodiumWingId:
-                                                          floor
-                                                              .inventoryFlatFloorBasementPodiumWingId,
-                                                      inventoryFloorId:
-                                                          floor
-                                                              .inventoryFloorId,
-                                                      inventoryFlatId: 0,
-                                                      flatLayout: "Hall",
-                                                      flatLayoutAreaSqFt: 0,
-                                                      flatLayoutLengthSqFt: 0,
-                                                      flatLayoutWidthSqFt: 0,
-                                                      note: "",
-                                                    ),
-                                                    FlatSpecificationModel(
-                                                      inventoryFlatSpecificationId:
-                                                          0,
-                                                      uniquekey: "",
-                                                      inventoryBuildingId:
-                                                          floor
-                                                              .inventoryBuildingId,
-                                                      inventoryFlatFloorBasementPodiumWingId:
-                                                          floor
-                                                              .inventoryFlatFloorBasementPodiumWingId,
-                                                      inventoryFloorId:
-                                                          floor
-                                                              .inventoryFloorId,
-                                                      inventoryFlatId: 0,
-                                                      flatLayout: "Kitchen",
-                                                      flatLayoutAreaSqFt: 0,
-                                                      flatLayoutLengthSqFt: 0,
-                                                      flatLayoutWidthSqFt: 0,
-                                                      note: "",
-                                                    ),
-                                                    FlatSpecificationModel(
-                                                      inventoryFlatSpecificationId:
-                                                          0,
-                                                      uniquekey: "",
-                                                      inventoryBuildingId:
-                                                          floor
-                                                              .inventoryBuildingId,
-                                                      inventoryFlatFloorBasementPodiumWingId:
-                                                          floor
-                                                              .inventoryFlatFloorBasementPodiumWingId,
-                                                      inventoryFloorId:
-                                                          floor
-                                                              .inventoryFloorId,
-                                                      inventoryFlatId: 0,
-                                                      flatLayout:
-                                                          "Common Toilet",
-                                                      flatLayoutAreaSqFt: 0,
-                                                      flatLayoutLengthSqFt: 0,
-                                                      flatLayoutWidthSqFt: 0,
-                                                      note: "",
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const SizedBox(height: 4),
+                                        Expanded(
+                                          child: Text(
+                                            "Slab Height: ${floor.slabHeight} ft",
+                                            style: AppTextStyle.ts12R(
+                                              color: AppColor.grey,
                                             ),
                                           ),
-                                          "floorModel":
-                                              Uri.encodeQueryComponent(
-                                                EncryptionManager.encryptData(
-                                                  jsonEncode(floor),
-                                                ),
+                                        ),
+                                        horizontalSpacing(),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            SvgPicture.asset(
+                                              AppAssets.car,
+                                              height: 20.0,
+                                              width: 20.0,
+                                              color: AppColor.black.withValues(
+                                                alpha: 0.4,
                                               ),
-                                        },
-                                      );
-                                      if (context.mounted) {
-                                        _inventoryCubit.getInventory(
-                                          context,
-                                          _project.projectId,
-                                        );
-                                      }
-                                    },
-                                    icon: Icon(
-                                      Icons.add,
-                                      size: 18,
-                                      color: AppColor.darkGreen,
+                                            ),
+                                            horizontalSpacing(width: 3),
+                                            Text(
+                                              ":",
+                                              style: AppTextStyle.ts12R(),
+                                            ),
+                                            horizontalSpacing(width: 3),
+                                            Text(
+                                              "${floor.parkingCount}",
+                                              style: AppTextStyle.ts12R(),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                  Icon(
-                                    isExpanded
-                                        ? Icons.keyboard_arrow_up
-                                        : Icons.keyboard_arrow_down,
-                                    color: AppColor.grey,
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -696,6 +739,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                                         buildingIndex,
                                         wingIndex,
                                         index,
+                                        wing.approvalStatus,
                                       ),
                                     ),
                                   )
@@ -754,6 +798,7 @@ class _InventoryScreenState extends State<InventoryScreen>
     int buildingIndex,
     int wingIndex,
     int floorIndex,
+    String approvalStatus,
   ) {
     if (flatList.isEmpty) {
       return Padding(
@@ -779,6 +824,7 @@ class _InventoryScreenState extends State<InventoryScreen>
           wingIndex,
           floorIndex,
           flatIndex,
+          approvalStatus,
         );
       },
     );
@@ -791,6 +837,7 @@ class _InventoryScreenState extends State<InventoryScreen>
     int wingIndex,
     int floorIndex,
     int flatIndex,
+    String approvalStatus,
   ) {
     return Container(
       width: double.infinity,
@@ -805,7 +852,6 @@ class _InventoryScreenState extends State<InventoryScreen>
         children: [
           Text("Unit No. : ${flat.flat}", style: AppTextStyle.ts14M()),
           verticalSpacing(height: 5),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -829,9 +875,7 @@ class _InventoryScreenState extends State<InventoryScreen>
               ),
             ],
           ),
-
           verticalSpacing(),
-
           Row(
             children: [
               Expanded(
@@ -851,11 +895,11 @@ class _InventoryScreenState extends State<InventoryScreen>
                                 : flat.flatStatus.toLowerCase() == "member"
                                 ? AppColor.purple
                                 : flat.flatStatus.toLowerCase() == "hold"
-                                ? AppColor.yellow
+                                ? AppColor.brown
                                 : flat.flatStatus.toLowerCase() == "available"
                                 ? AppColor.darkGreen
                                 : flat.flatStatus.toLowerCase() == "blocked"
-                                ? AppColor.primary
+                                ? AppColor.black
                                 : AppColor.black,
                       ),
                     ),
@@ -882,71 +926,76 @@ class _InventoryScreenState extends State<InventoryScreen>
                   : Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      GestureDetector(
-                        onTap: () async {
-                          await goRouter.pushNamed(
-                            AppRoutes.addInventorySpecification,
-                            queryParameters: {
-                              "flatModel": Uri.encodeQueryComponent(
-                                EncryptionManager.encryptData(jsonEncode(flat)),
-                              ),
-                              "floorModel": Uri.encodeQueryComponent(
-                                EncryptionManager.encryptData(
-                                  jsonEncode(floor),
-                                ),
-                              ),
+                      flat.flatStatus == "approved"
+                          ? SizedBox.shrink()
+                          : GestureDetector(
+                            onTap: () async {
+                              await goRouter.pushNamed(
+                                AppRoutes.addInventorySpecification,
+                                queryParameters: {
+                                  "flatModel": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(flat),
+                                    ),
+                                  ),
+                                  "floorModel": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(floor),
+                                    ),
+                                  ),
+                                },
+                              );
+                              if (mounted) {
+                                _inventoryCubit.getInventory(
+                                  context,
+                                  _project.projectId,
+                                );
+                              }
                             },
-                          );
-
-                          if (mounted) {
-                            _inventoryCubit.getInventory(
-                              context,
-                              _project.projectId,
-                            );
-                          }
-                        },
-                        child: const Icon(Icons.edit, size: 18),
-                      ),
+                            child: const Icon(Icons.edit, size: 18),
+                          ),
                       const SizedBox(width: 15),
-                      GestureDetector(
-                        onTap: () {
-                          _showPopupToDeleteInventoryFlat(
-                            context,
-                            flat,
-                            floorIndex,
-                            wingIndex,
-                            buildingIndex,
-                            flatIndex,
-                          );
-                        },
-                        child: SvgPicture.asset(
-                          AppAssets.deleteIcon2,
-                          height: 18,
+                      if (flat.flatStatus.toLowerCase() != "blocked" &&
+                          flat.flatStatus.toLowerCase() != "hold" &&
+                          flat.flatStatus == "approved") ...[
+                        GestureDetector(
+                          onTap: () {
+                            _showPopupToDeleteInventoryFlat(
+                              context,
+                              flat,
+                              floorIndex,
+                              wingIndex,
+                              buildingIndex,
+                              flatIndex,
+                            );
+                          },
+                          child: SvgPicture.asset(
+                            AppAssets.deleteIcon2,
+                            height: 18,
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
             ],
           ),
-
           if (flat.ownerName.isNotEmpty &&
               flat.flatStatus.toLowerCase() == "booked") ...[
             verticalSpacing(),
-            Text(
-              "Owner : ${flat.ownerName}",
-              style: AppTextStyle.ts12R(color: AppColor.primary),
+            GestureDetector(
+              onTap: () {},
+              child: Text(
+                "Owner : ${flat.ownerName}",
+                style: AppTextStyle.ts12R(color: AppColor.primary),
+              ),
             ),
           ],
           if (flat.flatStatus.toLowerCase() == "available" &&
               flat.reraCarpetAreaSqFt != 0 &&
-              flat.flatType != "") ...[
+              flat.flatType != "" &&
+              flat.flatStatus == "approved") ...[
             verticalSpacing(),
             CustomButton(
-              leading: Icon(
-                Icons.card_giftcard,
-                size: 18,
-                color: AppColor.white,
-              ),
               text: "Book",
               onPressed: () async {
                 List<Map<String, dynamic>> list = [
@@ -989,6 +1038,28 @@ class _InventoryScreenState extends State<InventoryScreen>
               },
             ),
           ],
+          if (flat.flatStatus.toLowerCase() == "blocked") ...[
+            verticalSpacing(),
+            Center(
+              child: Text(
+                "Blocked by ${flat.modifiedBy.isNotEmpty ? flat.modifiedBy : "Unknown"} on\n"
+                "${formatDateTimeReadable(flat.modifiedDate)}",
+                textAlign: TextAlign.center,
+                style: AppTextStyle.ts12M(color: AppColor.black),
+              ),
+            ),
+          ],
+          if (flat.flatStatus.toLowerCase() == "hold") ...[
+            verticalSpacing(),
+            Center(
+              child: Text(
+                "Hold by ${flat.modifiedBy.isNotEmpty ? flat.modifiedBy : "Unknown"} on\n"
+                "${formatDateTimeReadable(flat.modifiedDate)}",
+                textAlign: TextAlign.center,
+                style: AppTextStyle.ts12M(color: AppColor.brown),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -1026,7 +1097,6 @@ class _InventoryScreenState extends State<InventoryScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildCountItem("Total", counts['total'] ?? 0, AppColor.primary),
           _buildCountItem(
             "Available",
             counts['available'] ?? 0,
@@ -1035,7 +1105,7 @@ class _InventoryScreenState extends State<InventoryScreen>
           _buildCountItem("Booked", counts['booked'] ?? 0, AppColor.error),
           _buildCountItem("Alloted", counts['alloted'] ?? 0, AppColor.purple),
           _buildCountItem("Hold", counts['hold'] ?? 0, AppColor.yellow),
-          _buildCountItem("Blocked", counts['blocked'] ?? 0, AppColor.primary),
+          _buildCountItem("Blocked", counts['blocked'] ?? 0, AppColor.black),
         ],
       ),
     );
@@ -1064,11 +1134,11 @@ class _InventoryScreenState extends State<InventoryScreen>
       case "Available":
         return AppColor.lightGreen.withValues(alpha: .3);
       case "Blocked":
-        return AppColor.lightBlue;
+        return AppColor.black.withValues(alpha: 0.15);
       case "Booked":
         return AppColor.lightRed;
       case "Hold":
-        return AppColor.lightYellow;
+        return AppColor.holdYellowColor.withValues(alpha: 0.15);
       case "Alloted":
         return AppColor.purple.withValues(alpha: .2);
       default:

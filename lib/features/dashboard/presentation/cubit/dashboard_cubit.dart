@@ -36,7 +36,6 @@ class DashboardCubit extends Cubit<DashboardState> {
     DateTime startDate,
     DateTime endDate,
     int attendanceId,
-    int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
     String formatDate(DateTime d) =>

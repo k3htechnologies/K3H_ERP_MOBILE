@@ -8,6 +8,7 @@ class SettingDashboardModel {
   final List<Table4> table4;
   final List<Table5> table5;
   final List<Table6> table6;
+  final List<Table7> table7;
 
   SettingDashboardModel({
     required this.table0,
@@ -17,6 +18,7 @@ class SettingDashboardModel {
     required this.table4,
     required this.table5,
     required this.table6,
+    required this.table7,
   });
 
   factory SettingDashboardModel.fromJson(
@@ -29,6 +31,7 @@ class SettingDashboardModel {
     table4: List<Table4>.from(json["Table4"].map((x) => Table4.fromJson(x))),
     table5: List<Table5>.from(json["Table5"].map((x) => Table5.fromJson(x))),
     table6: List<Table6>.from(json["Table6"].map((x) => Table6.fromJson(x))),
+    table7: List<Table7>.from(json["Table7"].map((x) => Table7.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
@@ -39,38 +42,55 @@ class SettingDashboardModel {
     "Table4": List<dynamic>.from(table4.map((x) => x.toJson())),
     "Table5": List<dynamic>.from(table5.map((x) => x.toJson())),
     "Table6": List<dynamic>.from(table6.map((x) => x.toJson())),
+    "Table7": List<dynamic>.from(table7.map((x) => x.toJson())),
   };
 }
 
 class Table0 {
   final int totalCompanies;
+  final int companiesAddedThisMonth;
   final int totalEmployees;
+  final int employeesAddedThisMonth;
   final int activeProjects;
+  final int onHoldProjects;
   final int registeredVendors;
+  final int vendorsAddedThisMonth;
   final double payrollConfiguredPercent;
 
   Table0({
     required this.totalCompanies,
+    required this.companiesAddedThisMonth,
     required this.totalEmployees,
+    required this.employeesAddedThisMonth,
     required this.activeProjects,
+    required this.onHoldProjects,
     required this.registeredVendors,
+    required this.vendorsAddedThisMonth,
     required this.payrollConfiguredPercent,
   });
 
   factory Table0.fromJson(Map<String, dynamic> json) => Table0(
     totalCompanies: parseValue<int>(json, "TotalCompanies"),
+    companiesAddedThisMonth: parseValue<int>(json, "CompaniesAddedThisMonth"),
     totalEmployees: parseValue<int>(json, "TotalEmployees"),
+    employeesAddedThisMonth: parseValue<int>(json, "EmployeesAddedThisMonth"),
     activeProjects: parseValue<int>(json, "ActiveProjects"),
+    onHoldProjects: parseValue<int>(json, "OnHoldProjects"),
     registeredVendors: parseValue<int>(json, "RegisteredVendors"),
+    vendorsAddedThisMonth: parseValue<int>(json, "VendorsAddedThisMonth"),
     payrollConfiguredPercent:
         parseValue<double>(json, "PayrollConfiguredPercent").toDouble(),
   );
 
   Map<String, dynamic> toJson() => {
     "TotalCompanies": totalCompanies,
+    "CompaniesAddedThisMonth": companiesAddedThisMonth,
     "TotalEmployees": totalEmployees,
+    "EmployeesAddedThisMonth": employeesAddedThisMonth,
     "ActiveProjects": activeProjects,
+    "OnHoldProjects": onHoldProjects,
     "RegisteredVendors": registeredVendors,
+    "VendorsAddedThisMonth": vendorsAddedThisMonth,
     "PayrollConfiguredPercent": payrollConfiguredPercent,
   };
 }
@@ -229,5 +249,37 @@ class Table6 {
   Map<String, dynamic> toJson() => {
     "ActiveProjects": activeProjects,
     "OnHoldProjects": onHoldProjects,
+  };
+}
+
+class Table7 {
+  final int ongoingProjects;
+  final int onHoldProjects;
+  final int completedProjects;
+  final int cancelledProjects;
+  final int planningProjects;
+
+  Table7({
+    required this.ongoingProjects,
+    required this.onHoldProjects,
+    required this.completedProjects,
+    required this.cancelledProjects,
+    required this.planningProjects,
+  });
+
+  factory Table7.fromJson(Map<String, dynamic> json) => Table7(
+    ongoingProjects: parseValue<int>(json, "OngoingProjects"),
+    onHoldProjects: parseValue<int>(json, "OnHoldProjects"),
+    completedProjects: parseValue<int>(json, "CompletedProjects"),
+    cancelledProjects: parseValue<int>(json, "CancelledProjects"),
+    planningProjects: parseValue<int>(json, "PlanningProjects"),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "OngoingProjects": ongoingProjects,
+    "OnHoldProjects": onHoldProjects,
+    "CompletedProjects": completedProjects,
+    "CancelledProjects": cancelledProjects,
+    "PlanningProjects": planningProjects,
   };
 }

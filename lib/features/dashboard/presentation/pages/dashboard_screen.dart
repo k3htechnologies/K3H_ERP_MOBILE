@@ -11,7 +11,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
-import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
@@ -26,7 +25,6 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
@@ -51,8 +49,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final ValueNotifier<double> dragPositionNotifier = ValueNotifier(0.0);
   final ValueNotifier<bool> isPunchedInNotifier = ValueNotifier(false);
 
-  late ProjectModel _selectedProject;
-
   late DateTime punchInTime;
   DateTime? punchOutTime;
 
@@ -75,8 +71,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _routeAuthorization =
         Authorization.routeAuthorizationMap[AppRoutes.dashboardScreen]!;
     _dashboardCubit = context.read<DashboardCubit>();
-
-    _selectedProject = getProject();
     initialise();
     final userJson = storage.getString(StorageKey.currentUser);
     if (userJson != null) {
@@ -89,14 +83,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final start = DateTime(now.year, now.month, now.day);
     final end = start;
 
-    await _dashboardCubit.getAttendanceList(
-      context,
-      1,
-      start,
-      end,
-      0,
-      _selectedProject.projectId,
-    );
+    await _dashboardCubit.getAttendanceList(context, 1, start, end, 0);
     await _dashboardCubit.getDashboardList(context);
   }
 
@@ -392,89 +379,79 @@ class _DashboardScreenState extends State<DashboardScreen> {
           workedDuration.value = record.punchOut!.difference(record.punchIn!);
         }
       },
-      child: BlocBuilder<DashboardCubit, DashboardState>(
-        builder: (context, state) {
-          if (state.isLoading!) {
-            return Center(child: loader());
-          }
-          return Scaffold(
-            appBar: CustomAppBarWithBackButton(
-              screenTitle: "Dashboard",
-              isMenuButton: true,
-              authorization: _routeAuthorization,
-              onProjectChangeCallback: (value) {
-                _selectedProject = value;
-                final now = DateTime.now();
-                final start = DateTime(now.year, now.month, now.day);
-                final end = start;
-                _dashboardCubit.getAttendanceList(
-                  context,
-                  1,
-                  start,
-                  end,
-                  0,
-                  _selectedProject.projectId,
-                );
-                _dashboardCubit.getDashboardList(context);
-              },
-              showNotification: true,
-            ),
-            body: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0,
-                    vertical: 20.0,
-                  ),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Welcome ${currentUser?.fullName ?? ""}!",
-                          style: AppTextStyle.ts16SB(
-                            color: AppColor.black.withValues(alpha: 0.50),
+      child: RefreshIndicator(
+        onRefresh: () async {
+          initialise();
+        },
+        child: Scaffold(
+          appBar: CustomAppBarWithBackButton(
+            screenTitle: "Dashboard",
+            isMenuButton: true,
+            authorization: _routeAuthorization,
+            showNotification: true,
+          ),
+          body: BlocBuilder<DashboardCubit, DashboardState>(
+            builder: (context, state) {
+              if (state.isLoading!) {
+                return Center(child: loader());
+              }
+              return Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0,
+                      vertical: 20.0,
+                    ),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Welcome ${currentUser?.fullName ?? ""}!",
+                            style: AppTextStyle.ts16SB(
+                              color: AppColor.black.withValues(alpha: 0.50),
+                            ),
                           ),
-                        ),
-                        verticalSpacing(),
-                        // PUNCH IN - PUNCH OUT WIDGET
-                        _buildWordayOverviewWidget(state, context),
-                        verticalSpacing(),
-                        _buildDailyActivitiesWidget(context),
-                        verticalSpacing(),
-                        //  SCHEDULED TASK WIDGET
-                        _buildScheduledTaskWidget(context),
-                        verticalSpacing(),
-                        //  QUICK ACTIONS WIDGET
-                        _buildQuickActionsWidget(context),
-                        verticalSpacing(),
-                        // ATTENDANCE SUMMARY WIGET
-                        _buildAttendanceSummaryWidget(context),
-                        verticalSpacing(),
-                        // WORKING HOUR SUMMARY WIGET
-                        _buildWorkingHourSummaryWidget(context),
-                        verticalSpacing(),
-                        // TEAM ATTENDANCE WIDGET
-                        _buildTeamAttendanceSummaryWidget(context),
-                        verticalSpacing(),
-                        _buildLeaveBalanceSummaryWidget(context),
-                        verticalSpacing(),
-                        // HOLIDAY WIDGET
-                        _buildHolidaySummaryWidget(context),
-                        verticalSpacing(),
-                        // EVENTS WIDGET (BIRTHDAY'S AND EVENTS)
-                        _buildEventsAndMoreWidget(context),
-                        verticalSpacing(),
-                        // REPORTING MANAGER WIDGET
-                        _buildReportingManagerWidget(context),
-                      ],
+                          verticalSpacing(),
+                          // PUNCH IN - PUNCH OUT WIDGET
+                          _buildWordayOverviewWidget(state, context),
+                          verticalSpacing(),
+                          _buildDailyActivitiesWidget(context),
+                          verticalSpacing(),
+                          //  SCHEDULED TASK WIDGET
+                          _buildScheduledTaskWidget(context),
+                          verticalSpacing(),
+                          //  QUICK ACTIONS WIDGET
+                          _buildQuickActionsWidget(context),
+                          verticalSpacing(),
+                          // ATTENDANCE SUMMARY WIGET
+                          _buildAttendanceSummaryWidget(context),
+                          verticalSpacing(),
+                          // WORKING HOUR SUMMARY WIGET
+                          _buildWorkingHourSummaryWidget(context),
+                          verticalSpacing(),
+                          // TEAM ATTENDANCE WIDGET
+                          _buildTeamAttendanceSummaryWidget(context),
+                          verticalSpacing(),
+                          _buildLeaveBalanceSummaryWidget(context),
+                          verticalSpacing(),
+                          // HOLIDAY WIDGET
+                          _buildHolidaySummaryWidget(context),
+                          verticalSpacing(),
+                          // EVENTS WIDGET (BIRTHDAY'S AND EVENTS)
+                          _buildEventsAndMoreWidget(context),
+                          verticalSpacing(),
+                          // REPORTING MANAGER WIDGET
+                          _buildReportingManagerWidget(context),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          );
-        },
+                ],
+              );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -806,11 +783,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ],
           ),
-          Center(
-            child: Text(
-              "Coming Soon",
-              style: AppTextStyle.ts12M(
-                color: AppColor.black.withValues(alpha: 0.50),
+          SizedBox(
+            height: 100.0,
+            child: Center(
+              child: Text(
+                "Coming Soon",
+                style: AppTextStyle.ts14M(
+                  color: AppColor.black.withValues(alpha: 0.5),
+                ),
               ),
             ),
           ),
@@ -840,11 +820,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ],
           ),
-          Center(
-            child: Text(
-              "Coming Soon",
-              style: AppTextStyle.ts12M(
-                color: AppColor.black.withValues(alpha: 0.50),
+          SizedBox(
+            height: 100.0,
+            child: Center(
+              child: Text(
+                "Coming Soon",
+                style: AppTextStyle.ts14M(
+                  color: AppColor.black.withValues(alpha: 0.5),
+                ),
               ),
             ),
           ),
@@ -880,7 +863,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               backgroundColor: AppColor.yellow.withValues(alpha: .2),
             ),
-            title: "ALERT",
+            title: "COMING SOON",
             childContent: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -919,7 +902,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               backgroundColor: AppColor.yellow.withValues(alpha: .2),
             ),
-            title: "ALERT",
+            title: "COMING SOON",
             childContent: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -966,7 +949,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               backgroundColor: AppColor.yellow.withValues(alpha: .2),
             ),
-            title: "ALERT",
+            title: "COMING SOON",
             childContent: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1005,7 +988,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               backgroundColor: AppColor.yellow.withValues(alpha: .2),
             ),
-            title: "ALERT",
+            title: "COMING SOON",
             childContent: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1630,15 +1613,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   itemBuilder: (context, int index) {
                     var upcomingBirthday = table8List[index];
                     return ListTile(
+                      isThreeLine: true,
                       contentPadding: EdgeInsets.zero,
                       leading: CircleAvatar(
-                        radius: 45,
                         backgroundColor: AppColor.primary,
                         child: Text(
-                          table8List.first.fullName.isNotEmpty
-                              ? table8List.first.fullName[0].toUpperCase()
-                              : '',
-                          style: AppTextStyle.ts24B(color: AppColor.white),
+                          getInitials(upcomingBirthday.fullName),
+                          style: AppTextStyle.ts16B(color: AppColor.white),
                         ),
                       ),
                       title: Text(
@@ -1652,7 +1633,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       ),
                       trailing: Text(
-                        formatDateTimeAsDDMMMYYYY(upcomingBirthday.dateOfBirth),
+                        formatDateToDayMonthOnly(upcomingBirthday.dateOfBirth),
                         style: AppTextStyle.ts14R(),
                       ),
                     );
@@ -1684,32 +1665,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                 ),
-                /*
-                ListView.builder(
-                  itemCount: 5,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemBuilder: (context, int index) {
-                    return ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(
-                        "Diwali Celebration",
-                        style: AppTextStyle.ts14M(),
-                      ),
-                      subtitle: Text(
-                        "Andheri",
-                        style: AppTextStyle.ts16R(
-                          color: AppColor.black.withValues(alpha: 0.50),
-                        ),
-                      ),
-                      trailing: Text(
-                        formatDateTimeAsDDMMMYYYY(DateTime.now()),
-                        style: AppTextStyle.ts14R(),
-                      ),
-                    );
-                  },
-                ),
-             */
               ] else ...[
                 Center(
                   child: Text(
@@ -1756,18 +1711,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              verticalSpacing(height: 12),
               if (_hasValidManager(table10List)) ...[
                 ListTile(
                   contentPadding: EdgeInsets.zero,
+                  isThreeLine: true,
                   leading: CircleAvatar(
-                    radius: 45,
                     backgroundColor: AppColor.primary,
                     child: Text(
-                      table10List!.first.managerName.isNotEmpty
-                          ? table10List.first.managerName[0].toUpperCase()
-                          : '',
-                      style: AppTextStyle.ts24B(color: AppColor.white),
+                      getInitials(table10List!.first.managerName),
+                      style: AppTextStyle.ts16B(color: AppColor.white),
                     ),
                   ),
                   title: Text(
@@ -1785,7 +1738,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     style: AppTextStyle.ts14R(),
                   ),
                 ),
-                const SizedBox(height: 12),
+                verticalSpacing(),
                 InkWell(
                   onTap: () {
                     _openEmail(table10List.first.managerEmail);

@@ -219,18 +219,18 @@ Future showSuccessMessage(BuildContext context, {String? subTitle}) async {
   });
   CustomSnackBar.showTopSnackBar(
     context,
-    title:subTitle?? "Success",
+    title: subTitle ?? "Success",
     isError: false,
   );
   isPop = true;
 }
 
 Future showErrorMessage(
-    BuildContext context,
-    String title,
-    String message, {
-      bool isMenuChanged = false,
-    }) async {
+  BuildContext context,
+  String title,
+  String message, {
+  bool isMenuChanged = false,
+}) async {
   final lowerMessage = message.toLowerCase();
 
   if (isMenuChanged ||
@@ -240,11 +240,7 @@ Future showErrorMessage(
       lowerMessage.contains("access modified")) {
     DialogHelper.showMenuChangedErrorDialog(context: context);
   } else {
-    CustomSnackBar.showTopSnackBar(
-      context,
-      title: message,
-      isError: true,
-    );
+    CustomSnackBar.showTopSnackBar(context, title: message, isError: true);
 
     await Future.delayed(const Duration(seconds: 3));
   }
@@ -257,6 +253,7 @@ bool isValidMobileNumber(String value) {
 
 // DATE FORMATTERS
 String formatDateTimeAsDDMMMYYYY(DateTime d, {String? separator}) {
+  if (d.year == 1970) return "-";
   return DateFormat(
     'dd${separator ?? '-'}MMM${separator ?? '-'}yyyy',
   ).format(d);
@@ -544,6 +541,12 @@ String dateFormatterDDMMYYYYDAY(
   }
 }
 
+String formatDateToDayMonthOnly(DateTime? date) {
+  if (date == null) return '';
+
+  return DateFormat('dd MMM').format(date);
+}
+
 String dateFormatterHhMmAm(DateTime dateTime) {
   return DateFormat('hh:mma').format(dateTime).toLowerCase();
 }
@@ -747,4 +750,22 @@ String addCommasToInteger(double value) {
 
   // Combine the grouped part and the last three digits
   return '$groupedDigits,$lastThreeDigits';
+}
+
+String getInitials(String name) {
+  if (name.trim().isEmpty) return '';
+
+  final parts = name.trim().split(' ');
+
+  if (parts.length == 1) {
+    return parts.first[0].toUpperCase();
+  }
+
+  return (parts.first[0] + parts.last[0]).toUpperCase();
+}
+
+String formatDateTimeReadable(DateTime? date) {
+  if (date == null) return "-";
+
+  return DateFormat('dd MMMM yyyy h:mm a').format(date);
 }

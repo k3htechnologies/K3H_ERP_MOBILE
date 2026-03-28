@@ -203,7 +203,7 @@ class _CustomAppBarWithBackButtonState
     );
     showSuccessMessage(
       context,
-      subTitle: "Project Selected ${project.projectName}",
+      subTitle: "Project Selected : ${project.projectName}",
     );
 
     // Call the callback if provided

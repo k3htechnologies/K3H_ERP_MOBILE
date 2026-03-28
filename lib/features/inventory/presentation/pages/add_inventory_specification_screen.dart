@@ -94,10 +94,8 @@ class _AddInventorySpecificationScreenState
   List<Map<String, dynamic>> flatStatusList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Flat Status'},
     {'zAttributesId': 1, 'DisplayName': 'Available'},
-    {'zAttributesId': 2, 'DisplayName': 'Booked'},
     {'zAttributesId': 2, 'DisplayName': 'Blocked'},
     {'zAttributesId': 3, 'DisplayName': 'Hold'},
-    {'zAttributesId': 4, 'DisplayName': 'Alloted'},
   ];
 
   // STATIC LISTS FOR FLAT FACING
@@ -374,6 +372,18 @@ class _AddInventorySpecificationScreenState
     }
   }
 
+  // <---- DELETE DIALOG ---->
+  Future<void> _showPopupToDeleteUnitSpecification(int index) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a Unit Specification?',
+      'Are you sure you want to delete "Entire Flat"? This action cannot be undone.',
+    );
+    if (result && context.mounted) {
+      _deleteUnitSpecification(index);
+    }
+  }
+
   // DELETE UNIT SPECIFICATION
   void _deleteUnitSpecification(int index) {
     Future.microtask(() {
@@ -466,7 +476,7 @@ class _AddInventorySpecificationScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Inventory Management",
+        screenTitle: "Inventory Management Form",
         authorization: _routeAuthorizationModel,
       ),
       body: SingleChildScrollView(
@@ -654,13 +664,6 @@ class _AddInventorySpecificationScreenState
                             if (value == null || value["zAttributesId"] == -1) {
                               return 'Status is required';
                             }
-                            if (selectedFlatType.value["DisplayName"]
-                                        .toLowerCase() ==
-                                    "void" &&
-                                value["DisplayName"].toLowerCase() ==
-                                    "available") {
-                              return "Invalid Status for Void Flat";
-                            }
                             return null;
                           },
                         );
@@ -694,7 +697,10 @@ class _AddInventorySpecificationScreenState
                       valueListenable: flatSpecificationList,
                       builder: (context, value, child) {
                         if (value.isEmpty) {
-                          return SizedBox(height: 200, child: noDataWidget());
+                          return SizedBox(
+                            height: 200,
+                            child: Center(child: noDataWidget()),
+                          );
                         }
 
                         return Column(
@@ -729,78 +735,98 @@ class _AddInventorySpecificationScreenState
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                Text(
-                                                  spec.flatLayout,
-                                                  style: AppTextStyle.ts14M(),
-                                                ),
-                                                verticalSpacing(height: 8),
                                                 Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    buildColumnTitleValue(
-                                                      title: "Area (Sq. ft)",
-                                                      value:
-                                                          spec.flatLayoutAreaSqFt
-                                                              .toString(),
+                                                    Text(
+                                                      spec.flatLayout,
+                                                      style:
+                                                          AppTextStyle.ts14M(),
                                                     ),
-                                                    buildColumnTitleValue(
-                                                      title: "Length (Sq. ft)",
-                                                      value:
-                                                          spec.flatLayoutLengthSqFt
-                                                              .toString(),
-                                                    ),
-                                                    buildColumnTitleValue(
-                                                      title: "Width (Sq. ft)",
-                                                      value:
-                                                          spec.flatLayoutWidthSqFt
-                                                              .toString(),
+                                                    Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        CustomIconButton(
+                                                          onPressed: () {
+                                                            _navigateToAddUnitSpecification(
+                                                              unitSpec: spec,
+                                                              index: index,
+                                                            );
+                                                          },
+                                                          icon:
+                                                              SvgPicture.asset(
+                                                                AppAssets
+                                                                    .editIcon,
+                                                                height: 18,
+                                                                width: 18,
+                                                              ),
+                                                        ),
+                                                        horizontalSpacing(),
+                                                        CustomIconButton(
+                                                          onPressed: () {
+                                                            _showPopupToDeleteUnitSpecification(
+                                                              index,
+                                                            );
+                                                          },
+                                                          icon:
+                                                              SvgPicture.asset(
+                                                                AppAssets
+                                                                    .deleteIcon,
+                                                                height: 18,
+                                                                width: 18,
+                                                              ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ],
                                                 ),
-                                                if (spec.note.isNotEmpty)
-                                                  verticalSpacing(height: 8),
-                                                if (spec.note.isNotEmpty)
-                                                  Text(
-                                                    "Note: ${spec.note}",
-                                                    style: AppTextStyle.ts12R(
-                                                      color: AppColor.grey,
+                                                verticalSpacing(height: 8),
+                                                Column(
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        buildColumnTitleValue(
+                                                          title:
+                                                              "Area (Sq. ft)",
+                                                          value:
+                                                              spec.flatLayoutAreaSqFt
+                                                                  .toString(),
+                                                        ),
+                                                        buildColumnTitleValue(
+                                                          title:
+                                                              "Length (Sq. ft)",
+                                                          value:
+                                                              spec.flatLayoutLengthSqFt
+                                                                  .toString(),
+                                                        ),
+                                                      ],
                                                     ),
-                                                  ),
+                                                    verticalSpacing(),
+                                                    Row(
+                                                      children: [
+                                                        buildColumnTitleValue(
+                                                          title:
+                                                              "Width (Sq. ft)",
+                                                          value:
+                                                              spec.flatLayoutWidthSqFt
+                                                                  .toString(),
+                                                        ),
+                                                        buildColumnTitleValue(
+                                                          title: "Note",
+                                                          value:
+                                                              spec.note.isEmpty
+                                                                  ? '-'
+                                                                  : spec.note,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
                                               ],
                                             ),
-                                          ),
-                                          Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              CustomIconButton(
-                                                onPressed: () {
-                                                  _navigateToAddUnitSpecification(
-                                                    unitSpec: spec,
-                                                    index: index,
-                                                  );
-                                                },
-                                                icon: SvgPicture.asset(
-                                                  AppAssets.editIcon,
-                                                  height: 18,
-                                                  width: 18,
-                                                ),
-                                              ),
-                                              horizontalSpacing(),
-                                              CustomIconButton(
-                                                onPressed: () {
-                                                  _deleteUnitSpecification(
-                                                    index,
-                                                  );
-                                                },
-                                                icon: SvgPicture.asset(
-                                                  AppAssets.deleteIcon,
-                                                  height: 18,
-                                                  width: 18,
-                                                ),
-                                              ),
-                                            ],
                                           ),
                                         ],
                                       ),
