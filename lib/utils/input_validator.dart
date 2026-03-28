@@ -196,14 +196,14 @@ class InputValidator {
   }
 
   static bool isValidDrivingLicence(String dl) {
-    final regex = RegExp(r'^[A-Z]{2}\d{2}\d{4}\d{7}$');
+    final regex = RegExp(r'^[A-Z]{2}\d{13}$');
     return regex.hasMatch(dl);
   }
 
   static List<TextInputFormatter> drivingLicenceInputFormatters() {
     return [
       UpperCaseTextFormatter(),
-      LengthLimitingTextInputFormatter(13),
+      LengthLimitingTextInputFormatter(15),
       FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')),
     ];
   }
