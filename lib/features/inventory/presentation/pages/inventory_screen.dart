@@ -982,8 +982,22 @@ class _InventoryScreenState extends State<InventoryScreen>
           if (flat.ownerName.isNotEmpty &&
               flat.flatStatus.toLowerCase() == "booked") ...[
             verticalSpacing(),
-            GestureDetector(
-              onTap: () {},
+            InkWell(
+              onTap: () {
+                goRouter.pushNamed(
+                  AppRoutes.viewBooking,
+                  queryParameters: {
+                    "bookingId": Uri.encodeQueryComponent(
+                      EncryptionManager.encryptData(flat.bookingId.toString()),
+                    ),
+                    "projectId": Uri.encodeQueryComponent(
+                      EncryptionManager.encryptData(
+                        _project.projectId.toString(),
+                      ),
+                    ),
+                  },
+                );
+              },
               child: Text(
                 "Owner : ${flat.ownerName}",
                 style: AppTextStyle.ts12R(color: AppColor.primary),
@@ -1033,6 +1047,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                   _inventoryCubit.updateFlatStatus(
                     inventoryFlatId: flat.inventoryFlatId,
                     flatStatus: result["status"],
+                    ownerName: result["ownerName"],
                   );
                 }
               },

@@ -49,6 +49,8 @@ class _BookingScreenState extends State<BookingScreen> {
 
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC,
+      _applicantNameC,
+      _applicantMobileC,
       _wingC,
       _mobileNumberC,
       _flatC,
@@ -105,6 +107,10 @@ class _BookingScreenState extends State<BookingScreen> {
   @override
   void dispose() {
     _searchC.dispose();
+    _agreementValueC.dispose();
+    _applicantNameC.dispose();
+    _applicantMobileC.dispose();
+    _bookingTypeC.dispose();
     _wingC.dispose();
     _mobileNumberC.dispose();
     _flatC.dispose();
@@ -118,6 +124,8 @@ class _BookingScreenState extends State<BookingScreen> {
 
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _applicantNameC = TextEditingController();
+    _applicantMobileC = TextEditingController();
     _wingC = TextEditingController();
     _mobileNumberC = TextEditingController();
     _flatC = TextEditingController();
@@ -588,9 +596,14 @@ class _BookingScreenState extends State<BookingScreen> {
                               goRouter.pushNamed(
                                 AppRoutes.viewBooking,
                                 queryParameters: {
-                                  "booking": Uri.encodeComponent(
+                                  "bookingId": Uri.encodeQueryComponent(
                                     EncryptionManager.encryptData(
-                                      jsonEncode(booking),
+                                      booking.bookingId.toString(),
+                                    ),
+                                  ),
+                                  "projectId": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      booking.projectId.toString(),
                                     ),
                                   ),
                                 },

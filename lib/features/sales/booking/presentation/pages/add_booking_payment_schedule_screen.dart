@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_data.model.dart';
@@ -135,19 +134,17 @@ class _AddBookingPaymentScheduleScreenState
       showErrorMessage(
         context,
         "Invalid Percentage",
-        "Payment schedule total must be exactly 100%. Remaining allowed is ${_bookingCubit.remainingPercentage.toStringAsFixed(2)}%",
+        "Total percentage cannot exceed 100%. Current total would be ${newTotal.toStringAsFixed(2)}%",
       );
       return;
     }
 
     /// DUPLICATE DATE CHECK
     if (isDateTab) {
-      final selectedDate = DateFormat("dd-MM-yyyy").format(date!);
-
       final alreadyExists = schedules.any(
         (e) =>
             e.type == "Date" &&
-            DateFormat("dd-MM-yyyy").format(e.date!) == selectedDate &&
+            e.date == date! &&
             schedules.indexOf(e) != widget.index,
       );
 
@@ -198,7 +195,7 @@ class _AddBookingPaymentScheduleScreenState
       type: isDateTab ? "Date" : "Stage",
       name:
           isDateTab
-              ? DateFormat("dd-MM-yyyy").format(date!)
+              ? date!.toIso8601String()
               : (_selectedStage.value?.first["DisplayName"] == "Other"
                   ? _otherStageC.text.trim()
                   : _selectedStage.value?.first["DisplayName"] ?? "Stage"),
@@ -324,6 +321,7 @@ class _AddBookingPaymentScheduleScreenState
           title: "Stages",
           isRequired: true,
           isMultiSelect: false,
+          hintText: "Select Stage",
           initialValue: _selectedStage.value,
           dataList: [],
           onClear: () => _selectedStage.value = null,

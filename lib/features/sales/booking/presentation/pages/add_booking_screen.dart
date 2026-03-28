@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
@@ -25,6 +25,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_verification_dialog.dart';
@@ -802,15 +803,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     if (!(_detailsFormKey.currentState?.validate() ?? false)) {
       _tabController.animateTo(0);
       _bookingCubit.onTabChangedAddForm(0, context);
-      return false;
-    }
+      //CHECK APPLICANTS
 
-    //CHECK APPLICANTS
-    if (_applicants.value.isEmpty) {
-      _tabController.animateTo(0);
-      _bookingCubit.onTabChangedAddForm(0, context);
-      showErrorMessage(context, "", "At least one applicant is required");
-      return false;
+      if (_applicants.value.isEmpty) {
+        showErrorMessage(context, "", "At least one applicant is required");
+        return false;
+      }
     }
 
     if (!_hasPrimaryApplicant(_applicants.value)) {
@@ -844,15 +842,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       return false;
     }
 
-    // VALIDATE REMARK
-    final remarkValid = _unitModCustomizationRemarkC.text.trim().isNotEmpty;
-    if (!remarkValid) {
-      _remarkFormKey.currentState?.validate();
-      _tabController.animateTo(5);
-      _bookingCubit.onTabChangedAddForm(5, context);
-      return false;
-    }
-
     return true;
   }
 
@@ -865,10 +854,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
           projectId: _project.projectId,
           queryParams: <String, dynamic>{
             "InventoryBuildingId":
-                widget.inventoryObject?[0]["inventoryBuildingId"],
+                widget.inventoryObject?[0]["inventoryBuildingId"] ??
+                widget.bookingModel?.inventoryBuildingId,
             "InventoryFlatFloorBasementPodiumWingId":
                 widget
-                    .inventoryObject?[0]["inventoryFlatFloorBasementPodiumWingId"],
+                    .inventoryObject?[0]["inventoryFlatFloorBasementPodiumWingId"] ??
+                widget.bookingModel?.inventoryFlatFloorBasementPodiumWingId,
           },
         );
 
@@ -1246,6 +1237,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                               ? state.enquiryList.first
                               : null;
                       return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           CustomTextField(
                             title: "Enquiry Code",
@@ -1295,7 +1287,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                               return null;
                             },
                           ),
-                          if (enquiry != null) ...[
+                          if (enquiry != null &&
+                              (enquiry.finalStage.toLowerCase() !=
+                                      'booking done' ||
+                                  _isEditMode)) ...[
                             infoCard([
                               {
                                 "title": "Enquiry Code",
@@ -1305,6 +1300,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                               {
                                 "title": "Mobile No",
                                 "value": enquiry.mobileNumber,
+                                "widget": CustomClickToContactText(
+                                  value: enquiry.mobileNumber,
+                                ),
                               },
                               {"title": "Source", "value": enquiry.source},
                               {
@@ -1319,6 +1317,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                 "title": "Sourcing Manager",
                                 "value": enquiry.sourcingManager,
                               },
+                              {"title": "Stage", "value": enquiry.finalStage},
                               {
                                 "title": "Current Location",
                                 "value": enquiry.currentLocation,
@@ -1431,6 +1430,34 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                               ),
                             ),
                             verticalSpacing(),
+                          ] else if (enquiry != null &&
+                              enquiry.finalStage.toLowerCase() ==
+                                  'booking done') ...[
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColor.lightRed,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: AppColor.error,
+                                  width: .5,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    "Booking already done for this enquiry",
+                                    style: AppTextStyle.ts14M(
+                                      color: AppColor.error,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
                           ] else if (_enquiryUniqueCodeC.text.trim().length ==
                                   18 &&
                               _enquiryFetchTried.value &&
@@ -1452,7 +1479,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                 ),
                               ),
                               child: Text(
-                                "No Enquiry details found for this Unique Code",
+                                "No Enquiry details found for this Enquiry Code",
                                 style: AppTextStyle.ts14M(
                                   color: AppColor.error,
                                 ),
@@ -1599,7 +1626,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     widget.bookingModel!.floor,
               },
               {
-                "title": "Flat",
+                "title": "Unit No",
                 "value":
                     widget.inventoryObject?[0]["flat"] ??
                     widget.bookingModel!.flat,
@@ -2181,7 +2208,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                           visible:
                               (value['DisplayName'] == 'Other' &&
                                   _bookingCubit.totalCumulativePercentage !=
-                                      100),
+                                      100 &&
+                                  _agreementValueNotifier.value > 0),
                           child: CustomButton(
                             leading: const Icon(Icons.add, size: 16),
                             text: "Add",
@@ -2276,14 +2304,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         itemBuilder: (context, index) {
                           final item = list[index];
                           String stageName =
-                              (item.name.isNotEmpty)
-                                  ? item.name
-                                  : (item.date != null
-                                      ? DateFormat(
-                                        "dd-MM-yyyy",
-                                      ).format(item.date!)
-                                      : '');
-
+                              (item.date != null)
+                                  ? formatDateTimeAsDDMMMYYYY(item.date!)
+                                  : item.name;
                           return Row(
                             key: ValueKey(stageName + index.toString()),
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -2416,7 +2439,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       key: _otherChargesFormKey,
       child: BlocBuilder<BookingCubit, BookingState>(
         builder: (context, state) {
-          if (state.otherChargesList.isEmpty) {
+          if (state.otherChargesList.isEmpty ||
+              _agreementValueNotifier.value == 0) {
             return Center(child: noDataWidget(message: "No Charges Available"));
           }
           return Column(
@@ -2620,8 +2644,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       selectedTerms.map((term) {
                         final title = term['DisplayName']?.toString() ?? '';
                         final desc = term['Description']?.toString() ?? '';
-                        final cleaned = _stripHtmlTags(desc);
-                        if (cleaned.isEmpty && title.isEmpty) {
+                        if (desc.isEmpty && title.isEmpty) {
                           return SizedBox.shrink();
                         }
                         return Container(
@@ -2631,13 +2654,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                           padding: EdgeInsets.all(12),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (title.isNotEmpty)
-                                Text(title, style: AppTextStyle.ts14SB()),
-                              if (title.isNotEmpty) verticalSpacing(height: 6),
-                              if (cleaned.isNotEmpty)
-                                Text(cleaned, style: AppTextStyle.ts14R()),
-                            ],
+                            children: [if (desc.isNotEmpty) Html(data: desc)],
                           ),
                         );
                       }).toList(),
@@ -2672,17 +2689,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   children: [
                     CustomTextField(
                       title: "Unit / Modulation / Customization Remark",
-                      isRequired: true,
                       hint: "Enter Unit / Modulation / Customization Remark",
                       minLines: 3,
                       maxLines: 3,
                       textController: _unitModCustomizationRemarkC,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Unit / Modulation / Customization Remark is required";
-                        }
-                        return null;
-                      },
                     ),
                     CustomTextField(
                       title: "Payment Related Remark",
@@ -2976,7 +2986,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   }
 
   // INFO HELPER CARD
-  Widget infoCard(List<Map<String, String>> items, {String? title}) {
+  Widget infoCard(List<Map<String, dynamic>> items, {String? title}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -2994,25 +3004,32 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             verticalSpacing(),
           ],
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: List.generate((items.length / 2).ceil(), (index) {
               final first = items[index * 2];
               final second =
                   (index * 2 + 1 < items.length) ? items[index * 2 + 1] : null;
-
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
                       title: first["title"] ?? "",
-                      value: first["value"] ?? "-",
+                      value:
+                          first["widget"] != null ? "" : first["value"] ?? "",
+                      customValueWidget: first["widget"],
                     ),
                     const SizedBox(width: 20),
 
                     second != null
                         ? buildColumnTitleValue(
                           title: second["title"] ?? "",
-                          value: second["value"] ?? "-",
+                          value:
+                              second["widget"] != null
+                                  ? ""
+                                  : second["value"] ?? "",
+                          customValueWidget: second["widget"],
                         )
                         : const SizedBox(),
                   ],

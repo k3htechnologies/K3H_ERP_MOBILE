@@ -134,33 +134,39 @@ class BookingCubit extends Cubit<BookingState> {
   }
 
   //  GET BOOKING BY ID LIST
-  Future getBookingListById(
+  Future<BookingModel?> getBookingById(
     BuildContext context,
     int pageNumber,
     int projectId,
     int bookingId,
   ) async {
-    emit(state.copyWith(isLoading: true, bookingListById: []));
+    emit(state.copyWith(isLoading: true));
+
     Map<String, dynamic> queryParams = {"BookingId": bookingId};
-    var result = await _bookingRepository.getBookingList(
+
+    final result = await _bookingRepository.getBookingList(
       pageNumber: pageNumber,
       pageSize: 10,
       projectId: projectId,
       queryParams: queryParams,
     );
 
-    result.fold(
+    return result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
+        return null;
       },
       (response) {
-        emit(
-          state.copyWith(
-            bookingListById: List<BookingModel>.from(response['data'] ?? []),
-            isLoading: false,
-          ),
+        final List<BookingModel> list = List<BookingModel>.from(
+          response['data'] ?? [],
         );
+
+        final booking = list.isNotEmpty ? list.first : null;
+
+        emit(state.copyWith(isLoading: false));
+
+        return booking;
       },
     );
   }
@@ -621,8 +627,12 @@ class BookingCubit extends Cubit<BookingState> {
       (response) async {
         goRouter.pop();
         showSuccessMessage(context, subTitle: 'Booking Added Successfully');
+        final newBooking = (response['data'] as List<BookingModel>).first;
 
-        goRouter.pop({"status": "Booked"});
+        goRouter.pop({
+          "ownerName": newBooking.applicantName,
+          "status": "Booked",
+        });
       },
     );
   }
