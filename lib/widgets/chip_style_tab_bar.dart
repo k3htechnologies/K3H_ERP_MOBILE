@@ -54,6 +54,8 @@ class ChipStyleTabBar extends StatelessWidget {
                   ),
                   indicatorSize: TabBarIndicatorSize.tab,
                   indicatorPadding: const EdgeInsets.symmetric(horizontal: 6),
+                  splashFactory: NoSplash.splashFactory,
+                  overlayColor: WidgetStateProperty.all(Colors.transparent),
                   dividerColor: Colors.transparent,
                   labelStyle: AppTextStyle.ts14M(),
                   unselectedLabelStyle: AppTextStyle.ts14M(),
@@ -64,16 +66,22 @@ class ChipStyleTabBar extends StatelessWidget {
                   tabs:
                       tabs.map((title) {
                         return Tab(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: AppColor.grey.withValues(alpha: 0.4),
+                          child: Material(
+                            shadowColor: Colors.transparent,
+                            color: Colors.transparent,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
                               ),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: AppColor.grey.withValues(alpha: 0.4),
+                                ),
+                              ),
+                              child: Text(title),
                             ),
-                            child: Text(title),
                           ),
                         );
                       }).toList(),

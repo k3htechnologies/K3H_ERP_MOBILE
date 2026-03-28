@@ -87,6 +87,9 @@ abstract interface class InventoryDatasource {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>> apicallToAddFloor({
+    required Map<String, dynamic> body,
+  });
 }
 
 class InventoryDatasourceImpl implements InventoryDatasource {
@@ -627,6 +630,30 @@ class InventoryDatasourceImpl implements InventoryDatasource {
           queryParams: queryParams,
           projectId: projectId,
         );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallToAddFloor({
+    required Map<String, dynamic> body,
+  }) async {
+    String addUpdateInventoryFlatUrl = "Inventory/AddInventoryFloor";
+
+    try {
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addUpdateInventoryFlatUrl,
+        body,
+      );
+      return {
+        'data': networkResponse["data"],
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallToAddInventoryFlat(body: body);
       }
       rethrow;
     }

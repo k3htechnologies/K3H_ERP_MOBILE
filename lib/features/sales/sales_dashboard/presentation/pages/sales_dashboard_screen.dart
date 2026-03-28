@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/dashboard/presentation/pages/dashboard_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/data/model/sales.dashboard.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/cubit/sales_dashboard_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -16,7 +15,6 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class SalesDashboardScreen extends StatefulWidget {
@@ -51,7 +49,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
       context: context,
       title: 'Are you sure you want to mark Time Out?',
       message: '',
-      confirmText: "Mark Time Out",
+      confirmText: "Time Out",
     );
     if (shouldRemove == true) {
       _salesDashboardCubit.markTimeOutEnquiry(
@@ -133,84 +131,84 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SalesDashboardCubit, SalesDashboardState>(
-      builder: (context, state) {
-        if (state.isLoading!) {
-          return Center(child: loader());
-        }
-        return Scaffold(
-          appBar: CustomAppBarWithBackButton(
-            screenTitle: "Sales",
-            isMenuButton: true,
-            authorization: AuthorizationModel(),
-            onProjectChangeCallback: (value) {
-              _selectedProject = value;
-              _salesDashboardCubit.getSalesDashboardList(
-                context,
-                _selectedProject.projectId,
-              );
-            },
-            showNotification: true,
-          ),
-          body: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // GENERATE REPORT
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 5.0,
-                      horizontal: 6.0,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(6.0),
-                      color: AppColor.lightBlue,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SvgPicture.asset(
-                          AppAssets.generateReportIcon,
-                          width: 16,
-                          height: 16,
-                        ),
-                        horizontalSpacing(),
-                        Flexible(
-                          child: Text(
-                            "Generate Report",
-                            style: AppTextStyle.ts14M(color: AppColor.primary),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  verticalSpacing(),
-                  // COUNTS WIDGET (INCLUDING TOTAL ENQUIRIES, NEW ENQURIES, ACTIVE FOLLOW - UPS, LOST ENQURIES, TOTAL BOOKINGS, TOTAL BOOKING VALUE, TARGET VS ACHIEVED, CP CONTRIBUTION)
-                  /*
-                  _buildOverviewWidget(context),
-                  // ENQUIRY OVERVIEW WIDGET
-                  _buildEnquiryOverviewWidget(context),
-                  */
-                  verticalSpacing(),
-                  // ENQURIES LIST WIDGET
-                  _buildEnquiriesWidget(context),
-                  verticalSpacing(),
-                  // TARGET PERFORMANCE WIDGET
-                  /* _buildTargetPerformanceWidget(context),*/
-                  verticalSpacing(),
-                  // ACTIVE FOLLOW-UPS WIDGET (ACCORDING TO STATUS)
-                  _buildActiveFollowUpsWidget(context),
-                  verticalSpacing(),
-                  // REPORTS WIDGET
-                  _buildReportsWidget(context),
-                ],
-              ),
-            ),
-          ),
+    return RefreshIndicator(
+      onRefresh: () async {
+        _salesDashboardCubit.getSalesDashboardList(
+          context,
+          _selectedProject.projectId,
         );
       },
+      child: BlocBuilder<SalesDashboardCubit, SalesDashboardState>(
+        builder: (context, state) {
+          if (state.isLoading!) {
+            return Center(child: loader());
+          }
+          return Scaffold(
+            appBar: CustomAppBarWithBackButton(
+              screenTitle: "Sales",
+              isMenuButton: true,
+              authorization: AuthorizationModel(),
+              onProjectChangeCallback: (value) {
+                _selectedProject = value;
+                _salesDashboardCubit.getSalesDashboardList(
+                  context,
+                  _selectedProject.projectId,
+                );
+              },
+              showNotification: true,
+            ),
+            body: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // GENERATE REPORT
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 5.0,
+                        horizontal: 6.0,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6.0),
+                        color: AppColor.lightBlue,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SvgPicture.asset(
+                            AppAssets.generateReportIcon,
+                            width: 16,
+                            height: 16,
+                          ),
+                          horizontalSpacing(),
+                          Flexible(
+                            child: Text(
+                              "Generate Report",
+                              style: AppTextStyle.ts14M(
+                                color: AppColor.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    verticalSpacing(),
+                    // ENQURIES LIST WIDGET
+                    _buildEnquiriesWidget(context),
+                    verticalSpacing(),
+                    // TARGET PERFORMANCE WIDGET
+                    /* _buildTargetPerformanceWidget(context),*/
+                    verticalSpacing(),
+                    // ACTIVE FOLLOW-UPS WIDGET (ACCORDING TO STATUS)
+                    _buildActiveFollowUpsWidget(context),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -251,13 +249,16 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
               ),
               verticalSpacing(height: 10.0),
               if (data.isNotEmpty) ...[
-                ListView.builder(
-                  itemCount: data.length,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    final item = data[index];
-                    return _buildEnquiryTile(context, item);
-                  },
+                SizedBox(
+                  height: 300.0,
+                  child: ListView.builder(
+                    itemCount: data.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      final item = data[index];
+                      return _buildEnquiryTile(context, item);
+                    },
+                  ),
                 ),
               ] else ...[
                 Center(
@@ -287,49 +288,64 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// DATE
           Row(
-            children: [
-              Expanded(
-                child: Text(
-                  "Date",
-                  style: AppTextStyle.ts12R(
-                    color: AppColor.black.withValues(alpha: 0.5),
-                  ),
-                ),
-              ),
-              const Text(":"),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  formatDate(item.enquiryDate),
-                  textAlign: TextAlign.right,
-                  style: AppTextStyle.ts14M(),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          /// NAME
-          _infoColumn("Customer Name", item.name),
-
-          const SizedBox(height: 16),
-
-          /// TIME + BUTTON
-          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _infoColumn("Customer Time-In", item.enquiryTimeIn),
-              CustomButton(
-                text: "Mark Time Out",
-                onPressed: () {
-                  _showMarkAsTimeOutPopup(context, item);
-                },
+              Expanded(child: _infoColumn("Project Name", item.projectName)),
+              horizontalSpacing(),
+              Expanded(child: _infoColumn("Client Name", item.name)),
+            ],
+          ),
+          verticalSpacing(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: _infoColumn(
+                  "Date",
+                  formatDateTimeAsDDMMMYYYY(item.enquiryDate),
+                ),
+              ),
+              horizontalSpacing(),
+              Expanded(child: _infoColumn("Mobile Number", item.mobileNumber)),
+            ],
+          ),
+          verticalSpacing(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: _infoColumn("Customer Time In", item.enquiryTimeIn),
+              ),
+              horizontalSpacing(),
+              Expanded(child: _infoColumn("Sales Advisor", item.salesAdvisor)),
+            ],
+          ),
+          verticalSpacing(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: _infoColumn(
+                  "Sourcing Manager",
+                  item.sourcingManager.isEmpty ? "-" : item.sourcingManager,
+                ),
               ),
             ],
           ),
+          verticalSpacing(),
+          if (item.canTimeOut == 1) ...{
+            CustomButton(
+              text: "Time Out",
+              onPressed: () {
+                _showMarkAsTimeOutPopup(context, item);
+              },
+            ),
+          },
         ],
       ),
     );
@@ -373,7 +389,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
               verticalSpacing(height: 10.0),
               if (data.isNotEmpty) ...[
                 SizedBox(
-                  height: 300.0,
+                  height: 350.0,
                   child: ListView.builder(
                     itemCount: data.length,
                     shrinkWrap: true,
@@ -395,46 +411,100 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Client Name",
-                                      style: AppTextStyle.ts14M(
-                                        color: AppColor.black.withValues(
-                                          alpha: 0.50,
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      activeFollowUps.name,
-                                      style: AppTextStyle.ts14M(
-                                        color: AppColor.black,
-                                      ),
-                                    ),
-                                  ],
+                                Expanded(
+                                  child: _infoColumn(
+                                    "Project Name",
+                                    activeFollowUps.projectName,
+                                  ),
                                 ),
-                                horizontalSpacing(width: 20.0),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Due Day(s)",
-                                      style: AppTextStyle.ts12R(
-                                        color: AppColor.black.withValues(
-                                          alpha: 0.50,
-                                        ),
-                                      ),
+                                horizontalSpacing(),
+                                Expanded(
+                                  child: _infoColumn(
+                                    "Enquiry Code",
+                                    activeFollowUps.systemGeneratedCode,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: _infoColumn(
+                                    "Client Name",
+                                    activeFollowUps.name,
+                                  ),
+                                ),
+                                horizontalSpacing(),
+                                Expanded(
+                                  child: _infoColumn(
+                                    "Mobile Number",
+                                    activeFollowUps.mobileNumber,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: _infoColumn(
+                                    "Due Day(s)",
+                                    activeFollowUps.enquiryFollowUpDays,
+                                  ),
+                                ),
+                                horizontalSpacing(),
+                                Expanded(
+                                  child: _infoColumn(
+                                    "Next FollowUp Date",
+                                    formatDateTimeAsDDMMMYYYY(
+                                      activeFollowUps.nextFollowUpDate,
                                     ),
-                                    Text(
-                                      activeFollowUps.enquiryFollowUpDays,
-                                      style: AppTextStyle.ts14M(
-                                        color: AppColor.black,
-                                      ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: _infoColumn(
+                                    "Sales Advisor",
+                                    activeFollowUps.salesAdvisor,
+                                  ),
+                                ),
+                                horizontalSpacing(),
+                                Expanded(
+                                  child: _infoColumn(
+                                    "Sourcing Manager",
+                                    activeFollowUps.sourcingManager.isEmpty
+                                        ? '-'
+                                        : activeFollowUps.sourcingManager,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: _infoColumn(
+                                    "Created Date",
+                                    formatDateTimeAsDDMMMYYYY(
+                                      activeFollowUps.createdDate,
                                     ),
-                                  ],
+                                  ),
                                 ),
                               ],
                             ),
@@ -468,7 +538,6 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                                 horizontalSpacing(width: 20),
                                 Expanded(
                                   child: Container(
-                                    width: 180,
                                     padding: EdgeInsets.symmetric(
                                       horizontal: 10.0,
                                       vertical: 4.0,
@@ -481,7 +550,9 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                                     ),
                                     child: Center(
                                       child: Text(
-                                        activeData.text,
+                                        activeData.text.isEmpty
+                                            ? '-'
+                                            : activeData.text,
                                         style: AppTextStyle.ts14M(
                                           color: activeData.textColor,
                                         ),
@@ -542,270 +613,6 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildReportsWidget(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 12.0),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  "Reports",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.50),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          verticalSpacing(height: 20.0),
-          GridView.count(
-            crossAxisCount: 3,
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            crossAxisSpacing: 26.0,
-            mainAxisSpacing: 16.0,
-            childAspectRatio: 1.2,
-            children: [
-              QuickActionTile(
-                icon: AppAssets.enquiryReportIcon,
-                title: "Enquiry Report",
-                onTap: () {
-                  DialogHelper.showCustomDialogue(
-                    context,
-                    icon: CustomIconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.warning_amber_outlined,
-                        color: AppColor.yellow,
-                        size: 16,
-                      ),
-                      backgroundColor: AppColor.yellow.withValues(alpha: .2),
-                    ),
-                    title: "ALERT",
-                    childContent: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Divider(
-                          color: AppColor.black.withValues(alpha: 0.50),
-                          thickness: 0.5,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 16,
-                          ),
-                          child: Text(
-                            "This feature is currently under development and will be available soon.",
-                            style: AppTextStyle.ts14SB(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-              QuickActionTile(
-                icon: AppAssets.sourceReportIcon,
-                title: "Source Report",
-                onTap: () {
-                  DialogHelper.showCustomDialogue(
-                    context,
-                    icon: CustomIconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.warning_amber_outlined,
-                        color: AppColor.yellow,
-                        size: 16,
-                      ),
-                      backgroundColor: AppColor.yellow.withValues(alpha: .2),
-                    ),
-                    title: "ALERT",
-                    childContent: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Divider(
-                          color: AppColor.black.withValues(alpha: 0.50),
-                          thickness: 0.5,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 16,
-                          ),
-                          child: Text(
-                            "This feature is currently under development and will be available soon.",
-                            style: AppTextStyle.ts14SB(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-              QuickActionTile(
-                icon: AppAssets.cpReportIcon,
-                title: "CP Report",
-                onTap: () {
-                  DialogHelper.showCustomDialogue(
-                    context,
-                    icon: CustomIconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.warning_amber_outlined,
-                        color: AppColor.yellow,
-                        size: 16,
-                      ),
-                      backgroundColor: AppColor.yellow.withValues(alpha: .2),
-                    ),
-                    title: "ALERT",
-                    childContent: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Divider(
-                          color: AppColor.black.withValues(alpha: 0.50),
-                          thickness: 0.5,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 16,
-                          ),
-                          child: Text(
-                            "This feature is currently under development and will be available soon.",
-                            style: AppTextStyle.ts14SB(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-              QuickActionTile(
-                icon: AppAssets.bookingReportIcon,
-                title: "Booking Report",
-                onTap: () {
-                  DialogHelper.showCustomDialogue(
-                    context,
-                    icon: CustomIconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.warning_amber_outlined,
-                        color: AppColor.yellow,
-                        size: 16,
-                      ),
-                      backgroundColor: AppColor.yellow.withValues(alpha: .2),
-                    ),
-                    title: "ALERT",
-                    childContent: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Divider(
-                          color: AppColor.black.withValues(alpha: 0.50),
-                          thickness: 0.5,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 16,
-                          ),
-                          child: Text(
-                            "This feature is currently under development and will be available soon.",
-                            style: AppTextStyle.ts14SB(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-              QuickActionTile(
-                icon: AppAssets.closingReportIcon,
-                title: "Closing Report",
-                onTap: () {
-                  DialogHelper.showCustomDialogue(
-                    context,
-                    icon: CustomIconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.warning_amber_outlined,
-                        color: AppColor.yellow,
-                        size: 16,
-                      ),
-                      backgroundColor: AppColor.yellow.withValues(alpha: .2),
-                    ),
-                    title: "ALERT",
-                    childContent: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Divider(
-                          color: AppColor.black.withValues(alpha: 0.50),
-                          thickness: 0.5,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 16,
-                          ),
-                          child: Text(
-                            "This feature is currently under development and will be available soon.",
-                            style: AppTextStyle.ts14SB(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-              QuickActionTile(
-                icon: AppAssets.salesAdvisorIcon,
-                title: "Sales Advisor",
-                onTap: () {
-                  DialogHelper.showCustomDialogue(
-                    context,
-                    icon: CustomIconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.warning_amber_outlined,
-                        color: AppColor.yellow,
-                        size: 16,
-                      ),
-                      backgroundColor: AppColor.yellow.withValues(alpha: .2),
-                    ),
-                    title: "ALERT",
-                    childContent: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Divider(
-                          color: AppColor.black.withValues(alpha: 0.50),
-                          thickness: 0.5,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 16,
-                          ),
-                          child: Text(
-                            "This feature is currently under development and will be available soon.",
-                            style: AppTextStyle.ts14SB(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }

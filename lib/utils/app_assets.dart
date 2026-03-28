@@ -100,6 +100,12 @@ class AppAssets {
   static const String registeredVendorsIcon =
       "$svgPath/registeredVendorsIcon.svg";
 
+  static const String totalBuildingsIcon = "$svgPath/totalBuildingIcon.svg";
+  static const String basementIcon = "$svgPath/basementIcon.svg";
+  static const String podiumIcon = "$svgPath/podiumIcon.svg";
+  static const String wingsIcon = "$svgPath/wingsIcon.svg";
+  static const String groundIcon = "$svgPath/groundIcon.svg";
+
   // COMMON
   static const String backIcon = "$svgPath/backButtonIcon.svg";
 

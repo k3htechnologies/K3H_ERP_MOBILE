@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -44,8 +45,15 @@ class _AddUnitSpecificationScreenState
   // TEXT EDITING CONTROLLERS
   late TextEditingController _unitLayoutC, _areaC, _lengthC, _widthC, _noteC;
 
+  // UNIT SPECIFICATION LIST VARIABLE
+  late ValueNotifier<Map<String, dynamic>?> selectedUnitLayout;
+
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  List<Map<String, dynamic>> unitLayoutTypeList = [
+    {'zAttributesId': -1, 'DisplayName': 'Select Flat Type'},
+    {'zAttributesId': 1, 'DisplayName': 'Entire Flat'},
+  ];
 
   @override
   void initState() {
@@ -62,6 +70,7 @@ class _AddUnitSpecificationScreenState
     _lengthC.dispose();
     _widthC.dispose();
     _noteC.dispose();
+    selectedUnitLayout.dispose();
     super.dispose();
   }
 
@@ -76,6 +85,10 @@ class _AddUnitSpecificationScreenState
     // Add listeners to calculate area when length or width changes
     _lengthC.addListener(_calculateArea);
     _widthC.addListener(_calculateArea);
+
+    selectedUnitLayout = ValueNotifier<Map<String, dynamic>?>(
+      unitLayoutTypeList.first,
+    );
   }
 
   // CALCULATE AREA FROM LENGTH AND WIDTH
@@ -94,7 +107,12 @@ class _AddUnitSpecificationScreenState
   void _prefillData() {
     if (_isEditMode && widget.unitSpecificationModel != null) {
       final spec = widget.unitSpecificationModel!;
-      _unitLayoutC.text = spec.flatLayout;
+      selectedUnitLayout.value = unitLayoutTypeList.firstWhere(
+        (e) =>
+            e['DisplayName'].toString().trim().toLowerCase() ==
+            spec.flatLayout.trim().toLowerCase(),
+        orElse: () => unitLayoutTypeList.first,
+      );
       _areaC.text = spec.flatLayoutAreaSqFt.toStringAsFixed(2);
       _lengthC.text = spec.flatLayoutLengthSqFt.toStringAsFixed(2);
       _widthC.text = spec.flatLayoutWidthSqFt.toStringAsFixed(2);
@@ -131,7 +149,7 @@ class _AddUnitSpecificationScreenState
             widget.unitSpecificationModel?.inventoryFlatId ??
             widget.inventoryFlatId ??
             0,
-        flatLayout: _unitLayoutC.text.trim(),
+        flatLayout: selectedUnitLayout.value?['DisplayName'] ?? '',
         flatLayoutAreaSqFt: area,
         flatLayoutLengthSqFt: length,
         flatLayoutWidthSqFt: width,
@@ -146,7 +164,7 @@ class _AddUnitSpecificationScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Inventory Management",
+        screenTitle: "Inventory Management Form",
         authorization: _routeAuthorizationModel,
       ),
       body: SingleChildScrollView(
@@ -161,28 +179,37 @@ class _AddUnitSpecificationScreenState
               children: [
                 Text(
                   _isEditMode
-                      ? "Update Unit Specification"
-                      : "Add Unit Specification",
+                      ? "Update Flat Specification"
+                      : "Add Flat Specification",
                   style: AppTextStyle.ts16SB(),
                 ),
                 verticalSpacing(height: 15),
-                CustomTextField(
-                  title: 'Unit Layout',
-                  hint: 'Enter Unit Layout',
-                  isRequired: true,
-                  textController: _unitLayoutC,
-                  inputFormatterList: [LengthLimitingTextInputFormatter(100)],
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Unit Layout is required';
-                    }
-                    return null;
+                ValueListenableBuilder<Map<String, dynamic>?>(
+                  valueListenable: selectedUnitLayout,
+                  builder: (context, layoutValue, child) {
+                    return CustomDropDownWidget(
+                      key: ValueKey('layout_${layoutValue?['zAttributesId']}'),
+                      title: 'Layout',
+                      isRequired: true,
+                      dataList: unitLayoutTypeList,
+                      initialValue: layoutValue,
+                      onSelected: (value) {
+                        selectedUnitLayout.value = value;
+                      },
+                      validator: (value) {
+                        if (value == null || value["zAttributesId"] == -1) {
+                          return 'Layout is required';
+                        }
+                        return null;
+                      },
+                    );
                   },
                 ),
                 verticalSpacing(),
                 CustomTextField(
                   title: 'Area (Sq. ft)',
                   hint: 'Enter Area',
+                  isRequired: true,
                   textController: _areaC,
                   inputFormatterList:
                       inputFormatterListForDecimalValuesFixedToTwo(10),

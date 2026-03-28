@@ -14,7 +14,6 @@ import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
-import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -67,7 +66,6 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
             },
             showNotification: true,
           ),
-
           body: SafeArea(
             child: SingleChildScrollView(
               child: Column(
@@ -85,58 +83,68 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                         CustomTextField(
                           readOnly: true,
                           textController: TextEditingController(
-                            text: _selectedProject.projectName,
+                            text:
+                                (_selectedProject.projectName.isEmpty ||
+                                        _selectedProject.projectName
+                                                .toLowerCase() ==
+                                            "default")
+                                    ? "No Project Selected"
+                                    : _selectedProject.projectName,
                           ),
                           hint: 'Select Project',
                         ),
                         // GENERATE REPORT AND ADD BUTTON
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                vertical: 5.0,
-                                horizontal: 12.0,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(6.0),
-                                color: AppColor.lightBlue,
-                              ),
-                              child: Row(
-                                children: [
-                                  SvgPicture.asset(
-                                    AppAssets.generateReportIcon,
-                                    width: 16,
-                                    height: 16,
-                                  ),
-                                  horizontalSpacing(),
-                                  Text(
-                                    "Generate Report",
-                                    style: AppTextStyle.ts14M(
-                                      color: AppColor.primary,
+                        if (_selectedProject.projectId != 0) ...[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 5.0,
+                                  horizontal: 12.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(6.0),
+                                  color: AppColor.lightBlue,
+                                ),
+                                child: Row(
+                                  children: [
+                                    SvgPicture.asset(
+                                      AppAssets.generateReportIcon,
+                                      width: 16,
+                                      height: 16,
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            if (_routeAuthorizationModel.isAction) ...[
-                              horizontalSpacing(width: 20.0),
-                              Expanded(
-                                child: CustomButton(
-                                  leading: Icon(
-                                    Icons.add,
-                                    size: 18,
-                                    color: AppColor.white,
-                                  ),
-                                  text: "Add Inventory",
-                                  onPressed: () {
-                                    goRouter.pushNamed(AppRoutes.inventory);
-                                  },
+                                    horizontalSpacing(),
+                                    Text(
+                                      "Generate Report",
+                                      style: AppTextStyle.ts14M(
+                                        color: AppColor.primary,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
+                              if (_routeAuthorizationModel.isAction) ...[
+                                horizontalSpacing(width: 20.0),
+                                Expanded(
+                                  child: CustomButton(
+                                    leading: Icon(
+                                      Icons.add,
+                                      size: 18,
+                                      color: AppColor.white,
+                                    ),
+                                    text: "Inventory",
+                                    onPressed: () {
+                                      goRouter.pushNamed(AppRoutes.inventory);
+                                    },
+                                  ),
+                                ),
+                              ],
                             ],
-                          ],
-                        ),
+                          ),
+                        ] else ...[
+                          SizedBox.shrink(),
+                        ],
                         verticalSpacing(),
                         // TOTOAL BUILDING COUNT WIDGET
                         Container(
@@ -153,14 +161,10 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                             children: [
                               Row(
                                 children: [
-                                  ClipOval(
-                                    child: NetworkImageWidget(
-                                      imageUrl:
-                                          'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
-                                      width: 42,
-                                      height: 42,
-                                      fit: BoxFit.cover,
-                                    ),
+                                  SvgPicture.asset(
+                                    AppAssets.totalBuildingsIcon,
+                                    width: 30,
+                                    height: 30,
                                   ),
                                   horizontalSpacing(width: 16.0),
                                   Expanded(
@@ -215,14 +219,10 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   children: [
                                     Row(
                                       children: [
-                                        ClipOval(
-                                          child: NetworkImageWidget(
-                                            imageUrl:
-                                                'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
-                                            width: 42,
-                                            height: 42,
-                                            fit: BoxFit.cover,
-                                          ),
+                                        SvgPicture.asset(
+                                          AppAssets.basementIcon,
+                                          width: 30,
+                                          height: 30,
                                         ),
                                         horizontalSpacing(width: 16.0),
                                         Expanded(
@@ -273,14 +273,10 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   children: [
                                     Row(
                                       children: [
-                                        ClipOval(
-                                          child: NetworkImageWidget(
-                                            imageUrl:
-                                                'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
-                                            width: 42,
-                                            height: 42,
-                                            fit: BoxFit.cover,
-                                          ),
+                                        SvgPicture.asset(
+                                          AppAssets.podiumIcon,
+                                          width: 30,
+                                          height: 30,
                                         ),
                                         horizontalSpacing(width: 16.0),
                                         Expanded(
@@ -337,14 +333,10 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   children: [
                                     Row(
                                       children: [
-                                        ClipOval(
-                                          child: NetworkImageWidget(
-                                            imageUrl:
-                                                'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
-                                            width: 42,
-                                            height: 42,
-                                            fit: BoxFit.cover,
-                                          ),
+                                        SvgPicture.asset(
+                                          AppAssets.wingsIcon,
+                                          width: 30,
+                                          height: 30,
                                         ),
                                         horizontalSpacing(width: 16.0),
                                         Expanded(
@@ -395,14 +387,10 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   children: [
                                     Row(
                                       children: [
-                                        ClipOval(
-                                          child: NetworkImageWidget(
-                                            imageUrl:
-                                                'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
-                                            width: 42,
-                                            height: 42,
-                                            fit: BoxFit.cover,
-                                          ),
+                                        SvgPicture.asset(
+                                          AppAssets.groundIcon,
+                                          width: 30,
+                                          height: 30,
                                         ),
                                         horizontalSpacing(width: 16.0),
                                         Expanded(
@@ -422,7 +410,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                                     .first
                                                     .table0
                                                     .first
-                                                    .totalFloors
+                                                    .totalBuilding
                                                     .toString(),
                                                 style: AppTextStyle.ts20SB(
                                                   color: AppColor.black,

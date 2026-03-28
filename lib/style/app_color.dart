@@ -68,6 +68,7 @@ class AppColor {
   static const Color lightGreenBg = Color(0xFFBBF7D0);
   static const Color lightOrangenBg = Color(0xFFFED7AA);
   static const Color lightPurple = Color(0xFFFAF5FF);
+  static const Color holdYellowColor = Color(0xffFFBF00);
 
   // TEXT
   static const Color textPrimary = Color(0xFF212121); // BLACK

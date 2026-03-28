@@ -98,7 +98,12 @@ Widget statusChip(String text, Color bg, Color txt, {bool expand = false}) {
 }
 
 // BUILD COMMON ACTION CARD
-Widget actionCardWidget({required String createdBy, required DateTime createdDate, String? modifiedBy,DateTime? modifiedDate}){
+Widget actionCardWidget({
+  required String createdBy,
+  required DateTime createdDate,
+  String? modifiedBy,
+  DateTime? modifiedDate,
+}) {
   return Container(
     padding: EdgeInsets.all(16),
     decoration: commonCardDecoration(),
@@ -110,15 +115,10 @@ Widget actionCardWidget({required String createdBy, required DateTime createdDat
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            buildColumnTitleValue(
-              title: "Created By",
-              value: createdBy,
-            ),
+            buildColumnTitleValue(title: "Created By", value: createdBy),
             buildColumnTitleValue(
               title: "Created Date",
-              value: formatDate(
-                createdDate,
-              ),
+              value: formatDate(createdDate),
             ),
           ],
         ),
@@ -128,18 +128,19 @@ Widget actionCardWidget({required String createdBy, required DateTime createdDat
             buildColumnTitleValue(
               title: "Modified By",
               value:
-              (modifiedBy!=null || modifiedBy!.isNotEmpty)
-                  ? modifiedBy
-                  : "-",
+                  (modifiedBy != null || modifiedBy!.isNotEmpty)
+                      ? modifiedBy
+                      : "-",
             ),
             buildColumnTitleValue(
               title: "Modified Date",
-              value: (modifiedDate == null ||
-                  modifiedDate.toString().trim().isEmpty ||
-                  modifiedDate.toString().contains('1970-01-01') ||
-                  modifiedDate.toString().contains('01 Jan 1970'))
-                  ? "-"
-                  : formatDate(modifiedDate),
+              value:
+                  (modifiedDate == null ||
+                          modifiedDate.toString().trim().isEmpty ||
+                          modifiedDate.toString().contains('1970-01-01') ||
+                          modifiedDate.toString().contains('01 Jan 1970'))
+                      ? "-"
+                      : formatDate(modifiedDate),
             ),
           ],
         ),

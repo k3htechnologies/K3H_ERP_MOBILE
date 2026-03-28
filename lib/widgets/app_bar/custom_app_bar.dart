@@ -32,7 +32,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final bool? showNotification;
   final Function(String)? onSearchSubmit;
   final TextEditingController? textController;
-  final Function? onAddCallback;
+  final VoidCallback? onAddCallback;
   final Function(String)? onExportCallback;
   final List<String>? sortOptionList;
   final String? initialSortType;
@@ -247,7 +247,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
     );
     showSuccessMessage(
       context,
-      subTitle: "Project Selected ${project.projectName}",
+      subTitle: "Project Selected : ${project.projectName}",
     );
     //CLEAR SEARCH CONTROLLER
     if (widget.textController != null) {
@@ -348,15 +348,15 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                     ),
                   Row(
                     children: [
-                      if (widget.authorization.isAction && widget.secondaryBuilder != null)
-                        ...[
-                          horizontalSpacing(),
-                          widget.secondaryBuilder!(context),
-                        ],
+                      if (widget.authorization.isAction &&
+                          widget.secondaryBuilder != null) ...[
+                        horizontalSpacing(),
+                        widget.secondaryBuilder!(context),
+                      ],
 
                       if (widget.authorization.isExport &&
-                          widget.onExportCallback != null)...[
-                            horizontalSpacing(),
+                          widget.onExportCallback != null) ...[
+                        horizontalSpacing(),
                         CustomIconButton(
                           onPressed: () {
                             final box = context.findRenderObject() as RenderBox;
@@ -396,27 +396,26 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                       ],
 
                       if (widget.authorization.isAction &&
-                          widget.onAddCallback != null)...
-                        [
-                          horizontalSpacing(),
-                          CustomIconButton(
-                            onPressed: () {
-                              if (widget.textController != null) {
-                                widget.textController!.clear();
-                              }
-                              widget.onAddCallback!();
-                            },
-                            icon: const Icon(
-                              Icons.add,
-                              size: 16,
-                              color: AppColor.primary,
-                            ),
-                            backgroundColor: AppColor.lightBlue,
-                          )
-                        ],
+                          widget.onAddCallback != null) ...[
+                        horizontalSpacing(),
+                        CustomIconButton(
+                          onPressed: () {
+                            if (widget.textController != null) {
+                              widget.textController!.clear();
+                            }
+                            widget.onAddCallback!();
+                          },
+                          icon: const Icon(
+                            Icons.add,
+                            size: 16,
+                            color: AppColor.primary,
+                          ),
+                          backgroundColor: AppColor.lightBlue,
+                        ),
+                      ],
                       if (widget.authorization.isExport &&
-                          widget.importTableName != null)...[
-                            horizontalSpacing(),
+                          widget.importTableName != null) ...[
+                        horizontalSpacing(),
                         importButton(
                           context,
                           widget.importTableName!,
@@ -424,7 +423,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                           projectId: widget.projectId,
                           buildingId: widget.buildingId,
                         ),
-                      ]
+                      ],
                     ],
                   ),
                 ],

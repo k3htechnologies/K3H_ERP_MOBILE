@@ -364,6 +364,8 @@ class FlatModel {
   String wing;
   int inventoryFloorId;
   String floor;
+  double slabHeight;
+  int parkingCount;
   String flat;
   double reraCarpetAreaSqFt;
   String flatType;
@@ -371,6 +373,12 @@ class FlatModel {
   String flatStatus;
   String ownerName;
   String flatFacing;
+  int createdById;
+  String createdBy;
+  DateTime createdDate;
+  int modifiedById;
+  String modifiedBy;
+  DateTime? modifiedDate;
   int bookingId;
   int bookingCreatedById;
   String bookingCreatedBy;
@@ -386,6 +394,8 @@ class FlatModel {
     required this.wing,
     required this.inventoryFloorId,
     required this.floor,
+    required this.slabHeight,
+    required this.parkingCount,
     required this.flat,
     required this.reraCarpetAreaSqFt,
     required this.flatType,
@@ -393,6 +403,12 @@ class FlatModel {
     required this.flatStatus,
     required this.ownerName,
     required this.flatFacing,
+    required this.createdById,
+    required this.createdBy,
+    required this.createdDate,
+    required this.modifiedById,
+    required this.modifiedBy,
+    required this.modifiedDate,
     required this.bookingId,
     required this.bookingCreatedById,
     required this.bookingCreatedBy,
@@ -412,6 +428,8 @@ class FlatModel {
     wing: parseValue<String>(json, "Wing"),
     inventoryFloorId: parseValue<int>(json, "InventoryFloorId"),
     floor: parseValue<String>(json, "Floor"),
+    slabHeight: parseValue<double>(json, "SlabHeight"),
+    parkingCount: parseValue<int>(json, "ParkingCount"),
     flat: parseValue<String>(json, "Flat"),
     reraCarpetAreaSqFt: parseValue<double>(json, "RERACarpetAreaSqFt"),
     flatType: parseValue<String>(json, "FlatType"),
@@ -419,6 +437,12 @@ class FlatModel {
     flatStatus: parseValue<String>(json, "FlatStatus"),
     ownerName: parseValue<String>(json, "OwnerName"),
     flatFacing: parseValue<String>(json, "FlatFacing"),
+    createdById: parseValue<int>(json, "CreatedById"),
+    createdBy: parseValue<String>(json, "CreatedBy"),
+    createdDate: parseValue<DateTime>(json, "CreatedDate"),
+    modifiedById: parseValue<int>(json, "ModifiedById"),
+    modifiedBy: parseValue<String>(json, "ModifiedBy"),
+    modifiedDate: parseValue<DateTime>(json, "ModifiedDate"),
     bookingId: parseValue<int>(json, "BookingId"),
     bookingCreatedById: parseValue<int>(json, "BookingCreatedById"),
     bookingCreatedBy: parseValue<String>(json, "BookingCreatedBy"),
@@ -446,6 +470,8 @@ class FlatModel {
     "Wing": wing,
     "InventoryFloorId": inventoryFloorId,
     "Floor": floor,
+    "SlabHeight": slabHeight.toDouble(),
+    "ParkingCount": parkingCount,
     "Flat": flat,
     "RERACarpetAreaSqFt": reraCarpetAreaSqFt,
     "FlatType": flatType,
@@ -453,6 +479,12 @@ class FlatModel {
     "FlatStatus": flatStatus,
     "OwnerName": ownerName,
     "FlatFacing": flatFacing,
+    "CreatedById": createdById,
+    "CreatedBy": createdBy,
+    "CreatedDate": createdDate.toIso8601String(),
+    "ModifiedById": modifiedById,
+    "ModifiedBy": modifiedBy,
+    "ModifiedDate": modifiedDate?.toIso8601String(),
     "BookingId": bookingId,
     "BookingCreatedById": bookingCreatedById,
     "BookingCreatedBy": bookingCreatedBy,
@@ -471,6 +503,8 @@ class FlatModel {
     String? wing,
     int? inventoryFloorId,
     String? floor,
+    double? slabHeight,
+    int? parkingCount,
     String? flat,
     double? reraCarpetAreaSqFt,
     String? flatType,
@@ -478,6 +512,12 @@ class FlatModel {
     String? flatStatus,
     String? ownerName,
     String? flatFacing,
+    int? createdById,
+    String? createdBy,
+    DateTime? createdDate,
+    int? modifiedById,
+    String? modifiedBy,
+    DateTime? modifiedDate,
     int? bookingId,
     int? bookingCreatedById,
     String? bookingCreatedBy,
@@ -495,6 +535,8 @@ class FlatModel {
       wing: wing ?? this.wing,
       inventoryFloorId: inventoryFloorId ?? this.inventoryFloorId,
       floor: floor ?? this.floor,
+      slabHeight: slabHeight ?? this.slabHeight,
+      parkingCount: parkingCount ?? this.parkingCount,
       flat: flat ?? this.flat,
       reraCarpetAreaSqFt: reraCarpetAreaSqFt ?? this.reraCarpetAreaSqFt,
       flatType: flatType ?? this.flatType,
@@ -502,6 +544,12 @@ class FlatModel {
       flatStatus: flatStatus ?? this.flatStatus,
       ownerName: ownerName ?? this.ownerName,
       flatFacing: flatFacing ?? this.flatFacing,
+      createdById: createdById ?? this.createdById,
+      createdBy: createdBy ?? this.createdBy,
+      createdDate: createdDate ?? this.createdDate,
+      modifiedById: modifiedById ?? this.modifiedById,
+      modifiedBy: modifiedBy ?? this.modifiedBy,
+      modifiedDate: modifiedDate ?? this.modifiedDate,
       bookingId: bookingId ?? this.bookingId,
       bookingCreatedById: bookingCreatedById ?? this.bookingCreatedById,
       bookingCreatedBy: bookingCreatedBy ?? this.bookingCreatedBy,
