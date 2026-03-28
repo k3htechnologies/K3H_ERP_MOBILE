@@ -262,6 +262,7 @@ class InventoryCubit extends Cubit<InventoryState> {
   void updateFlatStatus({
     required int inventoryFlatId,
     required String flatStatus,
+    required String ownerName,
   }) {
     final updatedBuildingList =
         state.buildingList.map((building) {
@@ -272,7 +273,10 @@ class InventoryCubit extends Cubit<InventoryState> {
                       final updatedFlatList =
                           floor.flatList.map((flat) {
                             if (flat.inventoryFlatId == inventoryFlatId) {
-                              return flat.copyWith(flatStatus: flatStatus);
+                              return flat.copyWith(
+                                flatStatus: flatStatus,
+                                ownerName: ownerName,
+                              );
                             }
                             return flat;
                           }).toList();

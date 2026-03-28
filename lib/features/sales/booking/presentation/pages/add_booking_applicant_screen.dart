@@ -496,7 +496,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     },
                     validator: (fileList) {
                       if (_passportC.text.isNotEmpty &&
-                          !InputValidator.isValidPassport(
+                          InputValidator.isValidPassport(
                             _passportC.text.trim(),
                           ) &&
                           (fileList == null || fileList.isEmpty)) {
@@ -522,7 +522,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       } else {
                         if (value != null &&
                             value.isNotEmpty &&
-                            !InputValidator.isValidDrivingLicence(value)) {
+                            InputValidator.isValidDrivingLicence(value)) {
                           return "Driving License Number is invalid";
                         }
                       }
@@ -650,7 +650,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     },
                     validator: (fileList) {
                       if (_gstC.text.isNotEmpty &&
-                          !InputValidator.isValidGST(_gstC.text.trim()) &&
+                          InputValidator.isValidGST(_gstC.text.trim()) &&
                           (fileList == null || fileList.isEmpty)) {
                         return "GST Certificate document is required";
                       }

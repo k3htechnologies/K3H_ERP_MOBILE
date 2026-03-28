@@ -14,8 +14,14 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class BookingViewScreen extends StatefulWidget {
-  final BookingModel bookingModel;
-  const BookingViewScreen({super.key, required this.bookingModel});
+  // final BookingModel bookingModel;
+  final int bookingId;
+  final int projectId;
+  const BookingViewScreen({
+    super.key,
+    required this.bookingId,
+    required this.projectId,
+  });
 
   @override
   State<BookingViewScreen> createState() => _BookingViewScreenState();
@@ -28,6 +34,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
 
   // CUBIT
   late BookingCubit _bookingCubit;
+  late BookingModel? bookingModel;
 
   @override
   void initState() {
@@ -35,19 +42,31 @@ class _BookingViewScreenState extends State<BookingViewScreen>
     _tabController = TabController(length: 7, vsync: this);
     _tabController.addListener(_handleTabChange);
     _bookingCubit = context.read<BookingCubit>();
-    _bookingCubit.getEnquiryList(
-      context,
-      1,
-      widget.bookingModel.projectId,
-      null,
-      widget.bookingModel.enquiryId,
-    );
+    loadBooking();
   }
 
   @override
   void dispose() {
     super.dispose();
     _tabController.dispose();
+  }
+
+  Future<void> loadBooking() async {
+    bookingModel = await _bookingCubit.getBookingById(
+      context,
+      1, // pageNumber
+      widget.projectId,
+      widget.bookingId,
+    );
+    if (context.mounted) {
+      _bookingCubit.getEnquiryList(
+        context,
+        1,
+        widget.projectId,
+        null,
+        bookingModel!.enquiryId,
+      );
+    }
   }
 
   // HANDLE TAB CHANGE
@@ -64,69 +83,78 @@ class _BookingViewScreenState extends State<BookingViewScreen>
         screenTitle: "Booking",
         authorization: AuthorizationModel(),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  widget.bookingModel.applicantName,
-                  style: AppTextStyle.ts16SB(color: AppColor.primary),
-                ),
-                if (widget.bookingModel.approvalStatus.toLowerCase().contains(
-                  'approved',
-                ))
-                  CustomButton(
-                    leading: Image.asset(
-                      AppAssets.pdfLogo,
-                      height: 20,
-                      width: 20,
+      body: BlocBuilder<BookingCubit, BookingState>(
+        builder: (context, state) {
+          return (state.isLoading ?? true)
+              ? Center(child: loader())
+              : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 10,
                     ),
-                    backgroundColor: AppColor.white,
-                    borderColor: AppColor.primary,
-                    textColor: AppColor.primary,
-                    text: "Generate PDF",
-                    onPressed: () {
-                      _bookingCubit.generateBookingPDF(
-                        context,
-                        widget.bookingModel,
-                      );
-                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          bookingModel!.applicantName,
+                          style: AppTextStyle.ts16SB(color: AppColor.primary),
+                        ),
+                        if (bookingModel!.approvalStatus.toLowerCase().contains(
+                          'approved',
+                        ))
+                          CustomButton(
+                            leading: Image.asset(
+                              AppAssets.pdfLogo,
+                              height: 20,
+                              width: 20,
+                            ),
+                            backgroundColor: AppColor.white,
+                            borderColor: AppColor.primary,
+                            textColor: AppColor.primary,
+                            text: "Generate PDF",
+                            onPressed: () {
+                              _bookingCubit.generateBookingPDF(
+                                context,
+                                bookingModel!,
+                              );
+                            },
+                          ),
+                      ],
+                    ),
                   ),
-              ],
-            ),
-          ),
-          ChipStyleTabBar(
-            controller: _tabController,
-            tabs: [
-              'Overview',
-              'Applicant Details',
-              'Other Charges',
-              'Payment Schedule',
-              'Remark',
-              'Terms & Condition',
-              'Payment Details',
-            ],
-          ),
-          Expanded(
-            child: TabBarView(
-              physics: NeverScrollableScrollPhysics(),
-              controller: _tabController,
-              children: [
-                _buildOverviewTab(),
-                _buildApplicantDetailsTab(),
-                _buildOtherChargesTab(),
-                _buildPaymentSchedule(),
-                _buildRemarkTab(),
-                _buildTermsAndConditionTab(),
-                _buildPaymentDetailsTab(),
-              ],
-            ),
-          ),
-        ],
+                  ChipStyleTabBar(
+                    controller: _tabController,
+                    tabs: [
+                      'Overview',
+                      'Applicant Details',
+                      'Other Charges',
+                      'Payment Schedule',
+                      'Remark',
+                      'Terms & Condition',
+                      'Payment Details',
+                    ],
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      physics: NeverScrollableScrollPhysics(),
+                      controller: _tabController,
+                      children: [
+                        _buildOverviewTab(),
+                        _buildApplicantDetailsTab(),
+                        _buildOtherChargesTab(),
+                        _buildPaymentSchedule(),
+                        _buildRemarkTab(),
+                        _buildTermsAndConditionTab(),
+                        _buildPaymentDetailsTab(),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+        },
       ),
     );
   }
@@ -273,10 +301,10 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   child: ListView.builder(
                     padding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
                     shrinkWrap: true,
-                    itemCount: widget.bookingModel.bookingApplicantData.length,
+                    itemCount: bookingModel!.bookingApplicantData.length,
                     itemBuilder: (_, index) {
                       final applicant =
-                          widget.bookingModel.bookingApplicantData[index];
+                          bookingModel!.bookingApplicantData[index];
                       return Container(
                         margin: EdgeInsets.only(bottom: 10),
                         padding: EdgeInsets.all(12),
@@ -591,11 +619,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Project Name",
-                      value: widget.bookingModel.projectName,
+                      value: bookingModel!.projectName,
                     ),
                     buildColumnTitleValue(
                       title: "Booking Type",
-                      value: widget.bookingModel.bookingType,
+                      value: bookingModel!.bookingType,
                     ),
                   ],
                 ),
@@ -605,11 +633,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Flat",
-                      value: widget.bookingModel.flat,
+                      value: bookingModel!.flat,
                     ),
                     buildColumnTitleValue(
                       title: "Wing",
-                      value: widget.bookingModel.wing,
+                      value: bookingModel!.wing,
                     ),
                   ],
                 ),
@@ -619,11 +647,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Floor",
-                      value: widget.bookingModel.floor,
+                      value: bookingModel!.floor,
                     ),
                     buildColumnTitleValue(
                       title: "Building Number",
-                      value: widget.bookingModel.buildingNumber,
+                      value: bookingModel!.buildingNumber,
                     ),
                   ],
                 ),
@@ -633,11 +661,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Flat Type",
-                      value: widget.bookingModel.flatType,
+                      value: bookingModel!.flatType,
                     ),
                     buildColumnTitleValue(
                       title: "Flat Configuration",
-                      value: widget.bookingModel.flatConfiguration,
+                      value: bookingModel!.flatConfiguration,
                     ),
                   ],
                 ),
@@ -646,7 +674,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "RERA Carpet Area (SqFt)",
-                      value: widget.bookingModel.reraCarpetAreaSqFt.toString(),
+                      value: bookingModel!.reraCarpetAreaSqFt.toString(),
                     ),
                   ],
                 ),
@@ -666,7 +694,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 verticalSpacing(),
                 Expanded(
                   child:
-                      widget.bookingModel.parkingData.isEmpty
+                      bookingModel!.parkingData.isEmpty
                           ? Center(child: noDataWidget(message: 'No Parking'))
                           : ListView.builder(
                             padding: EdgeInsets.symmetric(
@@ -674,10 +702,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                               vertical: 10,
                             ),
                             shrinkWrap: true,
-                            itemCount: widget.bookingModel.parkingData.length,
+                            itemCount: bookingModel!.parkingData.length,
                             itemBuilder: (_, index) {
-                              final parking =
-                                  widget.bookingModel.parkingData[index];
+                              final parking = bookingModel!.parkingData[index];
                               return Container(
                                 margin: EdgeInsets.only(bottom: 10),
                                 padding: EdgeInsets.all(12),
@@ -776,12 +803,12 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     buildColumnTitleValue(
                       title: "Expected Registration Date",
                       value: formatDateTimeAsDDMMMYYYY(
-                        widget.bookingModel.registrationDate,
+                        bookingModel!.registrationDate,
                       ),
                     ),
                     buildColumnTitleValue(
                       title: "Handover Type",
-                      value: widget.bookingModel.handoverType,
+                      value: bookingModel!.handoverType,
                     ),
                   ],
                 ),
@@ -791,7 +818,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Mode Of Payment",
-                      value: widget.bookingModel.modeOfPayment,
+                      value: bookingModel!.modeOfPayment,
                     ),
                   ],
                 ),
@@ -814,11 +841,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Agreement Value (₹)",
-                      value: "₹ ${widget.bookingModel.agreementValue}",
+                      value: "₹ ${bookingModel!.agreementValue}",
                     ),
                     buildColumnTitleValue(
                       title: "TDS (₹)",
-                      value: "₹ ${widget.bookingModel.agreementValueTDS}",
+                      value: "₹ ${bookingModel!.agreementValueTDS}",
                     ),
                   ],
                 ),
@@ -828,12 +855,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "GST (%)",
-                      value:
-                          "${widget.bookingModel.agreementValueGSTPercentage}%",
+                      value: "${bookingModel!.agreementValueGSTPercentage}%",
                     ),
                     buildColumnTitleValue(
                       title: "GST (₹)",
-                      value: "₹ ${widget.bookingModel.agreementValueGSTAmount}",
+                      value: "₹ ${bookingModel!.agreementValueGSTAmount}",
                     ),
                   ],
                 ),
@@ -843,11 +869,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Stamp Duty (%)",
-                      value: "${widget.bookingModel.stampDutyPercentage}%",
+                      value: "${bookingModel!.stampDutyPercentage}%",
                     ),
                     buildColumnTitleValue(
                       title: "Stamp Duty (₹)",
-                      value: "₹ ${widget.bookingModel.stampDutyAmount}",
+                      value: "₹ ${bookingModel!.stampDutyAmount}",
                     ),
                   ],
                 ),
@@ -857,11 +883,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Registration Fees (₹)",
-                      value: "₹ ${widget.bookingModel.registrationFees}",
+                      value: "₹ ${bookingModel!.registrationFees}",
                     ),
                     buildColumnTitleValue(
                       title: "Booking Amount (₹)",
-                      value: "₹ ${widget.bookingModel.bookingAmount}",
+                      value: "₹ ${bookingModel!.bookingAmount}",
                     ),
                   ],
                 ),
@@ -871,11 +897,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Brokerage (%)",
-                      value: "${widget.bookingModel.brokeragePercentage}%",
+                      value: "${bookingModel!.brokeragePercentage}%",
                     ),
                     buildColumnTitleValue(
                       title: "Brokerage Amount (₹)",
-                      value: "₹ ${widget.bookingModel.brokerageAmount}",
+                      value: "₹ ${bookingModel!.brokerageAmount}",
                     ),
                   ],
                 ),
@@ -897,11 +923,10 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   child: ListView.builder(
                     padding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
                     shrinkWrap: true,
-                    itemCount:
-                        widget.bookingModel.bookingOtherChargesData.length,
+                    itemCount: bookingModel!.bookingOtherChargesData.length,
                     itemBuilder: (_, index) {
                       final extraCharge =
-                          widget.bookingModel.bookingOtherChargesData[index];
+                          bookingModel!.bookingOtherChargesData[index];
                       return Container(
                         decoration: BoxDecoration(
                           border: Border.all(
@@ -974,11 +999,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Created By",
-                      value: widget.bookingModel.createdBy,
+                      value: bookingModel!.createdBy,
                     ),
                     buildColumnTitleValue(
                       title: "Created Date",
-                      value: formatDate(widget.bookingModel.createdDate),
+                      value: formatDate(bookingModel!.createdDate),
                     ),
                   ],
                 ),
@@ -988,11 +1013,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Modified By",
-                      value: widget.bookingModel.modifiedBy,
+                      value: bookingModel!.modifiedBy,
                     ),
                     buildColumnTitleValue(
                       title: "Modified Date",
-                      value: formatDate(widget.bookingModel.modifiedDate),
+                      value: formatDate(bookingModel!.modifiedDate),
                     ),
                   ],
                 ),
@@ -1002,7 +1027,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Approval Status",
-                      value: widget.bookingModel.approvalStatus,
+                      value: bookingModel!.approvalStatus,
                     ),
                   ],
                 ),
@@ -1025,7 +1050,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Remarks",
-                      value: widget.bookingModel.flatAlterationRemark,
+                      value: bookingModel!.flatAlterationRemark,
                     ),
                   ],
                 ),
@@ -1047,11 +1072,10 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   child: ListView.builder(
                     padding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
                     shrinkWrap: true,
-                    itemCount:
-                        widget.bookingModel.bookingPaymentScheduleData.length,
+                    itemCount: bookingModel!.bookingPaymentScheduleData.length,
                     itemBuilder: (context, index) {
                       final payment =
-                          widget.bookingModel.bookingPaymentScheduleData[index];
+                          bookingModel!.bookingPaymentScheduleData[index];
                       return Container(
                         decoration: BoxDecoration(
                           border: Border.all(
@@ -1138,9 +1162,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
     return ListView.builder(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       shrinkWrap: true,
-      itemCount: widget.bookingModel.bookingApplicantData.length,
+      itemCount: bookingModel!.bookingApplicantData.length,
       itemBuilder: (_, index) {
-        final applicant = widget.bookingModel.bookingApplicantData[index];
+        final applicant = bookingModel!.bookingApplicantData[index];
         return Container(
           margin: EdgeInsets.only(bottom: 10),
           padding: EdgeInsets.all(16),
@@ -1402,15 +1426,15 @@ class _BookingViewScreenState extends State<BookingViewScreen>
 
   // BUILD OTHER CHARGES TAB
   Widget _buildOtherChargesTab() {
-    if (widget.bookingModel.bookingOtherChargesData.isEmpty) {
+    if (bookingModel!.bookingOtherChargesData.isEmpty) {
       return noDataWidget();
     }
     return ListView.builder(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       shrinkWrap: true,
-      itemCount: widget.bookingModel.bookingOtherChargesData.length,
+      itemCount: bookingModel!.bookingOtherChargesData.length,
       itemBuilder: (context, index) {
-        final extraCharge = widget.bookingModel.bookingOtherChargesData[index];
+        final extraCharge = bookingModel!.bookingOtherChargesData[index];
         return Container(
           decoration: commonCardDecoration(),
           margin: EdgeInsets.only(bottom: 10),
@@ -1460,15 +1484,15 @@ class _BookingViewScreenState extends State<BookingViewScreen>
 
   // BUILD PAYMENT SCHEDULE
   Widget _buildPaymentSchedule() {
-    if (widget.bookingModel.bookingPaymentScheduleData.isEmpty) {
+    if (bookingModel!.bookingPaymentScheduleData.isEmpty) {
       return noDataWidget();
     }
     return ListView.builder(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       shrinkWrap: true,
-      itemCount: widget.bookingModel.bookingPaymentScheduleData.length,
+      itemCount: bookingModel!.bookingPaymentScheduleData.length,
       itemBuilder: (context, index) {
-        final payment = widget.bookingModel.bookingPaymentScheduleData[index];
+        final payment = bookingModel!.bookingPaymentScheduleData[index];
         return Container(
           decoration: commonCardDecoration(),
           margin: EdgeInsets.only(bottom: 10),
@@ -1550,7 +1574,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Remarks",
-                      value: widget.bookingModel.flatAlterationRemark,
+                      value: bookingModel!.flatAlterationRemark,
                     ),
                   ],
                 ),
@@ -1572,7 +1596,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Remarks",
-                      value: widget.bookingModel.paymentRemark,
+                      value: bookingModel!.paymentRemark,
                     ),
                   ],
                 ),
@@ -1594,7 +1618,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Other Remark",
-                      value: widget.bookingModel.otherRemark,
+                      value: bookingModel!.otherRemark,
                     ),
                   ],
                 ),
@@ -1611,7 +1635,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
     return Container(
       padding: EdgeInsets.all(16),
       child:
-          widget.bookingModel.termsAndConditionsDescription.isNotEmpty
+          bookingModel!.termsAndConditionsDescription.isNotEmpty
               ? Column(
                 children: [
                   Text("Terms & Conditions", style: AppTextStyle.ts16SB()),
@@ -1620,7 +1644,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     decoration: commonCardDecoration(),
                     padding: EdgeInsets.all(16),
                     child: Text(
-                      widget.bookingModel.termsAndConditionsDescription,
+                      bookingModel!.termsAndConditionsDescription,
                       style: AppTextStyle.ts14M(),
                     ),
                   ),
@@ -1649,7 +1673,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Booking Amount",
-                      value: "₹ ${widget.bookingModel.bookingAmount}",
+                      value: "₹ ${bookingModel!.bookingAmount}",
                     ),
                   ],
                 ),
@@ -1657,7 +1681,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Cheque/ RTGS Number",
-                      value: widget.bookingModel.chequeRTGSNumber,
+                      value: bookingModel!.chequeRTGSNumber,
                     ),
                   ],
                 ),
@@ -1666,9 +1690,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     buildColumnTitleValue(
                       title: "Cheque/ RTGS Date",
                       value:
-                          widget.bookingModel.chequeRTGSDate != null
+                          bookingModel!.chequeRTGSDate != null
                               ? formatDateTimeAsDDMMMYYYY(
-                                widget.bookingModel.chequeRTGSDate!,
+                                bookingModel!.chequeRTGSDate!,
                               )
                               : '-',
                     ),
@@ -1678,7 +1702,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Payment Bank",
-                      value: widget.bookingModel.bankName,
+                      value: bookingModel!.bankName,
                     ),
                   ],
                 ),

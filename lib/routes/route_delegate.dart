@@ -4040,19 +4040,33 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.viewBooking,
                   builder: (context, state) {
                     final queryParameterBooking =
-                        state.uri.queryParameters['booking'];
-                    final booking =
+                        state.uri.queryParameters['bookingId'];
+                    final queryParameterProjectId =
+                        state.uri.queryParameters['projectId'];
+
+                    final bookingId =
                         queryParameterBooking != null &&
                                 queryParameterBooking.isNotEmpty
-                            ? BookingModel.fromJson(
-                              jsonDecode(
-                                EncryptionManager.decryptData(
-                                  Uri.decodeComponent(queryParameterBooking),
-                                ),
+                            ? int.parse(
+                              EncryptionManager.decryptData(
+                                Uri.decodeComponent(queryParameterBooking),
                               ),
                             )
-                            : null;
-                    return BookingViewScreen(bookingModel: booking!);
+                            : 0;
+                    final projectId =
+                        queryParameterProjectId != null &&
+                                queryParameterProjectId.isNotEmpty
+                            ? int.parse(
+                              EncryptionManager.decryptData(
+                                Uri.decodeComponent(queryParameterProjectId),
+                              ),
+                            )
+                            : 0;
+
+                    return BookingViewScreen(
+                      projectId: projectId,
+                      bookingId: bookingId,
+                    );
                   },
                 ),
                 GoRoute(
