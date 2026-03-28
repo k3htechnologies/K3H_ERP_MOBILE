@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
@@ -36,6 +37,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
   late BookingCubit _bookingCubit;
   late BookingModel? bookingModel;
 
+  // FOR TERMS AND CONDITIONS EXPANSION TILE
+  final ValueNotifier<bool> isExpanded = ValueNotifier(false);
+
   @override
   void initState() {
     super.initState();
@@ -58,7 +62,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
       widget.projectId,
       widget.bookingId,
     );
-    if (context.mounted) {
+    if (mounted) {
       _bookingCubit.getEnquiryList(
         context,
         1,
@@ -185,6 +189,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
 
   // BUILD DETAILS TAB
   Widget _buildOverviewTab() {
+    final isHtml =
+        bookingModel!.termsAndConditionsDescription.contains('<') &&
+        bookingModel!.termsAndConditionsDescription.contains('>');
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       child: Column(
@@ -903,22 +910,49 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       title: "Booking Amount (₹)",
                       value: "₹ ${bookingModel!.bookingAmount}",
                     ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // PAYMENT DETAILS
+          Container(
+            margin: EdgeInsets.only(bottom: 10),
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Payment Details", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 10,
+                  children: [
                     buildColumnTitleValue(
-                      title: "Brokerage (%)",
-                      value: "${bookingModel!.brokeragePercentage}%",
+                      title: "Cheque / RTGS No.",
+                      value: bookingModel!.chequeRTGSNumber,
+                    ),
+                    buildColumnTitleValue(
+                      title: "NamCheque / RTGS Date",
+                      value:
+                          bookingModel?.chequeRTGSDate != null
+                              ? formatDateTimeAsDDMMMYYYY(
+                                bookingModel!.chequeRTGSDate!,
+                              )
+                              : "-",
                     ),
                   ],
                 ),
+                verticalSpacing(),
                 Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "Brokerage Amount (₹)",
-                      value: "₹ ${bookingModel!.brokerageAmount}",
+                      title: "Bank Name",
+                      value: bookingModel!.bankName,
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -971,11 +1005,10 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                               children: [
                                 buildColumnTitleValue(
                                   title: "Value (In ₹)",
-                                  value:
-                                      "${extraCharge.value} ${extraCharge.calculatedOn}",
+                                  value: "${extraCharge.value}",
                                 ),
                                 buildColumnTitleValue(
-                                  title: "Gst (%)",
+                                  title: "GST (%)",
                                   value: extraCharge.gstPercentage.toString(),
                                 ),
                               ],
@@ -993,80 +1026,6 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       );
                     },
                   ),
-                ),
-              ],
-            ),
-          ),
-          // ACTION DETAILS
-          Container(
-            decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Action Details", style: AppTextStyle.ts16SB()),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Created By",
-                      value: bookingModel!.createdBy,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Created Date",
-                      value: formatDate(bookingModel!.createdDate),
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Modified By",
-                      value: bookingModel!.modifiedBy,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Modified Date",
-                      value: formatDate(bookingModel!.modifiedDate),
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Approval Status",
-                      value: bookingModel!.approvalStatus,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // FLAT ALTERATION REMARKS SECTION
-          Container(
-            decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Flat Alteration Remarks", style: AppTextStyle.ts16SB()),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Remarks",
-                      value: bookingModel!.flatAlterationRemark,
-                    ),
-                  ],
                 ),
               ],
             ),
@@ -1162,6 +1121,184 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       );
                     },
                   ),
+                ),
+              ],
+            ),
+          ),
+          // FLAT ALTERATION REMARKS SECTION
+          Container(
+            decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Flat Alteration Remarks", style: AppTextStyle.ts16SB()),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Remarks",
+                      value: bookingModel!.flatAlterationRemark,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // PAYMENT REMARK
+          Container(
+            decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Payment Remarks", style: AppTextStyle.ts16SB()),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Remarks",
+                      value: bookingModel!.paymentRemark,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // OTHER REMARK
+          Container(
+            decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Other Remarks", style: AppTextStyle.ts16SB()),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Remarks",
+                      value: bookingModel!.otherRemark,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // TERMS AND CONDITIONS
+          Container(
+            decoration: commonCardDecoration(),
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(16),
+            child: ValueListenableBuilder<bool>(
+              valueListenable: isExpanded,
+              builder: (context, value, child) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        isExpanded.value = !value;
+                      },
+                      child: Row(
+                        spacing: 10,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "Terms & Conditions",
+                              style: AppTextStyle.ts16SB(),
+                            ),
+                          ),
+                          Icon(
+                            value
+                                ? Icons.keyboard_arrow_up
+                                : Icons.keyboard_arrow_down,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    if (value) ...[
+                      const SizedBox(height: 10),
+                      isHtml
+                          ? Html(
+                            data: bookingModel!.termsAndConditionsDescription,
+                            style: {
+                              "body": Style(
+                                fontSize: FontSize(14),
+                                margin: Margins.zero,
+                                padding: HtmlPaddings.zero,
+                              ),
+                            },
+                          )
+                          : Text(
+                            bookingModel!.termsAndConditionsDescription,
+                            style: AppTextStyle.ts14R(color: AppColor.grey),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                    ],
+                  ],
+                );
+              },
+            ),
+          ),
+          // ACTION DETAILS
+          Container(
+            decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Action Details", style: AppTextStyle.ts16SB()),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Created By",
+                      value: bookingModel!.createdBy,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Created Date",
+                      value: formatDate(bookingModel!.createdDate),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Modified By",
+                      value: bookingModel!.modifiedBy,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Modified Date",
+                      value: formatDate(bookingModel!.modifiedDate),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Approval Status",
+                      value: bookingModel!.approvalStatus,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -1473,10 +1610,10 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 children: [
                   buildColumnTitleValue(
                     title: "Value (In ₹)",
-                    value: "${extraCharge.value} ${extraCharge.calculatedOn}",
+                    value: "${extraCharge.value}",
                   ),
                   buildColumnTitleValue(
-                    title: "Gst (%)",
+                    title: "GST (%)",
                     value: extraCharge.gstPercentage.toString(),
                   ),
                 ],
@@ -1518,15 +1655,18 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               Row(
                 children: [
                   buildColumnTitleValue(title: "Type", value: payment.type),
-                  payment.type.contains("Date")?
-                  buildColumnTitleValue(
-                    title: "Date",
-                    value:
-                    payment.date != null
-                        ? formatDateTimeAsDDMMMYYYY(payment.date!)
-                        : "-",
-                  ):
-                  buildColumnTitleValue(title: "Stage", value: payment.name),
+                  payment.type.contains("Date")
+                      ? buildColumnTitleValue(
+                        title: "Date",
+                        value:
+                            payment.date != null
+                                ? formatDateTimeAsDDMMMYYYY(payment.date!)
+                                : "-",
+                      )
+                      : buildColumnTitleValue(
+                        title: "Stage",
+                        value: payment.name,
+                      ),
                 ],
               ),
               Row(
@@ -1553,11 +1693,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   ),
                 ],
               ),
-              Row(
-                children: [
-
-                ],
-              ),
+              Row(children: []),
             ],
           ),
         );
@@ -1648,23 +1784,41 @@ class _BookingViewScreenState extends State<BookingViewScreen>
 
   // BUILD TERMS AND CONDITION TAB
   Widget _buildTermsAndConditionTab() {
+    final isHtml =
+        bookingModel!.termsAndConditionsDescription.contains('<') &&
+        bookingModel!.termsAndConditionsDescription.contains('>');
     return Container(
       padding: EdgeInsets.all(16),
       child:
           bookingModel!.termsAndConditionsDescription.isNotEmpty
-              ? Column(
-                children: [
-                  Text("Terms & Conditions", style: AppTextStyle.ts16SB()),
-                  verticalSpacing(),
-                  Container(
-                    decoration: commonCardDecoration(),
-                    padding: EdgeInsets.all(16),
-                    child: Text(
-                      bookingModel!.termsAndConditionsDescription,
-                      style: AppTextStyle.ts14M(),
+              ? SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      decoration: commonCardDecoration(),
+                      padding: EdgeInsets.all(16),
+                      child:
+                          isHtml
+                              ? Html(
+                                data: bookingModel!.termsAndConditionsDescription,
+                                style: {
+                                  "body": Style(
+                                    fontSize: FontSize(14),
+                                    margin: Margins.zero,
+                                    padding: HtmlPaddings.zero,
+                                  ),
+                                },
+                              )
+                              : Text(
+                                bookingModel!.termsAndConditionsDescription,
+                                style: AppTextStyle.ts14R(color: AppColor.grey),
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               )
               : Center(child: noDataWidget()),
     );

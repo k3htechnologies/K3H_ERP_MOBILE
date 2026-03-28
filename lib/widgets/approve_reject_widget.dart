@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ApproveRejectWidget extends StatelessWidget {
   final String title;
@@ -20,6 +21,7 @@ class ApproveRejectWidget extends StatelessWidget {
   final IconData thirdIcon;
   final bool isMaster;
   final Widget? customWidget;
+  final String? subTitle;
 
   const ApproveRejectWidget({
     super.key,
@@ -33,6 +35,7 @@ class ApproveRejectWidget extends StatelessWidget {
     this.thirdIcon = Icons.watch_later_outlined,
     this.isMaster = false,
     this.customWidget,
+    this.subTitle,
   });
 
   @override
@@ -126,7 +129,6 @@ class ApproveRejectWidget extends StatelessWidget {
                   child: Text('$title :', style: AppTextStyle.ts14R()),
                 ),
               ),
-
               if (!isActionAlreadyPerformed) ...[
                 Expanded(
                   flex: 1,
@@ -212,10 +214,16 @@ class ApproveRejectWidget extends StatelessWidget {
       childContent: Form(
         key: formKey,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (subTitle != null) ...[
+              Text(subTitle!, style: AppTextStyle.ts14M(color: AppColor.grey)),
+              verticalSpacing(),
+            ],
             CustomTextField(
               title: "Remark",
               hint: "Enter remark",
+              isRequired: true,
               minLines: 3,
               maxLines: 3,
               textController: remarkController,
