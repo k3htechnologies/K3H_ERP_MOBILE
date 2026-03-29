@@ -4,6 +4,8 @@ import 'package:k3h_erp_app/service/exceptions.dart';
 
 abstract interface class PayrollDashboardDatasource {
   Future<Map<String, dynamic>> apiCallPullPayrollDashboard({
+    required int pageSize,
+    required int pageNumber,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -13,10 +15,13 @@ class PayrollDashboardDatasourceImpl implements PayrollDashboardDatasource {
 
   @override
   Future<Map<String, dynamic>> apiCallPullPayrollDashboard({
+    required int pageSize,
+    required int pageNumber,
     Map<String, dynamic>? queryParams,
   }) async {
     String pullPayrollDashboardUrl({Map<String, dynamic>? queryParams}) {
-      String url = "PayrollDashboard/PullPayrollDashboard";
+      String url =
+          "PayrollDashboard/PullPayrollDashboard?PageSize=$pageSize&PageNumber=$pageNumber";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }
@@ -40,7 +45,11 @@ class PayrollDashboardDatasourceImpl implements PayrollDashboardDatasource {
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        return apiCallPullPayrollDashboard(queryParams: queryParams);
+        return apiCallPullPayrollDashboard(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: queryParams,
+        );
       }
       rethrow;
     }

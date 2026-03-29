@@ -1490,7 +1490,84 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ],
                     ),
                     verticalSpacing(),
-                    _buildInfoItem("Remark", shiftManagement.remarks),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "First Half Up To",
+                            shiftManagement.firstHalfUpTo,
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Calculate Absent if working hours less than",
+                            shiftManagement.absentWorkingHours,
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Mark Half Day if Outtime After",
+                            shiftManagement.halfDayOutTimeBefore,
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Mark Half Day if Intime After",
+                            shiftManagement.halfDayInTimeAfter,
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Break Begin Time",
+                            shiftManagement.breakBeginTime,
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Break End Time",
+                            shiftManagement.breakEndTime,
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Break Duration Time",
+                            shiftManagement.breakDurationTime,
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Grace Time In Minutes",
+                            shiftManagement.graceTime,
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Remark",
+                            shiftManagement.remarks,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               );

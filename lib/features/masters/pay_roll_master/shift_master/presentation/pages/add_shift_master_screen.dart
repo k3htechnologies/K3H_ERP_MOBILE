@@ -724,7 +724,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
             textController: _graceTimeC,
             keyboardType: TextInputType.number,
             inputFormatterList: InputValidator.digit(4),
-            hint: "Enter Minutes",
+            hint: "Enter Grace Time",
             onChangeFunction: (value) {
               final minutes = int.tryParse(value) ?? 0;
 
