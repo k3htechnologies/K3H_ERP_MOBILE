@@ -222,6 +222,7 @@ class ProjectMasterDatasourceImpl implements ProjectMasterDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse["message"],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

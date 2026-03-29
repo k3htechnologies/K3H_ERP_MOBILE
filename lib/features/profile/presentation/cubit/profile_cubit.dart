@@ -210,7 +210,24 @@ class ProfileCubit extends Cubit<ProfileState> {
                   ...state.employeeMasterList,
                   ...List<UserModel>.from(dataList),
                 ];
-        emit(state.copyWith(isLoading: false, employeeMasterList: newList));
+        final updatedUser = newList.isNotEmpty ? newList.first : null;
+
+        // ✅ SAVE TO LOCAL STORAGE
+        if (updatedUser != null) {
+          LocalStorageManager().setString(
+            StorageKey.currentUser,
+            jsonEncode(updatedUser.toJson()),
+          );
+
+          print("API UPDATED USER => ${updatedUser.profilePhotoURL}");
+        }
+
+        // ✅ UPDATE BOTH LIST + USER
+        emit(state.copyWith(
+          isLoading: false,
+          employeeMasterList: newList,
+          user: updatedUser, // 🔥 THIS WAS MISSING
+        ));
       },
     );
   }
@@ -896,39 +913,22 @@ class ProfileCubit extends Cubit<ProfileState> {
         .apicallAddUpdateEmployeeProfile(body: requestBody, fileList: fileList);
     goRouter.pop();
     updateResult.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error Message', failure.message);
         return;
       },
-            (response) async {
-              final rawUrls = response["SuccessMessage"]?[0] ?? "";
+      (response) async {
 
-              final List<String> urls = rawUrls
-                  .toString()
-                  .split(",")
-                  .where((e) => e.trim().isNotEmpty)
-                  .toList();
+        showSuccessMessage(context, subTitle: response["successMessage"]);
 
-              final newUrl = urls.isNotEmpty ? urls.last.trim() : "";
+        await getEmployeeMasterList(
+          1,
+          100,
+          int.parse(employeeId),
+        );
 
-              final currentUser = state.user;
-
-              if (currentUser != null && newUrl.isNotEmpty) {
-                final updatedUser = currentUser.copyWith(
-                  profilePhotoURL: newUrl,
-                );
-
-                await LocalStorageManager().setString(
-                  StorageKey.currentUser,
-                  jsonEncode(updatedUser.toJson()),
-                );
-
-                emit(state.copyWith(user: updatedUser));
-              }
-
-          showSuccessMessage(context, subTitle: response["successMessage"]);
-        }
+      },
     );
   }
 }

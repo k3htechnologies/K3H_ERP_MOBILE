@@ -176,8 +176,9 @@ class LeaveCreditConfigurationMasterCubit
       },
       (response) {
         goRouter.pop();
+
         final updatedLeaveCreditConfiguration =
-            LeaveCreditConfigurationMasterModel.fromJson(response['data'][0]);
+        response['data'][0] as LeaveCreditConfigurationMasterModel;
 
         if (state.leaveCreditConfigurationMasterList.isNotEmpty &&
             index < state.leaveCreditConfigurationMasterList.length) {
@@ -185,6 +186,8 @@ class LeaveCreditConfigurationMasterCubit
             state.leaveCreditConfigurationMasterList,
           );
           updatedList[index] = updatedLeaveCreditConfiguration;
+
+
           emit(
             state.copyWith(
               leaveCreditConfigurationMasterList: updatedList,

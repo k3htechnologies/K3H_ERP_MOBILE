@@ -284,6 +284,12 @@ class WeekOffMappingMasterCubit extends Cubit<WeekOffMappingMasterState> {
                 return {
                   "zAttributesId": employee.employeeId,
                   "DisplayName": employee.fullName,
+                  "department": employee.department,
+                  "designation": employee.designation,
+                  "branch": employee.branch,
+                  "reportingPerson": employee.reportPersonName,
+                  "emailId": employee.emailId,
+                  "personalMobileNumber": employee.personalMobileNumber,
                 };
               }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,

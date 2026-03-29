@@ -311,7 +311,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           buildColumnTitleValue(
-                            title: "Court Title",
+                            title: "Court Type",
                             value: litigation.courtType,
                           ),
                           buildColumnTitleValue(

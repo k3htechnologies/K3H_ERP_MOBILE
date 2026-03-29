@@ -62,7 +62,7 @@ class CustomTextField extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
+                  Flexible(
                     child: Text(
                       title!,
                       style: AppTextStyle.ts14R(),

@@ -347,16 +347,12 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
                       buildRowTitleValue(
                         title: "Weekly Off2",
                         value:
-                            weekOffMaster.weeklyOff2.isEmpty
-                                ? "N/A"
-                                : weekOffMaster.weeklyOff2,
+                            weekOffMaster.weeklyOff2,
                       ),
                       buildRowTitleValue(
                         title: "Weekly Off2 Type",
                         value:
-                            weekOffMaster.weeklyOff2Type.isEmpty
-                                ? "N/A"
-                                : weekOffMaster.weeklyOff2Type,
+                            weekOffMaster.weeklyOff2Type,
                       ),
                       buildRowTitleValue(
                         title: "Not Applicable For Months",

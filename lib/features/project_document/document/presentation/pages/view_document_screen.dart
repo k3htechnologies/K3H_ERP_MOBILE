@@ -397,7 +397,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                   queryParameters: {
                     "subTitle": Uri.encodeComponent(
                       EncryptionManager.encryptData(
-                        "${widget.documentModel.projectDocumentName} > ${document.projectDocumentName}",
+                        "${widget.documentModel.projectDocumentCategory} > ${widget.documentModel.projectDocumentName} > ${document.projectDocumentName}",
                       ),
                     ),
                     "title": Uri.encodeComponent(

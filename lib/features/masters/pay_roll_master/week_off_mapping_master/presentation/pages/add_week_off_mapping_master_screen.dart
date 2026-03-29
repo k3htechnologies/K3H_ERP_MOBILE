@@ -2,7 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/presentation/cubit/week_off_mapping_cubit.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/presentation/cubit/week_off_mapping_state.dart';
@@ -12,6 +15,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -34,13 +38,20 @@ class _AddWeekOffMappingMasterScreenState
   //CUBIT
   late WeekOffMappingMasterCubit _weekOffMappingMasterCubit;
 
+  // EMPLOYEE REPOSITORY
+  final EmployeeMasterRepository _employeeMasterRepository =
+      serviceLocator<EmployeeMasterRepository>();
+
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
 
   // DROPDOWN SELECTIONS
   List<Map<String, dynamic>> _selectedWeekOff = [];
-  List<Map<String, dynamic>> _selectedEmployee = [];
-  List<Map<String, dynamic>> _selectedDepartment = [];
+  late final ValueNotifier<List<Map<String, dynamic>>>
+  _selectedDepartmentNotifier;
+
+  late final ValueNotifier<List<Map<String, dynamic>>>
+  _selectedEmployeeNotifier;
 
   //EDIT MODE
   bool get _isEditMode => widget.weekOffMappingMasterModel != null;
@@ -56,20 +67,36 @@ class _AddWeekOffMappingMasterScreenState
             .addWeekOffMappingMaster] ??
         AuthorizationModel();
     _weekOffMappingMasterCubit = context.read<WeekOffMappingMasterCubit>();
+
+    _selectedEmployeeNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
+
+    _selectedDepartmentNotifier =
+        ValueNotifier<List<Map<String, dynamic>>>([]);
+
     if (_isEditMode) {
       _populateFormFields(widget.weekOffMappingMasterModel!);
     }
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _selectedEmployeeNotifier.dispose();
+  }
+
   // POPULATE FORM FIELDS
   void _populateFormFields(WeekOffMappingModel weekOffMapping) {
     if (weekOffMapping.employeeId.isNotEmpty) {
-      _selectedEmployee = [
+      final employeeId = int.parse(weekOffMapping.employeeId);
+
+      _selectedEmployeeNotifier.value = [
         {
-          'zAttributesId': weekOffMapping.employeeId,
+          'zAttributesId': employeeId,
           'DisplayName': weekOffMapping.employeeName,
         },
       ];
+
+      _fetchEmployeeDetailsForEdit(employeeId);
     }
 
     _selectedWeekOff = [
@@ -79,7 +106,7 @@ class _AddWeekOffMappingMasterScreenState
       },
     ];
     if (weekOffMapping.departmentMasterId.isNotEmpty) {
-      _selectedDepartment = [
+      _selectedDepartmentNotifier.value = [
         {
           'zAttributesId': weekOffMapping.departmentMasterId,
           'DisplayName': weekOffMapping.departmentName,
@@ -92,6 +119,34 @@ class _AddWeekOffMappingMasterScreenState
     } else {
       _weekOffMappingMasterCubit.onSelectedOptionChanged("Department");
     }
+  }
+
+  // FETCH EMPLOYEE
+  Future<void> _fetchEmployeeDetailsForEdit(int employeeId) async {
+    final result = await _employeeMasterRepository.getEmployeeMasterList(
+      pageNumber: 1,
+      pageSize: 1,
+      queryParams: {'EmployeeId': employeeId},
+    );
+    result.fold((_) {}, (response) {
+      final employees = response['data'] as List<UserModel>? ?? [];
+      if (employees.isEmpty) return;
+      final employee = employees.first;
+      if (!mounted) return;
+      _selectedEmployeeNotifier.value = [
+        {
+          'zAttributesId': employee.employeeId,
+          'DisplayName': employee.fullName,
+          'employeeCode': employee.employeeCode,
+          'department': employee.department,
+          'designation': employee.designation,
+          'branch': employee.branch,
+          'reportingPerson': employee.reportPersonName,
+          'emailId': employee.emailId,
+          'personalMobileNumber': employee.personalMobileNumber,
+        },
+      ];
+    });
   }
 
   // SUBMIT FORM
@@ -114,26 +169,30 @@ class _AddWeekOffMappingMasterScreenState
             widget.weekOffMappingMasterModel!.weekOffPolicyMasterMappingId,
         weekOffMasterId: _selectedWeekOff.first['zAttributesId'] as int,
         employeeId:
-            _selectedEmployee.isEmpty
+            _selectedEmployeeNotifier.value.isEmpty
                 ? null
-                : _selectedEmployee.first['zAttributesId'].toString(),
+                : _selectedEmployeeNotifier.value.first['zAttributesId']
+                    .toString(),
         departmentMasterId:
-            _selectedDepartment.isEmpty
+            _selectedDepartmentNotifier.value.isEmpty
                 ? null
-                : _selectedDepartment.first['zAttributesId'].toString(),
+                : _selectedDepartmentNotifier.value.first['zAttributesId']
+                    .toString(),
       );
     } else {
       _weekOffMappingMasterCubit.addWeekOffMapping(
         context: context,
         weekOffMasterId: _selectedWeekOff.first['zAttributesId'] as int,
         employeeId:
-            _selectedEmployee.isEmpty
+            _selectedEmployeeNotifier.value.isEmpty
                 ? null
-                : _selectedEmployee.first['zAttributesId'].toString(),
+                : _selectedEmployeeNotifier.value.first['zAttributesId']
+                    .toString(),
         departmentMasterId:
-            _selectedDepartment.isEmpty
+            _selectedDepartmentNotifier.value.isEmpty
                 ? null
-                : _selectedDepartment.first['zAttributesId'].toString(),
+                : _selectedDepartmentNotifier.value.first['zAttributesId']
+                    .toString(),
       );
     }
   }
@@ -173,6 +232,7 @@ class _AddWeekOffMappingMasterScreenState
                       children: [
                         CustomMultipleSelectPopup(
                           title: 'Week Off Name',
+                          hintText: "Select Week Off Policy Name",
                           isRequired: true,
                           isMultiSelect: false,
                           initialValue: _selectedWeekOff,
@@ -215,50 +275,177 @@ class _AddWeekOffMappingMasterScreenState
                         verticalSpacing(),
                         Visibility(
                           visible: state.selectedOption == state.options[0],
-                          child: CustomMultipleSelectPopup(
-                            title: 'Employee',
-                            isRequired: true,
-                            isMultiSelect: false,
-                            initialValue: _selectedEmployee,
-                            dataList: [],
-                            onSelected: (value) {
-                              _selectedEmployee = value;
-                            },
-                            dataFetchCallBack:
-                                _weekOffMappingMasterCubit.fetchEmployees,
-                            validator: (value) {
-                              if ((state.selectedOption.toLowerCase() ==
-                                      state.options[0].toLowerCase()) &&
-                                  (value == null || value.isEmpty)) {
-                                return "Employee is required";
-                              }
-                              return null;
+                          child: ValueListenableBuilder<
+                            List<Map<String, dynamic>>
+                          >(
+                            valueListenable: _selectedEmployeeNotifier,
+                            builder: (context, selectedEmployee, _) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CustomMultipleSelectPopup(
+                                    title: 'Employee',
+                                    hintText: "Select Employee",
+                                    isRequired: true,
+                                    isMultiSelect: false,
+                                    initialValue: selectedEmployee,
+                                    dataList: [],
+                                    onSelected: (value) {
+                                      _selectedEmployeeNotifier.value = value;
+                                    },
+                                    dataFetchCallBack:
+                                        _weekOffMappingMasterCubit
+                                            .fetchEmployees,
+                                    validator: (value) {
+                                      if ((state.selectedOption.toLowerCase() ==
+                                              state.options[0].toLowerCase()) &&
+                                          (value == null || value.isEmpty)) {
+                                        return "Employee is required";
+                                      }
+                                      return null;
+                                    },
+                                  ),
+
+                                  if (selectedEmployee.isNotEmpty) ...[
+                                    Container(
+                                      margin: const EdgeInsets.only(bottom: 10),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: AppColor.lightBlue,
+                                        ),
+                                      ),
+                                      padding: const EdgeInsets.all(16),
+                                      child: Column(
+                                        spacing: 10,
+                                        children: [
+                                          Row(
+                                            spacing: 10,
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "Department",
+                                                value:
+                                                    selectedEmployee
+                                                        .first["department"] ??
+                                                    '',
+                                              ),
+                                              buildColumnTitleValue(
+                                                title: "Designation",
+                                                value:
+                                                    selectedEmployee
+                                                        .first["designation"] ??
+                                                    '',
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            spacing: 10,
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "Branch",
+                                                value:
+                                                    selectedEmployee
+                                                        .first["branch"] ??
+                                                    '',
+                                              ),
+                                              buildColumnTitleValue(
+                                                title: "Reporting Person",
+                                                value:
+                                                    selectedEmployee
+                                                        .first["reportingPerson"] ??
+                                                    '',
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            spacing: 10,
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "Email ID",
+                                                value:
+                                                    selectedEmployee
+                                                        .first["emailId"] ??
+                                                    '',
+                                              ),
+                                              buildColumnTitleValue(
+                                                title: "Personal Mobile Number",
+                                                value:
+                                                    selectedEmployee
+                                                        .first["personalMobileNumber"] ??
+                                                    '',
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              );
                             },
                           ),
                         ),
                         Visibility(
                           visible: state.selectedOption == state.options[1],
 
-                          child: CustomMultipleSelectPopup(
-                            title: 'Department',
-                            isRequired: true,
-                            isMultiSelect: false,
-                            initialValue: _selectedDepartment,
-                            dataList: [],
-                            onSelected: (value) {
-                              _selectedDepartment = value;
+                          child: ValueListenableBuilder<List<Map<String, dynamic>>>(
+                            valueListenable: _selectedDepartmentNotifier,
+                            builder: (context, selectedDepartment, _) {
+                              return Column(
+                                children: [
+                                  CustomMultipleSelectPopup(
+                                    title: 'Department',
+                                    hintText: "Select Department",
+                                    isRequired: true,
+                                    isMultiSelect: false,
+                                    initialValue: selectedDepartment,
+                                    dataList: [],
+                                    onSelected: (value) {
+                                      _selectedDepartmentNotifier.value = value;
+                                    },
+                                    dataFetchCallBack:
+                                    _weekOffMappingMasterCubit.fetchDepartment,
+                                    validator: (value) {
+                                      if ((state.selectedOption.toLowerCase() ==
+                                          state.options[1].toLowerCase()) &&
+                                          (value == null || value.isEmpty)) {
+                                        return "Department is required";
+                                      }
+                                      return null;
+                                    },
+                                  ),
+
+                                  if (selectedDepartment.isNotEmpty) ...[
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: AppColor.lightBlue,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: AppColor.primary,
+                                          width: .5,
+                                        ),
+                                      ),
+                                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                      child: RichText(
+                                        text: TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: "This week-off policy will be applied to ",
+                                              style: AppTextStyle.ts12R(),
+                                            ),
+                                            TextSpan(
+                                              text: "all employees in this department.",
+                                              style: AppTextStyle.ts12SB(),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    ),
+                                  ],
+                                ],
+                              );
                             },
-                            dataFetchCallBack:
-                                _weekOffMappingMasterCubit.fetchDepartment,
-                            validator: (value) {
-                              if ((state.selectedOption.toLowerCase() ==
-                                      state.options[1].toLowerCase()) &&
-                                  (value == null || value.isEmpty)) {
-                                return "Department is required";
-                              }
-                              return null;
-                            },
-                          ),
+                          )
                         ),
                       ],
                     );

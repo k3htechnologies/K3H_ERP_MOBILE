@@ -98,18 +98,26 @@ class _AddLeaveCreditConfigurationMasterScreenState
         },
       ];
 
-      final designationIds = model.designationId.split(',');
-      final designationNames = model.designationName.split(',');
-      _selectedDesignationNotifier.value = List.generate(
-        designationIds.length,
-        (index) => {
-          "zAttributesId": int.tryParse(designationIds[index].trim()) ?? 0,
-          "DisplayName":
-              designationNames.length > index
-                  ? designationNames[index].trim()
-                  : "",
-        },
-      );
+
+
+      if ((model.designationId).isNotEmpty &&
+          model.designationId != "0") {
+        final designationIds = model.designationId.split(',');
+        final designationNames = model.designationName.split(',');
+
+        _selectedDesignationNotifier.value = List.generate(
+          designationIds.length,
+              (index) => {
+            "zAttributesId": int.tryParse(designationIds[index].trim()) ?? 0,
+            "DisplayName":
+            designationNames.length > index
+                ? designationNames[index].trim()
+                : "",
+          },
+        );
+      } else {
+        _selectedDesignationNotifier.value = [];
+      }
 
       _leaveBalanceTypeListNotifier.value = List.from(model.leaveBalanceType);
     }
@@ -324,11 +332,12 @@ class _AddLeaveCreditConfigurationMasterScreenState
                         selectedLeavePeriod = value;
                       },
                       initialValue: selectedLeavePeriod,
-                      title: "Leave Period",
+                      title: "Leave Period Mode",
+                      hintText: "Enter Leave Period Mode",
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value["zAttributesId"] == -1) {
-                          return 'Leave Period is required';
+                          return 'Leave Period Mode is required';
                         }
                         return null;
                       },
@@ -411,6 +420,7 @@ class _AddLeaveCreditConfigurationMasterScreenState
                       builder: (context, selectedDept, child) {
                         return CustomMultipleSelectPopup(
                           title: "Department",
+                          hintText: "Select Department",
                           isRequired: true,
                           isMultiSelect: false,
                           initialValue: selectedDept,
@@ -432,6 +442,7 @@ class _AddLeaveCreditConfigurationMasterScreenState
                       builder: (context, selectedDes, child) {
                         return CustomMultipleSelectPopup(
                           title: "Designation",
+                          hintText: "Select Designation",
                           isMultiSelect: true,
                           initialValue: selectedDes,
                           dataFetchCallBack: _fetchDesignation,

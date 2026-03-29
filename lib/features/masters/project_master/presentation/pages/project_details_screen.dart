@@ -957,7 +957,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                               title: "Last Login",
                               value:
                                   employee.lastLogin != null
-                                      ? formatDateTimeAsDDMMMYYYY(
+                                      ? formatDate(
                                         employee.lastLogin!,
                                       )
                                       : "-",
@@ -1159,9 +1159,10 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                 ),
                                 buildColumnTitleValue(
                                   title: "E-mail Id",
-                                  value: company.mobileNumber,
+                                  value: company.emailId,
                                   customValueWidget: CustomClickToContactText(
-                                    value: company.mobileNumber,
+                                    value: company.emailId,
+                                    type: ContactType.email,
                                   ),
                                 ),
                               ],

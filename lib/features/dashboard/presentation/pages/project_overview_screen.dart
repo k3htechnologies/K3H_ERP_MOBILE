@@ -265,6 +265,10 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                 Row(
                   children: [
                     buildColumnTitleValue(
+                      title: "Village",
+                      value: widget.project.villageName,
+                    ),
+                    buildColumnTitleValue(
                       title: "PIN Code",
                       value: widget.project.zipCode,
                     ),

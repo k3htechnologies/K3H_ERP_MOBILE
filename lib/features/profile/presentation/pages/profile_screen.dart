@@ -574,7 +574,15 @@ class _ProfileScreenState extends State<ProfileScreen>
             child: Column(
               children: [
                 verticalSpacing(),
-                _buildHeader(state.user!, state.selectedProject),
+                // _buildHeader(state.user!, state.selectedProject),
+                BlocBuilder<ProfileCubit, ProfileState>(
+                  builder: (context, state) {
+                    final user = state.user;
+                    if (user == null) return SizedBox();
+
+                    return _buildHeader(user, state.selectedProject);
+                  },
+                ),
                 verticalSpacing(),
                 ChipStyleTabBar(
                   controller: _tabController,
@@ -620,18 +628,15 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   // BUILD HEADER
   Widget _buildHeader(UserModel user, ProjectModel? project) {
-    final imageList = user.profilePhotoURL
-        .split(",")
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
+    final apiUser = _profileCubit.state.employeeMasterList.isNotEmpty
+        ? _profileCubit.state.employeeMasterList.first
+        : null;
 
-    final imageUrl = imageList.isNotEmpty ? imageList.last : "";
+    final imageUrl = (apiUser?.profilePhotoURL ?? user.profilePhotoURL).trim();
 
-    print("hh=> ${imageUrl}");
-
-    print("ALL IMAGES => $imageList");
-    print("LAST IMAGE => ${imageList.last}");
+    print("LOCAL USER URL => ${user.profilePhotoURL}");
+    print("API USER URL => ${apiUser?.profilePhotoURL}");
+    print("FINAL IMAGE URL => $imageUrl");
     return GestureDetector(
       onTap: _showProfilePhotoOptions,
       child: Container(
@@ -648,7 +653,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                   radius: 35,
                   backgroundColor: AppColor.primary,
                   child: imageUrl.isNotEmpty
-                      ? ClipOval(child: NetworkImageWidget(imageUrl: imageUrl,fit: BoxFit.fill,width: 70,height: 70,))
+                      ? ClipOval(child: NetworkImageWidget(
+                    key: ValueKey(imageUrl),
+                    imageUrl: imageUrl,fit: BoxFit.fill,width: 70,height: 70,))
                       : Text(
                     user.fullName.isNotEmpty
                         ? user.fullName[0].toUpperCase()

@@ -47,7 +47,7 @@ class _ModuleAddEmployeeScreenState extends State<ModuleAddEmployeeScreen> {
       pageSize: 15,
       projectId: widget.projectId,
       queryParams:
-          value != null && value.isNotEmpty ? {"EmployeeName": value} : {},
+          value != null && value.isNotEmpty ? {"FullName": value} : {},
     );
 
     return result.fold(
@@ -110,7 +110,7 @@ class _ModuleAddEmployeeScreenState extends State<ModuleAddEmployeeScreen> {
                 decoration: commonCardDecoration(),
                 child: CustomMultipleSelectPopup(
                   title: 'Employee',
-
+                  hintText: "Select Employees",
                   isRequired: true,
                   isMultiSelect: true,
                   initialValue: _selectedEmployee,

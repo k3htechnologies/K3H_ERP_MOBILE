@@ -31,7 +31,7 @@ class ViewWeekOffMasterScreen extends StatelessWidget {
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Basic Details", style: AppTextStyle.ts16SB()),
+                    Text("Week Off Policy Details", style: AppTextStyle.ts16SB()),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -53,8 +53,8 @@ class ViewWeekOffMasterScreen extends StatelessWidget {
                           value: weekOffMaster.weekDays.toString(),
                         ),
                         buildColumnTitleValue(
-                          title: "Weekly Off",
-                          value: weekOffMaster.weeklyOff,
+                          title: "Week Day Starts On",
+                          value: weekOffMaster.weekDaysStartsOn,
                         ),
                       ],
                     ),
@@ -74,12 +74,12 @@ class ViewWeekOffMasterScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
-                          title: "Weekly Off2",
-                          value: weekOffMaster.weeklyOff2,
+                          title: "Weekly Off",
+                          value: weekOffMaster.weeklyOff,
                         ),
                         buildColumnTitleValue(
-                          title: "Weekly Off2 Type",
-                          value: weekOffMaster.weeklyOff2Type,
+                          title: "Weekly Off 2",
+                          value: weekOffMaster.weeklyOff2,
                         ),
                       ],
                     ),
@@ -87,8 +87,8 @@ class ViewWeekOffMasterScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
-                          title: "Week Days Starts On",
-                          value: weekOffMaster.weekDaysStartsOn,
+                          title: "Weekly Off 2 Type",
+                          value: weekOffMaster.weeklyOff2Type,
                         ),
                         buildColumnTitleValue(
                           title: "Not Applicable For Months",

@@ -657,7 +657,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         );
         showSuccessMessage(
           context,
-          subTitle: 'Bank Details Updated Successfully!!!',
+          subTitle: response["message"],
         );
       },
     );
