@@ -114,6 +114,7 @@ dependencies:
   package_info_plus: ^9.0.0
   # LOCAL NOTIFICATION
   flutter_local_notifications: ^20.1.0
+  gallery_saver_plus: ^3.2.9
   
 # DEV DEPENDENCIES
 dev_dependencies:

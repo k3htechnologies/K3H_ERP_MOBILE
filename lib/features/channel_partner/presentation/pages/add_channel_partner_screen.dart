@@ -396,16 +396,16 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
       deletedFileList: "",
     );
     selectedStateVN.value = {
+      "DisplayName": channelPartnerMasterModel.stateName,
+      "zAttributesId": channelPartnerMasterModel.stateMasterId,
+    };
+    selectedDistrictVN.value = {
       "DisplayName": channelPartnerMasterModel.districtName,
       "zAttributesId": channelPartnerMasterModel.districtMasterId,
     };
     selectedCityVN.value = {
       "DisplayName": channelPartnerMasterModel.cityName,
       "zAttributesId": channelPartnerMasterModel.cityMasterId,
-    };
-    selectedStateVN.value = {
-      "DisplayName": channelPartnerMasterModel.stateName,
-      "zAttributesId": channelPartnerMasterModel.stateMasterId,
     };
     selectedVillageVN.value = {
       "DisplayName": channelPartnerMasterModel.villageName,

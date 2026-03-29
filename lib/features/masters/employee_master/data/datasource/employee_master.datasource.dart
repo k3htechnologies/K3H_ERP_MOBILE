@@ -97,8 +97,14 @@ abstract interface class EmployeeMasterDataSource {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+
   Future<Map<String, dynamic>> apicallUpdateUserBasicDetails({
     required Map<String, dynamic> body,
+  });
+
+  Future<Map<String, dynamic>> apicallAddUpdateEmployeeProfile({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   });
 }
 
@@ -738,6 +744,40 @@ class EmployeeMasterDataSourceImpl extends EmployeeMasterDataSource {
     } catch (error) {
       if (error is TokenExpiredException) {
         return apicallUpdateUserBasicDetails(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateEmployeeProfile({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    try {
+      String updateUserBasicDetailsUrl = "Employee/UpdateEmployeeProfilePhoto";
+
+      var networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(
+            updateUserBasicDetailsUrl,
+            fileList,
+            body,
+          );
+      final rawUrls = networkResponse['message'] ?? '';
+
+      final imageUrls = rawUrls
+          .split(',')
+          .map((e) => e.trim())
+          .toList();
+
+      return {
+        'data': imageUrls,
+        'successMessage': "Uploaded successfully",
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallAddUpdateEmployeeProfile(body: body, fileList: fileList);
       }
       rethrow;
     }

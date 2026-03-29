@@ -43,6 +43,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>This app requires camera access to scan QR codes or take profile photos.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Allow access to save images</string>
 	<key>NSContactsUsageDescription</key>
 	<string>This app requires access to contacts to verify phone identity for ERP security.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>

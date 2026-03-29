@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
@@ -346,34 +347,26 @@ class UtilsRepositoryImpl implements UtilsRepository {
   }
 
   @override
-  Future<Either<Failure, List<dynamic>>> getAddressMaster() async {
-    try {
-      final storage = LocalStorageManager();
+  Future<Either<Failure, List<dynamic>>> getAddressMaster({bool forceRefresh = false}) async {
+    final storage = LocalStorageManager();
 
-      /// ✅ 1. Check cache
-      final cachedData = storage.getString(StorageKey.addressMasterData);
-
+    if (!forceRefresh) {
+      final cachedData = storage.getRawString(StorageKey.addressMasterData);
       if (cachedData != null && cachedData.isNotEmpty) {
-        final decoded = jsonDecode(cachedData);
+        // Use compute to decode large JSON in background
+        final decoded = await compute(jsonDecode, cachedData) as List<dynamic>;
         return right(decoded);
       }
-
-      /// ✅ 2. Call API (ONLY FIRST TIME)
-      final result =
-      await _utilsDatasource.pullCountryStateCityDistrictVillage();
-
-      final data = result["data"]["CountryStateCityDistrictVillageData"];
-
-      /// ✅ 3. Store in local
-      await storage.setString(
-        StorageKey.addressMasterData,
-        jsonEncode(data),
-      );
-
-      return right(data);
-    } catch (error) {
-      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
     }
+
+    final result = await _utilsDatasource.pullCountryStateCityDistrictVillage();
+    final data = result["data"]["CountryStateCityDistrictVillageData"];
+
+    // Use compute to encode large JSON in background
+    final String encodedData = await compute(jsonEncode, data);
+    await storage.setRawString(StorageKey.addressMasterData, encodedData);
+
+    return right(data);
   }
 
 }

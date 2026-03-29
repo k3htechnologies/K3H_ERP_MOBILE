@@ -32,31 +32,29 @@ class _SplashMobileScreenState extends State<SplashScreen> {
 
       final bool isLoggedIn = token != null && token.isNotEmpty;
 
-
       if (!isLoggedIn) {
         goRouter.goNamed(AppRoutes.login);
         return;
       }
 
-      if (menu != null && menu.isNotEmpty) {
-        goRouter.goNamed(AppRoutes.dashboardScreen);
-        return;
-      }
-
       try {
         final UtilsRepository utilsRepository =
-            serviceLocator<UtilsRepository>();
+        serviceLocator<UtilsRepository>();
 
         utilsRepository.getAddressMaster().then((res) {
           res.fold(
                 (failure) => debugPrint("Address failed"),
-                (data) => debugPrint("Address success"),
+                (data) => debugPrint("Address cached successfully"),
           );
         });
 
-        final userJson = localStorage.getString(StorageKey.currentUser) ?? '';
+        // 👇 NOW check menu
+        if (menu != null && menu.isNotEmpty) {
+          goRouter.goNamed(AppRoutes.dashboardScreen);
+          return;
+        }
 
-        await utilsRepository.getAddressMaster();
+        final userJson = localStorage.getString(StorageKey.currentUser) ?? '';
 
         if (userJson.isEmpty) {
           goRouter.goNamed(AppRoutes.login);
@@ -65,13 +63,14 @@ class _SplashMobileScreenState extends State<SplashScreen> {
 
         final user = UserModel.fromJson(jsonDecode(userJson));
 
-        var result = await utilsRepository.getMenu(employeeId: user.employeeId);
+        var result =
+        await utilsRepository.getMenu(employeeId: user.employeeId);
 
         result.fold(
-          (failure) {
+              (failure) {
             goRouter.goNamed(AppRoutes.login);
           },
-          (data) async {
+              (data) async {
             localStorage.setString(
               StorageKey.menu,
               jsonEncode(data["menuData"]),

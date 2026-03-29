@@ -91,8 +91,15 @@ abstract interface class EmployeeMasterRepository {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+
   Future<Either<Failure, Map<String, dynamic>>> updateUserBasicDetails({
     required Map<String, dynamic> requestBody,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>>
+  apicallAddUpdateEmployeeProfile({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   });
 }
 
@@ -387,6 +394,21 @@ class EmployeeMasterRepositoryImp implements EmployeeMasterRepository {
       var result = await employeeMasterDataSource.apicallUpdateUserBasicDetails(
         body: requestBody,
       );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  apicallAddUpdateEmployeeProfile({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    try {
+      var result = await employeeMasterDataSource
+          .apicallAddUpdateEmployeeProfile(body: body, fileList: fileList);
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

@@ -1,8 +1,10 @@
 import 'dart:convert';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
@@ -53,6 +55,8 @@ class _ProfileScreenState extends State<ProfileScreen>
   // APP VERSION
   late String version;
 
+  final ValueNotifier<PlatformFile?> profilePhotoNotifier = ValueNotifier(null);
+
   // FORM KEY FOR BOTTOM SHEETS
   final _educationFormKey = GlobalKey<FormState>();
   final _experienceFormKey = GlobalKey<FormState>();
@@ -85,6 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     _roleC.dispose();
     _tenureC.dispose();
     _setMPIN.dispose();
+    profilePhotoNotifier.dispose();
     super.dispose();
   }
 
@@ -444,6 +449,106 @@ class _ProfileScreenState extends State<ProfileScreen>
     _setMPIN.clear();
   }
 
+  void _showProfilePhotoOptions() async {
+    await showDialog(
+      context: context,
+      builder: (profileContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: Text("Update Profile Photo", style: AppTextStyle.ts16SB()),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt, size: 18),
+                title: const Text("Camera"),
+                onTap: () async {
+                  Navigator.pop(profileContext);
+                  await _captureProfilePhoto();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo, size: 18),
+                title: const Text("Gallery"),
+                onTap: () async {
+                  Navigator.pop(profileContext);
+                  await _pickProfilePhoto();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _captureProfilePhoto() async {
+    final picker = ImagePicker();
+
+    final image = await picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 80,
+    );
+
+    if (image == null) return;
+
+    final bytes = await image.readAsBytes();
+
+    final file = PlatformFile(
+      name: image.name,
+      size: bytes.length,
+      bytes: bytes,
+    );
+
+    profilePhotoNotifier.value = file;
+
+    final files = MultiFilePickerModel(
+      fileNameList: [file.name],
+      fileBytesList: [file.bytes!],
+      deletedFileList: "",
+    );
+
+    if (mounted) {
+      await _profileCubit.addEmployeeProfilePhoto(
+        context: context,
+        employeeId: _profileCubit.state.user!.employeeId.toString(),
+        removeProfilePhotoURL: "",
+        files: files,
+      );
+    }
+  }
+
+  Future<void> _pickProfilePhoto() async {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      withData: true,
+      type: FileType.image,
+    );
+
+    if (result == null || result.files.isEmpty) return;
+
+    final file = result.files.first;
+
+    profilePhotoNotifier.value = file;
+
+    final files = MultiFilePickerModel(
+      fileNameList: [file.name],
+      fileBytesList: [file.bytes!],
+      deletedFileList: "",
+    );
+
+    if (mounted) {
+      await _profileCubit.addEmployeeProfilePhoto(
+        context: context,
+        employeeId: _profileCubit.state.user!.employeeId.toString(),
+        removeProfilePhotoURL: "",
+        files: files,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ProfileCubit, ProfileState>(
@@ -515,89 +620,106 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   // BUILD HEADER
   Widget _buildHeader(UserModel user, ProjectModel? project) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: commonCardDecoration(),
-      child: Row(
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              // AVATAR
-              CircleAvatar(
-                radius: 35,
-                backgroundColor: AppColor.primary,
-                child: Text(
-                  user.fullName.isNotEmpty
-                      ? user.fullName[0].toUpperCase()
-                      : 'U',
-                  style: AppTextStyle.ts24B(color: AppColor.white),
-                ),
-              ),
+    final imageList = user.profilePhotoURL
+        .split(",")
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
 
-              // LIGHT BLACK OVERLAY
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColor.black.withValues(alpha: 0.25),
-                  ),
-                ),
-              ),
+    final imageUrl = imageList.isNotEmpty ? imageList.last : "";
 
-              // EDIT ICON
-              Positioned(
-                bottom: -2,
-                right: -2,
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColor.lightBlue,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: Icon(Icons.edit, size: 14, color: AppColor.primary),
-                ),
-              ),
-            ],
-          ),
-          horizontalSpacing(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    print("hh=> ${imageUrl}");
+
+    print("ALL IMAGES => $imageList");
+    print("LAST IMAGE => ${imageList.last}");
+    return GestureDetector(
+      onTap: _showProfilePhotoOptions,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: commonCardDecoration(),
+        child: Row(
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
               children: [
-                Text(
-                  user.fullName,
-                  style: AppTextStyle.ts16SB(),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                // AVATAR
+                CircleAvatar(
+                  radius: 35,
+                  backgroundColor: AppColor.primary,
+                  child: imageUrl.isNotEmpty
+                      ? ClipOval(child: NetworkImageWidget(imageUrl: imageUrl,fit: BoxFit.fill,width: 70,height: 70,))
+                      : Text(
+                    user.fullName.isNotEmpty
+                        ? user.fullName[0].toUpperCase()
+                        : 'U',
+                    style: AppTextStyle.ts24B(color: AppColor.white),
+                  ),
                 ),
-                verticalSpacing(height: 4),
-                Text(
-                  user.department.isNotEmpty ? user.department : '-',
-                  style: AppTextStyle.ts14M(color: AppColor.grey),
+
+                // LIGHT BLACK OVERLAY
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColor.black.withValues(alpha: 0.25),
+                    ),
+                  ),
                 ),
-                verticalSpacing(height: 4),
-                Text(
-                  user.designation.isNotEmpty ? user.designation : '-',
-                  style: AppTextStyle.ts14M(color: AppColor.grey),
-                ),
-                verticalSpacing(height: 4),
-                SizedBox(
-                  width: 140,
-                  child: CustomButton(
-                    text: "Set MPIN",
-                    onPressed: () {
-                      _showPopupToSetMpin(user);
-                    },
-                    backgroundColor: AppColor.primary,
+
+                // EDIT ICON
+                Positioned(
+                  bottom: -2,
+                  right: -2,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColor.lightBlue,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    child: Icon(Icons.edit, size: 14, color: AppColor.primary),
                   ),
                 ),
               ],
             ),
-          ),
-        ],
+            horizontalSpacing(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user.fullName,
+                    style: AppTextStyle.ts16SB(),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  verticalSpacing(height: 4),
+                  Text(
+                    user.department.isNotEmpty ? user.department : '-',
+                    style: AppTextStyle.ts14M(color: AppColor.grey),
+                  ),
+                  verticalSpacing(height: 4),
+                  Text(
+                    user.designation.isNotEmpty ? user.designation : '-',
+                    style: AppTextStyle.ts14M(color: AppColor.grey),
+                  ),
+                  verticalSpacing(height: 4),
+                  SizedBox(
+                    width: 140,
+                    child: CustomButton(
+                      text: "Set MPIN",
+                      onPressed: () {
+                        _showPopupToSetMpin(user);
+                      },
+                      backgroundColor: AppColor.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -886,7 +1008,11 @@ class _ProfileScreenState extends State<ProfileScreen>
               _buildInfoCard(
                 title: 'Basic Details',
                 items: [
-                  {'label': 'Full Name', 'value': overview.fullName,'fullWidth':'true'},
+                  {
+                    'label': 'Full Name',
+                    'value': overview.fullName,
+                    'fullWidth': 'true',
+                  },
                   {'label': 'Gender', 'value': overview.gender},
                   {'label': 'Marital Status', 'value': overview.maritalStatus},
                   {'label': 'Blood Group', 'value': overview.bloodGroup},
@@ -898,12 +1024,27 @@ class _ProfileScreenState extends State<ProfileScreen>
                             : '-',
                   },
                   {'label': 'Email ID', 'value': overview.emailId},
-                  {'label': 'Personal Mobile No.', 'value': overview.personalMobileNumber},
-                  {'label': 'Aadhaar Card Number', 'value': overview.aadharCardNumber},
+                  {
+                    'label': 'Personal Mobile No.',
+                    'value': overview.personalMobileNumber,
+                  },
+                  {
+                    'label': 'Aadhaar Card Number',
+                    'value': overview.aadharCardNumber,
+                  },
                   {'label': 'PAN Number', 'value': overview.panCardNumber},
-                  {'label': 'Passport Number', 'value': overview.passportNumber},
-                  {'label': 'Driving / Licence Number', 'value': overview.drivingLicenceNumber},
-                  {'label': 'Voter Card Number', 'value': overview.voterCardNumber},
+                  {
+                    'label': 'Passport Number',
+                    'value': overview.passportNumber,
+                  },
+                  {
+                    'label': 'Driving / Licence Number',
+                    'value': overview.drivingLicenceNumber,
+                  },
+                  {
+                    'label': 'Voter Card Number',
+                    'value': overview.voterCardNumber,
+                  },
 
                   {
                     'label': 'Communication Address',
@@ -950,17 +1091,23 @@ class _ProfileScreenState extends State<ProfileScreen>
                   {
                     'label': 'Joining Date',
                     'value':
-                    overview.joiningDate != null
-                        ? formatDateTimeAsDDMMMYYYY(overview.joiningDate!)
-                        : "-",
+                        overview.joiningDate != null
+                            ? formatDateTimeAsDDMMMYYYY(overview.joiningDate!)
+                            : "-",
                   },
                   {
                     'label': 'Reporting Person',
                     'value': overview.reportPersonName,
                   },
                   {'label': 'Employment Type', 'value': overview.employeeType},
-                  {'label': 'Office Number', 'value': overview.officeMobileNumber},
-                  {'label': 'Office E-mail ID', 'value': overview.officeEmailId},
+                  {
+                    'label': 'Office Number',
+                    'value': overview.officeMobileNumber,
+                  },
+                  {
+                    'label': 'Office E-mail ID',
+                    'value': overview.officeEmailId,
+                  },
                   {
                     'label': 'Probation Date',
                     'value':
@@ -971,9 +1118,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                   {
                     'label': 'Id Card Issued Date',
                     'value':
-                    overview.idCardIssuedDate != null
-                        ? formatDateTimeAsDDMMMYYYY(overview.idCardIssuedDate!)
-                        : "-",
+                        overview.idCardIssuedDate != null
+                            ? formatDateTimeAsDDMMMYYYY(
+                              overview.idCardIssuedDate!,
+                            )
+                            : "-",
                   },
                 ],
               ),
@@ -984,7 +1133,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                   items: [
                     {'label': 'Bank Name', 'value': overview.bankName},
                     {'label': 'Account Number', 'value': overview.accountNo},
-                    {'label': 'Bank Branch Name', 'value': overview.bankBranchName},
+                    {
+                      'label': 'Bank Branch Name',
+                      'value': overview.bankBranchName,
+                    },
                     {'label': 'IFSC Code', 'value': overview.ifscCode},
                   ],
                 ),
@@ -992,8 +1144,16 @@ class _ProfileScreenState extends State<ProfileScreen>
               _buildInfoCard(
                 title: 'Emergency Contact Details',
                 items: [
-                  {'label': 'Relation to Emergency Contact', 'value': overview.emergencyContactPersonRelationship,'fullWidth':"true"},
-                  {'label': 'Emergency Contact Number', 'value': overview.emergencyMobileNumber,'fullWidth':"true"},
+                  {
+                    'label': 'Relation to Emergency Contact',
+                    'value': overview.emergencyContactPersonRelationship,
+                    'fullWidth': "true",
+                  },
+                  {
+                    'label': 'Emergency Contact Number',
+                    'value': overview.emergencyMobileNumber,
+                    'fullWidth': "true",
+                  },
                 ],
               ),
               if (_hasBankDetails(overview)) verticalSpacing(),

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:gallery_saver_plus/gallery_saver.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -97,13 +98,43 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
         widget.fileBytes![index].isNotEmpty;
   }
 
+  // Future<void> downloadFile(String url, {Uint8List? bytes}) async {
+  //   final fileName = getFileName(url);
+  //
+  //   try {
+  //     Uint8List? fileData = bytes;
+  //
+  //     // If no bytes and it's a network URL → download it
+  //     if (fileData == null && url.startsWith("http")) {
+  //       final uri = Uri.parse(url);
+  //       final request = await HttpClient().getUrl(uri);
+  //       final response = await request.close();
+  //       fileData = await consolidateHttpClientResponseBytes(response);
+  //     }
+  //
+  //     if (fileData == null) {
+  //       return;
+  //     }
+  //
+  //     final dir = await getTemporaryDirectory();
+  //     final filePath = '${dir.path}/$fileName';
+  //
+  //     final file = File(filePath);
+  //     await file.writeAsBytes(fileData, flush: true);
+  //
+  //     await OpenFilex.open(filePath);
+  //   } catch (e) {
+  //     debugPrint("Download error: $e");
+  //   }
+  // }
+
   Future<void> downloadFile(String url, {Uint8List? bytes}) async {
     final fileName = getFileName(url);
 
     try {
       Uint8List? fileData = bytes;
 
-      // If no bytes and it's a network URL → download it
+      // If bytes not provided → download
       if (fileData == null && url.startsWith("http")) {
         final uri = Uri.parse(url);
         final request = await HttpClient().getUrl(uri);
@@ -111,17 +142,53 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
         fileData = await consolidateHttpClientResponseBytes(response);
       }
 
-      if (fileData == null) {
-        return;
+      if (fileData == null) return;
+
+      // CHECK FILE TYPE
+      if (isImage(url)) {
+        final dir = await getTemporaryDirectory();
+        final filePath = '${dir.path}/$fileName';
+
+        final file = File(filePath);
+        await file.writeAsBytes(fileData, flush: true);
+
+        final result = await GallerySaver.saveImage(file.path);
+
+        if (result == true) {
+          if (mounted) {
+            showSuccessMessage(
+              context,
+              subTitle: "Saved to Downloads: $filePath",
+            );
+          }
+        } else {
+          debugPrint("Failed to save");
+        }
+      } else {
+        // 📄 PDF / OTHER FILE → SAVE TO DOWNLOADS
+
+        final dir = Directory('/storage/emulated/0/Download');
+        if (!await dir.exists()) {
+          await dir.create(recursive: true);
+        }
+
+        final filePath = '${dir.path}/$fileName';
+
+        final file = File(filePath);
+        await file.writeAsBytes(fileData, flush: true);
+
+        debugPrint("Saved to Downloads: $filePath");
+        if (mounted) {
+          showSuccessMessage(
+            context,
+            subTitle: "Saved to Downloads: $filePath",
+          );
+        }
+
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        await OpenFilex.open(filePath);
       }
-
-      final dir = await getTemporaryDirectory();
-      final filePath = '${dir.path}/$fileName';
-
-      final file = File(filePath);
-      await file.writeAsBytes(fileData, flush: true);
-
-      await OpenFilex.open(filePath);
     } catch (e) {
       debugPrint("Download error: $e");
     }
@@ -174,9 +241,7 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
                             ),
                             TextSpan(
                               text: " (${index + 1}/${widget.urls.length})",
-                              style: AppTextStyle.ts14R(
-                                color: AppColor.grey,
-                              ),
+                              style: AppTextStyle.ts14R(color: AppColor.grey),
                             ),
                           ],
                         ),
@@ -201,7 +266,8 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
                   PageView.builder(
                     controller: _pageController,
                     itemCount: widget.urls.length,
-                    onPageChanged: (index) => _currentPageNotifier.value = index,
+                    onPageChanged:
+                        (index) => _currentPageNotifier.value = index,
                     itemBuilder: (context, index) {
                       final url = widget.urls[index];
                       final hasBytes = _hasBytesForIndex(index);
@@ -210,49 +276,52 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
 
                       return Container(
                         padding: const EdgeInsets.all(16.0),
-                        child: isImageFile
-                            ? Column(
-                          children: [
-                            Expanded(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: hasBytes
-                                    ? Image.memory(
-                                  bytes!,
-                                  fit: BoxFit.contain,
-                                  width: double.infinity,
-                                  height: double.infinity,
+                        child:
+                            isImageFile
+                                ? Column(
+                                  children: [
+                                    Expanded(
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child:
+                                            hasBytes
+                                                ? Image.memory(
+                                                  bytes!,
+                                                  fit: BoxFit.contain,
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                )
+                                                : NetworkImageWidget(
+                                                  imageUrl: url,
+                                                  fit: BoxFit.contain,
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                ),
+                                      ),
+                                    ),
+                                  ],
                                 )
-                                    : NetworkImageWidget(
-                                  imageUrl: url,
-                                  fit: BoxFit.contain,
-                                  width: double.infinity,
-                                  height: double.infinity,
+                                : isPdf(url)
+                                ? Column(
+                                  children: [
+                                    Expanded(
+                                      child:
+                                          hasBytes
+                                              ? SfPdfViewer.memory(bytes!)
+                                              : SfPdfViewer.network(url),
+                                    ),
+                                  ],
+                                )
+                                : Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.insert_drive_file, size: 50),
+                                      verticalSpacing(height: 8),
+                                      Text(getFileName(url)),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ],
-                        )
-                            : isPdf(url)
-                            ? Column(
-                          children: [
-                            Expanded(
-                              child: hasBytes
-                                  ? SfPdfViewer.memory(bytes!)
-                                  : SfPdfViewer.network(url),
-                            ),
-                          ],
-                        )
-                            : Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.insert_drive_file, size: 50),
-                              verticalSpacing(height: 8),
-                              Text(getFileName(url)),
-                            ],
-                          ),
-                        ),
                       );
                     },
                   ),

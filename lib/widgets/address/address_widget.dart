@@ -1,14 +1,21 @@
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/city.model.dart';
+import 'package:k3h_erp_app/core/repository/utils.repository.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
+List<CityModel> _parseAddressData(String rawJson) {
+  final List decoded = jsonDecode(rawJson);
+  return decoded.map((e) => CityModel.fromJson(e)).toList();
+}
 
 class AddressWidget extends StatefulWidget {
   final int? incomingStateId;
@@ -77,44 +84,53 @@ class _AddressWidgetState extends State<AddressWidget> {
     super.dispose();
   }
 
+
   Future<void> loadAddressFromCache() async {
     try {
       final storage = LocalStorageManager();
-
-      final cachedData = storage.getString(StorageKey.addressMasterData);
+      String? cachedData = storage.getRawString(StorageKey.addressMasterData);
 
       if (cachedData == null || cachedData.isEmpty) {
-        debugPrint("No address data found in cache");
-        return;
+        final utilsRepository = serviceLocator<UtilsRepository>();
+        await utilsRepository.getAddressMaster();
+        cachedData = storage.getRawString(StorageKey.addressMasterData);
       }
 
-      final decoded = jsonDecode(cachedData);
+      if (cachedData == null) return;
 
-      final dataList = List<CityModel>.from(
-        decoded.map((e) => CityModel.fromJson(e)),
-      );
+      // 1. Background parsing
+      final List<CityModel> dataList = await compute(_parseAddressData, cachedData);
 
+      // 2. Grouping
       groupedStateData = groupBy(dataList, (e) => e.stateMasterId);
 
-      stateList.clear();
-
+      // 3. Populate State List (This was missing logic)
+      final List<Map<String, dynamic>> tempStates = [];
       groupedStateData.forEach((key, value) {
-        stateList.add({
-          "zAttributesId": key,
-          "DisplayName": value[0].stateName,
-        });
+        if (value.isNotEmpty) {
+          tempStates.add({
+            "zAttributesId": key,
+            "DisplayName": value[0].stateName,
+          });
+        }
       });
 
-      _applyPrefill();
+      if (mounted) {
+        setState(() {
+          stateList = tempStates; // Update the list
+        });
 
-      debugPrint("Address loaded from cache");
+        // 4. Run prefill ONLY after stateList is ready
+        _applyPrefill();
+      }
+
+      debugPrint("Address cached data processed: ${stateList.length} states found");
     } catch (error) {
-      ErrorHandler.getErrorMessage(error);
+      debugPrint("Address Load Error: $error");
     }
   }
 
   void handleStateChange(int stateIdF) {
-    // Guard against missing state data
     if (!groupedStateData.containsKey(stateIdF)) {
       districtList.value = [];
       cityList.value = [];
@@ -122,87 +138,111 @@ class _AddressWidgetState extends State<AddressWidget> {
       return;
     }
 
-    final newDistrictList = <Map<String, dynamic>>[];
-    cityList.value = [];
-    villageList.value = [];
-
     districtMap = groupBy(
       groupedStateData[stateIdF]!,
-      (e) => e.districtMasterId,
+          (e) => e.districtMasterId,
     );
 
-    districtMap.forEach((key, value) {
-      newDistrictList.add({
-        "zAttributesId": value[0].districtMasterId,
-        "DisplayName": value[0].districtName,
-      });
-    });
+    final newDistrictList = districtMap.entries.map((e) => {
+      "zAttributesId": e.key,
+      "DisplayName": e.value[0].districtName,
+    }).toList();
 
     districtList.value = newDistrictList;
+
+    // reset children
+    cityList.value = [];
+    villageList.value = [];
   }
 
-  void handleDistrictChange(int districtId) {
-    // Guard against missing district data
-    if (!districtMap.containsKey(districtId)) {
+  void handleDistrictChange(int districtIdF) {
+    if (!districtMap.containsKey(districtIdF)) {
       cityList.value = [];
       villageList.value = [];
       return;
     }
 
-    final newCityList = <Map<String, dynamic>>[];
-    villageList.value = [];
+    cityMap = groupBy(
+      districtMap[districtIdF]!,
+          (e) => e.cityMasterId,
+    );
 
-    cityMap = groupBy(districtMap[districtId]!, (e) => e.cityMasterId);
-
-    cityMap.forEach((key, value) {
-      newCityList.add({
-        "zAttributesId": value[0].cityMasterId,
-        "DisplayName": value[0].cityName,
-      });
-    });
+    final newCityList = cityMap.entries.map((e) => {
+      "zAttributesId": e.key,
+      "DisplayName": e.value[0].cityName,
+    }).toList();
 
     cityList.value = newCityList;
+    villageList.value = [];
   }
 
   void handleCityChange(int cityIdF) {
-    final newVillageList = <Map<String, dynamic>>[];
-
-    // Only populate village list if villageChange callback is provided
-    if (widget.villageChange != null && cityMap.containsKey(cityIdF)) {
-      final villageData = cityMap[cityIdF]!;
-      final villageMap = groupBy(villageData, (e) => e.villageMasterId);
-
-      villageMap.forEach((key, value) {
-        if (value.isNotEmpty) {
-          newVillageList.add({
-            "zAttributesId": value[0].villageMasterId,
-            "DisplayName": value[0].villageName,
-          });
-        }
-      });
+    if (!cityMap.containsKey(cityIdF)) {
+      villageList.value = [];
+      return;
     }
+
+    final villageData = cityMap[cityIdF]!;
+
+    final villageMap = groupBy(villageData, (e) => e.villageMasterId);
+
+    final newVillageList = villageMap.entries.map((e) => {
+      "zAttributesId": e.key,
+      "DisplayName": e.value[0].villageName,
+    }).toList();
 
     villageList.value = newVillageList;
   }
 
   void _applyPrefill() {
-    if (widget.incomingStateId != null) {
-      stateId.value = widget.incomingStateId!;
-      handleStateChange(stateId.value!);
+    final sId = widget.incomingStateId;
+    final dId = widget.incomingDistrictId;
+    final cId = widget.incomingCityId;
+    final vId = widget.incomingVillageId;
 
-      if (widget.incomingDistrictId != null) {
-        districtId.value = widget.incomingDistrictId!;
-        handleDistrictChange(districtId.value!);
-      }
+    if (sId == null) return;
 
-      if (widget.incomingCityId != null) {
-        cityId.value = widget.incomingCityId!;
-        handleCityChange(cityId.value!);
-      }
+    /// ------------------ STATE ------------------
+    final hasState = stateList.any((e) => e['zAttributesId'] == sId);
+    if (!hasState) return;
 
-      if (widget.incomingVillageId != null) {
-        villageId.value = widget.incomingVillageId;
+    stateId.value = sId;
+    handleStateChange(sId);
+
+    /// ------------------ DISTRICT ------------------
+    int? resolvedDistrictId = dId;
+
+    // 🔥 AUTO-FIX: if district is null but city exists → find district
+    if (resolvedDistrictId == null && cId != null) {
+      for (var entry in districtMap.entries) {
+        if (entry.value.any((e) => e.cityMasterId == cId)) {
+          resolvedDistrictId = entry.key;
+          break;
+        }
       }
+    }
+
+    if (resolvedDistrictId != null &&
+        districtList.value.any((e) => e['zAttributesId'] == resolvedDistrictId)) {
+      districtId.value = resolvedDistrictId;
+      handleDistrictChange(resolvedDistrictId);
+    } else {
+      return; // stop if no valid district
+    }
+
+    /// ------------------ CITY ------------------
+    if (cId != null &&
+        cityList.value.any((e) => e['zAttributesId'] == cId)) {
+      cityId.value = cId;
+      handleCityChange(cId);
+    } else {
+      return;
+    }
+
+    /// ------------------ VILLAGE ------------------
+    if (vId != null &&
+        villageList.value.any((e) => e['zAttributesId'] == vId)) {
+      villageId.value = vId;
     }
   }
 
@@ -220,13 +260,9 @@ class _AddressWidgetState extends State<AddressWidget> {
                 builder: (context, currentStateId, child) {
                   return CustomDropDownWidget(
                     key: ValueKey(currentStateId),
-                    initialValue:
-                        currentStateId == null
-                            ? null
-                            : stateList.firstWhere(
-                              (state) =>
-                                  state['zAttributesId'] == currentStateId,
-                            ),
+                    initialValue: currentStateId == null
+                        ? null
+                        : stateList.firstWhereOrNull((state) => state['zAttributesId'] == currentStateId),
                     title: "State",
                     isRequired: true,
                     dataList: stateList,
@@ -260,21 +296,9 @@ class _AddressWidgetState extends State<AddressWidget> {
                         key: ValueKey(
                           '${currentDistrictId}_${currentDistrictList.length}',
                         ),
-                        initialValue:
-                            currentDistrictId == null ||
-                                    currentDistrictList.isEmpty
-                                ? null
-                                : currentDistrictList.any(
-                                  (district) =>
-                                      district['zAttributesId'] ==
-                                      currentDistrictId,
-                                )
-                                    ? currentDistrictList.firstWhere(
-                                      (district) =>
-                                          district['zAttributesId'] ==
-                                          currentDistrictId,
-                                    )
-                                    : null,
+                        initialValue: currentDistrictId == null || currentDistrictList.isEmpty
+                            ? null
+                            : currentDistrictList.firstWhereOrNull((district) => district['zAttributesId'] == currentDistrictId),
                         title: "District",
                         isRequired: true,
                         dataList: currentDistrictList,
@@ -308,16 +332,9 @@ class _AddressWidgetState extends State<AddressWidget> {
               builder: (context, currentCityId, child) {
                 return CustomDropDownWidget(
                   key: ValueKey('${currentCityId}_${currentCityList.length}'),
-                  initialValue:
-                      currentCityId == null || currentCityList.isEmpty
-                          ? null
-                          : currentCityList.any(
-                            (city) => city['zAttributesId'] == currentCityId,
-                          )
-                              ? currentCityList.firstWhere(
-                                (city) => city['zAttributesId'] == currentCityId,
-                              )
-                              : null,
+                  initialValue: currentCityId == null || currentCityList.isEmpty
+                      ? null
+                      : currentCityList.firstWhereOrNull((city) => city['zAttributesId'] == currentCityId),
                   title: "City",
                   isRequired: true,
                   dataList: currentCityList,

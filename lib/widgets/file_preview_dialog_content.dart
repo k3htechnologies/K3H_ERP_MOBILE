@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:gallery_saver_plus/gallery_saver.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -91,31 +92,97 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
     }
   }
 
+  // Future<void> downloadFile(String url, {Uint8List? bytes}) async {
+  //   final fileName = url.startsWith("http")
+  //       ? Uri.parse(url).pathSegments.last
+  //       : url;
+  //
+  //   try {
+  //     Uint8List? fileData = bytes;
+  //
+  //     // If network file → download bytes
+  //     if (url.startsWith("http")) {
+  //       final response = await HttpClient().getUrl(Uri.parse(url));
+  //       final httpResponse = await response.close();
+  //       fileData = await consolidateHttpClientResponseBytes(httpResponse);
+  //     }
+  //
+  //     if (fileData == null) return;
+  //
+  //     final directory = await getApplicationDocumentsDirectory();
+  //     final filePath = "${directory.path}/$fileName";
+  //
+  //     final file = File(filePath);
+  //     await file.writeAsBytes(fileData);
+  //
+  //     // Open file after saving
+  //     await OpenFilex.open(filePath);
+  //   } catch (e) {
+  //     debugPrint("Download error: $e");
+  //   }
+  // }
+
   Future<void> downloadFile(String url, {Uint8List? bytes}) async {
-    final fileName = url.startsWith("http")
-        ? Uri.parse(url).pathSegments.last
-        : url;
+    final fileName = getFileName(url);
 
     try {
       Uint8List? fileData = bytes;
 
-      // If network file → download bytes
-      if (url.startsWith("http")) {
-        final response = await HttpClient().getUrl(Uri.parse(url));
-        final httpResponse = await response.close();
-        fileData = await consolidateHttpClientResponseBytes(httpResponse);
+      // If bytes not provided → download
+      if (fileData == null && url.startsWith("http")) {
+        final uri = Uri.parse(url);
+        final request = await HttpClient().getUrl(uri);
+        final response = await request.close();
+        fileData = await consolidateHttpClientResponseBytes(response);
       }
 
       if (fileData == null) return;
 
-      final directory = await getApplicationDocumentsDirectory();
-      final filePath = "${directory.path}/$fileName";
+      // CHECK FILE TYPE
+      if (isImage(url)) {
+        final dir = await getTemporaryDirectory();
+        final filePath = '${dir.path}/$fileName';
 
-      final file = File(filePath);
-      await file.writeAsBytes(fileData);
+        final file = File(filePath);
+        await file.writeAsBytes(fileData, flush: true);
 
-      // Open file after saving
-      await OpenFilex.open(filePath);
+        final result = await GallerySaver.saveImage(file.path);
+
+        if (result == true) {
+          if (mounted) {
+            showSuccessMessage(
+              context,
+              subTitle: "Saved to Downloads: $filePath",
+            );
+          }
+        } else {
+          debugPrint("Failed to save");
+        }
+      } else {
+        // 📄 PDF / OTHER FILE → SAVE TO DOWNLOADS
+
+        final dir = Directory('/storage/emulated/0/Download');
+        if (!await dir.exists()) {
+          await dir.create(recursive: true);
+        }
+
+        final filePath = '${dir.path}/$fileName';
+
+        final file = File(filePath);
+        await file.writeAsBytes(fileData, flush: true);
+
+        debugPrint("Saved to Downloads: $filePath");
+        if (mounted) {
+          showSuccessMessage(
+            context,
+            subTitle: "Saved to Downloads: $filePath",
+          );
+        }
+
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        await OpenFilex.open(filePath);
+      }
     } catch (e) {
       debugPrint("Download error: $e");
     }

@@ -40,4 +40,14 @@ class LocalStorageManager {
   Future<bool> removeAll() async {
     return await _preferences.clear();
   }
+
+
+  Future<bool> setRawString(String key, String value) async {
+    return await _preferences.setString(key, value); // No encryption
+  }
+
+  String? getRawString(String key) {
+    return _preferences.getString(key); // No decryption
+  }
+
 }

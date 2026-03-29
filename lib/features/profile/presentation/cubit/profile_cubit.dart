@@ -865,4 +865,70 @@ class ProfileCubit extends Cubit<ProfileState> {
       },
     );
   }
+
+  // EMPLOYEE PROFILE ADD
+  Future addEmployeeProfilePhoto({
+    required BuildContext context,
+    required String employeeId,
+    required String removeProfilePhotoURL,
+    required MultiFilePickerModel files,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, String> requestBody = {
+      "EmployeeId": employeeId,
+      "RemoveProfilePhotoURL": removeProfilePhotoURL,
+    };
+
+    List<Map<String, dynamic>> fileList = [];
+
+    for (int i = 0; i < files.fileNameList.length; i++) {
+      if (files.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "ProfilePhotoURL",
+        "value": files.fileBytesList[i],
+        "fileName": files.fileNameList[i],
+      });
+    }
+
+    var updateResult = await _employeeMasterRepository
+        .apicallAddUpdateEmployeeProfile(body: requestBody, fileList: fileList);
+    goRouter.pop();
+    updateResult.fold(
+          (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error Message', failure.message);
+        return;
+      },
+            (response) async {
+              final rawUrls = response["SuccessMessage"]?[0] ?? "";
+
+              final List<String> urls = rawUrls
+                  .toString()
+                  .split(",")
+                  .where((e) => e.trim().isNotEmpty)
+                  .toList();
+
+              final newUrl = urls.isNotEmpty ? urls.last.trim() : "";
+
+              final currentUser = state.user;
+
+              if (currentUser != null && newUrl.isNotEmpty) {
+                final updatedUser = currentUser.copyWith(
+                  profilePhotoURL: newUrl,
+                );
+
+                await LocalStorageManager().setString(
+                  StorageKey.currentUser,
+                  jsonEncode(updatedUser.toJson()),
+                );
+
+                emit(state.copyWith(user: updatedUser));
+              }
+
+          showSuccessMessage(context, subTitle: response["successMessage"]);
+        }
+    );
+  }
 }
