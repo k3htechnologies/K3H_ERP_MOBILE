@@ -5,6 +5,8 @@ import 'package:k3h_erp_app/features/payroll/payroll_dashboard/data/datasource/p
 
 abstract interface class PayrollDashboardRepository {
   Future<Either<Failure, Map<String, dynamic>>> getPayrollDashboardList({
+    required int pageSize,
+    required int pageNumber,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -16,10 +18,14 @@ class PayrollDashboardRepositoryImpl extends PayrollDashboardRepository {
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> getPayrollDashboardList({
+    required int pageSize,
+    required int pageNumber,
     Map<String, dynamic>? queryParams,
   }) async {
     try {
       var result = await payrollDashboardDatasource.apiCallPullPayrollDashboard(
+        pageSize: pageSize,
+        pageNumber: pageNumber,
         queryParams: queryParams,
       );
       return right(result);

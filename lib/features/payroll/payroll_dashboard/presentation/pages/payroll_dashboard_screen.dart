@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/payroll/payroll_dashboard/data/model/payroll_dashboard_model.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_dashboard/presentation/cubit/payroll_dashboard_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -35,7 +36,10 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
     super.initState();
     _searchC = TextEditingController();
     _payrollDashboardCubit = context.read<PayrollDashboardCubit>();
-    _payrollDashboardCubit.getPayrollDashboardList(context);
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month, now.day);
+    final end = start;
+    _payrollDashboardCubit.getPayrollDashboardList(context, 1, 10, start, end);
   }
 
   @override
@@ -48,7 +52,16 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
-        _payrollDashboardCubit.getPayrollDashboardList(context);
+        final now = DateTime.now();
+        final start = DateTime(now.year, now.month, now.day);
+        final end = start;
+        _payrollDashboardCubit.getPayrollDashboardList(
+          context,
+          1,
+          10,
+          start,
+          end,
+        );
       },
       child: Scaffold(
         appBar: CustomAppBarWithBackButton(
@@ -94,6 +107,15 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
     }
 
     final data = table0.first;
+    int getLateInCount(List<Table6> list) {
+      return list
+          .where((e) => e.attendanceStatus.trim().toLowerCase() == "late in")
+          .length;
+    }
+
+    final table6 = state.payrollDashboardModel?.table6 ?? [];
+
+    final lateInCount = getLateInCount(table6);
 
     return Column(
       spacing: 10,
@@ -152,7 +174,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
             Expanded(
               child: _overviewCard(
                 title: "Attendance Alert",
-                value: data.attendanceAlert.toString(),
+                value: lateInCount.toString(),
                 icon: SvgPicture.asset(
                   AppAssets.raiseTaskIcon,
                   height: 16,
@@ -440,6 +462,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
 
   // OUTDOOR MANAGEMENT
   Widget _buildOutdoorManagementWidget(PayrollDashboardState state) {
+    final outdoorList = state.payrollDashboardModel?.table3 ?? [];
     return Container(
       padding: EdgeInsets.all(10),
       margin: EdgeInsets.only(bottom: 10),
@@ -456,71 +479,77 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
             ],
           ),
           verticalSpacing(),
-          Center(
-            child: Text(
-              "No Leave Management Found",
-              style: AppTextStyle.ts14M(
-                color: AppColor.black.withValues(alpha: 0.5),
-              ),
-            ),
-          ),
-
-          /// FOR LATER USE WHEN DATA WILL BE THERE IN API
-          /*
-          SizedBox(
-            height: 300,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: 5,
-              itemBuilder: (_, index) {
-                return Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16.0),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(color: AppColor.grey2, width: .5),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Udya Sawant",
-                              style: AppTextStyle.ts16SB(
-                                color: AppColor.primary,
-                              ),
-                            ),
-                            verticalSpacing(),
-                            Text(
-                              "Asian Paints",
-                              style: AppTextStyle.ts14M(color: AppColor.grey),
-                            ),
-                          ],
+          (outdoorList.isNotEmpty)
+              ? SizedBox(
+                height: 300,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: outdoorList.length,
+                  itemBuilder: (_, index) {
+                    final outdoor = outdoorList[index];
+                    return Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 16.0,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(color: AppColor.grey2, width: .5),
                         ),
                       ),
-                      horizontalSpacing(),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                      child: Row(
                         children: [
-                          Text("02 February 2026", style: AppTextStyle.ts14M()),
-                          verticalSpacing(),
-                          Text(
-                            "11:00 AM",
-                            style: AppTextStyle.ts14M(
-                              color: AppColor.black.withValues(alpha: 0.5),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  outdoor.companyName,
+                                  style: AppTextStyle.ts16SB(
+                                    color: AppColor.primary,
+                                  ),
+                                ),
+                                verticalSpacing(),
+                                Text(
+                                  outdoor.createdBy,
+                                  style: AppTextStyle.ts14M(
+                                    color: AppColor.grey,
+                                  ),
+                                ),
+                              ],
                             ),
+                          ),
+                          horizontalSpacing(),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                formatDateTimeAsDDMMMYYYY(outdoor.outDoorDate),
+                                style: AppTextStyle.ts14M(),
+                              ),
+                              verticalSpacing(),
+                              Text(
+                                formatTime(outdoor.outDoorTime),
+                                style: AppTextStyle.ts14M(
+                                  color: AppColor.black.withValues(alpha: 0.5),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
+                    );
+                  },
+                ),
+              )
+              : Center(
+                child: Text(
+                  "No Outdoor Found",
+                  style: AppTextStyle.ts14M(
+                    color: AppColor.black.withValues(alpha: 0.5),
                   ),
-                );
-              },
-            ),
-          ),
-       */
+                ),
+              ),
         ],
       ),
     );
@@ -528,6 +557,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
 
   // COMP OFF MANAGEMENT WIDGET
   Widget _buildCompOffManagementWidget(PayrollDashboardState state) {
+    final compoffList = state.payrollDashboardModel?.table2 ?? [];
     return Container(
       decoration: commonCardDecoration(),
       padding: EdgeInsets.all(16),
@@ -544,85 +574,88 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
             ],
           ),
           verticalSpacing(),
-          Center(
-            child: Text(
-              "No Comp-Off Management Found",
-              style: AppTextStyle.ts14M(
-                color: AppColor.black.withValues(alpha: 0.5),
-              ),
-            ),
-          ),
 
-          /// FOR LATER USE WHEN DATA WILL BE THERE IN API
-          /*
-          SizedBox(
-            height: 300,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: 5,
-              itemBuilder: (_, index) {
-                return Container(
-                  margin: EdgeInsets.only(bottom: 10),
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: AppColor.grey2.withValues(alpha: .12),
-                  ),
-                  child: Column(
-                    spacing: 10,
-                    children: [
-                      Row(
+          compoffList.isNotEmpty
+              ? SizedBox(
+                height: 300,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: compoffList.length,
+                  itemBuilder: (_, index) {
+                    final compoff = compoffList[index];
+                    return Container(
+                      margin: EdgeInsets.only(bottom: 10),
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: AppColor.grey2.withValues(alpha: .12),
+                      ),
+                      child: Column(
+                        spacing: 10,
                         children: [
-                          CircleAvatar(radius: 20),
-                          horizontalSpacing(),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Rushi", style: AppTextStyle.ts14M()),
-                                Text(
-                                  "Software Developer",
-                                  style: AppTextStyle.ts12M(
-                                    color: AppColor.grey,
-                                  ),
+                          Row(
+                            children: [
+                              CircleAvatar(radius: 20),
+                              horizontalSpacing(),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      compoff.createdBy,
+                                      style: AppTextStyle.ts14M(),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                              CustomButton(text: "Approve", onPressed: () {}),
+                            ],
                           ),
-                          CustomButton(text: "Approve", onPressed: () {}),
+                          Row(
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Status",
+                                value: compoff.status,
+                                valueTextStyle: AppTextStyle.ts14M(
+                                  color:
+                                      compoff.status.toLowerCase() == "approved"
+                                          ? AppColor.green
+                                          : AppColor.error,
+                                ),
+                              ),
+                              Expanded(child: SizedBox()),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Working Date",
+                                value: formatDateTimeAsDDMMMYYYY(
+                                  compoff.workingDate,
+                                ),
+                              ),
+                              buildColumnTitleValue(
+                                title: "Requested Date",
+                                value: formatDateTimeAsDDMMMYYYY(
+                                  compoff.compoffDate,
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
-                      Row(
-                        children: [
-                          buildColumnTitleValue(
-                            title: "Status",
-                            value: "Pending",
-                            valueTextStyle: AppTextStyle.ts14M(
-                              color: AppColor.error,
-                            ),
-                          ),
-                          Expanded(child: SizedBox()),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          buildColumnTitleValue(
-                            title: "Working Date",
-                            value: "12 January 2026",
-                          ),
-                          buildColumnTitleValue(
-                            title: "Requested Date",
-                            value: "16 January 2026",
-                          ),
-                        ],
-                      ),
-                    ],
+                    );
+                  },
+                ),
+              )
+              : Center(
+                child: Text(
+                  "No Comp-Off Management Found",
+                  style: AppTextStyle.ts14M(
+                    color: AppColor.black.withValues(alpha: 0.5),
                   ),
-                );
-              },
-            ),
-          ),
-       */
+                ),
+              ),
         ],
       ),
     );
@@ -630,6 +663,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
 
   // RESIGNATION WIDGET
   Widget _buildResignationWidget(PayrollDashboardState state) {
+    final resignationList = state.payrollDashboardModel?.table4 ?? [];
     return Container(
       decoration: commonCardDecoration(),
       padding: EdgeInsets.all(16),
@@ -646,78 +680,84 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
             ],
           ),
           verticalSpacing(),
-
-          SizedBox(
-            height: 300,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: 5,
-              itemBuilder: (_, index) {
-                return Container(
-                  margin: EdgeInsets.only(bottom: 10),
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: AppColor.grey2.withValues(alpha: .12),
-                  ),
-                  child: Column(
-                    spacing: 10,
-                    children: [
-                      Row(
+          (resignationList.isNotEmpty)
+              ? SizedBox(
+                height: 300,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: resignationList.length,
+                  itemBuilder: (_, index) {
+                    final resignation = resignationList[index];
+                    return Container(
+                      margin: EdgeInsets.only(bottom: 10),
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: AppColor.grey2.withValues(alpha: .12),
+                      ),
+                      child: Column(
+                        spacing: 10,
                         children: [
-                          CircleAvatar(radius: 20),
-                          horizontalSpacing(),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Rushi", style: AppTextStyle.ts14M()),
-                                Text(
-                                  "Software Developer",
-                                  style: AppTextStyle.ts12M(
-                                    color: AppColor.grey,
-                                  ),
+                          Row(
+                            children: [
+                              CircleAvatar(radius: 20),
+                              horizontalSpacing(),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      resignation.fullName,
+                                      style: AppTextStyle.ts14M(),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                              CustomButton(text: "Approve", onPressed: () {}),
+                            ],
                           ),
-                          CustomButton(text: "Approve", onPressed: () {}),
+                          Row(
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Resignation Date",
+                                value: formatDateTimeAsDDMMMYYYY(
+                                  resignation.resignationDate,
+                                ),
+                              ),
+                              buildColumnTitleValue(
+                                title: "Relieving Date",
+                                value: formatDateTimeAsDDMMMYYYY(
+                                  resignation.expectedRelievingDate,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Offer In Hand",
+                                value:
+                                    resignation.isAnyOfferInHand.toString() ==
+                                            "false"
+                                        ? "No"
+                                        : "Yes",
+                              ),
+                            ],
+                          ),
                         ],
                       ),
-                      Row(
-                        children: [
-                          buildColumnTitleValue(
-                            title: "Resignation Date",
-                            value: "12 January 2026",
-                          ),
-                          buildColumnTitleValue(
-                            title: "Relieving Date",
-                            value: "16 January 2026",
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          buildColumnTitleValue(
-                            title: "Offer In Hand",
-                            value: "No",
-                          ),
-                        ],
-                      ),
-                    ],
+                    );
+                  },
+                ),
+              )
+              : Center(
+                child: Text(
+                  "No Resignation Found",
+                  style: AppTextStyle.ts14M(
+                    color: AppColor.black.withValues(alpha: 0.5),
                   ),
-                );
-              },
-            ),
-          ),
-          Center(
-            child: Text(
-              "No Resignation Found",
-              style: AppTextStyle.ts14M(
-                color: AppColor.black.withValues(alpha: 0.5),
+                ),
               ),
-            ),
-          ),
         ],
       ),
     );

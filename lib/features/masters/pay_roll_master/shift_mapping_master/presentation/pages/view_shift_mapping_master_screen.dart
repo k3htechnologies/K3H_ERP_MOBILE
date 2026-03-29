@@ -86,15 +86,6 @@ class ViewShiftMappingMasterScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Remarks",
-                          value: shiftMappingModel.remarks,
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),

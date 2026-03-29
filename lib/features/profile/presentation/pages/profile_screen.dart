@@ -886,7 +886,11 @@ class _ProfileScreenState extends State<ProfileScreen>
               _buildInfoCard(
                 title: 'Basic Details',
                 items: [
-                  {'label': 'Full Name', 'value': overview.fullName,'fullWidth':'true'},
+                  {
+                    'label': 'Full Name',
+                    'value': overview.fullName,
+                    'fullWidth': 'true',
+                  },
                   {'label': 'Gender', 'value': overview.gender},
                   {'label': 'Marital Status', 'value': overview.maritalStatus},
                   {'label': 'Blood Group', 'value': overview.bloodGroup},
@@ -898,12 +902,27 @@ class _ProfileScreenState extends State<ProfileScreen>
                             : '-',
                   },
                   {'label': 'Email ID', 'value': overview.emailId},
-                  {'label': 'Personal Mobile No.', 'value': overview.personalMobileNumber},
-                  {'label': 'Aadhaar Card Number', 'value': overview.aadharCardNumber},
+                  {
+                    'label': 'Personal Mobile No.',
+                    'value': overview.personalMobileNumber,
+                  },
+                  {
+                    'label': 'Aadhaar Card Number',
+                    'value': overview.aadharCardNumber,
+                  },
                   {'label': 'PAN Number', 'value': overview.panCardNumber},
-                  {'label': 'Passport Number', 'value': overview.passportNumber},
-                  {'label': 'Driving / Licence Number', 'value': overview.drivingLicenceNumber},
-                  {'label': 'Voter Card Number', 'value': overview.voterCardNumber},
+                  {
+                    'label': 'Passport Number',
+                    'value': overview.passportNumber,
+                  },
+                  {
+                    'label': 'Driving / Licence Number',
+                    'value': overview.drivingLicenceNumber,
+                  },
+                  {
+                    'label': 'Voter Card Number',
+                    'value': overview.voterCardNumber,
+                  },
 
                   {
                     'label': 'Communication Address',
@@ -950,17 +969,23 @@ class _ProfileScreenState extends State<ProfileScreen>
                   {
                     'label': 'Joining Date',
                     'value':
-                    overview.joiningDate != null
-                        ? formatDateTimeAsDDMMMYYYY(overview.joiningDate!)
-                        : "-",
+                        overview.joiningDate != null
+                            ? formatDateTimeAsDDMMMYYYY(overview.joiningDate!)
+                            : "-",
                   },
                   {
                     'label': 'Reporting Person',
                     'value': overview.reportPersonName,
                   },
                   {'label': 'Employment Type', 'value': overview.employeeType},
-                  {'label': 'Office Number', 'value': overview.officeMobileNumber},
-                  {'label': 'Office E-mail ID', 'value': overview.officeEmailId},
+                  {
+                    'label': 'Office Number',
+                    'value': overview.officeMobileNumber,
+                  },
+                  {
+                    'label': 'Office E-mail ID',
+                    'value': overview.officeEmailId,
+                  },
                   {
                     'label': 'Probation Date',
                     'value':
@@ -971,9 +996,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                   {
                     'label': 'Id Card Issued Date',
                     'value':
-                    overview.idCardIssuedDate != null
-                        ? formatDateTimeAsDDMMMYYYY(overview.idCardIssuedDate!)
-                        : "-",
+                        overview.idCardIssuedDate != null
+                            ? formatDateTimeAsDDMMMYYYY(
+                              overview.idCardIssuedDate!,
+                            )
+                            : "-",
                   },
                 ],
               ),
@@ -984,7 +1011,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                   items: [
                     {'label': 'Bank Name', 'value': overview.bankName},
                     {'label': 'Account Number', 'value': overview.accountNo},
-                    {'label': 'Bank Branch Name', 'value': overview.bankBranchName},
+                    {
+                      'label': 'Bank Branch Name',
+                      'value': overview.bankBranchName,
+                    },
                     {'label': 'IFSC Code', 'value': overview.ifscCode},
                   ],
                 ),
@@ -992,8 +1022,16 @@ class _ProfileScreenState extends State<ProfileScreen>
               _buildInfoCard(
                 title: 'Emergency Contact Details',
                 items: [
-                  {'label': 'Relation to Emergency Contact', 'value': overview.emergencyContactPersonRelationship,'fullWidth':"true"},
-                  {'label': 'Emergency Contact Number', 'value': overview.emergencyMobileNumber,'fullWidth':"true"},
+                  {
+                    'label': 'Relation to Emergency Contact',
+                    'value': overview.emergencyContactPersonRelationship,
+                    'fullWidth': "true",
+                  },
+                  {
+                    'label': 'Emergency Contact Number',
+                    'value': overview.emergencyMobileNumber,
+                    'fullWidth': "true",
+                  },
                 ],
               ),
               if (_hasBankDetails(overview)) verticalSpacing(),
@@ -1330,7 +1368,84 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ],
                     ),
                     verticalSpacing(),
-                    _buildInfoItem("Remark", shiftManagement.remarks),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "First Half Up To",
+                            shiftManagement.firstHalfUpTo,
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Calculate Absent if working hours less than",
+                            shiftManagement.absentWorkingHours,
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Mark Half Day if Outtime After",
+                            shiftManagement.halfDayOutTimeBefore,
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Mark Half Day if Intime After",
+                            shiftManagement.halfDayInTimeAfter,
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Break Begin Time",
+                            shiftManagement.breakBeginTime,
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Break End Time",
+                            shiftManagement.breakEndTime,
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Break Duration Time",
+                            shiftManagement.breakDurationTime,
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Grace Time In Minutes",
+                            shiftManagement.graceTime,
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Remark",
+                            shiftManagement.remarks,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               );

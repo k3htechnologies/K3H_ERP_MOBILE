@@ -117,12 +117,16 @@ class _AddLeaveEncashmentMasterScreenState
 
   // POPULATE FORM FIELDS
   void _populateFormFields(LeaveEncashmentMasterModel leaveEncashmentModel) {
-    final names = leaveEncashmentModel.earningMasterName.split(',');
+    final names =
+        leaveEncashmentModel.earningMasterName
+            .split(',')
+            .map((e) => e.trim())
+            .toList();
 
     _selectedEarning =
-        names.map((name) {
-          return {"zAttributesId": 0, "DisplayName": name.trim()};
-        }).toList();
+        earningList
+            .where((item) => names.contains(item["DisplayName"]))
+            .toList();
     _minSalaryC.text = leaveEncashmentModel.minSalary.toString();
     _maxSalaryC.text = leaveEncashmentModel.maxSalary.toString();
     _encashmentRateC.text = leaveEncashmentModel.encashmentRate.toString();
@@ -133,6 +137,9 @@ class _AddLeaveEncashmentMasterScreenState
     if (!_formKey.currentState!.validate()) {
       return;
     }
+    final earningNames = _selectedEarning
+        .map((e) => e["DisplayName"].toString())
+        .join(",");
     if (_isEditMode && widget.leaveEncashmentMasterModel != null) {
       _leaveEncashmentMasterCubit.updateLeaveEncashment(
         index: widget.index,
@@ -140,7 +147,7 @@ class _AddLeaveEncashmentMasterScreenState
         leaveEncashmentSlabsId:
             widget.leaveEncashmentMasterModel!.leaveEncashmentSlabId,
         uniqueKey: widget.leaveEncashmentMasterModel!.uniqueKey,
-        earningMasterName: _selectedEarning.first["DisplayName"],
+        earningMasterName: earningNames,
         minSalary: double.parse(_minSalaryC.text.trim()),
         maxSalary: double.parse(_maxSalaryC.text.trim()),
         encashmentRate: double.parse(_encashmentRateC.text.trim()),
@@ -148,7 +155,7 @@ class _AddLeaveEncashmentMasterScreenState
     } else {
       _leaveEncashmentMasterCubit.addLeaveEncashment(
         context: context,
-        earningMasterName: _selectedEarning.first["DisplayName"],
+        earningMasterName: earningNames,
         minSalary: double.parse(_minSalaryC.text),
         maxSalary: double.parse(_maxSalaryC.text),
         encashmentRate: double.parse(_encashmentRateC.text),

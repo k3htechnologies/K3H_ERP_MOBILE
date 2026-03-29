@@ -174,6 +174,7 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
                     CustomMultipleSelectPopup(
                       title: 'Leave Type',
                       isMultiSelect: false,
+                      isRequired: true,
                       hintText: "Select Leave Type",
                       initialValue: _selectedLeaveType,
                       dataList: leaveTypeList,
@@ -236,7 +237,8 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
                                 title: "Max Carry Forward",
                                 textController: _maxCarryForwardC,
                                 hint: "Enter Max Carry Forward",
-                                inputFormatterList: InputValidator.digit(200),
+
+                                inputFormatterList: InputValidator.digit(3),
                                 keyboardType: TextInputType.number,
                                 isRequired: true,
                                 validator: (value) {

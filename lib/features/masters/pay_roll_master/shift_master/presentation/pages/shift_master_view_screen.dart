@@ -30,6 +30,30 @@ class ShiftMasterViewScreen extends StatelessWidget {
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text("Shift Details", style: AppTextStyle.ts16SB()),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Shift Name",
+                          value: shiftMaster.shiftName,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Shift Code",
+                          value: shiftMaster.shiftCode,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text("Shift Duration", style: AppTextStyle.ts16SB()),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,21 +72,12 @@ class ShiftMasterViewScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
-                          title: "Shift Working Duration Time",
+                          title: "Shift Duration Time",
+                          value: shiftMaster.shiftDurationTime,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Shift Work Duration Time",
                           value: shiftMaster.shiftWorkDurationTime,
-                        ),
-                        buildColumnTitleValue(
-                          title: "First Half Up To",
-                          value: shiftMaster.firstHalfUpTo,
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "First Half Up To",
-                          value: shiftMaster.firstHalfUpTo,
                         ),
                       ],
                     ),
@@ -138,15 +153,104 @@ class ShiftMasterViewScreen extends StatelessWidget {
                           title: "Break Duration Time",
                           value: shiftMaster.breakDurationTime,
                         ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Advance Settings", style: AppTextStyle.ts16SB()),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         buildColumnTitleValue(
-                          title: "Grace Time",
-                          value: shiftMaster.graceTime,
+                          title: "First Half Up To",
+                          value: shiftMaster.firstHalfUpTo,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Mark Absent If Working Hour less than",
+                          value: shiftMaster.absentWorkingHours,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Mark Half Day if Intime After",
+                          value: shiftMaster.halfDayInTimeAfter,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Mark Half Day if Outtime Before",
+                          value: shiftMaster.halfDayOutTimeBefore,
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Time Allowed for Late Entry Details",
+                      style: AppTextStyle.ts16SB(),
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Grace Time In Minutes",
+                          value: shiftMaster.graceTime,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Late Arrival Action",
+                          value: shiftMaster.lateArrivalAction,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Late Arrival Count",
+                          value: shiftMaster.lateCount.toString(),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Remarks", style: AppTextStyle.ts16SB()),
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Remarks",
+                          value: shiftMaster.remarks,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
               actionCardWidget(
                 createdBy: shiftMaster.createdBy,
                 createdDate: shiftMaster.createdDate,
