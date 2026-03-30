@@ -1,4 +1,3 @@
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -153,6 +152,9 @@ class EnquiryCubit extends Cubit<EnquiryState> {
         if (index != null) {
           updatedList[index] = newItem;
         } else {
+          // CLOSE VERIFICATION DIALOG
+          goRouter.pop();
+
           getEnquiryList(context, 1, projectId);
         }
 
@@ -302,7 +304,6 @@ class EnquiryCubit extends Cubit<EnquiryState> {
       },
     );
   }
-  
 
   // <---- GET ENQUIRY FOLLOWUPS ---->
   Future<void> fetchEnquiryFollowUps({

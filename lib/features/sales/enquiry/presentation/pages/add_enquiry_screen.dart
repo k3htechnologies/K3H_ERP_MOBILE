@@ -691,8 +691,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         },
         onVerifyOTP: () {
           _submitEnquiryData();
-          otpController.clear();
-          goRouter.pop();
         },
       );
     } else {

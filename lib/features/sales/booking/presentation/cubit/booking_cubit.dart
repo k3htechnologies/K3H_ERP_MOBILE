@@ -625,6 +625,8 @@ class BookingCubit extends Cubit<BookingState> {
         return;
       },
       (response) async {
+        //CLOSE VERIFICATION DIALOG
+        goRouter.pop();
         goRouter.pop();
         showSuccessMessage(context, subTitle: 'Booking Added Successfully');
         final newBooking = (response['data'] as List<BookingModel>).first;
@@ -1120,17 +1122,6 @@ class BookingCubit extends Cubit<BookingState> {
     }
 
     emit(state.copyWith(bookingPaymentScheduleList: updatedList));
-  }
-
-  // DELETE OTHER CHARGE
-  Future deleteOtherCharges(int index, BuildContext context) async {
-    DialogHelper.showProcessingOverlay(context);
-
-    goRouter.pop();
-    final updatedList = List<OtherChargeModel>.from(state.otherChargesList);
-    updatedList.removeAt(index);
-
-    emit(state.copyWith(otherChargesList: updatedList));
   }
 
   // EXPORT BOOKING

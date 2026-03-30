@@ -931,8 +931,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         },
         onVerifyOTP: () async {
           _submitDetails();
-          _otpController.clear();
-          goRouter.pop();
         },
       );
     }
@@ -1115,22 +1113,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     }
   }
 
-  // DELETE OTHER CHARGE
-  Future<void> _showPopupToDeleteOtherCharge(
-    BuildContext context,
-    int index,
-  ) async {
-    var result = await DialogHelper.deleteDialog(
-      context,
-      'You are about to delete this other charge?',
-      'Deleting this other charge will permanently remove it.',
-    );
-
-    if (result && context.mounted) {
-      _bookingCubit.deleteOtherCharges(index, context);
-    }
-  }
-
   // CALCULATE COMMISTION AMOUNT
   void calculateCommissionAmount({
     required double agreementAmount,
@@ -1139,7 +1121,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   }) {
     final percent = double.tryParse(percentController.text) ?? 0.0;
     final amount = (agreementAmount * percent) / 100;
-
     amountController.text = amount.toStringAsFixed(2);
   }
 
@@ -2458,19 +2439,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       margin: EdgeInsets.only(bottom: 10),
                       padding: EdgeInsets.all(16),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         spacing: 10,
                         children: [
-                          Row(
-                            children: [
-                              Text(oc.chargeName, style: AppTextStyle.ts14M()),
-                              Spacer(),
-                              CustomIconButton.delete(
-                                onPressed: () {
-                                  _showPopupToDeleteOtherCharge(context, index);
-                                },
-                              ),
-                            ],
-                          ),
+                          Text(oc.chargeName, style: AppTextStyle.ts14M()),
                           Row(
                             children: [
                               buildColumnTitleValue(
