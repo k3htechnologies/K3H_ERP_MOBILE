@@ -8,7 +8,7 @@ class CustomSnackBar {
     required String title,
     bool isError = false,
   }) {
-    final overlay = Overlay.of(context);
+    final overlay = Overlay.of(context, rootOverlay: true);
 
     late OverlayEntry overlayEntry;
 
