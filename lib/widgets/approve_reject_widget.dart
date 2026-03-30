@@ -263,20 +263,6 @@ class ApproveRejectWidget extends StatelessWidget {
   }
 }
 
-// STATUS COLOR
-Color _statusColor(String status) {
-  switch (status) {
-    case "Approved":
-      return AppColor.lightGreen.withValues(alpha: .3);
-    case "Reject":
-      return AppColor.lightRed.withValues(alpha: 0.15);
-    case "Pending":
-      return AppColor.holdYellowColor.withValues(alpha: 0.15);
-    default:
-      return AppColor.grey;
-  }
-}
-
 Color getFlatStatusTextColor(String status) {
   switch (status.toLowerCase()) {
     case "approved":

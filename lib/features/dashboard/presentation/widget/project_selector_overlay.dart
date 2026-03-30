@@ -2,24 +2,26 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ProjectSelectorOverlay extends StatefulWidget {
-  final List<ProjectModel> projects;
   final int? selectedProjectId;
   final ValueChanged<ProjectModel> onSelect;
   final VoidCallback onClose;
 
   const ProjectSelectorOverlay({
     super.key,
-    required this.projects,
     required this.selectedProjectId,
     required this.onSelect,
     required this.onClose,
@@ -33,59 +35,86 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
+
   ProjectModel? selectedProject;
+  List<ProjectModel> projects = [];
+
   bool isLoadingProject = false;
 
-  // REPOSITORY
   final ProjectMasterRepository _projectMasterRepository =
       serviceLocator<ProjectMasterRepository>();
 
-  // FETCH PROJECT BY ID
-  Future<void> _fetchProjectById(int projectId) async {
+  //  GET EMPLOYEE ID FROM LOCAL STORAGE
+  int? _getEmployeeId() {
+    final storedUser = LocalStorageManager().getString(StorageKey.currentUser);
+
+    if (storedUser == null) return null;
+
+    final decoded = jsonDecode(storedUser);
+    final user = UserModel.fromJson(decoded);
+
+    return user.employeeId;
+  }
+
+  //  FETCH PROJECT LIST FROM API
+  Future<void> _fetchProjects() async {
+    final employeeId = _getEmployeeId();
+
+    if (employeeId == null) return;
+
     setState(() {
       isLoadingProject = true;
     });
 
-    final result = await _projectMasterRepository.getProjectList(
-      pageNumber: 1,
-      pageSize: 1,
-      queryParams: {"ProjectId": projectId},
-    );
+    try {
+      final result = await _projectMasterRepository.getProjectList(
+        pageNumber: 1,
+        pageSize: 100,
+        queryParams: {"EmployeeId": employeeId},
+      );
 
-    result.fold(
-      (failure) {
-        setState(() {
-          isLoadingProject = false;
-        });
-      },
-      (response) {
-        if (response["data"].isNotEmpty) {
+      result.fold(
+        (failure) {
           setState(() {
-            selectedProject = response["data"].first;
             isLoadingProject = false;
           });
-        }
-      },
-    );
+
+          showErrorMessage(context, "", failure.message);
+        },
+        (response) {
+          final fetchedProjects = List<ProjectModel>.from(response["data"]);
+
+          setState(() {
+            projects = fetchedProjects;
+
+            selectedProject =
+                fetchedProjects.any(
+                      (p) => p.projectId == widget.selectedProjectId,
+                    )
+                    ? fetchedProjects.firstWhere(
+                      (p) => p.projectId == widget.selectedProjectId,
+                    )
+                    : null;
+
+            isLoadingProject = false;
+          });
+        },
+      );
+    } catch (e) {
+      setState(() {
+        isLoadingProject = false;
+      });
+      if (mounted) {
+        showErrorMessage(context, "", "Something went wrong");
+      }
+    }
   }
 
   @override
   void initState() {
     super.initState();
 
-    if (widget.selectedProjectId != null) {
-      try {
-        selectedProject = widget.projects.firstWhere(
-          (p) => p.projectId == widget.selectedProjectId,
-        );
-      } catch (_) {
-        selectedProject = null;
-      }
-
-      _fetchProjectById(widget.selectedProjectId!);
-    } else {
-      selectedProject = null;
-    }
+    _fetchProjects();
 
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -155,7 +184,7 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Header
+                    // HEADER
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -164,15 +193,17 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if(selectedProject==null)...[
-                            Text("Select Project",style: AppTextStyle.ts14M(color: AppColor.grey),)
-                          ],
-                          if(selectedProject != null)...[
+                          if (selectedProject == null)
+                            Text(
+                              "Select Project",
+                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                            ),
+                          if (selectedProject != null) ...[
                             GestureDetector(
                               onTap:
                                   () => _navigateToProjectDetails(
-                                selectedProject!,
-                              ),
+                                    selectedProject!,
+                                  ),
                               child: Icon(
                                 Icons.info_outline,
                                 color: AppColor.primary,
@@ -192,15 +223,25 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                         ],
                       ),
                     ),
-                    const Divider(height: 1, color: Color(0xFFe5e7eb)),
+
+                    Divider(height: 1,color: AppColor.grey,),
+
+                    // BODY
                     Expanded(
                       child: Builder(
                         builder: (context) {
+                          if (isLoadingProject) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
                           final filteredProjects =
-                              widget.projects
+                              projects
                                   .where(
                                     (p) =>
-                                        p.projectId != widget.selectedProjectId,
+                                        p.projectId !=
+                                        selectedProject?.projectId,
                                   )
                                   .toList();
 
@@ -208,13 +249,7 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                             return const Center(
                               child: Padding(
                                 padding: EdgeInsets.all(16.0),
-                                child: Text(
-                                  'No other projects available',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Color(0xFF6b7280),
-                                  ),
-                                ),
+                                child: Text('No other projects available'),
                               ),
                             );
                           }
@@ -222,12 +257,10 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                           return ListView.separated(
                             itemCount: filteredProjects.length,
                             separatorBuilder:
-                                (_, __) => const Divider(
-                                  height: 1,
-                                  color: Color(0xFFe5e7eb),
-                                ),
+                                (_, __) => Divider(height: .5,color: AppColor.lightGrey,),
                             itemBuilder: (context, index) {
                               final project = filteredProjects[index];
+
                               return GestureDetector(
                                 behavior: HitTestBehavior.opaque,
                                 onTap: () async {

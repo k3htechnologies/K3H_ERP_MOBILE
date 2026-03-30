@@ -446,12 +446,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     );
   }
 
-  // REMOVE HTML TAGS
-  String _stripHtmlTags(String html) {
-    if (html.isEmpty) return '';
-    return html.replaceAll(RegExp(r'<[^>]*>'), '').trim();
-  }
-
   // CALCULATE GST
   void _calculateGst() {
     final agreementValue = _agreementValueNotifier.value;

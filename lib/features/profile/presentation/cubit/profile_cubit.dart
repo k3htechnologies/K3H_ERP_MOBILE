@@ -212,21 +212,17 @@ class ProfileCubit extends Cubit<ProfileState> {
                 ];
         final updatedUser = newList.isNotEmpty ? newList.first : null;
 
-        // ✅ SAVE TO LOCAL STORAGE
         if (updatedUser != null) {
           LocalStorageManager().setString(
             StorageKey.currentUser,
             jsonEncode(updatedUser.toJson()),
           );
-
-          print("API UPDATED USER => ${updatedUser.profilePhotoURL}");
         }
 
-        // ✅ UPDATE BOTH LIST + USER
         emit(state.copyWith(
           isLoading: false,
           employeeMasterList: newList,
-          user: updatedUser, // 🔥 THIS WAS MISSING
+          user: updatedUser,
         ));
       },
     );

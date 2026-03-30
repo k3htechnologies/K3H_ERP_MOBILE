@@ -634,9 +634,6 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     final imageUrl = (apiUser?.profilePhotoURL ?? user.profilePhotoURL).trim();
 
-    print("LOCAL USER URL => ${user.profilePhotoURL}");
-    print("API USER URL => ${apiUser?.profilePhotoURL}");
-    print("FINAL IMAGE URL => $imageUrl");
     return GestureDetector(
       onTap: _showProfilePhotoOptions,
       child: Container(

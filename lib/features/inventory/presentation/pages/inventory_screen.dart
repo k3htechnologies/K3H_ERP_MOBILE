@@ -279,8 +279,8 @@ class _InventoryScreenState extends State<InventoryScreen>
             "the inventory Flat Floor Basement Podium Wing Id is: ${selectedWing.inventoryFlatFloorBasementPodiumWingId}",
           );
         },
-        onProjectChangeCallback: (project) {
-          _project = project;
+        onProjectChangeCallback: (value) {
+          _project = value;
           if (_buildingTabController != null) {
             _buildingTabController!.removeListener(_onBuildingTabChanged);
             _buildingTabController!.dispose();
@@ -292,7 +292,7 @@ class _InventoryScreenState extends State<InventoryScreen>
             _wingTabController = null;
           }
           _expandedFloors.value.clear();
-          _inventoryCubit.getInventory(context, _project.projectId);
+          _inventoryCubit.getInventory(context, value.projectId);
         },
       ),
       body: SafeArea(

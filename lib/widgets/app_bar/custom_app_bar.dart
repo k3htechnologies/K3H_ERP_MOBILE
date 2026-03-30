@@ -92,9 +92,6 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
   // PROJECT SWITCH FUNCTIONALITY
   final ProjectMasterRepository _projectMasterRepository =
       serviceLocator<ProjectMasterRepository>();
-  final ValueNotifier<List<ProjectModel>> _projectListNotifier = ValueNotifier(
-    [],
-  );
   final ValueNotifier<bool> _showOverlayNotifier = ValueNotifier(false);
   ProjectModel? _selectedProject;
 
@@ -143,7 +140,6 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                 children: [
                   Positioned.fill(
                     child: ProjectSelectorOverlay(
-                      projects: _projectListNotifier.value,
                       selectedProjectId: _selectedProject?.projectId,
                       onSelect: _onProjectSelected,
                       onClose: () {
@@ -181,7 +177,6 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                   (json) => ProjectModel.fromJson(json as Map<String, dynamic>),
                 )
                 .toList();
-        _projectListNotifier.value = projects;
 
         // Load selected project
         final storedJson = LocalStorageManager().getString(
@@ -214,7 +209,6 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
         (response) {
           final List<ProjectModel> projects =
               (response['data'] as List<ProjectModel>);
-          _projectListNotifier.value = projects;
 
           // Store in localStorage for future use
           LocalStorageManager().setString(
@@ -298,17 +292,11 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
             ),
           ),
           if (widget.onProjectChangeCallback != null)
-            ValueListenableBuilder<List<ProjectModel>>(
-              valueListenable: _projectListNotifier,
-              builder: (context, projects, _) {
-                if (projects.isEmpty) return const SizedBox.shrink();
-                return GestureDetector(
-                  onTap: () {
-                    _showOverlayNotifier.value = true;
-                  },
-                  child: SvgPicture.asset(AppAssets.projectIcon, height: 28),
-                );
+            GestureDetector(
+              onTap: () {
+                _showOverlayNotifier.value = true;
               },
+              child: SvgPicture.asset(AppAssets.projectIcon, height: 28),
             ),
           if (widget.showNotification!)
             CustomIconButton(

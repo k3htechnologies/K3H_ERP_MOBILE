@@ -42,7 +42,6 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
       "InventoryFlatFloorBasementPodiumWingId":
           scheme.inventoryFlatFloorBasementPodiumWingId,
     };
-    ;
 
     var result = await _repository.getPaymentScheduleMasterList(
       pageNumber: pageNumber,
