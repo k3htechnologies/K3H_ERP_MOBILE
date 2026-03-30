@@ -425,8 +425,7 @@ class _InventoryScreenState extends State<InventoryScreen>
     if (floorList.isEmpty) {
       return Center(child: Text("No floors found"));
     }
-    final bool isActionAllowed =
-        wing.isApproval && _routeAuthorizationModel.isAction;
+    final bool isActionAllowed = wing.isApproval;
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),

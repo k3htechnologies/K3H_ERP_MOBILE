@@ -381,8 +381,7 @@ class _ParkingScreenState extends State<ParkingScreen>
       itemCount: filteredList.length,
       itemBuilder: (context, index) {
         final parking = filteredList[index];
-        final bool isActionAllowed =
-            parking.isApproval && _routeAuthorizationModel.isAction;
+        final bool isActionAllowed = parking.isApproval;
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 10),
