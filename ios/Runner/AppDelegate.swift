@@ -1,7 +1,5 @@
 import UIKit
 import Flutter
-import GoogleMaps
-import Firebase
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -10,11 +8,17 @@ import Firebase
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
 
-    FirebaseApp.configure()
-    GMSServices.provideAPIKey("AIzaSyATMi_WzfUnBfhb66_FR8c1Fg_zEwHyaCs")
-
+    // This MUST come before the super call for many plugins
     GeneratedPluginRegistrant.register(with: self)
 
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
+
+    // Only create a window if the super call failed to do so
+    if self.window == nil {
+        self.window = UIWindow(frame: UIScreen.main.bounds)
+        self.window?.makeKeyAndVisible()
+    }
+
+    return result
   }
 }

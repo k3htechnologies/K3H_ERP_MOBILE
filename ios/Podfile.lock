@@ -42,7 +42,7 @@ PODS:
   - Firebase/Messaging (12.9.0):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 12.9.0)
-  - firebase_analytics (12.1.2):
+  - firebase_analytics (12.2.0):
     - firebase_core
     - FirebaseAnalytics (= 12.9.0)
     - Flutter
@@ -93,6 +93,8 @@ PODS:
     - nanopb (~> 3.30910.0)
   - Flutter (1.0.0)
   - flutter_local_notifications (0.0.1):
+    - Flutter
+  - gallery_saver_plus (0.0.1):
     - Flutter
   - geocoding_ios (1.0.5):
     - Flutter
@@ -213,6 +215,7 @@ DEPENDENCIES:
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
+  - gallery_saver_plus (from `.symlinks/plugins/gallery_saver_plus/ios`)
   - geocoding_ios (from `.symlinks/plugins/geocoding_ios/ios`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/darwin`)
   - google_maps_flutter_ios (from `.symlinks/plugins/google_maps_flutter_ios/ios`)
@@ -267,6 +270,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_local_notifications:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
+  gallery_saver_plus:
+    :path: ".symlinks/plugins/gallery_saver_plus/ios"
   geocoding_ios:
     :path: ".symlinks/plugins/geocoding_ios/ios"
   geolocator_apple:
@@ -305,7 +310,7 @@ SPEC CHECKSUMS:
   file_picker: b159e0c068aef54932bb15dc9fd1571818edaf49
   file_saver: 503e386464dbe118f630e17b4c2e1190fa0cf808
   Firebase: 065f2bb395062046623036d8e6dc857bc2521d56
-  firebase_analytics: ee2db99f55715656363e5d7cbed4f4ddac6b9c31
+  firebase_analytics: 42693ebf35c4d330b74abcb46ca80351703644e0
   firebase_core: 98bcc1bd1a097bcb8b1ed6e091de3039802527c4
   firebase_messaging: e24e69d994d53e46fd794143544841877bd85a53
   FirebaseAnalytics: cd7d01d352f3c237c9a0e31552c257cd0b0c0352
@@ -315,6 +320,7 @@ SPEC CHECKSUMS:
   FirebaseMessaging: 7d6cdbff969127c4151c824fe432f0e301210f15
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_local_notifications: ff50f8405aaa0ccdc7dcfb9022ca192e8ad9688f
+  gallery_saver_plus: c4b59c605df1049a02d036ef81d82972b6dfd606
   geocoding_ios: eafacae6ad11a1eb56681f7d11df602a5fd49416
   geolocator_apple: 66b711889fd333205763b83c9dcf0a57a28c7afd
   Google-Maps-iOS-Utils: 0a484b05ed21d88c9f9ebbacb007956edd508a96
