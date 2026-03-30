@@ -651,34 +651,34 @@ class _BookingScreenState extends State<BookingScreen> {
                     buildRowTitleValue(
                       title: "Enquiry Code",
                       value: booking.systemGeneratedCode,
-                      fixesWidth: 190,
+                      fixesWidth: 170,
                     ),
                     buildRowTitleValue(
                       title: "Flat",
                       value: booking.flat,
-                      fixesWidth: 190,
+                      fixesWidth: 170,
                     ),
                     buildRowTitleValue(
                       title: "Category",
                       value: booking.flatType,
-                      fixesWidth: 190,
+                      fixesWidth: 170,
                     ),
                     buildRowTitleValue(
                       title: "Flat Configuration:",
                       value: booking.flatConfiguration,
-                      fixesWidth: 190,
+                      fixesWidth: 170,
                     ),
                     buildRowTitleValue(
                       title: "Agreement Value (₹)",
                       value: booking.agreementValue.toString(),
-                      fixesWidth: 190,
+                      fixesWidth: 170,
                     ),
                     buildRowTitleValue(
                       title: "Expected Registration",
                       value: formatDateTimeAsDDMMMYYYY(
                         booking.registrationDate,
                       ),
-                      fixesWidth: 190,
+                      fixesWidth: 170,
                     ),
                     verticalSpacing(),
                     ApproveRejectWidget(

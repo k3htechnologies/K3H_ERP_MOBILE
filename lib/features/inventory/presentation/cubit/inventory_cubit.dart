@@ -100,41 +100,47 @@ class InventoryCubit extends Cubit<InventoryState> {
         final List<BuildingModel> buildings =
             response["data"] as List<BuildingModel>;
 
-        final Map<String, Map<String, int>> wingCounts = {};
+        if (buildings.isNotEmpty) {
+          final Map<String, Map<String, int>> wingCounts = {};
 
-        for (var building in buildings) {
-          for (var wing in building.wingList) {
-            wingCounts[wing.wing] = calculateWingCounts(wing);
+          for (var building in buildings) {
+            for (var wing in building.wingList) {
+              wingCounts[wing.wing] = calculateWingCounts(wing);
+            }
           }
+          int buildingIndex =
+              state.currentTabIndex < buildings.length
+                  ? state.currentTabIndex
+                  : 0;
+
+          final selectedBuilding = buildings[buildingIndex];
+          final wingList = selectedBuilding.wingList;
+
+          String? wingKey =
+              state.wingCurrentPageKey != null &&
+                      wingList.any((w) => w.wing == state.wingCurrentPageKey)
+                  ? state.wingCurrentPageKey
+                  : wingList.isNotEmpty
+                  ? wingList.first.wing
+                  : null;
+
+          int wingIndex =
+              wingKey != null
+                  ? wingList.indexWhere((w) => w.wing == wingKey)
+                  : 0;
+
+          emit(
+            state.copyWith(
+              isLoading: false,
+              buildingList: buildings,
+              currentTabIndex: buildingIndex,
+              wingCurrentPage: wingIndex,
+              wingCurrentPageKey: wingKey,
+            ),
+          );
+        } else {
+          emit(state.copyWith(isLoading: false, buildingList: []));
         }
-        int buildingIndex =
-            state.currentTabIndex < buildings.length
-                ? state.currentTabIndex
-                : 0;
-
-        final selectedBuilding = buildings[buildingIndex];
-        final wingList = selectedBuilding.wingList;
-
-        String? wingKey =
-            state.wingCurrentPageKey != null &&
-                    wingList.any((w) => w.wing == state.wingCurrentPageKey)
-                ? state.wingCurrentPageKey
-                : wingList.isNotEmpty
-                ? wingList.first.wing
-                : null;
-
-        int wingIndex =
-            wingKey != null ? wingList.indexWhere((w) => w.wing == wingKey) : 0;
-
-        emit(
-          state.copyWith(
-            isLoading: false,
-            buildingList: buildings,
-            currentTabIndex: buildingIndex,
-            wingCurrentPage: wingIndex,
-            wingCurrentPageKey: wingKey,
-          ),
-        );
       },
     );
   }
