@@ -307,7 +307,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                 fit: BoxFit.cover,
                                 width: double.infinity,
                                 height: double.infinity,
-                              )
+                              ),
                             ),
 
                             Container(
@@ -571,7 +571,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 Row(
                   children: [
                     buildColumnTitleValue(
-                      title: "Project Sub Scope",
+                      title: "Project Sub Scheme",
                       value: widget.project.projectSubScheme,
                     ),
                   ],
@@ -957,9 +957,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                               title: "Last Login",
                               value:
                                   employee.lastLogin != null
-                                      ? formatDate(
-                                        employee.lastLogin!,
-                                      )
+                                      ? formatDate(employee.lastLogin!)
                                       : "-",
                             ),
                           ],

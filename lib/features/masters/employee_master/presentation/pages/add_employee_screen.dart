@@ -76,8 +76,8 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   List<Map<String, dynamic>> maritalStatusList = [
     {"zAttributesId": 1, "DisplayName": "Single"},
     {"zAttributesId": 2, "DisplayName": "Married"},
-    {"zAttributesId": 3, "DisplayName": "Divorce"},
-    {"zAttributesId": 4, "DisplayName": "Widow"},
+    {"zAttributesId": 3, "DisplayName": "Divorced"},
+    {"zAttributesId": 4, "DisplayName": "Widowed"},
     {"zAttributesId": 5, "DisplayName": "Separated"},
   ];
   List<Map<String, dynamic>> bloodGroupList = [
@@ -317,7 +317,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     _accountNumberC = TextEditingController();
     _ifscC = TextEditingController();
   }
-
 
   // FETCH DEPARTMENTS
   Future<Map<String, dynamic>> _fetchDepartment(

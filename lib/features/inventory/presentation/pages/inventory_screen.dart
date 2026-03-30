@@ -1007,7 +1007,7 @@ class _InventoryScreenState extends State<InventoryScreen>
           if (flat.flatStatus.toLowerCase() == "available" &&
               flat.reraCarpetAreaSqFt != 0 &&
               flat.flatType != "" &&
-              flat.flatStatus == "approved") ...[
+              approvalStatus.toLowerCase() == "approved") ...[
             verticalSpacing(),
             CustomButton(
               text: "Book",

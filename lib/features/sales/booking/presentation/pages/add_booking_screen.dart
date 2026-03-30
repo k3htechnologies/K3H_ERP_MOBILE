@@ -1177,7 +1177,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               color: AppColor.white,
               size: 18,
             ),
-            text: _isEditMode ? 'Update' : 'Add',
+            text: _isEditMode ? 'Update Booking' : 'Add Booking',
             onPressed: () async {
               if (await _validateAllTabs()) {
                 _submitForm();

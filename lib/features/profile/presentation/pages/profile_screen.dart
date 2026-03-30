@@ -628,9 +628,10 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   // BUILD HEADER
   Widget _buildHeader(UserModel user, ProjectModel? project) {
-    final apiUser = _profileCubit.state.employeeMasterList.isNotEmpty
-        ? _profileCubit.state.employeeMasterList.first
-        : null;
+    final apiUser =
+        _profileCubit.state.employeeMasterList.isNotEmpty
+            ? _profileCubit.state.employeeMasterList.first
+            : null;
 
     final imageUrl = (apiUser?.profilePhotoURL ?? user.profilePhotoURL).trim();
 
@@ -649,16 +650,23 @@ class _ProfileScreenState extends State<ProfileScreen>
                 CircleAvatar(
                   radius: 35,
                   backgroundColor: AppColor.primary,
-                  child: imageUrl.isNotEmpty
-                      ? ClipOval(child: NetworkImageWidget(
-                    key: ValueKey(imageUrl),
-                    imageUrl: imageUrl,fit: BoxFit.fill,width: 70,height: 70,))
-                      : Text(
-                    user.fullName.isNotEmpty
-                        ? user.fullName[0].toUpperCase()
-                        : 'U',
-                    style: AppTextStyle.ts24B(color: AppColor.white),
-                  ),
+                  child:
+                      imageUrl.isNotEmpty
+                          ? ClipOval(
+                            child: NetworkImageWidget(
+                              key: ValueKey(imageUrl),
+                              imageUrl: imageUrl,
+                              fit: BoxFit.fill,
+                              width: 70,
+                              height: 70,
+                            ),
+                          )
+                          : Text(
+                            user.fullName.isNotEmpty
+                                ? user.fullName[0].toUpperCase()
+                                : 'U',
+                            style: AppTextStyle.ts24B(color: AppColor.white),
+                          ),
                 ),
 
                 // LIGHT BLACK OVERLAY
@@ -978,7 +986,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       margin: const EdgeInsets.all(16),
       child: CustomButton(
         text: "Logout",
-        leading: Icon(Icons.login, size: 18, color: AppColor.white),
+        leading: Icon(Icons.logout, size: 18, color: AppColor.white),
         backgroundColor: AppColor.error,
         onPressed: () async {
           logOutUser(context);
