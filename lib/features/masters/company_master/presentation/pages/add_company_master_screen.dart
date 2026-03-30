@@ -372,7 +372,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             children: [
               Flexible(
                 child: CustomButton(
-                  text: _isEditMode ? 'Save' : 'Update',
+                  text: !_isEditMode ? 'Save' : 'Update',
                   onPressed: _handleSubmit,
                   backgroundColor: AppColor.primary,
                 ),

@@ -727,8 +727,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
 
                                             Visibility(
                                               visible:
-                                                  index == 0 &&
-                                                  item.isAction,
+                                                  index == 0 && item.isAction,
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
@@ -909,49 +908,53 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 10,
       children:
-          validDocuments.map((doc) {
-            return Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                color: AppColor.white,
-                border: Border.all(color: AppColor.primary, width: 0.3),
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColor.black.withValues(alpha: 0.05),
-                    blurRadius: 2,
-                    offset: const Offset(0, 2),
+          List.generate((validDocuments.length / 2).ceil(), (index) {
+            final first = validDocuments[index * 2];
+            final second =
+                (index * 2 + 1 < validDocuments.length)
+                    ? validDocuments[index * 2 + 1]
+                    : null;
+            return Row(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                buildColumnTitleValue(
+                  title: first['title'] ?? "-",
+                  value:
+                      (first['number'] != null && first['number']!.isNotEmpty)
+                          ? first['number']!
+                          : "-",
+                  customValueWidget: buildDocumentRow(
+                    context: context,
+                    docNumber:
+                        (first['number'] != null && first['number']!.isNotEmpty)
+                            ? first['number']!
+                            : "-",
+                    url: first['url'] ?? "-",
                   ),
-                ],
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        doc["title"] ?? "",
-                        style: AppTextStyle.ts14M(color: AppColor.grey),
+                ),
+                second != null
+                    ? buildColumnTitleValue(
+                      title: second['title'] ?? "-",
+                      value:
+                          (second['number'] != null &&
+                                  second['number']!.isNotEmpty)
+                              ? second['number']!
+                              : "-",
+                      customValueWidget: buildDocumentRow(
+                        context: context,
+                        docNumber:
+                            (second['number'] != null &&
+                                    second['number']!.isNotEmpty)
+                                ? second['number']!
+                                : "-",
+                        url: second['url'] ?? "-",
                       ),
-                      const SizedBox(height: 8),
-                      Text(doc["number"] ?? "", style: AppTextStyle.ts14M()),
-                    ],
-                  ),
-                  CustomButton.documentOutline(
-                    onPressed: () {
-                      final url = doc["url"] ?? "";
-                      if (url.isNotEmpty) {
-                        showFilePreviewDialog(context, url.split(","));
-                      }
-                    },
-                  ),
-                ],
-              ),
+                    )
+                    : SizedBox.shrink(),
+              ],
             );
           }).toList(),
     );

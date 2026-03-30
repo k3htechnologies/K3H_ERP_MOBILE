@@ -308,7 +308,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
             "zAttributesId": data.villageMasterId,
           };
         }
-
       });
     } catch (error) {
       debugPrint("Pull Channel Partner Error: $error");
@@ -355,8 +354,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
     if (channelPartnerMasterModel.designation.isNotEmpty) {
       selectedDesignation.value = designationList.firstWhere(
-            (element) =>
-        element['DisplayName'] == channelPartnerMasterModel.designation,
+        (element) =>
+            element['DisplayName'] == channelPartnerMasterModel.designation,
         orElse: () => designationList.first,
       );
     }
@@ -499,9 +498,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         gstNumber: _gstNumberC.text.trim(),
         speciality: selectedSpeciality?["DisplayName"] ?? "",
         officeAddress: _officeAddressC.text.trim(),
-        panCardURL: selectedPANForPopUpFile,
-        aadhaarCardURL: selectedAadhaarForPopUpFile,
-        gstCertificateURL: selectedGSTCertificateForPopUpFile.value,
+        panCardDocuments: selectedPANForPopUpFile,
+        aadhaarCardDocuments: selectedAadhaarForPopUpFile,
+        gstCertificateDocuments: selectedGSTCertificateForPopUpFile.value,
         selectedCountryNameId: 1,
         selectedStateId: selectedStateVN.value!["zAttributesId"],
         selectedDistrictId: selectedDistrictVN.value!["zAttributesId"],
@@ -594,10 +593,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Basic Details",
-                      style: AppTextStyle.ts16SB(),
-                    ),
+                    Text("Basic Details", style: AppTextStyle.ts16SB()),
                     verticalSpacing(),
                     CustomTextField(
                       title: 'Full Name',
@@ -844,7 +840,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                               return "Designation is required";
                             }
 
-                            if (selectedCompanyType.value['zAttributesId'] == 2 &&
+                            if (selectedCompanyType.value['zAttributesId'] ==
+                                    2 &&
                                 val['zAttributesId'] == 3) {
                               return "You can't be Owner";
                             }
@@ -885,10 +882,15 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                       width: 24,
                                       child: Checkbox(
                                         value: hasRera,
-                                        onChanged:isCompanyPrefilled.value ||
-                                        (hasRera &&
-                                            selectedDesignation.value != null &&
-                                            selectedDesignation.value!["zAttributesId"] != 3)
+                                        onChanged:
+                                            isCompanyPrefilled.value ||
+                                                    (hasRera &&
+                                                        selectedDesignation
+                                                                .value !=
+                                                            null &&
+                                                        selectedDesignation
+                                                                .value!["zAttributesId"] !=
+                                                            3)
                                                 ? null
                                                 : (value) {
                                                   hasReraNumber.value =
@@ -916,9 +918,12 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                 CustomTextField(
                                   title: 'RERA Number',
                                   isRequired: hasRera,
-                                  readOnly: isCompanyPrefilled.value ||
+                                  readOnly:
+                                      isCompanyPrefilled.value ||
                                       (selectedDesignation.value != null &&
-                                          selectedDesignation.value!["zAttributesId"] != 3),
+                                          selectedDesignation
+                                                  .value!["zAttributesId"] !=
+                                              3),
                                   hint: "Enter RERA Number",
                                   textController: _reraNumberC,
                                   inputFormatterList:
@@ -945,13 +950,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                 padding: EdgeInsets.all(16),
                 decoration: commonCardDecoration(),
                 margin: EdgeInsets.only(bottom: 10),
-                child:     Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Speciality",
-                      style: AppTextStyle.ts16SB(),
-                    ),
+                    Text("Speciality", style: AppTextStyle.ts16SB()),
                     verticalSpacing(),
                     CustomDropDownWidget(
                       title: "Speciality",
@@ -979,10 +981,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Document Details",
-                 style: AppTextStyle.ts16SB(),
-                    ),
+                    Text("Document Details", style: AppTextStyle.ts16SB()),
                     verticalSpacing(),
                     CustomTextField(
                       title: 'Aadhaar Card Number',
@@ -1098,7 +1097,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                           hint: "Enter GST Number",
                           textController: _gstNumberC,
                           readOnly: isPrefilled,
-                          inputFormatterList: InputValidator.gstInputFormatters(),
+                          inputFormatterList:
+                              InputValidator.gstInputFormatters(),
                           validator: (value) {
                             if (selectedGSTCertificateForPopUpFile
                                 .value
@@ -1139,9 +1139,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                               title: "GST Certificate",
                               filePickType: FilePickType.both,
                               initialFileList:
-                              selectedGSTCertificateForPopUpFile
-                                  .value
-                                  .fileNameList,
+                                  selectedGSTCertificateForPopUpFile
+                                      .value
+                                      .fileNameList,
                               onFilePickedCallback: (bytesList, fileNameList) {
                                 selectedGSTCertificateForPopUpFile
                                     .value
@@ -1151,10 +1151,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                     .fileBytesList = bytesList;
                               },
                               onFileDeleteCallback: (
-                                  fileBytesList,
-                                  fileNameList,
-                                  deletedFile,
-                                  ) {
+                                fileBytesList,
+                                fileNameList,
+                                deletedFile,
+                              ) {
                                 selectedGSTCertificateForPopUpFile
                                     .value
                                     .fileNameList = fileNameList;
@@ -1164,6 +1164,16 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                 selectedGSTCertificateForPopUpFile
                                     .value
                                     .deletedFileList = deletedFile;
+                              },
+                              validator: (fileList) {
+                                if (_gstNumberC.text.isNotEmpty &&
+                                    InputValidator.isValidGST(
+                                      _gstNumberC.text.trim(),
+                                    ) &&
+                                    (fileList == null || fileList.isEmpty)) {
+                                  return "GST Certificate document is required";
+                                }
+                                return null;
                               },
                             ),
                           ),
@@ -1180,10 +1190,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Address Details",
-                      style: AppTextStyle.ts16SB(),
-                    ),
+                    Text("Address Details", style: AppTextStyle.ts16SB()),
                     verticalSpacing(),
                     ValueListenableBuilder(
                       valueListenable: selectedStateVN,
@@ -1193,12 +1200,17 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                             "${selectedStateVN.value?['zAttributesId']}_${selectedCityVN.value?['zAttributesId']}",
                           ),
                           formKey: _formKey,
-                          incomingStateId: selectedStateVN.value?['zAttributesId'],
-                          incomingDistrictId: selectedDistrictVN.value?['zAttributesId'],
-                          incomingCityId: selectedCityVN.value?['zAttributesId'],
-                          incomingVillageId: selectedVillageVN.value?['zAttributesId'],
+                          incomingStateId:
+                              selectedStateVN.value?['zAttributesId'],
+                          incomingDistrictId:
+                              selectedDistrictVN.value?['zAttributesId'],
+                          incomingCityId:
+                              selectedCityVN.value?['zAttributesId'],
+                          incomingVillageId:
+                              selectedVillageVN.value?['zAttributesId'],
                           stateChange: (val) => selectedStateVN.value = val,
-                          districtChange: (val) => selectedDistrictVN.value = val,
+                          districtChange:
+                              (val) => selectedDistrictVN.value = val,
                           cityChange: (val) => selectedCityVN.value = val,
                           villageChange: (val) => selectedVillageVN.value = val,
                         );

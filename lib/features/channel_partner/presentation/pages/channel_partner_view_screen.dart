@@ -9,7 +9,6 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -426,27 +425,59 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                           spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Enquiry & Booking Details",style: AppTextStyle.ts16SB(),),
+                            Text(
+                              "Enquiry & Booking Details",
+                              style: AppTextStyle.ts16SB(),
+                            ),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                buildColumnTitleValue(title: "No Of Enquiry", value: widget.channelPartnerModel.noOfEnquiry.toString()),
-                                buildColumnTitleValue(title: "No Of Booking", value: widget.channelPartnerModel.noOfBooking.toString()),
+                                buildColumnTitleValue(
+                                  title: "No Of Enquiry",
+                                  value:
+                                      widget.channelPartnerModel.noOfEnquiry
+                                          .toString(),
+                                ),
+                                buildColumnTitleValue(
+                                  title: "No Of Booking",
+                                  value:
+                                      widget.channelPartnerModel.noOfBooking
+                                          .toString(),
+                                ),
                               ],
                             ),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                buildColumnTitleValue(title: "Brokerage Percentage (%)", value: widget.channelPartnerModel.brokeragePercentage.toString()),
-                                buildColumnTitleValue(title: "Brokerage Amount (₹)", value: widget.channelPartnerModel.brokerageAmount.toString()),
+                                buildColumnTitleValue(
+                                  title: "Brokerage Percentage (%)",
+                                  value:
+                                      widget
+                                          .channelPartnerModel
+                                          .brokeragePercentage
+                                          .toString(),
+                                ),
+                                buildColumnTitleValue(
+                                  title: "Brokerage Amount (₹)",
+                                  value:
+                                      widget.channelPartnerModel.brokerageAmount
+                                          .toString(),
+                                ),
                               ],
                             ),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                buildColumnTitleValue(title: "Paid Brokerage Amount (₹)", value: widget.channelPartnerModel.paidBrokerageAmount.toString()),
+                                buildColumnTitleValue(
+                                  title: "Paid Brokerage Amount (₹)",
+                                  value:
+                                      widget
+                                          .channelPartnerModel
+                                          .paidBrokerageAmount
+                                          .toString(),
+                                ),
                               ],
-                            )
+                            ),
                           ],
                         ),
                       ),
@@ -635,55 +666,58 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
       return SizedBox(
         height: 180,
         child: Center(
-          child: noDataWidget(message: "No Documents Available",iconSize: 100),
+          child: noDataWidget(message: "No Documents Available", iconSize: 100),
         ),
       );
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children:
-          validDocuments.map((doc) {
-            return Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                color: AppColor.white,
-                border: Border.all(color: AppColor.primary, width: 0.3),
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColor.black.withValues(alpha: 0.05),
-                    blurRadius: 2,
-                    offset: const Offset(0, 2),
+          List.generate((validDocuments.length / 2).ceil(), (index) {
+            final first = validDocuments[index * 2];
+            final second =
+                (index * 2 + 1 < validDocuments.length)
+                    ? validDocuments[index * 2 + 1]
+                    : null;
+            return Row(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                buildColumnTitleValue(
+                  title: first['title'] ?? "-",
+                  value:
+                      (first['number'] != null && first['number']!.isNotEmpty)
+                          ? first['number']!
+                          : "-",
+                  customValueWidget: buildDocumentRow(
+                    context: context,
+                    docNumber:
+                        (first['number'] != null && first['number']!.isNotEmpty)
+                            ? first['number']!
+                            : "-",
+                    url: first['url'] ?? "-",
                   ),
-                ],
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        doc["title"] ?? "",
-                        style: AppTextStyle.ts14M(color: AppColor.grey),
+                ),
+                second != null
+                    ? buildColumnTitleValue(
+                      title: second['title'] ?? "-",
+                      value:
+                          (second['number'] != null &&
+                                  second['number']!.isNotEmpty)
+                              ? second['number']!
+                              : "-",
+                      customValueWidget: buildDocumentRow(
+                        context: context,
+                        docNumber:
+                            (second['number'] != null &&
+                                    second['number']!.isNotEmpty)
+                                ? second['number']!
+                                : "-",
+                        url: second['url'] ?? "-",
                       ),
-                      const SizedBox(height: 8),
-                      Text(doc["number"] ?? "", style: AppTextStyle.ts14M()),
-                    ],
-                  ),
-                  CustomButton.documentOutline(
-                    onPressed: () {
-                      final url = doc["url"] ?? "";
-                      if (url.isNotEmpty) {
-                        showFilePreviewDialog(context, url.split(","));
-                      }
-                    },
-                  ),
-                ],
-              ),
+                    )
+                    : SizedBox.shrink(),
+              ],
             );
           }).toList(),
     );

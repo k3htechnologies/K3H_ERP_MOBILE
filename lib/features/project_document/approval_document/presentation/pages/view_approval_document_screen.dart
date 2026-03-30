@@ -208,8 +208,7 @@ class _ViewApprovalDocumentScreenState
   ) {
     // IF DOCUMENT IS NOT APPROVED OR USER HAS NO ACTION PERMISSION,
     // THEN ACTIONS ARE CONSIDERED ALREADY PERFORMED -> SHOW HISTORY AND DISABLE ACTIONS
-    final bool isActionAllowed =
-        document.isApproval && _routeAuthorizationModel.isAction;
+    final bool isActionAllowed = document.isApproval;
 
     return Container(
       padding: EdgeInsets.all(16),

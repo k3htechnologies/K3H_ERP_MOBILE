@@ -58,7 +58,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
   Future<void> loadBooking() async {
     bookingModel = await _bookingCubit.getBookingById(
       context,
-      1, // pageNumber
+      1,
       widget.projectId,
       widget.bookingId,
     );
@@ -1578,7 +1578,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
   // BUILD OTHER CHARGES TAB
   Widget _buildOtherChargesTab() {
     if (bookingModel!.bookingOtherChargesData.isEmpty) {
-      return noDataWidget();
+      return noDataWidget(message: "No Charges Available");
     }
     return ListView.builder(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -1801,7 +1801,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       child:
                           isHtml
                               ? Html(
-                                data: bookingModel!.termsAndConditionsDescription,
+                                data:
+                                    bookingModel!.termsAndConditionsDescription,
                                 style: {
                                   "body": Style(
                                     fontSize: FontSize(14),

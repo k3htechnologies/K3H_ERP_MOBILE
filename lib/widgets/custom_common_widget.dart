@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 // BUILD ROW TITLE VALUE
@@ -146,5 +147,32 @@ Widget actionCardWidget({
         ),
       ],
     ),
+  );
+}
+
+// BUILD DOCUMENT ROW
+Widget buildDocumentRow({
+  required BuildContext context,
+  required String docNumber,
+  required String url,
+}) {
+  return Row(
+    children: [
+      Text(docNumber, style: AppTextStyle.ts14M(color: AppColor.black)),
+      if (url.isNotEmpty && url != "-")
+        CustomIconButton(
+          onPressed: () {
+            if (url.isNotEmpty && url != "-") {
+              showFilePreviewDialog(context, url.split(","));
+            }
+          },
+          backgroundColor: AppColor.white,
+          icon: Icon(
+            Icons.remove_red_eye_outlined,
+            size: 18,
+            color: AppColor.primary,
+          ),
+        ),
+    ],
   );
 }

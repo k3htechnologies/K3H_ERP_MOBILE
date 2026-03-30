@@ -229,9 +229,9 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     required String emailId,
     required String mobileNumber,
     required String panCardNumber,
-    required MultiFilePickerModel panCardURL,
+    required MultiFilePickerModel panCardDocuments,
     required String aadhaarCardNumber,
-    required MultiFilePickerModel aadhaarCardURL,
+    required MultiFilePickerModel aadhaarCardDocuments,
     required String speciality,
     required String officeAddress,
     required int selectedCountryNameId,
@@ -246,7 +246,7 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     required String designation,
     required String alternativeMobileNumber,
     required String gstNumber,
-    required MultiFilePickerModel gstCertificateURL,
+    required MultiFilePickerModel gstCertificateDocuments,
     required String otp,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -273,27 +273,40 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       "AlternativeMobileNumber": alternativeMobileNumber,
       "GSTNumber": gstNumber,
       "OTP": otp,
+      "RemovePanCardURL": panCardDocuments.deletedFileList,
+      "RemoveAadharCardURL": aadhaarCardDocuments.deletedFileList,
+      "RemoveGSTCertificateURL": gstCertificateDocuments.deletedFileList,
     };
     List<Map<String, dynamic>> fileList = [];
 
-    for (int i = 0; i < panCardURL.fileNameList.length; i++) {
-      if (panCardURL.fileNameList[i].contains("http")) {
+    for (int i = 0; i < panCardDocuments.fileNameList.length; i++) {
+      if (panCardDocuments.fileNameList[i].contains("http")) {
         continue;
       }
       fileList.add({
         "key": "PanCardURL",
-        "value": panCardURL.fileBytesList[i],
-        "fileName": panCardURL.fileNameList[i],
+        "value": panCardDocuments.fileBytesList[i],
+        "fileName": panCardDocuments.fileNameList[i],
       });
     }
-    for (int i = 0; i < aadhaarCardURL.fileNameList.length; i++) {
-      if (aadhaarCardURL.fileNameList[i].contains("http")) {
+    for (int i = 0; i < aadhaarCardDocuments.fileNameList.length; i++) {
+      if (aadhaarCardDocuments.fileNameList[i].contains("http")) {
         continue;
       }
       fileList.add({
         "key": "AadharCardURL",
-        "value": aadhaarCardURL.fileBytesList[i],
-        "fileName": aadhaarCardURL.fileNameList[i],
+        "value": aadhaarCardDocuments.fileBytesList[i],
+        "fileName": aadhaarCardDocuments.fileNameList[i],
+      });
+    }
+    for (int i = 0; i < gstCertificateDocuments.fileNameList.length; i++) {
+      if (gstCertificateDocuments.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "GSTCertificateURL",
+        "value": gstCertificateDocuments.fileBytesList[i],
+        "fileName": gstCertificateDocuments.fileNameList[i],
       });
     }
     final result = await _channelPartnerRepository.addUpdateChannelPartner(

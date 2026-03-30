@@ -577,10 +577,8 @@ class _BookingScreenState extends State<BookingScreen> {
                     : const SizedBox.shrink();
               }
               var booking = state.bookingList[index];
-              // IF BOOKING IS NOT APPROVED OR USER HAS NO ACTION PERMISSION,
-              // THEN ACTIONS ARE CONSIDERED ALREADY PERFORMED -> SHOW HISTORY AND DISABLE ACTIONS
-              final bool isActionAllowed =
-                  booking.isApproval && _routhAuthorizationModel.isAction;
+              final bool isActionAllowed = booking.isApproval;
+
               return Container(
                 margin: EdgeInsets.only(bottom: 10),
                 padding: EdgeInsets.all(12),
@@ -685,7 +683,7 @@ class _BookingScreenState extends State<BookingScreen> {
                     verticalSpacing(),
                     ApproveRejectWidget(
                       title: isActionAllowed ? "Actions" : "History",
-                      subTitle: "${booking.applicantName} > ${booking.wing} > ${booking.flat}",
+                      subTitle: "${booking.applicantName} > ${booking.flat}",
                       isActionAlreadyPerformed: !isActionAllowed,
                       onApprove: (val) async {
                         await _loginCubit.updateModulesWorkflowApproval(
@@ -736,7 +734,7 @@ class _BookingScreenState extends State<BookingScreen> {
                             queryParameters: {
                               "subTitle": Uri.encodeComponent(
                                 EncryptionManager.encryptData(
-                                  "${booking.applicantName} > ${booking.wing} > ${booking.flat}",
+                                  "${booking.applicantName} > ${booking.flat}",
                                 ),
                               ),
                               "title": Uri.encodeComponent(
@@ -783,7 +781,7 @@ class _BookingScreenState extends State<BookingScreen> {
       case 'pending':
         return statusChip(status, AppColor.lightYellow, AppColor.brown);
 
-      case 'partially approved':
+      case 'partial approved':
         return statusChip(status, AppColor.lightPurple, AppColor.purple);
 
       default:

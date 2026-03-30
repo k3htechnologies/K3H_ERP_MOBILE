@@ -101,37 +101,42 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   ];
 
   // STATIC LISTS
-  List<Map<String, dynamic>> projectSubSchemeList = [
+  List<Map<String, dynamic>> projectSubSchemeBMCList = [
     {"zAttributesId": -1, "DisplayName": "Select Project Sub Scheme"},
-    {"zAttributesId": 1, "DisplayName": "33 (7)"},
+    {"zAttributesId": 1, "DisplayName": "33 (20) B"},
+    {"zAttributesId": 2, "DisplayName": "33 (19)"},
+    {"zAttributesId": 3, "DisplayName": "33 (7) B"},
+    {"zAttributesId": 4, "DisplayName": "33 (7) A"},
+    {"zAttributesId": 5, "DisplayName": "33 (9)"},
+    {"zAttributesId": 6, "DisplayName": "33 (12) B"},
   ];
 
   // STATIC LISTS
-  List<Map<String, dynamic>> projectSubSchemeList1 = [
+  List<Map<String, dynamic>> projectSubSchemeMHADAList = [
     {"zAttributesId": -1, "DisplayName": "Select Project Sub Scheme"},
     {"zAttributesId": 1, "DisplayName": "33 (5)"},
   ];
 
   // STATIC LISTS
-  List<Map<String, dynamic>> projectSubSchemeList2 = [
+  List<Map<String, dynamic>> projectSubSchemeSRAList = [
     {"zAttributesId": -1, "DisplayName": "Select Project Sub Scheme"},
     {"zAttributesId": 1, "DisplayName": "33 (10)"},
     {"zAttributesId": 2, "DisplayName": "33 (11)"},
   ];
 
   List<Map<String, dynamic>> get _currentSubSchemeList {
-    if (projectSchemeNotifier.value == null) return projectSubSchemeList;
+    if (projectSchemeNotifier.value == null) return projectSubSchemeBMCList;
     final id = projectSchemeNotifier.value!["zAttributesId"] as int?;
-    if (id == null || id == -1) return projectSubSchemeList;
+    if (id == null || id == -1) return projectSubSchemeBMCList;
     switch (id) {
       case 1:
-        return projectSubSchemeList; // BMC
+        return projectSubSchemeBMCList; // BMC
       case 2:
-        return projectSubSchemeList1; // MHADA
+        return projectSubSchemeMHADAList; // MHADA
       case 3:
-        return projectSubSchemeList2; // SRA
+        return projectSubSchemeSRAList; // SRA
       default:
-        return projectSubSchemeList;
+        return projectSubSchemeBMCList;
     }
   }
 
@@ -690,10 +695,16 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                             onSelected: (value) {
                               projectSchemeNotifier.value = value;
 
-                              selectedProjectSubScheme =
-                                  _currentSubSchemeList.isNotEmpty
-                                      ? _currentSubSchemeList.first
-                                      : null;
+                              if (projectSchemeNotifier
+                                      .value?['zAttributesId'] !=
+                                  -1) {
+                                selectedProjectSubScheme =
+                                    _currentSubSchemeList.isNotEmpty
+                                        ? _currentSubSchemeList.first
+                                        : null;
+                              } else {
+                                selectedProjectSubScheme = null;
+                              }
                             },
                           );
                         },
@@ -703,6 +714,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         builder: (context, selectedProjectScheme, _) {
                           return CustomDropDownWidget(
                             title: 'Project Sub Scheme',
+                            hintText: "Select Project Sub Scheme",
                             initialValue: selectedProjectSubScheme,
                             dataList: _currentSubSchemeList,
                             isDisabled:
