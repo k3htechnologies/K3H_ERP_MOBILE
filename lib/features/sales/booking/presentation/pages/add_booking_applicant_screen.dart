@@ -81,6 +81,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
     fileNameList: [],
     deletedFileList: "",
   );
+
   MultiFilePickerModel passportFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
@@ -101,7 +102,31 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
     fileNameList: [],
     deletedFileList: "",
   );
-
+  MultiFilePickerModel cancelledChequeFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel poaFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel incomeForm16ItrFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel nreNroBankDetailsFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel nomineeFormFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
   @override
   void initState() {
     super.initState();
@@ -214,7 +239,26 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
           gstFile.fileNameList.isNotEmpty
               ? gstFile.fileNameList.join(",")
               : widget.applicant?.gstNumberURL ?? '',
-
+      cancelledChequeUrl:
+          cancelledChequeFile.fileNameList.isNotEmpty
+              ? cancelledChequeFile.fileNameList.join(",")
+              : widget.applicant?.cancelledChequeUrl ?? '',
+      poaurl:
+          poaFile.fileNameList.isNotEmpty
+              ? poaFile.fileNameList.join(",")
+              : widget.applicant?.poaurl ?? '',
+      incomeForm16Itrurl:
+          incomeForm16ItrFile.fileNameList.isNotEmpty
+              ? incomeForm16ItrFile.fileNameList.join(",")
+              : widget.applicant?.incomeForm16Itrurl ?? '',
+      nreNroBankDetailsUrl:
+          nreNroBankDetailsFile.fileNameList.isNotEmpty
+              ? nreNroBankDetailsFile.fileNameList.join(",")
+              : widget.applicant?.nreNroBankDetailsUrl ?? '',
+      nomineeFormUrl:
+          nomineeFormFile.fileNameList.isNotEmpty
+              ? nomineeFormFile.fileNameList.join(",")
+              : widget.applicant?.nomineeFormUrl ?? '',
       aadharCardNumber: _aadharC.text.trim(),
       panNumber: _panC.text.trim(),
       passportNumber: _passportC.text.trim(),

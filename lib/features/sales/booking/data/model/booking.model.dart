@@ -454,6 +454,11 @@ class BookingApplicantData {
   String votingIdURL;
   String gstNumber;
   String gstNumberURL;
+  String cancelledChequeUrl;
+  String poaurl;
+  String incomeForm16Itrurl;
+  String nreNroBankDetailsUrl;
+  String nomineeFormUrl;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -503,6 +508,31 @@ class BookingApplicantData {
     fileNameList: [],
     deletedFileList: "",
   );
+  MultiFilePickerModel cancelledChequeImage = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel poaImage = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel incomeForm16ItrImage = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel nreNroBankDetailsImage = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel nomineeFormImage = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
   BookingApplicantData({
     required this.bookingApplicantId,
     required this.applicantType,
@@ -522,6 +552,11 @@ class BookingApplicantData {
     required this.votingIdURL,
     required this.gstNumber,
     required this.gstNumberURL,
+    required this.cancelledChequeUrl,
+    required this.poaurl,
+    required this.incomeForm16Itrurl,
+    required this.nreNroBankDetailsUrl,
+    required this.nomineeFormUrl,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -553,6 +588,11 @@ class BookingApplicantData {
         votingIdURL: parseValue<String>(json, "VotingIdURL"),
         gstNumber: parseValue<String>(json, "GSTNumber"),
         gstNumberURL: parseValue<String>(json, "GSTNumberURL"),
+        cancelledChequeUrl: parseValue<String>(json, "CancelledChequeURL"),
+        poaurl: parseValue<String>(json, "POAURL"),
+        incomeForm16Itrurl: parseValue<String>(json, "IncomeForm16ITRURL"),
+        nreNroBankDetailsUrl: parseValue<String>(json, "NreNroBankDetailsURL"),
+        nomineeFormUrl: parseValue<String>(json, "NomineeFormURL"),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
         createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -583,6 +623,11 @@ class BookingApplicantData {
     "VotingIdURL": votingIdURL,
     "GSTNumber": gstNumber,
     "GSTNumberURL": gstNumberURL,
+    "CancelledChequeURL": cancelledChequeUrl,
+    "POAURL": poaurl,
+    "IncomeForm16ITRURL": incomeForm16Itrurl,
+    "NreNroBankDetailsURL": nreNroBankDetailsUrl,
+    "NomineeFormURL": nomineeFormUrl,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

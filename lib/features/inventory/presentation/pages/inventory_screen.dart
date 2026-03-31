@@ -568,89 +568,94 @@ class _InventoryScreenState extends State<InventoryScreen>
                                         ),
                                         Row(
                                           children: [
-                                            GestureDetector(
-                                              onTap: () async {
-                                                await goRouter.pushNamed(
-                                                  AppRoutes
-                                                      .addInventorySpecification,
-                                                  queryParameters: {
-                                                    "flatModel": Uri.encodeQueryComponent(
-                                                      EncryptionManager.encryptData(
-                                                        jsonEncode(
-                                                          FlatModel(
-                                                            inventoryFlatId: 0,
-                                                            uniquekey: "",
-                                                            inventoryBuildingId:
-                                                                floor
-                                                                    .inventoryBuildingId,
-                                                            buildingNumber:
-                                                                building
-                                                                    .buildingNumber,
-                                                            inventoryFlatFloorBasementPodiumWingId:
-                                                                floor
-                                                                    .inventoryFlatFloorBasementPodiumWingId,
-                                                            wing: wing.wing,
-                                                            inventoryFloorId:
-                                                                floor
-                                                                    .inventoryFloorId,
-                                                            floor: floor.floor,
-                                                            slabHeight:
-                                                                floor
-                                                                    .slabHeight,
-                                                            parkingCount:
-                                                                floor
-                                                                    .parkingCount,
-                                                            flat: "",
-                                                            reraCarpetAreaSqFt:
-                                                                0,
-                                                            flatType: "",
-                                                            flatConfiguration:
-                                                                "",
-                                                            flatStatus: "",
-                                                            ownerName: "",
-                                                            flatFacing: "",
-                                                            createdBy: "",
-                                                            createdById: 0,
-                                                            modifiedBy: "",
-                                                            modifiedById: 0,
-                                                            createdDate:
-                                                                DateTime.now(),
-                                                            modifiedDate:
-                                                                DateTime.now(),
-                                                            bookingId: 0,
-                                                            bookingCreatedById:
-                                                                0,
-                                                            bookingCreatedBy:
-                                                                "",
-                                                            bookingCreatedDate:
-                                                                DateTime.now(),
-                                                            specificationList: [
+                                            if (_routeAuthorizationModel
+                                                .isAction)
+                                              GestureDetector(
+                                                onTap: () async {
+                                                  await goRouter.pushNamed(
+                                                    AppRoutes
+                                                        .addInventorySpecification,
+                                                    queryParameters: {
+                                                      "flatModel": Uri.encodeQueryComponent(
+                                                        EncryptionManager.encryptData(
+                                                          jsonEncode(
+                                                            FlatModel(
+                                                              inventoryFlatId:
+                                                                  0,
+                                                              uniquekey: "",
+                                                              inventoryBuildingId:
+                                                                  floor
+                                                                      .inventoryBuildingId,
+                                                              buildingNumber:
+                                                                  building
+                                                                      .buildingNumber,
+                                                              inventoryFlatFloorBasementPodiumWingId:
+                                                                  floor
+                                                                      .inventoryFlatFloorBasementPodiumWingId,
+                                                              wing: wing.wing,
+                                                              inventoryFloorId:
+                                                                  floor
+                                                                      .inventoryFloorId,
+                                                              floor:
+                                                                  floor.floor,
+                                                              slabHeight:
+                                                                  floor
+                                                                      .slabHeight,
+                                                              parkingCount:
+                                                                  floor
+                                                                      .parkingCount,
+                                                              flat: "",
+                                                              reraCarpetAreaSqFt:
+                                                                  0,
+                                                              flatType: "",
+                                                              flatConfiguration:
+                                                                  "",
+                                                              flatStatus: "",
+                                                              ownerName: "",
+                                                              flatFacing: "",
+                                                              createdBy: "",
+                                                              createdById: 0,
+                                                              modifiedBy: "",
+                                                              modifiedById: 0,
+                                                              createdDate:
+                                                                  DateTime.now(),
+                                                              modifiedDate:
+                                                                  DateTime.now(),
+                                                              bookingId: 0,
+                                                              bookingCreatedById:
+                                                                  0,
+                                                              bookingCreatedBy:
+                                                                  "",
+                                                              bookingCreatedDate:
+                                                                  DateTime.now(),
+                                                              specificationList: [
                                                             ],
+                                                            ),
                                                           ),
                                                         ),
                                                       ),
-                                                    ),
-                                                    "floorModel":
-                                                        Uri.encodeQueryComponent(
-                                                          EncryptionManager.encryptData(
-                                                            jsonEncode(floor),
+                                                      "floorModel":
+                                                          Uri.encodeQueryComponent(
+                                                            EncryptionManager.encryptData(
+                                                              jsonEncode(floor),
+                                                            ),
                                                           ),
-                                                        ),
-                                                  },
-                                                );
-                                                if (context.mounted) {
-                                                  _inventoryCubit.getInventory(
-                                                    context,
-                                                    _project.projectId,
+                                                    },
                                                   );
-                                                }
-                                              },
-                                              child: Icon(
-                                                Icons.add,
-                                                size: 18,
-                                                color: AppColor.darkGreen,
+                                                  if (context.mounted) {
+                                                    _inventoryCubit
+                                                        .getInventory(
+                                                          context,
+                                                          _project.projectId,
+                                                        );
+                                                  }
+                                                },
+                                                child: Icon(
+                                                  Icons.add,
+                                                  size: 18,
+                                                  color: AppColor.darkGreen,
+                                                ),
                                               ),
-                                            ),
                                             Icon(
                                               isExpanded
                                                   ? Icons.keyboard_arrow_up
@@ -908,74 +913,79 @@ class _InventoryScreenState extends State<InventoryScreen>
 
               horizontalSpacing(),
 
-              flat.flatStatus.toLowerCase() == "booked"
-                  ? GestureDetector(
-                    onTap: () {
-                      goRouter.pushNamed(
-                        AppRoutes.viewUnitSpecification,
-                        queryParameters: {
-                          "flatModel": Uri.encodeQueryComponent(
-                            EncryptionManager.encryptData(jsonEncode(flat)),
-                          ),
-                        },
-                      );
-                    },
-                    child: const Icon(Icons.remove_red_eye_outlined, size: 18),
-                  )
-                  : Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      flat.flatStatus == "approved"
-                          ? SizedBox.shrink()
-                          : GestureDetector(
-                            onTap: () async {
-                              await goRouter.pushNamed(
-                                AppRoutes.addInventorySpecification,
-                                queryParameters: {
-                                  "flatModel": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(flat),
-                                    ),
-                                  ),
-                                  "floorModel": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(floor),
-                                    ),
-                                  ),
-                                },
-                              );
-                              if (mounted) {
-                                _inventoryCubit.getInventory(
-                                  context,
-                                  _project.projectId,
-                                );
-                              }
-                            },
-                            child: const Icon(Icons.edit, size: 18),
-                          ),
-                      const SizedBox(width: 15),
-                      if (flat.flatStatus.toLowerCase() != "blocked" &&
-                          flat.flatStatus.toLowerCase() != "hold" &&
-                          flat.flatStatus == "approved") ...[
-                        GestureDetector(
-                          onTap: () {
-                            _showPopupToDeleteInventoryFlat(
-                              context,
-                              flat,
-                              floorIndex,
-                              wingIndex,
-                              buildingIndex,
-                              flatIndex,
-                            );
-                          },
-                          child: SvgPicture.asset(
-                            AppAssets.deleteIcon2,
-                            height: 18,
-                          ),
+              if (flat.flatStatus.toLowerCase() == "booked" &&
+                  _routeAuthorizationModel.isAction)
+                GestureDetector(
+                  onTap: () {
+                    goRouter.pushNamed(
+                      AppRoutes.viewUnitSpecification,
+                      queryParameters: {
+                        "flatModel": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(jsonEncode(flat)),
                         ),
-                      ],
+                      },
+                    );
+                  },
+                  child: const Icon(Icons.remove_red_eye_outlined, size: 18),
+                )
+              else ...[
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    (flat.flatStatus == "approved" &&
+                            _routeAuthorizationModel.isAction)
+                        ? GestureDetector(
+                          onTap: () async {
+                            await goRouter.pushNamed(
+                              AppRoutes.addInventorySpecification,
+                              queryParameters: {
+                                "flatModel": Uri.encodeQueryComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(flat),
+                                  ),
+                                ),
+                                "floorModel": Uri.encodeQueryComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(floor),
+                                  ),
+                                ),
+                              },
+                            );
+                            if (mounted) {
+                              _inventoryCubit.getInventory(
+                                context,
+                                _project.projectId,
+                              );
+                            }
+                          },
+                          child: const Icon(Icons.edit, size: 18),
+                        )
+                        : SizedBox.shrink(),
+                    const SizedBox(width: 15),
+                    if (flat.flatStatus.toLowerCase() != "blocked" &&
+                        flat.flatStatus.toLowerCase() != "hold" &&
+                        flat.flatStatus == "approved" &&
+                        _routeAuthorizationModel.isAction) ...[
+                      GestureDetector(
+                        onTap: () {
+                          _showPopupToDeleteInventoryFlat(
+                            context,
+                            flat,
+                            floorIndex,
+                            wingIndex,
+                            buildingIndex,
+                            flatIndex,
+                          );
+                        },
+                        child: SvgPicture.asset(
+                          AppAssets.deleteIcon2,
+                          height: 18,
+                        ),
+                      ),
                     ],
-                  ),
+                  ],
+                ),
+              ],
             ],
           ),
           if (flat.ownerName.isNotEmpty &&
@@ -1006,7 +1016,8 @@ class _InventoryScreenState extends State<InventoryScreen>
           if (flat.flatStatus.toLowerCase() == "available" &&
               flat.reraCarpetAreaSqFt != 0 &&
               flat.flatType != "" &&
-              approvalStatus.toLowerCase() == "approved") ...[
+              approvalStatus.toLowerCase() == "approved" &&
+              _routeAuthorizationModel.isAction) ...[
             verticalSpacing(),
             CustomButton(
               text: "Book",

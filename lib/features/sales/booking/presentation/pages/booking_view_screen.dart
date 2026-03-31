@@ -545,7 +545,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
-                                  title: "GST No.",
+                                  title: "GST No. dndnd",
                                   value:
                                       applicant.gstNumber.isEmpty
                                           ? "-"
@@ -580,25 +580,162 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
-                                  title: "Profile Photo",
+                                  title: "Cancelled Cheque",
                                   value:
-                                      applicant.photoURL.isEmpty
+                                      applicant.cancelledChequeUrl.isEmpty
                                           ? "-"
-                                          : applicant.photoURL,
+                                          : applicant.cancelledChequeUrl,
                                   customValueWidget:
                                       CustomButton.documentOutline(
                                         onPressed: () {
-                                          if (applicant.photoURL.isNotEmpty) {
+                                          if (applicant
+                                              .cancelledChequeUrl
+                                              .isNotEmpty) {
                                             showFilePreviewDialog(
                                               context,
-                                              applicant.photoURL.split(","),
+                                              applicant.cancelledChequeUrl
+                                                  .split(","),
                                             );
                                           }
                                         },
-                                        isDisable: applicant.photoURL.isEmpty,
+                                        isDisable:
+                                            applicant
+                                                .cancelledChequeUrl
+                                                .isEmpty,
                                       ),
                                 ),
-                                Expanded(child: SizedBox()),
+                                buildColumnTitleValue(
+                                  title: "POA (if NRI Execution)",
+                                  value:
+                                      applicant.poaurl.isEmpty
+                                          ? "-"
+                                          : applicant.poaurl,
+                                  customValueWidget:
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant.poaurl.isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              context,
+                                              applicant.poaurl.split(","),
+                                            );
+                                          }
+                                        },
+                                        isDisable: applicant.poaurl.isEmpty,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              spacing: 5,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Income Docs (Form 16 / ITR)",
+                                  value:
+                                      applicant.incomeForm16Itrurl.isEmpty
+                                          ? "-"
+                                          : applicant.incomeForm16Itrurl,
+                                  customValueWidget:
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant
+                                              .incomeForm16Itrurl
+                                              .isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              context,
+                                              applicant.incomeForm16Itrurl
+                                                  .split(","),
+                                            );
+                                          }
+                                        },
+                                        isDisable:
+                                            applicant
+                                                .cancelledChequeUrl
+                                                .isEmpty,
+                                      ),
+                                ),
+                                buildColumnTitleValue(
+                                  title: "NRE / NRO Bank Details",
+                                  value:
+                                      applicant.nreNroBankDetailsUrl.isEmpty
+                                          ? "-"
+                                          : applicant.nreNroBankDetailsUrl,
+                                  customValueWidget:
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant
+                                              .nreNroBankDetailsUrl
+                                              .isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              context,
+                                              applicant.nreNroBankDetailsUrl
+                                                  .split(","),
+                                            );
+                                          }
+                                        },
+                                        isDisable:
+                                            applicant
+                                                .nreNroBankDetailsUrl
+                                                .isEmpty,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              spacing: 5,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Nominee Form",
+                                  value:
+                                      applicant.nomineeFormUrl.isEmpty
+                                          ? "-"
+                                          : applicant.nomineeFormUrl,
+                                  customValueWidget:
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant
+                                              .nomineeFormUrl
+                                              .isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              context,
+                                              applicant.nomineeFormUrl.split(
+                                                ",",
+                                              ),
+                                            );
+                                          }
+                                        },
+                                        isDisable:
+                                            applicant
+                                                .cancelledChequeUrl
+                                                .isEmpty,
+                                      ),
+                                ),
+                                buildColumnTitleValue(
+                                  title: "NRE / NRO Bank Details",
+                                  value:
+                                      applicant.nreNroBankDetailsUrl.isEmpty
+                                          ? "-"
+                                          : applicant.nreNroBankDetailsUrl,
+                                  customValueWidget:
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant
+                                              .nreNroBankDetailsUrl
+                                              .isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              context,
+                                              applicant.nreNroBankDetailsUrl
+                                                  .split(","),
+                                            );
+                                          }
+                                        },
+                                        isDisable:
+                                            applicant
+                                                .nreNroBankDetailsUrl
+                                                .isEmpty,
+                                      ),
+                                ),
                               ],
                             ),
                           ],

@@ -90,19 +90,19 @@ class TenantModel {
       "InventoryFlatConfiguration",
     ),
     tenantApplicantData:
-    json["TenantApplicantData"] != null
-        ? List<TenantApplicantData>.from(
-      json["TenantApplicantData"].map(
-            (e) => TenantApplicantData.fromJson(e),
-      ),
-    )
-        : [],
+        json["TenantApplicantData"] != null
+            ? List<TenantApplicantData>.from(
+              json["TenantApplicantData"].map(
+                (e) => TenantApplicantData.fromJson(e),
+              ),
+            )
+            : [],
     parkingData:
-    json["ParkingData"] != null
-        ? List<ParkingModel>.from(
-      json["ParkingData"].map((e) => ParkingModel.fromJson(e)),
-    )
-        : [],
+        json["ParkingData"] != null
+            ? List<ParkingModel>.from(
+              json["ParkingData"].map((e) => ParkingModel.fromJson(e)),
+            )
+            : [],
     parkingNumber: parseValue<String>(json, "ParkingNumber"),
     parkingId: parseValue<String>(json, "ParkingId"),
     createdById: parseValue<int>(json, "CreatedById"),
@@ -111,9 +111,9 @@ class TenantModel {
     modifiedById: parseValue<int>(json, "ModifiedById"),
     modifiedBy: parseValue<String>(json, "ModifiedBy"),
     modifiedDate:
-    json["ModifiedDate"] == null
-        ? null
-        : parseValue<DateTime>(json, "ModifiedDate"),
+        json["ModifiedDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "ModifiedDate"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -190,6 +190,11 @@ class TenantApplicantData extends BookingApplicantData {
     required super.votingIdURL,
     required super.gstNumber,
     required super.gstNumberURL,
+    required super.cancelledChequeUrl,
+    required super.poaurl,
+    required super.incomeForm16Itrurl,
+    required super.nreNroBankDetailsUrl,
+    required super.nomineeFormUrl,
     required this.bankListMasterId,
     required this.bankName,
     required this.accountNumber,
@@ -230,6 +235,11 @@ class TenantApplicantData extends BookingApplicantData {
         votingIdURL: parseValue<String>(json, "VotingIdURL"),
         gstNumber: parseValue<String>(json, "GSTNumber"),
         gstNumberURL: parseValue<String>(json, "GSTNumberURL"),
+        cancelledChequeUrl: parseValue<String>(json, "CancelledChequeURL"),
+        poaurl: parseValue<String>(json, "POAURL"),
+        incomeForm16Itrurl: parseValue<String>(json, "IncomeForm16ITRURL"),
+        nreNroBankDetailsUrl: parseValue<String>(json, "NreNroBankDetailsURL"),
+        nomineeFormUrl: parseValue(json, "NomineeFormURL"),
         bankListMasterId: parseValue<int>(json, "BankListMasterId"),
         bankName: parseValue<String>(json, "BankName"),
         accountNumber: parseValue<String>(json, "AccountNumber"),
@@ -241,9 +251,9 @@ class TenantApplicantData extends BookingApplicantData {
         modifiedById: parseValue<int>(json, "ModifiedById"),
         modifiedBy: parseValue<String>(json, "ModifiedBy"),
         modifiedDate:
-        json["ModifiedDate"] == null
-            ? null
-            : parseValue<DateTime>(json, "ModifiedDate"),
+            json["ModifiedDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "ModifiedDate"),
       );
 
   @override
@@ -270,6 +280,11 @@ class TenantApplicantData extends BookingApplicantData {
     "VotingIdURL": votingIdURL,
     "GSTNumber": gstNumber,
     "GSTNumberURL": gstNumberURL,
+    "CancelledChequeURL": cancelledChequeUrl,
+    "POAURL": poaurl,
+    "IncomeForm16ITRURL": incomeForm16Itrurl,
+    "NreNroBankDetailsURL": nreNroBankDetailsUrl,
+    "NomineeFormURL": nomineeFormUrl,
     "BankListMasterId": bankListMasterId,
     "BankName": bankName,
     "AccountNumber": accountNumber,

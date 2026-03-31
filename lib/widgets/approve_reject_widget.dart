@@ -46,17 +46,30 @@ class ApproveRejectWidget extends StatelessWidget {
           children: [
             (customWidget != null)
                 ? customWidget!
-                : RichText(
-                  text: TextSpan(
-                    style: AppTextStyle.ts14M(color: AppColor.grey),
-                    text: "Approval Status : ",
-                    children: [
-                      TextSpan(
-                        style: AppTextStyle.ts14M(color: AppColor.black),
-                        text: title,
+                : Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Approval Status : ",
+                      style: AppTextStyle.ts14M(color: AppColor.grey),
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 18.0,
+                        vertical: 4.0,
                       ),
-                    ],
-                  ),
+                      decoration: BoxDecoration(
+                        color: _statusColor(title),
+                        borderRadius: BorderRadius.circular(6.0),
+                      ),
+                      child: Text(
+                        title,
+                        style: AppTextStyle.ts14M(
+                          color: getFlatStatusTextColor(title),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
             (isActionAlreadyPerformed && onThirdTap != null)
                 ? Row(
@@ -260,6 +273,20 @@ class ApproveRejectWidget extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+// STATUS COLOR
+Color _statusColor(String status) {
+  switch (status) {
+    case "Approved":
+      return AppColor.lightGreen.withValues(alpha: .3);
+    case "Reject":
+      return AppColor.lightRed.withValues(alpha: 0.15);
+    case "Pending":
+      return AppColor.holdYellowColor.withValues(alpha: 0.15);
+    default:
+      return AppColor.grey;
   }
 }
 

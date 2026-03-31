@@ -73,14 +73,21 @@ class _AddInventorySpecificationScreenState
 
   // STATIC LISTS FOR FLAT CONFIGURATION
   List<Map<String, dynamic>> residentialFlatList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Flat Configuration'},
-    {'zAttributesId': 1, 'DisplayName': '1 BHK'},
-    {'zAttributesId': 2, 'DisplayName': '2 BHK'},
-    {'zAttributesId': 3, 'DisplayName': '3 BHK'},
-    {'zAttributesId': 4, 'DisplayName': '4 BHK'},
-    {'zAttributesId': 5, 'DisplayName': '5 BHK'},
-    {'zAttributesId': 6, 'DisplayName': '1 Rk'},
-    {'zAttributesId': 7, 'DisplayName': 'Duplex'},
+    {'zAttributesId': -1, 'DisplayName': 'Select Unit Type'},
+    {'zAttributesId': 1, 'DisplayName': '1 RK'},
+    {'zAttributesId': 2, 'DisplayName': '1 BHK'},
+    {'zAttributesId': 3, 'DisplayName': '2 BHK'},
+    {'zAttributesId': 4, 'DisplayName': '3 BHK'},
+    {'zAttributesId': 5, 'DisplayName': '4 BHK'},
+    {'zAttributesId': 6, 'DisplayName': '5 BHK'},
+    {'zAttributesId': 7, 'DisplayName': '6 BHK'},
+    {'zAttributesId': 8, 'DisplayName': '7 BHK'},
+    {'zAttributesId': 9, 'DisplayName': '8 BHK'},
+    {'zAttributesId': 10, 'DisplayName': '1 + 1 JODI'},
+    {'zAttributesId': 11, 'DisplayName': '2 + 1 JODI'},
+    {'zAttributesId': 12, 'DisplayName': '2 + 2 JODI'},
+    {'zAttributesId': 13, 'DisplayName': '2 + 3 JODI'},
+    {'zAttributesId': 14, 'DisplayName': 'PENTHOUSE'},
   ];
 
   // STATIC LISTS FOR FLAT CONFIGURATION
@@ -491,6 +498,8 @@ class _AddInventorySpecificationScreenState
                 decoration: commonCardDecoration(),
                 child: Column(
                   children: [
+                    if (widget.flatModel != null || widget.floorModel != null)
+                      _buildBuildingInfoCard(),
                     CustomTextField(
                       title: 'Unit',
                       hint: 'Enter Unit',
@@ -857,6 +866,34 @@ class _AddInventorySpecificationScreenState
             onPressed: _handleSubmit,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildBuildingInfoCard() {
+    final building =
+        widget.flatModel?.buildingNumber ??
+        widget.flatModel?.buildingNumber ??
+        '-';
+
+    final wing = widget.flatModel?.wing ?? widget.flatModel?.wing ?? '-';
+
+    final floor = widget.flatModel?.floor ?? widget.flatModel?.floor ?? '-';
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: AppColor.lightBlue,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColor.primary, width: 0.5),
+      ),
+      child: Row(
+        children: [
+          buildColumnTitleValue(title: "Building Number", value: building),
+          buildColumnTitleValue(title: "Wing", value: wing),
+          buildColumnTitleValue(title: "Floor", value: floor),
+        ],
       ),
     );
   }
