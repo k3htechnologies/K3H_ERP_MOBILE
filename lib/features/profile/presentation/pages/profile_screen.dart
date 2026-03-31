@@ -1401,11 +1401,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
         if (state.isLoading == true && state.shiftManagementList.isEmpty) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(24.0),
-              child: CircularProgressIndicator(),
-            ),
+          return Center(
+            child: loader(),
           );
         }
 
@@ -1421,167 +1418,157 @@ class _ProfileScreenState extends State<ProfileScreen>
             itemCount: state.shiftManagementList.length,
             itemBuilder: (context, index) {
               final shiftManagement = state.shiftManagementList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Shift Policy Details", style: AppTextStyle.ts14SB()),
-                    verticalSpacing(),
-                    Row(
+              return Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(16),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Employee Name",
-                            shiftManagement.employeeName,
-                          ),
+                        Text("Basic Details",style: AppTextStyle.ts14SB(),),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(title: "Shift Name", value: shiftManagement.shiftName),
+                            buildColumnTitleValue(title: "Shift Code", value: shiftManagement.shiftCode),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(16),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Time Details",style: AppTextStyle.ts14SB(),),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(title: "Shift Begin Time", value: shiftManagement.shiftBeginTime),
+                            buildColumnTitleValue(title: "Shift End Time", value: shiftManagement.shiftEndTime),
+                          ],
                         ),
-                        horizontalSpacing(width: 16),
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Department Name",
-                            shiftManagement.departmentName,
-                          ),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(title: "Shift Duration Time", value: shiftManagement.shiftDurationTime),
+                            buildColumnTitleValue(title: "Shift Work Duration Time", value: shiftManagement.shiftWorkDurationTime),
+                          ],
                         ),
                       ],
                     ),
-                    verticalSpacing(),
-                    Row(
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(16),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Shift Type",
-                            shiftManagement.shiftName,
-                          ),
+                        Text("Advance Setting",style: AppTextStyle.ts14SB(),),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(title:"First Half Up To", value: shiftManagement.firstHalfUpTo),
+                          ],
                         ),
-                        horizontalSpacing(width: 16),
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Shift Code",
-                            shiftManagement.shiftCode,
-                          ),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(title: "Calculate Absent if working hours less than", value: shiftManagement.absentWorkingHours),
+                            buildColumnTitleValue(title: "Calculate Half day working hours less than", value: shiftManagement.halfDayWorkingHours),
+                          ],
+                        ),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(title: "Mark Half Day if Intime After", value: shiftManagement.halfDayInTimeAfter),
+                            buildColumnTitleValue(title: "Mark Half Day if Outtime After", value: shiftManagement.halfDayOutTimeBefore),
+                          ],
                         ),
                       ],
                     ),
-                    verticalSpacing(),
-                    Row(
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(16),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Shift Begin Time",
-                            shiftManagement.shiftBeginTime,
-                          ),
+                        Text("Break Details",style: AppTextStyle.ts14SB(),),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(title: "Break Begin Time", value: shiftManagement.breakBeginTime),
+                            buildColumnTitleValue(title: "Break End Time", value: shiftManagement.breakEndTime),
+                          ],
                         ),
-                        horizontalSpacing(width: 16),
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Shift End Time",
-                            shiftManagement.shiftEndTime,
-                          ),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(title: "Break Duration Time", value: shiftManagement.breakDurationTime),
+                          ],
                         ),
                       ],
                     ),
-                    verticalSpacing(),
-                    Row(
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(16),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Shift Duration Time",
-                            shiftManagement.shiftDurationTime,
-                          ),
-                        ),
-                        horizontalSpacing(width: 16),
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Shift Work Duration",
-                            shiftManagement.shiftWorkDurationTime,
-                          ),
+                        Text("Time Allowed for Late Entry",style: AppTextStyle.ts14SB(),),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(title: "Grace Time In Minutes", value: shiftManagement.graceTime),
+                          ],
                         ),
                       ],
                     ),
-                    verticalSpacing(),
-                    Row(
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(16),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: _buildInfoItem(
-                            "First Half Up To",
-                            shiftManagement.firstHalfUpTo,
-                          ),
-                        ),
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Calculate Absent if working hours less than",
-                            shiftManagement.absentWorkingHours,
-                          ),
+                        Text("Remarks",style: AppTextStyle.ts14SB(),),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(title: "Remark", value: shiftManagement.remarks),
+                          ],
                         ),
                       ],
                     ),
-                    verticalSpacing(),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Mark Half Day if Outtime After",
-                            shiftManagement.halfDayOutTimeBefore,
-                          ),
-                        ),
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Mark Half Day if Intime After",
-                            shiftManagement.halfDayInTimeAfter,
-                          ),
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Break Begin Time",
-                            shiftManagement.breakBeginTime,
-                          ),
-                        ),
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Break End Time",
-                            shiftManagement.breakEndTime,
-                          ),
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Break Duration Time",
-                            shiftManagement.breakDurationTime,
-                          ),
-                        ),
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Grace Time In Minutes",
-                            shiftManagement.graceTime,
-                          ),
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Remark",
-                            shiftManagement.remarks,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               );
             },
           ),

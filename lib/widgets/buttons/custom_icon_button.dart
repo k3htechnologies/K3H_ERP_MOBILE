@@ -22,8 +22,8 @@ class CustomIconButton extends StatelessWidget {
     : this(
         key: key,
         onPressed: onPressed,
-        icon: const Icon(Icons.edit, size: 16, color: AppColor.grey),
-        backgroundColor: AppColor.lightGrey,
+        icon: const Icon(Icons.edit, size: 16, color: AppColor.black),
+        backgroundColor: AppColor.grey30,
         size: 16,
       );
 
