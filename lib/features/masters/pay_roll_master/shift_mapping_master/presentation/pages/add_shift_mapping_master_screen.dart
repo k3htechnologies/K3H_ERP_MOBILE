@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/data/model/shift_master_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/presentation/cubit/shift_master_mapping_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -9,6 +12,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -36,10 +40,16 @@ class _AddShiftMappingMasterScreenState
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
 
+  // EMPLOYEE REPOSITORY
+  final EmployeeMasterRepository _employeeMasterRepository =
+  serviceLocator<EmployeeMasterRepository>();
+
   // DROPDOWN SELECTIONS
   List<Map<String, dynamic>> _selectedShift = [];
-  List<Map<String, dynamic>> _selectedEmployee = [];
-  List<Map<String, dynamic>> _selectedDepartment = [];
+  late final ValueNotifier<List<Map<String, dynamic>>>
+  _selectedEmployeeNotifier;
+  late final ValueNotifier<List<Map<String, dynamic>>>
+  _selectedDepartmentNotifier;
 
   //EDIT MODE
   bool get _isEditMode => widget.shiftMappingModel != null;
@@ -56,6 +66,8 @@ class _AddShiftMappingMasterScreenState
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.addShiftMappingMaster] ??
         AuthorizationModel();
+    _selectedEmployeeNotifier = ValueNotifier([]);
+    _selectedDepartmentNotifier = ValueNotifier([]);
     _selectionTypeNotifier = ValueNotifier<SelectionType>(
       SelectionType.department,
     );
@@ -69,53 +81,79 @@ class _AddShiftMappingMasterScreenState
   void dispose() {
     super.dispose();
     _selectionTypeNotifier.dispose();
+    _selectedEmployeeNotifier.dispose();
+    _selectedDepartmentNotifier.dispose();
   }
 
   // POPULATE FORM FIELDS
   void _populateFormFields(ShiftMappingModel shiftMapping) {
-    _selectedEmployee = [
-      {
-        'zAttributesId': shiftMapping.employeeId,
-        'DisplayName': shiftMapping.employeeName,
-      },
-    ];
+    if (shiftMapping.employeeId.isNotEmpty) {
+      final employeeId = int.parse(shiftMapping.employeeId);
+
+      _selectedEmployeeNotifier.value = [
+        {
+          'zAttributesId': employeeId,
+          'DisplayName': shiftMapping.employeeName,
+        },
+      ];
+
+      _fetchEmployeeDetailsForEdit(employeeId);
+
+      _selectionTypeNotifier.value = SelectionType.employee;
+    }
+
     _selectedShift = [
       {
         'zAttributesId': shiftMapping.shiftManagementMasterId,
         'DisplayName': shiftMapping.shiftName,
       },
     ];
-    _selectedDepartment = [
-      {
-        'zAttributesId': shiftMapping.departmentMasterId,
-        'DisplayName': shiftMapping.departmentName,
-      },
-    ];
+
+    if (shiftMapping.departmentMasterId.isNotEmpty) {
+      _selectedDepartmentNotifier.value = [
+        {
+          'zAttributesId': shiftMapping.departmentMasterId,
+          'DisplayName': shiftMapping.departmentName,
+        },
+      ];
+
+      if (shiftMapping.employeeId.isEmpty) {
+        _selectionTypeNotifier.value = SelectionType.department;
+      }
+    }
   }
 
-  // SUBMIT FORM
+  // FETCH EMPLOYEE
+  Future<void> _fetchEmployeeDetailsForEdit(int employeeId) async {
+    final result = await _employeeMasterRepository.getEmployeeMasterList(
+      pageNumber: 1,
+      pageSize: 1,
+      queryParams: {'EmployeeId': employeeId},
+    );
+    result.fold((_) {}, (response) {
+      final employees = response['data'] as List<UserModel>? ?? [];
+      if (employees.isEmpty) return;
+      final employee = employees.first;
+      if (!mounted) return;
+      _selectedEmployeeNotifier.value = [
+        {
+          'zAttributesId': employee.employeeId,
+          'DisplayName': employee.fullName,
+          'employeeCode': employee.employeeCode,
+          'department': employee.department,
+          'designation': employee.designation,
+          'branch': employee.branch,
+          'reportingPerson': employee.reportPersonName,
+          'emailId': employee.emailId,
+          'personalMobileNumber': employee.personalMobileNumber,
+        },
+      ];
+    });
+  }
+
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
-    }
-
-    final selectionType = _selectionTypeNotifier.value;
-
-    String employeeId = "";
-    String departmentId = "";
-
-    if (selectionType == SelectionType.employee) {
-      if (_selectedEmployee.isEmpty) {
-        showErrorMessage(context, 'Error', 'Please select an employee');
-        return;
-      }
-      employeeId = _selectedEmployee.first['zAttributesId'].toString();
-    } else {
-      if (_selectedDepartment.isEmpty) {
-        showErrorMessage(context, 'Error', 'Please select department');
-        return;
-      }
-      departmentId = _selectedDepartment.first['zAttributesId'].toString();
     }
 
     if (_isEditMode && widget.shiftMappingModel != null) {
@@ -126,15 +164,31 @@ class _AddShiftMappingMasterScreenState
         shiftMappingMasterId:
             widget.shiftMappingModel!.shiftManagementMasterMappingId,
         shiftMasterId: _selectedShift.first['zAttributesId'] as int,
-        employeeId: employeeId,
-        departmentMasterId: departmentId,
+        employeeId:
+            _selectedEmployeeNotifier.value.isEmpty
+                ? null
+                : _selectedEmployeeNotifier.value.first['zAttributesId']
+                    .toString(),
+        departmentMasterId:
+            _selectedDepartmentNotifier.value.isEmpty
+                ? null
+                : _selectedDepartmentNotifier.value.first['zAttributesId']
+                    .toString(),
       );
     } else {
       _shiftMappingMasterCubit.addShiftMapping(
         context: context,
-        employeeId: employeeId,
+        employeeId:
+            _selectedEmployeeNotifier.value.isEmpty
+                ? null
+                : _selectedEmployeeNotifier.value.first['zAttributesId']
+                    .toString(),
         shiftMasterId: _selectedShift.first['zAttributesId'] as int,
-        departmentMasterId: departmentId,
+        departmentMasterId:
+            _selectedDepartmentNotifier.value.isEmpty
+                ? null
+                : _selectedDepartmentNotifier.value.first['zAttributesId']
+                    .toString(),
       );
     }
   }
@@ -202,8 +256,8 @@ class _AddShiftMappingMasterScreenState
                                       onChanged: (value) {
                                         _selectionTypeNotifier.value = value!;
 
-                                        _selectedEmployee.clear();
-                                        _selectedDepartment.clear();
+                                        _selectedEmployeeNotifier.value = [];
+                                        _selectedDepartmentNotifier.value = [];
 
                                         _formKey.currentState?.reset();
                                       },
@@ -223,9 +277,9 @@ class _AddShiftMappingMasterScreenState
                                       // ignore: deprecated_member_use
                                       onChanged: (value) {
                                         _selectionTypeNotifier.value = value!;
-                                        _selectedDepartment.clear();
 
-                                        _selectedEmployee.clear();
+                                        _selectedEmployeeNotifier.value = [];
+                                        _selectedDepartmentNotifier.value = [];
 
                                         _formKey.currentState?.reset();
                                       },
@@ -248,85 +302,142 @@ class _AddShiftMappingMasterScreenState
                       valueListenable: _selectionTypeNotifier,
                       builder: (context, selectionType, _) {
                         if (selectionType == SelectionType.employee) {
-                          return CustomMultipleSelectPopup(
-                            title: 'Employee',
-                            isRequired: true,
-                            isMultiSelect: false,
-                            initialValue: _selectedEmployee,
-                            dataList: [],
-                            onSelected: (value) {
-                              _selectedEmployee = value;
-                            },
-                            dataFetchCallBack:
-                                _shiftMappingMasterCubit.fetchEmployees,
-                            validator: (value) {
-                              if (selectionType == SelectionType.employee &&
-                                  (value == null || value.isEmpty)) {
-                                return "Employee is required";
-                              }
-                              return null;
+                          return ValueListenableBuilder<
+                            List<Map<String, dynamic>>
+                          >(
+                            valueListenable: _selectedEmployeeNotifier,
+                            builder: (context, selectedEmployee, _) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CustomMultipleSelectPopup(
+                                    title: 'Employee',
+                                    isRequired: true,
+                                    isMultiSelect: false,
+                                    initialValue: selectedEmployee,
+                                    dataList: [],
+                                    onSelected: (value) {
+                                      _selectedEmployeeNotifier.value = value;
+                                    },
+                                    dataFetchCallBack:
+                                        _shiftMappingMasterCubit.fetchEmployees,
+                                  ),
+
+                                  if (selectedEmployee.isNotEmpty) ...[
+                                    Container(
+                                      margin: const EdgeInsets.only(top: 10),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: AppColor.lightBlue,
+                                        ),
+                                      ),
+                                      padding: const EdgeInsets.all(16),
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "Department",
+                                                value:
+                                                    selectedEmployee
+                                                        .first["department"] ??
+                                                    '',
+                                              ),
+                                              buildColumnTitleValue(
+                                                title: "Designation",
+                                                value:
+                                                    selectedEmployee
+                                                        .first["designation"] ??
+                                                    '',
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "Branch",
+                                                value:
+                                                    selectedEmployee
+                                                        .first["branch"] ??
+                                                    '',
+                                              ),
+                                              buildColumnTitleValue(
+                                                title: "Reporting Person",
+                                                value:
+                                                    selectedEmployee
+                                                        .first["reportingPerson"] ??
+                                                    '',
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              );
                             },
                           );
                         } else {
-                          return CustomMultipleSelectPopup(
-                            title: 'Department',
-                            isRequired: true,
-                            isMultiSelect: false,
-                            initialValue: _selectedDepartment,
-                            dataList: [],
-                            onSelected: (value) {
-                              _selectedDepartment = value;
-                            },
-                            dataFetchCallBack:
-                                _shiftMappingMasterCubit.fetchDepartment,
-                            validator: (value) {
-                              if (selectionType == SelectionType.department &&
-                                  (value == null || value.isEmpty)) {
-                                return "Department is required";
-                              }
-                              return null;
+                          return ValueListenableBuilder<
+                            List<Map<String, dynamic>>
+                          >(
+                            valueListenable: _selectedDepartmentNotifier,
+                            builder: (context, selectedDepartment, _) {
+                              return Column(
+                                children: [
+                                  CustomMultipleSelectPopup(
+                                    title: 'Department',
+                                    isRequired: true,
+                                    isMultiSelect: false,
+                                    initialValue: selectedDepartment,
+                                    dataList: [],
+                                    onSelected: (value) {
+                                      _selectedDepartmentNotifier.value = value;
+                                    },
+                                    dataFetchCallBack:
+                                        _shiftMappingMasterCubit
+                                            .fetchDepartment,
+                                  ),
+
+                                  if (selectedDepartment.isNotEmpty) ...[
+                                    Container(
+                                      margin: const EdgeInsets.only(top: 10),
+                                      decoration: BoxDecoration(
+                                        color: AppColor.lightBlue,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: AppColor.primary,
+                                          width: .5,
+                                        ),
+                                      ),
+                                      padding: const EdgeInsets.all(12),
+                                      child: RichText(
+                                        text: TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text:
+                                                  "This shift will be applied to ",
+                                              style: AppTextStyle.ts12R(),
+                                            ),
+                                            TextSpan(
+                                              text:
+                                                  "all employees in this department.",
+                                              style: AppTextStyle.ts12SB(),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              );
                             },
                           );
                         }
                       },
                     ),
-
-                    // CustomMultipleSelectPopup(
-                    //   title: 'Employee',
-                    //   isRequired: true,
-                    //   isMultiSelect: false,
-                    //   initialValue: _selectedEmployee,
-                    //   dataList: [],
-                    //   onSelected: (value) {
-                    //     _selectedEmployee = value;
-                    //   },
-                    //   dataFetchCallBack:
-                    //       _shiftMappingMasterCubit.fetchEmployees,
-                    //   validator: (value) {
-                    //     if (value == null || value.isEmpty) {
-                    //       return "Employee is required";
-                    //     }
-                    //     return null;
-                    //   },
-                    // ),
-                    // CustomMultipleSelectPopup(
-                    //   title: 'Department',
-                    //   isRequired: true,
-                    //   isMultiSelect: false,
-                    //   initialValue: _selectedDepartment,
-                    //   dataList: [],
-                    //   onSelected: (value) {
-                    //     _selectedDepartment = value;
-                    //   },
-                    //   dataFetchCallBack:
-                    //       _shiftMappingMasterCubit.fetchDepartment,
-                    //   validator: (value) {
-                    //     if (value == null || value.isEmpty) {
-                    //       return "Department is required";
-                    //     }
-                    //     return null;
-                    //   },
-                    // ),
                   ],
                 ),
               ),

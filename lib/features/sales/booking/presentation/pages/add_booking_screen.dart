@@ -1135,6 +1135,16 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         builder: (context, state) {
           return Column(
             children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: CustomTextField(
+                  readOnly: true,
+                  textController: TextEditingController(
+                    text:_project.projectName,
+                  ),
+                  hint: 'Select Project',
+                ),
+              ),
               ChipStyleTabBar(
                 controller: _tabController,
                 tabs: const [

@@ -94,9 +94,9 @@ class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {
   // ADD SHIFT MAPPING
   Future addShiftMapping({
     required BuildContext context,
-    required String employeeId,
+    required String? employeeId,
     required int shiftMasterId,
-    required String departmentMasterId,
+    required String? departmentMasterId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var body = {
@@ -141,9 +141,9 @@ class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {
     required BuildContext context,
     required String uniqueKey,
     required int shiftMappingMasterId,
-    required String employeeId,
+    required String? employeeId,
     required int shiftMasterId,
-    required String departmentMasterId,
+    required String? departmentMasterId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var body = {
@@ -280,6 +280,12 @@ class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {
                 return {
                   "zAttributesId": employee.employeeId,
                   "DisplayName": employee.fullName,
+                  "department": employee.department,
+                  "designation": employee.designation,
+                  "branch": employee.branch,
+                  "reportingPerson": employee.reportPersonName,
+                  "emailId": employee.emailId,
+                  "personalMobileNumber": employee.personalMobileNumber,
                 };
               }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,

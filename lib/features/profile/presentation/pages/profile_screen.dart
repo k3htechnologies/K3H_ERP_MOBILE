@@ -1000,11 +1000,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
         if (state.isLoading == true && state.employeeMasterList.isEmpty) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(24.0),
-              child: CircularProgressIndicator(),
-            ),
+          return Center(
+            child: loader()
           );
         }
 
@@ -1211,10 +1208,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   ) {
     if (isLoadingProjects) {
       return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: CircularProgressIndicator(),
-        ),
+        child: loader()
       );
     }
 
@@ -1314,11 +1308,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
         if (state.isLoading == true && state.assetMappingList.isEmpty) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(24.0),
-              child: CircularProgressIndicator(),
-            ),
+          return  Center(
+            child: loader()
           );
         }
 
@@ -1582,11 +1573,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
         if (state.isLoading == true && state.weekOffMappingList.isEmpty) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(24.0),
-              child: CircularProgressIndicator(),
-            ),
+          return Center(
+            child: loader()
           );
         }
 
@@ -1737,11 +1725,8 @@ class _ProfileScreenState extends State<ProfileScreen>
               builder: (context, state) {
                 if (state.isLoading == true &&
                     state.employeeEducationDetailsList.isEmpty) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24.0),
-                      child: CircularProgressIndicator(),
-                    ),
+                  return  Center(
+                    child: loader()
                   );
                 }
 
@@ -1849,11 +1834,8 @@ class _ProfileScreenState extends State<ProfileScreen>
               builder: (context, state) {
                 if (state.isLoading == true &&
                     state.employeeExperienceDetailsList.isEmpty) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24.0),
-                      child: CircularProgressIndicator(),
-                    ),
+                  return Center(
+                    child: loader()
                   );
                 }
 
@@ -1941,11 +1923,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (_, state) {
         if (state.isLoading == true && state.branchAssociationList.isEmpty) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(24.0),
-              child: CircularProgressIndicator(),
-            ),
+          return Center(
+            child: loader()
           );
         }
 

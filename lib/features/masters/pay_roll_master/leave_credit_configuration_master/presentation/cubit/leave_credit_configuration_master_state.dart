@@ -6,9 +6,7 @@ class LeaveCreditConfigurationMasterState extends BaseState {
   final int totalNumberOfRecord;
   final int currentPage;
   final List<DepartmentModel> departmentList;
-  final int departmentTotalCount;
   final List<DesignationMasterModel> designationList;
-  final int designationTotalCount;
   final List<LeaveTypeModel> leaveTypeList;
   final int leaveTotalCount;
   final String searchText;
@@ -26,9 +24,7 @@ class LeaveCreditConfigurationMasterState extends BaseState {
     required this.totalNumberOfRecord,
     required this.currentPage,
     required this.departmentList,
-    required this.departmentTotalCount,
     required this.designationList,
-    required this.designationTotalCount,
     required this.leaveTypeList,
     required this.leaveTotalCount,
     required this.searchText,
@@ -46,9 +42,7 @@ class LeaveCreditConfigurationMasterState extends BaseState {
         totalNumberOfRecord: 0,
         currentPage: 1,
         departmentList: [],
-        departmentTotalCount: 0,
         designationList: [],
-        designationTotalCount: 0,
         leaveTypeList: [],
         leaveTotalCount: 0,
         currentSortColumn: "Created Date",
@@ -66,9 +60,7 @@ class LeaveCreditConfigurationMasterState extends BaseState {
     int? totalNumberOfRecord,
     int? currentPage,
     List<DepartmentModel>? departmentList,
-    int? departmentTotalCount,
     List<DesignationMasterModel>? designationList,
-    int? designationTotalCount,
     List<LeaveTypeModel>? leaveTypeList,
     int? leaveTotalCount,
     String? searchText,
@@ -87,10 +79,7 @@ class LeaveCreditConfigurationMasterState extends BaseState {
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
       departmentList: departmentList ?? this.departmentList,
-      departmentTotalCount: departmentTotalCount ?? this.departmentTotalCount,
       designationList: designationList ?? this.designationList,
-      designationTotalCount:
-          designationTotalCount ?? this.designationTotalCount,
       leaveTypeList: leaveTypeList ?? this.leaveTypeList,
       leaveTotalCount: leaveTotalCount ?? this.leaveTotalCount,
       searchText: searchText ?? this.searchText,
@@ -119,9 +108,7 @@ class LeaveCreditConfigurationMasterState extends BaseState {
     totalNumberOfRecord,
     currentPage,
     departmentList,
-    departmentTotalCount,
     designationList,
-    designationTotalCount,
     leaveTypeList,
     leaveTotalCount,
     searchText,

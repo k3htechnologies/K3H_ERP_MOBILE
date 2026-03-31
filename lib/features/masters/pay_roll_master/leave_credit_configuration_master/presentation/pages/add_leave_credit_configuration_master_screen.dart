@@ -4,6 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
+import 'package:k3h_erp_app/features/masters/department_master/data/repository/department_master.repository.dart';
+import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
+import 'package:k3h_erp_app/features/masters/designation_master/data/repository/designation_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/data/model/leave_credit_configuration_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/presentation/cubit/leave_credit_configuration_master_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -39,6 +44,15 @@ class _AddLeaveCreditConfigurationMasterScreenState
     extends State<AddLeaveCreditConfigurationMasterScreen> {
   // CUBIT
   late LeaveCreditConfigurationMasterCubit _leaveCreditConfigurationMasterCubit;
+
+  // DEPARTMENT REPOSITORY
+  final DepartmentMasterRepository _departmentMasterRepository =
+  serviceLocator<DepartmentMasterRepository>();
+
+  // DESECTINATION REPOSITORY
+  final DesignationMasterRepository _designationMasterRepository =
+  serviceLocator<DesignationMasterRepository>();
+
 
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -133,136 +147,71 @@ class _AddLeaveCreditConfigurationMasterScreenState
 
   // FETCH DEPARTMENT
   Future<Map<String, dynamic>> _fetchDepartment(
-    int pageNumber, {
-    String? value,
-  }) async {
-    final totalCount =
-        _leaveCreditConfigurationMasterCubit.state.departmentTotalCount;
-    final pageSize = 15;
+      int pageNumber, {
+        String? value,
+      }) async {
+    final result = await _departmentMasterRepository.getDepartmentList(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      queryParams:
+      value != null && value.isNotEmpty ? {"DepartmentName": value} : {},
+    );
 
-    // SEARCH MODE
-    if (value != null && value.isNotEmpty) {
-      final departmentList =
-          _leaveCreditConfigurationMasterCubit.state.departmentList;
-      final filteredDepartments =
-          departmentList
-              .where(
-                (dept) => dept.departmentName.toLowerCase().contains(
-                  value.toLowerCase(),
-                ),
-              )
-              .toList();
+    return result.fold(
+          (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+          (response) {
+        final departments = response['data'] as List<DepartmentModel>;
 
-      final Map<int, Map<String, dynamic>> uniqueFiltered = {};
-
-      for (final dept in filteredDepartments) {
-        uniqueFiltered[dept.departmentMasterId] = {
-          "zAttributesId": dept.departmentMasterId,
-          "DisplayName": dept.departmentName,
+        return {
+          "itemList":
+          departments.map((department) {
+            return {
+              "zAttributesId": department.departmentMasterId,
+              "DisplayName": department.departmentName,
+            };
+          }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
-      }
-
-      return {
-        "itemList": uniqueFiltered.values.toList(),
-        "totalNumberOfRecord": uniqueFiltered.length,
-      };
-    }
-
-    final currentLoadedCount =
-        _leaveCreditConfigurationMasterCubit.state.departmentList.length;
-
-    if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
-      await _leaveCreditConfigurationMasterCubit.getDepartmentList(
-        context,
-        pageNumber,
-        pageSize,
-      );
-    }
-
-    final departmentList =
-        _leaveCreditConfigurationMasterCubit.state.departmentList;
-
-    final Map<int, Map<String, dynamic>> uniqueDepartments = {};
-
-    for (final dept in departmentList) {
-      uniqueDepartments[dept.departmentMasterId] = {
-        "zAttributesId": dept.departmentMasterId,
-        "DisplayName": dept.departmentName,
-      };
-    }
-
-    return {
-      "itemList": uniqueDepartments.values.toList(),
-      "totalNumberOfRecord":
-          totalCount > 0 ? totalCount : uniqueDepartments.length,
-    };
+      },
+    );
   }
+
 
   // FETCH DESIGNATION
   Future<Map<String, dynamic>> _fetchDesignation(
-    int pageNumber, {
-    String? value,
-  }) async {
-    final totalCount =
-        _leaveCreditConfigurationMasterCubit.state.designationTotalCount;
-    final pageSize = 15;
+      int pageNumber, {
+        String? value,
+      }) async {
+    final result = await _designationMasterRepository.getDesignationList(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      queryParams:
+      value != null && value.isNotEmpty ? {"DesignationName": value} : {},
+    );
 
-    // SEARCH MODE
-    if (value != null && value.isNotEmpty) {
-      final designationList =
-          _leaveCreditConfigurationMasterCubit.state.designationList;
-      final filteredDesignation =
-          designationList
-              .where(
-                (dept) => dept.designationName.toLowerCase().contains(
-                  value.toLowerCase(),
-                ),
-              )
-              .toList();
+    return result.fold(
+          (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+          (response) {
+        final designations = response['data'] as List<DesignationMasterModel>;
 
-      final Map<int, Map<String, dynamic>> uniqueFiltered = {};
-
-      for (final dept in filteredDesignation) {
-        uniqueFiltered[dept.designationMasterId] = {
-          "zAttributesId": dept.designationMasterId,
-          "DisplayName": dept.designationName,
+        return {
+          "itemList":
+          designations.map((designation) {
+            return {
+              "zAttributesId": designation.designationMasterId,
+              "DisplayName": designation.designationName,
+            };
+          }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
-      }
-
-      return {
-        "itemList": uniqueFiltered.values.toList(),
-        "totalNumberOfRecord": uniqueFiltered.length,
-      };
-    }
-
-    final currentLoadedCount =
-        _leaveCreditConfigurationMasterCubit.state.designationList.length;
-
-    if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
-      await _leaveCreditConfigurationMasterCubit.getDesignationList(
-        context,
-        pageNumber,
-        pageSize,
-      );
-    }
-
-    final designationList =
-        _leaveCreditConfigurationMasterCubit.state.designationList;
-
-    final Map<int, Map<String, dynamic>> uniqueDesignation = {};
-
-    for (final dept in designationList) {
-      uniqueDesignation[dept.designationMasterId] = {
-        "zAttributesId": dept.designationMasterId,
-        "DisplayName": dept.designationName,
-      };
-    }
-
-    return {
-      "itemList": uniqueDesignation.values.toList(),
-      "totalNumberOfRecord":
-          totalCount > 0 ? totalCount : uniqueDesignation.length,
-    };
+      },
+    );
   }
 
   // NAVIGATE TO ADD LEAVE BALANCE TYPE SCREEN
@@ -422,6 +371,7 @@ class _AddLeaveCreditConfigurationMasterScreenState
                           title: "Department",
                           hintText: "Select Department",
                           isRequired: true,
+                          isReadOnly: _isEditMode,
                           isMultiSelect: false,
                           initialValue: selectedDept,
                           dataFetchCallBack: _fetchDepartment,
@@ -444,6 +394,7 @@ class _AddLeaveCreditConfigurationMasterScreenState
                           title: "Designation",
                           hintText: "Select Designation",
                           isMultiSelect: true,
+                          isReadOnly: _isEditMode,
                           initialValue: selectedDes,
                           dataFetchCallBack: _fetchDesignation,
                           onSelected: (value) {
@@ -545,8 +496,8 @@ class _AddLeaveCreditConfigurationMasterScreenState
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
-          height: 40,
-          padding: EdgeInsets.symmetric(horizontal: 16),
+          height: 70,
+          padding: EdgeInsets.all(16),
           child: CustomButton(
             leading: Icon(
               _isEditMode ? Icons.edit : Icons.add,

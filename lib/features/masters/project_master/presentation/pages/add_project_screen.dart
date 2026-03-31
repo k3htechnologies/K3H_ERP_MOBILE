@@ -105,6 +105,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     {"zAttributesId": -1, "DisplayName": "Select Project Sub Scheme"},
     {"zAttributesId": 1, "DisplayName": "33 (20) B"},
     {"zAttributesId": 2, "DisplayName": "33 (19)"},
+    {"zAttributesId": 3, "DisplayName": "33 (7)"},
     {"zAttributesId": 3, "DisplayName": "33 (7) B"},
     {"zAttributesId": 4, "DisplayName": "33 (7) A"},
     {"zAttributesId": 5, "DisplayName": "33 (9)"},
