@@ -14,7 +14,9 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/custom_month_year_picker.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class TargetScreen extends StatefulWidget {
@@ -53,6 +55,12 @@ class _TargetScreenState extends State<TargetScreen>
     null,
   );
 
+  // MONTH SELECTION
+  final ValueNotifier<DateTime?> _monthNotifier = ValueNotifier<DateTime?>(
+    null,
+  );
+
+
   // DEBOUNCE TIMER
   Timer? _sourcingTargetDebounce;
   Timer? _closingTargetDebounce;
@@ -90,6 +98,7 @@ class _TargetScreenState extends State<TargetScreen>
     _tabController.dispose();
     _sourcingTargetScrollController.dispose();
     _closingTargetScrollController.dispose();
+    _monthNotifier.dispose();
     super.dispose();
   }
 
@@ -113,19 +122,24 @@ class _TargetScreenState extends State<TargetScreen>
     _endDateNotifier.value = null;
 
     _targetCubit.onTabChanged(index, context);
+    _monthNotifier.value = null;
     if (index == 0) {
       _targetCubit.getSalesTargetSourcingList(
         context: context,
         pageNumber: 1,
         projectId: getProject().projectId,
-        queryParams: {},
+        queryParams: {
+          "MonthYear": null,
+        },
       );
     } else {
       _targetCubit.getSalesTargetClosingList(
         context: context,
         pageNumber: 1,
         projectId: getProject().projectId,
-        queryParams: {},
+        queryParams: {
+          "MonthYear": null,
+        },
       );
     }
     Future.delayed(const Duration(milliseconds: 300), () {
@@ -308,6 +322,36 @@ class _TargetScreenState extends State<TargetScreen>
     );
   }
 
+  void _callMonthFilterAPI() {
+    final formatted = _getFormattedMonth();
+
+    if (_tabController.index == 0) {
+      _targetCubit.getSalesTargetSourcingList(
+        context: context,
+        pageNumber: 1,
+        projectId: getProject().projectId,
+        queryParams: {
+          "MonthYear": formatted,
+        },
+      );
+    } else {
+      _targetCubit.getSalesTargetClosingList(
+        context: context,
+        pageNumber: 1,
+        projectId: getProject().projectId,
+        queryParams: {
+          "MonthYear": formatted,
+        },
+      );
+    }
+  }
+
+  String? _getFormattedMonth() {
+    final m = _monthNotifier.value;
+    if (m == null) return null;
+    return "${m.month.toString().padLeft(2, '0')}-${m.year}";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -325,10 +369,28 @@ class _TargetScreenState extends State<TargetScreen>
           );
         },
         onProjectChangeCallback: (value) {
-          _targetCubit.getSalesTargetSourcingList(
-            context: context,
-            projectId: getProject().projectId,
-          );
+          _monthNotifier.value = null;
+
+          _searchC.clear();
+
+          _startDateNotifier.value = null;
+          _endDateNotifier.value = null;
+
+          if (_tabController.index == 0) {
+            _targetCubit.getSalesTargetSourcingList(
+              context: context,
+              projectId: getProject().projectId,
+              pageNumber: 1,
+              queryParams: {},
+            );
+          } else {
+            _targetCubit.getSalesTargetClosingList(
+              context: context,
+              projectId: getProject().projectId,
+              pageNumber: 1,
+              queryParams: {},
+            );
+          }
         },
         isFilterOn: true,
         onFilterTap: () {
@@ -346,43 +408,31 @@ class _TargetScreenState extends State<TargetScreen>
       ),
       body: Column(
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: IntrinsicWidth(
-              child: Container(
-                height: 35,
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: AppColor.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: AppColor.grey.withValues(alpha: 0.2),
-                  ),
-                ),
-                child: TabBar(
-                  controller: _tabController,
-                  isScrollable: true,
-                  tabAlignment: TabAlignment.start,
-                  labelColor: AppColor.primary,
-                  unselectedLabelColor: AppColor.grey,
-                  indicator: BoxDecoration(
-                    color: AppColor.lightBlue,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  dividerColor: Colors.transparent,
-                  labelStyle: AppTextStyle.ts14M(),
-                  unselectedLabelStyle: AppTextStyle.ts14M(),
-                  labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  padding: EdgeInsets.zero,
-                  tabs: const [
-                    Tab(text: 'Sourcing Target'),
-                    Tab(text: 'Closing Target'),
-                  ],
-                ),
-              ),
+
+          ChipStyleTabBar(controller: _tabController, tabs: ["Sourcing Target","Closing Target"]),
+
+          verticalSpacing(),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: ValueListenableBuilder<DateTime?>(
+              valueListenable: _monthNotifier,
+              builder: (context, value, _) {
+                return CustomMonthYearPicker(
+                  key: ValueKey(value),
+                  title: "Select Month",
+                  initialDate: value,
+                  isRequired: true,
+                  setValue: (val) {
+                    _monthNotifier.value = val;
+                    _callMonthFilterAPI();
+                  },
+                );
+              },
             ),
           ),
+
+
           Expanded(
             child: TabBarView(
               physics: NeverScrollableScrollPhysics(),

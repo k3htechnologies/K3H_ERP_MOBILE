@@ -103,7 +103,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
     _filterVillageC.text = state.filterByVillage;
 
     String? selectedDirection =
-    state.currentSortColumn == "CP Code"
+    state.currentSortColumn == "Full Name"
         ? state.currentSortDirection
         : null;
 
@@ -144,7 +144,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Sort By CP Code", style: AppTextStyle.ts14M()),
+                Text("Sort By Full Name", style: AppTextStyle.ts14M()),
                 verticalSpacing(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -230,7 +230,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
           companyName: _filterCompanyNameC.text.trim(),
           village: _filterVillageC.text.trim(),
           mobileNumber: _filterMobileNumberC.text.trim(),
-          sortColumn: selectedDirection != null ? "CP Code" : null,
+          sortColumn: selectedDirection != null ? "Full Name" : null,
           sortDirection: selectedDirection,
         );
       },
