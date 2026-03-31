@@ -1,5 +1,6 @@
 import UIKit
 import Flutter
+import Firebase
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -8,17 +9,10 @@ import Flutter
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
 
-    // This MUST come before the super call for many plugins
+    FirebaseApp.configure() 
+
     GeneratedPluginRegistrant.register(with: self)
 
-    let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
-
-    // Only create a window if the super call failed to do so
-    if self.window == nil {
-        self.window = UIWindow(frame: UIScreen.main.bounds)
-        self.window?.makeKeyAndVisible()
-    }
-
-    return result
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }

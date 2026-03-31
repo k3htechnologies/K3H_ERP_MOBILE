@@ -28,7 +28,7 @@ class DefaultFirebaseOptions {
 
   ///  iOS
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyATMi_WzfUnBfhb66_FR8c1Fg_zEwHyaCs',
+    apiKey: 'AIzaSyA9gEYjO2eZpO7MnHgOgBHxkqshqr7RMM8',
     appId: '1:782945913757:ios:7a99b21610350f2be37d74',
     messagingSenderId: '782945913757',
     projectId: 'hrr-erp-2',

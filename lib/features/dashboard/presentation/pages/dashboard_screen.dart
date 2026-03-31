@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart';
@@ -64,7 +65,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool isProcessing = false;
 
   final ValueNotifier<bool> isDayCompletedNotifier = ValueNotifier(false);
-
+  Timer? _routeTimer;
   @override
   void initState() {
     super.initState();
@@ -76,6 +77,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (userJson != null) {
       currentUser = UserModel.fromJson(jsonDecode(userJson));
     }
+    _routeTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      loadSavedRoute();
+    });
   }
 
   Future<void> initialise() async {
@@ -93,6 +97,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     dragPositionNotifier.dispose();
     workedDuration.dispose();
     _timer?.cancel();
+    _routeTimer?.cancel();
     super.dispose();
   }
 
@@ -163,6 +168,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       final address = await _getAddressFromGPS();
 
+      await storage.setString(
+        "route_points",
+        jsonEncode([
+          {"lat": pos.latitude, "lng": pos.longitude},
+        ]),
+      );
+      await FlutterBackgroundService().startService();
+
+      // ✅ START FOREGROUND TRACKING
+      _startLocationTracking();
       startLatLng = LatLng(pos.latitude, pos.longitude);
       routePoints.clear();
       routePoints.add(startLatLng!);
@@ -280,7 +295,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         accuracy: LocationAccuracy.bestForNavigation,
         distanceFilter: 5,
       ),
-    ).listen((Position position) {
+    ).listen((Position position) async {
       final currentPoint = LatLng(position.latitude, position.longitude);
       if (routePoints.isEmpty) {
         if (startLatLng != null) {
@@ -313,6 +328,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       routePoints.add(currentPoint);
       totalDistance += segmentDistance;
       lastPoint = currentPoint;
+
+      List points = jsonDecode(storage.getString("route_points") ?? "[]");
+
+      points.add({"lat": position.latitude, "lng": position.longitude});
+
+      await storage.setString("route_points", jsonEncode(points));
     }, onError: (e) {});
   }
 
@@ -330,6 +351,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final Uri launchUri = Uri(scheme: 'tel', path: phone);
     if (await canLaunchUrl(launchUri)) {
       await launchUrl(launchUri);
+    }
+  }
+
+  Future<void> loadSavedRoute() async {
+    final data = storage.getString("route_points");
+
+    if (data != null && data.isNotEmpty) {
+      final List decoded = jsonDecode(data);
+
+      final newPoints = decoded.map((e) => LatLng(e["lat"], e["lng"])).toList();
+
+      if (!mounted) return;
+
+      setState(() {
+        routePoints = newPoints;
+
+        if (routePoints.isNotEmpty) {
+          startLatLng = routePoints.first;
+          lastPoint = routePoints.last;
+        }
+      });
     }
   }
 

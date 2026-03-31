@@ -1,16 +1,20 @@
 import 'dart:convert';
 
 import 'dart:io';
+import 'dart:ui';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/core/services/notification_service.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
+import 'package:k3h_erp_app/firebase_options.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/theme/theme.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -26,28 +30,36 @@ final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  SchedulerBinding.instance.addPostFrameCallback((_) {
-    print("FIRST FRAME RENDERED");
-  });
-
-  print("STEP 1 - before Firebase");
-
-  await Firebase.initializeApp();
-
-  print("STEP 2 - after Firebase");
-
-  // INITIAL SETUP
-  await initialSetup();
-
-  print("STEP 3 - after initialSetup");
-
-  // LOCK ORIENTATION
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // // LOCK ORIENTATION
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
   // RUN APP
   runApp(const MyApp());
+}
+
+@pragma('vm:entry-point')
+void onStart(ServiceInstance service) async {
+  DartPluginRegistrant.ensureInitialized();
+
+  await LocalStorageManager().init();
+
+  Geolocator.getPositionStream(
+    locationSettings: const LocationSettings(
+      accuracy: LocationAccuracy.bestForNavigation,
+      distanceFilter: 5,
+    ),
+  ).listen((position) async {
+    final storage = LocalStorageManager();
+
+    List points = jsonDecode(storage.getString("route_points") ?? "[]");
+
+    points.add({"lat": position.latitude, "lng": position.longitude});
+
+    await storage.setString("route_points", jsonEncode(points));
+  });
 }
 
 Future<void> requestPhonePermission() async {
@@ -71,6 +83,22 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
+// Future initialSetup() async {
+//   print("STEP A");
+
+//   await LocalStorageManager().init();
+//   print("STEP B");
+
+//   initDependencies();
+//   print("STEP C");
+
+//   final notificationService = NotificationService();
+//   await notificationService.setupFlutterNotifications();
+//   print("STEP D");
+
+//   await notificationService.initNotifications();
+//   print("STEP E");
+// }
 Future initialSetup() async {
   // LOCAL STORAGE
   await LocalStorageManager().init();
@@ -78,10 +106,10 @@ Future initialSetup() async {
   initDependencies();
   HttpOverrides.global = MyHttpOverrides();
 
-  final notificationService = NotificationService();
-  await notificationService
-      .setupFlutterNotifications(); // The local notifications setup
-  await notificationService.initNotifications();
+  Future.microtask(() async {
+    await NotificationService().setupFlutterNotifications();
+    await NotificationService().initNotifications();
+  });
   final info = await PackageInfo.fromPlatform();
   final currentVersion = info.version;
 
@@ -103,17 +131,54 @@ Future initialSetup() async {
   // handleLocationPermission();
 
   // requestPhonePermission();
-
+  SchedulerBinding.instance.addPostFrameCallback((_) {});
   // ROUTING
   GoRouter.optionURLReflectsImperativeAPIs = true;
 }
 
-class MyApp extends StatelessWidget {
+Future<void> requestLocationPermission() async {
+  var status = await Permission.location.request();
+
+  if (status.isGranted) {
+    await Permission.locationAlways.request();
+  }
+}
+
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool isReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    try {
+      await initialSetup(); // ✅ now safe
+      setState(() => isReady = true);
+    } catch (e, s) {
+      print("INIT ERROR: $e");
+      print(s);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    print("MyApp build called");
+    // ✅ SHOW LOADER FIRST
+    if (!isReady) {
+      return const MaterialApp(
+        home: Scaffold(body: Center(child: CircularProgressIndicator())),
+      );
+    }
+    print("the app started");
     return MultiBlocProvider(
       providers: [
         // LOGIN CUBIT

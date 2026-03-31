@@ -290,6 +290,11 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
             votingIdURL: widget.applicant?.votingIdURL ?? '',
             gstNumber: _gstC.text.trim(),
             gstNumberURL: widget.applicant?.gstNumberURL ?? '',
+            cancelledChequeUrl: widget.applicant?.cancelledChequeUrl ?? '',
+            poaurl: widget.applicant?.photoURL ?? '',
+            incomeForm16Itrurl: widget.applicant?.incomeForm16Itrurl ?? '',
+            nreNroBankDetailsUrl: widget.applicant?.nreNroBankDetailsUrl ?? '',
+            nomineeFormUrl: widget.applicant?.nomineeFormUrl ?? '',
             bankListMasterId: bankListMasterId,
             bankName: bankName,
             accountNumber: _accountNumberC.text.trim(),
@@ -710,10 +715,15 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
           padding: const EdgeInsets.all(16),
           color: AppColor.white,
           child: CustomButton(
-            leading: Icon(_isEditingApplicantType
-                ? Icons.edit
-                : Icons.add,size: 18,color: AppColor.white,),
-              text: _isEditingApplicantType ? "Update Applicant" : "Add Applicant", onPressed: _save),
+            leading: Icon(
+              _isEditingApplicantType ? Icons.edit : Icons.add,
+              size: 18,
+              color: AppColor.white,
+            ),
+            text:
+                _isEditingApplicantType ? "Update Applicant" : "Add Applicant",
+            onPressed: _save,
+          ),
         ),
       ),
     );
