@@ -37,13 +37,17 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // TEXT EDITING CONTROLLER
-  late TextEditingController _chargeNameC, _valueC, _gstPercentageC, _gstValueC,_totalValuePlusGst;
+  late TextEditingController _chargeNameC,
+      _valueC,
+      _gstPercentageC,
+      _gstValueC,
+      _totalValuePlusGst;
 
   // SELECTED VALUES
   Map<String, dynamic>? selectedCalculatedOn;
 
   List<Map<String, dynamic>> calculatedOnList = [
-    {"zAttributesId": 1, "DisplayName": "Pre Sq Ft"},
+    {"zAttributesId": 1, "DisplayName": "Per Sq Ft"},
     {"zAttributesId": 2, "DisplayName": "Lumpsum"},
   ];
 
@@ -86,7 +90,7 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
     final gst = (value * gstPercent) / 100;
     _gstValueNotifier.value = gst;
     _gstValueC.text = gst.toStringAsFixed(2);
-    _totalValuePlusGst.text = (gst+value).toStringAsFixed(2);
+    _totalValuePlusGst.text = (gst + value).toStringAsFixed(2);
   }
 
   // INITIALIZE TEXT CONTROLLER
@@ -105,7 +109,7 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
     _gstPercentageC.text = otherChargeModel.gstPercentage.toString();
     _gstValueC.text = otherChargeModel.gstValue.toString();
     selectedCalculatedOn = calculatedOnList.firstWhere(
-          (item) => item['DisplayName'] == otherChargeModel.calculatedOn,
+      (item) => item['DisplayName'] == otherChargeModel.calculatedOn,
       orElse: () => calculatedOnList.first,
     );
   }
@@ -235,7 +239,7 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
               size: 18,
               color: AppColor.white,
             ),
-            text: _isEditMode ? "Update Charges" : "Add Charges",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: () {
               if (_formKey.currentState!.validate()) {
                 if (_isEditMode) {

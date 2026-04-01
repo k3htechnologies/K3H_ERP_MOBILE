@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/data/model/sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -38,6 +39,9 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
   // TAB CONTROLLER
   late TabController _tabController;
 
+  // AUTHORIZATION
+  late AuthorizationModel _routeAuthorizationModel;
+
   // CUBIT
   late SourcingCubit _sourcingCubit;
 
@@ -62,6 +66,9 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
   void initState() {
     super.initState();
     _sourcingCubit = context.read<SourcingCubit>();
+
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.sourcing]!;
     _remarkC = TextEditingController();
     selectedSupport = supportList.first;
     _tabController = TabController(length: 2, vsync: this);
@@ -642,13 +649,14 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                   horizontalSpacing(),
                   _buildFilterTab("OBM", state),
                   Spacer(),
-                  CustomButton(
-                    leading: Icon(Icons.add, size: 18, color: AppColor.white),
-                    text: "Add Remark",
-                    onPressed: () {
-                      _showBottomSheetToAddRemark(context);
-                    },
-                  ),
+                  if (_routeAuthorizationModel.isAction)
+                    CustomButton(
+                      leading: Icon(Icons.add, size: 18, color: AppColor.white),
+                      text: "Add Remark",
+                      onPressed: () {
+                        _showBottomSheetToAddRemark(context);
+                      },
+                    ),
                 ],
               ),
             ),
@@ -727,7 +735,10 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
 
                                             Visibility(
                                               visible:
-                                                  index == 0 && item.isAction,
+                                                  index == 0 &&
+                                                  (item.isAction &&
+                                                      _routeAuthorizationModel
+                                                          .isAction),
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
