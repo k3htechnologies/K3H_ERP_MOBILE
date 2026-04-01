@@ -48,7 +48,7 @@ class InventoryCubit extends Cubit<InventoryState> {
                                       floor.flatList.where((flat) {
                                         return flat.flat.toLowerCase().contains(
                                           query,
-                                        ); // 👈 UNIT NO SEARCH
+                                        );
                                       }).toList();
 
                                   return floor.copyWith(
@@ -68,14 +68,13 @@ class InventoryCubit extends Cubit<InventoryState> {
             .where((building) => building.wingList.isNotEmpty)
             .toList();
 
-    emit(state.copyWith(searchText: value, buildingList: filteredBuildings));
+    emit(state.copyWith(searchText: value, buildingList: filteredBuildings,currentTabIndex: 0,wingCurrentPage: 0));
   }
 
   // GET ENTIRE INVENTORY
   Future<void> getInventory(BuildContext context, int projectId) async {
     if (projectId == 0) {
       showErrorMessage(context, "Error Message", "Project Not Selected");
-      InventoryCubit();
       emit(state.copyWith(isLoading: false));
       return;
     }
@@ -135,11 +134,13 @@ class InventoryCubit extends Cubit<InventoryState> {
               buildingList: buildings,
               currentTabIndex: buildingIndex,
               wingCurrentPage: wingIndex,
+              wingCounts: wingCounts,
               wingCurrentPageKey: wingKey,
+              originalBuildingList: buildings,
             ),
           );
         } else {
-          emit(state.copyWith(isLoading: false, buildingList: []));
+          emit(state.copyWith(isLoading: false, buildingList: [],originalBuildingList: [],));
         }
       },
     );

@@ -389,14 +389,12 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                 ),
                 CustomTextField(
                   title: "Passport Number",
-                  isRequired: true,
                   hint: "Enter Passport Number",
                   textController: _passportNumberC,
                   inputFormatterList: InputValidator.passportInputFormatters(),
                 ),
                 CustomTextField(
                   title: "Driving License Number",
-                  isRequired: true,
                   hint: "Enter Driving License Number",
                   textController: _drivingLicenceNumberC,
                   inputFormatterList:
@@ -404,7 +402,6 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                 ),
                 CustomTextField(
                   title: "Voting Card Number",
-                  isRequired: true,
                   hint: "Enter Voting Card Number",
                   textController: _voterIdNumberC,
                   inputFormatterList: InputValidator.voterIdInputFormatters(),

@@ -118,12 +118,68 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                             backgroundColor: AppColor.white,
                             borderColor: AppColor.primary,
                             textColor: AppColor.primary,
-                            text: "Generate PDF",
-                            onPressed: () {
-                              _bookingCubit.generateBookingPDF(
-                                context,
-                                bookingModel!,
+                            text: "PDF",
+                            onPressed: () async {
+                              final RenderBox button =
+                                  context.findRenderObject() as RenderBox;
+                              final RenderBox overlay =
+                                  Overlay.of(context).context.findRenderObject()
+                                      as RenderBox;
+
+                              final Offset position = button.localToGlobal(
+                                Offset.zero,
+                                ancestor: overlay,
                               );
+
+                              final selected = await showMenu<String>(
+                                context: context,
+                                position: RelativeRect.fromLTRB(
+                                  position.dx + button.size.width,
+                                  position.dy + 55,
+                                  position.dx,
+                                  position.dy + button.size.height,
+                                ),
+                                items: [
+                                  PopupMenuItem(
+                                    value: 'generate',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.picture_as_pdf, size: 18),
+                                        SizedBox(width: 8),
+                                        Text('Generate'),
+                                      ],
+                                    ),
+                                  ),
+                                  PopupMenuItem(
+                                    value: 'email',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.email, size: 18),
+                                        SizedBox(width: 8),
+                                        Text('Send E-mail'),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+
+                              if (selected == 'generate') {
+                                if (context.mounted) {
+                                  _bookingCubit.generateBookingPDF(
+                                    context,
+                                    bookingModel!,
+                                    isSendEmail: false
+                                  );
+                                }
+                              } else if (selected == 'email') {
+                                if (context.mounted) {
+                                  _bookingCubit.generateBookingPDF(
+                                    context,
+                                    bookingModel!,
+                                    isSendEmail: true
+                                  );
+                                }
+                              }
                             },
                           ),
                       ],

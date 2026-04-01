@@ -70,11 +70,11 @@ class _InventoryScreenState extends State<InventoryScreen>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        final state = _inventoryCubit.state;
-        if (state.buildingList.isEmpty) {
+        if (_inventoryCubit.state.buildingList.isEmpty) {
+          print("LLL=>${_project.projectId}");
           _inventoryCubit.getInventory(context, _project.projectId);
         } else {
-          _initializeControllersIfNeeded(state);
+          _initializeControllersIfNeeded(_inventoryCubit.state);
         }
       }
     });
@@ -120,6 +120,18 @@ class _InventoryScreenState extends State<InventoryScreen>
           _initWingController(wingList);
         }
       }
+    }
+  }
+
+  // RESET CONTROLLERS
+  void resetControllers() {
+    if (_buildingTabController != null) {
+      _buildingTabController!.dispose();
+      _buildingTabController = null;
+    }
+    if (_wingTabController != null) {
+      _wingTabController!.dispose();
+      _wingTabController = null;
     }
   }
 
@@ -242,6 +254,7 @@ class _InventoryScreenState extends State<InventoryScreen>
         searchHintText: "Search by Unit Number",
         onSearchSubmit: (value) {
           _inventoryCubit.searchInventory(value);
+          resetControllers();
         },
         textController: _searchC,
         onExportCallback: (value) {
@@ -340,6 +353,8 @@ class _InventoryScreenState extends State<InventoryScreen>
               if (state.buildingList.isEmpty) {
                 return Center(child: noDataWidget());
               }
+
+              _initializeControllersIfNeeded(state);
 
               // Ensure currentTabIndex is within bounds
               final int safeTabIndex =

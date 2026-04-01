@@ -127,6 +127,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   Map<String, dynamic>? selectedState;
   Map<String, dynamic>? selectedDistrict;
   Map<String, dynamic>? selectedCity;
+  Map<String, dynamic>? selectedVillage;
 
   late final ValueNotifier<List<Map<String, dynamic>>>
   _selectedReportingPersonNotifier;
@@ -244,6 +245,10 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     selectedCity = {
       'zAttributesId': employee.cityMasterId,
       'DisplayName': employee.cityName,
+    };
+    selectedVillage = {
+      'zAttributesId': employee.villageMasterId,
+      'DisplayName': employee.villageName,
     };
     // DATES
     dateOfBirth = employee.dateOfBirth;
@@ -799,6 +804,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         selectedStateId: selectedState!["zAttributesId"],
         selectedDistrictId: selectedDistrict!["zAttributesId"],
         selectedCityId: selectedCity!["zAttributesId"],
+        selectedVillageId: selectedVillage!["zAttributesId"],
         employeeType: selectedEmploymentType!['DisplayName'],
         emergencyContactPersonRelationship:
             selectedRelationToEmployee!['DisplayName'],
@@ -846,6 +852,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         selectedStateId: selectedState!["zAttributesId"],
         selectedDistrictId: selectedDistrict!["zAttributesId"],
         selectedCityId: selectedCity!["zAttributesId"],
+        selectedVillageId: selectedVillage!["zAttributesId"],
         employeeType: selectedEmploymentType!['DisplayName'],
         emergencyContactPersonRelationship:
             selectedRelationToEmployee!['DisplayName'],
@@ -1422,6 +1429,9 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             },
             cityChange: (selectedCity) {
               this.selectedCity = selectedCity;
+            },
+            villageChange: (selectedVillage) {
+              this.selectedVillage = selectedVillage;
             },
           ),
         ],

@@ -585,6 +585,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                               ),
                             ),
                           ),
+                          horizontalSpacing(),
                           CustomIconButton(
                             onPressed: () {
                               openWhatsApp(phoneNumber: enquiry.mobileNumber);

@@ -84,6 +84,62 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     {"zAttributesId": 5, "DisplayName": "Team Member"},
   ];
 
+  // FILE VARIABLES
+  MultiFilePickerModel selectedPANForPopUpFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel selectedAadhaarForPopUpFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  late ValueNotifier<MultiFilePickerModel> selectedGSTCertificateForPopUpFile;
+
+  ValueNotifier<bool> isCompanyPrefilled = ValueNotifier(false);
+
+  // DROPDOWN VARIABLES
+  final List<Map<String, dynamic>> specialityList = [
+    {"zAttributesId": 1, "DisplayName": "Commercial Sale"},
+    {"zAttributesId": 2, "DisplayName": "Commercial Leasing"},
+    {"zAttributesId": 3, "DisplayName": "Residential Sale"},
+    {"zAttributesId": 4, "DisplayName": "Commercial + Residential Sale"},
+  ];
+
+  final List<Map<String, dynamic>> companyTypeList = [
+    {"zAttributesId": 1, "DisplayName": "New Company"},
+    {"zAttributesId": 2, "DisplayName": "Existing Company"},
+  ];
+
+  final List<Map<String, dynamic>> firmsType = [
+    {"zAttributesId": 1, "DisplayName": "LLP"},
+    {"zAttributesId": 2, "DisplayName": "Private Limited Company"},
+    {"zAttributesId": 3, "DisplayName": "Proprietorship"},
+  ];
+
+  final List<Map<String, dynamic>> type = [
+    {"zAttributesId": 1, "DisplayName": "International Channel Partner (IPC)"},
+    {"zAttributesId": 2, "DisplayName": "Institutional Channel Partner (ICP)"},
+    {"zAttributesId": 3, "DisplayName": "Retail Channel Partner (RCP)"},
+  ];
+
+  // SELECTION VARIABLE
+
+  Map<String, dynamic>? selectedSpeciality;
+  late Map<String, dynamic> selectedSpecialityFilter;
+  late ValueNotifier<Map<String, dynamic>?> selectedCompanyType;
+  late ValueNotifier<Map<String, dynamic>?> selectedFirmsType;
+  late ValueNotifier<Map<String, dynamic>?> selectedType;
+  // MULTI SELECT FOR PROJECTS, SINGLE SELECT FOR COMPANY
+  late ValueNotifier<List<Map<String, dynamic>>> selectedCompany;
+  late ValueNotifier<bool> hasReraNumber;
+
+  ValueNotifier<Map<String, dynamic>?> selectedStateVN = ValueNotifier(null);
+  ValueNotifier<Map<String, dynamic>?> selectedDistrictVN = ValueNotifier(null);
+  ValueNotifier<Map<String, dynamic>?> selectedCityVN = ValueNotifier(null);
+  ValueNotifier<Map<String, dynamic>?> selectedVillageVN = ValueNotifier(null);
+
   @override
   void initState() {
     super.initState();
@@ -104,7 +160,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
       gstTrigger.value = !gstTrigger.value;
     });
     selectedDesignation = ValueNotifier(null);
+    selectedType = ValueNotifier(null);
     isCompanyPrefilled = ValueNotifier(false);
+    selectedCompanyType = ValueNotifier<Map<String, dynamic>?>(null);
     selectedGSTCertificateForPopUpFile = ValueNotifier(
       MultiFilePickerModel(
         fileBytesList: [],
@@ -112,13 +170,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         deletedFileList: "",
       ),
     );
-    selectedCompanyType = ValueNotifier<Map<String, dynamic>>(
-      companyTypeList[0],
-    );
-    selectedFirmsType = ValueNotifier(firmsType[0]);
+    selectedFirmsType = ValueNotifier(null);
     hasReraNumber = ValueNotifier(false);
     selectedCompany = ValueNotifier([]);
-    selectedType = type[0];
     if (_isEditMode) {
       _prefillChannelPartner(widget.channelPartnerModel!);
     }
@@ -151,6 +205,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     aadhaarTrigger.dispose();
     panTrigger.dispose();
     gstTrigger.dispose();
+    selectedType.dispose();
     super.dispose();
   }
 
@@ -169,65 +224,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _filterLocalityC = TextEditingController();
     _otpController = TextEditingController();
   }
-
-  // FILE VARIABLES
-  MultiFilePickerModel selectedPANForPopUpFile = MultiFilePickerModel(
-    fileBytesList: [],
-    fileNameList: [],
-    deletedFileList: "",
-  );
-  MultiFilePickerModel selectedAadhaarForPopUpFile = MultiFilePickerModel(
-    fileBytesList: [],
-    fileNameList: [],
-    deletedFileList: "",
-  );
-  late ValueNotifier<MultiFilePickerModel> selectedGSTCertificateForPopUpFile;
-
-  ValueNotifier<bool> isCompanyPrefilled = ValueNotifier(false);
-
-  // DROPDOWN VARIABLES
-  final List<Map<String, dynamic>> specialityList = [
-    {"zAttributesId": 1, "DisplayName": "Commercial Sale"},
-    {"zAttributesId": 2, "DisplayName": "Commercial Leasing"},
-    {"zAttributesId": 3, "DisplayName": "Residential Sale"},
-    {"zAttributesId": 4, "DisplayName": "Commercial + Residential Sale"},
-  ];
-
-  final List<Map<String, dynamic>> companyTypeList = [
-    {"zAttributesId": -1, "DisplayName": "Select Company Type"},
-    {"zAttributesId": 1, "DisplayName": "New Company"},
-    {"zAttributesId": 2, "DisplayName": "Existing Company"},
-  ];
-
-  final List<Map<String, dynamic>> firmsType = [
-    {"zAttributesId": -1, "DisplayName": "Select Firms Type"},
-    {"zAttributesId": 1, "DisplayName": "LLP"},
-    {"zAttributesId": 2, "DisplayName": "Private Limited Company"},
-    {"zAttributesId": 3, "DisplayName": "Proprietorship"},
-  ];
-
-  final List<Map<String, dynamic>> type = [
-    {"zAttributesId": -1, "DisplayName": "Select Type"},
-    {"zAttributesId": 1, "DisplayName": "International Channel Partner (IPC)"},
-    {"zAttributesId": 2, "DisplayName": "Institutional Channel Partner (ICP)"},
-    {"zAttributesId": 3, "DisplayName": "Retail Channel Partner (RCP)"},
-  ];
-
-  // SELECTION VARIABLE
-
-  Map<String, dynamic>? selectedSpeciality;
-  late Map<String, dynamic> selectedSpecialityFilter;
-  late ValueNotifier<Map<String, dynamic>> selectedCompanyType;
-  late ValueNotifier<Map<String, dynamic>> selectedFirmsType;
-  late Map<String, dynamic> selectedType;
-  // MULTI SELECT FOR PROJECTS, SINGLE SELECT FOR COMPANY
-  late ValueNotifier<List<Map<String, dynamic>>> selectedCompany;
-  late ValueNotifier<bool> hasReraNumber;
-
-  ValueNotifier<Map<String, dynamic>?> selectedStateVN = ValueNotifier(null);
-  ValueNotifier<Map<String, dynamic>?> selectedDistrictVN = ValueNotifier(null);
-  ValueNotifier<Map<String, dynamic>?> selectedCityVN = ValueNotifier(null);
-  ValueNotifier<Map<String, dynamic>?> selectedVillageVN = ValueNotifier(null);
 
   // FETCH COMPANY LIST FOR EXISTING COMPANY FLOW
   Future<Map<String, dynamic>> _fetchChannelPartnerList(
@@ -352,7 +348,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
     if (channelPartnerMasterModel.companyName.isNotEmpty) {
       // EXISTING COMPANY FLOW
-      selectedCompanyType.value = companyTypeList[2];
+      selectedCompanyType.value = companyTypeList[1];
 
       selectedCompany.value = [
         {
@@ -391,7 +387,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
       orElse: () => firmsType.first,
     );
 
-    selectedType = type.firstWhere(
+    selectedType.value = type.firstWhere(
       (element) => element["DisplayName"] == channelPartnerMasterModel.type,
       orElse: () => type.first,
     );
@@ -438,7 +434,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
       return;
     }
 
-    final companyTypeId = selectedCompanyType.value['zAttributesId'];
+    final companyTypeId = selectedCompanyType.value?['zAttributesId'];
 
     if (companyTypeId == -1) {
       showErrorMessage(context, "", "Please select Company Type");
@@ -489,7 +485,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
   // ON SAVE BUTTON
   void _submitForm() {
-    final companyTypeId = selectedCompanyType.value['zAttributesId'];
+    final companyTypeId = selectedCompanyType.value?['zAttributesId'];
 
     final String companyName =
         companyTypeId == 1
@@ -499,9 +495,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
             : "";
 
     final String firmsTypeValue =
-        selectedFirmsType.value["zAttributesId"] == -1
+        selectedFirmsType.value?["zAttributesId"] == null
             ? ""
-            : selectedFirmsType.value["DisplayName"];
+            : selectedFirmsType.value!["DisplayName"];
 
     if (_isEditMode && widget.channelPartnerModel != null) {
       _channelPartnerCubit.updateChannelPartner(
@@ -529,7 +525,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         reraNumber: _reraNumberC.text.trim(),
         companyName: companyName,
         firmsType: firmsTypeValue,
-        type: selectedType["DisplayName"],
+        type: selectedType.value?["DisplayName"]??"",
         designation: selectedDesignation.value?["DisplayName"] ?? "",
         otp: _otpController.text.trim(),
       );
@@ -556,7 +552,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         reraNumber: _reraNumberC.text.trim(),
         companyName: companyName,
         firmsType: firmsTypeValue,
-        type: selectedType["DisplayName"],
+        type: selectedType.value?["DisplayName"]??"",
         designation: selectedDesignation.value?["DisplayName"] ?? "",
         otp: _otpController.text.trim(),
         gstCertificateURL: selectedGSTCertificateForPopUpFile.value,
@@ -694,35 +690,47 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         ),
                       ),
                     ),
-                    CustomDropDownWidget(
-                      title: 'Company Type',
-                      hintText: "Select Company Type",
-                      isRequired: true,
-                      initialValue: selectedCompanyType.value,
-                      dataList: companyTypeList,
-                      onSelected: (value) {
-                        if (selectedCompanyType.value['zAttributesId'] !=
-                            value['zAttributesId']) {
-                          selectedCompanyType.value = value;
-                          _resetCompanyFields();
-                        }
-                      },
-                      validator: (value) {
-                        if (value == null || value['zAttributesId'] == -1) {
-                          return "Company Type is required";
-                        }
-                        return null;
-                      },
-                    ),
+                    if (!_isEditMode)
+                      ValueListenableBuilder<Map<String, dynamic>?>(
+                        valueListenable: selectedCompanyType,
+                        builder: (context, value, _) {
+                          return CustomDropDownWidget(
+                            key: ValueKey(value?['zAttributesId']),
+                            title: 'Company Type',
+                            hintText: "Select Company Type",
+                            isRequired: true,
+                            initialValue: value,
+                            dataList: companyTypeList,
+                            onSelected: (val) {
+                              if (selectedCompanyType.value?['zAttributesId'] !=
+                                  val['zAttributesId']) {
+                                selectedCompanyType.value = val;
+                                _resetCompanyFields();
+                              }
+                            },
+                            onValueClear: () {
+                              selectedCompanyType.value = null;
+                              _resetCompanyFields();
+                            },
+                            validator: (value) {
+                              if (value == null ||
+                                  value['zAttributesId'] == -1) {
+                                return "Company Type is required";
+                              }
+                              return null;
+                            },
+                          );
+                        },
+                      ),
                     ValueListenableBuilder(
                       valueListenable: selectedCompanyType,
                       builder: (context, value, child) {
-                        final int companyTypeId = value['zAttributesId'];
+                        final int companyTypeId = value?['zAttributesId'] ?? -1;
 
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (companyTypeId == 2) ...[
+                            if (!_isEditMode && companyTypeId == 2) ...[
                               CustomMultipleSelectPopup(
                                 title: "Company",
                                 isRequired: true,
@@ -770,17 +778,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                   return null;
                                 },
                               ),
-                              const SizedBox(height: 12),
-                              CustomTextField(
-                                title: 'Company Name',
-                                isRequired: true,
-                                hint: "Company Name",
-                                textController: _companyNameC,
-                                readOnly: true,
-                              ),
                             ],
 
-                            if (companyTypeId == 1) ...[
+                            if (companyTypeId == 1 || _isEditMode) ...[
                               CustomTextField(
                                 title: 'Company Name',
                                 isRequired: true,
@@ -833,7 +833,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                     isRequired: true,
                                     readOnly: true,
                                     textController: TextEditingController(
-                                      text: firmsValue['DisplayName'] ?? '',
+                                      text: firmsValue!['DisplayName'] ?? '',
                                     ),
                                   );
                                 },
@@ -860,8 +860,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                               return "Designation is required";
                             }
 
-                            if (selectedCompanyType.value['zAttributesId'] ==
-                                    2 &&
+                            if (selectedCompanyType.value?['zAttributesId'] ==
+                                    1 &&
                                 val['zAttributesId'] == 3) {
                               return "You can't be Owner";
                             }
@@ -871,19 +871,24 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         );
                       },
                     ),
-                    CustomDropDownWidget(
-                      title: "Type",
-                      isRequired: true,
-                      dataList: type,
-                      initialValue: selectedType,
-                      onSelected: (value) {
-                        selectedType = value;
-                      },
-                      validator: (value) {
-                        if (value == null || value["zAttributesId"] == -1) {
-                          return "Type is required";
-                        }
-                        return null;
+                    ValueListenableBuilder<Map<String, dynamic>?>(
+                      valueListenable: selectedType,
+                      builder: (context, value, _) {
+                        return CustomDropDownWidget(
+                          title: "Type",
+                          isRequired: true,
+                          dataList: type,
+                          initialValue: value,
+                          onSelected: (val) {
+                            selectedType.value = val;
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return "Type is required";
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
                     ValueListenableBuilder(
@@ -1164,11 +1169,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                       valueListenable: gstTrigger,
                       builder: (context, _, __) {
                         final hasGst = _gstNumberC.text.trim().isNotEmpty;
-                        final hasFile =
-                            selectedGSTCertificateForPopUpFile
-                                .value
-                                .fileNameList
-                                .isNotEmpty;
 
                         return Column(
                           children: [
@@ -1211,6 +1211,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                               child: Opacity(
                                 opacity: isCompanyPrefilled.value ? 0.6 : 1,
                                 child: CustomMultiFilePicker(
+                                  key: ValueKey(
+                                    selectedGSTCertificateForPopUpFile.value,
+                                  ),
                                   title: "GST Certificate",
                                   filePickType: FilePickType.both,
                                   initialFileList:

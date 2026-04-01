@@ -255,7 +255,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
     DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Booking",
+      title: "Filter - Booking",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {
@@ -316,7 +316,14 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
 
                 verticalSpacing(height: 20),
-
+                CustomTextField(
+                  textController: _mobileNumberC,
+                  title: "Applicant Mobile Number",
+                  hint: "Enter Applicant Mobile Number",
+                  keyboardType: TextInputType.number,
+                  inputFormatterList: InputValidator.digit(10),
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
                 Row(
                   children: [
                     Expanded(
@@ -324,7 +331,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         valueListenable: _startDateNotifier,
                         builder: (_, startDate, __) {
                           return CustomDatePicker(
-                            title: "Start Date",
+                            title: "From Date",
                             initialDate: startDate,
                             setValue: (value) {
                               _startDateNotifier.value = value;
@@ -341,7 +348,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         valueListenable: _endDateNotifier,
                         builder: (_, endDate, __) {
                           return CustomDatePicker(
-                            title: "End Date",
+                            title: "To Date",
                             initialDate: endDate,
                             setValue: (value) {
                               _endDateNotifier.value = value;
@@ -358,14 +365,6 @@ class _BookingScreenState extends State<BookingScreen> {
                   textController: _wingC,
                   title: "Wing",
                   hint: "Enter Wing",
-                  onChangeFunction: (_) => updateApplyState(),
-                ),
-                CustomTextField(
-                  textController: _mobileNumberC,
-                  title: "Mobile Number",
-                  hint: "Enter Mobile Number",
-                  keyboardType: TextInputType.number,
-                  inputFormatterList: InputValidator.digit(10),
                   onChangeFunction: (_) => updateApplyState(),
                 ),
                 CustomTextField(
@@ -534,6 +533,7 @@ class _BookingScreenState extends State<BookingScreen> {
         screenTitle: "Booking",
         authorization: _routhAuthorizationModel,
         textController: _searchC,
+        searchHintText: "Search by Applicant Name",
         onSearchSubmit: (value) {
           _bookingCubit.searchBooking(context, value);
         },

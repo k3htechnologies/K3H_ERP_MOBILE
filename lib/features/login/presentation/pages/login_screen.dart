@@ -91,20 +91,16 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      body: SingleChildScrollView(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: MediaQuery.of(context).size.height,
-          ),
-          child: IntrinsicHeight(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
+      body: LayoutBuilder(
+        builder: (context,constraints) {
+          return SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
+              ),
+              child: Center(
+                child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 15),
                   padding: EdgeInsets.symmetric(vertical: 20),
                   decoration: BoxDecoration(
@@ -141,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         maxLines: 1,
                       ),
                       SizedBox(height: 24),
-          
+
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20.0),
                         child: Form(
@@ -212,7 +208,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         }
                                       },
                                     ),
-          
+
                                     // OTP FIELD
                                     if (state.message.isNotEmpty)
                                       CustomTextField(
@@ -250,14 +246,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                               .trim()
                                               .toLowerCase()
                                               .contains('mpin');
-          
+
                                           if (value == null ||
                                               value.trim().isEmpty) {
                                             return isMpin
                                                 ? "MPIN is required"
                                                 : "OTP is required";
                                           }
-          
+
                                           return null;
                                         },
                                       ),
@@ -325,7 +321,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       const Text("Didn’t Receive a code ? "),
-          
+
                                       state.canResend
                                           ? GestureDetector(
                                         onTap: () {
@@ -358,10 +354,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        }
       ),
     );
   }

@@ -53,6 +53,8 @@ class UserModel {
   String districtName;
   int cityMasterId;
   String cityName;
+  int villageMasterId;
+  String villageName;
   String aadharCardNumber;
   String passportNumber;
   String panCardNumber;
@@ -124,6 +126,8 @@ class UserModel {
     required this.districtName,
     required this.cityMasterId,
     required this.cityName,
+    required this.villageMasterId,
+    required this.villageName,
     required this.aadharCardNumber,
     required this.passportNumber,
     required this.panCardNumber,
@@ -216,6 +220,8 @@ class UserModel {
     districtName: parseValue<String>(json, "DistrictName"),
     cityMasterId: parseValue<int>(json, "CityMasterId"),
     cityName: parseValue<String>(json, "CityName"),
+    villageMasterId: parseValue<int>(json, "VillageMasterId"),
+    villageName: parseValue<String>(json, "VillageName"),
     aadharCardNumber: parseValue<String>(json, "AadharCardNumber"),
     passportNumber: parseValue<String>(json, "PassportNumber"),
     panCardNumber: parseValue<String>(json, "PanCardNumber"),
@@ -301,6 +307,8 @@ class UserModel {
     "DistrictName": districtName,
     "CityMasterId": cityMasterId,
     "CityName": cityName,
+    "VillageMasterId": villageMasterId,
+    "VillageName": villageName,
     "AadharCardNumber": aadharCardNumber,
     "PassportNumber": passportNumber,
     "PanCardNumber": panCardNumber,
@@ -372,6 +380,8 @@ class UserModel {
     String? districtName,
     int? cityMasterId,
     String? cityName,
+    int? villageMasterId,
+    String? villageName,
     String? aadharCardNumber,
     String? passportNumber,
     String? panCardNumber,
@@ -457,6 +467,8 @@ class UserModel {
       districtName: districtName ?? this.districtName,
       cityMasterId: cityMasterId ?? this.cityMasterId,
       cityName: cityName ?? this.cityName,
+      villageMasterId: villageMasterId ?? this.villageMasterId,
+      villageName: villageName ?? this.villageName,
       aadharCardNumber:
       aadharCardNumber ?? this.aadharCardNumber,
       passportNumber: passportNumber ?? this.passportNumber,

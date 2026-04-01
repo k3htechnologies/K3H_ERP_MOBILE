@@ -264,6 +264,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                         ? null
                         : stateList.firstWhereOrNull((state) => state['zAttributesId'] == currentStateId),
                     title: "State",
+                    hintText: "Select State",
                     isRequired: true,
                     dataList: stateList,
                     onSelected: (stateMap) {
@@ -300,6 +301,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                             ? null
                             : currentDistrictList.firstWhereOrNull((district) => district['zAttributesId'] == currentDistrictId),
                         title: "District",
+                        hintText: "Select District",
                         isRequired: true,
                         dataList: currentDistrictList,
                         onSelected: (districtMap) {
@@ -336,6 +338,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                       ? null
                       : currentCityList.firstWhereOrNull((city) => city['zAttributesId'] == currentCityId),
                   title: "City",
+                  hintText: "Select City",
                   isRequired: true,
                   dataList: currentCityList,
                   onSelected: (cityselectedmap) {
@@ -379,6 +382,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                                 )
                                 : null,
                     title: "Village",
+                    hintText: "Select Village",
                     isRequired: true,
                     dataList: currentVillageList,
                     onSelected: (villageselectedmap) {

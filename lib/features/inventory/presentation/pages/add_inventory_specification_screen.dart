@@ -65,10 +65,10 @@ class _AddInventorySpecificationScreenState
   // STATIC LISTS
   List<Map<String, dynamic>> flatTypeList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Flat Type'},
-    {'zAttributesId': 1, 'DisplayName': 'Residential'},
-    {'zAttributesId': 2, 'DisplayName': 'Commercial'},
-    {'zAttributesId': 3, 'DisplayName': 'Void'},
-    {'zAttributesId': 4, 'DisplayName': 'Gym'},
+    {'zAttributesId': 1, 'DisplayName': 'Commercial'},
+    {'zAttributesId': 2, 'DisplayName': 'Gym'},
+    {'zAttributesId': 3, 'DisplayName': 'Residential'},
+    {'zAttributesId': 4, 'DisplayName': 'Void'},
   ];
 
   // STATIC LISTS FOR FLAT CONFIGURATION
@@ -93,8 +93,8 @@ class _AddInventorySpecificationScreenState
   // STATIC LISTS FOR FLAT CONFIGURATION
   List<Map<String, dynamic>> commercialFlatList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Flat Configuration'},
-    {'zAttributesId': 1, 'DisplayName': 'Shop'},
-    {'zAttributesId': 2, 'DisplayName': 'Office'},
+    {'zAttributesId': 1, 'DisplayName': 'OFFICE'},
+    {'zAttributesId': 2, 'DisplayName': 'SHOP'},
   ];
 
   // STATIC LISTS FOR FLAT STATUS
@@ -108,14 +108,14 @@ class _AddInventorySpecificationScreenState
   // STATIC LISTS FOR FLAT FACING
   List<Map<String, dynamic>> flatFacingList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Flat Facing'},
-    {'zAttributesId': 1, 'DisplayName': 'North'},
-    {'zAttributesId': 2, 'DisplayName': 'South'},
-    {'zAttributesId': 3, 'DisplayName': 'East'},
-    {'zAttributesId': 4, 'DisplayName': 'West'},
-    {'zAttributesId': 5, 'DisplayName': 'Road'},
-    {'zAttributesId': 6, 'DisplayName': 'Garden'},
-    {'zAttributesId': 7, 'DisplayName': 'Front'},
-    {'zAttributesId': 8, 'DisplayName': 'Park'},
+    {'zAttributesId': 1, 'DisplayName': 'EAST'},
+    {'zAttributesId': 2, 'DisplayName': 'FRONT'},
+    {'zAttributesId': 3, 'DisplayName': 'GARDEN'},
+    {'zAttributesId': 4, 'DisplayName': 'NORTH'},
+    {'zAttributesId': 5, 'DisplayName': 'PARK'},
+    {'zAttributesId': 6, 'DisplayName': 'ROAD'},
+    {'zAttributesId': 7, 'DisplayName': 'SOUTH'},
+    {'zAttributesId': 8, 'DisplayName': 'WEST'},
   ];
 
   // FLAT SPECIFICATION VARIABLE
@@ -483,7 +483,7 @@ class _AddInventorySpecificationScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Inventory Management Form",
+        screenTitle: "Inventory Specification Form",
         authorization: _routeAuthorizationModel,
       ),
       body: SingleChildScrollView(

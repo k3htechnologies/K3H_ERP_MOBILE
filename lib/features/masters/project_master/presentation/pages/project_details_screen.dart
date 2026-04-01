@@ -225,6 +225,9 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 "Company",
                 "Approval",
               ],
+              onTabChanged: (_){
+                _searchEmployeeC.clear();
+            }
             ),
             Expanded(
               child: TabBarView(
@@ -795,6 +798,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                     onPressed: () async {
                       await _showEmployeeSelectionBottomSheet(context);
                       FocusScope.of(context).unfocus();
+                      _searchEmployeeC.clear();
                     },
                     backgroundColor: AppColor.primary,
                     padding: EdgeInsets.symmetric(vertical: 3, horizontal: 10),

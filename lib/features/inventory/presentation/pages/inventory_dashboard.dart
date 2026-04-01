@@ -45,29 +45,29 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<InventoryCubit, InventoryState>(
-      builder: (context, state) {
-        if (state.isLoading == true) {
-          return loader();
-        }
-        final inventoryDashboardData = state.inventoryDashboardModelList;
-        return Scaffold(
-          backgroundColor: AppColor.lightGreyBackground,
-          appBar: CustomAppBarWithBackButton(
-            screenTitle: "Inventory",
-            isMenuButton: true,
-            authorization: _routeAuthorizationModel,
-            onProjectChangeCallback: (value) {
-              _selectedProject = value;
-              _inventoryCubit.getInventoryDashboardList(
-                context,
-                _selectedProject.projectId,
-              );
-            },
-            showNotification: true,
-          ),
-          body: SafeArea(
-            child: SingleChildScrollView(
+    return Scaffold(
+      backgroundColor: AppColor.lightGreyBackground,
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: "Inventory",
+        isMenuButton: true,
+        authorization: _routeAuthorizationModel,
+        onProjectChangeCallback: (value) {
+          _selectedProject = value;
+          _inventoryCubit.getInventoryDashboardList(
+            context,
+            _selectedProject.projectId,
+          );
+        },
+        showNotification: true,
+      ),
+      body: SafeArea(
+        child: BlocBuilder<InventoryCubit, InventoryState>(
+          builder: (context, state) {
+            if (state.isLoading == true) {
+              return loader();
+            }
+            final inventoryDashboardData = state.inventoryDashboardModelList;
+            return SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -84,19 +84,20 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                           readOnly: true,
                           textController: TextEditingController(
                             text:
-                                (_selectedProject.projectName.isEmpty ||
-                                        _selectedProject.projectName
-                                                .toLowerCase() ==
-                                            "default")
-                                    ? "No Project Selected"
-                                    : _selectedProject.projectName,
+                            (_selectedProject.projectName.isEmpty ||
+                                _selectedProject.projectName
+                                    .toLowerCase() ==
+                                    "default")
+                                ? "No Project Selected"
+                                : _selectedProject.projectName,
                           ),
                           hint: 'Select Project',
                         ),
                         // GENERATE REPORT AND ADD BUTTON
                         if (_selectedProject.projectId != 0) ...[
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
                             children: [
                               Container(
                                 padding: EdgeInsets.symmetric(
@@ -135,7 +136,9 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                     ),
                                     text: "Inventory",
                                     onPressed: () {
-                                      goRouter.pushNamed(AppRoutes.inventory);
+                                      goRouter.pushNamed(
+                                        AppRoutes.inventory,
+                                      );
                                     },
                                   ),
                                 ),
@@ -170,14 +173,13 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           "Total Buildings",
                                           style: AppTextStyle.ts14M(
-                                            color: AppColor.black.withValues(
-                                              alpha: 0.5,
-                                            ),
+                                            color: AppColor.black
+                                                .withValues(alpha: 0.5),
                                           ),
                                         ),
                                         Text(
@@ -215,7 +217,8 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   color: AppColor.white,
                                 ),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
@@ -228,13 +231,15 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                         Expanded(
                                           child: Column(
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 "Basement",
                                                 style: AppTextStyle.ts14M(
                                                   color: AppColor.black
-                                                      .withValues(alpha: 0.5),
+                                                      .withValues(
+                                                    alpha: 0.5,
+                                                  ),
                                                 ),
                                               ),
                                               Text(
@@ -269,7 +274,8 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   color: AppColor.white,
                                 ),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
@@ -282,13 +288,15 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                         Expanded(
                                           child: Column(
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 "Podium",
                                                 style: AppTextStyle.ts14M(
                                                   color: AppColor.black
-                                                      .withValues(alpha: 0.5),
+                                                      .withValues(
+                                                    alpha: 0.5,
+                                                  ),
                                                 ),
                                               ),
                                               Text(
@@ -329,7 +337,8 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   color: AppColor.white,
                                 ),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
@@ -342,13 +351,15 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                         Expanded(
                                           child: Column(
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 "Wings",
                                                 style: AppTextStyle.ts14M(
                                                   color: AppColor.black
-                                                      .withValues(alpha: 0.5),
+                                                      .withValues(
+                                                    alpha: 0.5,
+                                                  ),
                                                 ),
                                               ),
                                               Text(
@@ -383,7 +394,8 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   color: AppColor.white,
                                 ),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
@@ -396,13 +408,15 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                         Expanded(
                                           child: Column(
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 "Ground",
                                                 style: AppTextStyle.ts14M(
                                                   color: AppColor.black
-                                                      .withValues(alpha: 0.5),
+                                                      .withValues(
+                                                    alpha: 0.5,
+                                                  ),
                                                 ),
                                               ),
                                               Text(
@@ -444,10 +458,10 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                   ),
                 ],
               ),
-            ),
-          ),
-        );
-      },
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -604,10 +618,9 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                         ],
                       ),
                     ),
-                    horizontalSpacing(width: 50.0),
                     Expanded(
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Container(
                             width: 6.0,

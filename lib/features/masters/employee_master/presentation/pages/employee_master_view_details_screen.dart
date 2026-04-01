@@ -303,6 +303,15 @@ class _EmployeeMasterViewDetailsScreenState
                     buildColumnTitleValue(title: "City", value: user.cityName),
                   ],
                 ),
+                Row(
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Village",
+                      value: user.villageName,
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

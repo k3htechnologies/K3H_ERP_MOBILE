@@ -1373,10 +1373,20 @@ class _ProfileScreenState extends State<ProfileScreen>
                           ),
                         ),
                         horizontalSpacing(width: 16),
-                        Expanded(child: _buildInfoItem("Status", asset.status)),
+                        Expanded(child: _buildInfoItem("Assigned By", asset.createdBy)),
                       ],
                     ),
                     verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Assigned Date",
+                            formatDateTimeAsDDMMMYYYY(asset.assignedDate),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               );

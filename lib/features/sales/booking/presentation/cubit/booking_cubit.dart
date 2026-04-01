@@ -1158,7 +1158,7 @@ class BookingCubit extends Cubit<BookingState> {
 
   Future generateBookingPDF(
     BuildContext context,
-    BookingModel bookingModel,
+    BookingModel bookingModel,{required bool isSendEmail}
   ) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _bookingRepository.exportBooking(
@@ -1167,7 +1167,7 @@ class BookingCubit extends Cubit<BookingState> {
       projectId: bookingModel.projectId,
       queryParams: {
         "BookingId": bookingModel.bookingId,
-        "ExportType": "BOOKING+FORM+PDF",
+        "ExportType": isSendEmail?"BOOKING+FORM+PDF+MAIL":"BOOKING+FORM+PDF",
       },
     );
     goRouter.pop();
@@ -1176,6 +1176,7 @@ class BookingCubit extends Cubit<BookingState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        showSuccessMessage(context,subTitle: "Successfully Exported as PDF");
         exportExcelOrPdfMobile(
           response["data"],
           "Booking Form - ${bookingModel.projectName} - ${bookingModel.applicantName} - ${bookingModel.flat} ${DateTime.now()}.pdf",

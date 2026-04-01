@@ -593,6 +593,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     if (index < 0 || index >= currentApplicants.length) return;
     currentApplicants.removeAt(index);
     _applicants.value = currentApplicants;
+    showSuccessMessage(context, subTitle: "Applicant Removed");
   }
 
   // FETCHING PARKING METHODS
@@ -1113,6 +1114,21 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     }
   }
 
+  // DELETE APPLICANT
+  Future<void> _showPopupToDeleteApplicant(
+    BuildContext context,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a applicant ?',
+      'Deleting this applicant will permanently remove all associated data.',
+    );
+    if (result && context.mounted) {
+      _deleteApplicant(index);
+    }
+  }
+
   // CALCULATE COMMISTION AMOUNT
   void calculateCommissionAmount({
     required double agreementAmount,
@@ -1140,7 +1156,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 child: CustomTextField(
                   readOnly: true,
                   textController: TextEditingController(
-                    text:_project.projectName,
+                    text: _project.projectName,
                   ),
                   hint: 'Select Project',
                 ),
@@ -1497,10 +1513,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   verticalSpacing(),
                   Row(
                     children: [
-                      Text(
-                        "Add Applicant Details",
-                        style: AppTextStyle.ts14M(),
-                      ),
                       Spacer(),
                       CustomButton(
                         leading: Icon(
@@ -2739,7 +2751,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   ),
                   horizontalSpacing(width: 8),
                   CustomIconButton.delete(
-                    onPressed: () => _deleteApplicant(index),
+                    onPressed:
+                        () => _showPopupToDeleteApplicant(context, index),
                   ),
                 ],
               ),

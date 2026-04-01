@@ -13,6 +13,7 @@ class CustomDropDownWidget extends StatelessWidget {
   final String? Function(Map<String, dynamic>?)? validator;
   final Map<String, dynamic>? initialValue;
   final bool isDisabled;
+  final VoidCallback? onValueClear;
   const CustomDropDownWidget({
     super.key,
     required this.dataList,
@@ -23,6 +24,7 @@ class CustomDropDownWidget extends StatelessWidget {
     this.validator,
     this.initialValue,
     this.isDisabled = false,
+    this.onValueClear,
   });
 
   @override
@@ -108,13 +110,39 @@ class CustomDropDownWidget extends StatelessWidget {
                       final displayName =
                           selectedItem['DisplayName']?.toString() ?? '';
 
-                      return Text(
-                        displayName.isEmpty
-                            ? (hintText ?? 'Select')
-                            : displayName,
-                        style: AppTextStyle.ts14R().copyWith(
-                          color: displayName.isEmpty ? AppColor.grey : null,
-                        ),
+                      final hasValue = displayName.isNotEmpty;
+
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              hasValue ? displayName : (hintText ?? 'Select'),
+                              style: AppTextStyle.ts14R().copyWith(
+                                color: hasValue ? null : AppColor.grey,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+
+                          if (onValueClear != null && hasValue)
+                            GestureDetector(
+                              onTap: () {
+                                // Clear FormField state
+                                formFieldState.didChange(null);
+
+                                // Call external clear callback
+                                onValueClear!();
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 6),
+                                child: Icon(
+                                  Icons.close,
+                                  size: 18,
+                                  color: AppColor.grey,
+                                ),
+                              ),
+                            ),
+                        ],
                       );
                     },
                     onChanged: (value) {
@@ -138,9 +166,11 @@ class CustomDropDownWidget extends StatelessWidget {
                             size: 14,
                           ),
                           horizontalSpacing(width: 5),
-                          Text(
-                            formFieldState.errorText ?? '',
-                            style: AppTextStyle.ts12R(color: AppColor.error),
+                          Flexible(
+                            child: Text(
+                              formFieldState.errorText ?? '',
+                              style: AppTextStyle.ts12R(color: AppColor.error),
+                            ),
                           ),
                         ],
                       ),
