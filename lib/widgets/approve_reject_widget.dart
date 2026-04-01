@@ -24,6 +24,7 @@ class ApproveRejectWidget extends StatelessWidget {
   final Widget? customWidget;
   final String popupTitle;
   final String? subTitle;
+  // FOLLOWING FUNCTION CAN BE USED TO CONTROL WHETHER THE APPROVE/REJECT DIALOG CAN BE OPENED OR NOT. (USED IN MULTI APPROVAL SCENARIO)
   final bool Function()? canOpenDialog;
 
   const ApproveRejectWidget({
@@ -42,7 +43,8 @@ class ApproveRejectWidget extends StatelessWidget {
     this.subTitle,
     this.canOpenDialog,
   });
-  void _handleTap(
+  // HANDLER FOR APPROVE/REJECT TAP - TO CHECK IF DIALOG CAN BE OPENED OR NOT
+  void _handleApprovalTap(
     BuildContext context, {
     required String actionType,
     required ValueChanged<String> onSubmit,
@@ -86,7 +88,7 @@ class ApproveRejectWidget extends StatelessWidget {
                   children: [
                     CustomIconButton(
                       onPressed:
-                          () => _handleTap(
+                          () => _handleApprovalTap(
                             context,
                             actionType: "Approve",
                             onSubmit: onApprove,
@@ -96,7 +98,7 @@ class ApproveRejectWidget extends StatelessWidget {
                     ),
                     CustomIconButton(
                       onPressed:
-                          () => _handleTap(
+                          () => _handleApprovalTap(
                             context,
                             actionType: "Reject",
                             onSubmit: onReject,

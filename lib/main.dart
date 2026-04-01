@@ -62,7 +62,14 @@ Future initialSetup() async {
 
   SchedulerBinding.instance.addPostFrameCallback((_) {});
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  if (Platform.isIOS) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } else {
+    await Firebase.initializeApp();
+  }
+  ;
 
   // LOCK ORIENTATION
   await SystemChrome.setPreferredOrientations([

@@ -96,7 +96,9 @@ class _SourcingScreenState extends State<SourcingScreen> {
     final state = _sourcingCubit.state;
 
     String? selectedDirection =
-        state.currentSortColumn == "Name" ? state.currentSortDirection : null;
+        state.currentSortColumn == "Full Name"
+            ? state.currentSortDirection
+            : null;
 
     final String? initialDirection = selectedDirection;
 
@@ -185,7 +187,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
       onApply: () {
         _sourcingCubit.applyChannelPartnerSourcingFilterAndSort(
           context: context,
-          sortColumn: selectedDirection != null ? "Name" : null,
+          sortColumn: selectedDirection != null ? "Full Name" : null,
           sortDirection: selectedDirection,
         );
       },
