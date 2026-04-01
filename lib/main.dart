@@ -61,8 +61,13 @@ Future initialSetup() async {
   HttpOverrides.global = MyHttpOverrides();
 
   SchedulerBinding.instance.addPostFrameCallback((_) {});
-
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  if (Platform.isAndroid) {
+    await Firebase.initializeApp();
+  } else {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
 
   // LOCK ORIENTATION
   await SystemChrome.setPreferredOrientations([
@@ -103,7 +108,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("MyApp build called");
     return MultiBlocProvider(
       providers: [
         // LOGIN CUBIT
