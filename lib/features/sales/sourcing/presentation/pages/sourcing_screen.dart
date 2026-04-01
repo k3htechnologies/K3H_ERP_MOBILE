@@ -96,9 +96,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
     final state = _sourcingCubit.state;
 
     String? selectedDirection =
-        state.currentSortColumn == "CP Code"
-            ? state.currentSortDirection
-            : null;
+        state.currentSortColumn == "Name" ? state.currentSortDirection : null;
 
     final String? initialDirection = selectedDirection;
 
@@ -187,7 +185,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
       onApply: () {
         _sourcingCubit.applyChannelPartnerSourcingFilterAndSort(
           context: context,
-          sortColumn: selectedDirection != null ? "CP Code" : null,
+          sortColumn: selectedDirection != null ? "Name" : null,
           sortDirection: selectedDirection,
         );
       },
@@ -212,7 +210,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
           _sourcingCubit.searchChannelPartner(context, "");
         },
         isFilterOn: true,
-        onFilterTap: (){
+        onFilterTap: () {
           _showBottomSheetToFilterChannelPartner(context);
         },
       ),
@@ -255,6 +253,14 @@ class _SourcingScreenState extends State<SourcingScreen> {
                         Expanded(
                           child: GestureDetector(
                             onTap: () {
+                              if (_project.projectId == 0) {
+                                showErrorMessage(
+                                  context,
+                                  'Error',
+                                  'Please select a project',
+                                );
+                                return;
+                              }
                               goRouter.pushNamed(
                                 AppRoutes.viewSourcing,
                                 queryParameters: {
@@ -294,9 +300,9 @@ class _SourcingScreenState extends State<SourcingScreen> {
                       ],
                     ),
                     buildRowTitleValue(
-                        title: "CP Code",
-                        value: channelPartner.systemGeneratedCode,
-                        singleLine: false
+                      title: "CP Code",
+                      value: channelPartner.systemGeneratedCode,
+                      singleLine: false,
                     ),
                     buildRowTitleValue(
                       title: "Mobile No.",

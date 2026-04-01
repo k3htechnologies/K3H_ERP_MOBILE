@@ -102,7 +102,7 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
       "HolidayMasterId": holidayMasterId,
       "BranchMasterId": branchMasterId,
       "HolidayDate": holidayDate.toIso8601String(),
-      "DepartmentMasterId":departmentIds
+      "DepartmentMasterId": departmentIds,
     };
 
     var result = await holidayMappingMasterRepository.addUpdateMappedHoliday(
@@ -142,7 +142,7 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
       "HolidayMasterId": holidayMasterId,
       "BranchMasterId": branchMasterId,
       "HolidayDate": holidayDate.toIso8601String(),
-      "DepartmentMasterId":departmentIds
+      "DepartmentMasterId": departmentIds,
     };
     var result = await holidayMappingMasterRepository.addUpdateMappedHoliday(
       body: body,
@@ -227,6 +227,10 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           success["data"],
           exportType.toLowerCase() == "pdf"

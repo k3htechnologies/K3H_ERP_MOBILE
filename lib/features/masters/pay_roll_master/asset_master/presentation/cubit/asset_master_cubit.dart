@@ -23,7 +23,6 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
   final AssetMasterMappingRepository assetMasterMappingRepository =
       serviceLocator<AssetMasterMappingRepository>();
 
-
   // CLEAR RETURN HISTORY
   void clearReturnHistory() {
     emit(state.copyWith(assetMappingList: [], currentTabIndex: 0));
@@ -325,6 +324,10 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           success["data"],
           exportType.toLowerCase() == "pdf"
@@ -340,7 +343,7 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
     required int pageNumber,
     required int assetMasterId,
   }) async {
-    emit(state.copyWith(isLoading: true,assetMappingList: []));
+    emit(state.copyWith(isLoading: true, assetMappingList: []));
 
     var queryParams = {
       "AssetMasterId": assetMasterId,

@@ -576,12 +576,12 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   Future<void> getProjectWithEmployee({
     required BuildContext context,
     required int projectId,
-    Map<String,dynamic>? queryParams,
+    Map<String, dynamic>? queryParams,
   }) async {
     emit(state.copyWith(isEmployeeLoading: true));
     var result = await _projectMasterRepository.getProjectWithEmployee(
       projectId: projectId,
-      queryParams: queryParams
+      queryParams: queryParams,
     );
     result.fold(
       (failure) {
@@ -655,10 +655,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
           projectId: int.parse(projectId),
           context: context,
         );
-        showSuccessMessage(
-          context,
-          subTitle: response["message"],
-        );
+        showSuccessMessage(context, subTitle: response["message"]);
       },
     );
   }
@@ -899,16 +896,15 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
               ? "Project Master ${DateTime.now()}.pdf"
               : "Project Master ${DateTime.now()}.xlsx",
-        );
-
-        showSuccessMessage(
-          context,
-          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );

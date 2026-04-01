@@ -23,7 +23,6 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
     await getMaterialMasterList(context, 1, 20);
   }
 
-
   // <---- GET MATERIAL MASTER ---->
   Future getMaterialMasterList(
     BuildContext context,
@@ -188,16 +187,19 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
               ? "Material Master ${DateTime.now()}.pdf"
               : "Material Master ${DateTime.now()}.xlsx",
-        );
-
-        showSuccessMessage(
-          context,
-          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );

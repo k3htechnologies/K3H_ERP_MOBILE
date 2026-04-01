@@ -27,14 +27,12 @@ class LeaveEncashmentMasterCubit extends Cubit<LeaveEncashmentMasterState> {
   }) async {
     emit(state.copyWith(isLoading: true));
 
-    Map<String, dynamic> queryParams = {
-      "EarningName": state.searchText,
-    };
+    Map<String, dynamic> queryParams = {"EarningName": state.searchText};
 
     var result = await leaveEncashmentMasterRepository.getLeaveEncashmentList(
       pageNumber: pageNumber,
       pageSize: 10,
-      queryParams: queryParams
+      queryParams: queryParams,
     );
     result.fold(
       (failure) {
@@ -222,6 +220,10 @@ class LeaveEncashmentMasterCubit extends Cubit<LeaveEncashmentMasterState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           success["data"],
           exportType.toLowerCase() == "pdf"

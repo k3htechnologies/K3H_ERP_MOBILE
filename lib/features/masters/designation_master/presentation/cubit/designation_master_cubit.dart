@@ -252,15 +252,15 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
         );
       },
       (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
               ? "Designation Master ${DateTime.now()}.pdf"
               : "Designation Master ${DateTime.now()}.xlsx",
-        );
-        showSuccessMessage(
-          context,
-          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );

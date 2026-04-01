@@ -26,12 +26,12 @@ class TenantCubit extends Cubit<TenantState> {
 
   // <---- ON TAB CHANGED ---->
   void onTabChanged(
-      int index,
-      BuildContext context,
-      int projectId,
-      int buildingId,
-      int tenantId,
-      ) {
+    int index,
+    BuildContext context,
+    int projectId,
+    int buildingId,
+    int tenantId,
+  ) {
     emit(state.copyWith(currentTabIndex: index));
 
     if (index == 1) {
@@ -111,9 +111,10 @@ class TenantCubit extends Cubit<TenantState> {
       pageNumber: pageNumber,
       pageSize: pageSize,
       projectId: projectId,
-      queryParams: searchQuery != null && searchQuery.isNotEmpty
-          ? {"BuildingName": searchQuery}
-          : null,
+      queryParams:
+          searchQuery != null && searchQuery.isNotEmpty
+              ? {"BuildingName": searchQuery}
+              : null,
     );
 
     final buildingList = result.fold<List<RedevelopmentBuildingModel>>(
@@ -712,6 +713,10 @@ class TenantCubit extends Cubit<TenantState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           success["data"],
           exportType.toLowerCase() == "pdf"
@@ -791,8 +796,6 @@ class TenantCubit extends Cubit<TenantState> {
     required String documentName,
     required MultiFilePickerModel files,
   }) async {
-
-
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < files.fileNameList.length; i++) {
       if (files.fileNameList[i].contains("http")) {
@@ -807,12 +810,11 @@ class TenantCubit extends Cubit<TenantState> {
       }
     }
 
-
     DialogHelper.showProcessingOverlay(context);
 
     final body = <String, String>{
-      'TenantDocumentId':  tenantDocumentId.toString(),
-      'Uniquekey':  uniqueKey,
+      'TenantDocumentId': tenantDocumentId.toString(),
+      'Uniquekey': uniqueKey,
       'ProjectId': projectId.toString(),
       'BuildingId': buildingId.toString(),
       'DocumentName': documentName,
@@ -845,5 +847,4 @@ class TenantCubit extends Cubit<TenantState> {
       },
     );
   }
-
 }

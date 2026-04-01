@@ -181,10 +181,7 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
             ),
           );
 
-          showSuccessMessage(
-            context,
-            subTitle: "Asset return Successfully",
-          );
+          showSuccessMessage(context, subTitle: "Asset return Successfully");
         }
       },
     );
@@ -207,6 +204,10 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           success["data"],
           exportType.toLowerCase() == "pdf"

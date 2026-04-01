@@ -900,21 +900,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
 
     if (validDocuments.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.insert_drive_file_outlined,
-              size: 40,
-              color: AppColor.grey,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              "No Documents Uploaded",
-              style: AppTextStyle.ts14M(color: AppColor.grey),
-            ),
-          ],
-        ),
+        child: noDataWidget(message: "No Documents Available", iconSize: 100),
       );
     }
     return Column(

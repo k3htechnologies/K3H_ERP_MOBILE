@@ -22,9 +22,13 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
 
   // SEARCH
 
-  Future searchPaymentScheduleScheme(BuildContext context, String value,int projectId) async {
+  Future searchPaymentScheduleScheme(
+    BuildContext context,
+    String value,
+    int projectId,
+  ) async {
     emit(state.copyWith(searchText: value, paymentScheduleSchemeList: []));
-    await getPaymentScheduleSchemeList(context, 1,projectId);
+    await getPaymentScheduleSchemeList(context, 1, projectId);
   }
 
   // GET LIST
@@ -32,7 +36,7 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
   Future getPaymentScheduleSchemeList(
     BuildContext context,
     int pageNumber,
-      int projectId
+    int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
 
@@ -110,7 +114,7 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
           context,
           subTitle: "Payment Schedule Scheme Added Successfully!!!",
         );
-        getPaymentScheduleSchemeList(context, 1,projectId);
+        getPaymentScheduleSchemeList(context, 1, projectId);
       },
     );
   }
@@ -238,6 +242,10 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"

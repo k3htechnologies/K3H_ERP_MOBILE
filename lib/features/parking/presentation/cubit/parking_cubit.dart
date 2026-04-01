@@ -384,6 +384,10 @@ class ParkingCubit extends Cubit<ParkingState> {
       (response) {
         var exportData = response["data"];
         if (exportData is String) {
+          showSuccessMessage(
+            context,
+            subTitle: 'Successfully Exported as $exportType',
+          );
           exportExcelOrPdfMobile(
             exportData,
             exportType.toLowerCase() == "pdf"

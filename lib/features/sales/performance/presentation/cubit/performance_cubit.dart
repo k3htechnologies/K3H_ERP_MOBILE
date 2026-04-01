@@ -217,16 +217,15 @@ class PerformanceCubit extends Cubit<PerformanceState> {
       (response) {
         final fileName =
             "${reportType == "closing" ? "Closing Performance Report" : "Sourcing Performance Report"} ${DateTime.now()}";
-
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
               ? "$fileName.pdf"
               : "$fileName.xlsx",
-        );
-        showSuccessMessage(
-          context,
-          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );
