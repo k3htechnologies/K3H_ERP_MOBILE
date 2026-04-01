@@ -340,8 +340,10 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
             ],
           ),
           ApproveRejectWidget(
-            title: isActionAllowed ? "Actions" : "History",
+            actionTitle: isActionAllowed ? "Actions" : "History",
             isActionAlreadyPerformed: !isActionAllowed,
+            popupTitle:
+                "${widget.documentModel.projectRERADocumentCategory} > ${document.projectRERADocumentName}",
             onApprove: (val) async {
               await _loginCubit.updateModulesWorkflowApproval(
                 context: context,

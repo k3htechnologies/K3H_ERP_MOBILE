@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
+import 'package:k3h_erp_app/core/services/notification_service.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -25,6 +26,10 @@ class _SplashMobileScreenState extends State<SplashScreen> {
     super.initState();
 
     Future.delayed(const Duration(seconds: 2), () async {
+      final notificationService = NotificationService();
+
+      await notificationService.initNotifications();
+
       final localStorage = LocalStorageManager();
 
       final token = localStorage.getString(StorageKey.authorizationToken);
@@ -39,12 +44,12 @@ class _SplashMobileScreenState extends State<SplashScreen> {
 
       try {
         final UtilsRepository utilsRepository =
-        serviceLocator<UtilsRepository>();
+            serviceLocator<UtilsRepository>();
 
         utilsRepository.getAddressMaster().then((res) {
           res.fold(
-                (failure) => debugPrint("Address failed"),
-                (data) => debugPrint("Address cached successfully"),
+            (failure) => debugPrint("Address failed"),
+            (data) => debugPrint("Address cached successfully"),
           );
         });
 
@@ -63,14 +68,13 @@ class _SplashMobileScreenState extends State<SplashScreen> {
 
         final user = UserModel.fromJson(jsonDecode(userJson));
 
-        var result =
-        await utilsRepository.getMenu(employeeId: user.employeeId);
+        var result = await utilsRepository.getMenu(employeeId: user.employeeId);
 
         result.fold(
-              (failure) {
+          (failure) {
             goRouter.goNamed(AppRoutes.login);
           },
-              (data) async {
+          (data) async {
             localStorage.setString(
               StorageKey.menu,
               jsonEncode(data["menuData"]),

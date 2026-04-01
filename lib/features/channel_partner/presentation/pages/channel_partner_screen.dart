@@ -35,7 +35,10 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
   late AuthorizationModel _routeAuthorizationModel;
 
   // TEXT EDIT CONTROLLER
-  late TextEditingController _searchC,_filterCompanyNameC,_filterMobileNumberC,_filterVillageC;
+  late TextEditingController _searchC,
+      _filterCompanyNameC,
+      _filterMobileNumberC,
+      _filterVillageC;
 
   // PAGINATION
   late ScrollController scrollController;
@@ -94,8 +97,8 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
 
   // CHANNEL PARTNER FILTER
   Future<void> _showBottomSheetToFilterChannelPartner(
-      BuildContext context,
-      ) async {
+    BuildContext context,
+  ) async {
     final state = _channelPartnerCubit.state;
 
     _filterCompanyNameC.text = state.filterByCompanyName;
@@ -103,12 +106,12 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
     _filterVillageC.text = state.filterByVillage;
 
     String? selectedDirection =
-    state.currentSortColumn == "Full Name"
-        ? state.currentSortDirection
-        : null;
+        state.currentSortColumn == "Full Name"
+            ? state.currentSortDirection
+            : null;
 
     final String initialCompanyName = _filterCompanyNameC.text;
-    final String initialMobileNumber= _filterMobileNumberC.text;
+    final String initialMobileNumber = _filterMobileNumberC.text;
     final String initialVillage = _filterVillageC.text;
     final String? initialDirection = selectedDirection;
 
@@ -120,9 +123,9 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
       innerState(() {
         manualClose =
             (_filterCompanyNameC.text.trim() != initialCompanyName) ||
-                (_filterVillageC.text.trim() != initialVillage) ||
-                (_filterMobileNumberC.text.trim() != initialMobileNumber) ||
-                (selectedDirection != initialDirection);
+            (_filterVillageC.text.trim() != initialVillage) ||
+            (_filterMobileNumberC.text.trim() != initialMobileNumber) ||
+            (selectedDirection != initialDirection);
         applyEnabled.value = manualClose;
       });
     }
@@ -159,9 +162,9 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4),
                           color:
-                          selectedDirection == "ASC"
-                              ? AppColor.lightBlue
-                              : Colors.transparent,
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
                           border: Border.all(color: AppColor.grey, width: .5),
                         ),
                         child: Text("A-Z", style: AppTextStyle.ts12R()),
@@ -178,9 +181,9 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4),
                           color:
-                          selectedDirection == "DESC"
-                              ? AppColor.lightBlue
-                              : Colors.transparent,
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
                           border: Border.all(color: AppColor.grey, width: .5),
                         ),
                         child: Text("Z-A", style: AppTextStyle.ts12R()),
@@ -268,7 +271,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
           _channelPartnerCubit.exportExcelPdf(context, value);
         },
         isFilterOn: true,
-        onFilterTap: (){
+        onFilterTap: () {
           _showBottomSheetToFilterChannelPartner(context);
         },
       ),
@@ -298,7 +301,8 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
             return ListView.builder(
               controller: scrollController,
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              itemCount: _channelPartnerCubit.state.channelPartnerList.length + 1,
+              itemCount:
+                  _channelPartnerCubit.state.channelPartnerList.length + 1,
               itemBuilder: (context, index) {
                 if (index == state.channelPartnerList.length) {
                   return state.channelPartnerList.length <
@@ -369,11 +373,12 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                                   goRouter.pushNamed(
                                     AppRoutes.addChannelPartner,
                                     queryParameters: {
-                                      "channelPartner": Uri.encodeQueryComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(channelPartner),
-                                        ),
-                                      ),
+                                      "channelPartner":
+                                          Uri.encodeQueryComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(channelPartner),
+                                            ),
+                                          ),
                                       "index": index.toString(),
                                     },
                                   );
@@ -386,7 +391,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                       buildRowTitleValue(
                         title: "CP Code",
                         value: channelPartner.systemGeneratedCode,
-                        singleLine: false
+                        singleLine: false,
                       ),
                       buildRowTitleValue(
                         title: "Company Name",

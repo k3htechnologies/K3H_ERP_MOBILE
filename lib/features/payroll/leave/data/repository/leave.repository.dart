@@ -25,6 +25,12 @@ abstract interface class LeaveRepository {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> getLeaveConfigurated({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class LeaveRepositoryImpl implements LeaveRepository {
@@ -90,6 +96,24 @@ class LeaveRepositoryImpl implements LeaveRepository {
   }) async {
     try {
       var result = await leaveDatasource.apicallPullLeaveForExport(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getLeaveConfigurated({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await leaveDatasource.apicallPullLeaveConfigurated(
         pageNumber: pageNumber,
         pageSize: pageSize,
         queryParams: queryParams,

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/data/model/sourcing.model.dart';
@@ -11,6 +12,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -53,6 +55,9 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
 
   late Map<String, dynamic> selectedSupport;
 
+  // PROJECT
+  late ProjectModel _project;
+
   // STATIC SUPPORT LIST
   List<Map<String, dynamic>> supportList = [
     {"zAttributesId": -1, "DisplayName": "Select Support"},
@@ -69,6 +74,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
 
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.sourcing]!;
+    _project = getProject();
     _remarkC = TextEditingController();
     selectedSupport = supportList.first;
     _tabController = TabController(length: 2, vsync: this);
@@ -377,6 +383,21 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
       body: SafeArea(
         child: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: CustomTextField(
+                readOnly: true,
+                textController: TextEditingController(
+                  text:
+                      (_project.projectName.isEmpty ||
+                              _project.projectName.toLowerCase() == "default")
+                          ? "No Project Selected"
+                          : _project.projectName,
+                ),
+                hint: 'Select Project',
+              ),
+            ),
+
             Align(
               alignment: Alignment.centerLeft,
               child: IntrinsicWidth(

@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/data/model/leave_credit_configuration_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/data/repository/leave_credit_configuration_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/data/model/leave_type_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/data/repository/leave_type_master.repository.dart';
 import 'package:k3h_erp_app/features/payroll/leave/model/leave.model.dart';
@@ -31,8 +33,6 @@ class ApplyLeaveScreen extends StatefulWidget {
 class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
   // CUBIT
   late LeaveCubit _leaveCubit;
-  final LeaveTypeMasterRepository _leaveTypeMasterRepository =
-      serviceLocator<LeaveTypeMasterRepository>();
 
   // FORK KEY
   final _formKey = GlobalKey<FormState>();
@@ -138,40 +138,6 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
     _reasonC = TextEditingController();
   }
 
-  // FETCH LEAVE TYPE
-  Future<Map<String, dynamic>> _fetchLeaveType(
-    int pageNumber, {
-    String? value,
-  }) async {
-    final result = await _leaveTypeMasterRepository.getLeaveTypeList(
-      pageNumber: pageNumber,
-      pageSize: 15,
-      queryParams:
-          value != null && value.isNotEmpty ? {"DepartmentName": value} : {},
-    );
-
-    return result.fold(
-      (failure) => {
-        "itemList": <Map<String, dynamic>>[],
-        "totalNumberOfRecord": 0,
-      },
-      (response) {
-        final departments = response['data'] as List<LeaveTypeModel>;
-
-        return {
-          "itemList":
-              departments.map((department) {
-                return {
-                  "zAttributesId": department.leaveTypeMasterId,
-                  "DisplayName": department.leaveType,
-                };
-              }).toList(),
-          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
-        };
-      },
-    );
-  }
-
   // CALCULATE TOTAL DAYS
   void _calculateTotalDays() {
     final startDate = _startDateNotifier.value;
@@ -227,7 +193,8 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                           isRequired: true,
                           isMultiSelect: false,
                           initialValue: leaveTy,
-                          dataFetchCallBack: _fetchLeaveType,
+                          dataFetchCallBack:
+                              _leaveCubit.fetchConfiguredLeaveType,
                           onSelected: (value) {
                             _selectedLeaveTypeNotifier.value = value;
                           },

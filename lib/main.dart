@@ -81,7 +81,6 @@ Future initialSetup() async {
   final notificationService = NotificationService();
   await notificationService
       .setupFlutterNotifications(); // The local notifications setup
-  await notificationService.initNotifications();
   final info = await PackageInfo.fromPlatform();
   final currentVersion = info.version;
 

@@ -682,8 +682,10 @@ class _BookingScreenState extends State<BookingScreen> {
                     ),
                     verticalSpacing(),
                     ApproveRejectWidget(
-                      title: isActionAllowed ? "Actions" : "History",
-                      subTitle: "${booking.applicantName} > ${booking.flat}",
+                      actionTitle: isActionAllowed ? "Actions" : "History",
+                      popupTitle:
+                          "${booking.applicantName} ${booking.flat.isNotEmpty ? " > ${booking.flat}" : ""}",
+
                       isActionAlreadyPerformed: !isActionAllowed,
                       onApprove: (val) async {
                         await _loginCubit.updateModulesWorkflowApproval(
@@ -734,7 +736,7 @@ class _BookingScreenState extends State<BookingScreen> {
                             queryParameters: {
                               "subTitle": Uri.encodeComponent(
                                 EncryptionManager.encryptData(
-                                  "${booking.applicantName} > ${booking.flat}",
+                                  "${booking.applicantName} ${booking.flat.isNotEmpty ? " > ${booking.flat}" : ""}",
                                 ),
                               ),
                               "title": Uri.encodeComponent(

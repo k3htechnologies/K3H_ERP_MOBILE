@@ -345,8 +345,10 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
             ],
           ),
           ApproveRejectWidget(
-            title: isActionAllowed ? "Actions" : "History",
+            actionTitle: isActionAllowed ? "Actions" : "History",
             isActionAlreadyPerformed: !isActionAllowed,
+            popupTitle:
+                "${widget.documentModel.projectDocumentCategory} > ${document.projectDocumentName}",
             onApprove: (val) async {
               await _loginCubit.updateModulesWorkflowApproval(
                 context: context,
@@ -396,7 +398,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                   queryParameters: {
                     "subTitle": Uri.encodeComponent(
                       EncryptionManager.encryptData(
-                        "${widget.documentModel.projectDocumentCategory} > ${widget.documentModel.projectDocumentName} > ${document.projectDocumentName}",
+                        "${widget.documentModel.projectDocumentName} > ${document.projectDocumentName}",
                       ),
                     ),
                     "title": Uri.encodeComponent(
