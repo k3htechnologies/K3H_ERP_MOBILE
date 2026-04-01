@@ -348,6 +348,10 @@ class InventoryCubit extends Cubit<InventoryState> {
         showErrorMessage(context, "Failed", failure.message);
       },
       (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"

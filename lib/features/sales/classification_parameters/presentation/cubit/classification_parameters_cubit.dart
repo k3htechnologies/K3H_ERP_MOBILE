@@ -223,15 +223,15 @@ class ClassificationParametersCubit
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
               ? "Classification Parameters ${DateTime.now()}.pdf"
               : "Classification Parameters ${DateTime.now()}.xlsx",
-        );
-        showSuccessMessage(
-          context,
-          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );

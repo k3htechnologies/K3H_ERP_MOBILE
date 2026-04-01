@@ -427,16 +427,15 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
               ? "Company Master ${DateTime.now()}.pdf"
               : "Company Master ${DateTime.now()}.xlsx",
-        );
-
-        showSuccessMessage(
-          context,
-          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );

@@ -233,15 +233,15 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
               ? "Project Document Category Master ${DateTime.now()}.pdf"
               : "Project Document Category Master ${DateTime.now()}.xlsx",
-        );
-        showSuccessMessage(
-          context,
-          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );

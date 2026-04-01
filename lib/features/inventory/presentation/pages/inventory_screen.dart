@@ -459,9 +459,10 @@ class _InventoryScreenState extends State<InventoryScreen>
               children: [
                 if (index == 0) ...[
                   ApproveRejectWidget(
-                    title: wing.approvalStatus,
+                    actionTitle: wing.approvalStatus,
                     isActionAlreadyPerformed: !isActionAllowed,
                     isMaster: true,
+                    popupTitle: "${building.buildingNumber} > ${wing.wing}",
                     onApprove: (val) async {
                       await _loginCubit.updateModulesWorkflowApproval(
                         context: context,

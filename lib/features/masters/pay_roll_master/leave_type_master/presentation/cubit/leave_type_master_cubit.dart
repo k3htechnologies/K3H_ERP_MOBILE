@@ -13,15 +13,9 @@ class LeaveTypeMasterCubit extends Cubit<LeaveTypeMasterState> {
   final LeaveTypeMasterRepository leaveTypeMasterRepository =
       serviceLocator<LeaveTypeMasterRepository>();
 
-
   // SEARCH BASED ON LEAVE TYPE
   Future<void> searchLeaveType(String value, BuildContext context) async {
-    emit(
-      state.copyWith(
-        leaveTypeList: [],
-        searchText: value,
-      ),
-    );
+    emit(state.copyWith(leaveTypeList: [], searchText: value));
     await getLeaveTypeList(context: context, pageNumber: 1);
   }
 
@@ -210,6 +204,10 @@ class LeaveTypeMasterCubit extends Cubit<LeaveTypeMasterState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           success["data"],
           exportType.toLowerCase() == "pdf"

@@ -48,9 +48,6 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   // CUBIT
   late PayrollReportCubit _payrollReportCubit;
 
-  // AUTHORIZATION
-  late AuthorizationModel _routeAuthorizationModel;
-
   // TEXT CONTROLLER
   late TextEditingController _searchC;
 
@@ -103,8 +100,6 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     super.initState();
 
     _project = getProject();
-    _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.payrollReport]!;
     _payrollReportCubit = context.read<PayrollReportCubit>();
     _searchC = TextEditingController();
     _selectedDateNotifier = ValueNotifier(DateTime.now());
@@ -997,11 +992,8 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     );
   }
 
-  final bool isActionAllowed = false;
-
   @override
   Widget build(BuildContext context) {
-    isActionAllowed == _routeAuthorizationModel.isAction;
     return Scaffold(
       backgroundColor: AppColor.white,
       appBar: CustomAppBar(
@@ -1718,15 +1710,32 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                           return Column(
                             children: [
                               if (state.regularizationInnerTabIndex == 1 &&
-                                  isActionAllowed) ...[
+                                  index == 0) ...[
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16.0,
                                   ),
                                   child: ApproveRejectWidget(
-                                    title: "Pending",
-                                    isActionAlreadyPerformed: !isActionAllowed,
+                                    actionTitle: "Pending",
+                                    isActionAlreadyPerformed: false,
+                                    popupTitle: "Confirm Approval",
+                                    subTitle:
+                                        "You are about to approve ${state.selectedRegularizationIds.length} records(s).",
                                     isMaster: true,
+                                    canOpenDialog: () {
+                                      if (state
+                                          .selectedRegularizationIds
+                                          .isEmpty) {
+                                        showErrorMessage(
+                                          context,
+                                          "Error",
+                                          "Please select at least one record or use Select All",
+                                        );
+                                        return false;
+                                      }
+                                      return true;
+                                    },
+
                                     onApprove: (val) async {
                                       final isSuccess =
                                           await _payrollReportCubit
@@ -1802,24 +1811,23 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (isActionAllowed) ...[
-                                    Checkbox(
-                                      value: state.selectedRegularizationIds
-                                          .contains(
-                                            reg.attendanceRegularizationId,
-                                          ),
-                                      onChanged: (_) {
-                                        _payrollReportCubit.toggleSelection(
-                                          id: reg.attendanceRegularizationId,
-                                          listLength:
-                                              state
-                                                  .approvalRegularizationList
-                                                  .length,
-                                        );
-                                      },
-                                    ),
-                                    const SizedBox(width: 8),
-                                  ],
+                                  Checkbox(
+                                    value: state.selectedRegularizationIds
+                                        .contains(
+                                          reg.attendanceRegularizationId,
+                                        ),
+                                    onChanged: (_) {
+                                      _payrollReportCubit.toggleSelection(
+                                        id: reg.attendanceRegularizationId,
+                                        listLength:
+                                            state
+                                                .approvalRegularizationList
+                                                .length,
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 8),
+
                                   Expanded(
                                     child: Container(
                                       margin: const EdgeInsets.only(bottom: 10),
@@ -2139,15 +2147,29 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                           return Column(
                             children: [
                               if (state.compOffInnerTabIndex == 1 &&
-                                  isActionAllowed) ...[
+                                  index == 0) ...[
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16.0,
                                   ),
                                   child: ApproveRejectWidget(
-                                    title: "Pending",
-                                    isActionAlreadyPerformed: !isActionAllowed,
+                                    actionTitle: "Pending",
+                                    isActionAlreadyPerformed: false,
+                                    popupTitle: "Confirm Approval",
+                                    subTitle:
+                                        "You are about to approve ${state.selectedCompOffIds.length} records(s).",
                                     isMaster: true,
+                                    canOpenDialog: () {
+                                      if (state.selectedCompOffIds.isEmpty) {
+                                        showErrorMessage(
+                                          context,
+                                          "Error",
+                                          "Please select at least one record or use Select All",
+                                        );
+                                        return false;
+                                      }
+                                      return true;
+                                    },
                                     onApprove: (val) async {
                                       final isSuccess =
                                           await _payrollReportCubit
@@ -2218,21 +2240,20 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (isActionAllowed) ...[
-                                    Checkbox(
-                                      value: state.selectedCompOffIds.contains(
-                                        compOff.compOffId,
-                                      ),
-                                      onChanged: (_) {
-                                        _payrollReportCubit.toggleSelection(
-                                          id: compOff.compOffId,
-                                          listLength:
-                                              state.approvalCompOffList.length,
-                                        );
-                                      },
+                                  Checkbox(
+                                    value: state.selectedCompOffIds.contains(
+                                      compOff.compOffId,
                                     ),
-                                    const SizedBox(width: 8),
-                                  ],
+                                    onChanged: (_) {
+                                      _payrollReportCubit.toggleSelection(
+                                        id: compOff.compOffId,
+                                        listLength:
+                                            state.approvalCompOffList.length,
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 8),
+
                                   Expanded(
                                     child: Container(
                                       margin: const EdgeInsets.only(bottom: 10),
@@ -2549,20 +2570,34 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
                           final leave = state.approvalLeaveList[index];
                           final selectedIds = state.selectedLeaveIds;
+                          print("Selected IDs: $selectedIds");
 
                           return Column(
                             children: [
                               if (state.leaveInnerTabIndex == 1 &&
-                                  index == 0 &&
-                                  isActionAllowed) ...[
+                                  index == 0) ...[
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16.0,
                                   ),
                                   child: ApproveRejectWidget(
-                                    title: "Pending",
-                                    isActionAlreadyPerformed: !isActionAllowed,
+                                    actionTitle: "Pending",
+                                    isActionAlreadyPerformed: false,
                                     isMaster: true,
+                                    popupTitle: "Confirm Approval",
+                                    subTitle:
+                                        "You are about to approve ${selectedIds.length} records(s).",
+                                    canOpenDialog: () {
+                                      if (selectedIds.isEmpty) {
+                                        showErrorMessage(
+                                          context,
+                                          "Error",
+                                          "Please select at least one record or use Select All",
+                                        );
+                                        return false;
+                                      }
+                                      return true;
+                                    },
 
                                     onApprove: (val) async {
                                       final isSuccess =
@@ -2636,22 +2671,18 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (isActionAllowed) ...[
-                                    Checkbox(
-                                      value: selectedIds.contains(
-                                        leave.leaveId,
-                                      ),
-                                      onChanged: (_) {
-                                        _payrollReportCubit.toggleSelection(
-                                          id: leave.leaveId,
-                                          listLength:
-                                              state.approvalLeaveList.length,
-                                        );
-                                      },
-                                    ),
+                                  Checkbox(
+                                    value: selectedIds.contains(leave.leaveId),
+                                    onChanged: (_) {
+                                      _payrollReportCubit.toggleSelection(
+                                        id: leave.leaveId,
+                                        listLength:
+                                            state.approvalLeaveList.length,
+                                      );
+                                    },
+                                  ),
 
-                                    const SizedBox(width: 8),
-                                  ],
+                                  const SizedBox(width: 8),
 
                                   Expanded(
                                     child: Container(
@@ -2978,15 +3009,29 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                           return Column(
                             children: [
                               if (state.outdoorInnerTabIndex == 1 &&
-                                  index == 0 &&
-                                  isActionAllowed) ...[
+                                  index == 0) ...[
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16.0,
                                   ),
                                   child: ApproveRejectWidget(
-                                    title: "Pending",
-                                    isActionAlreadyPerformed: !isActionAllowed,
+                                    actionTitle: "Pending",
+                                    isActionAlreadyPerformed: false,
+                                    popupTitle: "Confirm Approval",
+                                    subTitle:
+                                        "You are about to approve ${state.selectedOutdoorIds.length} records(s).",
+                                    canOpenDialog: () {
+                                      if (state.selectedOutdoorIds.isEmpty) {
+                                        showErrorMessage(
+                                          context,
+                                          "Error",
+                                          "Please select at least one record or use Select All",
+                                        );
+                                        return false;
+                                      }
+                                      return true;
+                                    },
+
                                     isMaster: true,
                                     onApprove: (val) async {
                                       final isSuccess =
@@ -3059,21 +3104,20 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (isActionAllowed) ...[
-                                    Checkbox(
-                                      value: state.selectedOutdoorIds.contains(
-                                        outdoor.outdoorId,
-                                      ),
-                                      onChanged: (_) {
-                                        _payrollReportCubit.toggleSelection(
-                                          id: outdoor.outdoorId,
-                                          listLength:
-                                              state.approvalOutdoorList.length,
-                                        );
-                                      },
+                                  Checkbox(
+                                    value: state.selectedOutdoorIds.contains(
+                                      outdoor.outdoorId,
                                     ),
-                                    const SizedBox(width: 8),
-                                  ],
+                                    onChanged: (_) {
+                                      _payrollReportCubit.toggleSelection(
+                                        id: outdoor.outdoorId,
+                                        listLength:
+                                            state.approvalOutdoorList.length,
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 8),
+
                                   Expanded(
                                     child: Container(
                                       margin: const EdgeInsets.only(bottom: 10),
@@ -3415,16 +3459,32 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                           return Column(
                             children: [
                               if (state.resignationInnerTabIndex == 1 &&
-                                  index == 0 &&
-                                  isActionAllowed) ...[
+                                  index == 0) ...[
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16.0,
                                   ),
                                   child: ApproveRejectWidget(
-                                    title: "Pending",
-                                    isActionAlreadyPerformed: !isActionAllowed,
+                                    actionTitle: "Pending",
+                                    isActionAlreadyPerformed: false,
+                                    popupTitle: "Confirm Approval",
+                                    subTitle:
+                                        "You are about to approve ${state.selectedResignationIds.length} records(s).",
                                     isMaster: true,
+                                    canOpenDialog: () {
+                                      if (state
+                                          .selectedResignationIds
+                                          .isEmpty) {
+                                        showErrorMessage(
+                                          context,
+                                          "Error",
+                                          "Please select at least one record or use Select All",
+                                        );
+                                        return false;
+                                      }
+                                      return true;
+                                    },
+
                                     onApprove: (val) async {
                                       final isSuccess =
                                           await _payrollReportCubit
@@ -3498,24 +3558,23 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (isActionAllowed) ...[
-                                    Checkbox(
-                                      value: state.selectedResignationIds
-                                          .contains(
-                                            resignation.employeeResignationId,
-                                          ),
-                                      onChanged: (_) {
-                                        _payrollReportCubit.toggleSelection(
-                                          id: resignation.employeeResignationId,
-                                          listLength:
-                                              state
-                                                  .approvalResignationList
-                                                  .length,
-                                        );
-                                      },
-                                    ),
-                                    const SizedBox(width: 8),
-                                  ],
+                                  Checkbox(
+                                    value: state.selectedResignationIds
+                                        .contains(
+                                          resignation.employeeResignationId,
+                                        ),
+                                    onChanged: (_) {
+                                      _payrollReportCubit.toggleSelection(
+                                        id: resignation.employeeResignationId,
+                                        listLength:
+                                            state
+                                                .approvalResignationList
+                                                .length,
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 8),
+
                                   Expanded(
                                     child: Container(
                                       margin: const EdgeInsets.only(bottom: 10),

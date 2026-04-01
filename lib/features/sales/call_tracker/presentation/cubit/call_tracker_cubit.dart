@@ -222,6 +222,10 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
@@ -253,6 +257,10 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"

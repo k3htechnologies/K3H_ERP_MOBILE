@@ -244,6 +244,10 @@ class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           success["data"],
           exportType.toLowerCase() == "pdf"

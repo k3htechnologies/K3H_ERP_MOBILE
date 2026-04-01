@@ -24,6 +24,12 @@ abstract interface class LeaveDatasource {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Map<String, dynamic>> apicallPullLeaveConfigurated({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class LeaveDatasourceDataSourceImpl implements LeaveDatasource {
@@ -104,19 +110,13 @@ class LeaveDatasourceDataSourceImpl implements LeaveDatasource {
     required int leaveId,
     required String uniqueKey,
   }) async {
-    String deleteLeaveUrl({
-      required int leaveId,
-      required String uniqueKey,
-    }) {
+    String deleteLeaveUrl({required int leaveId, required String uniqueKey}) {
       return "Leave/DeleteLeave?LeaveId=$leaveId&Uniquekey=$uniqueKey";
     }
 
     try {
       var networkResponse = await baseClient.deleteRequestWithAuthentication(
-        deleteLeaveUrl(
-          leaveId: leaveId,
-          uniqueKey: uniqueKey,
-        ),
+        deleteLeaveUrl(leaveId: leaveId, uniqueKey: uniqueKey),
       );
       return {
         'data': networkResponse["data"],
@@ -124,10 +124,7 @@ class LeaveDatasourceDataSourceImpl implements LeaveDatasource {
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        return apicallDeleteLeave(
-          leaveId: leaveId,
-          uniqueKey: uniqueKey,
-        );
+        return apicallDeleteLeave(leaveId: leaveId, uniqueKey: uniqueKey);
       }
       rethrow;
     }
@@ -164,6 +161,51 @@ class LeaveDatasourceDataSourceImpl implements LeaveDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         apicallPullLeaveForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullLeaveConfigurated({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullLeaveConfiguredUrl({
+      required int pageSize,
+      required int pageNumber,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "Leave/PullLeaveConfigured?PageSize=$pageSize&PageNumber=$pageNumber";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullLeaveConfiguredUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: queryParams,
+        ),
+      );
+      List<Map<String, dynamic>> leaveConfigs = List<Map<String, dynamic>>.from(
+        networkResponse['data'] ?? [],
+      );
+
+      return {
+        'data': leaveConfigs,
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallPullLeaveConfigurated(
           pageNumber: pageNumber,
           pageSize: pageSize,
           queryParams: queryParams,

@@ -261,6 +261,10 @@ class LeaveCubit extends Cubit<LeaveState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
@@ -317,5 +321,39 @@ class LeaveCubit extends Cubit<LeaveState> {
       ),
     );
     getLeaveList(context, 1);
+  }
+
+  // FETCH LEAVE TYPE
+  Future<Map<String, dynamic>> fetchConfiguredLeaveType(
+    int pageNumber, {
+    String? value,
+  }) async {
+    final result = await _leaveRepository.getLeaveConfigurated(
+      pageNumber: 1,
+      pageSize: 100,
+      queryParams:
+          value != null && value.isNotEmpty ? {"DepartmentName": value} : {},
+    );
+
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final leaveConfigs = response['data'] as List<Map<String, dynamic>>;
+
+        return {
+          "itemList":
+              leaveConfigs.map((leaveConfig) {
+                return {
+                  "zAttributesId": leaveConfig['LeaveTypeMasterId'],
+                  "DisplayName": leaveConfig['LeaveType'],
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
+        };
+      },
+    );
   }
 }

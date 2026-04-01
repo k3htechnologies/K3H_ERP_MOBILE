@@ -5,11 +5,12 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ApproveRejectWidget extends StatelessWidget {
-  final String title;
+  final String actionTitle;
   final bool isActionAlreadyPerformed;
 
   final ValueChanged<String> onApprove;
@@ -21,11 +22,13 @@ class ApproveRejectWidget extends StatelessWidget {
   final IconData thirdIcon;
   final bool isMaster;
   final Widget? customWidget;
+  final String popupTitle;
   final String? subTitle;
+  final bool Function()? canOpenDialog;
 
   const ApproveRejectWidget({
     super.key,
-    required this.title,
+    required this.actionTitle,
     required this.onApprove,
     required this.onReject,
     this.onThirdTap,
@@ -35,8 +38,21 @@ class ApproveRejectWidget extends StatelessWidget {
     this.thirdIcon = Icons.watch_later_outlined,
     this.isMaster = false,
     this.customWidget,
+    required this.popupTitle,
     this.subTitle,
+    this.canOpenDialog,
   });
+  void _handleTap(
+    BuildContext context, {
+    required String actionType,
+    required ValueChanged<String> onSubmit,
+  }) {
+    if (canOpenDialog != null && !canOpenDialog!()) {
+      return;
+    }
+
+    _showRemarkDialog(context, actionType: actionType, onSubmit: onSubmit);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,22 +69,7 @@ class ApproveRejectWidget extends StatelessWidget {
                       "Approval Status : ",
                       style: AppTextStyle.ts14M(color: AppColor.grey),
                     ),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 18.0,
-                        vertical: 4.0,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _statusColor(title),
-                        borderRadius: BorderRadius.circular(6.0),
-                      ),
-                      child: Text(
-                        title,
-                        style: AppTextStyle.ts14M(
-                          color: getFlatStatusTextColor(title),
-                        ),
-                      ),
-                    ),
+                    statusWidget(actionTitle),
                   ],
                 ),
             (isActionAlreadyPerformed && onThirdTap != null)
@@ -85,7 +86,7 @@ class ApproveRejectWidget extends StatelessWidget {
                   children: [
                     CustomIconButton(
                       onPressed:
-                          () => _showRemarkDialog(
+                          () => _handleTap(
                             context,
                             actionType: "Approve",
                             onSubmit: onApprove,
@@ -95,7 +96,7 @@ class ApproveRejectWidget extends StatelessWidget {
                     ),
                     CustomIconButton(
                       onPressed:
-                          () => _showRemarkDialog(
+                          () => _handleTap(
                             context,
                             actionType: "Reject",
                             onSubmit: onReject,
@@ -139,7 +140,7 @@ class ApproveRejectWidget extends StatelessWidget {
                       bottomLeft: Radius.circular(6),
                     ),
                   ),
-                  child: Text('$title :', style: AppTextStyle.ts14R()),
+                  child: Text('$actionTitle :', style: AppTextStyle.ts14R()),
                 ),
               ),
               if (!isActionAlreadyPerformed) ...[
@@ -223,7 +224,7 @@ class ApproveRejectWidget extends StatelessWidget {
 
     DialogHelper.showCustomDialogue(
       context,
-      title: actionType,
+      title: popupTitle,
       childContent: Form(
         key: formKey,
         child: Column(
@@ -239,6 +240,7 @@ class ApproveRejectWidget extends StatelessWidget {
               isRequired: true,
               minLines: 3,
               maxLines: 3,
+              bottomMargin: 5.0,
               textController: remarkController,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -247,61 +249,47 @@ class ApproveRejectWidget extends StatelessWidget {
                 return null;
               },
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                CustomButton(
+                  text: actionType,
+                  onPressed: () {
+                    if (formKey.currentState?.validate() ?? false) {
+                      final remark = remarkController.text.trim();
+                      goRouter.pop();
+                      onSubmit(remark);
+                    }
+                  },
+                ),
+              ],
+            ),
           ],
         ),
-      ),
-
-      bottomSection: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          CustomButton.cancelOutline(
-            onPressed: () {
-              goRouter.pop();
-            },
-          ),
-          const SizedBox(width: 8),
-          CustomButton(
-            text: "Submit",
-            onPressed: () {
-              if (formKey.currentState?.validate() ?? false) {
-                final remark = remarkController.text.trim();
-                goRouter.pop();
-                onSubmit(remark);
-              }
-            },
-          ),
-        ],
       ),
     );
   }
 }
 
-// STATUS COLOR
-Color _statusColor(String status) {
-  switch (status) {
-    case "Approved":
-      return AppColor.lightGreen.withValues(alpha: .3);
-    case "Reject":
-      return AppColor.lightRed.withValues(alpha: 0.15);
-    case "Pending":
-      return AppColor.holdYellowColor.withValues(alpha: 0.15);
-    default:
-      return AppColor.grey;
-  }
-}
+Widget statusWidget(String status) {
+  final trimmed = status.trim();
 
-Color getFlatStatusTextColor(String status) {
-  switch (status.toLowerCase()) {
-    case "approved":
-      return AppColor.green;
+  final s = trimmed.toLowerCase();
 
-    case "reject":
-      return AppColor.red;
+  switch (s) {
+    case 'approved':
+      return statusChip(status, AppColor.green20, AppColor.green);
 
-    case "pending":
-      return AppColor.brown;
+    case 'rejected':
+      return statusChip(status, AppColor.lightRed, AppColor.red);
+
+    case 'pending':
+      return statusChip(status, AppColor.lightYellow, AppColor.brown);
+
+    case 'partial approved':
+      return statusChip(status, AppColor.lightPurple, AppColor.purple);
 
     default:
-      return AppColor.black;
+      return statusChip(status, AppColor.lightGreyBackground, AppColor.black);
   }
 }

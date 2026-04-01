@@ -130,11 +130,7 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
           subTitle: "Payment Schedule added successfully",
         );
 
-        getPaymentScheduleMasterList(
-          context,
-          1,
-          scheme: scheme,
-        );
+        getPaymentScheduleMasterList(context, 1, scheme: scheme);
 
         goRouter.pop();
       },
@@ -305,6 +301,10 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
     result.fold(
       (failure) => showErrorMessage(context, 'Error', failure.message),
       (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"

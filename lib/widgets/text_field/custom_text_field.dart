@@ -21,6 +21,7 @@ class CustomTextField extends StatelessWidget {
   final Function(String)? onChangeFunction;
   final Function(String)? onSubmitFunction;
   final String? Function(String?)? validator;
+  final double bottomMargin;
 
   const CustomTextField({
     super.key,
@@ -40,6 +41,7 @@ class CustomTextField extends StatelessWidget {
     this.onChangeFunction,
     this.onSubmitFunction,
     this.validator,
+    this.bottomMargin = 18.0,
   });
 
   @override
@@ -165,7 +167,7 @@ class CustomTextField extends StatelessWidget {
                     ],
                   ),
                 )
-                : const SizedBox(height: 18),
+                : SizedBox(height: bottomMargin),
           ],
         );
       },

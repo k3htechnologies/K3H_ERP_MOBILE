@@ -17,11 +17,10 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
       serviceLocator<TermsAndConditionsMasterRepository>();
 
   // CLEAR SEARCH
-  void clearSearch(){
-    emit(state.copyWith(
-      searchTextBooking: "",
-      searchTextMaterialRequisition: "",
-    ));
+  void clearSearch() {
+    emit(
+      state.copyWith(searchTextBooking: "", searchTextMaterialRequisition: ""),
+    );
   }
 
   // <---- GET MATERIAL REQUISITION LIST ---->
@@ -431,15 +430,15 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
               ? "Terms & Conditions Master ${DateTime.now()}.pdf"
               : "Terms & Conditions Master ${DateTime.now()}.xlsx",
-        );
-        showSuccessMessage(
-          context,
-          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );
@@ -464,15 +463,15 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
               ? "Terms & Conditions Master ${DateTime.now()}.pdf"
               : "Terms & Conditions Master ${DateTime.now()}.xlsx",
-        );
-        showSuccessMessage(
-          context,
-          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );

@@ -326,8 +326,10 @@ class _ViewApprovalDocumentScreenState
             ],
           ),
           ApproveRejectWidget(
-            title: isActionAllowed ? "Actions" : "History",
+            actionTitle: isActionAllowed ? "Actions" : "History",
             isActionAlreadyPerformed: !isActionAllowed,
+            popupTitle:
+                "${widget.documentModel.approvalDocumentCategory} > ${document.approvalDocumentName}",
             onApprove: (val) async {
               await _loginCubit.updateModulesWorkflowApproval(
                 context: context,

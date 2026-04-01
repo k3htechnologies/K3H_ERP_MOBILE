@@ -855,16 +855,15 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
               ? "Employee Master ${DateTime.now()}.pdf"
               : "Employee Master ${DateTime.now()}.xlsx",
-        );
-
-        showSuccessMessage(
-          context,
-          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );

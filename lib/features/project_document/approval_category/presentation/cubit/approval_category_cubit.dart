@@ -231,15 +231,15 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
               ? "Approval Category Master ${DateTime.now()}.pdf"
               : "Approval Category Master ${DateTime.now()}.xlsx",
-        );
-        showSuccessMessage(
-          context,
-          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );

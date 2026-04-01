@@ -876,7 +876,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
             isAllRegularizationSelected: newValue,
             selectedRegularizationIds:
                 newValue
-                    ? state.regularizationList
+                    ? state.approvalRegularizationList
                         .map((e) => e.attendanceRegularizationId)
                         .toSet()
                     : {},
@@ -891,7 +891,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
             isAllCompOffSelected: newValue,
             selectedCompOffIds:
                 newValue
-                    ? state.compOffList.map((e) => e.compOffId).toSet()
+                    ? state.approvalCompOffList.map((e) => e.compOffId).toSet()
                     : {},
           ),
         );
@@ -903,7 +903,9 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
           state.copyWith(
             isAllLeaveSelected: newValue,
             selectedLeaveIds:
-                newValue ? state.leaveList.map((e) => e.leaveId).toSet() : {},
+                newValue
+                    ? state.approvalLeaveList.map((e) => e.leaveId).toSet()
+                    : {},
           ),
         );
         break;
@@ -915,7 +917,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
             isAllOutdoorSelected: newValue,
             selectedOutdoorIds:
                 newValue
-                    ? state.outdoorList.map((e) => e.outdoorId).toSet()
+                    ? state.approvalOutdoorList.map((e) => e.outdoorId).toSet()
                     : {},
           ),
         );
@@ -928,7 +930,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
             isAllResignationSelected: newValue,
             selectedResignationIds:
                 newValue
-                    ? state.resignationList
+                    ? state.approvalResignationList
                         .map((e) => e.employeeResignationId)
                         .toSet()
                     : {},
@@ -1079,7 +1081,11 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     final approvalIds = _getSelectedApprovalIds();
 
     if (approvalIds.isEmpty) {
-      showErrorMessage(context, "Error", "Please select at least one item");
+      showErrorMessage(
+        context,
+        "Error",
+        "Please select at least one record or use Select All",
+      );
       return false;
     }
 

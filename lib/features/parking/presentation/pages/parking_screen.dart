@@ -389,8 +389,10 @@ class _ParkingScreenState extends State<ParkingScreen>
             children: [
               if (index == 0) ...[
                 ApproveRejectWidget(
-                  title: parking.approvalStatus,
+                  actionTitle: parking.approvalStatus,
                   isActionAlreadyPerformed: !isActionAllowed,
+                  popupTitle:
+                      "${parking.buildingNumber} > ${parking.wing} / ${parking.floor}",
                   isMaster: true,
                   onApprove: (val) async {
                     final isSuccess = await _loginCubit
