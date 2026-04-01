@@ -371,6 +371,25 @@ class _AddShiftMappingMasterScreenState
                                               ),
                                             ],
                                           ),
+                                          Row(
+                                            spacing: 10,
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "Email ID",
+                                                value:
+                                                selectedEmployee
+                                                    .first["emailId"] ??
+                                                    '',
+                                              ),
+                                              buildColumnTitleValue(
+                                                title: "Personal Mobile Number",
+                                                value:
+                                                selectedEmployee
+                                                    .first["personalMobileNumber"] ??
+                                                    '',
+                                              ),
+                                            ],
+                                          ),
                                         ],
                                       ),
                                     ),

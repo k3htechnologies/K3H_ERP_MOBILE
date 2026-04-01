@@ -71,6 +71,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   // SELECT EARNING
   late ValueNotifier<Map<String, dynamic>?> selectedDesignation;
 
+  late ValueNotifier<bool> aadhaarTrigger;
+  late ValueNotifier<bool> panTrigger;
+  late ValueNotifier<bool> gstTrigger;
+
   // STATIC LIST
   List<Map<String, dynamic>> designationList = [
     {"zAttributesId": 1, "DisplayName": "Business Head"},
@@ -86,6 +90,19 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _channelPartnerCubit = context.read<ChannelPartnerCubit>();
     _loginCubit = context.read<LoginCubit>();
     _initializeTextEditingController();
+    aadhaarTrigger = ValueNotifier(false);
+    panTrigger = ValueNotifier(false);
+    gstTrigger = ValueNotifier(false);
+    _aadhaarNumberC.addListener(() {
+      aadhaarTrigger.value = !aadhaarTrigger.value;
+    });
+    _panNumberC.addListener(() {
+      panTrigger.value = !panTrigger.value;
+    });
+
+    _gstNumberC.addListener(() {
+      gstTrigger.value = !gstTrigger.value;
+    });
     selectedDesignation = ValueNotifier(null);
     isCompanyPrefilled = ValueNotifier(false);
     selectedGSTCertificateForPopUpFile = ValueNotifier(
@@ -131,6 +148,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     selectedGSTCertificateForPopUpFile.dispose();
     selectedDesignation.dispose();
     isCompanyPrefilled.dispose();
+    aadhaarTrigger.dispose();
+    panTrigger.dispose();
+    gstTrigger.dispose();
     super.dispose();
   }
 
@@ -983,200 +1003,266 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                   children: [
                     Text("Document Details", style: AppTextStyle.ts16SB()),
                     verticalSpacing(),
-                    CustomTextField(
-                      title: 'Aadhaar Card Number',
-                      hint: "Enter Aadhaar Card Number",
-                      textController: _aadhaarNumberC,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList:
-                          InputValidator.aadhaarNumberInputFormatter(),
-                      validator: (value) {
-                        if (selectedAadhaarForPopUpFile
-                            .fileNameList
-                            .isNotEmpty) {
-                          if (value == null || value.isEmpty) {
-                            return "Aadhaar Card Number is required";
-                          }
-                          if (!InputValidator.isValidAadharNumber(value)) {
-                            return "Aadhaar Card Number is invalid";
-                          }
-                        } else {
-                          if (value != null &&
-                              value.isNotEmpty &&
-                              !InputValidator.isValidAadharNumber(value)) {
-                            return "Aadhaar Card Number is invalid";
-                          }
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomMultiFilePicker(
-                      title: "Aadhaar Card",
-                      filePickType: FilePickType.both,
-                      initialFileList: selectedAadhaarForPopUpFile.fileNameList,
-                      onFilePickedCallback: (bytesList, fileNameList) {
-                        selectedAadhaarForPopUpFile.fileNameList = fileNameList;
-                        selectedAadhaarForPopUpFile.fileBytesList = bytesList;
-                      },
-                      onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deletedFile,
-                      ) {
-                        selectedAadhaarForPopUpFile.fileNameList = fileNameList;
-                        selectedAadhaarForPopUpFile.fileBytesList =
-                            fileBytesList;
-                        selectedAadhaarForPopUpFile.deletedFileList =
-                            deletedFile;
-                      },
-                      validator: (fileList) {
-                        if (_aadhaarNumberC.text.isNotEmpty &&
-                            _aadhaarNumberC.text.trim().length == 12 &&
-                            (fileList == null || fileList.isEmpty)) {
-                          return "Aadhaar Card document is required";
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
-                      title: 'PAN Number',
-                      hint: "Enter PAN Number",
-                      textController: _panNumberC,
-                      inputFormatterList: InputValidator.panInputFormatters(),
-                      validator: (value) {
-                        if (selectedPANForPopUpFile.fileNameList.isNotEmpty) {
-                          if (value == null || value.isEmpty) {
-                            return "PAN Number is required";
-                          }
-                          if (!InputValidator.isValidPAN(value)) {
-                            return "PAN Number is invalid";
-                          }
-                        } else {
-                          if (value != null &&
-                              value.isNotEmpty &&
-                              !InputValidator.isValidPAN(value)) {
-                            return "PAN Number is invalid";
-                          }
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomMultiFilePicker(
-                      title: "Pan Card",
-                      filePickType: FilePickType.both,
-                      initialFileList: selectedPANForPopUpFile.fileNameList,
-                      onFilePickedCallback: (bytesList, fileNameList) {
-                        selectedPANForPopUpFile.fileNameList = fileNameList;
-                        selectedPANForPopUpFile.fileBytesList = bytesList;
-                      },
-                      onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deletedFile,
-                      ) {
-                        selectedPANForPopUpFile.fileNameList = fileNameList;
-                        selectedPANForPopUpFile.fileBytesList = fileBytesList;
-                        selectedPANForPopUpFile.deletedFileList = deletedFile;
-                      },
-                      validator: (fileList) {
-                        if (_panNumberC.text.isNotEmpty &&
-                            InputValidator.isValidPAN(
-                              _panNumberC.text.trim(),
-                            ) &&
-                            (fileList == null || fileList.isEmpty)) {
-                          return "PAN Card is required";
-                        }
-                        return null;
-                      },
-                    ),
                     ValueListenableBuilder(
-                      valueListenable: isCompanyPrefilled,
-                      builder: (context, isPrefilled, _) {
-                        return CustomTextField(
-                          title: 'GST Number',
-                          hint: "Enter GST Number",
-                          textController: _gstNumberC,
-                          readOnly: isPrefilled,
-                          inputFormatterList:
-                              InputValidator.gstInputFormatters(),
-                          validator: (value) {
-                            if (selectedGSTCertificateForPopUpFile
-                                .value
-                                .fileNameList
-                                .isNotEmpty) {
-                              if (value == null || value.isEmpty) {
-                                return "GST Number is required";
-                              }
-                              if (!InputValidator.isValidGST(value)) {
-                                return "GST Number is invalid";
-                              }
-                            } else {
-                              if (value != null &&
-                                  value.isNotEmpty &&
-                                  !InputValidator.isValidGST(value)) {
-                                return "GST Number is invalid";
-                              }
-                            }
-                            return null;
-                          },
-                        );
-                      },
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: isCompanyPrefilled,
-                      builder: (context, isPrefilled, _) {
-                        return IgnorePointer(
-                          ignoring: isPrefilled,
-                          child: Opacity(
-                            opacity: isPrefilled ? 0.6 : 1, // optional UX
-                            child: CustomMultiFilePicker(
-                              key: ValueKey(
-                                selectedGSTCertificateForPopUpFile
-                                    .value
-                                    .fileNameList
-                                    .join(),
-                              ),
-                              title: "GST Certificate",
+                      valueListenable: aadhaarTrigger,
+                      builder: (context, _, __) {
+                        final hasAadhaar =
+                            _aadhaarNumberC.text.trim().isNotEmpty;
+                        final hasFile =
+                            selectedAadhaarForPopUpFile.fileNameList.isNotEmpty;
+
+                        return Column(
+                          children: [
+                            CustomTextField(
+                              title: 'Aadhaar Card Number',
+                              isRequired: hasFile,
+                              hint: "Enter Aadhaar Card Number",
+                              textController: _aadhaarNumberC,
+                              keyboardType: TextInputType.number,
+                              inputFormatterList:
+                                  InputValidator.aadhaarNumberInputFormatter(),
+                              validator: (value) {
+                                if (hasFile &&
+                                    (value == null || value.isEmpty)) {
+                                  return "Aadhaar Card Number is required";
+                                }
+
+                                if (value != null && value.isNotEmpty) {
+                                  if (!InputValidator.isValidAadharNumber(
+                                    value,
+                                  )) {
+                                    return "Aadhaar Card Number is invalid";
+                                  }
+                                }
+
+                                return null;
+                              },
+                            ),
+
+                            CustomMultiFilePicker(
+                              title: "Aadhaar Card",
+                              isRequired: hasAadhaar,
                               filePickType: FilePickType.both,
                               initialFileList:
-                                  selectedGSTCertificateForPopUpFile
-                                      .value
-                                      .fileNameList,
+                                  selectedAadhaarForPopUpFile.fileNameList,
+
                               onFilePickedCallback: (bytesList, fileNameList) {
-                                selectedGSTCertificateForPopUpFile
-                                    .value
-                                    .fileNameList = fileNameList;
-                                selectedGSTCertificateForPopUpFile
-                                    .value
-                                    .fileBytesList = bytesList;
+                                selectedAadhaarForPopUpFile.fileNameList =
+                                    fileNameList;
+                                selectedAadhaarForPopUpFile.fileBytesList =
+                                    bytesList;
+
+                                aadhaarTrigger.value = !aadhaarTrigger.value;
                               },
+
                               onFileDeleteCallback: (
                                 fileBytesList,
                                 fileNameList,
                                 deletedFile,
                               ) {
-                                selectedGSTCertificateForPopUpFile
-                                    .value
-                                    .fileNameList = fileNameList;
-                                selectedGSTCertificateForPopUpFile
-                                    .value
-                                    .fileBytesList = fileBytesList;
-                                selectedGSTCertificateForPopUpFile
-                                    .value
-                                    .deletedFileList = deletedFile;
+                                selectedAadhaarForPopUpFile.fileNameList =
+                                    fileNameList;
+                                selectedAadhaarForPopUpFile.fileBytesList =
+                                    fileBytesList;
+                                selectedAadhaarForPopUpFile.deletedFileList =
+                                    deletedFile;
+
+                                aadhaarTrigger.value = !aadhaarTrigger.value;
                               },
+
                               validator: (fileList) {
-                                if (_gstNumberC.text.isNotEmpty &&
-                                    InputValidator.isValidGST(
-                                      _gstNumberC.text.trim(),
-                                    ) &&
+                                if (hasAadhaar &&
                                     (fileList == null || fileList.isEmpty)) {
-                                  return "GST Certificate document is required";
+                                  return "Aadhaar Card document is required";
+                                }
+
+                                return null;
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: panTrigger,
+                      builder: (context, _, __) {
+                        final hasPan = _panNumberC.text.trim().isNotEmpty;
+                        final hasFile =
+                            selectedPANForPopUpFile.fileNameList.isNotEmpty;
+
+                        return Column(
+                          children: [
+                            CustomTextField(
+                              title: 'PAN Number',
+                              isRequired: hasFile,
+                              hint: "Enter PAN Number",
+                              textController: _panNumberC,
+                              inputFormatterList:
+                                  InputValidator.panInputFormatters(),
+                              validator: (value) {
+                                if (hasFile &&
+                                    (value == null || value.isEmpty)) {
+                                  return "PAN Number is required";
+                                }
+
+                                if (value != null && value.isNotEmpty) {
+                                  if (!InputValidator.isValidPAN(value)) {
+                                    return "PAN Number is invalid";
+                                  }
+                                }
+
+                                return null;
+                              },
+                            ),
+
+                            CustomMultiFilePicker(
+                              title: "Pan Card",
+                              isRequired: hasPan,
+                              filePickType: FilePickType.both,
+                              initialFileList:
+                                  selectedPANForPopUpFile.fileNameList,
+
+                              onFilePickedCallback: (bytesList, fileNameList) {
+                                selectedPANForPopUpFile.fileNameList =
+                                    fileNameList;
+                                selectedPANForPopUpFile.fileBytesList =
+                                    bytesList;
+
+                                panTrigger.value = !panTrigger.value;
+                                _formKey.currentState?.validate();
+                              },
+
+                              onFileDeleteCallback: (
+                                fileBytesList,
+                                fileNameList,
+                                deletedFile,
+                              ) {
+                                selectedPANForPopUpFile.fileNameList =
+                                    fileNameList;
+                                selectedPANForPopUpFile.fileBytesList =
+                                    fileBytesList;
+                                selectedPANForPopUpFile.deletedFileList =
+                                    deletedFile;
+
+                                panTrigger.value = !panTrigger.value;
+                                _formKey.currentState?.validate();
+                              },
+
+                              validator: (fileList) {
+                                if (hasPan &&
+                                    (fileList == null || fileList.isEmpty)) {
+                                  return "PAN Card document is required";
                                 }
                                 return null;
                               },
                             ),
-                          ),
+                          ],
+                        );
+                      },
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: gstTrigger,
+                      builder: (context, _, __) {
+                        final hasGst = _gstNumberC.text.trim().isNotEmpty;
+                        final hasFile =
+                            selectedGSTCertificateForPopUpFile
+                                .value
+                                .fileNameList
+                                .isNotEmpty;
+
+                        return Column(
+                          children: [
+                            ValueListenableBuilder(
+                              valueListenable: isCompanyPrefilled,
+                              builder: (context, isPrefilled, _) {
+                                return CustomTextField(
+                                  title: 'GST Number',
+                                  hint: "Enter GST Number",
+                                  textController: _gstNumberC,
+                                  readOnly: isPrefilled,
+                                  inputFormatterList:
+                                      InputValidator.gstInputFormatters(),
+                                  validator: (value) {
+                                    final hasFile =
+                                        selectedGSTCertificateForPopUpFile
+                                            .value
+                                            .fileNameList
+                                            .isNotEmpty;
+
+                                    if (hasFile &&
+                                        (value == null || value.isEmpty)) {
+                                      return "GST Number is required";
+                                    }
+
+                                    if (value != null && value.isNotEmpty) {
+                                      if (!InputValidator.isValidGST(value)) {
+                                        return "GST Number is invalid";
+                                      }
+                                    }
+
+                                    return null;
+                                  },
+                                );
+                              },
+                            ),
+
+                            IgnorePointer(
+                              ignoring: isCompanyPrefilled.value,
+                              child: Opacity(
+                                opacity: isCompanyPrefilled.value ? 0.6 : 1,
+                                child: CustomMultiFilePicker(
+                                  title: "GST Certificate",
+                                  filePickType: FilePickType.both,
+                                  initialFileList:
+                                      selectedGSTCertificateForPopUpFile
+                                          .value
+                                          .fileNameList,
+
+                                  onFilePickedCallback: (
+                                    bytesList,
+                                    fileNameList,
+                                  ) {
+                                    selectedGSTCertificateForPopUpFile
+                                        .value
+                                        .fileNameList = fileNameList;
+                                    selectedGSTCertificateForPopUpFile
+                                        .value
+                                        .fileBytesList = bytesList;
+
+                                    gstTrigger.value = !gstTrigger.value;
+                                  },
+
+                                  onFileDeleteCallback: (
+                                    fileBytesList,
+                                    fileNameList,
+                                    deletedFile,
+                                  ) {
+                                    selectedGSTCertificateForPopUpFile
+                                        .value
+                                        .fileNameList = fileNameList;
+                                    selectedGSTCertificateForPopUpFile
+                                        .value
+                                        .fileBytesList = fileBytesList;
+                                    selectedGSTCertificateForPopUpFile
+                                        .value
+                                        .deletedFileList = deletedFile;
+
+                                    gstTrigger.value = !gstTrigger.value;
+                                    _formKey.currentState?.validate();
+                                  },
+
+                                  validator: (fileList) {
+                                    if (hasGst &&
+                                        (fileList == null ||
+                                            fileList.isEmpty)) {
+                                      return "GST Certificate document is required";
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
                         );
                       },
                     ),
