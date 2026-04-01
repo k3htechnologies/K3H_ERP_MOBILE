@@ -106,6 +106,7 @@ class LeaveRepositoryImpl implements LeaveRepository {
     }
   }
 
+  //  API CALL IS FOR PULLING THE CONFIGURED LEAVE TYPES TO SHOW IN THE LEAVE APPLICATION FORM
   @override
   Future<Either<Failure, Map<String, dynamic>>> getLeaveConfigurated({
     required int pageNumber,

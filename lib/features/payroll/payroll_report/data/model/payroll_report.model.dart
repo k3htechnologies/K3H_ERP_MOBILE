@@ -36,7 +36,9 @@ class PayrollApprovalModel {
       remark: parseValue<String>(json, "Remark"),
       employeeName: parseValue<String>(json, "EmployeeName"),
       createdDate:
-          json["Date"] != null ? DateTime.parse(json["CreatedDate"]) : null,
+          json["CreatedDate"] != null
+              ? DateTime.parse(json["CreatedDate"])
+              : null,
     );
   }
 
