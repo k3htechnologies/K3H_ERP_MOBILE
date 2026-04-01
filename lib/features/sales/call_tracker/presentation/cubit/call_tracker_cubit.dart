@@ -53,7 +53,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
     emit(state.copyWith(isLoading: true));
     var result = await _callTrackerRepository.getCallingData(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 20,
       projectId: projectId,
       queryParams: queryParams,
     );
@@ -92,7 +92,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
     emit(state.copyWith(isLoading: true));
     var result = await _callTrackerRepository.getCallLog(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 20,
       projectId: projectId,
       queryParams: queryParams,
     );
@@ -128,7 +128,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
     required int projectId,
     required String uniqueKey,
     required String remark,
-    required DateTime rescheduleDate,
+    required DateTime? rescheduleDate,
     required int index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -138,6 +138,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
       "Uniquekey": uniqueKey,
       "Status": "",
       "Remark": remark,
+      if(rescheduleDate!=null)
       "RescheduleDate": rescheduleDate.toIso8601String(),
     };
     var addResult = await _callTrackerRepository.updateCallLog(

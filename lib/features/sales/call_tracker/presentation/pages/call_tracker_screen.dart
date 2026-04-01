@@ -162,21 +162,6 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
           key: _formKey,
           child: Column(
             children: [
-              CustomDatePicker(
-                isRequired: true,
-                title: "Reschedule Date",
-                initialDate: selectedRescheduleDate,
-                setValue: (value) {
-                  selectedRescheduleDate = value;
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'Please select a date';
-                  }
-                  return null;
-                },
-              ),
-              verticalSpacing(),
               CustomTextField(
                 isRequired: true,
                 title: "Remark",
@@ -184,6 +169,20 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                 textController: _remarkC,
                 minLines: 3,
                 maxLines: 3,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter remark";
+                  }
+                  return null;
+                },
+              ),
+              CustomDatePicker(
+                isRequired: true,
+                title: "Reschedule Date",
+                initialDate: selectedRescheduleDate,
+                setValue: (value) {
+                  selectedRescheduleDate = value;
+                },
               ),
               Spacer(),
               CustomButton(
@@ -196,7 +195,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                       projectId: projectId,
                       uniqueKey: obj.uniquekey,
                       remark: _remarkC.text,
-                      rescheduleDate: selectedRescheduleDate!,
+                      rescheduleDate: selectedRescheduleDate,
                       index: index,
                     );
                   }
@@ -245,61 +244,81 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Call Tracker",
-        authorization: _routhAuthorizationModel,
-        onSearchSubmit: (value) {
-          if (_callTrackerCubit.state.currentTabIndex == 0) {
-            _callTrackerCubit.searchCallingData(
-              context,
-              value,
-              _project.projectId,
-            );
-          }
-          if (_callTrackerCubit.state.currentTabIndex == 1) {
-            _callTrackerCubit.searchCallingLog(
-              context,
-              value,
-              _project.projectId,
-            );
-          }
-        },
-        textController: _searchC,
-        searchHintText: "Search By Customer Name",
-        onExportCallback: (value) {
-          if (_callTrackerCubit.state.currentTabIndex == 0) {
-            if (_callTrackerCubit.state.totalNumberOfRecordCallingData == 0) {
-              showErrorMessage(context, "Error", "Data Not Found");
-              return;
-            }
-            _callTrackerCubit.exportCallingDataExcelPdf(
-              context,
-              value,
-              _project.projectId,
-            );
-          }
-          if (_callTrackerCubit.state.currentTabIndex == 1) {
-            if (_callTrackerCubit.state.totalNumberOfRecordCallLog == 0) {
-              showErrorMessage(context, "Error", "Data Not Found");
-              return;
-            }
-            _callTrackerCubit.exportCallLogExcelPdf(
-              context,
-              value,
-              _project.projectId,
-            );
-          }
-        },
-        onProjectChangeCallback: (value) async {
-          _project = value;
-          _searchC.clear();
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(110),
+        child: BlocBuilder<CallTrackerCubit, CallTrackerState>(
+          builder: (context, state) {
+            return CustomAppBar(
+              screenTitle: "Call Tracker",
+              authorization: _routhAuthorizationModel,
 
-          if (_tabController.index == 0) {
-            await _syncAndLoadCallingData();
-          } else if (_tabController.index == 1) {
-            await _callTrackerCubit.getCallLogList(context, 1, value.projectId);
-          }
-        },
+              searchHintText: state.currentTabIndex == 0
+                  ? "Search By Customer Name"
+                  : "Search By Receiver Name",
+
+              onSearchSubmit: (value) {
+                if (state.currentTabIndex == 0) {
+                  _callTrackerCubit.searchCallingData(
+                    context,
+                    value,
+                    _project.projectId,
+                  );
+                } else {
+                  _callTrackerCubit.searchCallingLog(
+                    context,
+                    value,
+                    _project.projectId,
+                  );
+                }
+              },
+
+              textController: _searchC,
+
+              onExportCallback: (value) {
+                if(_project.projectId==0){
+                  showErrorMessage(context, "Error", "Please Select a Project");
+                  return;
+                }
+                if (state.currentTabIndex == 0) {
+                  if (state.totalNumberOfRecordCallingData == 0) {
+                    showErrorMessage(context, "Error", "Data Not Found");
+                    return;
+                  }
+                  _callTrackerCubit.exportCallingDataExcelPdf(
+                    context,
+                    value,
+                    _project.projectId,
+                  );
+                } else {
+                  if (state.totalNumberOfRecordCallLog == 0) {
+                    showErrorMessage(context, "Error", "Data Not Found");
+                    return;
+                  }
+                  _callTrackerCubit.exportCallLogExcelPdf(
+                    context,
+                    value,
+                    _project.projectId,
+                  );
+                }
+              },
+
+              onProjectChangeCallback: (value) async {
+                _project = value;
+                _searchC.clear();
+
+                if (state.currentTabIndex == 0) {
+                  await _syncAndLoadCallingData();
+                } else {
+                  await _callTrackerCubit.getCallLogList(
+                    context,
+                    1,
+                    value.projectId,
+                  );
+                }
+              },
+            );
+          },
+        ),
       ),
       body: Column(
         children: [
@@ -529,6 +548,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                     index,
                   );
                 },
+                routhAuthorizationModel: _routhAuthorizationModel,
               );
             },
           ),
@@ -539,13 +559,15 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
 }
 
 class CallLogExpandableCard extends StatefulWidget {
+  final AuthorizationModel routhAuthorizationModel;
   final Function deleteCallBack;
   final Function editCallBack;
   final CallLogModel callLog;
   final int index;
 
-  const CallLogExpandableCard({
+   const CallLogExpandableCard({
     super.key,
+     required this.routhAuthorizationModel,
     required this.callLog,
     required this.index,
     required this.deleteCallBack,
@@ -558,6 +580,8 @@ class CallLogExpandableCard extends StatefulWidget {
 
 class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
   bool isExpanded = false;
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -580,7 +604,7 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
                     ? AnimatedOpacity(
                       duration: const Duration(milliseconds: 200),
                       opacity: 1,
-                      child: _expandedContent(callLog, widget.index),
+                      child: _expandedContent(callLog, widget.index,widget.routhAuthorizationModel),
                     )
                     : const SizedBox(),
           ),
@@ -609,7 +633,7 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
     );
   }
 
-  Widget _expandedContent(CallLogModel callLog, int index) {
+  Widget _expandedContent(CallLogModel callLog, int index,AuthorizationModel authorization) {
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: Column(
@@ -653,22 +677,24 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
           Row(
             children: [
               buildColumnTitleValue(title: "Remark", value: callLog.remark),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 10,
-                children: [
-                  CustomIconButton.edit(
-                    onPressed: () {
-                      widget.editCallBack();
-                    },
-                  ),
-                  CustomIconButton.delete(
-                    onPressed: () {
-                      widget.deleteCallBack();
-                    },
-                  ),
-                ],
-              ),
+              if(authorization.isAction && callLog.remark.isEmpty)...[
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: 10,
+                  children: [
+                    CustomIconButton.edit(
+                      onPressed: () {
+                        widget.editCallBack();
+                      },
+                    ),
+                    CustomIconButton.delete(
+                      onPressed: () {
+                        widget.deleteCallBack();
+                      },
+                    ),
+                  ],
+                ),
+              ]
             ],
           ),
         ],

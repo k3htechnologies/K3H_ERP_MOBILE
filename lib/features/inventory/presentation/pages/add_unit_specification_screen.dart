@@ -82,25 +82,9 @@ class _AddUnitSpecificationScreenState
     _widthC = TextEditingController();
     _noteC = TextEditingController();
 
-    // Add listeners to calculate area when length or width changes
-    _lengthC.addListener(_calculateArea);
-    _widthC.addListener(_calculateArea);
-
     selectedUnitLayout = ValueNotifier<Map<String, dynamic>?>(
       unitLayoutTypeList.first,
     );
-  }
-
-  // CALCULATE AREA FROM LENGTH AND WIDTH
-  void _calculateArea() {
-    final length = double.tryParse(_lengthC.text.trim()) ?? 0.0;
-    final width = double.tryParse(_widthC.text.trim()) ?? 0.0;
-    if (length > 0 && width > 0) {
-      final area = length * width;
-      if (_areaC.text.trim() != area.toStringAsFixed(2)) {
-        _areaC.text = area.toStringAsFixed(2);
-      }
-    }
   }
 
   // PREFILL DATA IF IN EDIT MODE
@@ -213,37 +197,10 @@ class _AddUnitSpecificationScreenState
                   textController: _areaC,
                   inputFormatterList:
                       inputFormatterListForDecimalValuesFixedToTwo(10),
-                  validator: (value) {
-                    // If area empty, try to derive from length and width before failing
-                    final trimmed = value?.trim() ?? '';
-                    final length = double.tryParse(_lengthC.text.trim()) ?? 0;
-                    final width = double.tryParse(_widthC.text.trim()) ?? 0;
-
-                    if (trimmed.isEmpty) {
-                      if (length > 0 && width > 0) {
-                        final derivedArea = length * width;
-                        _areaC.text = derivedArea.toStringAsFixed(2);
-                        return null;
-                      }
+                  validator: (value){
+                    if (value == null || value.isEmpty) {
                       return 'Area is required';
                     }
-
-                    final areaValue = double.tryParse(trimmed);
-                    if (areaValue != null) {
-                      if (areaValue <= 0) {
-                        return 'Area must be greater than 0';
-                      }
-                      return null;
-                    }
-
-                    // If area not parseable but we can derive, accept
-                    if (length > 0 && width > 0) {
-                      final derivedArea = length * width;
-                      _areaC.text = derivedArea.toStringAsFixed(2);
-                      return null;
-                    }
-
-                    // Fallback: allow non-empty unparsable values without blocking save
                     return null;
                   },
                 ),

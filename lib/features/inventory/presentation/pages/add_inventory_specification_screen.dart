@@ -278,6 +278,7 @@ class _AddInventorySpecificationScreenState
       );
     }
 
+
     if (flatId != null) {
       queryParams['inventoryFlatId'] = flatId.toString();
     }
@@ -300,24 +301,23 @@ class _AddInventorySpecificationScreenState
       Future.microtask(() {
         if (unitSpec == null) {
           // ADD NEW SPECIFICATION
-          final existingIds =
-              flatSpecificationList.value
-                  .where((s) => s.inventoryFlatSpecificationId > 0)
-                  .map((s) => s.inventoryFlatSpecificationId)
-                  .toSet();
-          final existingKeys =
-              flatSpecificationList.value.map((s) => s.uniquekey).toSet();
 
-          // ONLY ADD IF NOT EXIST
-          if ((result.inventoryFlatSpecificationId == 0 ||
-                  !existingIds.contains(result.inventoryFlatSpecificationId)) &&
-              !existingKeys.contains(result.uniquekey)) {
-            flatSpecificationList.value = [
-              ...flatSpecificationList.value,
-              result,
-            ];
+          final isDuplicateLayout = flatSpecificationList.value.any((s) =>
+          s.flatLayout.trim().toLowerCase() ==
+              result.flatLayout.trim().toLowerCase());
+
+          if (isDuplicateLayout) {
+            if(mounted) {
+              showErrorMessage(context, "Error", "Layout already exists");
+            }
+            return;
           }
-        } else {
+
+          flatSpecificationList.value = [
+            ...flatSpecificationList.value,
+            result,
+          ];
+        }else {
           final Map<String, FlatSpecificationModel> specMap = {};
           bool replaced = false;
 

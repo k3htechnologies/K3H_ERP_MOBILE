@@ -149,6 +149,7 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
         authorization: _routeAuthorizationModel,
         onProjectChangeCallback: (value) {
           _paymentScheduleCubit.clearSelectedScheme();
+          selectedSchemeNotifier.value = null;
         },
       ),
       body: Padding(

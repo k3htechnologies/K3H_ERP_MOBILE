@@ -201,7 +201,7 @@ class DialogHelper {
                           backgroundColor: AppColor.error,
                           textColor: AppColor.white,
                           onPressed: () => goRouter.pop(true),
-                          text: "Confirm",
+                          text: "Delete",
                           padding: EdgeInsets.symmetric(
                             horizontal: 12,
                             vertical: 9,

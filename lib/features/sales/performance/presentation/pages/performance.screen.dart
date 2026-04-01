@@ -170,6 +170,14 @@ class _PerformanceScreenState extends State<PerformanceScreen>
             _project = value;
           },
           onExportCallback: (value) {
+            if(_project.projectId==0){
+              showErrorMessage(context, "Error", "Please Select a Project");
+              return;
+            }
+            if(_performanceCubit.state.sourcingTotalNumberOfRecordPerformanceReport==0 || _performanceCubit.state.closingTotalNumberOfRecordPerformanceReport==0){
+              showErrorMessage(context, "Error", "Data Not Found");
+              return;
+            }
             _performanceCubit.exportExcelPdf(
               context,
               value,
