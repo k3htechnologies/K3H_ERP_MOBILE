@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/core/services/notification_service.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
+import 'package:k3h_erp_app/firebase_options.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/theme/theme.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -23,29 +24,9 @@ import 'package:flutter/scheduler.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  SchedulerBinding.instance.addPostFrameCallback((_) {
-    print("FIRST FRAME RENDERED");
-  });
-
-  print("STEP 1 - before Firebase");
-
-  await Firebase.initializeApp();
-
-  print("STEP 2 - after Firebase");
-
+void main() async {
   // INITIAL SETUP
   await initialSetup();
-
-  print("STEP 3 - after initialSetup");
-
-  // LOCK ORIENTATION
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
   // RUN APP
   runApp(const MyApp());
 }
@@ -72,12 +53,22 @@ class MyHttpOverrides extends HttpOverrides {
 }
 
 Future initialSetup() async {
+  WidgetsFlutterBinding.ensureInitialized();
   // LOCAL STORAGE
   await LocalStorageManager().init();
   // DEPENDENCY INJECTION
   initDependencies();
   HttpOverrides.global = MyHttpOverrides();
 
+  SchedulerBinding.instance.addPostFrameCallback((_) {});
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // LOCK ORIENTATION
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   final notificationService = NotificationService();
   await notificationService
       .setupFlutterNotifications(); // The local notifications setup
