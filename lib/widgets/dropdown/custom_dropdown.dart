@@ -115,7 +115,7 @@ class CustomDropDownWidget extends StatelessWidget {
                     },
                     headerBuilder: (context, selectedItem, isSelected) {
                       final displayName =
-                          selectedItem?['DisplayName']?.toString() ?? '';
+                          selectedItem['DisplayName']?.toString() ?? '';
 
                       final hasValue = displayName.isNotEmpty;
 
