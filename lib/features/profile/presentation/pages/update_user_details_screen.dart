@@ -371,6 +371,9 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Aadhaar Card Number is required';
                     }
+                    if (!InputValidator.isValidAadharNumber(value)) {
+                      return 'Aadhaar Card Number is not valid';
+                    }
                     return null;
                   },
                 ),
@@ -384,6 +387,9 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                     if (value == null || value.isEmpty) {
                       return 'PAN Card Number is required';
                     }
+                    if (!InputValidator.isValidPAN(value)) {
+                      return 'PAN Card Number is not valid';
+                    }
                     return null;
                   },
                 ),
@@ -392,6 +398,16 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                   hint: "Enter Passport Number",
                   textController: _passportNumberC,
                   inputFormatterList: InputValidator.passportInputFormatters(),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return null;
+                      ;
+                    }
+                    if (!InputValidator.isValidPassport(value)) {
+                      return 'Passport Number is not valid';
+                    }
+                    return null;
+                  },
                 ),
                 CustomTextField(
                   title: "Driving License Number",
@@ -399,12 +415,30 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                   textController: _drivingLicenceNumberC,
                   inputFormatterList:
                       InputValidator.drivingLicenceInputFormatters(),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return null;
+                    }
+                    if (!InputValidator.isValidDrivingLicence(value)) {
+                      return 'Driving License Number is not valid';
+                    }
+                    return null;
+                  },
                 ),
                 CustomTextField(
                   title: "Voting Card Number",
                   hint: "Enter Voting Card Number",
                   textController: _voterIdNumberC,
                   inputFormatterList: InputValidator.voterIdInputFormatters(),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return null;
+                    }
+                    if (!InputValidator.isValidVoterId(value)) {
+                      return 'Voting Card Number is not valid';
+                    }
+                    return null;
+                  },
                 ),
                 CustomTextField(
                   title: 'Communication Address',
