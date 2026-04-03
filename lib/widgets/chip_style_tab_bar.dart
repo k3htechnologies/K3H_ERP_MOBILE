@@ -24,7 +24,7 @@ class ChipStyleTabBar extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Container(
         margin: margin,
-        height: 40,
+        height: 45,
         child:
             isSecondaryStyle
                 ? TabBar(
