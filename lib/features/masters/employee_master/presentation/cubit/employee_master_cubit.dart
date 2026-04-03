@@ -282,7 +282,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
         .getEmployeeShiftManagementList(
           pageNumber: pageNumber,
           pageSize: pageSize,
-          queryParams: {"EmployeeId": employeeId, "IsCheckPermission": false},
+          queryParams: {"EmployeeId": employeeId, "IsCheckPermission": false,"IsCheckEmployeeShift":true},
         );
 
     result.fold(
@@ -313,7 +313,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     final result = await employeeMasterRepository.getEmployeeWeekOffMappingList(
       pageNumber: pageNumber,
       pageSize: pageSize,
-      queryParams: {"EmployeeId": employeeId, "IsCheckPermission": false},
+      queryParams: {"EmployeeId": employeeId, "IsCheckPermission": false,"IsCheckEmployeeWeekOffPolicy":true},
     );
 
     result.fold(

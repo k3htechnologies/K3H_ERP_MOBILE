@@ -1197,7 +1197,7 @@ class _EmployeeMasterViewDetailsScreenState
               )
               : SizedBox(
                 height: getActualHeight(context) * 0.7,
-                child: noDataWidget(message: "No Shift Policies Found"),
+                child: Center(child: noDataWidget(message: "No Shift Policies Found")),
               );
         },
       ),
@@ -1355,7 +1355,7 @@ class _EmployeeMasterViewDetailsScreenState
               )
               : SizedBox(
                 height: getActualHeight(context) * 0.7,
-                child: noDataWidget(message: "No Week Off Policies Found"),
+                child: Center(child: noDataWidget(message: "No Week Off Policies Found")),
               );
         },
       ),
