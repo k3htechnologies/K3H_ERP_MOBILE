@@ -701,10 +701,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     // SOURCE & SUB SUB SOURCE
     final source = _selectedSourceNotifier.value?["DisplayName"] ?? "";
     final subSubSource =
-        source.trim().toLowerCase() == "channelpartner"
-            ? (_selectedSubSubSourceNotifier.value?["zAttributesId"] ?? "")
+        source.trim().toLowerCase() == "channel partner"
+            ? (_selectedSubSubSourceNotifier.value?["zAttributesId"]).toString()
             : getDisplayOrEmptySubSub(_selectedSubSubSourceNotifier.value);
-
     // CUSTOMER CLASSIFICATION LOGIC
     int selectedCount = 0;
     if ((_selectedPossessionType?["DisplayName"] ?? "").trim().isNotEmpty) {
@@ -833,7 +832,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   String getDisplayOrEmptySubSub(Map<String, dynamic>? item) {
     if (item == null) return "";
     if (item["zAttributesId"] == -1) return "";
-    return item["zAttributesId"].toString();
+    return item["DisplayName"] ?? "";
   }
 
   String get selectedVillages => _selectedLocations
