@@ -2111,10 +2111,17 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       if (user.designation.toLowerCase() != 'GRE'.toLowerCase())
         CustomDatePicker(
           title: "Next Follow-Up Date",
+          isRequired: true,
           readOnly: _isEditMode,
           startDate: DateTime.now(),
           initialDate: _nextFollowUpDate,
           setValue: (v) => _nextFollowUpDate = v,
+          validator: (value) {
+            if (value == null) {
+              return "Next Follow-Up Date is required";
+            }
+            return null;
+          },
         ),
     ]);
   }

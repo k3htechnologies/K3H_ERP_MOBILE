@@ -5,90 +5,86 @@ class TargetState extends BaseState {
   final List<SalesTargetSourcingModel> salesTargetSourcing;
   final int closingTotalNumberOfRecordSalesTarget;
   final int sourcingTotalNumberOfRecordSalesTarget;
-  final int totalNumberOfRecords;
-  final int currentPage;
+  final int sourcingPage;
+  final int closingPage;
   final String searchText;
-  final DateTime? filterStartDate;
-  final DateTime? filterEndDate;
+  final bool isSourcingLoading;
+  final bool isClosingLoading;
+  final String? selectedMonth;
 
   const TargetState({
-    super.isLoading,
     required this.salesTargetClosing,
     required this.salesTargetSourcing,
     required this.closingTotalNumberOfRecordSalesTarget,
     required this.sourcingTotalNumberOfRecordSalesTarget,
-    required this.totalNumberOfRecords,
-    required this.currentPage,
+    required this.sourcingPage,
+    required this.closingPage,
     required this.searchText,
-    this.filterStartDate,
-    this.filterEndDate,
+    this.isSourcingLoading = false,
+    this.isClosingLoading = false,
+    this.selectedMonth,
   });
 
   factory TargetState.initial() => TargetState(
-    isLoading: false,
     salesTargetClosing: [],
     salesTargetSourcing: [],
     closingTotalNumberOfRecordSalesTarget: 0,
     sourcingTotalNumberOfRecordSalesTarget: 0,
-    totalNumberOfRecords: 0,
-    currentPage: 1,
+    sourcingPage: 1,
+    closingPage: 1,
     searchText: "",
-    filterStartDate: null,
-    filterEndDate: null,
+    isSourcingLoading: false,
+    isClosingLoading: false,
+    selectedMonth: null,
   );
 
   static const _noChange = Object();
 
   TargetState copyWith({
-    String? errorMessage,
-    bool? isLoading,
     List<SaleTargetClosingModel>? salesTargetClosing,
     List<SalesTargetSourcingModel>? salesTargetSourcing,
     int? closingTotalNumberOfRecordSalesTarget,
     int? sourcingTotalNumberOfRecordSalesTarget,
-    int? totalNumberOfRecords,
-    int? currentPage,
+    int? sourcingPage,
+    int? closingPage,
     String? searchText,
-    Object? filterStartDate = _noChange,
-    Object? filterEndDate = _noChange,
-    bool clearFilters = false,
+    bool? isSourcingLoading,
+    bool? isClosingLoading,
+    Object? selectedMonth = _noChange,
   }) {
     return TargetState(
-      isLoading: isLoading ?? this.isLoading,
       salesTargetClosing: salesTargetClosing ?? this.salesTargetClosing,
       salesTargetSourcing: salesTargetSourcing ?? this.salesTargetSourcing,
       closingTotalNumberOfRecordSalesTarget:
-          closingTotalNumberOfRecordSalesTarget ??
+      closingTotalNumberOfRecordSalesTarget ??
           this.closingTotalNumberOfRecordSalesTarget,
       sourcingTotalNumberOfRecordSalesTarget:
-          sourcingTotalNumberOfRecordSalesTarget ??
+      sourcingTotalNumberOfRecordSalesTarget ??
           this.sourcingTotalNumberOfRecordSalesTarget,
-      totalNumberOfRecords: totalNumberOfRecords ?? this.totalNumberOfRecords,
-      currentPage: currentPage ?? this.currentPage,
+      sourcingPage: sourcingPage ?? this.sourcingPage,
+      closingPage: closingPage ?? this.closingPage,
       searchText: searchText ?? this.searchText,
-      filterStartDate:
-          filterStartDate == _noChange
-              ? this.filterStartDate
-              : filterStartDate as DateTime?,
+      isSourcingLoading: isSourcingLoading ?? this.isSourcingLoading,
+      isClosingLoading: isClosingLoading ?? this.isClosingLoading,
 
-      filterEndDate:
-          filterEndDate == _noChange
-              ? this.filterEndDate
-              : filterEndDate as DateTime?,
+      selectedMonth:
+      selectedMonth == _noChange
+          ? this.selectedMonth
+          : selectedMonth as String?,
     );
   }
 
   @override
   List<Object?> get props => [
-    isLoading,
     salesTargetClosing,
     salesTargetSourcing,
     closingTotalNumberOfRecordSalesTarget,
     sourcingTotalNumberOfRecordSalesTarget,
-    totalNumberOfRecords,
-    currentPage,
+    sourcingPage,
+    closingPage,
     searchText,
-    filterStartDate,
-    filterEndDate,
+    isSourcingLoading,
+    isClosingLoading,
+    selectedMonth,
   ];
 }

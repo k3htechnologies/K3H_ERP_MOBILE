@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/target/data/model/sales_target_closing.model.dart';
 import 'package:k3h_erp_app/features/sales/target/data/model/sales_target_sourcing.model.dart';
+import 'package:k3h_erp_app/features/sales/target/data/repository/target.repository.dart';
 import 'package:k3h_erp_app/features/sales/target/presentation/cubit/target_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -15,7 +18,6 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
-import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_month_year_picker.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -32,7 +34,7 @@ class _TargetScreenState extends State<TargetScreen>
   late TargetCubit _targetCubit;
 
   // PROJECT
-  late ProjectModel selectedProject;
+  late ProjectModel _project;
 
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
@@ -60,7 +62,6 @@ class _TargetScreenState extends State<TargetScreen>
     null,
   );
 
-
   // DEBOUNCE TIMER
   Timer? _sourcingTargetDebounce;
   Timer? _closingTargetDebounce;
@@ -73,7 +74,7 @@ class _TargetScreenState extends State<TargetScreen>
   void initState() {
     super.initState();
     _targetCubit = context.read<TargetCubit>();
-    var project = getProject();
+    _project = getProject();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
     _routeAuthorizationModel =
@@ -88,7 +89,7 @@ class _TargetScreenState extends State<TargetScreen>
     _closingTargetScrollController.addListener(_onClosingTargetScroll);
     _targetCubit.getSalesTargetSourcingList(
       context: context,
-      projectId: project.projectId,
+      projectId: _project.projectId,
       pageNumber: 1,
     );
   }
@@ -116,6 +117,7 @@ class _TargetScreenState extends State<TargetScreen>
     ignoreSearch = true;
     _isHandlingTabChange = true;
     _lastHandledTabIndex = index;
+    _monthNotifier.value = null;
 
     _searchC.text = "";
     _startDateNotifier.value = null;
@@ -123,25 +125,7 @@ class _TargetScreenState extends State<TargetScreen>
 
     _targetCubit.onTabChanged(index, context);
     _monthNotifier.value = null;
-    if (index == 0) {
-      _targetCubit.getSalesTargetSourcingList(
-        context: context,
-        pageNumber: 1,
-        projectId: getProject().projectId,
-        queryParams: {
-          "MonthYear": null,
-        },
-      );
-    } else {
-      _targetCubit.getSalesTargetClosingList(
-        context: context,
-        pageNumber: 1,
-        projectId: getProject().projectId,
-        queryParams: {
-          "MonthYear": null,
-        },
-      );
-    }
+    _callMonthFilterAPI();
     Future.delayed(const Duration(milliseconds: 300), () {
       ignoreSearch = false;
     });
@@ -154,7 +138,7 @@ class _TargetScreenState extends State<TargetScreen>
 
     if (_sourcingTargetScrollController.position.pixels >=
             _sourcingTargetScrollController.position.maxScrollExtent - 100 &&
-        !_targetCubit.state.isLoading! &&
+        !_targetCubit.state.isSourcingLoading &&
         _targetCubit.state.salesTargetSourcing.length <
             _targetCubit.state.sourcingTotalNumberOfRecordSalesTarget) {
       if (_sourcingTargetDebounce?.isActive ?? false) {
@@ -164,7 +148,7 @@ class _TargetScreenState extends State<TargetScreen>
       _sourcingTargetDebounce = Timer(const Duration(milliseconds: 300), () {
         _targetCubit.getSalesTargetSourcingList(
           context: context,
-          pageNumber: _targetCubit.state.currentPage + 1,
+          pageNumber: _targetCubit.state.sourcingPage + 1,
           projectId: getProject().projectId,
         );
       });
@@ -177,7 +161,7 @@ class _TargetScreenState extends State<TargetScreen>
 
     if (_closingTargetScrollController.position.pixels >=
             _closingTargetScrollController.position.maxScrollExtent - 100 &&
-        !_targetCubit.state.isLoading! &&
+        !_targetCubit.state.isClosingLoading &&
         _targetCubit.state.salesTargetClosing.length <
             _targetCubit.state.closingTotalNumberOfRecordSalesTarget) {
       if (_closingTargetDebounce?.isActive ?? false) {
@@ -187,161 +171,29 @@ class _TargetScreenState extends State<TargetScreen>
       _closingTargetDebounce = Timer(const Duration(milliseconds: 300), () {
         _targetCubit.getSalesTargetClosingList(
           context: context,
-          pageNumber: _targetCubit.state.currentPage + 1,
+          pageNumber: _targetCubit.state.closingPage + 1,
           projectId: getProject().projectId,
         );
       });
     }
   }
 
-  void _prefillFilterFromState() {
-    final s = _targetCubit.state;
-    _startDateNotifier.value = s.filterStartDate;
-    _endDateNotifier.value = s.filterEndDate;
-  }
-
-  // SALES TARGET FILTER
-  Future<void> _showBottomSheetToFilterSalesTarget(BuildContext context) async {
-    _prefillFilterFromState();
-    final state = _targetCubit.state;
-    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(
-      state.filterStartDate != null || state.filterEndDate != null,
-    );
-    DialogHelper.showCustomFilterBottomSheet(
-      context,
-      title: "Filter Sales Target",
-      contentWidget: StatefulBuilder(
-        builder: (context, innerState) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              verticalSpacing(),
-              Row(
-                children: [
-                  Expanded(
-                    child: ValueListenableBuilder<DateTime?>(
-                      valueListenable: _startDateNotifier,
-                      builder: (context, startDate, child) {
-                        return CustomDatePicker(
-                          title: "Start Date",
-                          initialDate: startDate,
-                          setValue: (value) {
-                            _startDateNotifier.value = value;
-                            applyEnabled.value = true;
-                          },
-                          validator: (value) => null,
-                        );
-                      },
-                    ),
-                  ),
-                  horizontalSpacing(),
-                  Expanded(
-                    child: ValueListenableBuilder<DateTime?>(
-                      valueListenable: _endDateNotifier,
-                      builder: (context, endDate, child) {
-                        return ValueListenableBuilder<DateTime?>(
-                          valueListenable: _startDateNotifier,
-                          builder: (context, startDate, child) {
-                            return CustomDatePicker(
-                              title: "End Date",
-                              isRequired: false,
-                              initialDate: endDate,
-                              setValue: (value) {
-                                _endDateNotifier.value = value;
-                                applyEnabled.value = true;
-                              },
-                              validator: (value) {
-                                if (value == null) return null;
-                                if (startDate != null) {
-                                  final startDateOnly = DateTime(
-                                    startDate.year,
-                                    startDate.month,
-                                    startDate.day,
-                                  );
-                                  final endDateOnly = DateTime(
-                                    value.year,
-                                    value.month,
-                                    value.day,
-                                  );
-                                  if (endDateOnly.isBefore(startDateOnly)) {
-                                    return 'End Date cannot be before Start Date';
-                                  }
-                                }
-                                return null;
-                              },
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
-      ),
-      onClear: () {
-        _startDateNotifier.value = null;
-        _endDateNotifier.value = null;
-        _targetCubit.clearFilterOnSalesTarget(
-          context,
-          getProject().projectId,
-          _tabController.index,
-        );
-      },
-      onApply: () {
-        final startDate = _startDateNotifier.value;
-        final endDate = _endDateNotifier.value;
-        if (startDate != null && endDate != null) {
-          final startOnly = DateTime(
-            startDate.year,
-            startDate.month,
-            startDate.day,
-          );
-          final endOnly = DateTime(endDate.year, endDate.month, endDate.day);
-          if (endOnly.isBefore(startOnly)) {
-            showErrorMessage(
-              context,
-              "Invalid dates",
-              "End Date cannot be before Start Date",
-            );
-            return;
-          }
-        }
-        _targetCubit.applyFilterOnSalesTarget(
-          context: context,
-          startDate: startDate,
-          endDate: endDate,
-          tabIndex: _tabController.index,
-          projectId: getProject().projectId,
-        );
-      },
-      isApplyEnabled: applyEnabled.value,
-      applyEnabledNotifier: applyEnabled,
-    );
-  }
-
   void _callMonthFilterAPI() {
     final formatted = _getFormattedMonth();
+
+    _targetCubit.setMonthFilter(formatted);
 
     if (_tabController.index == 0) {
       _targetCubit.getSalesTargetSourcingList(
         context: context,
         pageNumber: 1,
         projectId: getProject().projectId,
-        queryParams: {
-          "MonthYear": formatted,
-        },
       );
     } else {
       _targetCubit.getSalesTargetClosingList(
         context: context,
         pageNumber: 1,
         projectId: getProject().projectId,
-        queryParams: {
-          "MonthYear": formatted,
-        },
       );
     }
   }
@@ -350,6 +202,91 @@ class _TargetScreenState extends State<TargetScreen>
     final m = _monthNotifier.value;
     if (m == null) return null;
     return "${m.month.toString().padLeft(2, '0')}-${m.year}";
+  }
+
+  // <---- IMPORT SALES TARGET SAMPLE FILE FOR WEB ---->
+  Future<bool> salesTargetSampleExcelImportSourcing(
+    BuildContext context,
+  ) async {
+    final TargetRepository targetRepository =
+        serviceLocator<TargetRepository>();
+    final ProjectModel project = getProject();
+    try {
+      final formatedMonth = _getFormattedMonth();
+      DialogHelper.showProcessingOverlay(context);
+      var result = await targetRepository.exportTargetSourcing(
+        pageNumber: 1,
+        pageSize: 1000000,
+        projectId: project.projectId,
+        queryParams: {
+          "MonthYear": formatedMonth,
+          "ExportType": "Excel",
+          "IsSampleDownload": "true",
+          "IsCheckPermission": "true",
+        },
+      );
+      goRouter.pop();
+      return result.fold(
+        (failure) {
+          showErrorMessage(context, "Import Error", failure.message);
+          return false;
+        },
+        (response) {
+          exportExcelOrPdfMobile(
+            response["data"],
+            "SALES SOURCING TARGET ${DateTime.now()}.xlsx",
+          );
+          showSuccessMessage(
+            context,
+            subTitle: "Excel downloaded successfully",
+          );
+          return true;
+        },
+      );
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> salesTargetSampleExcelImportClosing(BuildContext context) async {
+    final TargetRepository targetRepository =
+        serviceLocator<TargetRepository>();
+    final ProjectModel project = getProject();
+    try {
+      final formatedMonth = _getFormattedMonth();
+      DialogHelper.showProcessingOverlay(context);
+      var result = await targetRepository.exportTargetClosing(
+        pageNumber: 1,
+        pageSize: 1000000,
+        projectId: project.projectId,
+        queryParams: {
+          "MonthYear": formatedMonth,
+          "ExportType": "Excel",
+          "IsSampleDownload": "true",
+          "IsCheckPermission": "true",
+        },
+      );
+      goRouter.pop();
+      return result.fold(
+        (failure) {
+          showErrorMessage(context, "Import Error", failure.message);
+          return false;
+        },
+        (response) {
+          exportExcelOrPdfMobile(
+            response["data"],
+            "SALES CLOSING ${DateTime.now()}.xlsx",
+          );
+          showSuccessMessage(
+            context,
+            subTitle: "Excel downloaded successfully",
+          );
+          return true;
+        },
+      );
+    } catch (e) {
+      return false;
+    }
   }
 
   @override
@@ -381,35 +318,41 @@ class _TargetScreenState extends State<TargetScreen>
               context: context,
               projectId: getProject().projectId,
               pageNumber: 1,
-              queryParams: {},
             );
           } else {
             _targetCubit.getSalesTargetClosingList(
               context: context,
               projectId: getProject().projectId,
               pageNumber: 1,
-              queryParams: {},
             );
           }
         },
-        isFilterOn: true,
-        onFilterTap: () {
-          _showBottomSheetToFilterSalesTarget(context);
-        },
         importTableName: "SALES TARGET CLOSING",
-        onImportResult: (success) {
-          if (success) {
-            _targetCubit.getSalesTargetSourcingList(
-              context: context,
-              projectId: getProject().projectId,
-            );
+        onImportResult: (_) {
+          final formatedMonth = _getFormattedMonth();
+
+          if (formatedMonth == null) {
+            showErrorMessage(context, "", "Please select a month");
+            return;
+          }
+          if (_project.projectId != 0) {
+            if (_tabController.index == 0) {
+              salesTargetSampleExcelImportSourcing(context);
+            } else {
+              salesTargetSampleExcelImportClosing(context);
+            }
+          } else {
+            showErrorMessage(context, "", "Please select a project");
+            return;
           }
         },
       ),
       body: Column(
         children: [
-
-          ChipStyleTabBar(controller: _tabController, tabs: ["Sourcing Target","Closing Target"]),
+          ChipStyleTabBar(
+            controller: _tabController,
+            tabs: ["Sourcing Target", "Closing Target"],
+          ),
 
           verticalSpacing(),
 
@@ -432,7 +375,6 @@ class _TargetScreenState extends State<TargetScreen>
             ),
           ),
 
-
           Expanded(
             child: TabBarView(
               physics: NeverScrollableScrollPhysics(),
@@ -441,7 +383,7 @@ class _TargetScreenState extends State<TargetScreen>
                 // SOURCING TARGET TAB
                 BlocBuilder<TargetCubit, TargetState>(
                   builder: (context, state) {
-                    if ((state.isLoading ?? true) &&
+                    if (state.isSourcingLoading &&
                         state.salesTargetSourcing.isEmpty) {
                       return Center(child: loader());
                     }
@@ -484,7 +426,7 @@ class _TargetScreenState extends State<TargetScreen>
                 // BOOKING TAB
                 BlocBuilder<TargetCubit, TargetState>(
                   builder: (context, state) {
-                    if ((state.isLoading ?? true) &&
+                    if (state.isClosingLoading &&
                         state.salesTargetClosing.isEmpty) {
                       return Center(child: loader());
                     }

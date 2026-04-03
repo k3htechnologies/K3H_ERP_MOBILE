@@ -116,21 +116,23 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     {"zAttributesId": 14, "DisplayName": "Other"},
   ];
 
-  // SELECTED VALUES
-  Map<String, dynamic>? selectedGender;
-  Map<String, dynamic>? selectedMaritalStatus;
-  Map<String, dynamic>? selectedBloodGroup;
-  Map<String, dynamic>? selectedEmploymentType;
-  Map<String, dynamic>? selectedRelationToEmployee;
-
   // EMPLOYEE INFO SHEET
   Map<String, dynamic>? selectedState;
   Map<String, dynamic>? selectedDistrict;
   Map<String, dynamic>? selectedCity;
   Map<String, dynamic>? selectedVillage;
 
+  // DROPDOWN NOTIFIERS
   late final ValueNotifier<List<Map<String, dynamic>>>
   _selectedReportingPersonNotifier;
+
+  late final ValueNotifier<Map<String, dynamic>?> _selectedGenderNotifier;
+  late final ValueNotifier<Map<String, dynamic>?>
+  _selectedMaritalStatusNotifier;
+  late final ValueNotifier<Map<String, dynamic>?> _selectedBloodGroupNotifier;
+  late final ValueNotifier<Map<String, dynamic>?>
+  _selectedEmploymentTypeNotifier;
+  late final ValueNotifier<Map<String, dynamic>?> _selectedRelationNotifier;
 
   // DROPDOWN SELECTIONS
   List<Map<String, dynamic>> _selectedCompany = [];
@@ -155,6 +157,11 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
 
     _selectedReportingPersonNotifier =
         ValueNotifier<List<Map<String, dynamic>>>([]);
+    _selectedGenderNotifier = ValueNotifier<Map<String, dynamic>?>(null);
+    _selectedMaritalStatusNotifier = ValueNotifier(null);
+    _selectedBloodGroupNotifier = ValueNotifier(null);
+    _selectedEmploymentTypeNotifier = ValueNotifier(null);
+    _selectedRelationNotifier = ValueNotifier(null);
 
     if (widget.employee != null) {
       _prefillDetailsToAddUpdateEmployeeMaster(widget.employee!);
@@ -183,6 +190,11 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     _bankBranchNameC.dispose();
     _accountNumberC.dispose();
     _ifscC.dispose();
+    _selectedGenderNotifier.dispose();
+    _selectedMaritalStatusNotifier.dispose();
+    _selectedBloodGroupNotifier.dispose();
+    _selectedEmploymentTypeNotifier.dispose();
+    _selectedRelationNotifier.dispose();
 
     for (var key in _formKeys) {
       key.currentState?.dispose();
@@ -211,23 +223,25 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     _ifscC.text = employee.ifscCode;
 
     // DROPDOWNS
-    selectedGender = genderList.firstWhere(
+    _selectedGenderNotifier.value = genderList.firstWhere(
       (item) => item['DisplayName'] == employee.gender,
       orElse: () => genderList.first,
     );
-    selectedMaritalStatus = maritalStatusList.firstWhere(
+    _selectedMaritalStatusNotifier.value = maritalStatusList.firstWhere(
       (item) => item['DisplayName'] == employee.maritalStatus,
       orElse: () => maritalStatusList.first,
     );
-    selectedBloodGroup = bloodGroupList.firstWhere(
+
+    _selectedBloodGroupNotifier.value = bloodGroupList.firstWhere(
       (item) => item['DisplayName'] == employee.bloodGroup,
       orElse: () => bloodGroupList.first,
     );
 
-    selectedEmploymentType = employmentTypeList.firstWhere(
+    _selectedEmploymentTypeNotifier.value = employmentTypeList.firstWhere(
       (item) => item['DisplayName'] == employee.employeeType,
     );
-    selectedRelationToEmployee = relationToEmployeeList.firstWhere(
+
+    _selectedRelationNotifier.value = relationToEmployeeList.firstWhere(
       (item) =>
           item['DisplayName'] == employee.emergencyContactPersonRelationship,
       orElse: () => relationToEmployeeList.first,
@@ -768,9 +782,10 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         firstName: _firstNameC.text.trim(),
         middleName: _middleNameC.text.trim(),
         lastName: _lastNameC.text.trim(),
-        selectedGender: selectedGender!["DisplayName"],
-        selectedMaritalStatus: selectedMaritalStatus!["DisplayName"],
-        selectedBloodGroup: selectedBloodGroup!["DisplayName"],
+        selectedGender: _selectedGenderNotifier.value!["DisplayName"],
+        selectedMaritalStatus:
+            _selectedMaritalStatusNotifier.value!["DisplayName"],
+        selectedBloodGroup: _selectedBloodGroupNotifier.value!["DisplayName"],
         selectedBranchId: int.parse(
           _selectedBranch[0]["zAttributesId"].toString(),
         ),
@@ -805,9 +820,9 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         selectedDistrictId: selectedDistrict!["zAttributesId"],
         selectedCityId: selectedCity!["zAttributesId"],
         selectedVillageId: selectedVillage!["zAttributesId"],
-        employeeType: selectedEmploymentType!['DisplayName'],
+        employeeType: _selectedEmploymentTypeNotifier.value!['DisplayName'],
         emergencyContactPersonRelationship:
-            selectedRelationToEmployee!['DisplayName'],
+            _selectedRelationNotifier.value!['DisplayName'],
         emergencyMobileNumber: _emergencyContactNumberC.text,
       );
     } else {
@@ -816,9 +831,10 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         firstName: _firstNameC.text.trim(),
         middleName: _middleNameC.text.trim(),
         lastName: _lastNameC.text.trim(),
-        selectedGender: selectedGender!["DisplayName"],
-        selectedMaritalStatus: selectedMaritalStatus!["DisplayName"],
-        selectedBloodGroup: selectedBloodGroup!["DisplayName"],
+        selectedGender: _selectedGenderNotifier.value!["DisplayName"],
+        selectedMaritalStatus:
+            _selectedMaritalStatusNotifier.value!["DisplayName"],
+        selectedBloodGroup: _selectedBloodGroupNotifier.value!["DisplayName"],
         selectedBranchId: int.parse(
           _selectedBranch[0]["zAttributesId"].toString(),
         ),
@@ -853,9 +869,9 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         selectedDistrictId: selectedDistrict!["zAttributesId"],
         selectedCityId: selectedCity!["zAttributesId"],
         selectedVillageId: selectedVillage!["zAttributesId"],
-        employeeType: selectedEmploymentType!['DisplayName'],
+        employeeType: _selectedEmploymentTypeNotifier.value!['DisplayName'],
         emergencyContactPersonRelationship:
-            selectedRelationToEmployee!['DisplayName'],
+            _selectedRelationNotifier.value!['DisplayName'],
         emergencyMobileNumber: _emergencyContactNumberC.text,
       );
     }
@@ -993,46 +1009,76 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          CustomDropDownWidget(
-            title: 'Gender',
-            isRequired: true,
-            initialValue: selectedGender,
-            hintText: "Select Gender",
-            dataList: genderList,
-            onSelected: (value) => selectedGender = value,
-            validator: (value) {
-              if (value == null || value["zAttributesId"] == -1) {
-                return 'Gender is required';
-              }
-              return null;
+          ValueListenableBuilder<Map<String, dynamic>?>(
+            valueListenable: _selectedGenderNotifier,
+            builder: (context, gender, _) {
+              return CustomDropDownWidget(
+                title: 'Gender',
+                isRequired: true,
+                initialValue: gender,
+                hintText: "Select Gender",
+                dataList: genderList,
+                onSelected: (value) {
+                  _selectedGenderNotifier.value = value;
+                },
+                validator: (value) {
+                  if (value == null || value["zAttributesId"] == -1) {
+                    return 'Gender is required';
+                  }
+                  return null;
+                },
+                onValueClear: () {
+                  _selectedGenderNotifier.value = null;
+                },
+              );
             },
           ),
-          CustomDropDownWidget(
-            title: 'Marital Status',
-            isRequired: true,
-            hintText: "Select Marital Status",
-            initialValue: selectedMaritalStatus,
-            dataList: maritalStatusList,
-            onSelected: (value) => selectedMaritalStatus = value,
-            validator: (value) {
-              if (value == null || value["zAttributesId"] == -1) {
-                return 'Marital Status is required';
-              }
-              return null;
+          ValueListenableBuilder<Map<String, dynamic>?>(
+            valueListenable: _selectedMaritalStatusNotifier,
+            builder: (context, value, _) {
+              return CustomDropDownWidget(
+                title: 'Marital Status',
+                isRequired: true,
+                hintText: "Select Marital Status",
+                initialValue: value,
+                dataList: maritalStatusList,
+                onSelected: (val) {
+                  _selectedMaritalStatusNotifier.value = val;
+                },
+                onValueClear: () {
+                  _selectedMaritalStatusNotifier.value = null;
+                },
+                validator: (val) {
+                  if (val == null || val["zAttributesId"] == -1) {
+                    return 'Marital Status is required';
+                  }
+                  return null;
+                },
+              );
             },
           ),
-          CustomDropDownWidget(
-            title: 'Blood Group',
-            hintText: "Select Blood Group",
-            isRequired: true,
-            initialValue: selectedBloodGroup,
-            dataList: bloodGroupList,
-            onSelected: (value) => selectedBloodGroup = value,
-            validator: (value) {
-              if (value == null || value["zAttributesId"] == -1) {
-                return 'Blood Group is required';
-              }
-              return null;
+          ValueListenableBuilder<Map<String, dynamic>?>(
+            valueListenable: _selectedBloodGroupNotifier,
+            builder: (context, value, _) {
+              return CustomDropDownWidget(
+                title: 'Blood Group',
+                hintText: "Select Blood Group",
+                isRequired: true,
+                initialValue: value,
+                dataList: bloodGroupList,
+                onSelected: (val) {
+                  _selectedBloodGroupNotifier.value = val;
+                },
+                onValueClear: () {
+                  _selectedBloodGroupNotifier.value = null;
+                },
+                validator: (val) {
+                  if (val == null || val["zAttributesId"] == -1) {
+                    return 'Blood Group is required';
+                  }
+                  return null;
+                },
+              );
             },
           ),
           CustomDatePicker(
@@ -1112,32 +1158,52 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             keyboardType: TextInputType.phone,
             inputFormatterList: InputValidator.digit(10),
           ),
-          CustomDropDownWidget(
-            title: 'Employee Type',
-            hintText: "Select Employment Type",
-            isRequired: true,
-            initialValue: selectedEmploymentType,
-            dataList: employmentTypeList,
-            onSelected: (value) => selectedEmploymentType = value,
-            validator: (value) {
-              if (value == null || value["zAttributesId"] == -1) {
-                return 'Employment Type is required';
-              }
-              return null;
+          ValueListenableBuilder<Map<String, dynamic>?>(
+            valueListenable: _selectedEmploymentTypeNotifier,
+            builder: (context, value, _) {
+              return CustomDropDownWidget(
+                title: 'Employee Type',
+                hintText: "Select Employment Type",
+                isRequired: true,
+                initialValue: value,
+                dataList: employmentTypeList,
+                onSelected: (val) {
+                  _selectedEmploymentTypeNotifier.value = val;
+                },
+                onValueClear: () {
+                  _selectedEmploymentTypeNotifier.value = null;
+                },
+                validator: (val) {
+                  if (val == null || val["zAttributesId"] == -1) {
+                    return 'Employment Type is required';
+                  }
+                  return null;
+                },
+              );
             },
           ),
-          CustomDropDownWidget(
-            title: 'Relation to Emergency Contact',
-            isRequired: true,
-            hintText: "Select Relation",
-            initialValue: selectedRelationToEmployee,
-            dataList: relationToEmployeeList,
-            onSelected: (value) => selectedRelationToEmployee = value,
-            validator: (value) {
-              if (value == null || value["zAttributesId"] == -1) {
-                return 'Relation to Emergency Contact is required';
-              }
-              return null;
+          ValueListenableBuilder<Map<String, dynamic>?>(
+            valueListenable: _selectedRelationNotifier,
+            builder: (context, value, _) {
+              return CustomDropDownWidget(
+                title: 'Relation to Emergency Contact',
+                isRequired: true,
+                hintText: "Select Relation",
+                initialValue: value,
+                dataList: relationToEmployeeList,
+                onSelected: (val) {
+                  _selectedRelationNotifier.value = val;
+                },
+                onValueClear: () {
+                  _selectedRelationNotifier.value = null;
+                },
+                validator: (val) {
+                  if (val == null || val["zAttributesId"] == -1) {
+                    return 'Relation to Emergency Contact is required';
+                  }
+                  return null;
+                },
+              );
             },
           ),
           CustomTextField(

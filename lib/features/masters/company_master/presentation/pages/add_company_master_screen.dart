@@ -55,20 +55,14 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       _companyPartnerPanNumberC,
       _companyPartnerAadharNumberC;
 
+  // INITIAL STATE FIRMS TYPE
+  late final ValueNotifier<Map<String, dynamic>?> _selectedFirmsTypeNotifier;
+
   // COMPANY TYPE LIST
   List<Map<String, dynamic>> firmTypeList = [
-    {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "LLP"},
     {"zAttributesId": 2, "DisplayName": "Private Limited Company"},
     {"zAttributesId": 3, "DisplayName": "Proprietorship"},
-  ];
-
-  // GENDER LIST
-  final List<Map<String, dynamic>> genderList = [
-    {"zAttributesId": -1, "DisplayName": "Select"},
-    {"zAttributesId": 1, "DisplayName": "Male"},
-    {"zAttributesId": 2, "DisplayName": "Female"},
-    {"zAttributesId": 3, "DisplayName": "Other"},
   ];
 
   // FORM KEYS (one per section)
@@ -83,10 +77,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
   int stateMasterId = -1;
   int districtMasterId = -1;
   int cityMasterId = -1;
-
-  // DROPDOWN VARIABLES
-  late Map<String, dynamic> selectedFirmType;
-  late Map<String, dynamic> selectedGender;
 
   // DATE PICKER FOR DOB
   DateTime? dateOfBirth;
@@ -147,13 +137,17 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
   void initState() {
     super.initState();
     _companyMasterAddCubit = BlocProvider.of<CompanyMasterAddCubit>(context);
+    _selectedFirmsTypeNotifier = ValueNotifier(null);
     _initializeTextEditingControllers(widget.company);
-    _prefillCompanyDetails(widget.company);
+    if(_isEditMode) {
+      _prefillCompanyDetails(widget.company);
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
+    _selectedFirmsTypeNotifier.dispose();
     _disposeTextEditingControllers();
     _companyMasterAddCubit.resetCompanyPartner();
   }
@@ -162,7 +156,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
   void _initializeTextEditingControllers(CompanyModel? company) {
     // BASIC COMPANY DETAILS
     _companyNameC = TextEditingController(text: company?.companyName);
-    selectedFirmType = firmTypeList[0];
     _contactPersonC = TextEditingController(text: company?.contactPerson);
     _mobileNumberC = TextEditingController(text: company?.mobileNumber);
     _emailIdC = TextEditingController(text: company?.emailId);
@@ -210,14 +203,13 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
   // PREFILL COMPANY DETAILS
   Future<void> _prefillCompanyDetails(CompanyModel? company) async {
     // DROPDOWN INITIALIZATION
-    selectedGender = genderList.first;
     stateMasterId = widget.company?.stateMasterId ?? -1;
     districtMasterId = widget.company?.districtMasterId ?? -1;
     cityMasterId = widget.company?.cityMasterId ?? -1;
     _companyMasterAddCubit.resetCompanyPartner(
       companyPartner: company?.companyPartnerData,
     );
-    selectedFirmType = firmTypeList.firstWhere(
+    _selectedFirmsTypeNotifier.value = firmTypeList.firstWhere(
       (element) => element['DisplayName'] == widget.company?.firmsType,
       orElse: () => firmTypeList.first,
     );
@@ -440,24 +432,26 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
               return null;
             },
           ),
-          StatefulBuilder(
-            builder: (_, innerState) {
+          ValueListenableBuilder<Map<String, dynamic>?>(
+            valueListenable: _selectedFirmsTypeNotifier,
+            builder: (context, firmsType, _) {
               return CustomDropDownWidget(
-                title: "Firms Type",
-                initialValue: selectedFirmType,
-                dataList: firmTypeList,
+                title: 'Firms Type',
                 isRequired: true,
+                initialValue: firmsType,
+                hintText: "Select Firms Type",
+                dataList: firmTypeList,
                 onSelected: (value) {
-                  innerState(() {
-                    selectedFirmType = value;
-                  });
+                  _selectedFirmsTypeNotifier.value = value;
                 },
-                validator: (_) {
-                  // Validate against selectedFirmType (source of truth used on submit)
-                  if (selectedFirmType['zAttributesId'] == -1) {
+                validator: (value) {
+                  if (value == null || value["zAttributesId"] == -1) {
                     return 'Firm Type is required';
                   }
                   return null;
+                },
+                onValueClear: () {
+                  _selectedFirmsTypeNotifier.value = null;
                 },
               );
             },
@@ -767,7 +761,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       _companyMasterAddCubit.addCompanyMaster(
         context: context,
         companyName: _companyNameC.text.trim(),
-        firmsType: selectedFirmType["DisplayName"],
+        firmsType: _selectedFirmsTypeNotifier.value?["DisplayName"]??"",
         contactPerson: _contactPersonC.text.trim(),
         mobileNumber: _mobileNumberC.text,
         emailId: _emailIdC.text.trim(),
@@ -797,7 +791,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
         companyId: widget.company!.companyId,
         uniquekey: widget.company!.uniquekey,
         companyName: _companyNameC.text.trim(),
-        firmsType: selectedFirmType["DisplayName"],
+        firmsType: _selectedFirmsTypeNotifier.value?["DisplayName"],
         contactPerson: _contactPersonC.text.trim(),
         mobileNumber: _mobileNumberC.text,
         emailId: _emailIdC.text.trim(),

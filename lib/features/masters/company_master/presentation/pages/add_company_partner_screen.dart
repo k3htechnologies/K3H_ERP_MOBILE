@@ -45,14 +45,16 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
 
   // GENDER LIST
   final List<Map<String, dynamic>> genderList = const [
-    {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "Male"},
     {"zAttributesId": 2, "DisplayName": "Female"},
     {"zAttributesId": 3, "DisplayName": "Other"},
   ];
-  // SELECTED GENDER
-  late Map<String, dynamic> selectedGender;
+
+  // SELECTED DOB
   DateTime? dateOfBirth;
+
+  // DROPDOWN NOTIFIERS
+  late final ValueNotifier<Map<String, dynamic>?> _selectedGenderNotifier;
 
   // FILE PICKER VARIABLES
   MultiFilePickerModel panFile = MultiFilePickerModel(
@@ -78,6 +80,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
   void initState() {
     super.initState();
     _companyMasterAddCubit = context.read<CompanyMasterAddCubit>();
+    _selectedGenderNotifier = ValueNotifier(null);
     _initControllers(widget.companyPartner);
     _prefill(widget.companyPartner);
   }
@@ -92,6 +95,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
     _percentageC.dispose();
     _panC.dispose();
     _aadhaarC.dispose();
+    _selectedGenderNotifier.dispose();
     super.dispose();
   }
 
@@ -107,7 +111,6 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
     );
     _panC = TextEditingController(text: partner?.panNumber);
     _aadhaarC = TextEditingController(text: partner?.aadharCardNumber);
-    selectedGender = genderList.first;
     dateOfBirth = partner?.dateOfBirth;
   }
 
@@ -116,7 +119,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
     if (partner == null) {
       return;
     }
-    selectedGender = genderList.firstWhere(
+    _selectedGenderNotifier.value = genderList.firstWhere(
       (e) => e['DisplayName'] == partner.gender,
       orElse: () => genderList.first,
     );
@@ -158,7 +161,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
       fullName:
           "${_firstNameC.text.trim()} ${_middleNameC.text.trim()} ${_lastNameC.text.trim()}",
       dateOfBirth: dateOfBirth ?? DateTime.now(),
-      gender: selectedGender['DisplayName'],
+      gender: _selectedGenderNotifier.value?['DisplayName']??"",
       mobileNumber: _mobileC.text,
       emailId: _emailC.text.trim(),
       partnerPercentage: double.tryParse(_percentageC.text) ?? 0,
@@ -260,17 +263,28 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                       return null;
                     },
                   ),
-                  CustomDropDownWidget(
-                    title: "Gender",
-                    isRequired: true,
-                    initialValue: selectedGender,
-                    dataList: genderList,
-                    onSelected: (value) => selectedGender = value,
-                    validator: (value) {
-                      if (value == null || value['zAttributesId'] == -1) {
-                        return 'Gender is required';
-                      }
-                      return null;
+                  ValueListenableBuilder<Map<String, dynamic>?>(
+                    valueListenable: _selectedGenderNotifier,
+                    builder: (context, gender, _) {
+                      return CustomDropDownWidget(
+                        title: 'Gender',
+                        isRequired: true,
+                        initialValue: gender,
+                        hintText: "Select Gender",
+                        dataList: genderList,
+                        onSelected: (value) {
+                          _selectedGenderNotifier.value = value;
+                        },
+                        validator: (value) {
+                          if (value == null || value["zAttributesId"] == -1) {
+                            return 'Gender is required';
+                          }
+                          return null;
+                        },
+                        onValueClear: () {
+                          _selectedGenderNotifier.value = null;
+                        },
+                      );
                     },
                   ),
                   CustomTextField(

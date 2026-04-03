@@ -15,6 +15,11 @@ class TargetCubit extends Cubit<TargetState> {
   final TargetRepository _salesTargetRepository =
       serviceLocator<TargetRepository>();
 
+  // SET MONTH FILTER
+  void setMonthFilter(String? month) {
+    emit(state.copyWith(selectedMonth: month));
+  }
+
   // <---- SEARCH SALES TARGET ---->
   Future<void> searchSalesTarget(
     BuildContext context,
@@ -27,7 +32,8 @@ class TargetCubit extends Cubit<TargetState> {
         searchText: value.trim(),
         salesTargetClosing: [],
         salesTargetSourcing: [],
-        currentPage: 1,
+        sourcingPage: 1,
+        closingPage: 1,
       ),
     );
 
@@ -46,79 +52,18 @@ class TargetCubit extends Cubit<TargetState> {
     }
   }
 
-  // <---- CLEAR FILTER ON SALES TARGET ---->
-  void clearFilterOnSalesTarget(
-    BuildContext context,
-    int projectId,
-    int tabIndex,
-  ) {
-    emit(
-      state.copyWith(
-        clearFilters: true,
-        salesTargetClosing: [],
-        salesTargetSourcing: [],
-        filterStartDate: null,
-        filterEndDate: null,
-      ),
-    );
-    if (tabIndex == 0) {
-      getSalesTargetSourcingList(
-        context: context,
-        pageNumber: 1,
-        projectId: projectId,
-      );
-    } else {
-      getSalesTargetClosingList(
-        context: context,
-        pageNumber: 1,
-        projectId: projectId,
-      );
-    }
-  }
-
-  // <---- APPLY FILTER ON SALES TARGET ---->
-  void applyFilterOnSalesTarget({
-    required BuildContext context,
-    DateTime? startDate,
-    DateTime? endDate,
-    required int projectId,
-    required int tabIndex,
-  }) {
-    emit(
-      state.copyWith(
-        filterStartDate: startDate,
-        filterEndDate: endDate,
-        salesTargetClosing: [],
-        salesTargetSourcing: [],
-      ),
-    );
-    if (tabIndex == 0) {
-      getSalesTargetSourcingList(
-        context: context,
-        pageNumber: 1,
-        projectId: projectId,
-      );
-    } else {
-      getSalesTargetClosingList(
-        context: context,
-        pageNumber: 1,
-        projectId: projectId,
-      );
-    }
-  }
-
   // ON TAB CHANGE
   void onTabChanged(int index, BuildContext context) {
     emit(
       state.copyWith(
-        isLoading: true,
-        filterStartDate: null,
-        filterEndDate: null,
         salesTargetClosing: [],
         salesTargetSourcing: [],
+        searchText: "",
         closingTotalNumberOfRecordSalesTarget: 1,
         sourcingTotalNumberOfRecordSalesTarget: 1,
-        currentPage: 1,
+        sourcingPage: 1,
+        closingPage: 1,
+        selectedMonth: null,
       ),
     );
   }
@@ -128,37 +73,29 @@ class TargetCubit extends Cubit<TargetState> {
     required BuildContext context,
     required int projectId,
     int pageNumber = 1,
-    Map<String, dynamic>? queryParams,
   }) async {
-    emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> searchQueryParams = queryParams ?? {};
+    emit(state.copyWith(isSourcingLoading: true));
 
-    if (searchQueryParams.isEmpty) {
-      if (state.filterStartDate != null) {
-        searchQueryParams["FromDate"] = DateFormat(
-          'yyyy-MM-dd',
-        ).format(state.filterStartDate!);
-      }
+    Map<String, dynamic> queryParams = {};
 
-      if (state.filterEndDate != null) {
-        searchQueryParams["ToDate"] = DateFormat(
-          'yyyy-MM-dd',
-        ).format(state.filterEndDate!);
-      }
-      if (state.searchText.trim().isNotEmpty) {
-        searchQueryParams["EmployeeName"] = state.searchText.trim();
-      }
+    if (state.searchText.trim().isNotEmpty) {
+      queryParams["EmployeeName"] = state.searchText.trim();
     }
+
+    if (state.selectedMonth != null) {
+      queryParams["MonthYear"] = state.selectedMonth;
+    }
+
     var result = await _salesTargetRepository.getSalesTargetSourcing(
       pageNumber: pageNumber,
       pageSize: 10,
       projectId: projectId,
-      queryParams: searchQueryParams,
+      queryParams: queryParams,
     );
 
     result.fold(
       (failure) {
-        emit(state.copyWith(isLoading: false));
+        emit(state.copyWith(isSourcingLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
@@ -172,14 +109,11 @@ class TargetCubit extends Cubit<TargetState> {
 
         emit(
           state.copyWith(
-            isLoading: false,
+            isSourcingLoading: false,
             salesTargetSourcing: updatedList,
             sourcingTotalNumberOfRecordSalesTarget:
-                response['totalNumberOfRecord'] == 0 &&
-                        state.sourcingTotalNumberOfRecordSalesTarget != 1
-                    ? state.sourcingTotalNumberOfRecordSalesTarget - 1
-                    : response['totalNumberOfRecord'],
-            currentPage: pageNumber,
+                response['totalNumberOfRecord'] ?? 0,
+            sourcingPage: pageNumber,
           ),
         );
       },
@@ -191,38 +125,29 @@ class TargetCubit extends Cubit<TargetState> {
     required BuildContext context,
     required int projectId,
     int pageNumber = 1,
-    Map<String, dynamic>? queryParams,
   }) async {
-    emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> searchQueryParams = queryParams ?? {};
+    emit(state.copyWith(isClosingLoading: true));
 
-    if (searchQueryParams.isEmpty) {
-      if (state.filterStartDate != null) {
-        searchQueryParams["FromDate"] = DateFormat(
-          'yyyy-MM-dd',
-        ).format(state.filterStartDate!);
-      }
+    Map<String, dynamic> queryParams = {};
 
-      if (state.filterEndDate != null) {
-        searchQueryParams["ToDate"] = DateFormat(
-          'yyyy-MM-dd',
-        ).format(state.filterEndDate!);
-      }
-
-      if (state.searchText.trim().isNotEmpty) {
-        searchQueryParams["EmployeeName"] = state.searchText.trim();
-      }
+    if (state.searchText.trim().isNotEmpty) {
+      queryParams["EmployeeName"] = state.searchText.trim();
     }
+
+    if (state.selectedMonth != null) {
+      queryParams["MonthYear"] = state.selectedMonth;
+    }
+
     var result = await _salesTargetRepository.getSalesTargetClosing(
       pageNumber: pageNumber,
       pageSize: 10,
       projectId: projectId,
-      queryParams: searchQueryParams,
+      queryParams: queryParams,
     );
 
     result.fold(
       (failure) {
-        emit(state.copyWith(isLoading: false));
+        emit(state.copyWith(isClosingLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
@@ -236,14 +161,11 @@ class TargetCubit extends Cubit<TargetState> {
 
         emit(
           state.copyWith(
-            isLoading: false,
+            isClosingLoading: false,
             salesTargetClosing: updatedList,
             closingTotalNumberOfRecordSalesTarget:
-                response['totalNumberOfRecord'] == 0 &&
-                        state.closingTotalNumberOfRecordSalesTarget != 1
-                    ? state.closingTotalNumberOfRecordSalesTarget - 1
-                    : response['totalNumberOfRecord'],
-            currentPage: pageNumber,
+                response['totalNumberOfRecord'] ?? 0,
+            closingPage: pageNumber,
           ),
         );
       },

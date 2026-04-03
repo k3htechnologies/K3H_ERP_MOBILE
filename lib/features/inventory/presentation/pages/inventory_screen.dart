@@ -71,7 +71,6 @@ class _InventoryScreenState extends State<InventoryScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         if (_inventoryCubit.state.buildingList.isEmpty) {
-          print("LLL=>${_project.projectId}");
           _inventoryCubit.getInventory(context, _project.projectId);
         } else {
           _initializeControllersIfNeeded(_inventoryCubit.state);
@@ -141,6 +140,7 @@ class _InventoryScreenState extends State<InventoryScreen>
     if (!_buildingTabController!.indexIsChanging) {
       _expandedFloors.value = {};
       _inventoryCubit.onTabChanged(_buildingTabController!.index, context);
+      _initializeControllersIfNeeded(_inventoryCubit.state);
     }
   }
 
@@ -158,6 +158,7 @@ class _InventoryScreenState extends State<InventoryScreen>
 
       if (index >= 0 && index < wingList.length) {
         _inventoryCubit.updateWingSelection(index, wingList[index].wing);
+        _initializeControllersIfNeeded(_inventoryCubit.state);
       }
 
       _expandedFloors.value = {};
@@ -225,8 +226,8 @@ class _InventoryScreenState extends State<InventoryScreen>
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a unit?',
-      'Deleting this unit will permanently remove its contents.',
+      'You are about to delete a inventory unit ?',
+      'Are you sure you want to delete unit "${flat.flat}"? This action cannot be undone.',
     );
     if (result && context.mounted) {
       _inventoryCubit.deleteInventoryFlat(
@@ -262,11 +263,19 @@ class _InventoryScreenState extends State<InventoryScreen>
             showErrorMessage(context, "Error", "Please Select a project");
             return;
           }
+          if (_inventoryCubit.state.buildingList.isEmpty) {
+            showErrorMessage(context, "", "No Data Found");
+            return;
+          }
           _inventoryCubit.exportInventory(context, _project.projectId, value);
         },
         onAddCallback: () {
           if (_project.projectId == 0) {
             showErrorMessage(context, "Error", "Please Select a project");
+            return;
+          }
+          if(_inventoryCubit.state.buildingList.isEmpty){
+            showErrorMessage(context, "", "Inventory to be generated from web");
             return;
           }
           final state = _inventoryCubit.state;
@@ -644,8 +653,8 @@ class _InventoryScreenState extends State<InventoryScreen>
                                                                   "",
                                                               bookingCreatedDate:
                                                                   DateTime.now(),
-                                                              specificationList: [
-                                                            ],
+                                                              specificationList:
+                                                                  [],
                                                             ),
                                                           ),
                                                         ),
@@ -859,6 +868,31 @@ class _InventoryScreenState extends State<InventoryScreen>
     int flatIndex,
     String approvalStatus,
   ) {
+    final canView = _routeAuthorizationModel.isView;
+    final canAction = _routeAuthorizationModel.isAction;
+
+    if (!canView && !canAction) {
+      return const SizedBox.shrink();
+    }
+
+    final status = flat.flatStatus.toLowerCase();
+
+    //  VIEW → only booked & allotted AND permission
+    final showView =
+        (canView && (status == "booked" || status == "allotted")) ||
+            (!canAction &&
+                (status == "available" || status == "blocked" || status == "hold"));
+
+
+    //  EDIT → available, blocked, hold AND permission
+    final showEdit =
+        canAction &&
+        (status == "available" || status == "blocked" || status == "hold");
+
+    //  DELETE → only available AND permission
+    final showDelete = canAction && status == "available" && approvalStatus!="Approved";
+
+
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(vertical: 6),
@@ -929,79 +963,76 @@ class _InventoryScreenState extends State<InventoryScreen>
 
               horizontalSpacing(),
 
-              if (flat.flatStatus.toLowerCase() == "booked" &&
-                  _routeAuthorizationModel.isAction)
-                GestureDetector(
-                  onTap: () {
-                    goRouter.pushNamed(
-                      AppRoutes.viewUnitSpecification,
-                      queryParameters: {
-                        "flatModel": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(jsonEncode(flat)),
-                        ),
-                      },
-                    );
-                  },
-                  child: const Icon(Icons.remove_red_eye_outlined, size: 18),
-                )
-              else ...[
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    (flat.flatStatus == "approved" &&
-                            _routeAuthorizationModel.isAction)
-                        ? GestureDetector(
-                          onTap: () async {
-                            await goRouter.pushNamed(
-                              AppRoutes.addInventorySpecification,
-                              queryParameters: {
-                                "flatModel": Uri.encodeQueryComponent(
-                                  EncryptionManager.encryptData(
-                                    jsonEncode(flat),
-                                  ),
-                                ),
-                                "floorModel": Uri.encodeQueryComponent(
-                                  EncryptionManager.encryptData(
-                                    jsonEncode(floor),
-                                  ),
-                                ),
-                              },
-                            );
-                            if (mounted) {
-                              _inventoryCubit.getInventory(
-                                context,
-                                _project.projectId,
-                              );
-                            }
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 👁 VIEW (always if hasAccess)
+                  if (showView)
+                    GestureDetector(
+                      onTap: () {
+                        goRouter.pushNamed(
+                          AppRoutes.viewUnitSpecification,
+                          queryParameters: {
+                            "flatModel": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(jsonEncode(flat)),
+                            ),
                           },
-                          child: const Icon(Icons.edit, size: 18),
-                        )
-                        : SizedBox.shrink(),
-                    const SizedBox(width: 15),
-                    if (flat.flatStatus.toLowerCase() != "blocked" &&
-                        flat.flatStatus.toLowerCase() != "hold" &&
-                        flat.flatStatus == "approved" &&
-                        _routeAuthorizationModel.isAction) ...[
-                      GestureDetector(
-                        onTap: () {
-                          _showPopupToDeleteInventoryFlat(
-                            context,
-                            flat,
-                            floorIndex,
-                            wingIndex,
-                            buildingIndex,
-                            flatIndex,
-                          );
-                        },
-                        child: SvgPicture.asset(
-                          AppAssets.deleteIcon2,
-                          height: 18,
-                        ),
+                        );
+                      },
+                      child: const Icon(
+                        Icons.remove_red_eye_outlined,
+                        size: 18,
                       ),
-                    ],
+                    ),
+
+                  if (showEdit) ...[
+                    const SizedBox(width: 15),
+                    GestureDetector(
+                      onTap: () async {
+                        await goRouter.pushNamed(
+                          AppRoutes.addInventorySpecification,
+                          queryParameters: {
+                            "flatModel": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(jsonEncode(flat)),
+                            ),
+                            "floorModel": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(jsonEncode(floor)),
+                            ),
+                          },
+                        );
+
+                        if (mounted) {
+                          _inventoryCubit.getInventory(
+                            context,
+                            _project.projectId,
+                          );
+                        }
+                      },
+                      child: const Icon(Icons.edit, size: 18),
+                    ),
                   ],
-                ),
-              ],
+
+                  if (showDelete) ...[
+                    const SizedBox(width: 15),
+                    GestureDetector(
+                      onTap: () {
+                        _showPopupToDeleteInventoryFlat(
+                          context,
+                          flat,
+                          floorIndex,
+                          wingIndex,
+                          buildingIndex,
+                          flatIndex,
+                        );
+                      },
+                      child: SvgPicture.asset(
+                        AppAssets.deleteIcon2,
+                        height: 18,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ],
           ),
           if (flat.ownerName.isNotEmpty &&
@@ -1029,6 +1060,7 @@ class _InventoryScreenState extends State<InventoryScreen>
               ),
             ),
           ],
+
           if (flat.flatStatus.toLowerCase() == "available" &&
               flat.reraCarpetAreaSqFt != 0 &&
               flat.flatType != "" &&

@@ -693,41 +693,6 @@ Future<bool> importExcel(
   }
 }
 
-// <---- IMPORT SALES TARGET SAMPLE FILE FOR WEB ---->
-Future<bool> salesTargetSampleExcelImport(BuildContext context) async {
-  final TargetRepository targetRepository = serviceLocator<TargetRepository>();
-  final ProjectModel project = getProject();
-  try {
-    DialogHelper.showProcessingOverlay(context);
-    var result = await targetRepository.exportTarget(
-      pageNumber: 1,
-      pageSize: 1000000,
-      projectId: project.projectId,
-      queryParams: {
-        "ExportType": "Excel",
-        "IsSampleDownload": "true",
-        "IsCheckPermission": "true",
-      },
-    );
-    goRouter.pop();
-    return result.fold(
-      (failure) {
-        showErrorMessage(context, "Import Error", failure.message);
-        return false;
-      },
-      (response) {
-        exportExcelOrPdfMobile(
-          response["data"],
-          "TARGET SAMPLE ${DateTime.now()}.xlsx",
-        );
-        showSuccessMessage(context, subTitle: "Excel downloaded successfully");
-        return true;
-      },
-    );
-  } catch (e) {
-    return false;
-  }
-}
 
 String addCommasToInteger(double value) {
   String integerPart = value.toStringAsFixed(2);

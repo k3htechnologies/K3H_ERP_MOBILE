@@ -17,6 +17,13 @@ abstract interface class TargetDatasource {
     Map<String, dynamic>? queryParams,
   });
 
+  Future<Map<String, dynamic>> apicallPullSaleTargetSourcingExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
+
   Future<Map<String, dynamic>> apicallPullSaleTargetClosingExport({
     required int pageNumber,
     required int pageSize,
@@ -98,6 +105,51 @@ class TargetDatasourceImpl extends TargetDatasource {
           pageNumber: pageNumber,
           pageSize: pageSize,
           projectId: projectId,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullSaleTargetSourcingExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullSaleTargetClosingUrlExport({
+      required int pageNumber,
+      required int pageSize,
+      required int projectId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "SaleTarget/PullSaleTargetSourcing?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullSaleTargetClosingUrlExport(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullSaleTargetSourcingExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          projectId: projectId,
+          queryParams: queryParams,
         );
       }
       rethrow;

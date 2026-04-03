@@ -307,9 +307,9 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                                     );
                                   },
                                 ),
-                                if (department.numberOfEmployee == 0) ...[
                                   horizontalSpacing(),
                                   CustomIconButton.delete(
+                                    isDisabled: department.numberOfEmployee == 0,
                                     onPressed: () {
                                       _showPopupToDeleteDepartmentMaster(
                                         context,
@@ -319,7 +319,6 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                                       );
                                     },
                                   ),
-                                ],
                               ],
                             ),
                           ],

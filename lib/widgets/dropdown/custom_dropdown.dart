@@ -31,7 +31,6 @@ class CustomDropDownWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 4,
       children: [
         if (title != null)
           Row(
@@ -49,11 +48,19 @@ class CustomDropDownWidget extends StatelessWidget {
           ),
         FormField<Map<String, dynamic>>(
           validator: validator,
-          initialValue:
-              (initialValue == null || initialValue!.isEmpty)
-                  ? null
-                  : initialValue,
+          initialValue: dataList.contains(initialValue) ? initialValue : null,
           builder: (FormFieldState<Map<String, dynamic>> formFieldState) {
+            Map<String, dynamic>? selectedItem;
+
+            if (initialValue != null) {
+              try {
+                selectedItem = dataList.firstWhere(
+                      (e) => e['zAttributesId'] == initialValue?['zAttributesId'],
+                );
+              } catch (_) {
+                selectedItem = null;
+              }
+            }
             final hasError = formFieldState.hasError;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,7 +68,7 @@ class CustomDropDownWidget extends StatelessWidget {
                 IgnorePointer(
                   ignoring: isDisabled,
                   child: CustomDropdown<Map<String, dynamic>>.search(
-                    initialItem: initialValue,
+                    initialItem: selectedItem,
                     closedHeaderPadding: const EdgeInsets.symmetric(
                       horizontal: 10.0,
                       vertical: 10.0,
@@ -108,7 +115,7 @@ class CustomDropDownWidget extends StatelessWidget {
                     },
                     headerBuilder: (context, selectedItem, isSelected) {
                       final displayName =
-                          selectedItem['DisplayName']?.toString() ?? '';
+                          selectedItem?['DisplayName']?.toString() ?? '';
 
                       final hasValue = displayName.isNotEmpty;
 
@@ -148,7 +155,10 @@ class CustomDropDownWidget extends StatelessWidget {
                     onChanged: (value) {
                       if (!isDisabled) {
                         formFieldState.didChange(value);
-                        onSelected(value!);
+
+                        if (value != null) {
+                          onSelected(value);
+                        }
                       }
                     },
                   ),

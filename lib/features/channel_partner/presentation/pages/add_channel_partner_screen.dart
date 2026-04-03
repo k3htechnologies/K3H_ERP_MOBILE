@@ -296,6 +296,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
             (e) => e['DisplayName'] == data.firmsType,
             orElse: () => firmsType[0],
           );
+          selectedType.value = type.firstWhere(
+            (e) => e['DisplayName'] == data.type,
+            orElse: () => type[0],
+          );
           selectedGSTCertificateForPopUpFile.value = MultiFilePickerModel(
             fileBytesList: [],
             fileNameList:
@@ -361,7 +365,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
       selectedFirmsType.value = firmsType.firstWhere(
         (e) => e['DisplayName'] == channelPartnerMasterModel.firmsType,
-        orElse: () => firmsType.first,
       );
     } else {
       // NEW COMPANY FLOW
@@ -525,7 +528,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         reraNumber: _reraNumberC.text.trim(),
         companyName: companyName,
         firmsType: firmsTypeValue,
-        type: selectedType.value?["DisplayName"]??"",
+        type: selectedType.value?["DisplayName"] ?? "",
         designation: selectedDesignation.value?["DisplayName"] ?? "",
         otp: _otpController.text.trim(),
       );
@@ -552,7 +555,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         reraNumber: _reraNumberC.text.trim(),
         companyName: companyName,
         firmsType: firmsTypeValue,
-        type: selectedType.value?["DisplayName"]??"",
+        type: selectedType.value?["DisplayName"] ?? "",
         designation: selectedDesignation.value?["DisplayName"] ?? "",
         otp: _otpController.text.trim(),
         gstCertificateURL: selectedGSTCertificateForPopUpFile.value,
@@ -564,7 +567,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   void _resetCompanyFields() {
     selectedCompany.value = [];
     _companyNameC.clear();
-    selectedFirmsType.value = firmsType[0];
+    selectedFirmsType.value = null;
+    selectedType.value = null;
     hasReraNumber.value = false;
     _gstNumberC.clear();
     selectedGSTCertificateForPopUpFile.value = MultiFilePickerModel(
@@ -741,7 +745,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                   selectedCompany.value = [];
                                   isCompanyPrefilled.value = false;
                                   _companyNameC.clear();
-                                  selectedFirmsType.value = firmsType[0];
+                                  selectedFirmsType.value = null;
+                                  selectedType.value = null;
                                   hasReraNumber.value = false;
                                   _reraNumberC.clear();
                                   _gstNumberC.clear();
@@ -833,7 +838,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                     isRequired: true,
                                     readOnly: true,
                                     textController: TextEditingController(
-                                      text: firmsValue!['DisplayName'] ?? '',
+                                      text: firmsValue?['DisplayName'] ?? '',
                                     ),
                                   );
                                 },
@@ -859,34 +864,45 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                             if (val == null) {
                               return "Designation is required";
                             }
-
-                            if (selectedCompanyType.value?['zAttributesId'] ==
-                                    1 &&
-                                val['zAttributesId'] == 3) {
-                              return "You can't be Owner";
-                            }
-
                             return null;
                           },
                         );
                       },
                     ),
-                    ValueListenableBuilder<Map<String, dynamic>?>(
-                      valueListenable: selectedType,
-                      builder: (context, value, _) {
-                        return CustomDropDownWidget(
-                          title: "Type",
-                          isRequired: true,
-                          dataList: type,
-                          initialValue: value,
-                          onSelected: (val) {
-                            selectedType.value = val;
-                          },
-                          validator: (value) {
-                            if (value == null) {
-                              return "Type is required";
+                    ValueListenableBuilder(
+                      valueListenable: selectedCompanyType,
+                      builder: (context, companyType, _) {
+                        final int companyTypeId =
+                            companyType?['zAttributesId'] ?? -1;
+
+                        return ValueListenableBuilder<Map<String, dynamic>?>(
+                          valueListenable: selectedType,
+                          builder: (context, value, _) {
+                            if (companyTypeId == 2) {
+                              return CustomTextField(
+                                title: "Type",
+                                isRequired: true,
+                                readOnly: true,
+                                textController: TextEditingController(
+                                  text: value?['DisplayName'] ?? '',
+                                ),
+                              );
                             }
-                            return null;
+                            return CustomDropDownWidget(
+                              title: "Type",
+                              isRequired: true,
+                              dataList: type,
+                              initialValue: value,
+                              onSelected: (val) {
+                                selectedType.value = val;
+                              },
+                              validator: (value) {
+                                if (value == null) {
+                                  return "Type is required";
+                                }
+                                return null;
+                              },
+                            );
                           },
                         );
                       },

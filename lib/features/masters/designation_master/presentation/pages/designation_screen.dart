@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/cubit/designation_master_cubit.dart';
@@ -11,7 +10,6 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
@@ -338,9 +336,10 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
                                   ),
                               if (_routeAuthorizationModel.isAction) ...[
                                 Row(
+                                  spacing: 10,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    CustomIconButton(
+                                    CustomIconButton.edit(
                                       onPressed: () async {
                                         await goRouter.pushNamed(
                                           AppRoutes.addDesignation,
@@ -356,34 +355,18 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
                                           },
                                         );
                                       },
-                                      icon: Icon(
-                                        Icons.edit,
-                                        size: 16,
-                                        color: AppColor.grey,
-                                      ),
-                                      backgroundColor: AppColor.grey10,
                                     ),
-                                    if (designation.numberOfEmployee == 0) ...[
-                                      horizontalSpacing(width: 5),
-                                      CustomIconButton(
-                                        onPressed: () {
-                                          _showPopupToDeleteDesignationMaster(
-                                            designation.designationMasterId,
-                                            designation.uniquekey,
-                                            index,
-                                          );
-                                        },
-                                        icon: SvgPicture.asset(
-                                          AppAssets.deleteIcon2,
-                                          height: 16,
-                                          colorFilter: ColorFilter.mode(
-                                            AppColor.error,
-                                            BlendMode.srcIn,
-                                          ),
-                                        ),
-                                        backgroundColor: AppColor.lightRed,
-                                      ),
-                                    ],
+                                    CustomIconButton.delete(
+                                      isDisabled:
+                                          designation.numberOfEmployee == 0,
+                                      onPressed: () {
+                                        _showPopupToDeleteDesignationMaster(
+                                          designation.designationMasterId,
+                                          designation.uniquekey,
+                                          index,
+                                        );
+                                      },
+                                    ),
                                   ],
                                 ),
                               ],

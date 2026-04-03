@@ -38,8 +38,8 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
 
   // DROPDOWN VALUES
   Map<String, dynamic>? selectedBusinessCategory;
-  Map<String, dynamic>? selectedProjectStatus;
   Map<String, dynamic>? selectedProjectSubScheme;
+  late final ValueNotifier<Map<String, dynamic>?> _selectedProjectStatusNotifier;
 
   // ADDRESS VARIABLES
   int? _stateMasterId;
@@ -143,7 +143,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
 
   // STATIC LISTS
   List<Map<String, dynamic>> projectStatusList = [
-    {"zAttributesId": -1, "DisplayName": "Select Project Status"},
     {"zAttributesId": 1, "DisplayName": "On-Going"},
     {"zAttributesId": 2, "DisplayName": "Completed"},
     {"zAttributesId": 3, "DisplayName": "On-Hold"},
@@ -158,10 +157,10 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   void initState() {
     super.initState();
     _projectMasterCubit = context.read<ProjectMasterCubit>();
-    selectedProjectStatus = projectStatusList.first;
     projectSchemeNotifier.value = projectSchemeList.first;
     selectedProjectSubScheme =
         _currentSubSchemeList.isNotEmpty ? _currentSubSchemeList.first : null;
+    _selectedProjectStatusNotifier = ValueNotifier(null);
     _initializeTextEditingController();
     if (_isEditMode) {
       _prefillDialogueToAddUpdateProjectMaster(widget.project!);
@@ -187,6 +186,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _reraNumberC.dispose();
     _siteContactNameC.dispose();
     _siteContactMobileNumberC.dispose();
+    isRedevelopmentNotifier.dispose();
+    projectSchemeNotifier.dispose();
+    _selectedProjectStatusNotifier.dispose();
   }
 
   // INITIALIZE TEXT EDITING CONTROLLER
@@ -243,14 +245,11 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       );
     }
 
-    if (widget.project!.projectStatus.isNotEmpty) {
-      selectedProjectStatus = projectStatusList.firstWhere(
+      _selectedProjectStatusNotifier.value = projectStatusList.firstWhere(
         (status) => status["DisplayName"] == widget.project!.projectStatus,
         orElse: () => projectStatusList.first,
       );
-    } else {
-      selectedProjectStatus = projectStatusList.first;
-    }
+
 
     if (widget.project!.projectScheme.isNotEmpty) {
       projectSchemeNotifier.value = projectSchemeList.firstWhere(
@@ -327,10 +326,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     ? projectSchemeNotifier.value!["DisplayName"].toString()
                     : "",
             projectScope: _projectScopeC.text,
-            projectStatus:
-                selectedProjectStatus!["zAttributesId"] == -1
-                    ? ""
-                    : selectedProjectStatus!["DisplayName"].toString(),
+            projectStatus:_selectedProjectStatusNotifier.value?["DisplayName"]??"",
             projectSubScheme:
                 selectedProjectSubScheme != null &&
                         selectedProjectSubScheme!["zAttributesId"] != -1
@@ -381,10 +377,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     ? projectSchemeNotifier.value!["DisplayName"].toString()
                     : "",
             projectScope: _projectScopeC.text,
-            projectStatus:
-                selectedProjectStatus!["zAttributesId"] == -1
-                    ? ""
-                    : selectedProjectStatus!["DisplayName"].toString(),
+            projectStatus:_selectedProjectStatusNotifier.value?["DisplayName"]??"",
             projectSubScheme:
                 selectedProjectSubScheme != null &&
                         selectedProjectSubScheme!["zAttributesId"] != -1
@@ -896,11 +889,22 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         textController: _siteContactMobileNumberC,
                         inputFormatterList: InputValidator.digit(10),
                       ),
-                      CustomDropDownWidget(
-                        title: 'Project Status',
-                        initialValue: selectedProjectStatus,
-                        dataList: projectStatusList,
-                        onSelected: (value) => selectedProjectStatus = value,
+                      ValueListenableBuilder<Map<String, dynamic>?>(
+                        valueListenable: _selectedProjectStatusNotifier,
+                        builder: (context, status, _) {
+                          return CustomDropDownWidget(
+                            title: 'Project Status',
+                            initialValue: status,
+                            hintText: "Select Project Status",
+                            dataList: projectStatusList,
+                            onSelected: (value) {
+                              _selectedProjectStatusNotifier.value = value;
+                            },
+                            onValueClear: () {
+                              _selectedProjectStatusNotifier.value = null;
+                            },
+                          );
+                        },
                       ),
                     ],
                   ),
