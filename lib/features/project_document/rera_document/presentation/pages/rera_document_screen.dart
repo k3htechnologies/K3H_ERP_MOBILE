@@ -279,13 +279,16 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
           child: BlocBuilder<RERADocumentCubit, RERADocumentState>(
             builder: (context, state) {
               if (state.isLoading! && state.documentCategoryModelList.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
+                return Center(child: loader());
               }
 
               if (state.documentCategoryModelList.isEmpty) {
-                return Center(
-                  child: noDataWidget(
-                    message: "No Project RERA Document Category Data Found",
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Center(
+                    child: noDataWidget(
+                      message: "No Project RERA Document Category Data Found",
+                    ),
                   ),
                 );
               }

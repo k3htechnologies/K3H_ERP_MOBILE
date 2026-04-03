@@ -303,8 +303,11 @@ class _ViewApprovalDocumentScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
-                title: "Remark",
-                value: document.approvalDocumentRemark,
+                title: "Approval Status",
+                value: document.approvalDocumentApprovalStatus,
+                customValueWidget: approvalStatusWidget(
+                  document.approvalDocumentApprovalStatus,
+                ),
               ),
               buildColumnTitleValue(
                 title: "View Document",
@@ -322,6 +325,15 @@ class _ViewApprovalDocumentScreenState
                     ),
                   ],
                 ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              buildColumnTitleValue(
+                title: "Remark",
+                value: document.approvalDocumentRemark,
               ),
             ],
           ),

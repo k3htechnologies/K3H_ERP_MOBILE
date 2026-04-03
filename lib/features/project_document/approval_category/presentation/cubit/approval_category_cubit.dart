@@ -21,6 +21,14 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error Message", "Please select a project");
+        ApprovalCategoryCubit();
+        emit(state.copyWith(isLoading: false, approvalCategoryList: []));
+      });
+      return;
+    }
     Map<String, dynamic> queryParams = {
       "ApprovalDocumentCategory": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",

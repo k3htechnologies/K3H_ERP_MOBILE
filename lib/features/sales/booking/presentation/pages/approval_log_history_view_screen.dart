@@ -153,7 +153,9 @@ class ApprovalLogHistoryScreen extends StatelessWidget {
                                               ),
                                             ),
 
-                                            statusWidget(item.approvalStatus),
+                                            approvalStatusWidget(
+                                              item.approvalStatus,
+                                            ),
                                           ],
                                         ),
 
@@ -190,29 +192,5 @@ class ApprovalLogHistoryScreen extends StatelessWidget {
                 ),
               ),
     );
-  }
-
-  /// STATUS CHIP
-  Widget statusWidget(String status) {
-    final trimmed = status.trim();
-
-    final s = trimmed.toLowerCase();
-
-    switch (s) {
-      case 'approved':
-        return statusChip(status, AppColor.green20, AppColor.green);
-
-      case 'rejected':
-        return statusChip(status, AppColor.lightRed, AppColor.red);
-
-      case 'pending':
-        return statusChip(status, AppColor.lightYellow, AppColor.brown);
-
-      case 'partially approved':
-        return statusChip(status, AppColor.lightPurple, AppColor.purple);
-
-      default:
-        return statusChip(status, AppColor.lightGreyBackground, AppColor.black);
-    }
   }
 }

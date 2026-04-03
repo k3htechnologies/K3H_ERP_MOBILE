@@ -118,6 +118,7 @@ dependencies:
 
 
   flutter_background_service: ^5.1.0
+  flutter_screenutil: ^5.9.3
   
 # DEV DEPENDENCIES
 dev_dependencies:

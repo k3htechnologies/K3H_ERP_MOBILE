@@ -2570,8 +2570,6 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
                           final leave = state.approvalLeaveList[index];
                           final selectedIds = state.selectedLeaveIds;
-                          print("Selected IDs: $selectedIds");
-
                           return Column(
                             children: [
                               if (state.leaveInnerTabIndex == 1 &&

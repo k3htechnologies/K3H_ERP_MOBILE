@@ -25,6 +25,14 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error Message", "Please select a project");
+        RERADocumentCategoryCubit();
+        emit(state.copyWith(isLoading: false, reraDocumentCategoryList: []));
+      });
+      return;
+    }
     Map<String, dynamic> queryParams = {
       "ProjectRERADocumentCategory": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
