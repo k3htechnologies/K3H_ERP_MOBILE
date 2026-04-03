@@ -30,6 +30,21 @@ class DocumentCubit extends Cubit<DocumentState> {
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error Message", "Please select a project");
+        DocumentCubit();
+        emit(
+          state.copyWith(
+            isLoading: false,
+            documentCategoryModelList: [],
+            documentList: [],
+          ),
+        );
+      });
+      return;
+    }
+
     var result = await _documentCategoryRepository.getDocumentCategory(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -212,6 +227,7 @@ class DocumentCubit extends Cubit<DocumentState> {
     required int projectDocumentId,
     required String uniqueKey,
     required int projectDocumentCategoryId,
+    required String projectDocumentName,
     DateTime? projectDocumentExpiryDate,
     String? projectDocumentStatus,
     String? projectDocumentRemark,
@@ -224,6 +240,7 @@ class DocumentCubit extends Cubit<DocumentState> {
       "Uniquekey": uniqueKey,
       "ProjectId": getProject().projectId.toString(),
       "ProjectDocumentCategoryId": projectDocumentCategoryId.toString(),
+      "ProjectDocumentName": projectDocumentName,
       //isMaster is 0 means add subdoc in document group
       "IsMaster": 0.toString(),
 

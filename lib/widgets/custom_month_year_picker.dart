@@ -86,10 +86,12 @@ class _CustomMonthYearPickerState extends State<CustomMonthYearPicker> {
           builder: (context, setDialogState) {
             bool isDisabled(int m) {
               final d = DateTime(selectedYear, m);
-              if (widget.startDate != null && d.isBefore(widget.startDate!))
+              if (widget.startDate != null && d.isBefore(widget.startDate!)) {
                 return true;
-              if (widget.endDate != null && d.isAfter(widget.endDate!))
+              }
+              if (widget.endDate != null && d.isAfter(widget.endDate!)) {
                 return true;
+              }
               return false;
             }
 

@@ -71,7 +71,6 @@ class _InventoryScreenState extends State<InventoryScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         if (_inventoryCubit.state.buildingList.isEmpty) {
-          print("LLL=>${_project.projectId}");
           _inventoryCubit.getInventory(context, _project.projectId);
         } else {
           _initializeControllersIfNeeded(_inventoryCubit.state);

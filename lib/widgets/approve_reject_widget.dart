@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -69,9 +70,9 @@ class ApproveRejectWidget extends StatelessWidget {
                   children: [
                     Text(
                       "Approval Status : ",
-                      style: AppTextStyle.ts14M(color: AppColor.grey),
+                      style: AppTextStyle.ts12M(color: AppColor.grey),
                     ),
-                    statusWidget(actionTitle),
+                    approvalStatusWidget(actionTitle),
                   ],
                 ),
             (isActionAlreadyPerformed && onThirdTap != null)
@@ -84,7 +85,7 @@ class ApproveRejectWidget extends StatelessWidget {
                   ],
                 )
                 : Row(
-                  spacing: 10,
+                  spacing: 10.w,
                   children: [
                     CustomIconButton(
                       onPressed:
@@ -121,7 +122,7 @@ class ApproveRejectWidget extends StatelessWidget {
           ],
         )
         : Container(
-          height: 40,
+          height: 40.h,
           decoration: BoxDecoration(
             border: Border.all(color: AppColor.grey),
             borderRadius: BorderRadius.circular(6),
@@ -242,7 +243,7 @@ class ApproveRejectWidget extends StatelessWidget {
               isRequired: true,
               minLines: 3,
               maxLines: 3,
-              bottomMargin: 5.0,
+              bottomMargin: 5.h,
               textController: remarkController,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -270,28 +271,5 @@ class ApproveRejectWidget extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-Widget statusWidget(String status) {
-  final trimmed = status.trim();
-
-  final s = trimmed.toLowerCase();
-
-  switch (s) {
-    case 'approved':
-      return statusChip(status, AppColor.green20, AppColor.green);
-
-    case 'rejected':
-      return statusChip(status, AppColor.lightRed, AppColor.red);
-
-    case 'pending':
-      return statusChip(status, AppColor.lightYellow, AppColor.brown);
-
-    case 'partial approved':
-      return statusChip(status, AppColor.lightPurple, AppColor.purple);
-
-    default:
-      return statusChip(status, AppColor.lightGreyBackground, AppColor.black);
   }
 }

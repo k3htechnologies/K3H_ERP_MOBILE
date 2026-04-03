@@ -28,6 +28,21 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error Message", "Please select a project");
+        RERADocumentCubit();
+        emit(
+          state.copyWith(
+            isLoading: false,
+            documentCategoryModelList: [],
+            reraDocumentList: [],
+          ),
+        );
+      });
+      return;
+    }
+
     var result = await _reraDocumentCategoryRepository.getReraDocumentCategory(
       pageNumber: pageNumber,
       pageSize: 10,

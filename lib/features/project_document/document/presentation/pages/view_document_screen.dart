@@ -227,12 +227,15 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
             children: [
               Expanded(
                 child: Text(
-                  "${widget.documentModel.projectDocumentName} -${document.projectDocumentName}",
+                  document.projectDocumentName,
                   style: AppTextStyle.ts16SB(),
                 ),
               ),
               if (_routeAuthorizationModel.isAction) ...[
                 CustomIconButton.edit(
+                  isDisabled: document.projectDocumentApprovalStatus
+                      .toLowerCase()
+                      .contains('approved'),
                   onPressed: () {
                     goRouter.pushNamed(
                       AppRoutes.addDocument,
@@ -333,6 +336,13 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                   ],
                 ),
               ),
+              buildColumnTitleValue(
+                title: "Approval Status",
+                value: document.projectDocumentApprovalStatus,
+                customValueWidget: approvalStatusWidget(
+                  document.projectDocumentApprovalStatus,
+                ),
+              ),
             ],
           ),
           Row(
@@ -348,7 +358,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
             actionTitle: isActionAllowed ? "Actions" : "History",
             isActionAlreadyPerformed: !isActionAllowed,
             popupTitle:
-                "${widget.documentModel.projectDocumentCategory} > ${document.projectDocumentName}",
+                "${document.projectDocumentCategory} > ${document.projectDocumentName}",
             onApprove: (val) async {
               await _loginCubit.updateModulesWorkflowApproval(
                 context: context,

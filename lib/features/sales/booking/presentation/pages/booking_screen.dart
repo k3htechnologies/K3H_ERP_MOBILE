@@ -644,7 +644,7 @@ class _BookingScreenState extends State<BookingScreen> {
                               ],
                             )
                             : SizedBox.shrink(),
-                        statusWidget(booking.approvalStatus),
+                        approvalStatusWidget(booking.approvalStatus),
                       ],
                     ),
                     verticalSpacing(height: 5),
@@ -766,28 +766,5 @@ class _BookingScreenState extends State<BookingScreen> {
         },
       ),
     );
-  }
-
-  Widget statusWidget(String status) {
-    final trimmed = status.trim();
-
-    final s = trimmed.toLowerCase();
-
-    switch (s) {
-      case 'approved':
-        return statusChip(status, AppColor.green20, AppColor.green);
-
-      case 'rejected':
-        return statusChip(status, AppColor.lightRed, AppColor.red);
-
-      case 'pending':
-        return statusChip(status, AppColor.lightYellow, AppColor.brown);
-
-      case 'partial approved':
-        return statusChip(status, AppColor.lightPurple, AppColor.purple);
-
-      default:
-        return statusChip(status, AppColor.lightGreyBackground, AppColor.black);
-    }
   }
 }

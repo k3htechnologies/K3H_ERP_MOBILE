@@ -28,6 +28,21 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error Message", "Please select a project");
+        ApprovalDocumentCubit();
+        emit(
+          state.copyWith(
+            isLoading: false,
+            documentCategoryModelList: [],
+            documentList: [],
+          ),
+        );
+      });
+      return;
+    }
+
     var result = await _documentCategoryRepository.getApprovalDocumentCategory(
       pageNumber: pageNumber,
       pageSize: 10,

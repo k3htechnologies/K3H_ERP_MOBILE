@@ -56,6 +56,14 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error Message", "Please select a project");
+        DocumentCategoryCubit();
+        emit(state.copyWith(isLoading: false, documentCategoryList: []));
+      });
+      return;
+    }
     Map<String, dynamic> queryParams = {
       "ProjectDocumentCategory": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",

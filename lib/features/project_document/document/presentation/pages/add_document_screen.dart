@@ -108,6 +108,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
         projectDocumentStatus: _selectedStatus.value[0]['DisplayName'],
         projectDocumentExpiryDate: expiryDate,
         projectDocumentRemark: _remarkC.text.trim(),
+        projectDocumentName: widget.documentModel!.projectDocumentName,
       );
     } else {
       _documentCubit.updateSubDocument(

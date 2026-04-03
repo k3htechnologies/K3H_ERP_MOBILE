@@ -18,14 +18,22 @@ class CustomIconButton extends StatelessWidget {
   });
 
   // === Named Constructor for Edit Icon Button ===
-  const CustomIconButton.edit({Key? key, required VoidCallback onPressed})
-    : this(
-        key: key,
-        onPressed: onPressed,
-        icon: const Icon(Icons.edit, size: 16, color: AppColor.black),
-        backgroundColor: AppColor.grey30,
-        size: 16,
-      );
+  CustomIconButton.edit({
+    Key? key,
+    required VoidCallback onPressed,
+    bool isDisabled = false,
+  }) : this(
+         key: key,
+         onPressed: isDisabled ? () {} : onPressed,
+         icon: Icon(
+           Icons.edit,
+           size: 16,
+           color: isDisabled ? AppColor.grey2 : AppColor.black,
+         ),
+         backgroundColor:
+             isDisabled ? AppColor.lightGreyBackground : AppColor.lightBlue,
+         size: 16,
+       );
 
   // === Named Constructor for Delete Icon Button ===
   CustomIconButton.delete({

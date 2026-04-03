@@ -284,9 +284,10 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                   elevation: 4,
                   borderRadius: BorderRadius.circular(8),
                   child: MouseRegion(
-                    cursor: widget.readOnly
-                        ? SystemMouseCursors.basic
-                        : SystemMouseCursors.click,
+                    cursor:
+                        widget.readOnly
+                            ? SystemMouseCursors.basic
+                            : SystemMouseCursors.click,
                     onExit: (_) => _removeOverlay(),
                     child: ListView(
                       padding: const EdgeInsets.all(8),
@@ -349,10 +350,12 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                                               context,
                                               urls: [fileName],
                                               fileBytes:
-                                              fileBytesList.length > index &&
-                                                  fileBytesList[index].isNotEmpty
-                                                  ? [fileBytesList[index]]
-                                                  : null,
+                                                  fileBytesList.length >
+                                                              index &&
+                                                          fileBytesList[index]
+                                                              .isNotEmpty
+                                                      ? [fileBytesList[index]]
+                                                      : null,
                                             );
                                           },
                                           child: Icon(
@@ -363,12 +366,17 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                                         ),
 
                                       /// spacing only if both icons visible
-                                      if (canPreview && !widget.readOnly) horizontalSpacing(),
+                                      if (canPreview && !widget.readOnly)
+                                        horizontalSpacing(),
 
                                       /// 🗑 DELETE (only if NOT readOnly)
                                       if (!widget.readOnly)
                                         InkWell(
-                                          onTap: () => deleteFile(formFieldState, index),
+                                          onTap:
+                                              () => deleteFile(
+                                                formFieldState,
+                                                index,
+                                              ),
                                           child: Icon(
                                             Icons.delete,
                                             color: AppColor.error,
@@ -578,92 +586,100 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                           color: AppColor.white,
                         ),
                         child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: fileNamesList.isNotEmpty
-                        ? () {
-                      print("CLICKED 🔥");
-                      _showFilePathOverlay(
-                        portalContext,
-                        formFieldState,
-                      );
-                    }
-                        : null,
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: widget.label,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 10.0,
-                          vertical: 10.0,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6.0),
-                          borderSide: BorderSide(
-                            color: formFieldState.hasError
-                                ? AppColor.error
-                                : AppColor.grey30,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6.0),
-                          borderSide: BorderSide(
-                            color: formFieldState.hasError
-                                ? AppColor.error
-                                : AppColor.grey30,
-                          ),
-                        ),
-                        errorStyle: const TextStyle(height: 0),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-
-                          /// LEFT TEXT
-                          Expanded(
-                            child: Text(
-                              fileNamesList.isEmpty
-                                  ? "Upload ${widget.title}"
-                                  : "${fileNamesList.length} file(s) selected",
-                              style: AppTextStyle.ts14R().copyWith(
-                                color: fileNamesList.isEmpty
-                                    ? AppColor.grey
-                                    : AppColor.darkGrey,
+                          behavior: HitTestBehavior.opaque,
+                          onTap:
+                              fileNamesList.isNotEmpty
+                                  ? () {
+                                    _showFilePathOverlay(
+                                      portalContext,
+                                      formFieldState,
+                                    );
+                                  }
+                                  : null,
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                              labelText: widget.label,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 10.0,
+                                vertical: 10.0,
                               ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(6.0),
+                                borderSide: BorderSide(
+                                  color:
+                                      formFieldState.hasError
+                                          ? AppColor.error
+                                          : AppColor.grey30,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(6.0),
+                                borderSide: BorderSide(
+                                  color:
+                                      formFieldState.hasError
+                                          ? AppColor.error
+                                          : AppColor.grey30,
+                                ),
+                              ),
+                              errorStyle: const TextStyle(height: 0),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                /// LEFT TEXT
+                                Expanded(
+                                  child: Text(
+                                    fileNamesList.isEmpty
+                                        ? "Upload ${widget.title}"
+                                        : "${fileNamesList.length} file(s) selected",
+                                    style: AppTextStyle.ts14R().copyWith(
+                                      color:
+                                          fileNamesList.isEmpty
+                                              ? AppColor.grey
+                                              : AppColor.darkGrey,
+                                    ),
+                                  ),
+                                ),
+
+                                /// RIGHT ICON
+                                Row(
+                                  children: [
+                                    ...?widget.actions,
+                                    InkWell(
+                                      onTap:
+                                          widget.readOnly
+                                              ? null
+                                              : () =>
+                                                  (widget.filePickType ==
+                                                              FilePickType
+                                                                  .image ||
+                                                          widget.filePickType ==
+                                                              FilePickType
+                                                                  .both ||
+                                                          widget.filePickType ==
+                                                              FilePickType
+                                                                  .kycDocument)
+                                                      ? _showAttachmentOptions(
+                                                        context,
+                                                        formFieldState,
+                                                        portalContext,
+                                                      )
+                                                      : showUploadDocumentDialog(
+                                                        context,
+                                                        formFieldState,
+                                                      ),
+                                      child: SvgPicture.asset(
+                                        AppAssets.attachFileIcon,
+                                        height: 18,
+                                        width: 18,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
-
-                          /// RIGHT ICON
-                          Row(
-                            children: [
-                              ...?widget.actions,
-                              InkWell(
-                                onTap: widget.readOnly
-                                    ? null
-                                    : () =>
-                                (widget.filePickType == FilePickType.image ||
-                                    widget.filePickType == FilePickType.both ||
-                                    widget.filePickType ==
-                                        FilePickType.kycDocument)
-                                    ? _showAttachmentOptions(
-                                  context,
-                                  formFieldState,
-                                  portalContext,
-                                )
-                                    : showUploadDocumentDialog(
-                                  context,
-                                  formFieldState,
-                                ),
-                                child: SvgPicture.asset(
-                                  AppAssets.attachFileIcon,
-                                  height: 18,
-                                  width: 18,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                        ),
                       ),
                       hasError
                           ? Container(

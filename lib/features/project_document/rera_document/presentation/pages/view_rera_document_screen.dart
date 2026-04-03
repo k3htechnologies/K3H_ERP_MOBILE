@@ -279,20 +279,10 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                 ),
               ),
               buildColumnTitleValue(
-                title: "View Screenshot",
-                value: document.reraPortalScreenShotURL!,
-                customValueWidget: Row(
-                  children: [
-                    CustomButton.documentOutline(
-                      isDisable: document.reraPortalScreenShotURL!.isEmpty,
-                      onPressed: () {
-                        showFilePreviewDialog(
-                          context,
-                          document.reraPortalScreenShotURL!.split(","),
-                        );
-                      },
-                    ),
-                  ],
+                title: "Approval Status",
+                value: document.projectRERADocumentApprovalStatus,
+                customValueWidget: approvalStatusWidget(
+                  document.projectRERADocumentApprovalStatus,
                 ),
               ),
             ],
@@ -317,8 +307,21 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
-                title: "Remark",
-                value: document.projectRERADocumentRemark,
+                title: "View Screenshot",
+                value: document.reraPortalScreenShotURL!,
+                customValueWidget: Row(
+                  children: [
+                    CustomButton.documentOutline(
+                      isDisable: document.reraPortalScreenShotURL!.isEmpty,
+                      onPressed: () {
+                        showFilePreviewDialog(
+                          context,
+                          document.reraPortalScreenShotURL!.split(","),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
               buildColumnTitleValue(
                 title: "View Document",
@@ -336,6 +339,15 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                     ),
                   ],
                 ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              buildColumnTitleValue(
+                title: "Remark",
+                value: document.projectRERADocumentRemark,
               ),
             ],
           ),

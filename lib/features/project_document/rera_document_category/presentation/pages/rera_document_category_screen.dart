@@ -177,8 +177,11 @@ class _RERADocumentCategoryScreenState
           }
           if (state.reraDocumentCategoryList.isEmpty) {
             return Center(
-              child: noDataWidget(
-                message: "No Project RERA Document Category Data Found",
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: noDataWidget(
+                  message: "No Project RERA Document Category Data Found",
+                ),
               ),
             );
           }
