@@ -28,6 +28,11 @@ class ChipStyleTabBar extends StatelessWidget {
         child:
             isSecondaryStyle
                 ? TabBar(
+                  padding: EdgeInsets.zero,
+                  labelPadding: EdgeInsets.symmetric(
+                    horizontal: 12.0,
+                    vertical: 12.0,
+                  ),
                   controller: controller,
                   isScrollable: true,
                   labelColor: AppColor.primary,
@@ -43,6 +48,8 @@ class ChipStyleTabBar extends StatelessWidget {
                   tabs: tabs.map((title) => Tab(text: title)).toList(),
                 )
                 : TabBar(
+                  padding: EdgeInsets.zero,
+
                   controller: controller,
                   isScrollable: true,
                   tabAlignment: TabAlignment.start,

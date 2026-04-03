@@ -68,7 +68,14 @@ class InventoryCubit extends Cubit<InventoryState> {
             .where((building) => building.wingList.isNotEmpty)
             .toList();
 
-    emit(state.copyWith(searchText: value, buildingList: filteredBuildings,currentTabIndex: 0,wingCurrentPage: 0));
+    emit(
+      state.copyWith(
+        searchText: value,
+        buildingList: filteredBuildings,
+        currentTabIndex: 0,
+        wingCurrentPage: 0,
+      ),
+    );
   }
 
   // GET ENTIRE INVENTORY
@@ -140,7 +147,13 @@ class InventoryCubit extends Cubit<InventoryState> {
             ),
           );
         } else {
-          emit(state.copyWith(isLoading: false, buildingList: [],originalBuildingList: [],));
+          emit(
+            state.copyWith(
+              isLoading: false,
+              buildingList: [],
+              originalBuildingList: [],
+            ),
+          );
         }
       },
     );
@@ -327,6 +340,7 @@ class InventoryCubit extends Cubit<InventoryState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
+        showSuccessMessage(context, subTitle: "Floor Added Successfully");
         getInventory(context, projectId);
       },
     );

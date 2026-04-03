@@ -78,6 +78,7 @@ class Table1 {
   final int leaveTypeMasterId;
   final String leaveType;
   final String status;
+  final int canApprove;
 
   Table1({
     required this.fullName,
@@ -87,6 +88,7 @@ class Table1 {
     required this.leaveTypeMasterId,
     required this.leaveType,
     required this.status,
+    required this.canApprove,
   });
 
   factory Table1.fromJson(Map<String, dynamic> json) => Table1(
@@ -97,6 +99,7 @@ class Table1 {
     leaveTypeMasterId: parseValue<int>(json, "LeaveTypeMasterId"),
     leaveType: parseValue<String>(json, "LeaveType"),
     status: parseValue<String>(json, "Status"),
+    canApprove: parseValue<int>(json, "CanApprove"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -107,6 +110,7 @@ class Table1 {
     "LeaveTypeMasterId": leaveTypeMasterId,
     "LeaveType": leaveType,
     "Status": status,
+    "CanApprove": canApprove,
   };
 }
 

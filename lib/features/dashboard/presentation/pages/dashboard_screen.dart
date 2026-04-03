@@ -119,17 +119,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return "${two(d.inHours)}:${two(d.inMinutes.remainder(60))}:${two(d.inSeconds.remainder(60))}";
   }
 
-  Future<String> _getAddressFromGPS() async {
+  Future<String?> _getAddressFromGPS() async {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        return "Location service disabled";
-      }
+      if (!serviceEnabled) return null;
 
       LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
-        return "Location permission not granted";
+        return null;
       }
 
       final position = await Geolocator.getCurrentPosition(
@@ -141,12 +143,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         position.longitude,
       );
 
+      if (placemarks.isEmpty) return null;
+
       final place = placemarks.first;
 
       return "${place.name}, ${place.street}, ${place.locality}, "
           "${place.administrativeArea}, ${place.postalCode}, ${place.country}";
     } catch (e) {
-      return "Unable to fetch location";
+      return null;
     }
   }
 
@@ -188,7 +192,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final result = await _dashboardCubit.addAttendance(
         context,
         attendanceId: attendanceIdToSend,
-        punchAddress: address,
+        punchAddress: address!,
         startLatitude: pos.latitude,
         startLongitude: pos.longitude,
         endLatitude: 0,
@@ -250,7 +254,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       context,
       attendanceId: data.attendanceId,
       uniquekey: data.uniquekey,
-      punchAddress: address,
+      punchAddress: address!,
       startLatitude: startLat,
       startLongitude: startLng,
       endLatitude: endPoint.latitude,
@@ -437,59 +441,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
               if (state.isLoading!) {
                 return Center(child: loader());
               }
-              return Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0,
-                      vertical: 20.0,
-                    ),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Welcome ${currentUser?.fullName ?? ""}!",
-                            style: AppTextStyle.ts16SB(
-                              color: AppColor.black.withValues(alpha: 0.50),
-                            ),
-                          ),
-                          verticalSpacing(),
-                          // PUNCH IN - PUNCH OUT WIDGET
-                          _buildWordayOverviewWidget(state, context),
-                          verticalSpacing(),
-                          _buildDailyActivitiesWidget(context),
-                          verticalSpacing(),
-                          //  SCHEDULED TASK WIDGET
-                          _buildScheduledTaskWidget(context),
-                          verticalSpacing(),
-                          //  QUICK ACTIONS WIDGET
-                          _buildQuickActionsWidget(context),
-                          verticalSpacing(),
-                          // ATTENDANCE SUMMARY WIGET
-                          _buildAttendanceSummaryWidget(context),
-                          verticalSpacing(),
-                          // WORKING HOUR SUMMARY WIGET
-                          _buildWorkingHourSummaryWidget(context),
-                          verticalSpacing(),
-                          // TEAM ATTENDANCE WIDGET
-                          _buildTeamAttendanceSummaryWidget(context),
-                          verticalSpacing(),
-                          _buildLeaveBalanceSummaryWidget(context),
-                          verticalSpacing(),
-                          // HOLIDAY WIDGET
-                          _buildHolidaySummaryWidget(context),
-                          verticalSpacing(),
-                          // EVENTS WIDGET (BIRTHDAY'S AND EVENTS)
-                          _buildEventsAndMoreWidget(context),
-                          verticalSpacing(),
-                          // REPORTING MANAGER WIDGET
-                          _buildReportingManagerWidget(context),
-                        ],
+              return SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 20.0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Welcome ${currentUser?.fullName ?? ""}!",
+                      style: AppTextStyle.ts16SB(
+                        color: AppColor.black.withValues(alpha: 0.50),
                       ),
                     ),
-                  ),
-                ],
+                    verticalSpacing(),
+                    // PUNCH IN - PUNCH OUT WIDGET
+                    _buildWordayOverviewWidget(state, context),
+                    verticalSpacing(),
+                    _buildDailyActivitiesWidget(context),
+                    verticalSpacing(),
+                    //  SCHEDULED TASK WIDGET
+                    _buildScheduledTaskWidget(context),
+                    verticalSpacing(),
+                    //  QUICK ACTIONS WIDGET
+                    _buildQuickActionsWidget(context),
+                    verticalSpacing(),
+                    // ATTENDANCE SUMMARY WIGET
+                    _buildAttendanceSummaryWidget(context),
+                    verticalSpacing(),
+                    // WORKING HOUR SUMMARY WIGET
+                    _buildWorkingHourSummaryWidget(context),
+                    verticalSpacing(),
+                    // TEAM ATTENDANCE WIDGET
+                    _buildTeamAttendanceSummaryWidget(context),
+                    verticalSpacing(),
+                    _buildLeaveBalanceSummaryWidget(context),
+                    verticalSpacing(),
+                    // HOLIDAY WIDGET
+                    _buildHolidaySummaryWidget(context),
+                    verticalSpacing(),
+                    // EVENTS WIDGET (BIRTHDAY'S AND EVENTS)
+                    _buildEventsAndMoreWidget(context),
+                    verticalSpacing(),
+                    // REPORTING MANAGER WIDGET
+                    _buildReportingManagerWidget(context),
+                  ],
+                ),
               );
             },
           ),
@@ -881,7 +879,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // BUILD QUICK ACTIONS WIDGET
   Widget _buildQuickActionsWidget(BuildContext context) {
     final actions = [
-      _QuickActionItem(
+      QuickActionItem(
         icon: SvgPicture.asset(AppAssets.applyLeaveIcon),
         text: "Apply Leave",
         backgroundColor: AppColor.lightBlue,
@@ -889,7 +887,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           goRouter.pushNamed(AppRoutes.applyLeave);
         },
       ),
-      _QuickActionItem(
+      QuickActionItem(
         icon: SvgPicture.asset(AppAssets.raiseTaskIcon),
         text: "Raise Task",
         backgroundColor: AppColor.purple20.withValues(alpha: .08),
@@ -928,7 +926,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           );
         },
       ),
-      _QuickActionItem(
+      QuickActionItem(
         icon: SvgPicture.asset(AppAssets.applyAdvanceIcon),
         text: "Apply Advance",
         backgroundColor: AppColor.lightYellow.withValues(alpha: .5),
@@ -967,7 +965,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           );
         },
       ),
-      _QuickActionItem(
+      QuickActionItem(
         icon: SvgPicture.asset(AppAssets.regularizeIcon),
         text: "Regularize",
         backgroundColor: AppColor.lightGreen.withValues(alpha: .5),
@@ -975,7 +973,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           goRouter.pushNamed(AppRoutes.attendance);
         },
       ),
-      _QuickActionItem(
+      QuickActionItem(
         icon: SvgPicture.asset(AppAssets.requestAssetIcon),
         text: "Request Asset",
         backgroundColor: AppColor.lightOrangenBg.withValues(alpha: .5),
@@ -1014,7 +1012,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           );
         },
       ),
-      _QuickActionItem(
+      QuickActionItem(
         icon: SvgPicture.asset(AppAssets.payslipIcon),
         text: "Payslip",
         backgroundColor: AppColor.red.withValues(alpha: .08),
@@ -1077,7 +1075,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               crossAxisSpacing: 10,
-              childAspectRatio: 1,
+              childAspectRatio: 1.5,
             ),
             itemBuilder: (context, index) {
               final item = actions[index];
@@ -1144,7 +1142,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              verticalSpacing(height: 10.0),
               if (table1 != null) ...[
                 Column(
                   children: [
@@ -1187,7 +1185,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ] else ...[
                 Center(
                   child: Text(
-                    "No Attendance Summary Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: 0.50),
                     ),
@@ -1250,7 +1248,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ] else ...[
                 Center(
                   child: Text(
-                    "No Working Hour Summary Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: 0.6),
                     ),
@@ -1352,17 +1350,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   color: AppColor.black.withValues(alpha: 0.50),
                 ),
               ),
-              const SizedBox(height: 20),
-
+              verticalSpacing(height: 20),
               if (table4List != null && table4List.isNotEmpty) ...[
                 _leaveRow(
                   title: "Total Leaves",
                   value: "${table4List.first.totalLeaves}",
                 ),
+                verticalSpacing(),
                 _leaveRow(
                   title: "Used Leaves",
                   value: "${table4List.first.usedLeaves}",
                 ),
+                verticalSpacing(),
                 _leaveRow(
                   title: "Pending Leaves",
                   value: "${table4List.first.pendingLeaves}",
@@ -1410,7 +1409,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 } else ...{
                   Center(
                     child: Text(
-                      "No Upcoming Approved Available",
+                      "No Data Found",
                       style: AppTextStyle.ts12M(
                         color: AppColor.black.withValues(alpha: 0.50),
                       ),
@@ -1420,7 +1419,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ] else ...[
                 Center(
                   child: Text(
-                    "No Leave Balance Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: 0.50),
                     ),
@@ -1435,26 +1434,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _leaveRow({required String title, required String value}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        children: [
-          Expanded(flex: 6, child: Text(title, style: AppTextStyle.ts14M())),
-
-          SizedBox(
-            width: 24,
-            child: Center(child: Text(":", style: AppTextStyle.ts14M())),
+    return Row(
+      children: [
+        Expanded(flex: 6, child: Text(title, style: AppTextStyle.ts14M())),
+        SizedBox(
+          width: 24,
+          child: Center(child: Text(":", style: AppTextStyle.ts14M())),
+        ),
+        Expanded(
+          flex: 2,
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Text(value, style: AppTextStyle.ts16SB()),
           ),
-
-          Expanded(
-            flex: 2,
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: Text(value, style: AppTextStyle.ts16SB()),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -1586,7 +1580,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ] else ...[
                 Center(
                   child: Text(
-                    "No Holiday Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: 0.50),
                     ),
@@ -1710,7 +1704,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ] else ...[
                 Center(
                   child: Text(
-                    "No Upcoming Events Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: 0.50),
                     ),
@@ -1753,7 +1747,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ],
               ),
-              verticalSpacing(height: 12),
+              verticalSpacing(height: 20),
               if (_hasValidManager(table10List)) ...[
                 ListTile(
                   contentPadding: EdgeInsets.zero,
@@ -1834,7 +1828,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ] else ...[
                 Center(
                   child: Text(
-                    "No Reporting Manager",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: 0.50),
                     ),
@@ -2181,12 +2175,12 @@ class ValueListenableBuilder2<A, B> extends StatelessWidget {
 }
 
 // HELPER MODEL
-class _QuickActionItem {
+class QuickActionItem {
   final Widget icon;
   final String text;
   final Color backgroundColor;
   final VoidCallback onTap;
-  _QuickActionItem({
+  QuickActionItem({
     required this.icon,
     required this.text,
     required this.backgroundColor,

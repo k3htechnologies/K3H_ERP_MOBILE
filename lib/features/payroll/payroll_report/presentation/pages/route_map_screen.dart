@@ -3,11 +3,13 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/env/env.dart';
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -43,45 +45,60 @@ class _MapScreenState extends State<MapScreen> {
   GoogleMapController? mapController;
 
   final ValueNotifier<num> liveDistance = ValueNotifier(0.0);
+  late Dio _dio;
 
   @override
   void initState() {
     super.initState();
-    loadRouteFromApi();
+    _dio = Dio(
+      BaseOptions(
+        baseUrl: ENV.baseUrl,
+        connectTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 15),
+        sendTimeout: const Duration(seconds: 15),
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          "apikey": ENV.apiKey,
+        },
+      ),
+    );
+    fetchRouteFromGoogle();
   }
 
-  void loadRouteFromApi() {
-    final isSameLocation =
-        widget.startLatitude == widget.endLatitude &&
-        widget.startLongitude == widget.endLongitude;
-
+  Future<void> fetchRouteFromGoogle() async {
     if (widget.polyline.isNotEmpty) {
       routePoints = decodePolyline(widget.polyline);
-      if (widget.polyline.isNotEmpty) {
-        routePoints = decodePolyline(widget.polyline);
 
-        if (routePoints.length < 2) {
-          routePoints = [
-            LatLng(widget.startLatitude, widget.startLongitude),
-            LatLng(widget.endLatitude, widget.endLongitude),
-          ];
-        }
-
-        liveDistance.value = widget.distance;
-      }
       liveDistance.value = widget.distance;
-    } else if (!isSameLocation) {
-      routePoints = [
-        LatLng(widget.startLatitude, widget.startLongitude),
-        LatLng(widget.endLatitude, widget.endLongitude),
-      ];
-      liveDistance.value = _calculateDistance(routePoints);
-    } else {
-      routePoints = [LatLng(widget.startLatitude, widget.startLongitude)];
-      liveDistance.value = 0.0;
+
+      setState(() {});
+      _fitMapToRoute();
+      return;
     }
 
-    setState(() {});
+    final url =
+        "https://maps.googleapis.com/maps/api/directions/json?"
+        "origin=${widget.startLatitude},${widget.startLongitude}"
+        "&destination=${widget.endLatitude},${widget.endLongitude}"
+        "&key=YOUR_API_KEY";
+
+    final response = await _dio.get(url);
+    final data = response.data;
+
+    if (data['routes'] != null && data['routes'].isNotEmpty) {
+      final overview = data['routes'][0]['overview_polyline']?['points'];
+
+      if (overview != null) {
+        routePoints = decodePolyline(overview);
+      }
+
+      liveDistance.value =
+          data['routes'][0]['legs'][0]['distance']['value'] / 1000;
+
+      setState(() {});
+      _fitMapToRoute();
+    }
   }
 
   void _fitMapToRoute() {

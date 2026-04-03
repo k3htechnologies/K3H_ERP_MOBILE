@@ -69,7 +69,7 @@ class _ChannelPartnerDashboardScreenState
                             size: 18,
                             color: AppColor.white,
                           ),
-                          text: "Channel Partner",
+                          text: "Add Channel Partner",
                           onPressed: () {
                             goRouter.pushNamed(AppRoutes.addChannelPartner);
                           },
@@ -211,7 +211,7 @@ class _ChannelPartnerDashboardScreenState
             .reduce((a, b) => a > b ? a : b);
 
         return Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.0),
           decoration: commonCardDecoration(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,7 +233,6 @@ class _ChannelPartnerDashboardScreenState
                 thickness: 0.3,
                 color: AppColor.black.withValues(alpha: 0.5),
               ),
-              verticalSpacing(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -247,38 +246,30 @@ class _ChannelPartnerDashboardScreenState
               ),
               verticalSpacing(),
               if (table2 != null && table2.isNotEmpty) ...[
-                SizedBox(
-                  height: 150.0,
-                  child: ListView.builder(
-                    itemCount: table2.length,
-                    shrinkWrap: true,
-                    physics: AlwaysScrollableScrollPhysics(),
-                    itemBuilder: (context, int index) {
-                      final partnerTypeDistribution = table2[index];
-                      return _buildParkingRow(
-                        title: partnerTypeDistribution.type,
-                        count: partnerTypeDistribution.totalCount,
-                        totalSum: totalSum!,
-                      );
-                    },
-                  ),
+                Column(
+                  children:
+                      table2.map((partnerTypeDistribution) {
+                        return _buildParkingRow(
+                          title: partnerTypeDistribution.type,
+                          count: partnerTypeDistribution.totalCount,
+                          totalSum: totalSum!,
+                        );
+                      }).toList(),
                 ),
               ] else ...[
                 Center(
                   child: Text(
-                    "No Channel Partner Distribution Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: 0.50),
                     ),
                   ),
                 ),
               ],
-              verticalSpacing(),
               Divider(
                 thickness: 0.3,
                 color: AppColor.black.withValues(alpha: 0.5),
               ),
-              verticalSpacing(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -296,19 +287,19 @@ class _ChannelPartnerDashboardScreenState
               ] else ...[
                 Center(
                   child: Text(
-                    "No Firm Type Distribution Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: 0.50),
                     ),
                   ),
                 ),
               ],
-              verticalSpacing(),
+
               Divider(
                 thickness: 0.3,
                 color: AppColor.black.withValues(alpha: 0.5),
               ),
-              verticalSpacing(),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -422,13 +413,18 @@ class _ChannelPartnerDashboardScreenState
               verticalSpacing(),
               if (table4 != null && table4.isNotEmpty) ...[
                 SizedBox(
-                  height: 200.0,
+                  height: 300.0,
                   child: ListView.builder(
+                    shrinkWrap: true,
                     itemCount: table4.length,
                     itemBuilder: (context, index) {
                       final addedChannelPartner = table4[index];
+                      final bool isLast = index == table4.length - 1;
                       return Container(
-                        margin: EdgeInsets.only(bottom: 12),
+                        margin:
+                            isLast
+                                ? EdgeInsets.zero
+                                : EdgeInsets.only(bottom: 12),
                         padding: EdgeInsets.all(12.0),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4.0),
@@ -437,7 +433,31 @@ class _ChannelPartnerDashboardScreenState
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            _infoColumn(
+                              "Channel Partner Name",
+                              addedChannelPartner.name,
+                              valueColor: AppColor.primary,
+                            ),
+                            verticalSpacing(height: 16),
+                            _infoColumn(
+                              "Channel Partner Code",
+                              addedChannelPartner.systemGeneratedCode,
+                            ),
+                            verticalSpacing(height: 16),
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                _infoColumn(
+                                  "Company",
+                                  addedChannelPartner.companyName,
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(height: 16.0),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Expanded(
                                   child: _infoColumn(
@@ -447,42 +467,22 @@ class _ChannelPartnerDashboardScreenState
                                     ),
                                   ),
                                 ),
+                                horizontalSpacing(),
                                 Expanded(
                                   child: _infoColumn(
-                                    "Channel Partner Name",
-                                    addedChannelPartner.name,
-                                    valueColor: AppColor.primary,
+                                    "Type",
+                                    addedChannelPartner.type,
                                   ),
                                 ),
                               ],
                             ),
-                            verticalSpacing(height: 16),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _infoColumn(
-                                    "Channel Partner Code",
-                                    addedChannelPartner.systemGeneratedCode,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: _infoColumn(
-                                    "Company",
-                                    addedChannelPartner.companyName,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            verticalSpacing(height: 16),
-                            _infoColumn("Type", addedChannelPartner.type),
                           ],
                         ),
                       );
                     },
                   ),
                 ),
-              ] else
-                ...[],
+              ],
             ],
           ),
         );
@@ -542,7 +542,7 @@ class _ChannelPartnerDashboardScreenState
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(alerts.name, style: AppTextStyle.ts16M()),
+                            Text(alerts.name, style: AppTextStyle.ts14M()),
                             Text(
                               alerts.systemGeneratedCode,
                               style: AppTextStyle.ts14R(),
@@ -556,7 +556,7 @@ class _ChannelPartnerDashboardScreenState
               ] else ...[
                 Center(
                   child: Text(
-                    "No Missing Details Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: 0.50),
                     ),
@@ -576,16 +576,16 @@ class _ChannelPartnerDashboardScreenState
       children: [
         Text(
           title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: AppTextStyle.ts12R(
             color: AppColor.black.withValues(alpha: 0.5),
           ),
         ),
         const SizedBox(height: 4),
-        GestureDetector(
-          child: Text(
-            value,
-            style: AppTextStyle.ts14M(color: valueColor ?? AppColor.black),
-          ),
+        Text(
+          value,
+          style: AppTextStyle.ts14M(color: valueColor ?? AppColor.black),
         ),
       ],
     );

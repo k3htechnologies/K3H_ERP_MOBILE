@@ -86,6 +86,7 @@ class AppAssets {
   static const String raiseTaskIcon = "$svgPath/raiseTaskIcon.svg";
   static const String applyAdvanceIcon = "$svgPath/applyAdvanceIcon.svg";
   static const String regularizeIcon = "$svgPath/regularize.svg";
+  static const String addOutdoorIcon = "$svgPath/addOutdoorIcon.svg";
   static const String requestAssetIcon = "$svgPath/requestAssetIcon.svg";
   static const String payslipIcon = "$svgPath/payslip.svg";
   static const String mailIcon = "$svgPath/mailIcon.svg";
@@ -230,4 +231,25 @@ class AppAssets {
   // GIF
   static const String splashLogoGif = "$pngPath/splash.gif";
   static const String splashLogoGif2 = "$pngPath/splash2.gif";
+
+  // SIDE DRAWER
+  static const String dashboardFilledIcon = "$svgPath/dashboardFilledIcon.svg";
+  static const String inventoryDashboardFilledIcon =
+      "$svgPath/inventoryDashboardFilledIcon.svg";
+  static const String projectDocumentFilledIcon =
+      "$svgPath/projectDocumentFilledIcon.svg";
+  static const String legalDashboardFilledIcon =
+      "$svgPath/legalDashboardFilledIcon.svg";
+  static const String marketingDashboardFilledIcon =
+      "$svgPath/marketingDashboardFilledIcon.svg";
+  static const String procurementDashboardFilledIcon =
+      "$svgPath/procurementDashboardFilledIcon.svg";
+  static const String projectDashboardFilledIcon =
+      "$svgPath/projectDashboardFilledIcon.svg";
+  static const String channelPartnerDashboardFilledIcon =
+      "$svgPath/channelPartnerDashboardFilledIcon.svg";
+  static const String saleDashboardFilledIcon =
+      "$svgPath/saleDashboardFilledIcon.svg";
+  static const String settingDashboardFilledIcon =
+      "$svgPath/settingDashboardFilledIcon.svg";
 }

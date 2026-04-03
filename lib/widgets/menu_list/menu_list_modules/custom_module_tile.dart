@@ -30,6 +30,25 @@ class CustomModuleTile extends StatefulWidget {
 }
 
 class _CustomModuleTileState extends State<CustomModuleTile> {
+  final Map<String, String> filledIconMap = {
+    "assets/sideDrawer/dashboard.svg": AppAssets.dashboardFilledIcon,
+    "assets/sideDrawer/inventoryModule.svg":
+        AppAssets.inventoryDashboardFilledIcon,
+    "assets/sideDrawer/projectDocumentModule.svg":
+        AppAssets.projectDocumentFilledIcon,
+    "assets/sideDrawer/legalModule.svg": AppAssets.legalDashboardFilledIcon,
+    "assets/sideDrawer/marketingModule.svg":
+        AppAssets.marketingDashboardFilledIcon,
+    "assets/sideDrawer/procurementModule.svg":
+        AppAssets.procurementDashboardFilledIcon,
+    "assets/sideDrawer/projectModule.svg": AppAssets.projectDashboardFilledIcon,
+    "assets/sideDrawer/channelPartnerModule.svg":
+        AppAssets.channelPartnerDashboardFilledIcon,
+    "assets/sideDrawer/saleModule.svg": AppAssets.saleDashboardFilledIcon,
+    "assets/sideDrawer/crmModule.svg": AppAssets.dashboardFilledIcon,
+    "assets/sideDrawer/settingsModule.svg":
+        AppAssets.settingDashboardFilledIcon,
+  };
   // Helper method to get the correct icon path
   String _getIconPath(String iconPath) {
     // If the path already includes "assets/", use it as is
@@ -44,10 +63,15 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
   Widget _buildIcon(String iconPath) {
     final fullPath = _getIconPath(iconPath);
 
-    // Check if it's an SVG file
-    if (iconPath.toLowerCase().endsWith('.svg')) {
+    String finalPath = fullPath;
+
+    if (widget.isActive && filledIconMap.containsKey(fullPath)) {
+      finalPath = filledIconMap[fullPath]!;
+    }
+
+    if (finalPath.toLowerCase().endsWith('.svg')) {
       return SvgPicture.asset(
-        fullPath,
+        finalPath,
         height: 20,
         width: 20,
         fit: BoxFit.contain,
@@ -56,24 +80,7 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
                 Container(height: 20, width: 20, color: Colors.grey[300]),
       );
     } else {
-      // PNG or other image formats
-      return Image.asset(
-        fullPath,
-        height: 20,
-        width: 20,
-        fit: BoxFit.contain,
-        errorBuilder:
-            (context, error, stackTrace) => Container(
-              height: 20,
-              width: 20,
-              color: Colors.grey[300],
-              child: Icon(
-                Icons.image_not_supported,
-                size: 16,
-                color: Colors.grey[600],
-              ),
-            ),
-      );
+      return Image.asset(finalPath, height: 20, width: 20, fit: BoxFit.contain);
     }
   }
 

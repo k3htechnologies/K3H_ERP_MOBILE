@@ -1,10 +1,13 @@
 import 'dart:convert';
 
 import 'dart:io';
+import 'dart:ui';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
@@ -79,7 +82,16 @@ Future initialSetup() async {
       .setupFlutterNotifications(); // The local notifications setup
   final info = await PackageInfo.fromPlatform();
   final currentVersion = info.version;
-
+  if (Platform.isAndroid) {
+    await FlutterBackgroundService().configure(
+      androidConfiguration: AndroidConfiguration(
+        onStart: onStart,
+        isForegroundMode: true,
+        autoStart: false,
+      ),
+      iosConfiguration: IosConfiguration(),
+    );
+  }
   final storage = LocalStorageManager();
   final storedVersion = storage.getString(StorageKey.appVersion);
   if (storedVersion != currentVersion) {
@@ -101,6 +113,27 @@ Future initialSetup() async {
 
   // ROUTING
   GoRouter.optionURLReflectsImperativeAPIs = true;
+}
+
+void onStart(ServiceInstance service) async {
+  DartPluginRegistrant.ensureInitialized();
+
+  await LocalStorageManager().init();
+
+  Geolocator.getPositionStream(
+    locationSettings: const LocationSettings(
+      accuracy: LocationAccuracy.bestForNavigation,
+      distanceFilter: 5,
+    ),
+  ).listen((position) async {
+    final storage = LocalStorageManager();
+
+    List points = jsonDecode(storage.getString("route_points") ?? "[]");
+
+    points.add({"lat": position.latitude, "lng": position.longitude});
+
+    await storage.setString("route_points", jsonEncode(points));
+  });
 }
 
 class MyApp extends StatelessWidget {

@@ -224,12 +224,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                 ? state.salesDashboardList.first.table0
                 : <Table0>[];
         return Container(
-          padding: const EdgeInsets.only(
-            left: 16.0,
-            right: 16.0,
-            top: 12.0,
-            bottom: 8.0,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,21 +244,239 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
               ),
               verticalSpacing(height: 10.0),
               if (data.isNotEmpty) ...[
-                SizedBox(
-                  height: 300.0,
-                  child: ListView.builder(
-                    itemCount: data.length,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      final item = data[index];
-                      return _buildEnquiryTile(context, item);
-                    },
-                  ),
+                Column(
+                  children:
+                      List.generate(data.length, (index) {
+                        final item = data[index];
+                        final isLast = index == data.length - 1;
+                        return Container(
+                          margin:
+                              !isLast
+                                  ? EdgeInsets.only(bottom: 12)
+                                  : EdgeInsets.zero,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12.0,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: AppColor.lightGreyBackground,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: _infoColumn(
+                                      "Project Name",
+                                      item.projectName,
+                                    ),
+                                  ),
+                                  horizontalSpacing(),
+                                  Expanded(
+                                    child: _infoColumn(
+                                      "Client Name",
+                                      item.name,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              verticalSpacing(),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: _infoColumn(
+                                      "Date",
+                                      formatDateTimeAsDDMMMYYYY(
+                                        item.enquiryDate,
+                                      ),
+                                    ),
+                                  ),
+                                  horizontalSpacing(),
+                                  Expanded(
+                                    child: _infoColumn(
+                                      "Mobile Number",
+                                      item.mobileNumber,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              verticalSpacing(),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: _infoColumn(
+                                      "Customer Time In",
+                                      item.enquiryTimeIn,
+                                    ),
+                                  ),
+                                  horizontalSpacing(),
+                                  Expanded(
+                                    child: _infoColumn(
+                                      "Sales Advisor",
+                                      item.salesAdvisor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              verticalSpacing(),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: _infoColumn(
+                                      "Sourcing Manager",
+                                      item.sourcingManager.isEmpty
+                                          ? "-"
+                                          : item.sourcingManager,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              verticalSpacing(),
+                              if (item.canTimeOut == 1) ...{
+                                CustomButton(
+                                  text: "Time Out",
+                                  onPressed: () {
+                                    _showMarkAsTimeOutPopup(context, item);
+                                  },
+                                ),
+                              },
+                            ],
+                          ),
+                        );
+                      }).toList(),
+
+                  // child: ListView.separated(
+                  //   itemCount: data.length,
+                  //   shrinkWrap: true,
+                  //   physics:
+                  //       data.length > 3
+                  //           ? AlwaysScrollableScrollPhysics()
+                  //           : NeverScrollableScrollPhysics(),
+                  //   separatorBuilder: (context, index) => SizedBox.shrink(),
+                  //   itemBuilder: (context, index) {
+                  //     final item = data[index];
+
+                  //     final bool isLast = index == data.length - 1;
+                  //     return Container(
+                  //       margin:
+                  //           !isLast
+                  //               ? EdgeInsets.only(bottom: 12)
+                  //               : EdgeInsets.zero,
+                  //       padding: const EdgeInsets.symmetric(
+                  //         horizontal: 16,
+                  //         vertical: 12.0,
+                  //       ),
+                  //       decoration: BoxDecoration(
+                  //         borderRadius: BorderRadius.circular(8),
+                  //         color: AppColor.lightGreyBackground,
+                  //       ),
+                  //       child: Column(
+                  //         crossAxisAlignment: CrossAxisAlignment.start,
+                  //         children: [
+                  //           Row(
+                  //             crossAxisAlignment: CrossAxisAlignment.start,
+                  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //             children: [
+                  //               Expanded(
+                  //                 child: _infoColumn(
+                  //                   "Project Name",
+                  //                   item.projectName,
+                  //                 ),
+                  //               ),
+                  //               horizontalSpacing(),
+                  //               Expanded(
+                  //                 child: _infoColumn("Client Name", item.name),
+                  //               ),
+                  //             ],
+                  //           ),
+                  //           verticalSpacing(),
+                  //           Row(
+                  //             crossAxisAlignment: CrossAxisAlignment.start,
+                  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //             children: [
+                  //               Expanded(
+                  //                 child: _infoColumn(
+                  //                   "Date",
+                  //                   formatDateTimeAsDDMMMYYYY(item.enquiryDate),
+                  //                 ),
+                  //               ),
+                  //               horizontalSpacing(),
+                  //               Expanded(
+                  //                 child: _infoColumn(
+                  //                   "Mobile Number",
+                  //                   item.mobileNumber,
+                  //                 ),
+                  //               ),
+                  //             ],
+                  //           ),
+                  //           verticalSpacing(),
+                  //           Row(
+                  //             crossAxisAlignment: CrossAxisAlignment.start,
+                  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //             children: [
+                  //               Expanded(
+                  //                 child: _infoColumn(
+                  //                   "Customer Time In",
+                  //                   item.enquiryTimeIn,
+                  //                 ),
+                  //               ),
+                  //               horizontalSpacing(),
+                  //               Expanded(
+                  //                 child: _infoColumn(
+                  //                   "Sales Advisor",
+                  //                   item.salesAdvisor,
+                  //                 ),
+                  //               ),
+                  //             ],
+                  //           ),
+                  //           verticalSpacing(),
+                  //           Row(
+                  //             crossAxisAlignment: CrossAxisAlignment.start,
+                  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //             children: [
+                  //               Expanded(
+                  //                 child: _infoColumn(
+                  //                   "Sourcing Manager",
+                  //                   item.sourcingManager.isEmpty
+                  //                       ? "-"
+                  //                       : item.sourcingManager,
+                  //                 ),
+                  //               ),
+                  //             ],
+                  //           ),
+                  //           verticalSpacing(),
+                  //           if (item.canTimeOut == 1) ...{
+                  //             CustomButton(
+                  //               text: "Time Out",
+                  //               onPressed: () {
+                  //                 _showMarkAsTimeOutPopup(context, item);
+                  //               },
+                  //             ),
+                  //           },
+                  //         ],
+                  //       ),
+                  //     );
+                  //   },
+                  // ),
                 ),
               ] else ...[
                 Center(
                   child: Text(
-                    "No Enquiries for today Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: 0.50),
                     ),
@@ -274,80 +487,6 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildEnquiryTile(BuildContext context, Table0 item) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12.0),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: AppColor.lightGreyBackground,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(child: _infoColumn("Project Name", item.projectName)),
-              horizontalSpacing(),
-              Expanded(child: _infoColumn("Client Name", item.name)),
-            ],
-          ),
-          verticalSpacing(),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: _infoColumn(
-                  "Date",
-                  formatDateTimeAsDDMMMYYYY(item.enquiryDate),
-                ),
-              ),
-              horizontalSpacing(),
-              Expanded(child: _infoColumn("Mobile Number", item.mobileNumber)),
-            ],
-          ),
-          verticalSpacing(),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: _infoColumn("Customer Time In", item.enquiryTimeIn),
-              ),
-              horizontalSpacing(),
-              Expanded(child: _infoColumn("Sales Advisor", item.salesAdvisor)),
-            ],
-          ),
-          verticalSpacing(),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: _infoColumn(
-                  "Sourcing Manager",
-                  item.sourcingManager.isEmpty ? "-" : item.sourcingManager,
-                ),
-              ),
-            ],
-          ),
-          verticalSpacing(),
-          if (item.canTimeOut == 1) ...{
-            CustomButton(
-              text: "Time Out",
-              onPressed: () {
-                _showMarkAsTimeOutPopup(context, item);
-              },
-            ),
-          },
-        ],
-      ),
     );
   }
 
@@ -389,16 +528,20 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
               verticalSpacing(height: 10.0),
               if (data.isNotEmpty) ...[
                 SizedBox(
-                  height: 350.0,
-                  child: ListView.builder(
+                  height: data.length > 3 ? 300 : null,
+                  child: ListView.separated(
                     itemCount: data.length,
                     shrinkWrap: true,
-                    physics: AlwaysScrollableScrollPhysics(),
+                    physics:
+                        data.length > 3
+                            ? AlwaysScrollableScrollPhysics()
+                            : NeverScrollableScrollPhysics(),
+                    separatorBuilder: (context, index) => SizedBox(height: 12),
                     itemBuilder: (context, int index) {
                       var activeData = getStatusColor(data[index].finalStage);
                       final activeFollowUps = data[index];
+                      final bool isLast = index == data.length - 1;
                       return Container(
-                        margin: const EdgeInsets.only(bottom: 12.0),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16.0,
                           vertical: 12.0,
@@ -560,6 +703,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                                     ),
                                   ),
                                 ),
+                                !isLast ? SizedBox.shrink() : SizedBox.shrink(),
                               ],
                             ),
                           ],
@@ -571,7 +715,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
               ] else ...[
                 Center(
                   child: Text(
-                    "No Active Follow ups Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: 0.50),
                     ),
