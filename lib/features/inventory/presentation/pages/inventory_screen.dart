@@ -668,7 +668,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                                                     },
                                                   );
                                                   if (context.mounted) {
-                                                    _inventoryCubit
+                                                    await _inventoryCubit
                                                         .getInventory(
                                                           context,
                                                           _project.projectId,
@@ -906,29 +906,9 @@ class _InventoryScreenState extends State<InventoryScreen>
         children: [
           Text("Unit No. : ${flat.flat}", style: AppTextStyle.ts14M()),
           verticalSpacing(height: 5),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              buildColumnTitleValue(
-                title: "Type",
-                value: flat.flatType != "" ? flat.flatType : "-",
-              ),
-              buildColumnTitleValue(
-                title: "Area(Sq.ft)",
-                value:
-                    flat.reraCarpetAreaSqFt == 0
-                        ? "-"
-                        : flat.reraCarpetAreaSqFt.toString(),
-              ),
-              buildColumnTitleValue(
-                title: "Configuration",
-                value:
-                    flat.flatConfiguration.isEmpty
-                        ? "-"
-                        : flat.flatConfiguration,
-              ),
-            ],
-          ),
+          buildRowTitleValue(title: "Type", value: flat.flatType),
+          buildRowTitleValue(title: "Area(Sq.ft)", value: flat.reraCarpetAreaSqFt.toString()),
+          buildRowTitleValue(title: "Configuration", value: flat.flatConfiguration),
           verticalSpacing(),
           Row(
             children: [
@@ -966,7 +946,7 @@ class _InventoryScreenState extends State<InventoryScreen>
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // 👁 VIEW (always if hasAccess)
+                  //  VIEW (always if hasAccess)
                   if (showView)
                     GestureDetector(
                       onTap: () {

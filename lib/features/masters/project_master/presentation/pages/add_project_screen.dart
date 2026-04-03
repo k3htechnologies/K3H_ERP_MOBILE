@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -245,10 +246,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       );
     }
 
-      _selectedProjectStatusNotifier.value = projectStatusList.firstWhere(
-        (status) => status["DisplayName"] == widget.project!.projectStatus,
-        orElse: () => projectStatusList.first,
-      );
+    _selectedProjectStatusNotifier.value = projectStatusList.firstWhereOrNull(
+          (status) => status["DisplayName"] == widget.project!.projectStatus,
+    );
 
 
     if (widget.project!.projectScheme.isNotEmpty) {
@@ -409,7 +409,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _isEditMode ? "Add Project" : "Update Project",
+                  !_isEditMode ? "Add Project" : "Update Project",
                   style: AppTextStyle.ts16SB(),
                 ),
                 verticalSpacing(),
@@ -634,7 +634,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       AddressWidget(
                         formKey: _projectMasterAddUpdateKey,
                         incomingStateId: _stateMasterId,
-                        incomingDistrictId: _stateMasterId,
+                        incomingDistrictId: _districtMasterId,
                         incomingCityId: widget.project?.cityMasterId,
                         incomingVillageId: _villageMasterId,
                         stateChange: (selectedState) {

@@ -46,12 +46,12 @@ class _SplashMobileScreenState extends State<SplashScreen> {
         final UtilsRepository utilsRepository =
             serviceLocator<UtilsRepository>();
 
-        utilsRepository.getAddressMaster().then((res) {
-          res.fold(
-            (failure) => debugPrint("Address failed"),
-            (data) => debugPrint("Address cached successfully"),
-          );
-        });
+        // utilsRepository.getAddressMaster().then((res) {
+        //   res.fold(
+        //     (failure) => debugPrint("Address failed"),
+        //     (data) => debugPrint("Address cached successfully"),
+        //   );
+        // });
 
         // 👇 NOW check menu
         if (menu != null && menu.isNotEmpty) {

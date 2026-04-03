@@ -7,6 +7,7 @@ class ProjectMasterState extends BaseState {
 
   // PROJECT DETAILS SCREEN
   final List<UserModel> employeeByProject;
+  final List<UserModel> employeeByProjectOriginal;
   final List<BankDetailsModel> bankByProject;
   final List<CompanyModel> companyByProject;
 
@@ -47,6 +48,7 @@ class ProjectMasterState extends BaseState {
     required this.companyByProject,
     required this.bankByProject,
     required this.employeeByProject,
+    required this.employeeByProjectOriginal,
     required this.modulesPermissionsList,
     super.stateType,
 
@@ -82,6 +84,7 @@ class ProjectMasterState extends BaseState {
     projectList: [],
     moduleWorkflowApprovalList: [],
     employeeByProject: [],
+    employeeByProjectOriginal: [],
     bankByProject: [],
     companyByProject: [],
     modulesPermissionsList: [],
@@ -119,6 +122,7 @@ class ProjectMasterState extends BaseState {
     List<CompanyModel>? companyByProject,
     List<BankDetailsModel>? bankByProject,
     List<UserModel>? employeeByProject,
+    List<UserModel>? employeeByProjectOriginal,
     List<ModuleModel>? modulesPermissionsList,
 
     String? filterProjectLocation,
@@ -157,6 +161,8 @@ class ProjectMasterState extends BaseState {
       companyByProject: companyByProject ?? this.companyByProject,
       bankByProject: bankByProject ?? this.bankByProject,
       employeeByProject: employeeByProject ?? this.employeeByProject,
+      employeeByProjectOriginal:
+      employeeByProjectOriginal ?? this.employeeByProjectOriginal,
       modulesPermissionsList:
       modulesPermissionsList ?? this.modulesPermissionsList,
 
@@ -208,6 +214,7 @@ class ProjectMasterState extends BaseState {
     companyByProject,
     bankByProject,
     employeeByProject,
+    employeeByProjectOriginal,
     modulesPermissionsList,
 
     totalNumberOfRecord,

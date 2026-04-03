@@ -23,6 +23,7 @@ import 'package:k3h_erp_app/utils/storage_key.dart';
 
 part 'project_master_state.dart';
 
+
 class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   ProjectMasterCubit() : super(ProjectMasterState.initial());
 
@@ -131,6 +132,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required int pageNumber,
   }) async {
     emit(state.copyWith(isLoading: true));
+
     var result = await _projectMasterRepository.getProjectList(
       pageNumber: pageNumber,
       pageSize: state.pageSize,
@@ -140,18 +142,19 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         "CTCNumber": state.filterCTSNumber,
       },
     );
+
     result.fold(
-      (failure) {
+          (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-      (response) {
-        final List<ProjectModel> newData = List<ProjectModel>.from(
-          response['data'] ?? [],
-        );
+          (response) async {
+            final List<ProjectModel> newData =
+            List<ProjectModel>.from(response['data'] ?? []);
 
         final List<ProjectModel> updatedList =
-            pageNumber == 1 ? newData : [...state.projectList, ...newData];
+        pageNumber == 1 ? newData : [...state.projectList, ...newData];
+
         emit(
           state.copyWith(
             projectList: updatedList,
@@ -590,14 +593,20 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       },
       (response) {
         final allEmployees =
-            (response['data'] as List)
-                .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
-                .toList();
+        (response['data'] as List)
+            .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+
+        final isSearch = queryParams != null && queryParams.isNotEmpty;
 
         emit(
           state.copyWith(
             isEmployeeLoading: false,
             employeeByProject: allEmployees,
+            employeeByProjectOriginal:
+            isSearch
+                ? state.employeeByProjectOriginal
+                : allEmployees,
             totalNumberOfRecordEmployee: response['totalNumberOfRecord'],
             currentPageEmployee: 1,
           ),

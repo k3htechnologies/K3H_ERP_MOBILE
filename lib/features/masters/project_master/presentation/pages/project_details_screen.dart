@@ -796,9 +796,9 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                     text:
                         state.employeeByProject.isEmpty ? "Add" : "Add/Update",
                     onPressed: () async {
-                      await _showEmployeeSelectionBottomSheet(context);
                       FocusScope.of(context).unfocus();
                       _searchEmployeeC.clear();
+                      await _showEmployeeSelectionBottomSheet(context);
                     },
                     backgroundColor: AppColor.primary,
                     padding: EdgeInsets.symmetric(vertical: 3, horizontal: 10),
@@ -876,6 +876,8 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                             CustomIconButton.delete(
                               onPressed: () {
                                 _showDeleteEmployeeDialog(context, employee);
+                                FocusScope.of(context).unfocus();
+                                _searchEmployeeC.clear();
                               },
                             ),
                           ],
@@ -980,7 +982,8 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
 
   // <---- SHOW EMPLOYEE SELECTION BOTTOM SHEET ---->
   Future<void> _showEmployeeSelectionBottomSheet(BuildContext context) async {
-    final currentEmployees = _projectMasterCubit.state.employeeByProject;
+    final currentEmployees =
+        _projectMasterCubit.state.employeeByProjectOriginal;
     final initialValue =
         currentEmployees
             .map(

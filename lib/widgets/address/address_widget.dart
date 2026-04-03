@@ -1,20 +1,26 @@
-import 'dart:convert';
 
-import 'package:collection/collection.dart';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/city.model.dart';
-import 'package:k3h_erp_app/core/repository/utils.repository.dart';
-import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:collection/collection.dart';
+import 'package:shimmer/shimmer.dart';
 
+///  Background parse
 List<CityModel> _parseAddressData(String rawJson) {
-  final List decoded = jsonDecode(rawJson);
-  return decoded.map((e) => CityModel.fromJson(e)).toList();
+  final decoded = jsonDecode(rawJson);
+
+  ///  HANDLE BOTH CASES
+  if (decoded is Map<String, dynamic>) {
+    final list = decoded['CountryStateCityDistrictVillageData'];
+    return (list as List).map((e) => CityModel.fromJson(e)).toList();
+  }
+
+  return (decoded as List).map((e) => CityModel.fromJson(e)).toList();
 }
 
 class AddressWidget extends StatefulWidget {
@@ -22,11 +28,14 @@ class AddressWidget extends StatefulWidget {
   final int? incomingDistrictId;
   final int? incomingCityId;
   final int? incomingVillageId;
+
   final Function(Map<String, dynamic>) stateChange;
   final Function(Map<String, dynamic>) districtChange;
   final Function(Map<String, dynamic>) cityChange;
   final Function(Map<String, dynamic>)? villageChange;
+
   final GlobalKey<FormState> formKey;
+
   const AddressWidget({
     super.key,
     this.incomingStateId,
@@ -45,31 +54,29 @@ class AddressWidget extends StatefulWidget {
 }
 
 class _AddressWidgetState extends State<AddressWidget> {
-  late BaseClient baseClient;
+  ///  Optimized tree
+  Map<int, Map<int, Map<int, List<CityModel>>>> addressTree = {};
 
   List<Map<String, dynamic>> stateList = [];
-  final ValueNotifier<List<Map<String, dynamic>>> districtList = ValueNotifier(
-    [],
-  );
-  final ValueNotifier<List<Map<String, dynamic>>> cityList = ValueNotifier([]);
-  final ValueNotifier<List<Map<String, dynamic>>> villageList = ValueNotifier(
-    [],
-  );
 
-  Map<int, List<CityModel>> groupedStateData = {};
-  Map<int, List<CityModel>> districtMap = {};
-  Map<int, List<CityModel>> cityMap = {};
+  final ValueNotifier<List<Map<String, dynamic>>> districtList =
+  ValueNotifier([]);
+  final ValueNotifier<List<Map<String, dynamic>>> cityList =
+  ValueNotifier([]);
+  final ValueNotifier<List<Map<String, dynamic>>> villageList =
+  ValueNotifier([]);
 
   final ValueNotifier<int?> stateId = ValueNotifier(null);
   final ValueNotifier<int?> districtId = ValueNotifier(null);
   final ValueNotifier<int?> cityId = ValueNotifier(null);
   final ValueNotifier<int?> villageId = ValueNotifier(null);
 
+  bool isLoading = true;
+
   @override
   void initState() {
-    baseClient = BaseClient();
-    loadAddressFromCache();
     super.initState();
+    loadAddressFromCache();
   }
 
   @override
@@ -84,116 +91,134 @@ class _AddressWidgetState extends State<AddressWidget> {
     super.dispose();
   }
 
-
+  ///  LOAD WITH RETRY (IMPORTANT)
   Future<void> loadAddressFromCache() async {
-    try {
-      final storage = LocalStorageManager();
-      String? cachedData = storage.getRawString(StorageKey.addressMasterData);
+    final storage = LocalStorageManager();
 
-      if (cachedData == null || cachedData.isEmpty) {
-        final utilsRepository = serviceLocator<UtilsRepository>();
-        await utilsRepository.getAddressMaster();
-        cachedData = storage.getRawString(StorageKey.addressMasterData);
+    ///  Retry (wait for background API)
+    for (int i = 0; i < 10; i++) {
+      String? cachedData =
+      storage.getRawString(StorageKey.addressMasterData);
+
+      if (cachedData != null && cachedData.isNotEmpty) {
+        await _processData(cachedData);
+        return;
       }
 
-      if (cachedData == null) return;
+      await Future.delayed(const Duration(milliseconds: 300));
+    }
 
-      // 1. Background parsing
-      final List<CityModel> dataList = await compute(_parseAddressData, cachedData);
+    ///  Still not ready → keep shimmer
+    if (mounted) setState(() => isLoading = true);
+  }
 
-      // 2. Grouping
-      groupedStateData = groupBy(dataList, (e) => e.stateMasterId);
+  ///  PROCESS DATA
+  Future<void> _processData(String cachedData) async {
+    try {
+      final List<CityModel> dataList =
+      await compute(_parseAddressData, cachedData);
 
-      // 3. Populate State List (This was missing logic)
-      final List<Map<String, dynamic>> tempStates = [];
-      groupedStateData.forEach((key, value) {
-        if (value.isNotEmpty) {
-          tempStates.add({
-            "zAttributesId": key,
-            "DisplayName": value[0].stateName,
-          });
-        }
-      });
+      addressTree.clear();
+
+      for (var item in dataList) {
+        addressTree
+            .putIfAbsent(item.stateMasterId, () => {})
+            .putIfAbsent(item.districtMasterId, () => {})
+            .putIfAbsent(item.cityMasterId, () => [])
+            .add(item);
+      }
+
+      final tempStates = addressTree.entries.map((e) {
+        final first = e.value.values.first.values.first.first;
+        return {
+          "zAttributesId": e.key,
+          "DisplayName": first.stateName,
+        };
+      }).toList();
 
       if (mounted) {
         setState(() {
-          stateList = tempStates; // Update the list
+          stateList = tempStates;
+          isLoading = false;
         });
 
-        // 4. Run prefill ONLY after stateList is ready
         _applyPrefill();
       }
+    } catch (e) {
+      debugPrint("JSON Parse Error: $e");
 
-      debugPrint("Address cached data processed: ${stateList.length} states found");
-    } catch (error) {
-      debugPrint("Address Load Error: $error");
+      /// RESET + SHOW SHIMMER
+      if (mounted) {
+        setState(() {
+          isLoading = true;
+        });
+      }
     }
   }
 
+  /// ---------------- STATE ----------------
   void handleStateChange(int stateIdF) {
-    if (!groupedStateData.containsKey(stateIdF)) {
+    final districts = addressTree[stateIdF];
+
+    if (districts == null) {
       districtList.value = [];
       cityList.value = [];
       villageList.value = [];
       return;
     }
 
-    districtMap = groupBy(
-      groupedStateData[stateIdF]!,
-          (e) => e.districtMasterId,
-    );
-
-    final newDistrictList = districtMap.entries.map((e) => {
-      "zAttributesId": e.key,
-      "DisplayName": e.value[0].districtName,
+    districtList.value = districts.entries.map((e) {
+      final first = e.value.values.first.first;
+      return {
+        "zAttributesId": e.key,
+        "DisplayName": first.districtName,
+      };
     }).toList();
 
-    districtList.value = newDistrictList;
-
-    // reset children
     cityList.value = [];
     villageList.value = [];
   }
 
+  /// ---------------- DISTRICT ----------------
   void handleDistrictChange(int districtIdF) {
-    if (!districtMap.containsKey(districtIdF)) {
+    final cities = addressTree[stateId.value]?[districtIdF];
+
+    if (cities == null) {
       cityList.value = [];
       villageList.value = [];
       return;
     }
 
-    cityMap = groupBy(
-      districtMap[districtIdF]!,
-          (e) => e.cityMasterId,
-    );
-
-    final newCityList = cityMap.entries.map((e) => {
-      "zAttributesId": e.key,
-      "DisplayName": e.value[0].cityName,
+    cityList.value = cities.entries.map((e) {
+      final first = e.value.first;
+      return {
+        "zAttributesId": e.key,
+        "DisplayName": first.cityName,
+      };
     }).toList();
 
-    cityList.value = newCityList;
     villageList.value = [];
   }
 
+  /// ---------------- CITY ----------------
   void handleCityChange(int cityIdF) {
-    if (!cityMap.containsKey(cityIdF)) {
+    final villages =
+    addressTree[stateId.value]?[districtId.value]?[cityIdF];
+
+    if (villages == null) {
       villageList.value = [];
       return;
     }
 
-    final villageData = cityMap[cityIdF]!;
-
-    final villageMap = groupBy(villageData, (e) => e.villageMasterId);
-
-    final newVillageList = villageMap.entries.map((e) => {
-      "zAttributesId": e.key,
-      "DisplayName": e.value[0].villageName,
+    villageList.value = villages.map((e) {
+      return {
+        "zAttributesId": e.villageMasterId,
+        "DisplayName": e.villageName,
+      };
     }).toList();
-
-    villageList.value = newVillageList;
   }
 
+  /// PREFILL
   void _applyPrefill() {
     final sId = widget.incomingStateId;
     final dId = widget.incomingDistrictId;
@@ -202,120 +227,136 @@ class _AddressWidgetState extends State<AddressWidget> {
 
     if (sId == null) return;
 
-    /// ------------------ STATE ------------------
-    final hasState = stateList.any((e) => e['zAttributesId'] == sId);
-    if (!hasState) return;
+    if (!stateList.any((e) => e['zAttributesId'] == sId)) return;
 
     stateId.value = sId;
     handleStateChange(sId);
 
-    /// ------------------ DISTRICT ------------------
     int? resolvedDistrictId = dId;
 
-    // 🔥 AUTO-FIX: if district is null but city exists → find district
     if (resolvedDistrictId == null && cId != null) {
-      for (var entry in districtMap.entries) {
-        if (entry.value.any((e) => e.cityMasterId == cId)) {
-          resolvedDistrictId = entry.key;
-          break;
+      final districts = addressTree[sId];
+      if (districts != null) {
+        for (var entry in districts.entries) {
+          if (entry.value.values.any(
+                (list) => list.any((e) => e.cityMasterId == cId),
+          )) {
+            resolvedDistrictId = entry.key;
+            break;
+          }
         }
       }
     }
 
-    if (resolvedDistrictId != null &&
-        districtList.value.any((e) => e['zAttributesId'] == resolvedDistrictId)) {
+    if (resolvedDistrictId != null) {
       districtId.value = resolvedDistrictId;
       handleDistrictChange(resolvedDistrictId);
-    } else {
-      return; // stop if no valid district
-    }
-
-    /// ------------------ CITY ------------------
-    if (cId != null &&
-        cityList.value.any((e) => e['zAttributesId'] == cId)) {
-      cityId.value = cId;
-      handleCityChange(cId);
     } else {
       return;
     }
 
-    /// ------------------ VILLAGE ------------------
-    if (vId != null &&
-        villageList.value.any((e) => e['zAttributesId'] == vId)) {
+    if (cId != null) {
+      cityId.value = cId;
+      handleCityChange(cId);
+    }
+
+    if (vId != null) {
       villageId.value = vId;
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
+  /// SHIMMER UI
+  Widget _shimmer() {
     return Column(
       children: [
         Row(
-          spacing: horizontalSpacingMeasure(width: 16.0),
-          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: _box()),
+            const SizedBox(width: 16),
+            Expanded(child: _box()),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _box(),
+        const SizedBox(height: 16),
+        if (widget.villageChange != null) _box(),
+      ],
+    );
+  }
+
+  Widget _box() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade300,
+      highlightColor: Colors.grey.shade100,
+      child: Container(
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(6),
+        ),
+      ),
+    );
+  }
+
+  /// ---------------- UI ----------------
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) return _shimmer();
+
+    return Column(
+      children: [
+        Row(
+          spacing: horizontalSpacingMeasure(width: 16),
           children: [
             Expanded(
               child: ValueListenableBuilder<int?>(
                 valueListenable: stateId,
-                builder: (context, currentStateId, child) {
+                builder: (_, val, __) {
                   return CustomDropDownWidget(
-                    key: ValueKey(currentStateId),
-                    initialValue: currentStateId == null
+                    key: ValueKey(val),
+                    initialValue: val == null
                         ? null
-                        : stateList.firstWhereOrNull((state) => state['zAttributesId'] == currentStateId),
+                        : stateList.firstWhereOrNull(
+                            (e) => e['zAttributesId'] == val),
                     title: "State",
                     hintText: "Select State",
                     isRequired: true,
                     dataList: stateList,
-                    onSelected: (stateMap) {
+                    onSelected: (map) {
+                      stateId.value = map['zAttributesId'];
                       districtId.value = null;
                       cityId.value = null;
                       villageId.value = null;
-                      stateId.value = stateMap['zAttributesId'];
                       handleStateChange(stateId.value!);
-                      widget.stateChange(stateMap);
-                    },
-                    validator: (s) {
-                      if (s == null) {
-                        return "State is required";
-                      }
-                      return null;
+                      widget.stateChange(map);
                     },
                   );
                 },
               ),
             ),
-
             Expanded(
               child: ValueListenableBuilder<List<Map<String, dynamic>>>(
                 valueListenable: districtList,
-                builder: (context, currentDistrictList, child) {
+                builder: (_, list, __) {
                   return ValueListenableBuilder<int?>(
                     valueListenable: districtId,
-                    builder: (context, currentDistrictId, child) {
+                    builder: (_, val, __) {
                       return CustomDropDownWidget(
-                        key: ValueKey(
-                          '${currentDistrictId}_${currentDistrictList.length}',
-                        ),
-                        initialValue: currentDistrictId == null || currentDistrictList.isEmpty
+                        key: ValueKey('$val${list.length}'),
+                        initialValue: val == null
                             ? null
-                            : currentDistrictList.firstWhereOrNull((district) => district['zAttributesId'] == currentDistrictId),
+                            : list.firstWhereOrNull(
+                                (e) => e['zAttributesId'] == val),
                         title: "District",
                         hintText: "Select District",
                         isRequired: true,
-                        dataList: currentDistrictList,
-                        onSelected: (districtMap) {
-                          districtId.value = districtMap['zAttributesId'];
+                        dataList: list,
+                        onSelected: (map) {
+                          districtId.value = map['zAttributesId'];
                           cityId.value = null;
                           villageId.value = null;
                           handleDistrictChange(districtId.value!);
-                          widget.districtChange(districtMap);
-                        },
-                        validator: (s) {
-                          if (s == null) {
-                            return "District is required";
-                          }
-                          return null;
+                          widget.districtChange(map);
                         },
                       );
                     },
@@ -328,72 +369,52 @@ class _AddressWidgetState extends State<AddressWidget> {
 
         ValueListenableBuilder<List<Map<String, dynamic>>>(
           valueListenable: cityList,
-          builder: (context, currentCityList, child) {
+          builder: (_, list, __) {
             return ValueListenableBuilder<int?>(
               valueListenable: cityId,
-              builder: (context, currentCityId, child) {
+              builder: (_, val, __) {
                 return CustomDropDownWidget(
-                  key: ValueKey('${currentCityId}_${currentCityList.length}'),
-                  initialValue: currentCityId == null || currentCityList.isEmpty
+                  key: ValueKey('$val${list.length}'),
+                  initialValue: val == null
                       ? null
-                      : currentCityList.firstWhereOrNull((city) => city['zAttributesId'] == currentCityId),
+                      : list.firstWhereOrNull(
+                          (e) => e['zAttributesId'] == val),
                   title: "City",
                   hintText: "Select City",
                   isRequired: true,
-                  dataList: currentCityList,
-                  onSelected: (cityselectedmap) {
-                    cityId.value = cityselectedmap['zAttributesId'];
+                  dataList: list,
+                  onSelected: (map) {
+                    cityId.value = map['zAttributesId'];
                     villageId.value = null;
                     handleCityChange(cityId.value!);
-                    widget.cityChange(cityselectedmap);
-                  },
-                  validator: (s) {
-                    if (s == null) {
-                      return "City is required";
-                    }
-                    return null;
+                    widget.cityChange(map);
                   },
                 );
               },
             );
           },
         ),
+
         if (widget.villageChange != null)
           ValueListenableBuilder<List<Map<String, dynamic>>>(
             valueListenable: villageList,
-            builder: (context, currentVillageList, child) {
+            builder: (_, list, __) {
               return ValueListenableBuilder<int?>(
                 valueListenable: villageId,
-                builder: (context, currentVillageId, child) {
+                builder: (_, val, __) {
                   return CustomDropDownWidget(
-                    key: ValueKey(
-                      '${currentVillageId}_${currentVillageList.length}',
-                    ),
-                    initialValue:
-                        currentVillageId == null || currentVillageList.isEmpty
-                            ? null
-                            : currentVillageList.any(
-                              (village) =>
-                                  village['zAttributesId'] == currentVillageId,
-                            )
-                                ? currentVillageList.firstWhere(
-                                  (village) =>
-                                      village['zAttributesId'] == currentVillageId,
-                                )
-                                : null,
+                    key: ValueKey('$val${list.length}'),
+                    initialValue: val == null
+                        ? null
+                        : list.firstWhereOrNull(
+                            (e) => e['zAttributesId'] == val),
                     title: "Village",
                     hintText: "Select Village",
                     isRequired: true,
-                    dataList: currentVillageList,
-                    onSelected: (villageselectedmap) {
-                      villageId.value = villageselectedmap['zAttributesId'];
-                      widget.villageChange!(villageselectedmap);
-                    },
-                    validator: (s) {
-                      if (s == null) {
-                        return "Village is required";
-                      }
-                      return null;
+                    dataList: list,
+                    onSelected: (map) {
+                      villageId.value = map['zAttributesId'];
+                      widget.villageChange!(map);
                     },
                   );
                 },

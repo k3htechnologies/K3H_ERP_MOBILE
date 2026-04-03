@@ -465,7 +465,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 leading: const Icon(Icons.camera_alt, size: 18),
                 title: const Text("Camera"),
                 onTap: () async {
-                  Navigator.pop(profileContext);
+                  goRouter.pop(profileContext);
                   await _captureProfilePhoto();
                 },
               ),
@@ -473,7 +473,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 leading: const Icon(Icons.photo, size: 18),
                 title: const Text("Gallery"),
                 onTap: () async {
-                  Navigator.pop(profileContext);
+                  goRouter.pop(profileContext);
                   await _pickProfilePhoto();
                 },
               ),
@@ -1000,9 +1000,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
         if (state.isLoading == true && state.employeeMasterList.isEmpty) {
-          return Center(
-            child: loader()
-          );
+          return Center(child: loader());
         }
 
         if (state.employeeMasterList.isEmpty) {
@@ -1207,9 +1205,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     bool isLoadingProjects,
   ) {
     if (isLoadingProjects) {
-      return Center(
-        child: loader()
-      );
+      return Center(child: loader());
     }
 
     if (projectList.isEmpty) {
@@ -1308,9 +1304,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
         if (state.isLoading == true && state.assetMappingList.isEmpty) {
-          return  Center(
-            child: loader()
-          );
+          return Center(child: loader());
         }
 
         if (state.assetMappingList.isEmpty) {
@@ -1373,7 +1367,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                           ),
                         ),
                         horizontalSpacing(width: 16),
-                        Expanded(child: _buildInfoItem("Assigned By", asset.createdBy)),
+                        Expanded(
+                          child: _buildInfoItem("Assigned By", asset.createdBy),
+                        ),
                       ],
                     ),
                     verticalSpacing(),
@@ -1402,9 +1398,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
         if (state.isLoading == true && state.shiftManagementList.isEmpty) {
-          return Center(
-            child: loader(),
-          );
+          return Center(child: loader());
         }
 
         if (state.shiftManagementList.isEmpty) {
@@ -1429,41 +1423,19 @@ class _ProfileScreenState extends State<ProfileScreen>
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Basic Details",style: AppTextStyle.ts14SB(),),
+                        Text("Basic Details", style: AppTextStyle.ts14SB()),
                         Row(
                           spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            buildColumnTitleValue(title: "Shift Name", value: shiftManagement.shiftName),
-                            buildColumnTitleValue(title: "Shift Code", value: shiftManagement.shiftCode),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    padding: const EdgeInsets.all(16),
-                    decoration: commonCardDecoration(),
-                    child: Column(
-                      spacing: 10,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Time Details",style: AppTextStyle.ts14SB(),),
-                        Row(
-                          spacing: 10,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            buildColumnTitleValue(title: "Shift Begin Time", value: shiftManagement.shiftBeginTime),
-                            buildColumnTitleValue(title: "Shift End Time", value: shiftManagement.shiftEndTime),
-                          ],
-                        ),
-                        Row(
-                          spacing: 10,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            buildColumnTitleValue(title: "Shift Duration Time", value: shiftManagement.shiftDurationTime),
-                            buildColumnTitleValue(title: "Shift Work Duration Time", value: shiftManagement.shiftWorkDurationTime),
+                            buildColumnTitleValue(
+                              title: "Shift Name",
+                              value: shiftManagement.shiftName,
+                            ),
+                            buildColumnTitleValue(
+                              title: "Shift Code",
+                              value: shiftManagement.shiftCode,
+                            ),
                           ],
                         ),
                       ],
@@ -1477,55 +1449,33 @@ class _ProfileScreenState extends State<ProfileScreen>
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Advance Setting",style: AppTextStyle.ts14SB(),),
+                        Text("Time Details", style: AppTextStyle.ts14SB()),
                         Row(
                           spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            buildColumnTitleValue(title:"First Half Up To", value: shiftManagement.firstHalfUpTo),
+                            buildColumnTitleValue(
+                              title: "Shift Begin Time",
+                              value: shiftManagement.shiftBeginTime,
+                            ),
+                            buildColumnTitleValue(
+                              title: "Shift End Time",
+                              value: shiftManagement.shiftEndTime,
+                            ),
                           ],
                         ),
                         Row(
                           spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            buildColumnTitleValue(title: "Calculate Absent if working hours less than", value: shiftManagement.absentWorkingHours),
-                            buildColumnTitleValue(title: "Calculate Half day working hours less than", value: shiftManagement.halfDayWorkingHours),
-                          ],
-                        ),
-                        Row(
-                          spacing: 10,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            buildColumnTitleValue(title: "Mark Half Day if Intime After", value: shiftManagement.halfDayInTimeAfter),
-                            buildColumnTitleValue(title: "Mark Half Day if Outtime After", value: shiftManagement.halfDayOutTimeBefore),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    padding: const EdgeInsets.all(16),
-                    decoration: commonCardDecoration(),
-                    child: Column(
-                      spacing: 10,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Break Details",style: AppTextStyle.ts14SB(),),
-                        Row(
-                          spacing: 10,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            buildColumnTitleValue(title: "Break Begin Time", value: shiftManagement.breakBeginTime),
-                            buildColumnTitleValue(title: "Break End Time", value: shiftManagement.breakEndTime),
-                          ],
-                        ),
-                        Row(
-                          spacing: 10,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            buildColumnTitleValue(title: "Break Duration Time", value: shiftManagement.breakDurationTime),
+                            buildColumnTitleValue(
+                              title: "Shift Duration Time",
+                              value: shiftManagement.shiftDurationTime,
+                            ),
+                            buildColumnTitleValue(
+                              title: "Shift Work Duration Time",
+                              value: shiftManagement.shiftWorkDurationTime,
+                            ),
                           ],
                         ),
                       ],
@@ -1539,12 +1489,45 @@ class _ProfileScreenState extends State<ProfileScreen>
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Time Allowed for Late Entry",style: AppTextStyle.ts14SB(),),
+                        Text("Advance Setting", style: AppTextStyle.ts14SB()),
                         Row(
                           spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            buildColumnTitleValue(title: "Grace Time In Minutes", value: shiftManagement.graceTime),
+                            buildColumnTitleValue(
+                              title: "First Half Up To",
+                              value: shiftManagement.firstHalfUpTo,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(
+                              title:
+                                  "Calculate Absent if working hours less than",
+                              value: shiftManagement.absentWorkingHours,
+                            ),
+                            buildColumnTitleValue(
+                              title:
+                                  "Calculate Half day working hours less than",
+                              value: shiftManagement.halfDayWorkingHours,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(
+                              title: "Mark Half Day if Intime After",
+                              value: shiftManagement.halfDayInTimeAfter,
+                            ),
+                            buildColumnTitleValue(
+                              title: "Mark Half Day if Outtime After",
+                              value: shiftManagement.halfDayOutTimeBefore,
+                            ),
                           ],
                         ),
                       ],
@@ -1558,12 +1541,76 @@ class _ProfileScreenState extends State<ProfileScreen>
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Remarks",style: AppTextStyle.ts14SB(),),
+                        Text("Break Details", style: AppTextStyle.ts14SB()),
                         Row(
                           spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            buildColumnTitleValue(title: "Remark", value: shiftManagement.remarks),
+                            buildColumnTitleValue(
+                              title: "Break Begin Time",
+                              value: shiftManagement.breakBeginTime,
+                            ),
+                            buildColumnTitleValue(
+                              title: "Break End Time",
+                              value: shiftManagement.breakEndTime,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(
+                              title: "Break Duration Time",
+                              value: shiftManagement.breakDurationTime,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(16),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Time Allowed for Late Entry",
+                          style: AppTextStyle.ts14SB(),
+                        ),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(
+                              title: "Grace Time In Minutes",
+                              value: shiftManagement.graceTime,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(16),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Remarks", style: AppTextStyle.ts14SB()),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(
+                              title: "Remark",
+                              value: shiftManagement.remarks,
+                            ),
                           ],
                         ),
                       ],
@@ -1583,9 +1630,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
         if (state.isLoading == true && state.weekOffMappingList.isEmpty) {
-          return Center(
-            child: loader()
-          );
+          return Center(child: loader());
         }
 
         if (state.weekOffMappingList.isEmpty) {
@@ -1735,9 +1780,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               builder: (context, state) {
                 if (state.isLoading == true &&
                     state.employeeEducationDetailsList.isEmpty) {
-                  return  Center(
-                    child: loader()
-                  );
+                  return Center(child: loader());
                 }
 
                 if (state.employeeEducationDetailsList.isEmpty) {
@@ -1844,9 +1887,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               builder: (context, state) {
                 if (state.isLoading == true &&
                     state.employeeExperienceDetailsList.isEmpty) {
-                  return Center(
-                    child: loader()
-                  );
+                  return Center(child: loader());
                 }
 
                 if (state.employeeExperienceDetailsList.isEmpty) {
@@ -1933,9 +1974,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (_, state) {
         if (state.isLoading == true && state.branchAssociationList.isEmpty) {
-          return Center(
-            child: loader()
-          );
+          return Center(child: loader());
         }
 
         if (state.branchAssociationList.isEmpty) {

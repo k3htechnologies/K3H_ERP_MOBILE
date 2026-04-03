@@ -57,23 +57,34 @@ class _AddInventorySpecificationScreenState
   late TextEditingController _flatC, _flatSqftC;
 
   // LIST VARIABLES
-  late ValueNotifier<Map<String, dynamic>> selectedFlatType;
-  late ValueNotifier<Map<String, dynamic>> selectedFlatStatus;
+  late ValueNotifier<Map<String, dynamic>?> selectedFlatType;
+  late ValueNotifier<Map<String, dynamic>?> selectedFlatStatus;
   late ValueNotifier<Map<String, dynamic>?> selectedFlatConfiguration;
   late ValueNotifier<Map<String, dynamic>?> selectedFlatFacing;
 
   // STATIC LISTS
   List<Map<String, dynamic>> flatTypeList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Flat Type'},
-    {'zAttributesId': 1, 'DisplayName': 'Commercial'},
-    {'zAttributesId': 2, 'DisplayName': 'Gym'},
-    {'zAttributesId': 3, 'DisplayName': 'Residential'},
-    {'zAttributesId': 4, 'DisplayName': 'Void'},
+    {'zAttributesId': 1, 'DisplayName': 'BMC'},
+    {'zAttributesId': 2, 'DisplayName': 'Commercial'},
+    {'zAttributesId': 3, 'DisplayName': 'eDeck'},
+    {'zAttributesId': 4, 'DisplayName': 'Fitness Center'},
+    {'zAttributesId': 5, 'DisplayName': 'Gym'},
+    {'zAttributesId': 6, 'DisplayName': 'MHADA'},
+    {'zAttributesId': 7, 'DisplayName': 'Multi Purpose Room'},
+    {'zAttributesId': 8, 'DisplayName': 'Land Lord'},
+    {'zAttributesId': 9, 'DisplayName': 'Lien'},
+    {'zAttributesId': 10, 'DisplayName': 'Part Terrace'},
+    {'zAttributesId': 11, 'DisplayName': 'Refuge'},
+    {'zAttributesId': 12, 'DisplayName': 'Religious Structure'},
+    {'zAttributesId': 13, 'DisplayName': 'Residential'},
+    {'zAttributesId': 14, 'DisplayName': 'Society Office'},
+    {'zAttributesId': 15, 'DisplayName': 'SRA'},
+    {'zAttributesId': 16, 'DisplayName': 'Upashray'},
+    {'zAttributesId': 17, 'DisplayName': 'Void'},
   ];
 
   // STATIC LISTS FOR FLAT CONFIGURATION
   List<Map<String, dynamic>> residentialFlatList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Unit Type'},
     {'zAttributesId': 1, 'DisplayName': '1 RK'},
     {'zAttributesId': 2, 'DisplayName': '1 BHK'},
     {'zAttributesId': 3, 'DisplayName': '2 BHK'},
@@ -92,14 +103,12 @@ class _AddInventorySpecificationScreenState
 
   // STATIC LISTS FOR FLAT CONFIGURATION
   List<Map<String, dynamic>> commercialFlatList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Flat Configuration'},
     {'zAttributesId': 1, 'DisplayName': 'OFFICE'},
     {'zAttributesId': 2, 'DisplayName': 'SHOP'},
   ];
 
   // STATIC LISTS FOR FLAT STATUS
   List<Map<String, dynamic>> flatStatusList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Flat Status'},
     {'zAttributesId': 1, 'DisplayName': 'Available'},
     {'zAttributesId': 2, 'DisplayName': 'Blocked'},
     {'zAttributesId': 3, 'DisplayName': 'Hold'},
@@ -107,7 +116,6 @@ class _AddInventorySpecificationScreenState
 
   // STATIC LISTS FOR FLAT FACING
   List<Map<String, dynamic>> flatFacingList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Flat Facing'},
     {'zAttributesId': 1, 'DisplayName': 'EAST'},
     {'zAttributesId': 2, 'DisplayName': 'FRONT'},
     {'zAttributesId': 3, 'DisplayName': 'GARDEN'},
@@ -152,12 +160,10 @@ class _AddInventorySpecificationScreenState
   void _initControllers() {
     _flatC = TextEditingController();
     _flatSqftC = TextEditingController();
-    selectedFlatType = ValueNotifier(flatTypeList.first);
-    selectedFlatStatus = ValueNotifier(flatStatusList.first);
+    selectedFlatType = ValueNotifier(null);
+    selectedFlatStatus = ValueNotifier(null);
     selectedFlatConfiguration = ValueNotifier<Map<String, dynamic>?>(null);
-    selectedFlatFacing = ValueNotifier<Map<String, dynamic>?>(
-      flatFacingList.first,
-    );
+    selectedFlatFacing = ValueNotifier<Map<String, dynamic>?>(null);
   }
 
   // PREFILL FLAT DATA
@@ -278,7 +284,6 @@ class _AddInventorySpecificationScreenState
       );
     }
 
-
     if (flatId != null) {
       queryParams['inventoryFlatId'] = flatId.toString();
     }
@@ -302,12 +307,14 @@ class _AddInventorySpecificationScreenState
         if (unitSpec == null) {
           // ADD NEW SPECIFICATION
 
-          final isDuplicateLayout = flatSpecificationList.value.any((s) =>
-          s.flatLayout.trim().toLowerCase() ==
-              result.flatLayout.trim().toLowerCase());
+          final isDuplicateLayout = flatSpecificationList.value.any(
+            (s) =>
+                s.flatLayout.trim().toLowerCase() ==
+                result.flatLayout.trim().toLowerCase(),
+          );
 
           if (isDuplicateLayout) {
-            if(mounted) {
+            if (mounted) {
               showErrorMessage(context, "Error", "Layout already exists");
             }
             return;
@@ -317,7 +324,7 @@ class _AddInventorySpecificationScreenState
             ...flatSpecificationList.value,
             result,
           ];
-        }else {
+        } else {
           final Map<String, FlatSpecificationModel> specMap = {};
           bool replaced = false;
 
@@ -413,8 +420,7 @@ class _AddInventorySpecificationScreenState
       );
       return;
     }
-    if (selectedFlatFacing.value == null ||
-        selectedFlatFacing.value!['zAttributesId'] == -1) {
+    if (selectedFlatFacing.value == null) {
       DialogHelper.showErrorMessage(
         context: context,
         title: "Validation Error",
@@ -422,10 +428,10 @@ class _AddInventorySpecificationScreenState
       );
       return;
     }
-    if ((selectedFlatType.value['zAttributesId'] == 1 ||
-            selectedFlatType.value['zAttributesId'] == 2) &&
-        (selectedFlatConfiguration.value == null ||
-            selectedFlatConfiguration.value!['zAttributesId'] == -1)) {
+    final type = selectedFlatType.value?['DisplayName'] ?? "";
+
+    if ((type == 'Residential' || type == 'Commercial') &&
+        selectedFlatConfiguration.value == null) {
       DialogHelper.showErrorMessage(
         context: context,
         title: "Validation Error",
@@ -451,12 +457,12 @@ class _AddInventorySpecificationScreenState
             widget.flatModel!.inventoryFlatFloorBasementPodiumWingId,
         inventoryFloorId: widget.flatModel!.inventoryFloorId,
         flat: _flatC.text.trim(),
-        flatType: selectedFlatType.value['DisplayName'],
+        flatType: selectedFlatType.value?['DisplayName'] ?? "",
         flatArea: double.parse(_flatSqftC.text),
         flatConfiguration:
             selectedFlatConfiguration.value?['DisplayName'] ?? '',
-        flatStatus: selectedFlatStatus.value['DisplayName'],
-        flatFacing: selectedFlatFacing.value!['DisplayName'],
+        flatStatus: selectedFlatStatus.value?['DisplayName'] ?? "",
+        flatFacing: selectedFlatFacing.value?['DisplayName'] ?? "",
         flatSpecificationList: flatSpecificationList.value,
       );
     } else if (widget.floorModel != null) {
@@ -468,12 +474,12 @@ class _AddInventorySpecificationScreenState
             widget.floorModel!.inventoryFlatFloorBasementPodiumWingId,
         inventoryFloorId: widget.floorModel!.inventoryFloorId,
         flat: _flatC.text.trim(),
-        flatType: selectedFlatType.value['DisplayName'],
+        flatType: selectedFlatType.value?['DisplayName'] ?? "",
         flatArea: double.parse(_flatSqftC.text),
         flatConfiguration:
             selectedFlatConfiguration.value?['DisplayName'] ?? '',
-        flatStatus: selectedFlatStatus.value['DisplayName'],
-        flatFacing: selectedFlatFacing.value!['DisplayName'],
+        flatStatus: selectedFlatStatus.value?['DisplayName'] ?? "",
+        flatFacing: selectedFlatFacing.value?['DisplayName'] ?? "",
         flatSpecificationList: flatSpecificationList.value,
       );
     }
@@ -521,7 +527,9 @@ class _AddInventorySpecificationScreenState
                       valueListenable: selectedFlatType,
                       builder: (context, typeValue, child) {
                         return CustomDropDownWidget(
-                          key: ValueKey('type_${typeValue['zAttributesId']}'),
+                          key: ValueKey(
+                            'type_${typeValue?['zAttributesId'] ?? ""}',
+                          ),
                           title: 'Unit Type',
                           isRequired: true,
                           dataList: flatTypeList,
@@ -531,10 +539,14 @@ class _AddInventorySpecificationScreenState
                             selectedFlatType.value = value;
                           },
                           validator: (value) {
-                            if (value == null || value["zAttributesId"] == -1) {
+                            if (value == null) {
                               return 'Unit Type is required';
                             }
                             return null;
+                          },
+                          onValueClear: () {
+                            selectedFlatType.value = null;
+                            selectedFlatConfiguration.value = null;
                           },
                         );
                       },
@@ -545,7 +557,9 @@ class _AddInventorySpecificationScreenState
                         return ValueListenableBuilder<Map<String, dynamic>?>(
                           valueListenable: selectedFlatConfiguration,
                           builder: (context, configValue, child) {
-                            if (value['zAttributesId'] == 1) {
+                            final type = value?['DisplayName'] ?? "";
+
+                            if (type == 'Residential') {
                               return CustomDropDownWidget(
                                 key: ValueKey(
                                   'config_residential_${configValue?['zAttributesId']}',
@@ -558,15 +572,18 @@ class _AddInventorySpecificationScreenState
                                   selectedFlatConfiguration.value = value;
                                 },
                                 validator: (value) {
-                                  if (value == null ||
-                                      value["zAttributesId"] == -1) {
+                                  if (value == null) {
                                     return 'Unit Configuration is required';
                                   }
                                   return null;
                                 },
+                                onValueClear: () {
+                                  selectedFlatConfiguration.value = null;
+                                },
                               );
                             }
-                            if (value['zAttributesId'] == 2) {
+
+                            if (type == 'Commercial') {
                               return CustomDropDownWidget(
                                 key: ValueKey(
                                   'config_commercial_${configValue?['zAttributesId']}',
@@ -579,15 +596,18 @@ class _AddInventorySpecificationScreenState
                                   selectedFlatConfiguration.value = value;
                                 },
                                 validator: (value) {
-                                  if (value == null ||
-                                      value["zAttributesId"] == -1) {
+                                  if (value == null) {
                                     return 'Unit Configuration is required';
                                   }
                                   return null;
                                 },
+                                onValueClear: () {
+                                  selectedFlatConfiguration.value = null;
+                                },
                               );
                             }
-                            return SizedBox();
+
+                            return const SizedBox();
                           },
                         );
                       },
@@ -647,7 +667,7 @@ class _AddInventorySpecificationScreenState
                             selectedFlatFacing.value = value;
                           },
                           validator: (value) {
-                            if (value == null || value["zAttributesId"] == -1) {
+                            if (value == null) {
                               return 'Facing is required';
                             }
                             return null;
@@ -660,7 +680,7 @@ class _AddInventorySpecificationScreenState
                       builder: (context, statusValue, child) {
                         return CustomDropDownWidget(
                           key: ValueKey(
-                            'status_${statusValue['zAttributesId']}',
+                            'status_${statusValue?['zAttributesId'] ?? ""}',
                           ),
                           title: 'Status',
                           isRequired: true,
@@ -670,7 +690,7 @@ class _AddInventorySpecificationScreenState
                             selectedFlatStatus.value = value;
                           },
                           validator: (value) {
-                            if (value == null || value["zAttributesId"] == -1) {
+                            if (value == null) {
                               return 'Status is required';
                             }
                             return null;
@@ -708,7 +728,12 @@ class _AddInventorySpecificationScreenState
                         if (value.isEmpty) {
                           return SizedBox(
                             height: 200,
-                            child: Center(child: noDataWidget()),
+                            child: Center(
+                              child: noDataWidget(
+                                iconSize: 120,
+                                message: "No Unit Specifications Found",
+                              ),
+                            ),
                           );
                         }
 

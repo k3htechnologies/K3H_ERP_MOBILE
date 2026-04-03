@@ -133,6 +133,8 @@ class LoginCubit extends Cubit<LoginState> {
           if (context.mounted) fetchAndStoreMenu(context, user),
         ]);
 
+        unawaited(_loadAddressInBackground());
+
         // NAVIGATE
         if (context.mounted) {
           goRouter.go(AppRoutes.dashboardScreen);
@@ -140,6 +142,25 @@ class LoginCubit extends Cubit<LoginState> {
         }
       },
     );
+  }
+
+  Future<void> _loadAddressInBackground() async {
+    try {
+      final utilsRepository = serviceLocator<UtilsRepository>();
+
+      final result = await utilsRepository.getAddressMaster();
+
+      result.fold(
+            (failure) {
+          debugPrint("Address preload failed");
+        },
+            (data) {
+          debugPrint("Address cached successfully");
+        },
+      );
+    } catch (e) {
+      debugPrint("Address preload error: $e");
+    }
   }
 
   Future<void> fetchAndStoreMenu(BuildContext context, UserModel user) async {

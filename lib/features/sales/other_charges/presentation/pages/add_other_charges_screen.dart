@@ -44,7 +44,8 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
       _totalValuePlusGst;
 
   // SELECTED VALUES
-  Map<String, dynamic>? selectedCalculatedOn;
+  final ValueNotifier<Map<String, dynamic>?> _selectedCalculatedOnNotifier =
+  ValueNotifier(null);
 
   List<Map<String, dynamic>> calculatedOnList = [
     {"zAttributesId": 1, "DisplayName": "Per Sq Ft"},
@@ -79,7 +80,7 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
     _gstValueC.dispose();
     _gstValueNotifier.dispose();
     _totalValuePlusGst.dispose();
-
+    _selectedCalculatedOnNotifier.dispose();
     super.dispose();
   }
 
@@ -108,8 +109,8 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
     _valueC.text = otherChargeModel.value.toString();
     _gstPercentageC.text = otherChargeModel.gstPercentage.toString();
     _gstValueC.text = otherChargeModel.gstValue.toString();
-    selectedCalculatedOn = calculatedOnList.firstWhere(
-      (item) => item['DisplayName'] == otherChargeModel.calculatedOn,
+    _selectedCalculatedOnNotifier.value = calculatedOnList.firstWhere(
+          (item) => item['DisplayName'] == otherChargeModel.calculatedOn,
       orElse: () => calculatedOnList.first,
     );
   }
@@ -167,20 +168,28 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
                         return null;
                       },
                     ),
-                    CustomDropDownWidget(
-                      title: "Calculated On",
-                      isRequired: true,
-                      hintText: "Select Calculated On",
-                      initialValue: selectedCalculatedOn,
-                      dataList: calculatedOnList,
-                      onSelected: (value) {
-                        selectedCalculatedOn = value;
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Calculated On is required';
-                        }
-                        return null;
+                    ValueListenableBuilder<Map<String, dynamic>?>(
+                      valueListenable: _selectedCalculatedOnNotifier,
+                      builder: (context, selectedValue, _) {
+                        return CustomDropDownWidget(
+                          title: "Calculated On",
+                          isRequired: true,
+                          hintText: "Select Calculated On",
+                          initialValue: selectedValue,
+                          dataList: calculatedOnList,
+                          onSelected: (value) {
+                            _selectedCalculatedOnNotifier.value = value;
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Calculated On is required';
+                            }
+                            return null;
+                          },
+                          onValueClear: () {
+                            _selectedCalculatedOnNotifier.value = null;
+                          },
+                        );
                       },
                     ),
                     CustomTextField(
@@ -249,7 +258,7 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
                     uniqueKey: widget.otherChargeModel!.uniquekey,
                     projectId: widget.projectId,
                     chargeName: _chargeNameC.text,
-                    calculatedOn: selectedCalculatedOn!['DisplayName'],
+                    calculatedOn: _selectedCalculatedOnNotifier.value?['DisplayName']??"",
                     value: double.parse(_valueC.text),
                     gstPercentage: double.parse(_gstPercentageC.text),
                     gstValue: double.parse(_gstValueC.text),
@@ -260,7 +269,7 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
                     context: context,
                     projectId: widget.projectId,
                     chargeName: _chargeNameC.text,
-                    calculatedOn: selectedCalculatedOn!['DisplayName'],
+                    calculatedOn: _selectedCalculatedOnNotifier.value?['DisplayName']??"",
                     value: double.parse(_valueC.text),
                     gstPercentage: double.parse(_gstPercentageC.text),
                     gstValue: double.parse(_gstValueC.text),

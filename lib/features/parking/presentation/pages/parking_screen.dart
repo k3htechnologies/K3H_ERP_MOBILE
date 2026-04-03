@@ -16,8 +16,8 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ParkingScreen extends StatefulWidget {
@@ -50,6 +50,8 @@ class _ParkingScreenState extends State<ParkingScreen>
   final Set<String> _selectedParkingFilter = {};
 
   bool _isDisposing = false;
+
+  final ValueNotifier<Set<String>> _expandedParking = ValueNotifier({});
 
   @override
   void initState() {
@@ -119,13 +121,13 @@ class _ParkingScreenState extends State<ParkingScreen>
     if (!_buildingTabController!.indexIsChanging) {
       final state = _parkingCubit.state;
       if (state.groupedData != null) {
-        final buildingKeys = state.groupedData!.keys.toList().reversed.toList();
+        final buildingKeys = state.groupedData!.keys.toList();
         final tabIndex = _buildingTabController!.index;
+
         if (tabIndex >= 0 && tabIndex < buildingKeys.length) {
-          // Reverse index to match the original order
-          final actualIndex = buildingKeys.length - 1 - tabIndex;
+          _expandedParking.value = {};
           _parkingCubit.handleBuildingTabChange(
-            actualIndex,
+            tabIndex,
             buildingKeys[tabIndex],
           );
         }
@@ -142,6 +144,7 @@ class _ParkingScreenState extends State<ParkingScreen>
         final wingKeys = state.wingGroupedData!.keys.toList();
         final index = _wingTabController!.index;
         if (index >= 0 && index < wingKeys.length) {
+          _expandedParking.value = {};
           _parkingCubit.handleWingTabChange(index, wingKeys[index]);
         }
       }
@@ -247,12 +250,11 @@ class _ParkingScreenState extends State<ParkingScreen>
                   _buildingTabController!.length != buildingKeys.length) {
                 _initBuildingController(buildingKeys.length);
               } else {
-                final reversedKeys = buildingKeys.reversed.toList();
-                final tabIndex =
-                    reversedKeys.length - 1 - state.buildingCurrentPage;
+                final tabIndex = state.buildingCurrentPage;
+
                 if (_buildingTabController!.index != tabIndex &&
                     tabIndex >= 0 &&
-                    tabIndex < reversedKeys.length) {
+                    tabIndex < buildingKeys.length) {
                   _buildingTabController!.index = tabIndex;
                 }
               }
@@ -293,8 +295,7 @@ class _ParkingScreenState extends State<ParkingScreen>
                 return Center(child: noDataWidget());
               }
 
-              final buildingKeys =
-                  state.groupedData!.keys.toList().reversed.toList();
+              final buildingKeys = state.groupedData!.keys.toList();
 
               if (state.groupedData!.isNotEmpty &&
                   (_buildingTabController == null ||
@@ -364,117 +365,205 @@ class _ParkingScreenState extends State<ParkingScreen>
 
   // PARKING LIST
   Widget _buildParkingList(List<ParkingModel> parkingList) {
-    // Filter parking list based on selected filters
     final filteredList =
-        _selectedParkingFilter.isEmpty
-            ? parkingList
-            : parkingList
-                .where((e) => _selectedParkingFilter.contains(e.parkingStatus))
-                .toList();
+    _selectedParkingFilter.isEmpty
+        ? parkingList
+        : parkingList
+        .where((e) => _selectedParkingFilter.contains(e.parkingStatus))
+        .toList();
 
     if (filteredList.isEmpty) {
       return Center(child: noDataWidget());
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      itemCount: filteredList.length,
-      itemBuilder: (context, index) {
-        final parking = filteredList[index];
-        final bool isActionAllowed = parking.isApproval;
+    return ValueListenableBuilder<Set<String>>(
+      valueListenable: _expandedParking,
+      builder: (context, expandedSet, child) {
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          itemCount: filteredList.length,
+          itemBuilder: (context, index) {
+            final parking = filteredList[index];
+            final bool isActionAllowed = parking.isApproval;
 
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: Column(
-            children: [
-              if (index == 0) ...[
-                ApproveRejectWidget(
-                  actionTitle: parking.approvalStatus,
-                  isActionAlreadyPerformed: !isActionAllowed,
-                  popupTitle:
+            final parkingKey = "${parking.parkingId}-$index";
+            final isExpanded = expandedSet.contains(parkingKey);
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Column(
+                children: [
+                  /// APPROVE REJECT (same as your code)
+                  if (index == 0) ...[
+                    ApproveRejectWidget(
+                      actionTitle: parking.approvalStatus,
+                      isActionAlreadyPerformed: !isActionAllowed,
+                      popupTitle:
                       "${parking.buildingNumber} > ${parking.wing} / ${parking.floor}",
-                  isMaster: true,
-                  onApprove: (val) async {
-                    final isSuccess = await _loginCubit
-                        .updateModulesWorkflowApproval(
+                      isMaster: true,
+                      onApprove: (val) async {
+                        final isSuccess = await _loginCubit
+                            .updateModulesWorkflowApproval(
                           context: context,
                           moduleName: 'PARKING APPROVAL',
                           id: parking.inventoryBuildingId,
-                          subId: parking.inventoryFlatFloorBasementPodiumWingId,
+                          subId:
+                          parking.inventoryFlatFloorBasementPodiumWingId,
                           subSubId: parking.inventoryFloorId,
                           projectId: _project.projectId,
                           isApproved: true,
                           remark: val.trim(),
                         );
-                    if (context.mounted && isSuccess) {
-                      _parkingCubit.getParking(context, _project.projectId);
 
-                      _parkingCubit.handleWingTabChange(
-                        _wingTabController!.index,
-                        parking.wing,
-                      );
-                    }
-                  },
-                  onReject: (val) async {
-                    final isSuccess = await _loginCubit
-                        .updateModulesWorkflowApproval(
+                        if (context.mounted && isSuccess) {
+                          _parkingCubit.getParking(context, _project.projectId);
+                          _parkingCubit.handleWingTabChange(
+                            _wingTabController!.index,
+                            parking.wing,
+                          );
+                        }
+                      },
+                      onReject: (val) async {
+                        final isSuccess = await _loginCubit
+                            .updateModulesWorkflowApproval(
                           context: context,
                           moduleName: 'PARKING APPROVAL',
                           id: parking.inventoryBuildingId,
-                          subId: parking.inventoryFlatFloorBasementPodiumWingId,
+                          subId:
+                          parking.inventoryFlatFloorBasementPodiumWingId,
                           subSubId: parking.inventoryFloorId,
                           projectId: _project.projectId,
                           isApproved: false,
                           remark: val.trim(),
                         );
-                    if (context.mounted && isSuccess) {
-                      _parkingCubit.getParking(context, _project.projectId);
-                    }
-                  },
-                  onThirdTap: () async {
-                    final approvalLogHistoryList = await _loginCubit
-                        .getApprovalLogHistory(
+
+                        if (context.mounted && isSuccess) {
+                          _parkingCubit.getParking(context, _project.projectId);
+                        }
+                      },
+                      onThirdTap: () async {
+                        final approvalLogHistoryList =
+                        await _loginCubit.getApprovalLogHistory(
                           context: context,
                           projectId: _project.projectId,
                           id: parking.inventoryBuildingId,
-                          subId: parking.inventoryFlatFloorBasementPodiumWingId,
+                          subId:
+                          parking.inventoryFlatFloorBasementPodiumWingId,
                           subSubId: parking.inventoryFloorId,
                           moduleName: "PARKING APPROVAL",
                         );
 
-                    if (context.mounted) {
-                      goRouter.pushNamed(
-                        AppRoutes.approvalLogHistory,
-                        queryParameters: {
-                          "subTitle": Uri.encodeComponent(
-                            EncryptionManager.encryptData(
-                              "${parking.buildingNumber} > ${parking.wing} / ${parking.floor}",
-                            ),
-                          ),
-                          "title": Uri.encodeComponent(
-                            EncryptionManager.encryptData(
-                              "Parking Log History",
-                            ),
-                          ),
-                          "approvalList": Uri.encodeComponent(
-                            EncryptionManager.encryptData(
-                              jsonEncode(
-                                approvalLogHistoryList
-                                    .map((e) => e.toJson())
-                                    .toList(),
+                        if (context.mounted) {
+                          goRouter.pushNamed(
+                            AppRoutes.approvalLogHistory,
+                            queryParameters: {
+                              "subTitle": Uri.encodeComponent(
+                                EncryptionManager.encryptData(
+                                  "${parking.buildingNumber} > ${parking.wing} / ${parking.floor}",
+                                ),
                               ),
+                              "title": Uri.encodeComponent(
+                                EncryptionManager.encryptData(
+                                  "Parking Log History",
+                                ),
+                              ),
+                              "approvalList": Uri.encodeComponent(
+                                EncryptionManager.encryptData(
+                                  jsonEncode(
+                                    approvalLogHistoryList
+                                        .map((e) => e.toJson())
+                                        .toList(),
+                                  ),
+                                ),
+                              ),
+                            },
+                          );
+                        }
+                      },
+                    ),
+                    verticalSpacing(),
+                  ],
+
+                  /// EXPANDABLE CARD
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColor.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColor.grey.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        /// HEADER
+                        InkWell(
+                          onTap: () {
+                            final newSet = Set<String>.from(expandedSet);
+
+                            if (isExpanded) {
+                              newSet.remove(parkingKey);
+                            } else {
+                              newSet.add(parkingKey);
+                            }
+
+                            _expandedParking.value = newSet;
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment:
+                              MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Parking No: ${parking.parkingNumber}",
+                                        style: AppTextStyle.ts14M(),
+                                      ),
+                                      Text(
+                                        "Floor: ${parking.floor}",
+                                        style: AppTextStyle.ts12M(color: AppColor.grey),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(
+                                  isExpanded
+                                      ? Icons.keyboard_arrow_up
+                                      : Icons.keyboard_arrow_down,
+                                  color: AppColor.grey,
+                                ),
+                              ],
                             ),
                           ),
-                        },
-                      );
-                    }
-                  },
-                ),
-                verticalSpacing(),
-              ],
-              _buildParkingCard(filteredList[index], index),
-            ],
-          ),
+                        ),
+
+                        /// EXPAND CONTENT
+                        ClipRect(
+                          child: AnimatedSize(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                            alignment: Alignment.topCenter,
+                            child: isExpanded
+                                ? Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: _buildParkingCard(
+                                  parking, index), // your existing UI
+                            )
+                                : const SizedBox.shrink(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     );
@@ -488,7 +577,7 @@ class _ParkingScreenState extends State<ParkingScreen>
         statusColor = AppColor.green;
         break;
       case 'Booked':
-        statusColor = AppColor.red;
+        statusColor = AppColor.error;
         break;
       case 'Block':
       case 'Blocked':
@@ -497,9 +586,6 @@ class _ParkingScreenState extends State<ParkingScreen>
       case 'Hold':
         statusColor = AppColor.yellow;
         break;
-      case 'Member':
-        statusColor = AppColor.slightDarkBlue;
-        break;
       default:
         statusColor = AppColor.grey;
     }
@@ -507,70 +593,68 @@ class _ParkingScreenState extends State<ParkingScreen>
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColor.white,
+        color: statusColor.withValues(alpha: .08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          buildRowTitleValue(title: "Category", value: parking.parkingCategory,fixesWidth: 100),
+          buildRowTitleValue(title: "Type", value: parking.parkingType,fixesWidth: 100),
+          buildRowTitleValue(title: "EV Charging", value: parking.isEVChargingAvailable?"Yes":"No",fixesWidth: 100),
+          buildRowTitleValue(title: "Dimensions", value: parking.parkingDimensions,fixesWidth: 100),
+          buildRowTitleValue(title: "Size", value: parking.parkingSubType,fixesWidth: 100),
+          verticalSpacing(height: 8),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(
-                  parking.parkingNumber,
-                  style: AppTextStyle.ts16M(),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColor.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Center(
+                    child: Text(
+                      parking.parkingStatus,
+                      style: AppTextStyle.ts12M(color: statusColor),
+                    ),
+                  ),
+                ),
+              ),
+             if(parking.approvalStatus!="Approved")...[
+               horizontalSpacing(),
+               IconButton(onPressed: () async {
+                 await goRouter.pushNamed(
+                   AppRoutes.editParking,
+                   queryParameters: {
+                     'parking': Uri.encodeComponent(
+                       EncryptionManager.encryptData(
+                         jsonEncode(parking.toJson()),
+                       ),
+                     ),
+                     'index': index.toString(),
+                   },
+                 );
+               }, icon: Icon(Icons.edit,size: 20,))
+             ]
+            ],
+          ),
+          if (parking.ownerName.isNotEmpty) ...[
+            verticalSpacing(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Owner: ${parking.ownerName}',
+                  style: AppTextStyle.ts12R(color: AppColor.primary),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              CustomIconButton.edit(
-                onPressed: () async {
-                  await goRouter.pushNamed(
-                    AppRoutes.editParking,
-                    queryParameters: {
-                      'parking': Uri.encodeComponent(
-                        EncryptionManager.encryptData(
-                          jsonEncode(parking.toJson()),
-                        ),
-                      ),
-                      'index': index.toString(),
-                    },
-                  );
-                },
-              ),
-              horizontalSpacing(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  parking.parkingStatus,
-                  style: AppTextStyle.ts12M(color: statusColor),
-                ),
-              ),
-            ],
-          ),
-          verticalSpacing(height: 8),
-          if (parking.floor.isNotEmpty)
-            Text(
-              'Floor: ${parking.floor}',
-              style: AppTextStyle.ts12R(color: AppColor.grey),
-            ),
-          if (parking.ownerName.isNotEmpty) ...[
-            verticalSpacing(height: 4),
-            Text(
-              'Owner: ${parking.ownerName}',
-              style: AppTextStyle.ts12R(color: AppColor.grey),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+              ],
+            )
           ],
-          if (parking.parkingStatus == "Hold" ||
-              parking.parkingStatus == "Member")
+          if (parking.parkingStatus == "Hold" )
             Text(
               "Hold on ${formatDateTimeAsDDMMMYYYY(parking.modifiedDate!)} by ${parking.modifiedBy}",
               style: AppTextStyle.ts12R(),

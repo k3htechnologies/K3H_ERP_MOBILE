@@ -1,10 +1,15 @@
 
+import 'dart:convert';
+
 import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/core/models/modules_workflow_approval.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
+
+import 'local_storage_manager.dart';
 
 abstract interface class UtilsDatasource {
   Future<Map<String, dynamic>> apicallPullMenu({required int employeeId});
@@ -496,6 +501,14 @@ class UtilsDatasourceImpl implements UtilsDatasource {
     const String url = 'Static/PullCountryStateCityDistrictVillage';
 
     final response = await client.getRequestWithAuthentication(url);
+
+    final data = response['data']['CountryStateCityDistrictVillageData'];
+
+    /// STORE IN CACHE
+    await LocalStorageManager().setRawString(
+      StorageKey.addressMasterData,
+      jsonEncode(data),
+    );
 
     return response;
   }

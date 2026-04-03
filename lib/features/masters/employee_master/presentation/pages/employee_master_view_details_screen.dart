@@ -167,7 +167,7 @@ class _EmployeeMasterViewDetailsScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           verticalSpacing(),
-          // BASIC INFORMATION
+          // BASIC DETAILS
           Container(
             decoration: commonCardDecoration(),
             margin: EdgeInsets.only(bottom: 10),
@@ -226,6 +226,10 @@ class _EmployeeMasterViewDetailsScreenState
                     buildColumnTitleValue(
                       title: "Email ID",
                       value: user.emailId,
+                      customValueWidget: CustomClickToContactText(
+                        value: user.emailId,
+                        type: ContactType.email,
+                      ),
                     ),
                   ],
                 ),
@@ -241,12 +245,34 @@ class _EmployeeMasterViewDetailsScreenState
                       ),
                     ),
                     buildColumnTitleValue(
-                      title: "Email ID",
-                      value: user.emailId,
-                      customValueWidget: CustomClickToContactText(
-                        value: user.emailId,
-                        type: ContactType.email,
-                      ),
+                      title: "Aadhaar Card Number",
+                      value: user.aadharCardNumber,
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "PAN Number",
+                      value: user.panCardNumber,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Passport Number",
+                      value: user.passportNumber,
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Driving Licence Number",
+                      value: user.drivingLicenceNumber,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Voter Card Number",
+                      value: user.voterCardNumber,
                     ),
                   ],
                 ),
