@@ -414,7 +414,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
 
         await showSuccessMessage(
           context,
-          subTitle: 'Access Updated Successfully!!!',
+          subTitle: response['message'] ?? 'Permissions Saved Successfully',
         );
 
         // Show authorization dialog immediately after success message if needed
@@ -471,9 +471,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
             currentDesignationId: designationMasterId,
           ),
         );
-        if (context.mounted) {
-          getDesignationList(context, 1);
-        }
+        goRouter.pop();
       },
     );
   }

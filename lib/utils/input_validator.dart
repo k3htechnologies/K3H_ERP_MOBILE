@@ -251,6 +251,19 @@ class InputValidator {
     return cinRegex.hasMatch(input);
   }
 
+  static bool isValidTAN(String input) {
+    final tanRegex = RegExp(r'^[A-Z]{4}[0-9]{5}[A-Z]{1}$');
+    return tanRegex.hasMatch(input);
+  }
+
+  static List<TextInputFormatter> tanInputFormatters() {
+    return [
+      LengthLimitingTextInputFormatter(10),
+      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+      UpperCaseTextFormatter(),
+    ];
+  }
+
   static List<TextInputFormatter> aadhaarNumberInputFormatter() {
     return [
       FilteringTextInputFormatter.digitsOnly,

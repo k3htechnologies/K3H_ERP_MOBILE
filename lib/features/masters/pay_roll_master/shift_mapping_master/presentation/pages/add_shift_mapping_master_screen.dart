@@ -42,7 +42,7 @@ class _AddShiftMappingMasterScreenState
 
   // EMPLOYEE REPOSITORY
   final EmployeeMasterRepository _employeeMasterRepository =
-  serviceLocator<EmployeeMasterRepository>();
+      serviceLocator<EmployeeMasterRepository>();
 
   // DROPDOWN SELECTIONS
   List<Map<String, dynamic>> _selectedShift = [];
@@ -91,10 +91,7 @@ class _AddShiftMappingMasterScreenState
       final employeeId = int.parse(shiftMapping.employeeId);
 
       _selectedEmployeeNotifier.value = [
-        {
-          'zAttributesId': employeeId,
-          'DisplayName': shiftMapping.employeeName,
-        },
+        {'zAttributesId': employeeId, 'DisplayName': shiftMapping.employeeName},
       ];
 
       _fetchEmployeeDetailsForEdit(employeeId);
@@ -334,6 +331,7 @@ class _AddShiftMappingMasterScreenState
                                       ),
                                       padding: const EdgeInsets.all(16),
                                       child: Column(
+                                        spacing: 10,
                                         children: [
                                           Row(
                                             children: [
@@ -377,15 +375,15 @@ class _AddShiftMappingMasterScreenState
                                               buildColumnTitleValue(
                                                 title: "Email ID",
                                                 value:
-                                                selectedEmployee
-                                                    .first["emailId"] ??
+                                                    selectedEmployee
+                                                        .first["emailId"] ??
                                                     '',
                                               ),
                                               buildColumnTitleValue(
                                                 title: "Personal Mobile Number",
                                                 value:
-                                                selectedEmployee
-                                                    .first["personalMobileNumber"] ??
+                                                    selectedEmployee
+                                                        .first["personalMobileNumber"] ??
                                                     '',
                                               ),
                                             ],

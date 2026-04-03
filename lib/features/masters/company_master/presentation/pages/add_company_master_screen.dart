@@ -139,7 +139,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     _companyMasterAddCubit = BlocProvider.of<CompanyMasterAddCubit>(context);
     _selectedFirmsTypeNotifier = ValueNotifier(null);
     _initializeTextEditingControllers(widget.company);
-    if(_isEditMode) {
+    if (_isEditMode) {
       _prefillCompanyDetails(widget.company);
     }
   }
@@ -364,7 +364,8 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             children: [
               Flexible(
                 child: CustomButton(
-                  text: !_isEditMode ? 'Save' : 'Update',
+                  leading: Icon(_isEditMode ? Icons.edit : Icons.add, size: 16),
+                  text: !_isEditMode ? 'Add' : 'Update',
                   onPressed: _handleSubmit,
                   backgroundColor: AppColor.primary,
                 ),
@@ -541,6 +542,21 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             textController: _gstNumberC,
             title: "GST Number",
             hint: "Enter GST Number",
+            validator: (value) {
+              final hasFile = gstCertificateFile.fileNameList.isNotEmpty;
+
+              if (hasFile && (value == null || value.isEmpty)) {
+                return "GST Number is required";
+              }
+
+              if (value != null && value.isNotEmpty) {
+                if (!InputValidator.isValidGST(value)) {
+                  return "GST Number is invalid";
+                }
+              }
+
+              return null;
+            },
           ),
           CustomMultiFilePicker(
             maxFiles: 3,
@@ -556,12 +572,33 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
               gstCertificateFile.fileNameList = fileNameList;
               gstCertificateFile.deletedFileList = deletedUrl;
             },
+            validator: (fileList) {
+              if (_gstNumberC.text.trim().isNotEmpty &&
+                  (fileList == null || fileList.isEmpty)) {
+                return "GST Certificate document is required";
+              }
+              return null;
+            },
           ),
           CustomTextField(
             title: "PAN Number",
             hint: "Enter PAN Number",
             textController: _panNumberC,
             inputFormatterList: InputValidator.panInputFormatters(),
+            validator: (value) {
+              if (selectedPANCardFile.fileNameList.isNotEmpty &&
+                  (value == null || value.isEmpty)) {
+                return "PAN Number is required";
+              }
+
+              if (value != null && value.isNotEmpty) {
+                if (!InputValidator.isValidPAN(value)) {
+                  return "PAN Number is invalid";
+                }
+              }
+
+              return null;
+            },
           ),
           CustomMultiFilePicker(
             title: 'PAN Card',
@@ -576,12 +613,33 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
               selectedPANCardFile.fileBytesList = fileBytesList;
               selectedPANCardFile.deletedFileList = deletedFile;
             },
+            validator: (fileList) {
+              if (_panNumberC.text.trim().isNotEmpty &&
+                  (fileList == null || fileList.isEmpty)) {
+                return "PAN Card document is required";
+              }
+              return null;
+            },
           ),
           CustomTextField(
             title: "CIN Number",
             hint: "Enter CIN Number",
             textController: _cinNumberC,
             inputFormatterList: InputValidator.cinInputFormatters(),
+            validator: (value) {
+              if (cinPhotoFile.fileNameList.isNotEmpty &&
+                  (value == null || value.isEmpty)) {
+                return "CIN Number is required";
+              }
+
+              if (value != null && value.isNotEmpty) {
+                if (!InputValidator.isValidCIN(value)) {
+                  return "CIN Number is invalid";
+                }
+              }
+
+              return null;
+            },
           ),
           CustomMultiFilePicker(
             title: 'CIN',
@@ -596,12 +654,33 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
               cinPhotoFile.fileBytesList = fileBytesList;
               cinPhotoFile.deletedFileList = deletedFile;
             },
+            validator: (value) {
+              if (_cinNumberC.text.trim().isNotEmpty &&
+                  (value == null || value.isEmpty)) {
+                return "CIN document is required";
+              }
+              return null;
+            },
           ),
           CustomTextField(
             title: 'TAN Number',
             hint: "Enter TAN Number",
             textController: _tanNumberC,
-            inputFormatterList: InputValidator.reraInputFormatters(),
+            inputFormatterList: InputValidator.tanInputFormatters(),
+            validator: (value) {
+              if (selectedTANFile.fileNameList.isNotEmpty &&
+                  (value == null || value.isEmpty)) {
+                return "TAN Number is required";
+              }
+
+              if (value != null && value.isNotEmpty) {
+                if (!InputValidator.isValidTAN(value)) {
+                  return "TAN Number is invalid";
+                }
+              }
+
+              return null;
+            },
           ),
           CustomMultiFilePicker(
             title: 'TAN',
@@ -615,6 +694,13 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
               selectedTANFile.fileNameList = fileNameList;
               selectedTANFile.fileBytesList = fileBytesList;
               selectedTANFile.deletedFileList = deletedFile;
+            },
+            validator: (value) {
+              if (_tanNumberC.text.trim().isNotEmpty &&
+                  (value == null || value.isEmpty)) {
+                return "TAN document is required";
+              }
+              return null;
             },
           ),
         ],
@@ -761,7 +847,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       _companyMasterAddCubit.addCompanyMaster(
         context: context,
         companyName: _companyNameC.text.trim(),
-        firmsType: _selectedFirmsTypeNotifier.value?["DisplayName"]??"",
+        firmsType: _selectedFirmsTypeNotifier.value?["DisplayName"] ?? "",
         contactPerson: _contactPersonC.text.trim(),
         mobileNumber: _mobileNumberC.text,
         emailId: _emailIdC.text.trim(),

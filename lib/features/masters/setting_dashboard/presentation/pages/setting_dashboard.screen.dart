@@ -388,7 +388,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                       ),
                     ),
                     Text(
-                      table2?.materialWithoutSubMaterial.toString() ?? "0",
+                      table2?.pendingMaterialSetupCount.toString() ?? "0",
                       style: AppTextStyle.ts16SB(color: AppColor.orange),
                     ),
                   ],
@@ -631,7 +631,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                   Expanded(
                     child: _projectManagementChip(
                       title: "Company Type",
-                      value: 0,
+                      value: table5?.length ?? 0,
                       bgColor: AppColor.lightGreyBackground,
                       valueColor: AppColor.black,
                     ),
@@ -723,7 +723,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                       ],
                     ),
                     Text(
-                      table3?.missingDetails.toString() ?? "0",
+                      table3?.recentlyAddedVendors.toString() ?? "0",
                       style: AppTextStyle.ts16SB(color: AppColor.purple),
                     ),
                   ],

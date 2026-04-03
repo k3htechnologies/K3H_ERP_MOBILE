@@ -233,9 +233,10 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
               ),
               if (_routeAuthorizationModel.isAction) ...[
                 CustomIconButton.edit(
-                  isDisabled: document.projectDocumentApprovalStatus
-                      .toLowerCase()
-                      .contains('approved'),
+                  isDisabled:
+                      !document.projectDocumentApprovalStatus
+                          .toLowerCase()
+                          .contains('pending'),
                   onPressed: () {
                     goRouter.pushNamed(
                       AppRoutes.addDocument,

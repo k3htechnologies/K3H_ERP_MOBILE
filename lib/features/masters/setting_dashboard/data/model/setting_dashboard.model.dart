@@ -134,22 +134,22 @@ class Table1 {
 class Table2 {
   final int totalMaterial;
   final int totalSubMaterial;
-  final int materialWithoutSubMaterial;
+  final int pendingMaterialSetupCount;
   final int uom;
 
   Table2({
     required this.totalMaterial,
     required this.totalSubMaterial,
-    required this.materialWithoutSubMaterial,
+    required this.pendingMaterialSetupCount,
     required this.uom,
   });
 
   factory Table2.fromJson(Map<String, dynamic> json) => Table2(
     totalMaterial: parseValue<int>(json, "TotalMaterial"),
     totalSubMaterial: parseValue<int>(json, "TotalSubMaterial"),
-    materialWithoutSubMaterial: parseValue<int>(
+    pendingMaterialSetupCount: parseValue<int>(
       json,
-      "MaterialWithoutSubMaterial",
+      "PendingMaterialSetupCount",
     ),
     uom: parseValue<int>(json, "UOM"),
   );
@@ -157,7 +157,7 @@ class Table2 {
   Map<String, dynamic> toJson() => {
     "TotalMaterial": totalMaterial,
     "TotalSubMaterial": totalSubMaterial,
-    "MaterialWithoutSubMaterial": materialWithoutSubMaterial,
+    "PendingMaterialSetupCount": pendingMaterialSetupCount,
     "UOM": uom,
   };
 }

@@ -47,12 +47,11 @@ class _AddLeaveCreditConfigurationMasterScreenState
 
   // DEPARTMENT REPOSITORY
   final DepartmentMasterRepository _departmentMasterRepository =
-  serviceLocator<DepartmentMasterRepository>();
+      serviceLocator<DepartmentMasterRepository>();
 
   // DESECTINATION REPOSITORY
   final DesignationMasterRepository _designationMasterRepository =
-  serviceLocator<DesignationMasterRepository>();
-
+      serviceLocator<DesignationMasterRepository>();
 
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -112,21 +111,18 @@ class _AddLeaveCreditConfigurationMasterScreenState
         },
       ];
 
-
-
-      if ((model.designationId).isNotEmpty &&
-          model.designationId != "0") {
+      if ((model.designationId).isNotEmpty && model.designationId != "0") {
         final designationIds = model.designationId.split(',');
         final designationNames = model.designationName.split(',');
 
         _selectedDesignationNotifier.value = List.generate(
           designationIds.length,
-              (index) => {
+          (index) => {
             "zAttributesId": int.tryParse(designationIds[index].trim()) ?? 0,
             "DisplayName":
-            designationNames.length > index
-                ? designationNames[index].trim()
-                : "",
+                designationNames.length > index
+                    ? designationNames[index].trim()
+                    : "",
           },
         );
       } else {
@@ -147,67 +143,66 @@ class _AddLeaveCreditConfigurationMasterScreenState
 
   // FETCH DEPARTMENT
   Future<Map<String, dynamic>> _fetchDepartment(
-      int pageNumber, {
-        String? value,
-      }) async {
+    int pageNumber, {
+    String? value,
+  }) async {
     final result = await _departmentMasterRepository.getDepartmentList(
       pageNumber: pageNumber,
       pageSize: 15,
       queryParams:
-      value != null && value.isNotEmpty ? {"DepartmentName": value} : {},
+          value != null && value.isNotEmpty ? {"DepartmentName": value} : {},
     );
 
     return result.fold(
-          (failure) => {
+      (failure) => {
         "itemList": <Map<String, dynamic>>[],
         "totalNumberOfRecord": 0,
       },
-          (response) {
+      (response) {
         final departments = response['data'] as List<DepartmentModel>;
 
         return {
           "itemList":
-          departments.map((department) {
-            return {
-              "zAttributesId": department.departmentMasterId,
-              "DisplayName": department.departmentName,
-            };
-          }).toList(),
+              departments.map((department) {
+                return {
+                  "zAttributesId": department.departmentMasterId,
+                  "DisplayName": department.departmentName,
+                };
+              }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
       },
     );
   }
 
-
   // FETCH DESIGNATION
   Future<Map<String, dynamic>> _fetchDesignation(
-      int pageNumber, {
-        String? value,
-      }) async {
+    int pageNumber, {
+    String? value,
+  }) async {
     final result = await _designationMasterRepository.getDesignationList(
       pageNumber: pageNumber,
       pageSize: 15,
       queryParams:
-      value != null && value.isNotEmpty ? {"DesignationName": value} : {},
+          value != null && value.isNotEmpty ? {"DesignationName": value} : {},
     );
 
     return result.fold(
-          (failure) => {
+      (failure) => {
         "itemList": <Map<String, dynamic>>[],
         "totalNumberOfRecord": 0,
       },
-          (response) {
+      (response) {
         final designations = response['data'] as List<DesignationMasterModel>;
 
         return {
           "itemList":
-          designations.map((designation) {
-            return {
-              "zAttributesId": designation.designationMasterId,
-              "DisplayName": designation.designationName,
-            };
-          }).toList(),
+              designations.map((designation) {
+                return {
+                  "zAttributesId": designation.designationMasterId,
+                  "DisplayName": designation.designationName,
+                };
+              }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
       },
@@ -292,6 +287,7 @@ class _AddLeaveCreditConfigurationMasterScreenState
                       },
                     ),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: ValueListenableBuilder<DateTime?>(

@@ -683,10 +683,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                       ),
                       hasError
                           ? Container(
-                            padding: const EdgeInsets.only(
-                              left: 12.0,
-                              top: 4.0,
-                            ),
+                            padding: const EdgeInsets.only(left: 6.0, top: 4.0),
                             margin: const EdgeInsets.only(bottom: 10.0),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,

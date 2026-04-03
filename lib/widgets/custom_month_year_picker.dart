@@ -302,7 +302,7 @@ class _CustomMonthYearPickerState extends State<CustomMonthYearPicker> {
 
             if (hasError)
               Container(
-                padding: const EdgeInsets.only(left: 12, top: 4),
+                padding: const EdgeInsets.only(left: 6, top: 4),
                 margin: const EdgeInsets.only(bottom: 10),
                 child: Row(
                   children: [

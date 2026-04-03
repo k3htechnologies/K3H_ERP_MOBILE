@@ -195,7 +195,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       return null;
                     },
                   ),
-                  verticalSpacing(height: 30),
+                  verticalSpacing(height: 10),
                   CustomButton(
                     leading: Icon(
                       isUpdate ? Icons.edit : Icons.add,
@@ -333,7 +333,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       return null;
                     },
                   ),
-                  verticalSpacing(height: 30),
+                  verticalSpacing(height: 10),
                   CustomButton(
                     leading: Icon(
                       isUpdate ? Icons.edit : Icons.add,
@@ -1085,6 +1085,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   {'label': 'State', 'value': overview.stateName},
                   {'label': 'District', 'value': overview.districtName},
                   {'label': 'City', 'value': overview.cityName},
+                  {'label': 'Village', 'value': overview.villageName},
                 ],
               ),
               verticalSpacing(),

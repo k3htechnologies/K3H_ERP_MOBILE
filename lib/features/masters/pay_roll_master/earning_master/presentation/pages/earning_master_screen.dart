@@ -204,7 +204,8 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: "Earning",
+        screenTitle: "Earning Master",
+        searchHintText: "Search By Earning Name",
         authorization: _routeAuthorizationModel,
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addEarningMaster);
@@ -347,7 +348,7 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
                       buildRowTitleValue(title: "Type", value: earning.type),
                       buildRowTitleValue(
                         title: "Value",
-                        value: "₹ ${earning.value}",
+                        value: "${earning.value} %",
                       ),
                       buildRowTitleValue(
                         title: "Branch Name",

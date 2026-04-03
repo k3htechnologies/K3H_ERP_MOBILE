@@ -139,8 +139,7 @@ class _ModuleAccessScreenState extends State<ModuleAccessScreen> {
           height: 60,
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: CustomButton(
-            leading: Icon(Icons.edit, size: 16, color: AppColor.white),
-            text: 'Update',
+            text: 'Save',
             onPressed: () async {
               await _designationMasterCubit.updateModulesPermissions(
                 designationMasterId: widget.designation.designationMasterId,

@@ -154,7 +154,7 @@ class CustomTextField extends StatelessWidget {
                   margin: EdgeInsets.only(bottom: 10),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Icon(Icons.info_outline, color: AppColor.error, size: 14),
                       horizontalSpacing(width: 5),

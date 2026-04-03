@@ -230,6 +230,10 @@ class _ViewApprovalDocumentScreenState
               ),
               if (_routeAuthorizationModel.isAction) ...[
                 CustomIconButton.edit(
+                  isDisabled:
+                      !document.approvalDocumentApprovalStatus
+                          .toLowerCase()
+                          .contains('pending'),
                   onPressed: () {
                     goRouter.pushNamed(
                       AppRoutes.addApprovalDocument,
