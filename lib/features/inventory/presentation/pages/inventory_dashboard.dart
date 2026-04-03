@@ -68,89 +68,133 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
             }
             final inventoryDashboardData = state.inventoryDashboardModelList;
             return SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
+                  // SELECTED PROJECT TEXT PROJECT CUSTOM TEXT FIELD (ONLY DISPLAY)
+                  CustomTextField(
+                    readOnly: true,
+                    textController: TextEditingController(
+                      text:
+                          (_selectedProject.projectName.isEmpty ||
+                                  _selectedProject.projectName.toLowerCase() ==
+                                      "default")
+                              ? "No Project Selected"
+                              : _selectedProject.projectName,
+                    ),
+                    hint: 'Select Project',
+                  ),
+                  // GENERATE REPORT AND ADD BUTTON
+                  if (_selectedProject.projectId != 0) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            vertical: 5.0,
+                            horizontal: 12.0,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(6.0),
+                            color: AppColor.lightBlue,
+                          ),
+                          child: Row(
+                            children: [
+                              SvgPicture.asset(
+                                AppAssets.generateReportIcon,
+                                width: 16,
+                                height: 16,
+                              ),
+                              horizontalSpacing(),
+                              Text(
+                                "Generate Report",
+                                style: AppTextStyle.ts14M(
+                                  color: AppColor.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (_routeAuthorizationModel.isAction) ...[
+                          horizontalSpacing(width: 20.0),
+                          CustomButton(
+                            leading: Icon(
+                              Icons.add,
+                              size: 18,
+                              color: AppColor.white,
+                            ),
+                            text: "Add Inventory",
+                            onPressed: () {
+                              goRouter.pushNamed(AppRoutes.inventory);
+                            },
+                          ),
+                        ],
+                      ],
+                    ),
+                  ] else ...[
+                    SizedBox.shrink(),
+                  ],
+                  verticalSpacing(),
+                  // TOTOAL BUILDING COUNT WIDGET
+                  Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 20.0,
-                      vertical: 20,
+                      horizontal: 16.0,
+                      vertical: 16.0,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.0),
+                      color: AppColor.white,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // SELECTED PROJECT TEXT PROJECT CUSTOM TEXT FIELD (ONLY DISPLAY)
-                        CustomTextField(
-                          readOnly: true,
-                          textController: TextEditingController(
-                            text:
-                            (_selectedProject.projectName.isEmpty ||
-                                _selectedProject.projectName
-                                    .toLowerCase() ==
-                                    "default")
-                                ? "No Project Selected"
-                                : _selectedProject.projectName,
-                          ),
-                          hint: 'Select Project',
-                        ),
-                        // GENERATE REPORT AND ADD BUTTON
-                        if (_selectedProject.projectId != 0) ...[
-                          Row(
-                            mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: 5.0,
-                                  horizontal: 12.0,
-                                ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(6.0),
-                                  color: AppColor.lightBlue,
-                                ),
-                                child: Row(
-                                  children: [
-                                    SvgPicture.asset(
-                                      AppAssets.generateReportIcon,
-                                      width: 16,
-                                      height: 16,
-                                    ),
-                                    horizontalSpacing(),
-                                    Text(
-                                      "Generate Report",
-                                      style: AppTextStyle.ts14M(
-                                        color: AppColor.primary,
+                        Row(
+                          children: [
+                            SvgPicture.asset(
+                              AppAssets.totalBuildingsIcon,
+                              width: 30,
+                              height: 30,
+                            ),
+                            horizontalSpacing(width: 16.0),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Total Buildings",
+                                    style: AppTextStyle.ts14M(
+                                      color: AppColor.black.withValues(
+                                        alpha: 0.5,
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                              if (_routeAuthorizationModel.isAction) ...[
-                                horizontalSpacing(width: 20.0),
-                                Expanded(
-                                  child: CustomButton(
-                                    leading: Icon(
-                                      Icons.add,
-                                      size: 18,
-                                      color: AppColor.white,
-                                    ),
-                                    text: "Inventory",
-                                    onPressed: () {
-                                      goRouter.pushNamed(
-                                        AppRoutes.inventory,
-                                      );
-                                    },
                                   ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ] else ...[
-                          SizedBox.shrink(),
-                        ],
-                        verticalSpacing(),
-                        // TOTOAL BUILDING COUNT WIDGET
-                        Container(
+                                  Text(
+                                    inventoryDashboardData
+                                        .first
+                                        .table0
+                                        .first
+                                        .totalBuilding
+                                        .toString(),
+                                    style: AppTextStyle.ts20SB(
+                                      color: AppColor.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  verticalSpacing(),
+                  // BASEMENT AND PODIUM COUNT WIDGET
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Container(
                           padding: EdgeInsets.symmetric(
                             horizontal: 16.0,
                             vertical: 16.0,
@@ -165,7 +209,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                               Row(
                                 children: [
                                   SvgPicture.asset(
-                                    AppAssets.totalBuildingsIcon,
+                                    AppAssets.basementIcon,
                                     width: 30,
                                     height: 30,
                                   ),
@@ -173,13 +217,185 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "Total Buildings",
+                                          "Basement",
                                           style: AppTextStyle.ts14M(
-                                            color: AppColor.black
-                                                .withValues(alpha: 0.5),
+                                            color: AppColor.black.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          inventoryDashboardData
+                                              .first
+                                              .table0
+                                              .first
+                                              .totalBasement
+                                              .toString(),
+                                          style: AppTextStyle.ts20SB(
+                                            color: AppColor.black,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      horizontalSpacing(),
+                      Expanded(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 16.0,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.0),
+                            color: AppColor.white,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    AppAssets.podiumIcon,
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                  horizontalSpacing(width: 16.0),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Podium",
+                                          style: AppTextStyle.ts14M(
+                                            color: AppColor.black.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          inventoryDashboardData
+                                              .first
+                                              .table0
+                                              .first
+                                              .totalPodium
+                                              .toString(),
+                                          style: AppTextStyle.ts20SB(
+                                            color: AppColor.black,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  verticalSpacing(),
+                  // WINGS AND FLOORS COUNT WIDGET
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 16.0,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.0),
+                            color: AppColor.white,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    AppAssets.wingsIcon,
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                  horizontalSpacing(width: 16.0),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Wings",
+                                          style: AppTextStyle.ts14M(
+                                            color: AppColor.black.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          inventoryDashboardData
+                                              .first
+                                              .table0
+                                              .first
+                                              .totalWings
+                                              .toString(),
+                                          style: AppTextStyle.ts20SB(
+                                            color: AppColor.black,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      horizontalSpacing(),
+                      Expanded(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 16.0,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.0),
+                            color: AppColor.white,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    AppAssets.groundIcon,
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                  horizontalSpacing(width: 16.0),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Ground",
+                                          style: AppTextStyle.ts14M(
+                                            color: AppColor.black.withValues(
+                                              alpha: 0.5,
+                                            ),
                                           ),
                                         ),
                                         Text(
@@ -201,261 +417,21 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                             ],
                           ),
                         ),
-                        verticalSpacing(),
-                        // BASEMENT AND PODIUM COUNT WIDGET
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 16.0,
-                                  vertical: 16.0,
-                                ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  color: AppColor.white,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        SvgPicture.asset(
-                                          AppAssets.basementIcon,
-                                          width: 30,
-                                          height: 30,
-                                        ),
-                                        horizontalSpacing(width: 16.0),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "Basement",
-                                                style: AppTextStyle.ts14M(
-                                                  color: AppColor.black
-                                                      .withValues(
-                                                    alpha: 0.5,
-                                                  ),
-                                                ),
-                                              ),
-                                              Text(
-                                                inventoryDashboardData
-                                                    .first
-                                                    .table0
-                                                    .first
-                                                    .totalBasement
-                                                    .toString(),
-                                                style: AppTextStyle.ts20SB(
-                                                  color: AppColor.black,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            horizontalSpacing(),
-                            Expanded(
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 16.0,
-                                  vertical: 16.0,
-                                ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  color: AppColor.white,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        SvgPicture.asset(
-                                          AppAssets.podiumIcon,
-                                          width: 30,
-                                          height: 30,
-                                        ),
-                                        horizontalSpacing(width: 16.0),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "Podium",
-                                                style: AppTextStyle.ts14M(
-                                                  color: AppColor.black
-                                                      .withValues(
-                                                    alpha: 0.5,
-                                                  ),
-                                                ),
-                                              ),
-                                              Text(
-                                                inventoryDashboardData
-                                                    .first
-                                                    .table0
-                                                    .first
-                                                    .totalPodium
-                                                    .toString(),
-                                                style: AppTextStyle.ts20SB(
-                                                  color: AppColor.black,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        verticalSpacing(),
-                        // WINGS AND FLOORS COUNT WIDGET
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 16.0,
-                                  vertical: 16.0,
-                                ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  color: AppColor.white,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        SvgPicture.asset(
-                                          AppAssets.wingsIcon,
-                                          width: 30,
-                                          height: 30,
-                                        ),
-                                        horizontalSpacing(width: 16.0),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "Wings",
-                                                style: AppTextStyle.ts14M(
-                                                  color: AppColor.black
-                                                      .withValues(
-                                                    alpha: 0.5,
-                                                  ),
-                                                ),
-                                              ),
-                                              Text(
-                                                inventoryDashboardData
-                                                    .first
-                                                    .table0
-                                                    .first
-                                                    .totalWings
-                                                    .toString(),
-                                                style: AppTextStyle.ts20SB(
-                                                  color: AppColor.black,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            horizontalSpacing(),
-                            Expanded(
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 16.0,
-                                  vertical: 16.0,
-                                ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  color: AppColor.white,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        SvgPicture.asset(
-                                          AppAssets.groundIcon,
-                                          width: 30,
-                                          height: 30,
-                                        ),
-                                        horizontalSpacing(width: 16.0),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "Ground",
-                                                style: AppTextStyle.ts14M(
-                                                  color: AppColor.black
-                                                      .withValues(
-                                                    alpha: 0.5,
-                                                  ),
-                                                ),
-                                              ),
-                                              Text(
-                                                inventoryDashboardData
-                                                    .first
-                                                    .table0
-                                                    .first
-                                                    .totalBuilding
-                                                    .toString(),
-                                                style: AppTextStyle.ts20SB(
-                                                  color: AppColor.black,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        verticalSpacing(),
-                        // UNIT STATUS DISTRIBUTION WIDGET
-                        _buildUnitStatusDistributionWidget(context),
-                        verticalSpacing(),
-                        // PARKING DISTRIBUTION WIDGET
-                        _buildParkingDistributionWidget(context),
-                        verticalSpacing(),
-                        // BUILDING OVERVIEW WIDGET
-                        _buildBuildingOverviewWidget(context),
-                        verticalSpacing(),
-                        // ATLERT WIDGET
-                        _buildAlertsWidget(context),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
+                  verticalSpacing(),
+                  // UNIT STATUS DISTRIBUTION WIDGET
+                  _buildUnitStatusDistributionWidget(context),
+                  verticalSpacing(),
+                  // PARKING DISTRIBUTION WIDGET
+                  _buildParkingDistributionWidget(context),
+                  verticalSpacing(),
+                  // BUILDING OVERVIEW WIDGET
+                  _buildBuildingOverviewWidget(context),
+                  verticalSpacing(),
+                  // ATLERT WIDGET
+                  _buildAlertsWidget(context),
                 ],
               ),
             );
@@ -496,59 +472,64 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
               verticalSpacing(height: 20),
               if (table0 != null) ...[
                 CommonRadialChart(
-                  items: [
-                    RadialChartItem(
-                      title: "Blocked Units",
-                      value:
-                          state
-                              .inventoryDashboardModel!
-                              .table0
-                              .first
-                              .blockedFlats,
-                      color: AppColor.black.withValues(alpha: 0.5),
-                    ),
-                    RadialChartItem(
-                      title: "Member Units",
-                      value:
-                          state
-                              .inventoryDashboardModel!
-                              .table0
-                              .first
-                              .allotedFlats,
-                      color: AppColor.purple,
-                    ),
-                    RadialChartItem(
-                      title: "Booked Units",
-                      value:
-                          state
-                              .inventoryDashboardModel!
-                              .table0
-                              .first
-                              .bookedFlats,
-                      color: AppColor.error,
-                    ),
-                    RadialChartItem(
-                      title: "Hold Units",
-                      value:
-                          state.inventoryDashboardModel!.table0.first.holdFlats,
-                      color: AppColor.yellow,
-                    ),
-                    RadialChartItem(
-                      title: "Available Units",
-                      value:
-                          state
-                              .inventoryDashboardModel!
-                              .table0
-                              .first
-                              .availableFlats,
-                      color: AppColor.green,
-                    ),
-                  ],
+                  items:
+                      [
+                        RadialChartItem(
+                          title: "Blocked Units",
+                          value:
+                              state
+                                  .inventoryDashboardModel!
+                                  .table0
+                                  .first
+                                  .blockedFlats,
+                          color: AppColor.black.withValues(alpha: 0.5),
+                        ),
+                        RadialChartItem(
+                          title: "Member Units",
+                          value:
+                              state
+                                  .inventoryDashboardModel!
+                                  .table0
+                                  .first
+                                  .allotedFlats,
+                          color: AppColor.purple,
+                        ),
+                        RadialChartItem(
+                          title: "Booked Units",
+                          value:
+                              state
+                                  .inventoryDashboardModel!
+                                  .table0
+                                  .first
+                                  .bookedFlats,
+                          color: AppColor.error,
+                        ),
+                        RadialChartItem(
+                          title: "Hold Units",
+                          value:
+                              state
+                                  .inventoryDashboardModel!
+                                  .table0
+                                  .first
+                                  .holdFlats,
+                          color: AppColor.yellow,
+                        ),
+                        RadialChartItem(
+                          title: "Available Units",
+                          value:
+                              state
+                                  .inventoryDashboardModel!
+                                  .table0
+                                  .first
+                                  .availableFlats,
+                          color: AppColor.green,
+                        ),
+                      ].where((e) => e.value > 0).toList(),
                 ),
               ] else ...[
                 Center(
                   child: Text(
-                    "No Unit Status Distribution Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: 0.50),
                     ),
@@ -662,7 +643,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                 Expanded(
                   child: Center(
                     child: Text(
-                      "No Parking Distribution Available",
+                      "No Data Found",
                       style: AppTextStyle.ts12M(
                         color: AppColor.black.withValues(alpha: 0.50),
                       ),
@@ -694,7 +675,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
             children: [
               Text(
                 title,
-                style: AppTextStyle.ts16M(
+                style: AppTextStyle.ts14M(
                   color: AppColor.black.withValues(alpha: 0.7),
                 ),
               ),
@@ -778,7 +759,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                             buildingOverview.building,
                             style: AppTextStyle.ts14SB(),
                           ),
-                          verticalSpacing(height: 20.0),
+                          verticalSpacing(),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -788,10 +769,12 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                     buildingOverview.basement.toString(),
                                     "Basement",
                                   ),
+                                  horizontalSpacing(),
                                   _buildOverviewItem(
                                     buildingOverview.podiums.toString(),
                                     "Podiums",
                                   ),
+                                  horizontalSpacing(),
                                   _buildOverviewItem(
                                     buildingOverview.wings.toString(),
                                     "Wings",
@@ -800,15 +783,20 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                               ),
                               verticalSpacing(height: 20),
                               Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   _buildOverviewItem(
                                     buildingOverview.floors.toString(),
                                     "Floor",
                                   ),
+                                  horizontalSpacing(),
                                   _buildOverviewItem(
                                     buildingOverview.units.toString(),
                                     "Units",
                                   ),
+                                  horizontalSpacing(),
                                   _buildOverviewItem(
                                     buildingOverview.parking.toString(),
                                     "Parkings",
@@ -825,7 +813,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
               ] else ...[
                 Center(
                   child: Text(
-                    "No Building Overview Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: 0.50),
                     ),
@@ -842,6 +830,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
   Widget _buildOverviewItem(String value, String label) {
     return Expanded(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
@@ -849,7 +838,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
               color: AppColor.black.withValues(alpha: 0.50),
             ),
           ),
-          const SizedBox(height: 4),
+          verticalSpacing(height: 4),
           Text(value, style: AppTextStyle.ts14M()),
         ],
       ),
@@ -911,7 +900,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                           children: [
                             Text(
                               alerts.buildingName,
-                              style: AppTextStyle.ts16M(),
+                              style: AppTextStyle.ts14M(),
                             ),
                             Text(alerts.issue, style: AppTextStyle.ts14R()),
                           ],
@@ -923,7 +912,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
               ] else ...[
                 Center(
                   child: Text(
-                    "No Alerts Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: 0.50),
                     ),

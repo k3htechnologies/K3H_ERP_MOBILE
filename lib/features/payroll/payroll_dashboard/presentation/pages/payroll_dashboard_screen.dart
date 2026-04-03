@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/dashboard/presentation/pages/dashboard_screen.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_dashboard/data/model/payroll_dashboard_model.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_dashboard/presentation/cubit/payroll_dashboard_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -28,13 +29,9 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
   // CUBIT
   late PayrollDashboardCubit _payrollDashboardCubit;
 
-  // TEXT CONTROLLER
-  late TextEditingController _searchC;
-
   @override
   void initState() {
     super.initState();
-    _searchC = TextEditingController();
     _payrollDashboardCubit = context.read<PayrollDashboardCubit>();
     final now = DateTime.now();
     final start = DateTime(now.year, now.month, now.day);
@@ -42,10 +39,10 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
     _payrollDashboardCubit.getPayrollDashboardList(context, 1, 10, start, end);
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _searchC.dispose();
+  String _getInitials(String name) {
+    final parts = name.trim().split(" ");
+    if (parts.length == 1) return parts.first[0].toUpperCase();
+    return (parts[0][0] + parts[1][0]).toUpperCase();
   }
 
   @override
@@ -101,12 +98,16 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
   // OVERVIEW
   Widget _overview(PayrollDashboardState state) {
     final table0 = state.payrollDashboardModel?.table0;
+    final table1 = state.payrollDashboardModel?.table1;
+    final table3 = state.payrollDashboardModel?.table3;
 
-    if (table0 == null || table0.isEmpty) {
+    if ((table0 == null || table0.isEmpty) &&
+        (table1 == null || table1.isEmpty) &&
+        (table3 == null || table3.isEmpty)) {
       return const SizedBox();
     }
 
-    final data = table0.first;
+    final data = table0?.first;
     int getLateInCount(List<Table6> list) {
       return list
           .where((e) => e.attendanceStatus.trim().toLowerCase() == "late in")
@@ -116,17 +117,18 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
     final table6 = state.payrollDashboardModel?.table6 ?? [];
 
     final lateInCount = getLateInCount(table6);
-
+    final avatarLeaveNames =
+        table1?.map((e) => e.fullName).where((e) => e.isNotEmpty).toList();
+    final avatarOutdoorNames =
+        table3?.map((e) => e.createdBy).where((e) => e.isNotEmpty).toList();
     return Column(
-      spacing: 10,
       children: [
         Row(
-          spacing: 10,
           children: [
             Expanded(
               child: _overviewCard(
                 title: "On Leave Today",
-                value: data.onLeave.toString(),
+                value: data?.onLeave.toString() ?? "00",
                 icon: SvgPicture.asset(
                   AppAssets.payrollOnLeaveIcon,
                   height: 16,
@@ -134,12 +136,17 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                 ),
                 iconColor: AppColor.error,
                 backgroundColor: AppColor.lightRed.withValues(alpha: .5),
+                avatarNames: avatarLeaveNames,
+                onTap: () {
+                  goRouter.pushNamed(AppRoutes.payrollReport);
+                },
               ),
             ),
+            horizontalSpacing(),
             Expanded(
               child: _overviewCard(
                 title: "Outdoor Today",
-                value: data.outdoor.toString(),
+                value: data?.outdoor.toString() ?? "00",
                 icon: SvgPicture.asset(
                   AppAssets.locationIcon,
                   height: 16,
@@ -151,17 +158,21 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                 ),
                 iconColor: AppColor.yellow,
                 backgroundColor: AppColor.lightYellow.withValues(alpha: .5),
+                avatarNames: avatarOutdoorNames,
+                onTap: () {
+                  goRouter.pushNamed(AppRoutes.payrollReport);
+                },
               ),
             ),
           ],
         ),
+        verticalSpacing(),
         Row(
-          spacing: 10,
           children: [
             Expanded(
               child: _overviewCard(
                 title: "Pending Approval",
-                value: data.pendingApproval.toString(),
+                value: data?.pendingApproval.toString() ?? "00",
                 icon: SvgPicture.asset(
                   AppAssets.regularizeIcon,
                   height: 18,
@@ -169,8 +180,13 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                 ),
                 iconColor: AppColor.darkGreen,
                 backgroundColor: AppColor.lightGreen.withValues(alpha: .5),
+                actionText: "View Pending List",
+                onTap: () {
+                  goRouter.pushNamed(AppRoutes.payrollReport);
+                },
               ),
             ),
+            horizontalSpacing(),
             Expanded(
               child: _overviewCard(
                 title: "Attendance Alert",
@@ -182,6 +198,10 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                 ),
                 iconColor: AppColor.purple,
                 backgroundColor: AppColor.purple20.withValues(alpha: .08),
+                actionText: "Late Logins",
+                onTap: () {
+                  goRouter.pushNamed(AppRoutes.payrollReport);
+                },
               ),
             ),
           ],
@@ -197,34 +217,113 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
     required Widget icon,
     required Color iconColor,
     required Color backgroundColor,
+    List<String>? avatarNames,
+    String? actionText,
     VoidCallback? onTap,
   }) {
     return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16.0),
       decoration: commonCardDecoration(),
-      padding: const EdgeInsets.all(10),
       child: Column(
-        spacing: 10,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppTextStyle.ts14M()),
+          Text(
+            title,
+            style: AppTextStyle.ts14M(
+              color: AppColor.black.withValues(alpha: 0.5),
+            ),
+          ),
+          verticalSpacing(),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(value, style: AppTextStyle.ts20SB()),
-              CustomIconButton(
-                onPressed: onTap ?? () {},
-                icon: icon,
-                backgroundColor: backgroundColor,
+              Text(value.padLeft(2, '0'), style: AppTextStyle.ts20SB()),
+              horizontalSpacing(),
+              Container(
+                height: 24,
+                width: 24,
+                padding: EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: icon,
               ),
             ],
           ),
+          verticalSpacing(),
+          if (avatarNames != null && avatarNames.isNotEmpty) ...[
+            GestureDetector(
+              onTap: onTap,
+              child: SizedBox(
+                height: 32,
+                child: Stack(
+                  children: List.generate(
+                    avatarNames.length > 3 ? 3 : avatarNames.length,
+                    (index) {
+                      final name = avatarNames[index];
+
+                      return Positioned(
+                        left: index * 18.0,
+                        child: CircleAvatar(
+                          radius: 16,
+                          backgroundColor: AppColor.primary.withValues(
+                            alpha: 0.2,
+                          ),
+                          child: Text(
+                            _getInitials(name),
+                            style: AppTextStyle.ts12M(color: AppColor.primary),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ] else if (actionText != null) ...[
+            GestureDetector(
+              onTap: onTap,
+              child: Text(
+                actionText,
+                style: AppTextStyle.ts10R(color: AppColor.primary),
+              ),
+            ),
+          ],
         ],
       ),
     );
   }
 
-  // QUICK ACTION
+  // QUICK ACTIONS
   Widget _quickAction() {
+    final actions = [
+      QuickActionItem(
+        icon: SvgPicture.asset(AppAssets.applyLeaveIcon),
+        text: "Apply Leave",
+        backgroundColor: AppColor.lightBlue,
+        onTap: () {
+          goRouter.pushNamed(AppRoutes.applyLeave);
+        },
+      ),
+      QuickActionItem(
+        icon: SvgPicture.asset(AppAssets.regularizeIcon),
+        text: "Request Comp-off",
+        backgroundColor: AppColor.lightGreen,
+        onTap: () {
+          goRouter.pushNamed(AppRoutes.addCompOff);
+        },
+      ),
+      QuickActionItem(
+        icon: SvgPicture.asset(AppAssets.addOutdoorIcon),
+        text: "Add Outdoor",
+        backgroundColor: AppColor.primary.withValues(alpha: 0.22),
+        onTap: () {
+          goRouter.pushNamed(AppRoutes.addOutdoor);
+        },
+      ),
+    ];
     return Container(
       margin: EdgeInsets.only(bottom: 10),
       decoration: commonCardDecoration(),
@@ -233,78 +332,63 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
         spacing: 15,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Quick Action", style: AppTextStyle.ts14M()),
+          Text("Quick Actions", style: AppTextStyle.ts14M()),
+          verticalSpacing(),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Flexible(
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    CustomIconButton(
-                      onPressed: () {
-                        goRouter.pushNamed(AppRoutes.applyLeave);
-                      },
-                      icon: SvgPicture.asset(
-                        AppAssets.applyLeaveIcon,
-                        height: 16,
-                        width: 16,
-                        colorFilter: ColorFilter.mode(
-                          AppColor.primary,
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                    ),
-                    Text("Apply Leave", style: AppTextStyle.ts12M()),
-                  ],
-                ),
-              ),
-              Flexible(
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    CustomIconButton(
-                      onPressed: () {
-                        goRouter.pushNamed(AppRoutes.compOff);
-                      },
-                      icon: SvgPicture.asset(
-                        AppAssets.regularizeIcon,
-                        height: 18,
-                        width: 16,
-                        colorFilter: ColorFilter.mode(
-                          AppColor.green,
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                      backgroundColor: AppColor.lightGreen.withValues(
-                        alpha: .5,
-                      ),
-                    ),
-                    Text("Request Comp-off", style: AppTextStyle.ts12M()),
-                  ],
-                ),
-              ),
-              Flexible(
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    CustomIconButton(
-                      onPressed: () {
-                        goRouter.pushNamed(AppRoutes.addOutdoor);
-                      },
-                      icon: Icon(Icons.add, size: 16, color: AppColor.primary),
-                    ),
-                    Text("Add Outdoor", style: AppTextStyle.ts12M()),
-                  ],
+              Expanded(
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: actions.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 10,
+                    childAspectRatio: 1.45,
+                  ),
+                  itemBuilder: (context, index) {
+                    final item = actions[index];
+                    return _quickActionCard(
+                      icon: item.icon,
+                      text: item.text,
+                      backgroundColor: item.backgroundColor,
+                      onTap: item.onTap,
+                    );
+                  },
                 ),
               ),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  // QUICK ACTION CARD
+  Widget _quickActionCard({
+    required Widget icon,
+    required String text,
+    required VoidCallback onTap,
+    Color? backgroundColor,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        CustomIconButton(
+          onPressed: onTap,
+          icon: icon,
+          backgroundColor: backgroundColor ?? AppColor.lightBlue,
+        ),
+        verticalSpacing(),
+        Text(
+          text,
+          maxLines: 2,
+          style: AppTextStyle.ts12M(),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 
@@ -356,28 +440,31 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
 
   // LEAVE MANAGEMENT WIDGET
   Widget _buildLeaveManagementWidget(PayrollDashboardState state) {
+    Color statusColor;
     return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
       decoration: commonCardDecoration(),
-      padding: EdgeInsets.all(16),
-      margin: EdgeInsets.only(bottom: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Leave Management",
-            style: AppTextStyle.ts14M(color: AppColor.grey),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  "Leave Management",
+                  style: AppTextStyle.ts14M(color: AppColor.grey),
+                ),
+              ),
+            ],
           ),
           verticalSpacing(),
           (state.payrollDashboardModel?.table1 == null ||
                   state.payrollDashboardModel!.table1.isEmpty)
-              ? SizedBox(
-                height: 300,
-                child: Center(
-                  child: Text(
-                    "No Leave Data Found",
-                    style: AppTextStyle.ts14M(
-                      color: AppColor.black.withValues(alpha: 0.5),
-                    ),
+              ? Center(
+                child: Text(
+                  "No Data Found",
+                  style: AppTextStyle.ts12M(
+                    color: AppColor.black.withValues(alpha: .5),
                   ),
                 ),
               )
@@ -385,71 +472,98 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                 height: 300,
                 child: ListView.builder(
                   shrinkWrap: true,
+                  physics: AlwaysScrollableScrollPhysics(),
                   itemCount: state.payrollDashboardModel!.table1.length,
                   itemBuilder: (_, index) {
                     final employee = state.payrollDashboardModel!.table1[index];
+                    final absentEmployeeData = employee;
+
+                    switch (absentEmployeeData.status.toLowerCase()) {
+                      case "approved":
+                        statusColor = AppColor.green;
+                        break;
+
+                      case "rejected":
+                        statusColor = AppColor.red;
+                        break;
+
+                      default:
+                        statusColor = AppColor.black.withValues(alpha: 0.5);
+                    }
                     return Container(
-                      margin: EdgeInsets.only(bottom: 10),
-                      padding: EdgeInsets.all(10),
+                      margin: const EdgeInsets.only(bottom: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 13,
+                      ),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4),
-                        color: AppColor.grey2.withValues(alpha: .12),
+                        borderRadius: BorderRadius.circular(8),
+                        color: AppColor.lightGreyBackground,
                       ),
                       child: Column(
-                        spacing: 10,
                         children: [
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              CircleAvatar(radius: 20),
+                              CircleAvatar(
+                                radius: 16,
+                                backgroundColor: AppColor.primary.withValues(
+                                  alpha: 0.2,
+                                ),
+                                child: Text(
+                                  _getInitials(absentEmployeeData.fullName),
+                                  style: AppTextStyle.ts12M(
+                                    color: AppColor.primary,
+                                  ),
+                                ),
+                              ),
                               horizontalSpacing(),
                               Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      employee.fullName,
-                                      style: AppTextStyle.ts14M(),
-                                    ),
-                                    Text(
-                                      "Software Developer",
-                                      style: AppTextStyle.ts12M(
-                                        color: AppColor.grey,
-                                      ),
-                                    ),
-                                  ],
+                                child: Text(
+                                  absentEmployeeData.fullName,
+                                  style: AppTextStyle.ts14M(),
                                 ),
                               ),
                               CustomButton(
-                                isDisable: employee.canApprove == 0,
                                 text: "Approve",
                                 onPressed: () {},
+                                isDisable:
+                                    absentEmployeeData.canApprove == 0
+                                        ? true
+                                        : false,
                               ),
                             ],
                           ),
+                          verticalSpacing(),
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               buildColumnTitleValue(
                                 title: "Status",
-                                value: employee.status,
+                                value: absentEmployeeData.status,
                                 valueTextStyle: AppTextStyle.ts14M(
-                                  color: AppColor.error,
+                                  color: statusColor,
                                 ),
                               ),
                               buildColumnTitleValue(
                                 title: "Leave Type",
-                                value: employee.leaveType,
+                                value: absentEmployeeData.leaveType,
                               ),
                             ],
                           ),
+                          verticalSpacing(),
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               buildColumnTitleValue(
                                 title: "No. Of Days",
-                                value: "${employee.noOfDays} Days",
+                                value:
+                                    "${absentEmployeeData.noOfDays.toString()} Days",
                               ),
                               buildColumnTitleValue(
                                 title: "Duration",
-                                value: "4 January- 8 January",
+                                value:
+                                    "${formatDateTimeAsDDMMMYYYY(absentEmployeeData.startDate)}- ${formatDateTimeAsDDMMMYYYY(absentEmployeeData.endDate)}",
                               ),
                             ],
                           ),
@@ -548,7 +662,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
               )
               : Center(
                 child: Text(
-                  "No Outdoor Found",
+                  "No Data Found",
                   style: AppTextStyle.ts14M(
                     color: AppColor.black.withValues(alpha: 0.5),
                   ),
@@ -578,7 +692,6 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
             ],
           ),
           verticalSpacing(),
-
           compoffList.isNotEmpty
               ? SizedBox(
                 height: 300,
@@ -595,11 +708,23 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                         color: AppColor.grey2.withValues(alpha: .12),
                       ),
                       child: Column(
-                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              CircleAvatar(radius: 20),
+                              CircleAvatar(
+                                radius: 16,
+                                backgroundColor: AppColor.primary.withValues(
+                                  alpha: 0.2,
+                                ),
+                                child: Text(
+                                  _getInitials(compoff.createdBy),
+                                  style: AppTextStyle.ts12M(
+                                    color: AppColor.primary,
+                                  ),
+                                ),
+                              ),
                               horizontalSpacing(),
                               Expanded(
                                 child: Column(
@@ -615,7 +740,9 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                               CustomButton(text: "Approve", onPressed: () {}),
                             ],
                           ),
+                          verticalSpacing(),
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               buildColumnTitleValue(
                                 title: "Status",
@@ -630,7 +757,9 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                               Expanded(child: SizedBox()),
                             ],
                           ),
+                          verticalSpacing(),
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               buildColumnTitleValue(
                                 title: "Working Date",
@@ -654,7 +783,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
               )
               : Center(
                 child: Text(
-                  "No Comp-Off Management Found",
+                  "No Data Found",
                   style: AppTextStyle.ts14M(
                     color: AppColor.black.withValues(alpha: 0.5),
                   ),
@@ -704,7 +833,18 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                         children: [
                           Row(
                             children: [
-                              CircleAvatar(radius: 20),
+                              CircleAvatar(
+                                radius: 16,
+                                backgroundColor: AppColor.primary.withValues(
+                                  alpha: 0.2,
+                                ),
+                                child: Text(
+                                  _getInitials(resignation.fullName),
+                                  style: AppTextStyle.ts12M(
+                                    color: AppColor.primary,
+                                  ),
+                                ),
+                              ),
                               horizontalSpacing(),
                               Expanded(
                                 child: Column(
@@ -756,7 +896,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
               )
               : Center(
                 child: Text(
-                  "No Resignation Found",
+                  "No Data Found",
                   style: AppTextStyle.ts14M(
                     color: AppColor.black.withValues(alpha: 0.5),
                   ),

@@ -311,23 +311,24 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
               verticalSpacing(),
               if (table2List != null) ...[
                 CommonRadialChart(
-                  items: [
-                    RadialChartItem(
-                      title: "Civil",
-                      value: civil,
-                      color: AppColor.primary,
-                    ),
-                    RadialChartItem(
-                      title: "Criminal",
-                      value: criminal,
-                      color: AppColor.blueBgColor,
-                    ),
-                  ],
+                  items:
+                      [
+                        RadialChartItem(
+                          title: "Civil",
+                          value: civil,
+                          color: AppColor.primary,
+                        ),
+                        RadialChartItem(
+                          title: "Criminal",
+                          value: criminal,
+                          color: AppColor.blueBgColor,
+                        ),
+                      ].where((e) => e.value > 0).toList(),
                 ),
               ] else ...[
                 Center(
                   child: Text(
-                    "No Case Type Distribution Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: 0.50),
                     ),
@@ -366,6 +367,14 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                       ),
                     ),
                   ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      _legendItem("Closed", Colors.blue),
+                      const SizedBox(width: 16),
+                      _legendItem("Opened", Colors.red),
+                    ],
+                  ),
                 ],
               ),
               verticalSpacing(),
@@ -383,7 +392,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
               ] else ...[
                 Center(
                   child: Text(
-                    "No Court Distribution Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: .5),
                     ),
@@ -524,6 +533,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Expanded(
@@ -541,6 +551,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                             ),
                             verticalSpacing(),
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Expanded(
@@ -569,7 +580,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
               ] else ...[
                 Center(
                   child: Text(
-                    "No Active Cases Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: .5),
                     ),
@@ -659,14 +670,18 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                        "Case No: ${item.caseNumber}",
-                                        style: AppTextStyle.ts14M(),
+                                      Expanded(
+                                        child: Text(
+                                          "Case No: ${item.caseNumber}",
+                                          style: AppTextStyle.ts14M(),
+                                        ),
                                       ),
-                                      verticalSpacing(),
+                                      horizontalSpacing(width: 20.0),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,
@@ -743,7 +758,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
               ] else ...[
                 Center(
                   child: Text(
-                    "No Upcoming Hearings Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: .5),
                     ),
@@ -822,6 +837,22 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                       ),
                     ),
                   ),
+                  horizontalSpacing(),
+                  GestureDetector(
+                    onTap: () => _openFilter(context),
+
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: AppColor.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(Icons.tune, size: 18),
+                      ),
+                    ),
+                  ),
                 ],
               ),
               verticalSpacing(),
@@ -830,29 +861,9 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Row(
-                      children: [
-                        _legendItem("Closed", Colors.blue),
-                        const SizedBox(width: 16),
-                        _legendItem("Opened", Colors.pink),
-                      ],
-                    ),
-                    horizontalSpacing(),
-                    GestureDetector(
-                      onTap: () => _openFilter(context),
-
-                      child: Align(
-                        alignment: Alignment.bottomRight,
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: AppColor.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(Icons.tune, size: 18),
-                        ),
-                      ),
-                    ),
+                    _legendItem("Closed", Colors.blue),
+                    const SizedBox(width: 16),
+                    _legendItem("Opened", Colors.pink),
                   ],
                 ),
                 verticalSpacing(height: 20.0),
@@ -865,7 +876,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
               ] else ...[
                 Center(
                   child: Text(
-                    "No Case Analysis Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: .5),
                     ),
@@ -1011,7 +1022,6 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
           }
 
           if (item.documentUrl.trim().isNotEmpty) {
-            // ⚠️ handle multiple URLs (comma separated)
             final urls = item.documentUrl.split(",");
 
             for (var url in urls) {
@@ -1129,7 +1139,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
               ] else ...[
                 Center(
                   child: Text(
-                    "No Upcoming Hearings Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: .5),
                     ),

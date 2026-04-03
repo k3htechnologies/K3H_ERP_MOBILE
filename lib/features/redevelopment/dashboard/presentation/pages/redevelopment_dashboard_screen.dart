@@ -1256,7 +1256,7 @@ class _RedevelopmentDashboardScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Invalid GST", style: AppTextStyle.ts16M()),
+                      Text("Invalid GST", style: AppTextStyle.ts14M()),
                       verticalSpacing(),
                       Text(
                         "4 Commercial Tenant",

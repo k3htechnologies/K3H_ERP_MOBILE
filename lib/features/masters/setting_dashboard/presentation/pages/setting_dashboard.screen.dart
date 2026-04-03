@@ -66,7 +66,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                           children: [
                             // TOTAL COMPANINES, EMPLOYEES, ACTIVE PROJECT AND REGISTERED VENDORS COUNT WIDGET
                             _buildSettingsDashboardOverview(context),
-                            verticalSpacing(),
+                            verticalSpacing(height: 15.0),
                             // COMPANY SETUP WIDGET
                             _buildCompanySetupWidget(context),
                             verticalSpacing(height: 15.0),
@@ -103,51 +103,72 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
             (state.settingDashboardModel?.table0.isNotEmpty ?? false)
                 ? state.settingDashboardModel!.table0.first
                 : null;
-
-        return GridView.count(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          crossAxisCount: 2,
-          mainAxisSpacing: 20,
-          crossAxisSpacing: 20,
-          childAspectRatio: 1.25,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _dashboardCard(
-              icon: AppAssets.totalCompaniesIcon,
-              value: table0?.totalCompanies.toString() ?? "0.0",
-              title: "Total Companies",
-              subtitle:
-                  "+${table0?.companiesAddedThisMonth.toInt() ?? 0} this month",
-              subtitleColor: AppColor.green,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: _dashboardCard(
+                    icon: AppAssets.totalCompaniesIcon,
+                    value: table0?.totalCompanies.toString() ?? "0.0",
+                    title: "Total Companies",
+                    subtitle:
+                        "+${table0?.companiesAddedThisMonth.toInt() ?? 0} this month",
+                    subtitleColor: AppColor.green,
+                  ),
+                ),
+                horizontalSpacing(),
+                Expanded(
+                  child: _dashboardCard(
+                    icon: AppAssets.totalEmployeeeIcon,
+                    value: table0?.totalEmployees.toString() ?? "0.0",
+                    title: "Total Employees",
+                    subtitle:
+                        "+${table0?.employeesAddedThisMonth.toInt() ?? 0} this month",
+                    subtitleColor: AppColor.green,
+                  ),
+                ),
+              ],
             ),
-
-            _dashboardCard(
-              icon: AppAssets.totalEmployeeeIcon,
-              value: table0?.totalEmployees.toString() ?? "0.0",
-              title: "Total Employees",
-              subtitle:
-                  "+${table0?.employeesAddedThisMonth.toInt() ?? 0} this month",
-              subtitleColor: AppColor.green,
-            ),
-
-            _dashboardCard(
-              icon: AppAssets.activeProjectsIcon,
-              value: table0?.activeProjects.toString() ?? "0.0",
-              title: "Active Projects",
-              subtitle: "${table0?.onHoldProjects.toInt() ?? 0} on hold",
-              subtitleColor: Colors.orange,
-            ),
-
-            _dashboardCard(
-              icon: AppAssets.registeredVendorsIcon,
-              value: table0?.registeredVendors.toString() ?? "0.0",
-              title: "Registered Vendors",
-              subtitle:
-                  "+${table0?.vendorsAddedThisMonth.toInt() ?? 0} this month",
-              subtitleColor: AppColor.green,
+            verticalSpacing(),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: _dashboardCard(
+                    icon: AppAssets.activeProjectsIcon,
+                    value: table0?.activeProjects.toString() ?? "0.0",
+                    title: "Active Projects",
+                    subtitle: "${table0?.onHoldProjects.toInt() ?? 0} on hold",
+                    subtitleColor: Colors.orange,
+                  ),
+                ),
+                horizontalSpacing(),
+                _dashboardCard(
+                  icon: AppAssets.registeredVendorsIcon,
+                  value: table0?.registeredVendors.toString() ?? "0.0",
+                  title: "Registered Vendors",
+                  subtitle:
+                      "+${table0?.vendorsAddedThisMonth.toInt() ?? 0} this month",
+                  subtitleColor: AppColor.green,
+                ),
+              ],
             ),
           ],
         );
+        // return GridView.count(
+        //   shrinkWrap: true,
+        //   physics: NeverScrollableScrollPhysics(),
+        //   crossAxisCount: 2,
+        //   mainAxisSpacing: 10,
+        //   crossAxisSpacing: 10,
+        //   childAspectRatio: 1.10,
+
+        // );
       },
     );
   }
@@ -492,38 +513,39 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
               verticalSpacing(height: 20.0),
               if (table7 != null) ...[
                 CommonRadialChart(
-                  items: [
-                    RadialChartItem(
-                      title: "Ongoing Projects",
-                      value: table7.ongoingProjects,
-                      color: AppColor.primary,
-                    ),
-                    RadialChartItem(
-                      title: "On hold Projects",
-                      value: table7.onHoldProjects,
-                      color: AppColor.yellow,
-                    ),
-                    RadialChartItem(
-                      title: "Completed Projects",
-                      value: table7.completedProjects,
-                      color: AppColor.green,
-                    ),
-                    RadialChartItem(
-                      title: "Cancelled Projects",
-                      value: table7.cancelledProjects,
-                      color: AppColor.grey,
-                    ),
-                    RadialChartItem(
-                      title: "Planning Projects",
-                      value: table7.planningProjects,
-                      color: AppColor.blue,
-                    ),
-                  ],
+                  items:
+                      [
+                        RadialChartItem(
+                          title: "Ongoing Projects",
+                          value: table7.ongoingProjects,
+                          color: AppColor.primary,
+                        ),
+                        RadialChartItem(
+                          title: "On hold Projects",
+                          value: table7.onHoldProjects,
+                          color: AppColor.yellow,
+                        ),
+                        RadialChartItem(
+                          title: "Completed Projects",
+                          value: table7.completedProjects,
+                          color: AppColor.green,
+                        ),
+                        RadialChartItem(
+                          title: "Cancelled Projects",
+                          value: table7.cancelledProjects,
+                          color: AppColor.grey,
+                        ),
+                        RadialChartItem(
+                          title: "Planning Projects",
+                          value: table7.planningProjects,
+                          color: AppColor.blue,
+                        ),
+                      ].where((e) => e.value > 0).toList(),
                 ),
               ] else ...[
                 Center(
                   child: Text(
-                    "No Active Follow ups Available",
+                    "No Data Found",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: 0.50),
                     ),
@@ -684,7 +706,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     child: Text(
-                      "No Vendor Distribution Available",
+                      "No Data Found",
                       style: AppTextStyle.ts12M(
                         color: AppColor.black.withValues(alpha: 0.5),
                       ),
