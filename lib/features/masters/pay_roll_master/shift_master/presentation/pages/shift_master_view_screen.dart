@@ -54,7 +54,7 @@ class ShiftMasterViewScreen extends StatelessWidget {
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Shift Duration", style: AppTextStyle.ts16SB()),
+                    Text("Time Details", style: AppTextStyle.ts16SB()),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

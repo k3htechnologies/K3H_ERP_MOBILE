@@ -399,7 +399,7 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                   ),
                   if (hasError)
                     Padding(
-                      padding: const EdgeInsets.only(left: 12.0, top: 4.0),
+                      padding: const EdgeInsets.only(left: 6.0, top: 4.0),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [

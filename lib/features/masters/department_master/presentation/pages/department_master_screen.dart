@@ -307,18 +307,18 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                                     );
                                   },
                                 ),
-                                  horizontalSpacing(),
-                                  CustomIconButton.delete(
-                                    isDisabled: department.numberOfEmployee == 0,
-                                    onPressed: () {
-                                      _showPopupToDeleteDepartmentMaster(
-                                        context,
-                                        department,
-                                        state.currentPage,
-                                        index,
-                                      );
-                                    },
-                                  ),
+                                horizontalSpacing(),
+                                CustomIconButton.delete(
+                                  isDisabled: department.numberOfEmployee != 0,
+                                  onPressed: () {
+                                    _showPopupToDeleteDepartmentMaster(
+                                      context,
+                                      department,
+                                      state.currentPage,
+                                      index,
+                                    );
+                                  },
+                                ),
                               ],
                             ),
                           ],

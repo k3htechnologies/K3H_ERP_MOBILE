@@ -345,14 +345,6 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    if (selectedNameList.isEmpty) {
-      showErrorMessage(context, 'Error', 'Please select Name');
-      return;
-    }
-    if (selectedTypeList.isEmpty) {
-      showErrorMessage(context, 'Error', 'Please select Type');
-      return;
-    }
     final int? branchId =
         (selectedBranch != null && selectedBranch!.isNotEmpty)
             ? selectedBranch!.first['zAttributesId'] as int
@@ -408,7 +400,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Deduction",
+        screenTitle: "Deduction Master",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(
@@ -418,10 +410,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                _isEditMode ? "Update Deduction" : "Add Deduction",
-                style: AppTextStyle.ts16SB(),
-              ),
+              Text("Basic Deduction Details", style: AppTextStyle.ts16SB()),
               verticalSpacing(),
               Container(
                 decoration: commonCardDecoration(),
@@ -443,7 +432,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Name is required";
+                          return "Deduction Name is required";
                         }
                         return null;
                       },
@@ -703,6 +692,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
           height: 70,
           padding: const EdgeInsets.all(16),
           child: CustomButton(
+            leading: Icon(_isEditMode ? Icons.edit : Icons.add, size: 16),
             text: _isEditMode ? "Update" : "Add",
             onPressed: () => _submitForm(),
           ),

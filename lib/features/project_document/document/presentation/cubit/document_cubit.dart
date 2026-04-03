@@ -485,43 +485,4 @@ class DocumentCubit extends Cubit<DocumentState> {
       },
     );
   }
-
-  // <---- EXPORT EXCEL PDF ---->
-  Future exportExcelPdf(
-    BuildContext context,
-    String exportType,
-    int projectId,
-  ) async {
-    DialogHelper.showProcessingOverlay(context);
-    var result = await _documentRepository.exportProjectDocument(
-      pageNumber: 1,
-      pageSize: state.totalNumberOfRecord,
-      projectId: projectId,
-      queryParams:
-          state.searchText != ""
-              ? {
-                "ChannelPartnerName": state.searchText,
-                "ExportType": exportType,
-              }
-              : {"ExportType": exportType},
-    );
-    goRouter.pop();
-    result.fold(
-      (failure) {
-        showErrorMessage(context, 'Error', failure.message);
-      },
-      (response) {
-        showSuccessMessage(
-          context,
-          subTitle: 'Successfully Exported as $exportType',
-        );
-        exportExcelOrPdfMobile(
-          response["data"],
-          exportType.toLowerCase() == "pdf"
-              ? "channel_partner_${DateTime.now()}.pdf"
-              : "channel_partner_${DateTime.now()}.xlsx",
-        );
-      },
-    );
-  }
 }

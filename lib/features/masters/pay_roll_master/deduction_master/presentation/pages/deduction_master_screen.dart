@@ -204,11 +204,12 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: "Deduction",
+        screenTitle: "Deduction Master",
         authorization: _routeAuthorizationModel,
         onSearchSubmit: (value) {
           _deductionMasterCubit.searchDeductionMaster(value, context);
         },
+        searchHintText: "Search By Deduction Name",
         textController: _searchC,
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addDeductionMaster);
@@ -289,24 +290,16 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
                                   },
                                 );
                               },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 0,
-                                  vertical: 4,
+                              child: Text(
+                                deduction.name,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
                                 ),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(color: AppColor.primary),
-                                  ),
-                                ),
-                                child: Text(
-                                  deduction.name,
-                                  style: AppTextStyle.ts16M(
-                                    color: AppColor.primary,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ),
@@ -349,7 +342,7 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
                       ),
                       buildRowTitleValue(
                         title: "Deduction Value",
-                        value: "₹ ${deduction.value}",
+                        value: "${deduction.value} %",
                       ),
                       buildRowTitleValue(
                         title: "Branch Name",
@@ -357,31 +350,38 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
                       ),
                       buildRowTitleValue(
                         title: "Min Salary",
-                        value: "₹ ${deduction.minSalary}",
+                        value:
+                            "₹ ${deduction.minSalary.toString().split(".")[0]}",
                       ),
                       buildRowTitleValue(
                         title: "Max Salary",
-                        value: "₹ ${deduction.maxSalary}",
+                        value:
+                            "₹ ${deduction.maxSalary.toString().split(".")[0]}",
                       ),
                       buildRowTitleValue(
                         title: "Gender",
                         value: deduction.gender,
-                        customValueWidget: deduction.gender.isNotEmpty? Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColor.lightBlue,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            deduction.gender,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTextStyle.ts14R(color: AppColor.primary),
-                          ),
-                        ):Text("-"),
+                        customValueWidget:
+                            deduction.gender.isNotEmpty
+                                ? Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColor.lightBlue,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    deduction.gender,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextStyle.ts14R(
+                                      color: AppColor.primary,
+                                    ),
+                                  ),
+                                )
+                                : Text("-"),
                       ),
                       buildRowTitleValue(
                         title: "State Name",

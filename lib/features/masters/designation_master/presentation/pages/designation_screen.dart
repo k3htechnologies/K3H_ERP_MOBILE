@@ -358,7 +358,7 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
                                     ),
                                     CustomIconButton.delete(
                                       isDisabled:
-                                          designation.numberOfEmployee == 0,
+                                          designation.numberOfEmployee != 0,
                                       onPressed: () {
                                         _showPopupToDeleteDesignationMaster(
                                           designation.designationMasterId,

@@ -242,7 +242,9 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
                                 keyboardType: TextInputType.number,
                                 isRequired: true,
                                 validator: (value) {
-                                  if ((value == null || value.trim().isEmpty) &&
+                                  if ((value == null ||
+                                          value.trim().isEmpty ||
+                                          value == "0") &&
                                       isCarryForward.value) {
                                     return " Max Carry Forward is reqiured";
                                   }

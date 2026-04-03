@@ -171,9 +171,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       getEmployeeAssetList(context, 1, 100, employeeId);
     } else if (index == 6) {
       // Project tab
-      if (state.projectList.isEmpty && state.user!.projectData.isNotEmpty) {
-        fetchProjects(context);
-      }
+      fetchProjects(context);
     } else if (index == 7) {
       // Shift Policy tab
       getShiftManagementList(context, 1, 100, employeeId);
@@ -219,11 +217,13 @@ class ProfileCubit extends Cubit<ProfileState> {
           );
         }
 
-        emit(state.copyWith(
-          isLoading: false,
-          employeeMasterList: newList,
-          user: updatedUser,
-        ));
+        emit(
+          state.copyWith(
+            isLoading: false,
+            employeeMasterList: newList,
+            user: updatedUser,
+          ),
+        );
       },
     );
   }
@@ -915,15 +915,9 @@ class ProfileCubit extends Cubit<ProfileState> {
         return;
       },
       (response) async {
-
         showSuccessMessage(context, subTitle: response["successMessage"]);
 
-        await getEmployeeMasterList(
-          1,
-          100,
-          int.parse(employeeId),
-        );
-
+        await getEmployeeMasterList(1, 100, int.parse(employeeId));
       },
     );
   }

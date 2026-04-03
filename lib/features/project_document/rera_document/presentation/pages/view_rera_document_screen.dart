@@ -225,6 +225,10 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
               ),
               if (_routeAuthorizationModel.isAction) ...[
                 CustomIconButton.edit(
+                  isDisabled:
+                      !document.projectRERADocumentApprovalStatus
+                          .toLowerCase()
+                          .contains('pending'),
                   onPressed: () {
                     goRouter.pushNamed(
                       AppRoutes.addReraDocument,

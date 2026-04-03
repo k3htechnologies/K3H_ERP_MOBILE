@@ -227,7 +227,7 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
 
                 hasError
                     ? Padding(
-                      padding: const EdgeInsets.only(left: 12, top: 4),
+                      padding: const EdgeInsets.only(left: 6, top: 4),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [

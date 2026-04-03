@@ -246,13 +246,6 @@ class _DocumentScreenState extends State<DocumentScreen>
             _documentCubit.getCategoryList(context, 1, projectId);
           }
         },
-        onExportCallback: (value) {
-          if (_documentCubit.state.totalNumberOfRecord == 0) {
-            showErrorMessage(context, "Error", "No Data Found");
-            return;
-          }
-          _documentCubit.exportExcelPdf(context, value, projectId);
-        },
         extraHeight: 20,
         secondaryBuilder:
             (_) => BlocBuilder<DocumentCubit, DocumentState>(

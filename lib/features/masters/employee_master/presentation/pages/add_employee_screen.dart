@@ -1487,6 +1487,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             incomingStateId: widget.employee?.stateMasterId,
             incomingDistrictId: widget.employee?.districtMasterId,
             incomingCityId: widget.employee?.cityMasterId,
+            incomingVillageId: widget.employee?.villageMasterId,
             stateChange: (selectedState) {
               this.selectedState = selectedState;
             },

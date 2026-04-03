@@ -211,6 +211,7 @@ class DesignationDataSoucreImp implements DesignationMasterDatasource {
         "data": List<ModuleModel>.from(
           networkResponse['data'].map((e) => ModuleModel.fromJson(e)),
         ),
+        "message": networkResponse['message'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {

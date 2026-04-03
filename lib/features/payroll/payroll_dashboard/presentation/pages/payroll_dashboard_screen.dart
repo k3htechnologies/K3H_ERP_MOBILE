@@ -419,21 +419,25 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                                   ],
                                 ),
                               ),
-                              CustomButton(text: "Approve", onPressed: () {}),
+                              CustomButton(
+                                isDisable: employee.canApprove == 0,
+                                text: "Approve",
+                                onPressed: () {},
+                              ),
                             ],
                           ),
                           Row(
                             children: [
                               buildColumnTitleValue(
                                 title: "Status",
-                                value: "Pending",
+                                value: employee.status,
                                 valueTextStyle: AppTextStyle.ts14M(
                                   color: AppColor.error,
                                 ),
                               ),
                               buildColumnTitleValue(
                                 title: "Leave Type",
-                                value: "Casual Leave",
+                                value: employee.leaveType,
                               ),
                             ],
                           ),
@@ -441,7 +445,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                             children: [
                               buildColumnTitleValue(
                                 title: "No. Of Days",
-                                value: "5 Days",
+                                value: "${employee.noOfDays} Days",
                               ),
                               buildColumnTitleValue(
                                 title: "Duration",

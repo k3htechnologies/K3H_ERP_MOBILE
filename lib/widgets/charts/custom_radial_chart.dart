@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -21,16 +22,28 @@ class CommonRadialChart extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(
-          height: 120,
-          width: 120,
-          child: CustomPaint(painter: RadialPainter(items: items)),
-        ),
+          height: 120.h,
+          width: 120.w,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              CustomPaint(
+                size: Size(120.w, 120.h),
+                painter: RadialPainter(items: items),
+              ),
 
-        verticalSpacing(height: 12),
-
-        Text(
-          "Total: $totalValue",
-          style: AppTextStyle.ts12SB(color: AppColor.black),
+              // Center Text
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    totalValue.toString(),
+                    style: AppTextStyle.ts16SB(color: AppColor.black),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
 
         verticalSpacing(height: 16),
