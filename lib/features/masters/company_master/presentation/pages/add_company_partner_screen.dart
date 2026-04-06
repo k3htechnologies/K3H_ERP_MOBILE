@@ -116,34 +116,33 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
 
   // PREFILL DATA
   void _prefill(CompanyPartnerModel? partner) {
-    if (partner == null) {
-      return;
-    }
+    if (partner == null) return;
+
     _selectedGenderNotifier.value = genderList.firstWhere(
-      (e) => e['DisplayName'] == partner.gender,
+          (e) => e['DisplayName'] == partner.gender,
       orElse: () => genderList.first,
     );
 
-    panFile.fileNameList =
-        partner.panCardURL.isEmpty ? [] : partner.panCardURL.split(",");
-    panFile.fileBytesList = List.generate(
-      panFile.fileNameList.length,
-      (_) => Uint8List(0),
-    );
+    if (partner.panCardFile != null &&
+        partner.panCardFile!.fileNameList.isNotEmpty) {
+      panFile = partner.panCardFile!;
+    } else if (partner.panCardURL.isNotEmpty) {
+      panFile.fileNameList = partner.panCardURL.split(",");
+    }
 
-    aadhaarFile.fileNameList =
-        partner.aadharCardURL.isEmpty ? [] : partner.aadharCardURL.split(",");
-    aadhaarFile.fileBytesList = List.generate(
-      aadhaarFile.fileNameList.length,
-      (_) => Uint8List(0),
-    );
+    if (partner.aadharCardFile != null &&
+        partner.aadharCardFile!.fileNameList.isNotEmpty) {
+      aadhaarFile = partner.aadharCardFile!;
+    } else if (partner.aadharCardURL.isNotEmpty) {
+      aadhaarFile.fileNameList = partner.aadharCardURL.split(",");
+    }
 
-    photoFile.fileNameList =
-        partner.photoURL.isEmpty ? [] : partner.photoURL.split(",");
-    photoFile.fileBytesList = List.generate(
-      photoFile.fileNameList.length,
-      (_) => Uint8List(0),
-    );
+    if (partner.photoFile != null &&
+        partner.photoFile!.fileNameList.isNotEmpty) {
+      photoFile = partner.photoFile!;
+    } else if (partner.photoURL.isNotEmpty) {
+      photoFile.fileNameList = partner.photoURL.split(",");
+    }
   }
 
   // SAVE FUNCTION

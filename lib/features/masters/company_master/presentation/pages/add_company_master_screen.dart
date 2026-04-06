@@ -267,40 +267,39 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
 
     if (company != null) {
       for (var value in company.companyPartnerData) {
-        value.panCardFile = MultiFilePickerModel(
-          fileBytesList: [],
-          fileNameList:
-              value.panCardURL == "" ? [] : value.panCardURL.split(","),
-          deletedFileList: '',
-        );
+        // PAN
+        if (value.panCardFile == null ||
+            value.panCardFile!.fileNameList.isEmpty) {
+          value.panCardFile = MultiFilePickerModel(
+            fileBytesList: [],
+            fileNameList:
+                value.panCardURL.isEmpty ? [] : value.panCardURL.split(","),
+            deletedFileList: '',
+          );
+        }
 
-        value.panCardFile!.fileBytesList = List.generate(
-          value.panCardFile!.fileNameList.length,
-          (_) => Uint8List(0),
-        );
+        // AADHAAR
+        if (value.aadharCardFile == null ||
+            value.aadharCardFile!.fileNameList.isEmpty) {
+          value.aadharCardFile = MultiFilePickerModel(
+            fileBytesList: [],
+            fileNameList:
+                value.aadharCardURL.isEmpty
+                    ? []
+                    : value.aadharCardURL.split(","),
+            deletedFileList: '',
+          );
+        }
 
-        value.aadharCardFile = MultiFilePickerModel(
-          fileBytesList: [],
-          fileNameList:
-              value.aadharCardURL == "" ? [] : value.aadharCardURL.split(","),
-          deletedFileList: '',
-        );
-
-        value.aadharCardFile!.fileBytesList = List.generate(
-          value.aadharCardFile!.fileNameList.length,
-          (_) => Uint8List(0),
-        );
-
-        value.photoFile = MultiFilePickerModel(
-          fileBytesList: [],
-          fileNameList: value.photoURL == "" ? [] : value.photoURL.split(","),
-          deletedFileList: '',
-        );
-
-        value.photoFile!.fileBytesList = List.generate(
-          value.photoFile!.fileNameList.length,
-          (_) => Uint8List(0),
-        );
+        // PHOTO
+        if (value.photoFile == null || value.photoFile!.fileNameList.isEmpty) {
+          value.photoFile = MultiFilePickerModel(
+            fileBytesList: [],
+            fileNameList:
+                value.photoURL.isEmpty ? [] : value.photoURL.split(","),
+            deletedFileList: '',
+          );
+        }
       }
     }
   }
