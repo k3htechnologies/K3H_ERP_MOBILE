@@ -395,7 +395,7 @@ class _ViewApprovalDocumentScreenState
                   queryParameters: {
                     "subTitle": Uri.encodeComponent(
                       EncryptionManager.encryptData(
-                        "${widget.documentModel.approvalDocumentName} > ${document.approvalDocumentName}",
+                        "${widget.documentModel.approvalDocumentCategory} > ${document.approvalDocumentName}",
                       ),
                     ),
                     "title": Uri.encodeComponent(
