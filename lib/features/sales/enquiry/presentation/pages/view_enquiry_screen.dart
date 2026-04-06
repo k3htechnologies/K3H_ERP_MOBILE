@@ -54,16 +54,16 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
 
   // STATIC DROPDOWNS
   final List<Map<String, dynamic>> _statusList = [
-    {'zAttributesId': 1, 'DisplayName': 'Booking Done'},
-    {'zAttributesId': 2, 'DisplayName': 'Blocked'},
-    {'zAttributesId': 3, 'DisplayName': 'Cancelled'},
+    {'zAttributesId': 1, 'DisplayName': 'Site Visit'},
+    {'zAttributesId': 2, 'DisplayName': 'Re - Visit Proposed'},
+    {'zAttributesId': 3, 'DisplayName': 'Re - Visit Scheduled'},
     {'zAttributesId': 4, 'DisplayName': 'Negotiation'},
-    {'zAttributesId': 5, 'DisplayName': 'Lost'},
-    {'zAttributesId': 6, 'DisplayName': 'Retention'},
-    {'zAttributesId': 7, 'DisplayName': 'Re - Visit Scheduled'},
-    {'zAttributesId': 8, 'DisplayName': 'Re - Visit Proposed'},
-    {'zAttributesId': 9, 'DisplayName': 'Site Visit'},
-    {'zAttributesId': 10, 'DisplayName': 'Unit Selection / Blocked'},
+    {'zAttributesId': 5, 'DisplayName': 'Unit Selection / Blocked'},
+    {'zAttributesId': 6, 'DisplayName': 'Booking Done'},
+    {'zAttributesId': 7, 'DisplayName': 'Blocked'},
+    {'zAttributesId': 8, 'DisplayName': 'Cancelled'},
+    {'zAttributesId': 9, 'DisplayName': 'Retention'},
+    {'zAttributesId': 10, 'DisplayName': 'Lost'},
   ];
 
   final List<Map<String, dynamic>> _lostReasonList = [
@@ -262,7 +262,8 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                     enquiry.systemGeneratedCode,
                     style: AppTextStyle.ts16SB(color: AppColor.primary),
                   ),
-                  statusWidget(enquiry.finalStage),
+                  if (enquiry.finalStage.isNotEmpty)
+                    statusWidget(enquiry.finalStage),
                 ],
               ),
 
@@ -908,9 +909,57 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
         if (state.isLoading ?? false) {
           return loader();
         }
+        if (state.currentEnquiryDetails?.nextFollowUpDate != null &&
+            state.enquiryFollowUpList.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  state.currentEnquiryDetails!.systemGeneratedCode,
+                  style: AppTextStyle.ts16SB(color: AppColor.primary),
+                ),
+                verticalSpacing(),
+
+                Container(
+                  decoration: commonCardDecoration(),
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 16,
+                        height: 16,
+                        margin: const EdgeInsets.only(top: 2),
+                        decoration: BoxDecoration(
+                          color: AppColor.lightBlue,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      horizontalSpacing(),
+                      Text(
+                        dateFormatterDDMMYYYYDAY(
+                          state.currentEnquiryDetails!.nextFollowUpDate!,
+                          isDayNotRequired: true,
+                        ),
+                        style: AppTextStyle.ts12M(color: AppColor.grey),
+                      ),
+                      Spacer(),
+                      Text(
+                        "Next Follow-up",
+                        style: AppTextStyle.ts12SB(color: AppColor.darkGrey),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
 
         if (state.enquiryFollowUpList.isEmpty) {
-          return noDataWidget();
+          return Expanded(child: Center(child: noDataWidget()));
         }
 
         final items = state.enquiryFollowUpList;
@@ -1234,13 +1283,13 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
 
     // ===================== STATUS IDs THAT REQUIRE NEXT FOLLOWUP DATE =====================
     final followUpStatusIds = [
-      2, // Blocked
+      1, // Site Visit
+      2, // Re-Visit Proposed
+      3, // Re-Visit Scheduled
       4, // Negotiation
-      6, // Retention
-      7, // Re-Visit Scheduled
-      8, // Re-Visit Proposed
-      9, // Site Visit
-      10, // Unit Selection / Blocked
+      5, // Unit Selection / Blocked
+      7, // Blocked
+      9, // Retention
     ];
 
     await DialogHelper.showCustomBottomSheet(

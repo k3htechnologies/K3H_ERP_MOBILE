@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/models/village.model.dart';
+import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/repository/channel_partner.repository.dart';
@@ -26,8 +27,6 @@ class EnquiryCubit extends Cubit<EnquiryState> {
 
   final ChannelPartnerRepository _channelPartnerRepository =
       serviceLocator<ChannelPartnerRepository>();
-  final EmployeeMasterRepository _employeeMasterRepository =
-      serviceLocator<EmployeeMasterRepository>();
 
   // SEARCH
   void searchEnquiry(BuildContext context, String searchText, int projectId) {
@@ -194,50 +193,6 @@ class EnquiryCubit extends Cubit<EnquiryState> {
 
       return partners;
     });
-  }
-
-  // FETCH EMPLOYEES LIST FOR DROPDOWN
-  Future<Map<String, dynamic>> fetchEmployees(
-    int pageNumber, {
-    String? value,
-    int? employeeId,
-  }) async {
-    final Map<String, dynamic> queryParams = {"IsCheckPermission": "false"};
-
-    queryParams["DepartmentName"] = "Sale";
-
-    if (employeeId != null && employeeId != 0) {
-      queryParams["EmployeeId"] = employeeId;
-    } else if (value != null && value.isNotEmpty) {
-      queryParams["EmployeeName"] = value;
-    }
-
-    final result = await _employeeMasterRepository.getEmployeeMasterList(
-      pageNumber: pageNumber,
-      pageSize: 15,
-      queryParams: queryParams,
-    );
-
-    return result.fold(
-      (failure) => {
-        "itemList": <Map<String, dynamic>>[],
-        "totalNumberOfRecord": 0,
-      },
-      (response) {
-        final employees = response['data'] as List<UserModel>;
-        return {
-          "itemList":
-              employees.map((employee) {
-                return {
-                  "zAttributesId": employee.employeeId,
-                  "DisplayName": employee.fullName,
-                  "MobileNo": employee.personalMobileNumber,
-                };
-              }).toList(),
-          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
-        };
-      },
-    );
   }
 
   // FETCH VILLAGES LIST FOR DROPDOWN

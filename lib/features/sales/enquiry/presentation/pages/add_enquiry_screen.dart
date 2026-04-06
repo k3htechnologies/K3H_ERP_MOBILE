@@ -4,8 +4,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
+import 'package:k3h_erp_app/core/models/modules_workflow_approval.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
+import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
@@ -60,6 +62,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       serviceLocator<InventoryRepository>();
   final ChannelPartnerRepository _channelPartnerRepository =
       serviceLocator<ChannelPartnerRepository>();
+  final UtilsRepository _utilsRepository = serviceLocator<UtilsRepository>();
 
   // EDIT MODE
   bool get _isEditMode => widget.enquiryModel != null;
@@ -236,18 +239,21 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     {'zAttributesId': 13, 'DisplayName': 'Others'},
   ];
 
+  //  ['Site Visit', 'Re - Visit Proposed', 'Re - Visit Scheduled',
+  // 'Negotiation', 'Unit Selection / Blocked', 'Booking Done',
+  //'Blocked', 'Cancelled', 'Retention', 'Lost'],
   final List<Map<String, dynamic>> stageTypeList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Stage'},
-    {'zAttributesId': 1, 'DisplayName': 'Booking Done'},
-    {'zAttributesId': 2, 'DisplayName': 'Blocked'},
-    {'zAttributesId': 3, 'DisplayName': 'Cancelled'},
+    {'zAttributesId': 1, 'DisplayName': 'Site Visit'},
+    {'zAttributesId': 2, 'DisplayName': 'Re - Visit Proposed'},
+    {'zAttributesId': 3, 'DisplayName': 'Re - Visit Scheduled'},
     {'zAttributesId': 4, 'DisplayName': 'Negotiation'},
-    {'zAttributesId': 5, 'DisplayName': 'Lost'},
-    {'zAttributesId': 6, 'DisplayName': 'Retention'},
-    {'zAttributesId': 7, 'DisplayName': 'Re - Visit Scheduled'},
-    {'zAttributesId': 8, 'DisplayName': 'Re - Visit Proposed'},
-    {'zAttributesId': 9, 'DisplayName': 'Site Visit'},
-    {'zAttributesId': 10, 'DisplayName': 'Unit Selection / Blocked'},
+    {'zAttributesId': 5, 'DisplayName': 'Unit Selection / Blocked'},
+    {'zAttributesId': 6, 'DisplayName': 'Booking Done'},
+    {'zAttributesId': 7, 'DisplayName': 'Blocked'},
+    {'zAttributesId': 8, 'DisplayName': 'Cancelled'},
+    {'zAttributesId': 9, 'DisplayName': 'Retention'},
+    {'zAttributesId': 10, 'DisplayName': 'Lost'},
   ];
 
   final List<Map<String, dynamic>> finalStageDetailsList = [
@@ -748,8 +754,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       if (_isEditMode) "Uniquekey": widget.enquiryModel!.uniquekey,
       "ProjectId": getProject().projectId,
       "EnquiryTimeIn": _timeInC,
-      "EnquiryTimeOut":
-          DateTime.now().toIso8601String().split("T")[1].split(".")[0],
+      "EnquiryTimeOut": null,
       "Name": _nameC.text.trim(),
       "MobileNumber": _mobileC.text.trim(),
       "EmailId": _emailC.text.trim(),
@@ -999,6 +1004,52 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                 return {
                   "zAttributesId": flat.inventoryFlatId,
                   "DisplayName": flat.flat,
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
+        };
+      },
+    );
+  }
+
+  // FETCH EMPLOYEES LIST FOR DROPDOWN
+  Future<Map<String, dynamic>> fetchEmployees(
+    int pageNumber, {
+    String? value,
+    int? employeeId,
+  }) async {
+    final Map<String, dynamic> queryParams = {"IsCheckPermission": "false"};
+
+    queryParams["DepartmentName"] = "Sale";
+
+    if (employeeId != null && employeeId != 0) {
+      queryParams["EmployeeId"] = employeeId;
+    } else if (value != null && value.isNotEmpty) {
+      queryParams["EmployeeName"] = value;
+    }
+
+    final result = await _utilsRepository.pullPaginationProjectWithEmployee(
+      pageNumber: pageNumber,
+      projectId: _project.projectId,
+      pageSize: 15,
+      queryParams: queryParams,
+    );
+
+    return result.fold(
+      (failure) => {
+        "itemList": <ModulesApprovalEmployeeDataModel>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final employees =
+            response['data'] as List<ModulesApprovalEmployeeDataModel>;
+        return {
+          "itemList":
+              employees.map((employee) {
+                return {
+                  "zAttributesId": employee.employeeId,
+                  "DisplayName": employee.fullName,
+                  "MobileNo": employee.personalMobileNumber,
                 };
               }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
@@ -1293,18 +1344,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                         _selectedSubSourceNotifier.value = v;
                         _selectedSubSubSourceNotifier.value =
                             subSubSourceList.first;
-                        _selectedProjectNotifier.value.clear();
-                        _selectedProjectNotifier.value.clear();
-                        _selectedFlatNotifier.value.clear();
-                        _selectedEmployeeNotifier.value.clear();
-                        if (isChannelPartner) {
-                          _channelPartnerMobileC.clear();
-                          _channelPartnerMobileNotifier.value = '';
-                          _selectedTeamMemberNotifier.value = [];
-                          _hasManualEntryNotifier.value = false;
-                          _teamMemberNameC.clear();
-                          _teamMemberMobileC.clear();
-                        }
+                        _selectedProjectNotifier.value = [];
+                        _selectedFlatNotifier.value = [];
+                        _selectedEmployeeNotifier.value = [];
                       },
                       validator: (value) {
                         if (value?['zAttributesId'] == -1) {
@@ -1469,9 +1511,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                       : ValueListenableBuilder<String>(
                         valueListenable: _channelPartnerMobileNotifier,
                         builder: (context, mobileValue, child) {
-                          if (!isChannelPartner ||
-                              subSourceId == -1 ||
-                              mobileValue.length != 10) {
+                          if (!isChannelPartner || mobileValue.length != 10) {
                             return const SizedBox.shrink();
                           }
                           return ValueListenableBuilder<
@@ -1804,7 +1844,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                               dataFetchCallBack: _fetchProjects,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Project is required";
+                                  return "Referral Project Name is required";
                                 }
                                 return null;
                               },
@@ -1843,7 +1883,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                   },
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return "Unit Number is required";
+                                      return "Referral Unit Number is required";
                                     }
                                     return null;
                                   },
@@ -1980,6 +2020,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                 CustomDropDownWidget(
                   title: "${selectedRequirement?["DisplayName"]} Type",
                   hintText: "Select ${selectedRequirement?["DisplayName"]}",
+                  isRequired: true,
                   initialValue: () {
                     if (selectedRequirement?["DisplayName"] == "Residential") {
                       return _selectedResidentialTypeNotifier.value;
@@ -2110,17 +2151,10 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       if (user.designation.toLowerCase() != 'GRE'.toLowerCase())
         CustomDatePicker(
           title: "Next Follow-Up Date",
-          isRequired: true,
           readOnly: _isEditMode,
           startDate: DateTime.now(),
           initialDate: _nextFollowUpDate,
           setValue: (v) => _nextFollowUpDate = v,
-          validator: (value) {
-            if (value == null) {
-              return "Next Follow-Up Date is required";
-            }
-            return null;
-          },
         ),
     ]);
   }
@@ -2136,7 +2170,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             isMultiSelect: false,
             initialValue: selectedSaleAdvisor,
             dataList: const [],
-            dataFetchCallBack: _enquiryCubit.fetchEmployees,
+            dataFetchCallBack: fetchEmployees,
             onSelected: (value) => _selectedSaleAdvisorNotifier.value = value,
           );
         },
@@ -2146,7 +2180,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         isMultiSelect: false,
         initialValue: _selectedSourcingManager,
         dataList: const [],
-        dataFetchCallBack: _enquiryCubit.fetchEmployees,
+        dataFetchCallBack: fetchEmployees,
         onSelected: (value) => _selectedSourcingManager = value,
       ),
       CustomTextField(

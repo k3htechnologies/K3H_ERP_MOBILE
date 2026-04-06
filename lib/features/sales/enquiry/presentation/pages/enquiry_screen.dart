@@ -360,8 +360,8 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                 // TEXT FIELDS
                 CustomTextField(
                   textController: _systemCodeC,
-                  title: "System Generated Code",
-                  hint: "Enter System Generated Code",
+                  title: "Enquiry Code",
+                  hint: "Enter Enquiry Code",
                   onChangeFunction: (_) => updateApplyState(),
                 ),
                 CustomTextField(
@@ -619,7 +619,15 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                               horizontalSpacing(),
                             ],
                             CustomIconButton.delete(
-                              isDisabled: enquiry.nextFollowUpDate != null,
+                              isDisabled:
+                                  (enquiry.nextFollowUpDate != null ||
+                                      [
+                                        'booking done',
+                                        'cancelled',
+                                        'lost',
+                                      ].contains(
+                                        enquiry.finalStage.toLowerCase(),
+                                      )),
                               onPressed: () {
                                 _showPopupToDeleteEnquiry(
                                   context: context,
@@ -651,7 +659,9 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                         title: "Next Follow-Up Date",
                         value:
                             enquiry.nextFollowUpDate != null
-                                ? formatDate(enquiry.nextFollowUpDate)
+                                ? formatDateTimeAsDDMMMYYYY(
+                                  enquiry.nextFollowUpDate!,
+                                )
                                 : "-",
                         singleLine: false,
                       ),
@@ -660,11 +670,12 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                         value: enquiry.requirement,
                         singleLine: false,
                       ),
-                      buildRowTitleValue(
-                        title: "Stage",
-                        value: enquiry.finalStage,
-                        customValueWidget: statusWidget(enquiry.finalStage),
-                      ),
+                      if (enquiry.finalStage.isNotEmpty)
+                        buildRowTitleValue(
+                          title: "Stage",
+                          value: enquiry.finalStage,
+                          customValueWidget: statusWidget(enquiry.finalStage),
+                        ),
                     ],
                   ),
                 );
