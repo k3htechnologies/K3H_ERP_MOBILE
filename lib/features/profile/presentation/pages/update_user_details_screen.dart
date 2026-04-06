@@ -401,7 +401,6 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return null;
-                      ;
                     }
                     if (!InputValidator.isValidPassport(value)) {
                       return 'Passport Number is not valid';
