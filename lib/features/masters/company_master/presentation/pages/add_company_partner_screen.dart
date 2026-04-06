@@ -161,7 +161,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
       fullName:
           "${_firstNameC.text.trim()} ${_middleNameC.text.trim()} ${_lastNameC.text.trim()}",
       dateOfBirth: dateOfBirth ?? DateTime.now(),
-      gender: _selectedGenderNotifier.value?['DisplayName']??"",
+      gender: _selectedGenderNotifier.value?['DisplayName'] ?? "",
       mobileNumber: _mobileC.text,
       emailId: _emailC.text.trim(),
       partnerPercentage: double.tryParse(_percentageC.text) ?? 0,
@@ -467,7 +467,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "Applicant Photo is required";
+                        return "Partner Photo is required";
                       }
                       return null;
                     },

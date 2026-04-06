@@ -302,7 +302,7 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
                           Row(
                             spacing: 5,
                             children: [
-                              designation.numberOfEmployee <= 0
+                              designation.numberOfEmployee == 0
                                   ? SizedBox()
                                   : CustomIconButton(
                                     onPressed: () async {

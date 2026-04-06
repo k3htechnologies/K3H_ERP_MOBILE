@@ -40,7 +40,14 @@ class ProjectMasterState extends BaseState {
 
   final String filterProjectLocation;
   final String filterCTSNumber;
-
+  final String? filterProjectName;
+  final String? filterProjectStatus;
+  final String? filterVillage;
+  final String? filterArchitectName;
+  final String? filterRERANumber;
+  final String? filterProjectScheme;
+  final String? filterProjectSubScheme;
+  final int? isRedevelopment;
   const ProjectMasterState({
     required this.isEmployeeLoading,
     required this.projectList,
@@ -71,6 +78,14 @@ class ProjectMasterState extends BaseState {
     required this.searchText,
     required this.filterProjectLocation,
     required this.filterCTSNumber,
+    required this.filterProjectName,
+    required this.filterProjectStatus,
+    required this.filterVillage,
+    required this.filterArchitectName,
+    required this.filterRERANumber,
+    required this.filterProjectScheme,
+    required this.filterProjectSubScheme,
+    required this.isRedevelopment,
 
     required this.currentSortColumn,
     required this.currentSortDirection,
@@ -108,6 +123,14 @@ class ProjectMasterState extends BaseState {
     searchText: "",
     filterCTSNumber: '',
     filterProjectLocation: '',
+    filterProjectName: '',
+    filterProjectStatus: '',
+    filterVillage: '',
+    filterArchitectName: '',
+    filterRERANumber: '',
+    filterProjectScheme: '',
+    filterProjectSubScheme: '',
+    isRedevelopment: null,
 
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
@@ -127,6 +150,14 @@ class ProjectMasterState extends BaseState {
 
     String? filterProjectLocation,
     String? filterCTSNumber,
+    String? filterProjectName,
+    String? filterProjectStatus,
+    String? filterVillage,
+    String? filterArchitectName,
+    String? filterRERANumber,
+    String? filterProjectScheme,
+    String? filterProjectSubScheme,
+    int? isRedevelopment,
 
     StateType? stateType,
     bool? isLoading,
@@ -157,27 +188,29 @@ class ProjectMasterState extends BaseState {
       isEmployeeLoading: isEmployeeLoading ?? this.isEmployeeLoading,
       projectList: projectList ?? this.projectList,
       moduleWorkflowApprovalList:
-      moduleWorkflowApprovalList ?? this.moduleWorkflowApprovalList,
+          moduleWorkflowApprovalList ?? this.moduleWorkflowApprovalList,
       companyByProject: companyByProject ?? this.companyByProject,
       bankByProject: bankByProject ?? this.bankByProject,
       employeeByProject: employeeByProject ?? this.employeeByProject,
       employeeByProjectOriginal:
-      employeeByProjectOriginal ?? this.employeeByProjectOriginal,
+          employeeByProjectOriginal ?? this.employeeByProjectOriginal,
       modulesPermissionsList:
-      modulesPermissionsList ?? this.modulesPermissionsList,
+          modulesPermissionsList ?? this.modulesPermissionsList,
 
       stateType: stateType ?? this.stateType,
 
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       totalNumberOfRecordEmployee:
-      totalNumberOfRecordEmployee ?? this.totalNumberOfRecordEmployee,
+          totalNumberOfRecordEmployee ?? this.totalNumberOfRecordEmployee,
       totalNumberOfRecordCompany:
-      totalNumberOfRecordCompany ?? this.totalNumberOfRecordCompany,
+          totalNumberOfRecordCompany ?? this.totalNumberOfRecordCompany,
 
       totalNumberOfRecordCompanyMaster:
-      totalNumberOfRecordCompanyMaster ?? this.totalNumberOfRecordCompanyMaster,
+          totalNumberOfRecordCompanyMaster ??
+          this.totalNumberOfRecordCompanyMaster,
       totalNumberOfRecordEmployeeMaster:
-      totalNumberOfRecordEmployeeMaster ?? this.totalNumberOfRecordEmployeeMaster,
+          totalNumberOfRecordEmployeeMaster ??
+          this.totalNumberOfRecordEmployeeMaster,
 
       currentPage: currentPage ?? this.currentPage,
       currentPageEmployee: currentPageEmployee ?? this.currentPageEmployee,
@@ -185,9 +218,9 @@ class ProjectMasterState extends BaseState {
       currentPageBank: currentPageBank ?? this.currentPageBank,
 
       currentPageCompanyMaster:
-      currentPageCompanyMaster ?? this.currentPageCompanyMaster,
+          currentPageCompanyMaster ?? this.currentPageCompanyMaster,
       currentPageEmployeeMaster:
-      currentPageEmployeeMaster ?? this.currentPageEmployeeMaster,
+          currentPageEmployeeMaster ?? this.currentPageEmployeeMaster,
 
       pageSize: pageSize ?? this.pageSize,
       searchText: searchText ?? this.searchText,
@@ -197,10 +230,19 @@ class ProjectMasterState extends BaseState {
 
       filterCTSNumber: filterCTSNumber ?? this.filterCTSNumber,
       filterProjectLocation:
-      filterProjectLocation ?? this.filterProjectLocation,
+          filterProjectLocation ?? this.filterProjectLocation,
 
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      filterProjectName: filterProjectName ?? this.filterProjectName,
+      filterProjectStatus: filterProjectStatus ?? this.filterProjectStatus,
+      filterVillage: filterVillage ?? this.filterVillage,
+      filterArchitectName: filterArchitectName ?? this.filterArchitectName,
+      filterRERANumber: filterRERANumber ?? this.filterRERANumber,
+      filterProjectScheme: filterProjectScheme ?? this.filterProjectScheme,
+      filterProjectSubScheme:
+          filterProjectSubScheme ?? this.filterProjectSubScheme,
+      isRedevelopment: isRedevelopment ?? this.isRedevelopment,
     );
   }
 
@@ -240,5 +282,13 @@ class ProjectMasterState extends BaseState {
 
     filterCTSNumber,
     filterProjectLocation,
+    filterProjectName,
+    filterProjectStatus,
+    filterVillage,
+    filterArchitectName,
+    filterRERANumber,
+    filterProjectScheme,
+    filterProjectSubScheme,
+    isRedevelopment,
   ];
 }
