@@ -98,6 +98,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   late ValueNotifier<MultiFilePickerModel> selectedGSTCertificateForPopUpFile;
 
   ValueNotifier<bool> isCompanyPrefilled = ValueNotifier(false);
+  bool get isNewCompany => selectedCompanyType.value?['zAttributesId'] == 1;
 
   // DROPDOWN VARIABLES
   final List<Map<String, dynamic>> specialityList = [
@@ -872,22 +873,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                     ValueListenableBuilder(
                       valueListenable: selectedCompanyType,
                       builder: (context, companyType, _) {
-                        final int companyTypeId =
-                            companyType?['zAttributesId'] ?? -1;
-
                         return ValueListenableBuilder<Map<String, dynamic>?>(
                           valueListenable: selectedType,
                           builder: (context, value, _) {
-                            if (companyTypeId == 2) {
-                              return CustomTextField(
-                                title: "Type",
-                                isRequired: true,
-                                readOnly: true,
-                                textController: TextEditingController(
-                                  text: value?['DisplayName'] ?? '',
-                                ),
-                              );
-                            }
                             return CustomDropDownWidget(
                               title: "Type",
                               isRequired: true,
@@ -924,23 +912,34 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                       child: Checkbox(
                                         value: hasRera,
                                         onChanged:
-                                            isCompanyPrefilled.value ||
-                                                    (hasRera &&
-                                                        selectedDesignation
-                                                                .value !=
-                                                            null &&
-                                                        selectedDesignation
-                                                                .value!["zAttributesId"] !=
-                                                            3)
-                                                ? null
-                                                : (value) {
+                                            isNewCompany
+                                                ? (value) {
                                                   hasReraNumber.value =
                                                       value ?? false;
 
                                                   if (!hasReraNumber.value) {
                                                     _reraNumberC.clear();
                                                   }
-                                                },
+                                                }
+                                                : null,
+                                        // onChanged:
+                                        //     isCompanyPrefilled.value ||
+                                        //             (hasRera &&
+                                        //                 selectedDesignation
+                                        //                         .value !=
+                                        //                     null &&
+                                        //                 selectedDesignation
+                                        //                         .value!["zAttributesId"] !=
+                                        //                     3)
+                                        //         ? null
+                                        //         : (value) {
+                                        //           hasReraNumber.value =
+                                        //               value ?? false;
+
+                                        //           if (!hasReraNumber.value) {
+                                        //             _reraNumberC.clear();
+                                        //           }
+                                        //         },
                                       ),
                                     ),
                                     horizontalSpacing(width: 2),
@@ -959,12 +958,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                 CustomTextField(
                                   title: 'RERA Number',
                                   isRequired: hasRera,
-                                  readOnly:
-                                      isCompanyPrefilled.value ||
-                                      (selectedDesignation.value != null &&
-                                          selectedDesignation
-                                                  .value!["zAttributesId"] !=
-                                              3),
+                                  readOnly: !isNewCompany,
                                   hint: "Enter RERA Number",
                                   textController: _reraNumberC,
                                   inputFormatterList:
