@@ -961,7 +961,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             children: [
               Expanded(
                 child: _buildPartnerField(
-                  "Contact No.",
+                  "Mobile Number",
                   companyPartnerModel.mobileNumber,
                 ),
               ),
@@ -969,6 +969,32 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                 child: _buildPartnerField(
                   "Share%",
                   "${companyPartnerModel.partnerPercentage.toStringAsFixed(1)}%",
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: _buildPartnerField(
+                  "Email ID",
+                  companyPartnerModel.emailId,
+                ),
+              ),
+              Expanded(
+                child: _buildPartnerField(
+                  "PAN Number",
+                  companyPartnerModel.panNumber,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: _buildPartnerField(
+                  "Aadhaar Number",
+                  companyPartnerModel.aadharCardNumber,
                 ),
               ),
             ],

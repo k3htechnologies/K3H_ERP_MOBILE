@@ -391,8 +391,8 @@ class ParkingCubit extends Cubit<ParkingState> {
           exportExcelOrPdfMobile(
             exportData,
             exportType.toLowerCase() == "pdf"
-                ? "parking_${DateTime.now()}.pdf"
-                : "parking_${DateTime.now()}.xlsx",
+                ? "Parking ${DateTime.now()}.pdf"
+                : "Parking ${DateTime.now()}.xlsx",
           );
         } else {
           showErrorMessage(

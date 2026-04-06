@@ -148,7 +148,7 @@ class ParkingDatasourceImpl implements ParkingDatasource {
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullParkingExportUrl(projectId: projectId),
+        pullParkingExportUrl(projectId: projectId,queryParams: queryParams),
       );
       return {
         'data': networkResponse["data"] ?? networkResponse["Data"],
