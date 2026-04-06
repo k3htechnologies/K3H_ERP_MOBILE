@@ -35,8 +35,6 @@ class _UnitSpecificationViewScreenState
               _buildBasicInformationSection(),
               _buildUnitDetailsSection(),
               _buildSpecificationSection(),
-              if (widget.flatModel.ownerName.isNotEmpty)
-                _buildOwnerInformationSection(),
             ],
           ),
         ),
@@ -141,7 +139,6 @@ class _UnitSpecificationViewScreenState
                 title: "Status",
                 value: widget.flatModel.flatStatus,
               ),
-              buildColumnTitleValue(title: "", value: ""),
             ],
           ),
         ],
@@ -213,53 +210,6 @@ class _UnitSpecificationViewScreenState
                 ),
               );
             }),
-        ],
-      ),
-    );
-  }
-
-  // OWNER INFORMATION SECTION
-  Widget _buildOwnerInformationSection() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      margin: EdgeInsets.only(bottom: 10),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildTitle(title: "Owner Information"),
-          verticalSpacing(height: 15),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildColumnTitleValue(
-                title: "Owner Name",
-                value: widget.flatModel.ownerName,
-              ),
-              buildColumnTitleValue(title: "", value: ""),
-            ],
-          ),
-          if (widget.flatModel.bookingCreatedBy.isNotEmpty) ...[
-            verticalSpacing(),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                buildColumnTitleValue(
-                  title: "Booked By",
-                  value: widget.flatModel.bookingCreatedBy,
-                ),
-                buildColumnTitleValue(
-                  title: "Booked On",
-                  value:
-                      widget.flatModel.bookingCreatedDate != null
-                          ? formatDateTimeAsDDMMMYYYY(
-                            widget.flatModel.bookingCreatedDate!,
-                          )
-                          : "-",
-                ),
-              ],
-            ),
-          ],
         ],
       ),
     );

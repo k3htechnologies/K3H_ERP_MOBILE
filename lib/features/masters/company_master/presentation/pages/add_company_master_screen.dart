@@ -18,6 +18,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
+import 'package:k3h_erp_app/widgets/file_preview_dialog_content.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -922,6 +923,12 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: AppColor.lightBlue,
+                child: ClipOval(child: _buildPartnerImage(companyPartnerModel)),
+              ),
+              horizontalSpacing(),
               Expanded(
                 child: _buildPartnerField("Name", companyPartnerModel.fullName),
               ),
@@ -985,6 +992,57 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                 child: _buildPartnerField(
                   "PAN Number",
                   companyPartnerModel.panNumber,
+                  customValueWidget: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          companyPartnerModel.panNumber,
+                          style: AppTextStyle.ts14R(),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+horizontalSpacing(width: 8),
+                      CustomIconButton(
+                        onPressed: () {
+                          final panFile = companyPartnerModel.panCardFile;
+
+                          List<String> urls = [];
+
+                          if (panFile != null &&
+                              panFile.fileNameList.isNotEmpty) {
+                            urls = panFile.fileNameList;
+                          } else if (companyPartnerModel
+                              .panCardURL
+                              .isNotEmpty) {
+                            urls = companyPartnerModel.panCardURL.split(",");
+                          }
+
+                          List<Uint8List>? bytes;
+
+                          if (panFile != null &&
+                              panFile.fileBytesList.isNotEmpty) {
+                            bytes = panFile.fileBytesList;
+                          }
+                          if (urls.isEmpty &&
+                              (bytes == null || bytes.isEmpty)) {
+                            showErrorMessage(context, "", "No file available");
+                            return;
+                          }
+                          CommonFileViewerMobile.show(
+                            context,
+                            urls: urls.isNotEmpty ? urls : ["file"],
+                            fileBytes: bytes,
+                            title: "PAN Document",
+                          );
+                        },
+                        icon: Icon(
+                          Icons.remove_red_eye_outlined,
+                          color: AppColor.primary,
+                          size: 16,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -995,6 +1053,54 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                 child: _buildPartnerField(
                   "Aadhaar Number",
                   companyPartnerModel.aadharCardNumber,
+                  customValueWidget: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          companyPartnerModel.aadharCardNumber,
+                          style: AppTextStyle.ts14R(),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      horizontalSpacing(width: 8),
+
+                      CustomIconButton(
+                        onPressed: () {
+                          final aadhaarFile = companyPartnerModel.aadharCardFile;
+
+                          List<String> urls = [];
+
+                          if (aadhaarFile != null &&
+                              aadhaarFile.fileNameList.isNotEmpty) {
+                            urls = aadhaarFile.fileNameList;
+                          } else if (companyPartnerModel.aadharCardURL.isNotEmpty) {
+                            urls = companyPartnerModel.aadharCardURL.split(",");
+                          }
+                          List<Uint8List>? bytes;
+
+                          if (aadhaarFile != null &&
+                              aadhaarFile.fileBytesList.isNotEmpty) {
+                            bytes = aadhaarFile.fileBytesList;
+                          }
+                          if (urls.isEmpty && (bytes == null || bytes.isEmpty)) {
+                            showErrorMessage(context, "","No file available");
+                            return;
+                          }
+                          CommonFileViewerMobile.show(
+                            context,
+                            urls: urls.isNotEmpty ? urls : ["file"],
+                            fileBytes: bytes,
+                            title: "Aadhaar Document",
+                          );
+                        },
+                        icon: Icon(
+                          Icons.remove_red_eye_outlined,
+                          color: AppColor.primary,
+                          size: 16,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -1004,15 +1110,64 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     );
   }
 
+  Widget _buildPartnerImage(CompanyPartnerModel partner) {
+    if (partner.photoFile != null &&
+        partner.photoFile!.fileBytesList.isNotEmpty &&
+        partner.photoFile!.fileBytesList.first.isNotEmpty) {
+      return Image.memory(
+        partner.photoFile!.fileBytesList.first,
+        fit: BoxFit.cover,
+        width: 40,
+        height: 40,
+      );
+    }
+
+    String? imageUrl;
+
+    if (partner.photoFile != null &&
+        partner.photoFile!.fileNameList.isNotEmpty &&
+        partner.photoFile!.fileNameList.first.startsWith("http")) {
+      imageUrl = partner.photoFile!.fileNameList.first;
+    } else if (partner.photoURL.isNotEmpty) {
+      imageUrl = partner.photoURL.split(",").first;
+    }
+
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      return Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        width: 40,
+        height: 40,
+        errorBuilder: (_, __, ___) => _defaultAvatar(),
+      );
+    }
+
+    return _defaultAvatar();
+  }
+
+  Widget _defaultAvatar() {
+    return Icon(Icons.person, size: 20, color: AppColor.primary);
+  }
+
   // BUILD PARTNER FIELD
-  Widget _buildPartnerField(String label, String value) {
+  Widget _buildPartnerField(
+    String label,
+    String value, {
+    TextStyle? valueTextStyle,
+    Widget? customValueWidget,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: AppTextStyle.ts12R(color: AppColor.grey)),
-          Text(value, style: AppTextStyle.ts14R()),
+          verticalSpacing(height: 4),
+          customValueWidget ??
+              Text(
+                value.isEmpty ? "-" : value,
+                style: valueTextStyle ?? AppTextStyle.ts14R(),
+              ),
         ],
       ),
     );

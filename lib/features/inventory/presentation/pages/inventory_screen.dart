@@ -205,7 +205,6 @@ class _InventoryScreenState extends State<InventoryScreen>
 
     if (_wingTabController != null) {
       _wingTabController!.removeListener(_onWingTabChanged);
-      _wingTabController!.dispose();
       _wingTabController = null;
     }
 
@@ -274,7 +273,7 @@ class _InventoryScreenState extends State<InventoryScreen>
             showErrorMessage(context, "Error", "Please Select a project");
             return;
           }
-          if(_inventoryCubit.state.buildingList.isEmpty){
+          if (_inventoryCubit.state.buildingList.isEmpty) {
             showErrorMessage(context, "", "Inventory to be generated from web");
             return;
           }
@@ -595,92 +594,98 @@ class _InventoryScreenState extends State<InventoryScreen>
                                           children: [
                                             if (_routeAuthorizationModel
                                                 .isAction)
-                                              GestureDetector(
-                                                onTap: () async {
-                                                  await goRouter.pushNamed(
-                                                    AppRoutes
-                                                        .addInventorySpecification,
-                                                    queryParameters: {
-                                                      "flatModel": Uri.encodeQueryComponent(
-                                                        EncryptionManager.encryptData(
-                                                          jsonEncode(
-                                                            FlatModel(
-                                                              inventoryFlatId:
-                                                                  0,
-                                                              uniquekey: "",
-                                                              inventoryBuildingId:
-                                                                  floor
-                                                                      .inventoryBuildingId,
-                                                              buildingNumber:
-                                                                  building
-                                                                      .buildingNumber,
-                                                              inventoryFlatFloorBasementPodiumWingId:
-                                                                  floor
-                                                                      .inventoryFlatFloorBasementPodiumWingId,
-                                                              wing: wing.wing,
-                                                              inventoryFloorId:
-                                                                  floor
-                                                                      .inventoryFloorId,
-                                                              floor:
-                                                                  floor.floor,
-                                                              slabHeight:
-                                                                  floor
-                                                                      .slabHeight,
-                                                              parkingCount:
-                                                                  floor
-                                                                      .parkingCount,
-                                                              flat: "",
-                                                              reraCarpetAreaSqFt:
-                                                                  0,
-                                                              flatType: "",
-                                                              flatConfiguration:
-                                                                  "",
-                                                              flatStatus: "",
-                                                              ownerName: "",
-                                                              flatFacing: "",
-                                                              createdBy: "",
-                                                              createdById: 0,
-                                                              modifiedBy: "",
-                                                              modifiedById: 0,
-                                                              createdDate:
-                                                                  DateTime.now(),
-                                                              modifiedDate:
-                                                                  DateTime.now(),
-                                                              bookingId: 0,
-                                                              bookingCreatedById:
-                                                                  0,
-                                                              bookingCreatedBy:
-                                                                  "",
-                                                              bookingCreatedDate:
-                                                                  DateTime.now(),
-                                                              specificationList:
-                                                                  [],
+                                              if (wing.approvalStatus !=
+                                                      "Approved" &&
+                                                  wing.approvalStatus !=
+                                                      "Partial Approved")
+                                                GestureDetector(
+                                                  onTap: () async {
+                                                    await goRouter.pushNamed(
+                                                      AppRoutes
+                                                          .addInventorySpecification,
+                                                      queryParameters: {
+                                                        "flatModel": Uri.encodeQueryComponent(
+                                                          EncryptionManager.encryptData(
+                                                            jsonEncode(
+                                                              FlatModel(
+                                                                inventoryFlatId:
+                                                                    0,
+                                                                uniquekey: "",
+                                                                inventoryBuildingId:
+                                                                    floor
+                                                                        .inventoryBuildingId,
+                                                                buildingNumber:
+                                                                    building
+                                                                        .buildingNumber,
+                                                                inventoryFlatFloorBasementPodiumWingId:
+                                                                    floor
+                                                                        .inventoryFlatFloorBasementPodiumWingId,
+                                                                wing: wing.wing,
+                                                                inventoryFloorId:
+                                                                    floor
+                                                                        .inventoryFloorId,
+                                                                floor:
+                                                                    floor.floor,
+                                                                slabHeight:
+                                                                    floor
+                                                                        .slabHeight,
+                                                                parkingCount:
+                                                                    floor
+                                                                        .parkingCount,
+                                                                flat: "",
+                                                                reraCarpetAreaSqFt:
+                                                                    0,
+                                                                flatType: "",
+                                                                flatConfiguration:
+                                                                    "",
+                                                                flatStatus: "",
+                                                                ownerName: "",
+                                                                flatFacing: "",
+                                                                createdBy: "",
+                                                                createdById: 0,
+                                                                modifiedBy: "",
+                                                                modifiedById: 0,
+                                                                createdDate:
+                                                                    DateTime.now(),
+                                                                modifiedDate:
+                                                                    DateTime.now(),
+                                                                bookingId: 0,
+                                                                bookingCreatedById:
+                                                                    0,
+                                                                bookingCreatedBy:
+                                                                    "",
+                                                                bookingCreatedDate:
+                                                                    DateTime.now(),
+                                                                specificationList:
+                                                                    [],
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
-                                                      ),
-                                                      "floorModel":
-                                                          Uri.encodeQueryComponent(
-                                                            EncryptionManager.encryptData(
-                                                              jsonEncode(floor),
+                                                        "floorModel":
+                                                            Uri.encodeQueryComponent(
+                                                              EncryptionManager.encryptData(
+                                                                jsonEncode(
+                                                                  floor,
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                    },
-                                                  );
-                                                  if (context.mounted) {
-                                                    await _inventoryCubit
-                                                        .getInventory(
-                                                          context,
-                                                          _project.projectId,
-                                                        );
-                                                  }
-                                                },
-                                                child: Icon(
-                                                  Icons.add,
-                                                  size: 18,
-                                                  color: AppColor.darkGreen,
+                                                      },
+                                                    );
+                                                    if (context.mounted) {
+                                                      await _inventoryCubit
+                                                          .getInventory(
+                                                            context,
+                                                            _project.projectId,
+                                                          );
+                                                    }
+                                                  },
+                                                  child: Icon(
+                                                    Icons.add,
+                                                    size: 18,
+                                                    color: AppColor.darkGreen,
+                                                  ),
                                                 ),
-                                              ),
                                             Icon(
                                               isExpanded
                                                   ? Icons.keyboard_arrow_up
@@ -877,21 +882,28 @@ class _InventoryScreenState extends State<InventoryScreen>
 
     final status = flat.flatStatus.toLowerCase();
 
+    final isApproved =
+        approvalStatus.toLowerCase() == "approved" ||
+        approvalStatus.toLowerCase() == "partial approved";
+
     //  VIEW → only booked & allotted AND permission
     final showView =
         (canView && (status == "booked" || status == "allotted")) ||
             (!canAction &&
-                (status == "available" || status == "blocked" || status == "hold"));
-
+                (status == "available" || status == "blocked" || status == "hold")) ||
+            (canAction && isApproved);
 
     //  EDIT → available, blocked, hold AND permission
     final showEdit =
         canAction &&
+        !isApproved &&
         (status == "available" || status == "blocked" || status == "hold");
 
     //  DELETE → only available AND permission
-    final showDelete = canAction && status == "available" && approvalStatus!="Approved";
-
+    final showDelete =
+        canAction &&
+            status == "available" &&
+            !isApproved;
 
     return Container(
       width: double.infinity,
@@ -907,8 +919,14 @@ class _InventoryScreenState extends State<InventoryScreen>
           Text("Unit No. : ${flat.flat}", style: AppTextStyle.ts14M()),
           verticalSpacing(height: 5),
           buildRowTitleValue(title: "Type", value: flat.flatType),
-          buildRowTitleValue(title: "Area(Sq.ft)", value: flat.reraCarpetAreaSqFt.toString()),
-          buildRowTitleValue(title: "Configuration", value: flat.flatConfiguration),
+          buildRowTitleValue(
+            title: "Area(Sq.ft)",
+            value: flat.reraCarpetAreaSqFt.toString(),
+          ),
+          buildRowTitleValue(
+            title: "Configuration",
+            value: flat.flatConfiguration,
+          ),
           verticalSpacing(),
           Row(
             children: [
@@ -1036,7 +1054,7 @@ class _InventoryScreenState extends State<InventoryScreen>
               },
               child: Text(
                 "Owner : ${flat.ownerName}",
-                style: AppTextStyle.ts12R(color: AppColor.primary),
+                style: AppTextStyle.ts14M(color: AppColor.primary).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
               ),
             ),
           ],

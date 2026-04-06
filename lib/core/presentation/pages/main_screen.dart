@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/bottom_navigation/bottom_navigation_bar_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 final GlobalKey<ScaffoldState> mobileScreenGlobalScaffoldKey =
@@ -69,10 +70,21 @@ class _MainScreenState extends State<MainScreen>
                         goRouter.pop();
                         goRouter.go(AppRoutes.profile);
                       },
-                      child: CircleAvatar(
-                        radius: 25,
-                        backgroundColor: AppColor.primary.withValues(alpha: .6),
-                        child: Text(
+                      child:     CircleAvatar(
+                        radius: 35,
+                        backgroundColor: AppColor.primary,
+                        child:
+                        user.profilePhotoURL.isNotEmpty
+                            ? ClipOval(
+                          child: NetworkImageWidget(
+                            key: ValueKey(user.profilePhotoURL),
+                            imageUrl: user.profilePhotoURL,
+                            fit: BoxFit.fill,
+                            width: 70,
+                            height: 70,
+                          ),
+                        )
+                            : Text(
                           user.fullName.isNotEmpty
                               ? user.fullName[0].toUpperCase()
                               : 'U',

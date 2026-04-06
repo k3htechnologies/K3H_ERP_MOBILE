@@ -24,6 +24,7 @@ class CustomMultiFilePicker extends StatefulWidget {
   final int maxFiles;
   final bool readOnly;
   final List<String>? initialFileList;
+  final List<Uint8List>? initialFileBytes;
   final FilePickType filePickType;
   final Function(
     List<Uint8List> fileBytesList,
@@ -44,6 +45,7 @@ class CustomMultiFilePicker extends StatefulWidget {
     this.maxFiles = 2,
     this.readOnly = false,
     this.initialFileList,
+    this.initialFileBytes,
     this.onFileDeleteCallback,
     this.validator,
     this.actions,
@@ -339,7 +341,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
 
                                   Row(
                                     children: [
-                                      /// 👁 VIEW (always if preview supported)
+                                      /// VIEW (always if preview supported)
                                       if (canPreview)
                                         InkWell(
                                           onTap: () {
@@ -349,13 +351,9 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                                             CommonFileViewerMobile.show(
                                               context,
                                               urls: [fileName],
-                                              fileBytes:
-                                                  fileBytesList.length >
-                                                              index &&
-                                                          fileBytesList[index]
-                                                              .isNotEmpty
-                                                      ? [fileBytesList[index]]
-                                                      : null,
+                                              fileBytes: fileBytesList[index].isNotEmpty
+                                                  ? [fileBytesList[index]]
+                                                  : null,
                                             );
                                           },
                                           child: Icon(
@@ -539,9 +537,15 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
     super.initState();
     if (widget.initialFileList != null) {
       fileNamesList = widget.initialFileList!;
-      fileBytesList = List.generate(
+
+      fileBytesList =
+      widget.initialFileBytes != null &&
+          widget.initialFileBytes!.length ==
+              widget.initialFileList!.length
+          ? widget.initialFileBytes!
+          : List.generate(
         widget.initialFileList!.length,
-        (i) => Uint8List(0),
+            (i) => Uint8List(0),
       );
     }
   }

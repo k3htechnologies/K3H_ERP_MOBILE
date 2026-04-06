@@ -199,3 +199,18 @@ Widget approvalStatusWidget(String status) {
       return statusChip(status, AppColor.lightGreyBackground, AppColor.black);
   }
 }
+
+Widget showSiteSelectedWidget({required String siteName}){
+  return Container(
+    decoration: commonCardDecoration(),
+    padding: EdgeInsets.all(16),
+    margin: EdgeInsets.only(bottom: 10),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Project: ",style: AppTextStyle.ts14M(color: AppColor.grey,)),
+        Flexible(child: Text(siteName,style: AppTextStyle.ts14SB(color: AppColor.black,))),
+      ],
+    ),
+  );
+}

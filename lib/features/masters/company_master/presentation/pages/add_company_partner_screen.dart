@@ -384,6 +384,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     isRequired: true,
                     filePickType: FilePickType.kycDocument,
                     initialFileList: panFile.fileNameList,
+                    initialFileBytes: panFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       panFile.fileNameList = fileNameList;
                       panFile.fileBytesList = bytesList;
@@ -426,6 +427,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     isRequired: true,
                     filePickType: FilePickType.kycDocument,
                     initialFileList: aadhaarFile.fileNameList,
+                    initialFileBytes: aadhaarFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       aadhaarFile.fileNameList = fileNameList;
                       aadhaarFile.fileBytesList = bytesList;
@@ -451,6 +453,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     isRequired: true,
                     filePickType: FilePickType.image,
                     initialFileList: photoFile.fileNameList,
+                    initialFileBytes: photoFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       photoFile.fileNameList = fileNameList;
                       photoFile.fileBytesList = bytesList;

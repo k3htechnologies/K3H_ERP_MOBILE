@@ -68,12 +68,11 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
   }
 
   // CHECK IF ITS IMAGE OR NOT
-  bool isImage(String url) {
-    final fileName = url.split('/').last.toLowerCase();
-    final ext = fileName.contains('.') ? fileName.split('.').last : '';
+  bool isImage(String url, {Uint8List? bytes}) {
+    if (bytes != null && bytes.isNotEmpty) return true;
 
-    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif']
-        .contains(ext);
+    final ext = url.split('.').last.toLowerCase();
+    return ['jpg','jpeg','png','webp','heic','heif','gif'].contains(ext);
   }
 
   bool isPdf(String url) {
@@ -283,7 +282,7 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
                     itemBuilder: (context, index) {
                       final url = widget.urls[index];
 
-                      if (isImage(url)) {
+                      if (isImage(url,bytes: widget.fileBytes?[index])) {
                         return Container(
                           padding: const EdgeInsets.all(16.0),
                           child: Column(
