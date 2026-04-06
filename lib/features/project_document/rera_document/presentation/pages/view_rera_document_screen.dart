@@ -411,7 +411,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                   queryParameters: {
                     "subTitle": Uri.encodeComponent(
                       EncryptionManager.encryptData(
-                        "${widget.documentModel.projectRERADocumentName} > ${document.projectRERADocumentName}",
+                        "${widget.documentModel.projectRERADocumentCategory} > ${document.projectRERADocumentName}",
                       ),
                     ),
                     "title": Uri.encodeComponent(
