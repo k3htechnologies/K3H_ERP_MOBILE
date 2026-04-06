@@ -97,23 +97,26 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     {"zAttributesId": 3, "DisplayName": "Intern"},
     {"zAttributesId": 4, "DisplayName": "Part Time"},
     {"zAttributesId": 5, "DisplayName": "Temporary"},
+    {"zAttributesId": 6, "DisplayName": "Full Time"},
   ];
 
   List<Map<String, dynamic>> relationToEmployeeList = [
     {"zAttributesId": 1, "DisplayName": "Father"},
     {"zAttributesId": 2, "DisplayName": "Mother"},
-    {"zAttributesId": 3, "DisplayName": "Spouse"},
-    {"zAttributesId": 4, "DisplayName": "Sibling"},
-    {"zAttributesId": 5, "DisplayName": "Child"},
-    {"zAttributesId": 6, "DisplayName": "Son"},
-    {"zAttributesId": 7, "DisplayName": "Daughter"},
-    {"zAttributesId": 8, "DisplayName": "Grandfather"},
-    {"zAttributesId": 9, "DisplayName": "Grandmother"},
-    {"zAttributesId": 10, "DisplayName": "Uncle"},
-    {"zAttributesId": 11, "DisplayName": "Aunty"},
-    {"zAttributesId": 12, "DisplayName": "Cousin"},
-    {"zAttributesId": 13, "DisplayName": "Friend"},
-    {"zAttributesId": 14, "DisplayName": "Other"},
+    {"zAttributesId": 3, "DisplayName": "Brother"},
+    {"zAttributesId": 4, "DisplayName": "Sister"},
+    {"zAttributesId": 5, "DisplayName": "Spouse"},
+    {"zAttributesId": 6, "DisplayName": "Sibling"},
+    {"zAttributesId": 7, "DisplayName": "Child"},
+    {"zAttributesId": 8, "DisplayName": "Son"},
+    {"zAttributesId": 9, "DisplayName": "Daughter"},
+    {"zAttributesId": 10, "DisplayName": "Grandfather"},
+    {"zAttributesId": 11, "DisplayName": "Grandmother"},
+    {"zAttributesId": 12, "DisplayName": "Uncle"},
+    {"zAttributesId": 13, "DisplayName": "Aunty"},
+    {"zAttributesId": 14, "DisplayName": "Cousin"},
+    {"zAttributesId": 15, "DisplayName": "Friend"},
+    {"zAttributesId": 16, "DisplayName": "Other"},
   ];
 
   // EMPLOYEE INFO SHEET

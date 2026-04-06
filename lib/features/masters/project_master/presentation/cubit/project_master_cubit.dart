@@ -23,7 +23,6 @@ import 'package:k3h_erp_app/utils/storage_key.dart';
 
 part 'project_master_state.dart';
 
-
 class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   ProjectMasterCubit() : super(ProjectMasterState.initial());
 
@@ -103,6 +102,14 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required BuildContext context,
     String? ctsNumber,
     String? projectLocation,
+    String? projectName,
+    String? projectStatus,
+    String? village,
+    String? architectName,
+    String? reraNumber,
+    String? projectScheme,
+    String? projectSubScheme,
+    bool isRedevelopment = false,
     bool? isClear,
   }) async {
     if (isClear ?? false) {
@@ -111,6 +118,14 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
           filterCTSNumber: "",
           filterProjectLocation: "",
           currentPage: 1,
+          filterProjectName: '',
+          filterProjectStatus: '',
+          filterVillage: '',
+          filterArchitectName: '',
+          filterRERANumber: '',
+          filterProjectScheme: '',
+          filterProjectSubScheme: '',
+          isRedevelopment: null,
         ),
       );
     } else {
@@ -119,6 +134,20 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
           filterCTSNumber: ctsNumber ?? state.filterCTSNumber,
           filterProjectLocation: projectLocation ?? state.filterProjectLocation,
           currentPage: 1,
+          filterProjectName: projectName ?? state.filterProjectName,
+          filterProjectStatus: projectStatus ?? state.filterProjectStatus,
+          filterVillage: village ?? state.filterVillage,
+          filterArchitectName: architectName ?? state.filterArchitectName,
+          filterRERANumber: reraNumber ?? state.filterRERANumber,
+          filterProjectScheme: projectScheme ?? state.filterProjectScheme,
+          filterProjectSubScheme:
+              projectSubScheme ?? state.filterProjectSubScheme,
+          isRedevelopment:
+              isRedevelopment == true
+                  ? 1
+                  : isRedevelopment == false
+                  ? 0
+                  : state.isRedevelopment,
         ),
       );
     }
@@ -144,16 +173,17 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
 
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) async {
-            final List<ProjectModel> newData =
-            List<ProjectModel>.from(response['data'] ?? []);
+      (response) async {
+        final List<ProjectModel> newData = List<ProjectModel>.from(
+          response['data'] ?? [],
+        );
 
         final List<ProjectModel> updatedList =
-        pageNumber == 1 ? newData : [...state.projectList, ...newData];
+            pageNumber == 1 ? newData : [...state.projectList, ...newData];
 
         emit(
           state.copyWith(
@@ -593,9 +623,9 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       },
       (response) {
         final allEmployees =
-        (response['data'] as List)
-            .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
-            .toList();
+            (response['data'] as List)
+                .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
+                .toList();
 
         final isSearch = queryParams != null && queryParams.isNotEmpty;
 
@@ -604,9 +634,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
             isEmployeeLoading: false,
             employeeByProject: allEmployees,
             employeeByProjectOriginal:
-            isSearch
-                ? state.employeeByProjectOriginal
-                : allEmployees,
+                isSearch ? state.employeeByProjectOriginal : allEmployees,
             totalNumberOfRecordEmployee: response['totalNumberOfRecord'],
             currentPageEmployee: 1,
           ),

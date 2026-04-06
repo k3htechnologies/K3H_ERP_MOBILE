@@ -719,6 +719,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             title: 'Company Letterhead Header',
             isRequired: true,
             filePickType: FilePickType.both,
+            maxFiles: 1,
             initialFileList: selectedCompanyLetterHeadHeaderFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
               selectedCompanyLetterHeadHeaderFile.fileNameList = fileNameList;
@@ -739,6 +740,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           CustomMultiFilePicker(
             title: 'Company Letterhead Footer',
             filePickType: FilePickType.both,
+            maxFiles: 1,
             isRequired: true,
             initialFileList: selectedCompanyLetterHeadFooterFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
