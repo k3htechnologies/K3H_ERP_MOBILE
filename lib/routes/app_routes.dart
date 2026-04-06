@@ -149,6 +149,15 @@ class AppRoutes {
   static String addClassificationParameter = "/addClassificationParameter";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
+  /// CRM
+
+  /// PAY TRACK
+  static String payTrackMaster = "/payTrack";
+
+  /// BROKERAGE
+  static String brokerage = "/brokerage";
+
+  /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// PAYROLL MASTER
 
   // ASSET MASTER
