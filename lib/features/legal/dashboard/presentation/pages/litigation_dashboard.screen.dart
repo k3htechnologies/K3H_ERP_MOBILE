@@ -1026,7 +1026,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
 
             for (var url in urls) {
               if (url.trim().isNotEmpty) {
-                docs.add({"title": "Case Document", "url": url.trim()});
+                docs.add({"title": "Litigation Document", "url": url.trim()});
               }
             }
           }
