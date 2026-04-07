@@ -1013,14 +1013,14 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   }
 
   // FETCH EMPLOYEES LIST FOR DROPDOWN
-  Future<Map<String, dynamic>> fetchEmployees(
+  Future<Map<String, dynamic>> _fetchSalesEmployees(
     int pageNumber, {
     String? value,
     int? employeeId,
   }) async {
     final Map<String, dynamic> queryParams = {"IsCheckPermission": "false"};
 
-    queryParams["DepartmentName"] = "Sale";
+    queryParams["DepartmentName"] = "Sales";
 
     if (employeeId != null && employeeId != 0) {
       queryParams["EmployeeId"] = employeeId;
@@ -1048,8 +1048,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               employees.map((employee) {
                 return {
                   "zAttributesId": employee.employeeId,
-                  "DisplayName": employee.fullName,
-                  "MobileNo": employee.personalMobileNumber,
+                  "DisplayName":
+                      "${employee.fullName} - ${employee.department} - ${employee.designation}",
                 };
               }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
@@ -2170,7 +2170,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             isMultiSelect: false,
             initialValue: selectedSaleAdvisor,
             dataList: const [],
-            dataFetchCallBack: fetchEmployees,
+            dataFetchCallBack: _fetchSalesEmployees,
             onSelected: (value) => _selectedSaleAdvisorNotifier.value = value,
           );
         },
@@ -2180,7 +2180,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         isMultiSelect: false,
         initialValue: _selectedSourcingManager,
         dataList: const [],
-        dataFetchCallBack: fetchEmployees,
+        dataFetchCallBack: _fetchSalesEmployees,
         onSelected: (value) => _selectedSourcingManager = value,
       ),
       CustomTextField(

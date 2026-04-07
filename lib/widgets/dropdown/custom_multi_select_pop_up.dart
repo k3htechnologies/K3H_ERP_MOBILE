@@ -773,6 +773,7 @@ class _DropdownListState extends State<DropdownList> {
                                   vertical: 8.0,
                                 ),
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.only(right: 10),
@@ -807,8 +808,6 @@ class _DropdownListState extends State<DropdownList> {
                                       child: Text(
                                         item['DisplayName'],
                                         style: AppTextStyle.ts14R(),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],

@@ -83,6 +83,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
     {'DisplayName': 'Dropped The Idea Of Buying'},
     {'DisplayName': 'Booked Somewhere Else'},
   ]; // VARIABLE GET FILLED WHEN TEAM MEMBER ID IS THERE
+  final closedStatuses = ['booking done', 'cancelled', 'lost'];
 
   @override
   void initState() {
@@ -170,9 +171,12 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
           }
 
           // 4️. CLOSED STATUS CHECK
-          final closedStatuses = ['booking done', 'cancelled', 'lost'];
 
           if (closedStatuses.contains(enquiry.finalStage.toLowerCase()) ||
+              (state.enquiryFollowUpList.isNotEmpty &&
+                  closedStatuses.contains(
+                    state.enquiryFollowUpList.first.status.toLowerCase(),
+                  )) ||
               !_routeAuthorizationModel.isAction) {
             return const SizedBox.shrink();
           }
@@ -1117,45 +1121,40 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                                     ),
                                                   ),
                                                   if (index == 0 &&
-                                                      ![
-                                                        'booking done',
-                                                        'cancelled',
-                                                        'lost',
-                                                      ].contains(
-                                                        item.status
-                                                            .toLowerCase(),
-                                                      ))
-                                                    if (_routeAuthorizationModel
-                                                        .isAction)
-                                                      Row(
-                                                        spacing: 5,
-                                                        children: [
-                                                          CustomIconButton.edit(
-                                                            onPressed: () {
-                                                              _showAddUpdateEnquiryFollowUpBottomSheet(
-                                                                context,
-                                                                followUpModel:
-                                                                    item,
-                                                                index: index,
-                                                              );
-                                                            },
-                                                          ),
-                                                          CustomIconButton.delete(
-                                                            onPressed: () {
-                                                              _showPopupToDeleteFollowUp(
-                                                                index: index,
-                                                                followUpModel:
-                                                                    item,
-                                                                enquiryId:
-                                                                    widget
-                                                                        .enquiryId,
-                                                                context:
-                                                                    context,
-                                                              );
-                                                            },
-                                                          ),
-                                                        ],
-                                                      ),
+                                                      (!closedStatuses.contains(
+                                                            item.status
+                                                                .toLowerCase(),
+                                                          ) &&
+                                                          (_routeAuthorizationModel
+                                                              .isAction)))
+                                                    Row(
+                                                      spacing: 5,
+                                                      children: [
+                                                        CustomIconButton.edit(
+                                                          onPressed: () {
+                                                            _showAddUpdateEnquiryFollowUpBottomSheet(
+                                                              context,
+                                                              followUpModel:
+                                                                  item,
+                                                              index: index,
+                                                            );
+                                                          },
+                                                        ),
+                                                        CustomIconButton.delete(
+                                                          onPressed: () {
+                                                            _showPopupToDeleteFollowUp(
+                                                              index: index,
+                                                              followUpModel:
+                                                                  item,
+                                                              enquiryId:
+                                                                  widget
+                                                                      .enquiryId,
+                                                              context: context,
+                                                            );
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
                                                 ],
                                               ),
                                               verticalSpacing(),
