@@ -633,8 +633,11 @@ class _BookingScreenState extends State<BookingScreen> {
                               ),
 
                               _routhAuthorizationModel.isAction &&
-                                      booking.approvalStatus.toLowerCase() !=
-                                          'approved'
+                                      (booking.approvalStatus.toLowerCase() ==
+                                              'pending' ||
+                                          booking.approvalStatus
+                                                  .toLowerCase() ==
+                                              'refund')
                                   ? Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
@@ -665,7 +668,7 @@ class _BookingScreenState extends State<BookingScreen> {
                             title: "Enquiry Code",
                             value: booking.systemGeneratedCode,
                             fixesWidth: 170,
-                            singleLine: false
+                            singleLine: false,
                           ),
                           buildRowTitleValue(
                             title: "Flat",
