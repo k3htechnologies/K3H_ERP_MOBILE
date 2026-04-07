@@ -73,10 +73,13 @@ class CustomClickToContactText extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            type == ContactType.phone ? Icons.phone : Icons.email_outlined,
-            size: iconSize,
-            color: iconColor,
+          Padding(
+            padding: const EdgeInsets.only(top: 3.0),
+            child: Icon(
+              type == ContactType.phone ? Icons.phone : Icons.email,
+              size: iconSize,
+              color: iconColor,
+            ),
           ),
           const SizedBox(width: 6),
           Flexible(
