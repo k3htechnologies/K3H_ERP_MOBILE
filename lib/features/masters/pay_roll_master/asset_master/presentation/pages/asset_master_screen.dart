@@ -432,7 +432,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                       ),
                       verticalSpacing(height: 8),
                       buildRowTitleValue(title: "Code", value: asset.assetCode),
-                      buildRowTitleValue(title: "Type", value: asset.assetType),
+                      buildRowTitleValue(title: "Asset Type", value: asset.assetType),
                       buildRowTitleValue(
                         title: "Brand",
                         value: asset.assetBrand,

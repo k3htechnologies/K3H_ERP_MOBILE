@@ -113,7 +113,7 @@ class _AssetMasterViewScreenState extends State<AssetMasterViewScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "Serial Type",
+                      title: "Asset Type",
                       value: widget.assetMaster.assetType,
                     ),
                     buildColumnTitleValue(

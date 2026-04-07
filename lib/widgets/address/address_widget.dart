@@ -330,6 +330,12 @@ class _AddressWidgetState extends State<AddressWidget> {
                       handleStateChange(stateId.value!);
                       widget.stateChange(map);
                     },
+                    validator: (value){
+                      if (value == null) {
+                        return 'Please select state';
+                      }
+                      return null;
+                    },
                   );
                 },
               ),

@@ -100,8 +100,8 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a Asset Mapping?',
-      'Deleting this Asset Mapping will permanently remove its contents.',
+      'You are about to delete a branch ?',
+      'Deleting this branch will permanently remove all associated data.',
     );
     if (result && context.mounted) {
       _branchMasterCubit.deleteBranchMaster(
@@ -356,6 +356,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
                             ),
                           ),
                           Row(
+                            spacing: 10,
                             children: [
                               CustomIconButton.edit(
                                 onPressed: () async {
@@ -372,9 +373,8 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
                                   );
                                 },
                               ),
-                              if (branch.numberOfEmployee == 0) ...[
-                                const SizedBox(width: 8),
                                 CustomIconButton.delete(
+                                  isDisabled: branch.numberOfEmployee != 0,
                                   onPressed: () {
                                     _showPopupToDeleteAssetMappingMaster(
                                       context,
@@ -384,7 +384,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
                                     );
                                   },
                                 ),
-                              ],
+
                             ],
                           ),
                         ],
