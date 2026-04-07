@@ -76,9 +76,9 @@ class _MainScreenState extends State<MainScreen>
                         child:
                         user.profilePhotoURL.isNotEmpty
                             ? ClipOval(
-                          child: NetworkImageWidget(
-                            key: ValueKey(user.profilePhotoURL),
-                            imageUrl: user.profilePhotoURL,
+                          child:
+                          Image.network(
+                             user.profilePhotoURL,
                             fit: BoxFit.fill,
                             width: 70,
                             height: 70,
