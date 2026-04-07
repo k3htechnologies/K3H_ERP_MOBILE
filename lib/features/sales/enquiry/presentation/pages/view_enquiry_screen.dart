@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry_followup.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
@@ -49,6 +50,10 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
   // DATETIME VARIABLE
   DateTime? _nextFollowupDate;
 
+  // PROJECT
+  late ProjectModel _project;
+
+
   // TEXT CONTROLLER
   final TextEditingController _remarkC = TextEditingController();
 
@@ -90,6 +95,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _enquiryCubit = context.read<EnquiryCubit>();
+    _project = getProject();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.enquiry]!;
 
@@ -97,7 +103,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
     // FOR OVERVIEW
     _enquiryCubit.getEnquiryById(
       enquiryId: widget.enquiryId,
-      projectId: getProject().projectId,
+      projectId: _project.projectId,
     );
 
     _tabController.addListener(() {
@@ -110,7 +116,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
 
   void _onTabChange() {
     final enquiryId = widget.enquiryId;
-    final projectId = getProject().projectId;
+    final projectId = _project.projectId;
 
     if (_tabController.index == 0) {
       /// FETCH FRESH DATA
@@ -140,6 +146,11 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       body: SafeArea(
         child: Column(
           children: [
+            if(_project.projectName.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: showSiteSelectedWidget(siteName: _project.projectName),
+            ),
             _buildEnquiryTabBar(),
             verticalSpacing(),
             Expanded(

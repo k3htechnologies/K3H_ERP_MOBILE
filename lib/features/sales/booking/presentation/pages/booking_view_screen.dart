@@ -1773,7 +1773,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
   // BUILD OTHER CHARGES TAB
   Widget _buildOtherChargesTab() {
     if (bookingModel!.bookingOtherChargesData.isEmpty) {
-      return noDataWidget(message: "No Charges Available");
+      return Center(child: noDataWidget(message: "No Charges Available",));
     }
     return ListView.builder(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
