@@ -102,9 +102,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          bookingModel!.applicantName,
-                          style: AppTextStyle.ts16SB(color: AppColor.primary),
+                        Flexible(
+                          child: Text(
+                            bookingModel!.applicantName,
+                            style: AppTextStyle.ts16SB(color: AppColor.primary),
+                          ),
                         ),
                         if (bookingModel!.approvalStatus.toLowerCase().contains(
                           'approved',
