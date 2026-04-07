@@ -319,10 +319,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
         if (index != null) {
           updatedList[index] = newItem;
         } else {
-          fetchEnquiryFollowUps(
-            enquiryId: newItem.enquiryId,
-            projectId: getProject().projectId,
-          );
+          updatedList.insert(0, newItem);
         }
 
         emit(state.copyWith(enquiryFollowUpList: updatedList));
