@@ -133,6 +133,7 @@ import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/present
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/add_terms_and_conditions_screen.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/terms_and_conditions_screen.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/terms_and_conditions_view_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/features/menu/presentation/pages/menu_screen.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/data/models/calendar_event.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/presentation/cubit/calendar_cubit.dart';
@@ -171,6 +172,7 @@ import 'package:k3h_erp_app/features/payroll/resignation/data/model/resignation.
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/cubit/resignation_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/pages/add_resignation_screen.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/pages/resignation_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition.screen.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:k3h_erp_app/features/profile/presentation/pages/profile_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/dashboard_screen.dart';
@@ -3300,6 +3302,7 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
+
             //Project RERA Document Category
             ShellRoute(
               builder: (context, state, child) {
@@ -3373,6 +3376,7 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
+
             //Project Approval Document Category
             ShellRoute(
               builder: (context, state, child) {
@@ -3536,898 +3540,994 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
-          ],
-        ),
-        //LEGAL (LITIGATION)
-        ShellRoute(
-          builder: (context, state, child) {
-            return MultiBlocProvider(
-              providers: [
-                BlocProvider<LitigationDashboardCubit>(
-                  create: (_) => LitigationDashboardCubit(),
+            //LEGAL (LITIGATION)
+            ShellRoute(
+              builder: (context, state, child) {
+                return MultiBlocProvider(
+                  providers: [
+                    BlocProvider<LitigationDashboardCubit>(
+                      create: (_) => LitigationDashboardCubit(),
+                    ),
+                    BlocProvider<LitigationCubit>(
+                      create: (_) => LitigationCubit(),
+                    ),
+                  ],
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.litigationDashboard,
+                  path: AppRoutes.litigationDashboard,
+                  builder: (context, state) {
+                    return const LitigationDashboardScreen();
+                  },
                 ),
-                BlocProvider<LitigationCubit>(create: (_) => LitigationCubit()),
-              ],
-              child: child,
-            );
-          },
-          routes: [
-            GoRoute(
-              name: AppRoutes.litigationDashboard,
-              path: AppRoutes.litigationDashboard,
-              builder: (context, state) {
-                return const LitigationDashboardScreen();
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.litigation,
-              path: AppRoutes.litigation,
-              builder: (context, state) {
-                return const LitigationScreen();
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.viewLitigation,
-              path: AppRoutes.viewLitigation,
-              builder: (context, state) {
-                final queryParameterLitigation =
-                    state.uri.queryParameters['litigation'];
+                GoRoute(
+                  name: AppRoutes.litigation,
+                  path: AppRoutes.litigation,
+                  builder: (context, state) {
+                    return const LitigationScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewLitigation,
+                  path: AppRoutes.viewLitigation,
+                  builder: (context, state) {
+                    final queryParameterLitigation =
+                        state.uri.queryParameters['litigation'];
 
-                final LitigationModel? litigation =
-                    queryParameterLitigation != null
-                        ? LitigationModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterLitigation),
-                            ),
-                          ),
-                        )
-                        : null;
-                final index =
-                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-                return LitigationViewScreen(
-                  litigationModel: litigation!,
-                  index: index,
-                );
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.addLitigation,
-              path: AppRoutes.addLitigation,
-              builder: (context, state) {
-                final queryParameterLitigation =
-                    state.uri.queryParameters['litigation'];
-
-                final LitigationModel? litigation =
-                    queryParameterLitigation != null
-                        ? LitigationModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterLitigation),
-                            ),
-                          ),
-                        )
-                        : null;
-                final index =
-                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-                return AddLitigationScreen(
-                  litigationModel: litigation,
-                  index: index,
-                );
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.addLitigationHearing,
-              path: AppRoutes.addLitigationHearing,
-              builder: (context, state) {
-                final queryParameterLitigationHearing =
-                    state.uri.queryParameters['litigationHearing'];
-
-                final LitigationHearingModel? litigationHearing =
-                    queryParameterLitigationHearing != null
-                        ? LitigationHearingModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(
-                                queryParameterLitigationHearing,
-                              ),
-                            ),
-                          ),
-                        )
-                        : null;
-                final index =
-                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-                final litigationId =
-                    state.uri.queryParameters['litigationId'] ?? '';
-                return AddLitigationHearingScreen(
-                  litigationHearingModel: litigationHearing,
-                  litigationId: litigationId,
-                  index: index,
-                );
-              },
-            ),
-          ],
-        ),
-        // PAYROLL DASHBOARD CUBIT
-        ShellRoute(
-          builder: (context, state, child) {
-            return BlocProvider(
-              create: (_) => PayrollDashboardCubit(),
-              child: child,
-            );
-          },
-          routes: [
-            GoRoute(
-              name: AppRoutes.payrollDashboard,
-              path: AppRoutes.payrollDashboard,
-              builder: (context, state) {
-                return const PayrollDashboardScreen();
-              },
-            ),
-          ],
-        ),
-        // OUTDOOR
-        ShellRoute(
-          builder: (context, state, child) {
-            return BlocProvider(create: (_) => OutdoorCubit(), child: child);
-          },
-          routes: [
-            GoRoute(
-              name: AppRoutes.outdoor,
-              path: AppRoutes.outdoor,
-              builder: (context, state) {
-                return OutdoorScreen();
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.viewOutdoor,
-              path: AppRoutes.viewOutdoor,
-              builder: (context, state) {
-                final queryParameterOutdoor =
-                    state.uri.queryParameters['outdoor'];
-                final OutdoorModel? outdoor =
-                    queryParameterOutdoor != null
-                        ? OutdoorModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterOutdoor),
-                            ),
-                          ),
-                        )
-                        : null;
-                return OutdoorViewScreen(outdoorModel: outdoor!);
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.addOutdoor,
-              path: AppRoutes.addOutdoor,
-              builder: (context, state) {
-                final queryParameterOutdoor =
-                    state.uri.queryParameters['outdoor'];
-
-                final OutdoorModel? outdoor =
-                    queryParameterOutdoor != null
-                        ? OutdoorModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterOutdoor),
-                            ),
-                          ),
-                        )
-                        : null;
-
-                final index =
-                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-                return AddOutdoorScreen(outdoorModel: outdoor, index: index);
-              },
-            ),
-          ],
-        ),
-        // LEAVE
-        ShellRoute(
-          builder: (context, state, child) {
-            return BlocProvider(create: (_) => LeaveCubit(), child: child);
-          },
-          routes: [
-            GoRoute(
-              name: AppRoutes.leave,
-              path: AppRoutes.leave,
-              builder: (context, state) {
-                return LeaveScreen();
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.viewLeave,
-              path: AppRoutes.viewLeave,
-              builder: (context, state) {
-                final queryParameterLeave = state.uri.queryParameters['leave'];
-                final LeaveModel? leave =
-                    queryParameterLeave != null
-                        ? LeaveModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterLeave),
-                            ),
-                          ),
-                        )
-                        : null;
-                return LeaveViewScreen(leaveModel: leave!);
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.applyLeave,
-              path: AppRoutes.applyLeave,
-              builder: (context, state) {
-                final queryParameterLeave = state.uri.queryParameters['leave'];
-
-                final LeaveModel? leave =
-                    queryParameterLeave != null
-                        ? LeaveModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterLeave),
-                            ),
-                          ),
-                        )
-                        : null;
-
-                final index =
-                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-                return ApplyLeaveScreen(leaveModel: leave, index: index);
-              },
-            ),
-          ],
-        ),
-        // COMP OFF
-        ShellRoute(
-          builder: (context, state, child) {
-            return BlocProvider(create: (_) => CompOffCubit(), child: child);
-          },
-          routes: [
-            GoRoute(
-              name: AppRoutes.compOff,
-              path: AppRoutes.compOff,
-              builder: (context, state) {
-                return CompOffScreen();
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.viewCompOff,
-              path: AppRoutes.viewCompOff,
-              builder: (context, state) {
-                final queryParameterCompOff =
-                    state.uri.queryParameters['compOff'];
-                final CompOffModel? compOff =
-                    queryParameterCompOff != null
-                        ? CompOffModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterCompOff),
-                            ),
-                          ),
-                        )
-                        : null;
-                return CompOffViewScreen(compOffModel: compOff!);
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.addCompOff,
-              path: AppRoutes.addCompOff,
-              builder: (context, state) {
-                final index =
-                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-                final queryParameterCompOff =
-                    state.uri.queryParameters['compOff'];
-                final compOff =
-                    queryParameterCompOff != null &&
-                            queryParameterCompOff.isNotEmpty
-                        ? CompOffModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterCompOff),
-                            ),
-                          ),
-                        )
-                        : null;
-
-                return AddCompOffScreen(compOffModel: compOff, index: index);
-              },
-            ),
-          ],
-        ),
-        // CALL TRACKER
-        ShellRoute(
-          builder: (context, state, child) {
-            return BlocProvider(
-              create: (_) => CallTrackerCubit(),
-              child: child,
-            );
-          },
-          routes: [
-            GoRoute(
-              name: AppRoutes.callTracker,
-              path: AppRoutes.callTracker,
-              builder: (context, state) {
-                return CallTrackerScreen();
-              },
-            ),
-          ],
-        ),
-
-        // SALES REPORT
-        ShellRoute(
-          builder: (context, state, child) {
-            return BlocProvider(
-              create: (_) => PerformanceCubit(),
-              child: child,
-            );
-          },
-          routes: [
-            GoRoute(
-              name: AppRoutes.performanceReport,
-              path: AppRoutes.performanceReport,
-              builder: (context, state) {
-                return const PerformanceScreen();
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.viewPerformanceReport,
-              path: AppRoutes.viewPerformanceReport,
-              builder: (context, state) {
-                final sourcingParam = state.uri.queryParameters['sourcing'];
-                final closingParam = state.uri.queryParameters['closing'];
-
-                PerformanceReportSourcingModel? sourcing;
-                PerformanceReportClosingModel? closing;
-
-                if (sourcingParam != null && sourcingParam.isNotEmpty) {
-                  sourcing = PerformanceReportSourcingModel.fromJson(
-                    jsonDecode(
-                      EncryptionManager.decryptData(
-                        Uri.decodeComponent(sourcingParam),
-                      ),
-                    ),
-                  );
-                }
-
-                if (closingParam != null && closingParam.isNotEmpty) {
-                  closing = PerformanceReportClosingModel.fromJson(
-                    jsonDecode(
-                      EncryptionManager.decryptData(
-                        Uri.decodeComponent(closingParam),
-                      ),
-                    ),
-                  );
-                }
-
-                return ViewPerformanceScreen(
-                  sourcing: sourcing,
-                  closing: closing,
-                );
-              },
-            ),
-          ],
-        ),
-        // SALES TARGET
-        ShellRoute(
-          builder: (context, state, child) {
-            return BlocProvider(create: (_) => TargetCubit(), child: child);
-          },
-          routes: [
-            GoRoute(
-              name: AppRoutes.salesTarget,
-              path: AppRoutes.salesTarget,
-              builder: (context, state) {
-                return const TargetScreen();
-              },
-            ),
-          ],
-        ),
-
-        // SALES BOOKING
-        ShellRoute(
-          builder: (context, state, child) {
-            return MultiBlocProvider(
-              providers: [
-                BlocProvider(create: (_) => SalesDashboardCubit()),
-                BlocProvider(create: (_) => BookingCubit()),
-              ],
-              child: child,
-            );
-          },
-          routes: [
-            GoRoute(
-              name: AppRoutes.salesDashboard,
-              path: AppRoutes.salesDashboard,
-              builder: (context, state) {
-                return const SalesDashboardScreen();
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.booking,
-              path: AppRoutes.booking,
-              builder: (context, state) {
-                return const BookingScreen();
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.addBooking,
-              path: AppRoutes.addBooking,
-              builder: (context, state) {
-                final queryParameterBooking =
-                    state.uri.queryParameters['booking'];
-                final queryParameterInventoryObject =
-                    state.uri.queryParameters['inventoryObject'];
-                final booking =
-                    queryParameterBooking != null &&
-                            queryParameterBooking.isNotEmpty
-                        ? BookingModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterBooking),
-                            ),
-                          ),
-                        )
-                        : null;
-                final inventoryObject =
-                    queryParameterInventoryObject != null &&
-                            queryParameterInventoryObject.isNotEmpty
-                        ? (jsonDecode(
-                                  EncryptionManager.decryptData(
-                                    Uri.decodeComponent(
-                                      queryParameterInventoryObject,
-                                    ),
-                                  ),
-                                )
-                                as List<dynamic>)
-                            .map<Map<String, dynamic>>(
-                              (e) => Map<String, dynamic>.from(
-                                e as Map<String, dynamic>,
+                    final LitigationModel? litigation =
+                        queryParameterLitigation != null
+                            ? LitigationModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterLitigation),
+                                ),
                               ),
                             )
-                            .toList()
-                        : null;
+                            : null;
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return LitigationViewScreen(
+                      litigationModel: litigation!,
+                      index: index,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addLitigation,
+                  path: AppRoutes.addLitigation,
+                  builder: (context, state) {
+                    final queryParameterLitigation =
+                        state.uri.queryParameters['litigation'];
 
-                final index =
-                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                    final LitigationModel? litigation =
+                        queryParameterLitigation != null
+                            ? LitigationModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterLitigation),
+                                ),
+                              ),
+                            )
+                            : null;
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddLitigationScreen(
+                      litigationModel: litigation,
+                      index: index,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addLitigationHearing,
+                  path: AppRoutes.addLitigationHearing,
+                  builder: (context, state) {
+                    final queryParameterLitigationHearing =
+                        state.uri.queryParameters['litigationHearing'];
 
-                return AddBookingScreen(
-                  bookingModel: booking,
-                  index: index,
-                  inventoryObject: inventoryObject,
+                    final LitigationHearingModel? litigationHearing =
+                        queryParameterLitigationHearing != null
+                            ? LitigationHearingModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterLitigationHearing,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    final litigationId =
+                        state.uri.queryParameters['litigationId'] ?? '';
+                    return AddLitigationHearingScreen(
+                      litigationHearingModel: litigationHearing,
+                      litigationId: litigationId,
+                      index: index,
+                    );
+                  },
+                ),
+              ],
+            ),
+            // PAYROLL DASHBOARD CUBIT
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => PayrollDashboardCubit(),
+                  child: child,
                 );
               },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.payrollDashboard,
+                  path: AppRoutes.payrollDashboard,
+                  builder: (context, state) {
+                    return const PayrollDashboardScreen();
+                  },
+                ),
+              ],
             ),
-            GoRoute(
-              name: AppRoutes.viewBooking,
-              path: AppRoutes.viewBooking,
-              builder: (context, state) {
-                final queryParameterBooking =
-                    state.uri.queryParameters['bookingId'];
-                final queryParameterProjectId =
-                    state.uri.queryParameters['projectId'];
-
-                final bookingId =
-                    queryParameterBooking != null &&
-                            queryParameterBooking.isNotEmpty
-                        ? int.parse(
-                          EncryptionManager.decryptData(
-                            Uri.decodeComponent(queryParameterBooking),
-                          ),
-                        )
-                        : 0;
-                final projectId =
-                    queryParameterProjectId != null &&
-                            queryParameterProjectId.isNotEmpty
-                        ? int.parse(
-                          EncryptionManager.decryptData(
-                            Uri.decodeComponent(queryParameterProjectId),
-                          ),
-                        )
-                        : 0;
-
-                return BookingViewScreen(
-                  projectId: projectId,
-                  bookingId: bookingId,
+            // OUTDOOR
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => OutdoorCubit(),
+                  child: child,
                 );
               },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.outdoor,
+                  path: AppRoutes.outdoor,
+                  builder: (context, state) {
+                    return OutdoorScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewOutdoor,
+                  path: AppRoutes.viewOutdoor,
+                  builder: (context, state) {
+                    final queryParameterOutdoor =
+                        state.uri.queryParameters['outdoor'];
+                    final OutdoorModel? outdoor =
+                        queryParameterOutdoor != null
+                            ? OutdoorModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterOutdoor),
+                                ),
+                              ),
+                            )
+                            : null;
+                    return OutdoorViewScreen(outdoorModel: outdoor!);
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addOutdoor,
+                  path: AppRoutes.addOutdoor,
+                  builder: (context, state) {
+                    final queryParameterOutdoor =
+                        state.uri.queryParameters['outdoor'];
+
+                    final OutdoorModel? outdoor =
+                        queryParameterOutdoor != null
+                            ? OutdoorModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterOutdoor),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddOutdoorScreen(
+                      outdoorModel: outdoor,
+                      index: index,
+                    );
+                  },
+                ),
+              ],
             ),
-            GoRoute(
-              name: AppRoutes.approvalLogHistory,
-              path: AppRoutes.approvalLogHistory,
-              builder: (context, state) {
-                /// SUBTITLE
-                final titleParam = state.uri.queryParameters['title'];
-                final subTitleParam = state.uri.queryParameters['subTitle'];
-                final title =
-                    titleParam != null && titleParam.isNotEmpty
-                        ? EncryptionManager.decryptData(
-                          Uri.decodeComponent(titleParam),
-                        )
-                        : "";
-                final subTitle =
-                    subTitleParam != null && subTitleParam.isNotEmpty
-                        ? EncryptionManager.decryptData(
-                          Uri.decodeComponent(subTitleParam),
-                        )
-                        : "";
+            // LEAVE
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(create: (_) => LeaveCubit(), child: child);
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.leave,
+                  path: AppRoutes.leave,
+                  builder: (context, state) {
+                    return LeaveScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewLeave,
+                  path: AppRoutes.viewLeave,
+                  builder: (context, state) {
+                    final queryParameterLeave =
+                        state.uri.queryParameters['leave'];
+                    final LeaveModel? leave =
+                        queryParameterLeave != null
+                            ? LeaveModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterLeave),
+                                ),
+                              ),
+                            )
+                            : null;
+                    return LeaveViewScreen(leaveModel: leave!);
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.applyLeave,
+                  path: AppRoutes.applyLeave,
+                  builder: (context, state) {
+                    final queryParameterLeave =
+                        state.uri.queryParameters['leave'];
 
-                /// APPROVAL LIST
-                final approvalListParam =
-                    state.uri.queryParameters['approvalList'];
+                    final LeaveModel? leave =
+                        queryParameterLeave != null
+                            ? LeaveModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterLeave),
+                                ),
+                              ),
+                            )
+                            : null;
 
-                final List<ApprovalLogHistory> approvalList =
-                    approvalListParam != null && approvalListParam.isNotEmpty
-                        ? (jsonDecode(
-                                  EncryptionManager.decryptData(
-                                    Uri.decodeComponent(approvalListParam),
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return ApplyLeaveScreen(leaveModel: leave, index: index);
+                  },
+                ),
+              ],
+            ),
+            // COMP OFF
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => CompOffCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.compOff,
+                  path: AppRoutes.compOff,
+                  builder: (context, state) {
+                    return CompOffScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewCompOff,
+                  path: AppRoutes.viewCompOff,
+                  builder: (context, state) {
+                    final queryParameterCompOff =
+                        state.uri.queryParameters['compOff'];
+                    final CompOffModel? compOff =
+                        queryParameterCompOff != null
+                            ? CompOffModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterCompOff),
+                                ),
+                              ),
+                            )
+                            : null;
+                    return CompOffViewScreen(compOffModel: compOff!);
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addCompOff,
+                  path: AppRoutes.addCompOff,
+                  builder: (context, state) {
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    final queryParameterCompOff =
+                        state.uri.queryParameters['compOff'];
+                    final compOff =
+                        queryParameterCompOff != null &&
+                                queryParameterCompOff.isNotEmpty
+                            ? CompOffModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterCompOff),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    return AddCompOffScreen(
+                      compOffModel: compOff,
+                      index: index,
+                    );
+                  },
+                ),
+              ],
+            ),
+            // CALL TRACKER
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => CallTrackerCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.callTracker,
+                  path: AppRoutes.callTracker,
+                  builder: (context, state) {
+                    return CallTrackerScreen();
+                  },
+                ),
+              ],
+            ),
+
+            // SALES REPORT
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => PerformanceCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.performanceReport,
+                  path: AppRoutes.performanceReport,
+                  builder: (context, state) {
+                    return const PerformanceScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewPerformanceReport,
+                  path: AppRoutes.viewPerformanceReport,
+                  builder: (context, state) {
+                    final sourcingParam = state.uri.queryParameters['sourcing'];
+                    final closingParam = state.uri.queryParameters['closing'];
+
+                    PerformanceReportSourcingModel? sourcing;
+                    PerformanceReportClosingModel? closing;
+
+                    if (sourcingParam != null && sourcingParam.isNotEmpty) {
+                      sourcing = PerformanceReportSourcingModel.fromJson(
+                        jsonDecode(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(sourcingParam),
+                          ),
+                        ),
+                      );
+                    }
+
+                    if (closingParam != null && closingParam.isNotEmpty) {
+                      closing = PerformanceReportClosingModel.fromJson(
+                        jsonDecode(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(closingParam),
+                          ),
+                        ),
+                      );
+                    }
+
+                    return ViewPerformanceScreen(
+                      sourcing: sourcing,
+                      closing: closing,
+                    );
+                  },
+                ),
+              ],
+            ),
+            // SALES TARGET
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(create: (_) => TargetCubit(), child: child);
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.salesTarget,
+                  path: AppRoutes.salesTarget,
+                  builder: (context, state) {
+                    return const TargetScreen();
+                  },
+                ),
+              ],
+            ),
+
+            // SALES BOOKING
+            ShellRoute(
+              builder: (context, state, child) {
+                return MultiBlocProvider(
+                  providers: [
+                    BlocProvider(create: (_) => SalesDashboardCubit()),
+                    BlocProvider(create: (_) => BookingCubit()),
+                  ],
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.salesDashboard,
+                  path: AppRoutes.salesDashboard,
+                  builder: (context, state) {
+                    return const SalesDashboardScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.booking,
+                  path: AppRoutes.booking,
+                  builder: (context, state) {
+                    return const BookingScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addBooking,
+                  path: AppRoutes.addBooking,
+                  builder: (context, state) {
+                    final queryParameterBooking =
+                        state.uri.queryParameters['booking'];
+                    final queryParameterInventoryObject =
+                        state.uri.queryParameters['inventoryObject'];
+                    final booking =
+                        queryParameterBooking != null &&
+                                queryParameterBooking.isNotEmpty
+                            ? BookingModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterBooking),
+                                ),
+                              ),
+                            )
+                            : null;
+                    final inventoryObject =
+                        queryParameterInventoryObject != null &&
+                                queryParameterInventoryObject.isNotEmpty
+                            ? (jsonDecode(
+                                      EncryptionManager.decryptData(
+                                        Uri.decodeComponent(
+                                          queryParameterInventoryObject,
+                                        ),
+                                      ),
+                                    )
+                                    as List<dynamic>)
+                                .map<Map<String, dynamic>>(
+                                  (e) => Map<String, dynamic>.from(
+                                    e as Map<String, dynamic>,
                                   ),
                                 )
-                                as List)
-                            .map((e) => ApprovalLogHistory.fromJson(e))
-                            .toList()
-                        : [];
+                                .toList()
+                            : null;
 
-                return ApprovalLogHistoryScreen(
-                  title: title,
-                  subTitle: subTitle,
-                  items: approvalList,
-                );
-              },
-            ),
-          ],
-        ),
-        // SALES ENQUIRY
-        ShellRoute(
-          builder: (context, state, child) {
-            return BlocProvider(create: (_) => EnquiryCubit(), child: child);
-          },
-          routes: [
-            GoRoute(
-              name: AppRoutes.enquiry,
-              path: AppRoutes.enquiry,
-              builder: (context, state) {
-                return const EnquiryScreen();
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.addEnquiry,
-              path: AppRoutes.addEnquiry,
-              builder: (context, state) {
-                final queryParameterEnquiry =
-                    state.uri.queryParameters['enquiry'];
-                final enquiry =
-                    queryParameterEnquiry != null &&
-                            queryParameterEnquiry.isNotEmpty
-                        ? EnquiryModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterEnquiry),
-                            ),
-                          ),
-                        )
-                        : null;
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
 
-                final index =
-                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-                return AddEnquiryScreen(enquiryModel: enquiry, index: index);
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.viewEnquiry,
-              path: AppRoutes.viewEnquiry,
-              builder: (context, state) {
-                final encryptedId = state.uri.queryParameters['enquiryId'];
+                    return AddBookingScreen(
+                      bookingModel: booking,
+                      index: index,
+                      inventoryObject: inventoryObject,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewBooking,
+                  path: AppRoutes.viewBooking,
+                  builder: (context, state) {
+                    final queryParameterBooking =
+                        state.uri.queryParameters['bookingId'];
+                    final queryParameterProjectId =
+                        state.uri.queryParameters['projectId'];
 
-                final enquiryId =
-                    encryptedId != null
-                        ? int.tryParse(
-                          EncryptionManager.decryptData(
-                            Uri.decodeComponent(encryptedId),
-                          ),
-                        )
-                        : null;
-
-                return ViewEnquiryScreen(enquiryId: enquiryId ?? 0);
-              },
-            ),
-          ],
-        ),
-        // SALES SOURCING
-        ShellRoute(
-          builder: (context, state, child) {
-            return BlocProvider(create: (_) => SourcingCubit(), child: child);
-          },
-          routes: [
-            GoRoute(
-              name: AppRoutes.sourcing,
-              path: AppRoutes.sourcing,
-              builder: (context, state) {
-                return const SourcingScreen();
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.viewSourcing,
-              path: AppRoutes.viewSourcing,
-              builder: (context, state) {
-                final queryParameterChannelPartner =
-                    state.uri.queryParameters['channelPartner'];
-
-                final ChannelPartnerModel? channelPartner =
-                    queryParameterChannelPartner != null
-                        ? ChannelPartnerModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterChannelPartner),
-                            ),
-                          ),
-                        )
-                        : null;
-                final projectId =
-                    int.tryParse(
-                      state.uri.queryParameters['projectId'] ?? '',
-                    ) ??
-                    0;
-                return SourcingViewScreen(
-                  channelPartner: channelPartner!,
-                  projectId: projectId,
-                );
-              },
-            ),
-          ],
-        ),
-        // SALES OTHER CHARGES
-        ShellRoute(
-          builder: (context, state, child) {
-            return BlocProvider(
-              create: (_) => OtherChargesCubit(),
-              child: child,
-            );
-          },
-          routes: [
-            GoRoute(
-              name: AppRoutes.otherCharges,
-              path: AppRoutes.otherCharges,
-              builder: (context, state) {
-                return const OtherChargesScreen();
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.addOtherCharges,
-              path: AppRoutes.addOtherCharges,
-              builder: (context, state) {
-                final queryParameterOtherCharges =
-                    state.uri.queryParameters['otherCharges'];
-                final otherCharges =
-                    queryParameterOtherCharges != null &&
-                            queryParameterOtherCharges.isNotEmpty
-                        ? OtherChargeModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterOtherCharges),
-                            ),
-                          ),
-                        )
-                        : null;
-
-                final index =
-                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-                final projectId =
-                    int.tryParse(
-                      state.uri.queryParameters['projectId'] ?? '',
-                    ) ??
-                    0;
-                return AddOtherChargesScreen(
-                  otherChargeModel: otherCharges,
-                  index: index,
-                  projectId: projectId,
-                );
-              },
-            ),
-          ],
-        ),
-        // SALES CLASSIFICATION PARAMETERS
-        ShellRoute(
-          builder: (context, state, child) {
-            return BlocProvider(
-              create: (_) => ClassificationParametersCubit(),
-              child: child,
-            );
-          },
-          routes: [
-            GoRoute(
-              name: AppRoutes.classificationParameter,
-              path: AppRoutes.classificationParameter,
-              builder: (context, state) {
-                return ClassificationParameterScreen();
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.addClassificationParameter,
-              path: AppRoutes.addClassificationParameter,
-              builder: (context, state) {
-                final queryParameterEnquiry =
-                    state.uri.queryParameters['classificationParameter'];
-                final classificationParameter =
-                    queryParameterEnquiry != null &&
-                            queryParameterEnquiry.isNotEmpty
-                        ? ClassificationParameterModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterEnquiry),
-                            ),
-                          ),
-                        )
-                        : null;
-
-                final index =
-                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-                return AddClassificationParameterScreen(
-                  classificationParamterModel: classificationParameter,
-                  index: index,
-                );
-              },
-            ),
-          ],
-        ),
-        // PAYMENT SCHEDULE
-        ShellRoute(
-          builder: (context, state, child) {
-            return BlocProvider(
-              create: (_) => PaymentScheduleCubit(),
-              child: child,
-            );
-          },
-          routes: [
-            GoRoute(
-              name: AppRoutes.paymentSchedule,
-              path: AppRoutes.paymentSchedule,
-              builder: (context, state) {
-                return const PaymentScheduleScreen();
-              },
-            ),
-
-            GoRoute(
-              name: AppRoutes.addPaymentSchedule,
-              path: AppRoutes.addPaymentSchedule,
-              builder: (context, state) {
-                final queryParameterPaymentSchedule =
-                    state.uri.queryParameters['paymentSchedule'];
-                final paymentSchedule =
-                    queryParameterPaymentSchedule != null &&
-                            queryParameterPaymentSchedule.isNotEmpty
-                        ? PaymentScheduleMasterModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(
-                                queryParameterPaymentSchedule,
+                    final bookingId =
+                        queryParameterBooking != null &&
+                                queryParameterBooking.isNotEmpty
+                            ? int.parse(
+                              EncryptionManager.decryptData(
+                                Uri.decodeComponent(queryParameterBooking),
                               ),
-                            ),
-                          ),
-                        )
-                        : null;
-
-                final index =
-                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-                return AddPaymentScheduleScreen(
-                  paymentScheduleMaster: paymentSchedule,
-                  index: index,
-                );
-              },
-            ),
-          ],
-        ),
-        // PAYMENT SCHEDULE SCHEME
-        ShellRoute(
-          builder: (context, state, child) {
-            return BlocProvider(
-              create: (_) => PaymentScheduleSchemeCubit(),
-              child: child,
-            );
-          },
-          routes: [
-            GoRoute(
-              name: AppRoutes.paymentScheduleScheme,
-              path: AppRoutes.paymentScheduleScheme,
-              builder: (context, state) {
-                return const PaymentScheduleSchemeScreen();
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.addPaymentScheduleScheme,
-              path: AppRoutes.addPaymentScheduleScheme,
-              builder: (context, state) {
-                final queryParameterPaymentScheduleScheme =
-                    state.uri.queryParameters['scheme'];
-                final paymentScheduleScheme =
-                    queryParameterPaymentScheduleScheme != null &&
-                            queryParameterPaymentScheduleScheme.isNotEmpty
-                        ? PaymentScheduleSchemeModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(
-                                queryParameterPaymentScheduleScheme,
+                            )
+                            : 0;
+                    final projectId =
+                        queryParameterProjectId != null &&
+                                queryParameterProjectId.isNotEmpty
+                            ? int.parse(
+                              EncryptionManager.decryptData(
+                                Uri.decodeComponent(queryParameterProjectId),
                               ),
-                            ),
-                          ),
-                        )
-                        : null;
+                            )
+                            : 0;
 
-                final index =
-                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-                return AddPaymentScheduleSchemeScreen(
-                  paymentScheduleSchemeModel: paymentScheduleScheme,
-                  index: index,
+                    return BookingViewScreen(
+                      projectId: projectId,
+                      bookingId: bookingId,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.approvalLogHistory,
+                  path: AppRoutes.approvalLogHistory,
+                  builder: (context, state) {
+                    /// SUBTITLE
+                    final titleParam = state.uri.queryParameters['title'];
+                    final subTitleParam = state.uri.queryParameters['subTitle'];
+                    final title =
+                        titleParam != null && titleParam.isNotEmpty
+                            ? EncryptionManager.decryptData(
+                              Uri.decodeComponent(titleParam),
+                            )
+                            : "";
+                    final subTitle =
+                        subTitleParam != null && subTitleParam.isNotEmpty
+                            ? EncryptionManager.decryptData(
+                              Uri.decodeComponent(subTitleParam),
+                            )
+                            : "";
+
+                    /// APPROVAL LIST
+                    final approvalListParam =
+                        state.uri.queryParameters['approvalList'];
+
+                    final List<ApprovalLogHistory> approvalList =
+                        approvalListParam != null &&
+                                approvalListParam.isNotEmpty
+                            ? (jsonDecode(
+                                      EncryptionManager.decryptData(
+                                        Uri.decodeComponent(approvalListParam),
+                                      ),
+                                    )
+                                    as List)
+                                .map((e) => ApprovalLogHistory.fromJson(e))
+                                .toList()
+                            : [];
+
+                    return ApprovalLogHistoryScreen(
+                      title: title,
+                      subTitle: subTitle,
+                      items: approvalList,
+                    );
+                  },
+                ),
+              ],
+            ),
+            // SALES ENQUIRY
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => EnquiryCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.enquiry,
+                  path: AppRoutes.enquiry,
+                  builder: (context, state) {
+                    return const EnquiryScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addEnquiry,
+                  path: AppRoutes.addEnquiry,
+                  builder: (context, state) {
+                    final queryParameterEnquiry =
+                        state.uri.queryParameters['enquiry'];
+                    final enquiry =
+                        queryParameterEnquiry != null &&
+                                queryParameterEnquiry.isNotEmpty
+                            ? EnquiryModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterEnquiry),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddEnquiryScreen(
+                      enquiryModel: enquiry,
+                      index: index,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewEnquiry,
+                  path: AppRoutes.viewEnquiry,
+                  builder: (context, state) {
+                    final encryptedId = state.uri.queryParameters['enquiryId'];
+
+                    final enquiryId =
+                        encryptedId != null
+                            ? int.tryParse(
+                              EncryptionManager.decryptData(
+                                Uri.decodeComponent(encryptedId),
+                              ),
+                            )
+                            : null;
+
+                    return ViewEnquiryScreen(enquiryId: enquiryId ?? 0);
+                  },
+                ),
+              ],
+            ),
+            // SALES SOURCING
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => SourcingCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.sourcing,
+                  path: AppRoutes.sourcing,
+                  builder: (context, state) {
+                    return const SourcingScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewSourcing,
+                  path: AppRoutes.viewSourcing,
+                  builder: (context, state) {
+                    final queryParameterChannelPartner =
+                        state.uri.queryParameters['channelPartner'];
+
+                    final ChannelPartnerModel? channelPartner =
+                        queryParameterChannelPartner != null
+                            ? ChannelPartnerModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterChannelPartner,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+                    final projectId =
+                        int.tryParse(
+                          state.uri.queryParameters['projectId'] ?? '',
+                        ) ??
+                        0;
+                    return SourcingViewScreen(
+                      channelPartner: channelPartner!,
+                      projectId: projectId,
+                    );
+                  },
+                ),
+              ],
+            ),
+            // SALES OTHER CHARGES
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => OtherChargesCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.otherCharges,
+                  path: AppRoutes.otherCharges,
+                  builder: (context, state) {
+                    return const OtherChargesScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addOtherCharges,
+                  path: AppRoutes.addOtherCharges,
+                  builder: (context, state) {
+                    final queryParameterOtherCharges =
+                        state.uri.queryParameters['otherCharges'];
+                    final otherCharges =
+                        queryParameterOtherCharges != null &&
+                                queryParameterOtherCharges.isNotEmpty
+                            ? OtherChargeModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterOtherCharges,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    final projectId =
+                        int.tryParse(
+                          state.uri.queryParameters['projectId'] ?? '',
+                        ) ??
+                        0;
+                    return AddOtherChargesScreen(
+                      otherChargeModel: otherCharges,
+                      index: index,
+                      projectId: projectId,
+                    );
+                  },
+                ),
+              ],
+            ),
+            // SALES CLASSIFICATION PARAMETERS
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => ClassificationParametersCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.classificationParameter,
+                  path: AppRoutes.classificationParameter,
+                  builder: (context, state) {
+                    return ClassificationParameterScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addClassificationParameter,
+                  path: AppRoutes.addClassificationParameter,
+                  builder: (context, state) {
+                    final queryParameterEnquiry =
+                        state.uri.queryParameters['classificationParameter'];
+                    final classificationParameter =
+                        queryParameterEnquiry != null &&
+                                queryParameterEnquiry.isNotEmpty
+                            ? ClassificationParameterModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterEnquiry),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddClassificationParameterScreen(
+                      classificationParamterModel: classificationParameter,
+                      index: index,
+                    );
+                  },
+                ),
+              ],
+            ),
+            // PAYMENT SCHEDULE
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => PaymentScheduleCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.paymentSchedule,
+                  path: AppRoutes.paymentSchedule,
+                  builder: (context, state) {
+                    return const PaymentScheduleScreen();
+                  },
+                ),
+
+                GoRoute(
+                  name: AppRoutes.addPaymentSchedule,
+                  path: AppRoutes.addPaymentSchedule,
+                  builder: (context, state) {
+                    final queryParameterPaymentSchedule =
+                        state.uri.queryParameters['paymentSchedule'];
+                    final paymentSchedule =
+                        queryParameterPaymentSchedule != null &&
+                                queryParameterPaymentSchedule.isNotEmpty
+                            ? PaymentScheduleMasterModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterPaymentSchedule,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddPaymentScheduleScreen(
+                      paymentScheduleMaster: paymentSchedule,
+                      index: index,
+                    );
+                  },
+                ),
+              ],
+            ),
+
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => PaymentScheduleSchemeCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.paymentScheduleScheme,
+                  path: AppRoutes.paymentScheduleScheme,
+                  builder: (context, state) {
+                    return const PaymentScheduleSchemeScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addPaymentScheduleScheme,
+                  path: AppRoutes.addPaymentScheduleScheme,
+                  builder: (context, state) {
+                    final queryParameterPaymentScheduleScheme =
+                        state.uri.queryParameters['scheme'];
+                    final paymentScheduleScheme =
+                        queryParameterPaymentScheduleScheme != null &&
+                                queryParameterPaymentScheduleScheme.isNotEmpty
+                            ? PaymentScheduleSchemeModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterPaymentScheduleScheme,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddPaymentScheduleSchemeScreen(
+                      paymentScheduleSchemeModel: paymentScheduleScheme,
+                      index: index,
+                    );
+                  },
+                ),
+              ],
+            ),
+
+            // ATTENDANCE
+            GoRoute(
+              name: AppRoutes.attendance,
+              path: AppRoutes.attendance,
+              builder: (context, state) {
+                return BlocProvider(
+                  create: (context) => AttendanceCubit(),
+                  child: AttendanceScreen(),
+                );
+              },
+            ),
+            // RESIGNATION
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => ResignationCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.resignation,
+                  path: AppRoutes.resignation,
+                  builder: (context, state) {
+                    return ResignationScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addresignation,
+                  path: AppRoutes.addresignation,
+                  builder: (context, state) {
+                    final queryParameterResignation =
+                        state.uri.queryParameters['resignation'];
+
+                    final ResignationModel? resignation =
+                        queryParameterResignation != null
+                            ? ResignationModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterResignation,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddResignationScreen(
+                      resignationModel: resignation,
+                      index: index,
+                    );
+                  },
+                ),
+              ],
+            ),
+            // PAYROLL REPORT
+            GoRoute(
+              name: AppRoutes.payrollReport,
+              path: AppRoutes.payrollReport,
+              builder: (context, state) {
+                return BlocProvider(
+                  create: (context) => PayrollReportCubit(),
+                  child: PayrollReportScreen(),
                 );
               },
             ),
           ],
         ),
-        // ATTENDANCE
-        GoRoute(
-          name: AppRoutes.attendance,
-          path: AppRoutes.attendance,
-          builder: (context, state) {
-            return BlocProvider(
-              create: (context) => AttendanceCubit(),
-              child: AttendanceScreen(),
-            );
-          },
-        ),
-        // RESIGNATION
+
+        // MATERIAL REQUISITION
         ShellRoute(
+          navigatorKey: shellNavigatorKey,
           builder: (context, state, child) {
             return BlocProvider(
-              create: (_) => ResignationCubit(),
-              child: child,
+              create: (context) => MaterialRequisitionCubit(),
+              child: MaterialRequisitonScreen(),
             );
           },
           routes: [
             GoRoute(
-              name: AppRoutes.resignation,
-              path: AppRoutes.resignation,
-              builder: (context, state) {
-                return ResignationScreen();
-              },
+              path: AppRoutes.materialRequisition,
+              name: AppRoutes.materialRequisition,
+              builder: (context, state) => MaterialRequisitonScreen(),
             ),
-            GoRoute(
-              name: AppRoutes.addresignation,
-              path: AppRoutes.addresignation,
-              builder: (context, state) {
-                final queryParameterResignation =
-                    state.uri.queryParameters['resignation'];
-
-                final ResignationModel? resignation =
-                    queryParameterResignation != null
-                        ? ResignationModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterResignation),
-                            ),
-                          ),
-                        )
-                        : null;
-
-                final index =
-                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-                return AddResignationScreen(
-                  resignationModel: resignation,
-                  index: index,
-                );
-              },
-            ),
+            // GoRoute(
+            //   path: AppRoutes.materialRequisitionDetails,
+            //   name: AppRoutes.materialRequisitionDetails,
+            //   builder:
+            //       (context, state) => MaterialRequisitionGetQuotationScreen(),
+            // ),
           ],
-        ),
-        // PAYROLL REPORT
-        GoRoute(
-          name: AppRoutes.payrollReport,
-          path: AppRoutes.payrollReport,
-          builder: (context, state) {
-            return BlocProvider(
-              create: (context) => PayrollReportCubit(),
-              child: PayrollReportScreen(),
-            );
-          },
         ),
       ],
     ),
