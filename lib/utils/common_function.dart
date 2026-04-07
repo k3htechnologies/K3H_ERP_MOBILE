@@ -548,6 +548,10 @@ String dateFormatterHhMmAm(DateTime dateTime) {
   return DateFormat('hh:mma').format(dateTime).toLowerCase();
 }
 
+String formatDateTimeForApi(DateTime d) {
+  return DateFormat('yyyy-MM-dd').format(d);
+}
+
 /// Formats a time string (HH:mm:ss or HH:mm) into only hours with AM/PM.
 ///
 /// Example:
@@ -689,7 +693,6 @@ Future<bool> importExcel(
     return false;
   }
 }
-
 
 String addCommasToInteger(double value) {
   String integerPart = value.toStringAsFixed(2);

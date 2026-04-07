@@ -133,6 +133,7 @@ import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/present
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/add_terms_and_conditions_screen.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/terms_and_conditions_screen.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/terms_and_conditions_view_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/features/menu/presentation/pages/menu_screen.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/data/models/calendar_event.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/presentation/cubit/calendar_cubit.dart';
@@ -171,6 +172,7 @@ import 'package:k3h_erp_app/features/payroll/resignation/data/model/resignation.
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/cubit/resignation_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/pages/add_resignation_screen.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/pages/resignation_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition.screen.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:k3h_erp_app/features/profile/presentation/pages/profile_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/dashboard_screen.dart';
@@ -4501,6 +4503,30 @@ final GoRouter goRouter = GoRouter(
                 );
               },
             ),
+          ],
+        ),
+
+        // MATERIAL REQUISITION
+        ShellRoute(
+          navigatorKey: shellNavigatorKey,
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (context) => MaterialRequisitionCubit(),
+              child: MaterialRequisitonScreen(),
+            );
+          },
+          routes: [
+            GoRoute(
+              path: AppRoutes.materialRequisition,
+              name: AppRoutes.materialRequisition,
+              builder: (context, state) => MaterialRequisitonScreen(),
+            ),
+            // GoRoute(
+            //   path: AppRoutes.materialRequisitionDetails,
+            //   name: AppRoutes.materialRequisitionDetails,
+            //   builder:
+            //       (context, state) => MaterialRequisitionGetQuotationScreen(),
+            // ),
           ],
         ),
       ],

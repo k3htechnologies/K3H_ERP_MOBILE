@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 
 Widget buildBottomNavigationBar(BuildContext context) {
   final currentPath = GoRouterState.of(context).uri.toString();
@@ -19,8 +20,9 @@ Widget buildBottomNavigationBar(BuildContext context) {
       ],
     ),
     child: SafeArea(
-      child: SizedBox(
-        height: 40,
+      child: Container(
+        height: 90,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -64,8 +66,26 @@ Widget _buildNavItem({
           alignment: Alignment.center,
           clipBehavior: Clip.none,
           children: [
+            // Label (space always reserved)
+            Positioned(
+              bottom: 8,
+              child: Opacity(
+                opacity: isActive ? 0 : 1, // 👈 hide, don’t remove
+                child: Text(
+                  label,
+                  style: AppTextStyle.ts12R(
+                    color: isActive ? AppColor.primary : AppColor.grey,
+                  ),
+                ),
+              ),
+            ),
+
+            // Icon (lift when selected)
             Transform.translate(
-              offset: isActive ? const Offset(0, -12) : Offset.zero,
+              offset:
+                  isActive
+                      ? const Offset(0, -12) // 👈 lift ALL items
+                      : Offset.zero,
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration:
@@ -82,12 +102,10 @@ Widget _buildNavItem({
                           ],
                         )
                         : null,
-                child: Center(
-                  child: Icon(
-                    icon,
-                    size: 24,
-                    color: isActive ? AppColor.white : AppColor.grey,
-                  ),
+                child: Icon(
+                  icon,
+                  size: 24,
+                  color: isActive ? AppColor.white : AppColor.grey,
                 ),
               ),
             ),

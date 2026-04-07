@@ -1022,13 +1022,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
           }
 
           if (item.documentUrl.trim().isNotEmpty) {
-            final urls = item.documentUrl.split(",");
-
-            for (var url in urls) {
-              if (url.trim().isNotEmpty) {
-                docs.add({"title": "Case Document", "url": url.trim()});
-              }
-            }
+            docs.add({"title": "Litigation Document", "url": item.documentUrl});
           }
 
           return docs;
@@ -1089,9 +1083,10 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                                 documents.map((doc) {
                                   return GestureDetector(
                                     onTap: () {
-                                      showFilePreviewDialog(context, [
-                                        doc["url"]!,
-                                      ]);
+                                      showFilePreviewDialog(
+                                        context,
+                                        doc["url"]!.split(","),
+                                      );
                                     },
                                     child: Container(
                                       padding: EdgeInsets.symmetric(
