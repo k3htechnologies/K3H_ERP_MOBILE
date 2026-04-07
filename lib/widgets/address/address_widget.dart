@@ -332,7 +332,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                     },
                     validator: (value){
                       if (value == null) {
-                        return 'Please select state';
+                        return 'State is required';
                       }
                       return null;
                     },
@@ -364,6 +364,12 @@ class _AddressWidgetState extends State<AddressWidget> {
                           handleDistrictChange(districtId.value!);
                           widget.districtChange(map);
                         },
+                        validator: (value){
+                          if (value == null) {
+                            return 'District is required';
+                          }
+                          return null;
+                        }
                       );
                     },
                   );
@@ -395,6 +401,12 @@ class _AddressWidgetState extends State<AddressWidget> {
                     handleCityChange(cityId.value!);
                     widget.cityChange(map);
                   },
+                  validator: (value){
+                    if (value == null) {
+                      return 'City is required';
+                    }
+                    return null;
+                  }
                 );
               },
             );
@@ -422,6 +434,12 @@ class _AddressWidgetState extends State<AddressWidget> {
                       villageId.value = map['zAttributesId'];
                       widget.villageChange!(map);
                     },
+                    validator: (value){
+                      if (value == null) {
+                        return 'Village is required';
+                      }
+                      return null;
+                    }
                   );
                 },
               );

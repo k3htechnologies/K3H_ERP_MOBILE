@@ -86,7 +86,7 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
         branchName: _branchNameC.text.trim(),
         branchCode: _branchCodeC.text.trim(),
         location: _locationC.text.trim(),
-        isHeadOffice: widget.branch!.isHeadOffice,
+        isHeadOffice: isHeadOffice,
         index: widget.index,
       );
     } else {
