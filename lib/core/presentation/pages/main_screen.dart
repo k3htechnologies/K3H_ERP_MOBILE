@@ -15,7 +15,6 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/bottom_navigation/bottom_navigation_bar_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
-import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 final GlobalKey<ScaffoldState> mobileScreenGlobalScaffoldKey =
