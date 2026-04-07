@@ -1022,13 +1022,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
           }
 
           if (item.documentUrl.trim().isNotEmpty) {
-            final urls = item.documentUrl.split(",");
-
-            for (var url in urls) {
-              if (url.trim().isNotEmpty) {
-                docs.add({"title": "Litigation Document", "url": url.trim()});
-              }
-            }
+            docs.add({"title": "Litigation Document", "url": item.documentUrl});
           }
 
           return docs;
@@ -1086,50 +1080,51 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                             spacing: 10,
                             runSpacing: 10,
                             children:
-                                documents.map((doc) {
-                                  return GestureDetector(
-                                    onTap: () {
-                                      showFilePreviewDialog(context, [
-                                        doc["url"]!,
-                                      ]);
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 10,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
+                            documents.map((doc) {
+                              return GestureDetector(
+                                onTap: () {
+                                  showFilePreviewDialog(
+                                    context,
+                                    doc["url"]!.split(","),
+                                  );
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: AppColor.primary,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        doc["title"]!,
+                                        style: AppTextStyle.ts12M(
                                           color: AppColor.primary,
                                         ),
-                                        borderRadius: BorderRadius.circular(8),
                                       ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            doc["title"]!,
-                                            style: AppTextStyle.ts12M(
-                                              color: AppColor.primary,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 6),
-                                          Icon(
-                                            Icons.remove_red_eye_outlined,
-                                            color: AppColor.primary,
-                                            size: 18,
-                                          ),
-                                        ],
+                                      const SizedBox(width: 6),
+                                      Icon(
+                                        Icons.remove_red_eye_outlined,
+                                        color: AppColor.primary,
+                                        size: 18,
                                       ),
-                                    ),
-                                  );
-                                }).toList(),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }).toList(),
                           ),
                           verticalSpacing(height: 9.0),
                           !isLast
                               ? Divider(
-                                color: AppColor.black.withValues(alpha: 0.5),
-                              )
+                            color: AppColor.black.withValues(alpha: 0.5),
+                          )
                               : SizedBox.shrink(),
                         ],
                       );
