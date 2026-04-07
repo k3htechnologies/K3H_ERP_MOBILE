@@ -301,7 +301,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
         breakDurationTime: breakDuration,
         graceTime: graceTime,
         lateArrivalAction: _selectedLateArrivalAction,
-        lateCount: double.parse(_lateCountC.text.trim()),
+        lateCount: _lateCountC.text.isNotEmpty? double.parse(_lateCountC.text.trim()):0,
         remarks: _remarksC.text.trim(),
       );
     }
@@ -600,6 +600,12 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
             title: "First Half Up To",
             isRequired: true,
             initialTime: parseTimeOfDayFromHHmm(firstHalfUpTo),
+            validator: (value){
+              if (value == null) {
+                return "First Half Up To is required";
+              }
+              return null;
+            },
           ),
           CustomTextField(
             title: "Mark Absent If Working Hour less than (in Minutes)",
@@ -746,6 +752,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
             verticalSpacing(),
             CustomTextField(
               title: "Late Count",
+              isRequired: true,
               hint: "Enter Late Count",
               keyboardType: TextInputType.number,
               textController: _lateCountC,

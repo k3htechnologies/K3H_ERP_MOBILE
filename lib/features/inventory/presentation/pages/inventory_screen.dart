@@ -43,6 +43,7 @@ class _InventoryScreenState extends State<InventoryScreen>
 
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
+  late AuthorizationModel _routeAuthorizationModelBooking;
 
   // CURRENT PROJECT
   late ProjectModel _project;
@@ -64,6 +65,8 @@ class _InventoryScreenState extends State<InventoryScreen>
     _project = getProject();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.inventory]!;
+    _routeAuthorizationModelBooking =
+        Authorization.routeAuthorizationMap[AppRoutes.booking]!;
     _initControllers();
     _inventoryCubit = context.read<InventoryCubit>();
     _loginCubit = context.read<LoginCubit>();
@@ -888,7 +891,7 @@ class _InventoryScreenState extends State<InventoryScreen>
 
     //  VIEW → only booked & allotted AND permission
     final showView =
-        (canView && (status == "booked" || status == "allotted")) ||
+        (canView && (status == "booked" || status == "alloted")) ||
             (!canAction &&
                 (status == "available" || status == "blocked" || status == "hold")) ||
             (canAction && isApproved);
@@ -1063,8 +1066,9 @@ class _InventoryScreenState extends State<InventoryScreen>
               flat.reraCarpetAreaSqFt != 0 &&
               flat.flatType != "" &&
               approvalStatus.toLowerCase() == "approved" &&
-              _routeAuthorizationModel.isAction) ...[
+              _routeAuthorizationModelBooking.isAction) ...[
             verticalSpacing(),
+            Text("${_routeAuthorizationModelBooking.isAction}"),
             CustomButton(
               text: "Book",
               onPressed: () async {

@@ -32,6 +32,7 @@ class ShiftMasterViewScreen extends StatelessWidget {
                   children: [
                     Text("Shift Details", style: AppTextStyle.ts16SB()),
                     Row(
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
@@ -56,6 +57,7 @@ class ShiftMasterViewScreen extends StatelessWidget {
                   children: [
                     Text("Time Details", style: AppTextStyle.ts16SB()),
                     Row(
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
@@ -69,6 +71,7 @@ class ShiftMasterViewScreen extends StatelessWidget {
                       ],
                     ),
                     Row(
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
@@ -84,47 +87,6 @@ class ShiftMasterViewScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Half Day And Absence Rules",
-                      style: AppTextStyle.ts16SB(),
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Half Day Out Time Before",
-                          value: shiftMaster.halfDayOutTimeBefore,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Half Day In Time After",
-                          value: shiftMaster.halfDayInTimeAfter,
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Half Day Working Hours",
-                          value: shiftMaster.halfDayWorkingHours,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Absent Working Hours",
-                          value: shiftMaster.absentWorkingHours,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: commonCardDecoration(),
@@ -134,6 +96,7 @@ class ShiftMasterViewScreen extends StatelessWidget {
                   children: [
                     Text("Break Details", style: AppTextStyle.ts16SB()),
                     Row(
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
@@ -167,6 +130,7 @@ class ShiftMasterViewScreen extends StatelessWidget {
                   children: [
                     Text("Advance Settings", style: AppTextStyle.ts16SB()),
                     Row(
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
@@ -181,6 +145,7 @@ class ShiftMasterViewScreen extends StatelessWidget {
                     ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 10,
                       children: [
                         buildColumnTitleValue(
                           title: "Mark Half Day if Intime After",
@@ -189,6 +154,15 @@ class ShiftMasterViewScreen extends StatelessWidget {
                         buildColumnTitleValue(
                           title: "Mark Half Day if Outtime Before",
                           value: shiftMaster.halfDayOutTimeBefore,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Mark Half Day If Working Hour Less than",
+                          value: shiftMaster.halfDayWorkingHours,
                         ),
                       ],
                     ),

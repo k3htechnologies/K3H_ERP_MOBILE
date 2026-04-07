@@ -231,7 +231,7 @@ class _AddWeekOffMappingMasterScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CustomMultipleSelectPopup(
-                          title: 'Week Off Name',
+                          title: 'Week Off Policy Name',
                           hintText: "Select Week Off Policy Name",
                           isRequired: true,
                           isMultiSelect: false,
@@ -244,11 +244,13 @@ class _AddWeekOffMappingMasterScreenState
                               _weekOffMappingMasterCubit.fetchWeekOff,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Week off Name is required";
+                              return "Week off Policy Name is required";
                             }
                             return null;
                           },
                         ),
+                        verticalSpacing(),
+                        Text("Mapping",style: AppTextStyle.ts14R(),),
                         Row(
                           children: [
                             Radio<String>(

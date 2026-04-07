@@ -633,7 +633,9 @@ class _ProfileScreenState extends State<ProfileScreen>
             ? _profileCubit.state.employeeMasterList.first
             : null;
 
-    final imageUrl = (apiUser?.profilePhotoURL ?? user.profilePhotoURL).trim();
+    final imageUrl = user.profilePhotoURL.trim().isNotEmpty
+        ? user.profilePhotoURL
+        : (apiUser?.profilePhotoURL ?? "");
 
     return GestureDetector(
       onTap: _showProfilePhotoOptions,

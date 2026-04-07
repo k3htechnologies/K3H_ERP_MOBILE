@@ -157,8 +157,10 @@ Widget buildDocumentRow({
   required String url,
 }) {
   return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(docNumber, style: AppTextStyle.ts14M(color: AppColor.black)),
+      Flexible(child: Text(docNumber, style: AppTextStyle.ts14M(color: AppColor.black))),
+      horizontalSpacing(),
       if (url.isNotEmpty && url != "-")
         CustomIconButton(
           onPressed: () {
@@ -166,10 +168,9 @@ Widget buildDocumentRow({
               showFilePreviewDialog(context, url.split(","));
             }
           },
-          backgroundColor: AppColor.white,
           icon: Icon(
             Icons.remove_red_eye_outlined,
-            size: 18,
+            size: 16,
             color: AppColor.primary,
           ),
         ),
@@ -209,7 +210,7 @@ Widget showSiteSelectedWidget({required String siteName}){
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text("Project: ",style: AppTextStyle.ts14M(color: AppColor.grey,)),
-        Flexible(child: Text(siteName,style: AppTextStyle.ts14SB(color: AppColor.black,))),
+        Flexible(child: Text(siteName.isNotEmpty?"No Project Selected":siteName,style:siteName.isNotEmpty? AppTextStyle.ts14R(color: AppColor.black) : AppTextStyle.ts14SB(color: AppColor.black,))),
       ],
     ),
   );

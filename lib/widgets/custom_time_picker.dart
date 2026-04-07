@@ -15,6 +15,7 @@ class CustomTimePicker extends StatefulWidget {
   final TimeOfDay? initialTime;
   final bool readOnly;
   final FormFieldValidator<TimeOfDay>? validator;
+  final double bottomMargin;
 
   const CustomTimePicker({
     required this.setValue,
@@ -26,6 +27,7 @@ class CustomTimePicker extends StatefulWidget {
     this.readOnly = false,
     this.validator,
     super.key,
+    this.bottomMargin = 18.0,
   });
 
   @override
@@ -226,25 +228,25 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                 ),
 
                 hasError
-                    ? Padding(
-                      padding: const EdgeInsets.only(left: 6, top: 4),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            color: AppColor.error,
-                            size: 14,
-                          ),
-                          horizontalSpacing(width: 5),
-                          Text(
-                            formFieldState.errorText ?? "",
-                            style: AppTextStyle.ts12R(color: AppColor.error),
-                          ),
-                        ],
+                    ? Container(
+                  padding: const EdgeInsets.only(top: 2, left: 12),
+                  margin: EdgeInsets.only(bottom: 10),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(Icons.info_outline, color: AppColor.error, size: 14),
+                      horizontalSpacing(width: 5),
+                      Expanded(
+                        child: Text(
+                          formFieldState.errorText ?? "",
+                          style: AppTextStyle.ts12R(color: AppColor.error),
+                        ),
                       ),
-                    )
-                    : const SizedBox(height: 18),
+                    ],
+                  ),
+                )
+                    : SizedBox(height: widget.bottomMargin),
               ],
             );
           },

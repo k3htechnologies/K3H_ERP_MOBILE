@@ -93,8 +93,8 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a Asset Mapping?',
-      'Deleting this Asset Mapping will permanently remove its contents.',
+      'You are about to delete a earning ?',
+      'Deleting this earning will permanently remove all associated data.',
     );
     if (result && context.mounted) {
       _earningMasterCubit.deleteEarning(index, obj, context);
@@ -291,23 +291,13 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
                                   },
                                 );
                               },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 0,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(color: AppColor.primary),
-                                  ),
-                                ),
-                                child: Text(
-                                  earning.name,
-                                  style: AppTextStyle.ts16M(
-                                    color: AppColor.primary,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                              child: Text(
+                                earning.name,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
                                 ),
                               ),
                             ),

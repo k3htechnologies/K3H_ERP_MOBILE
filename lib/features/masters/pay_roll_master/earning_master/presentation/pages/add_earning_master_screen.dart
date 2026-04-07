@@ -174,12 +174,14 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
       ),
     ];
     _valueC.text = earningMasterModel.value.toString();
-    selectedBranch = [
+    if(earningMasterModel.branchName.isNotEmpty) {
+      selectedBranch = [
       {
         'zAttributesId': earningMasterModel.branchMasterId,
         'DisplayName': earningMasterModel.branchName,
       },
     ];
+    }
     _minSalaryC.text = earningMasterModel.minSalary.toString();
     _maxSalaryC.text = earningMasterModel.maxSalary.toString();
     applicableType.value = earningMasterModel.applicable;

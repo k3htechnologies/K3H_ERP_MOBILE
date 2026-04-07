@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:path_provider/path_provider.dart';
@@ -362,8 +363,9 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
             // DOWNLOAD BUTTON
             Align(
               alignment: Alignment.centerRight,
-              child: GestureDetector(
-                onTap: () async {
+              child: CustomIconButton(
+                backgroundColor: AppColor.lightGreen,
+                onPressed: () async {
                   final url = widget.urls[_currentPageNotifier.value];
                   final bytes =
                       widget.fileBytes != null &&
@@ -373,16 +375,10 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
                           : null;
                   await downloadFile(url, bytes: bytes);
                 },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: AppColor.primary,
-                  ),
-                  child: Icon(Icons.download, color: AppColor.white),
+                icon: Icon(
+                  Icons.file_download_outlined,
+                  size: 16,
+                  color: AppColor.darkGreen,
                 ),
               ),
             ),

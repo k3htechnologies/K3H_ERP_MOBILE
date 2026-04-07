@@ -272,87 +272,89 @@ class _AddHolidayMappingMasterScreenState
                 horizontal: 16.0,
                 vertical: 10,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _isEditMode
-                        ? "Update Holiday Mapping"
-                        : "Add Holiday Mapping",
-                    style: AppTextStyle.ts16SB(),
-                  ),
-                  verticalSpacing(),
-                  Container(
-                    padding: EdgeInsets.all(16),
-                    decoration: commonCardDecoration(),
-                    child: Column(
-                      children: [
-                        CustomMultipleSelectPopup(
-                          title: 'Holiday Name',
-                          isRequired: true,
-                          isMultiSelect: false,
-                          hintText: "Select Holiday Name",
-                          initialValue: _selectedHoliday,
-                          dataList: [],
-                          onSelected: (value) {
-                            innerState(() {
-                              _selectedHoliday = value;
-                            });
-                          },
-                          dataFetchCallBack: _fetchHolidays,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Holiday is required";
-                            }
-                            return null;
-                          },
-                        ),
-                        CustomDatePicker(
-                          title: 'Holiday Date',
-                          initialDate: _holidayDate,
-                          isRequired: true,
-                          setValue: (date) {
-                            innerState(() {
-                              _holidayDate = date;
-                            });
-                          },
-                          validator: (value) {
-                            if (value == null) {
-                              return "Holiday Date is required";
-                            }
-                            return null;
-                          },
-                        ),
-                        CustomMultipleSelectPopup(
-                          title: 'Branch',
-                          isMultiSelect: false,
-                          hintText: "Select Branch Name",
-                          initialValue: _selectedBranch,
-                          dataList: [],
-                          onSelected: (value) {
-                            innerState(() {
-                              _selectedBranch = value;
-                            });
-                          },
-                          dataFetchCallBack: _fetchBranch,
-                        ),
-                        CustomMultipleSelectPopup(
-                          title: 'Department',
-                          isMultiSelect: true,
-                          hintText: "Select Department Name",
-                          initialValue: _selectedDepartment,
-                          dataList: [],
-                          onSelected: (value) {
-                            innerState(() {
-                              _selectedDepartment = value;
-                            });
-                          },
-                          dataFetchCallBack: _fetchDepartment,
-                        ),
-                      ],
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _isEditMode
+                          ? "Update Holiday Mapping"
+                          : "Add Holiday Mapping",
+                      style: AppTextStyle.ts16SB(),
                     ),
-                  ),
-                ],
+                    verticalSpacing(),
+                    Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: commonCardDecoration(),
+                      child: Column(
+                        children: [
+                          CustomMultipleSelectPopup(
+                            title: 'Holiday Name',
+                            isRequired: true,
+                            isMultiSelect: false,
+                            hintText: "Select Holiday Name",
+                            initialValue: _selectedHoliday,
+                            dataList: [],
+                            onSelected: (value) {
+                              innerState(() {
+                                _selectedHoliday = value;
+                              });
+                            },
+                            dataFetchCallBack: _fetchHolidays,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Holiday is required";
+                              }
+                              return null;
+                            },
+                          ),
+                          CustomDatePicker(
+                            title: 'Holiday Date',
+                            initialDate: _holidayDate,
+                            isRequired: true,
+                            setValue: (date) {
+                              innerState(() {
+                                _holidayDate = date;
+                              });
+                            },
+                            validator: (value) {
+                              if (value == null) {
+                                return "Holiday Date is required";
+                              }
+                              return null;
+                            },
+                          ),
+                          CustomMultipleSelectPopup(
+                            title: 'Branch',
+                            isMultiSelect: false,
+                            hintText: "Select Branch Name",
+                            initialValue: _selectedBranch,
+                            dataList: [],
+                            onSelected: (value) {
+                              innerState(() {
+                                _selectedBranch = value;
+                              });
+                            },
+                            dataFetchCallBack: _fetchBranch,
+                          ),
+                          CustomMultipleSelectPopup(
+                            title: 'Department',
+                            isMultiSelect: true,
+                            hintText: "Select Department Name",
+                            initialValue: _selectedDepartment,
+                            dataList: [],
+                            onSelected: (value) {
+                              innerState(() {
+                                _selectedDepartment = value;
+                              });
+                            },
+                            dataFetchCallBack: _fetchDepartment,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -362,6 +364,7 @@ class _AddHolidayMappingMasterScreenState
         child: Container(
           height: 70,
           padding: EdgeInsets.all(16),
+          color: AppColor.white,
           child: CustomButton(
             leading: Icon(
               _isEditMode ? Icons.edit : Icons.add,

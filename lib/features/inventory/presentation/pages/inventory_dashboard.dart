@@ -73,7 +73,6 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // SELECTED PROJECT TEXT PROJECT CUSTOM TEXT FIELD (ONLY DISPLAY)
-                  if(_selectedProject.projectId != 0)
                   showSiteSelectedWidget(siteName: _selectedProject.projectName),
                   // GENERATE REPORT AND ADD BUTTON
                   if (_selectedProject.projectId != 0) ...[
@@ -797,12 +796,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                 ),
               ] else ...[
                 Center(
-                  child: Text(
-                    "No Data Found",
-                    style: AppTextStyle.ts12M(
-                      color: AppColor.black.withValues(alpha: 0.50),
-                    ),
-                  ),
+                  child: noDataWidget(message: "No Data Found",iconSize: 180),
                 ),
               ],
             ],
@@ -896,12 +890,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                 ),
               ] else ...[
                 Center(
-                  child: Text(
-                    "No Data Found",
-                    style: AppTextStyle.ts12M(
-                      color: AppColor.black.withValues(alpha: 0.50),
-                    ),
-                  ),
+                  child: noDataWidget(message: "No Data Found",iconSize: 180),
                 ),
               ],
             ],

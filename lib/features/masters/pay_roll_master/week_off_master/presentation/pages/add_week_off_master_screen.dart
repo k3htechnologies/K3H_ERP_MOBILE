@@ -277,9 +277,9 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                     ),
                     verticalSpacing(),
                     CustomTextField(
-                      title: "Week Off Name",
+                      title: "Week Off Policy Name",
                       textController: _weekOffNameC,
-                      hint: "Enter Week Off Name",
+                      hint: "Enter Week Off Policy Name",
                       inputFormatterList: [
                         LengthLimitingTextInputFormatter(200),
                       ],
@@ -294,9 +294,9 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                       },
                     ),
                     CustomTextField(
-                      title: "Week Off Code",
+                      title: "Week Off Policy Code",
                       textController: _weekOffCodeC,
-                      hint: "Enter Week Off Code",
+                      hint: "Enter Week Off Policy Code",
                       inputFormatterList: [
                         UpperCaseTextFormatter(),
                         LengthLimitingTextInputFormatter(4),
@@ -305,7 +305,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Week Off Code is required";
+                          return "Week Off Policy Code is required";
                         }
 
                         return null;

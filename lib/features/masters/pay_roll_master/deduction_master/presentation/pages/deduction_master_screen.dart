@@ -93,8 +93,8 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a Asset Mapping?',
-      'Deleting this Asset Mapping will permanently remove its contents.',
+      'You are about to delete a Deduction ?',
+      'Deleting this Deduction will permanently remove all associated data.',
     );
     if (result && context.mounted) {
       _deductionMasterCubit.deleteDeduction(index, obj, context);

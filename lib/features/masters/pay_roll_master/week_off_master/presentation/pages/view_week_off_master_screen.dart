@@ -33,6 +33,7 @@ class ViewWeekOffMasterScreen extends StatelessWidget {
                   children: [
                     Text("Week Off Policy Details", style: AppTextStyle.ts16SB()),
                     Row(
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
@@ -46,6 +47,7 @@ class ViewWeekOffMasterScreen extends StatelessWidget {
                       ],
                     ),
                     Row(
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
@@ -71,6 +73,7 @@ class ViewWeekOffMasterScreen extends StatelessWidget {
                   children: [
                     Text("Week Off Details", style: AppTextStyle.ts16SB()),
                     Row(
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
@@ -84,6 +87,7 @@ class ViewWeekOffMasterScreen extends StatelessWidget {
                       ],
                     ),
                     Row(
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(

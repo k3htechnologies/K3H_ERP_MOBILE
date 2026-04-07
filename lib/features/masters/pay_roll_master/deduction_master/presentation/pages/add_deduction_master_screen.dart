@@ -191,19 +191,23 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
         orElse: () => typesList.first,
       ),
     ];
-    selectedBranch = [
+    if(deductionMasterModel.branchName.isNotEmpty) {
+      selectedBranch = [
       {
         "zAttributesId": deductionMasterModel.branchMasterId,
         "DisplayName": deductionMasterModel.branchName,
       },
     ];
+    }
 
-    selectedStateList = [
+    if(deductionMasterModel.stateName.isNotEmpty) {
+      selectedStateList = [
       {
         "zAttributesId": deductionMasterModel.stateMasterId,
         "DisplayName": deductionMasterModel.stateName,
       },
     ];
+    }
     applicableType.value =
         (deductionMasterModel.applicable).toLowerCase().trim() == 'percentage'
             ? 'Percentage'

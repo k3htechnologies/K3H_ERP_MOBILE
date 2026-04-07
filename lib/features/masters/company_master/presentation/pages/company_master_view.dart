@@ -210,6 +210,14 @@ class _CompanyMasterViewMobileScreenState
                     widget.company!.cinNumber.isEmpty
                         ? "-"
                         : widget.company!.cinNumber,
+                customValueWidget: buildDocumentRow(
+                  context: context,
+                  docNumber:
+                  widget.company!.cinNumber.isEmpty
+                      ? "-"
+                      : widget.company!.cinNumber,
+                  url: widget.company!.cinURL,
+                ),
               ),
               buildColumnTitleValue(
                 title: "TAN Number",
@@ -268,8 +276,6 @@ class _CompanyMasterViewMobileScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildTitle(title: "Address Details"),
-          verticalSpacing(height: 15),
-          Row(children: [buildColumnTitleValue(title: "Address", value: "")]),
           verticalSpacing(),
           Row(
             spacing: 10,

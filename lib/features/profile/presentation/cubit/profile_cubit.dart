@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
+import 'package:k3h_erp_app/core/presentation/cubit/main_screen_cubit.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/login/data/repository/login.repository.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_education_details.model.dart';
@@ -915,9 +917,37 @@ class ProfileCubit extends Cubit<ProfileState> {
         return;
       },
       (response) async {
-        showSuccessMessage(context, subTitle: response["successMessage"]);
+        final newUrl = (response["data"] as List).isNotEmpty
+            ? response["data"][0]
+            : "";
 
-        await getEmployeeMasterList(1, 100, int.parse(employeeId));
+        final userString =
+        LocalStorageManager().getString(StorageKey.currentUser);
+
+        if (userString != null && newUrl.isNotEmpty) {
+          final userJson = jsonDecode(userString);
+
+          userJson['ProfilePhotoURL'] = newUrl;
+
+
+          await LocalStorageManager().setString(
+            StorageKey.currentUser,
+            jsonEncode(userJson),
+          );
+
+        }
+
+        final updatedUser = state.user?.copyWith(
+          profilePhotoURL: newUrl,
+        );
+
+        emit(state.copyWith(user: updatedUser));
+
+        if(context.mounted) {
+          context.read<MainScreenCubit>().rebuildChild();
+          showSuccessMessage(context, subTitle: response["successMessage"]);
+        }
+
       },
     );
   }

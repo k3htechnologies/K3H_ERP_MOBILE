@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/bottom_navigation/bottom_navigation_bar_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 final GlobalKey<ScaffoldState> mobileScreenGlobalScaffoldKey =
@@ -34,19 +35,6 @@ class _MainScreenState extends State<MainScreen>
   late UserModel user;
 
   @override
-  void initState() {
-    super.initState();
-    getCurrentUser();
-  }
-
-  Future getCurrentUser() async {
-    var userJson = jsonDecode(
-      LocalStorageManager().getString(StorageKey.currentUser) ?? "",
-    );
-    user = UserModel.fromJson(userJson);
-  }
-
-  @override
   Widget build(BuildContext context) {
     final currentPath = GoRouterState.of(context).uri.toString();
 
@@ -57,80 +45,121 @@ class _MainScreenState extends State<MainScreen>
       key: mobileScreenGlobalScaffoldKey,
       drawer: Drawer(
         child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 25,
-                      backgroundColor: AppColor.primary.withValues(alpha: .6),
-                      child: Text(
-                        user.fullName.isNotEmpty
-                            ? user.fullName[0].toUpperCase()
-                            : 'U',
-                        style: AppTextStyle.ts24B(color: AppColor.white),
-                      ),
+          child: BlocBuilder<MainScreenCubit, Key>(
+            builder: (context, key) {
+              final userString = LocalStorageManager().getString(
+                StorageKey.currentUser,
+              );
+
+              if (userString == null || userString.isEmpty) {
+                return Center(child: Text("No User Found"));
+              }
+
+              final user = UserModel.fromJson(jsonDecode(userString));
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            goRouter.pop();
+                            goRouter.go(AppRoutes.profile);
+                          },
+                          child: CircleAvatar(
+                            radius: 35,
+                            backgroundColor: AppColor.primary,
+                            child:
+                                user.profilePhotoURL.isNotEmpty
+                                    ? ClipOval(
+                                      child: NetworkImageWidget(
+                                        imageUrl: user.profilePhotoURL,
+                                        fit: BoxFit.fill,
+                                        width: 70,
+                                        height: 70,
+                                      ),
+                                    )
+                                    : Text(
+                                      user.fullName.isNotEmpty
+                                          ? user.fullName[0].toUpperCase()
+                                          : 'U',
+                                      style: AppTextStyle.ts24B(
+                                        color: AppColor.white,
+                                      ),
+                                    ),
+                          ),
+                        ),
+                        horizontalSpacing(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                user.fullName,
+                                style: AppTextStyle.ts16SB(),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                user.department.isNotEmpty
+                                    ? user.department
+                                    : '-',
+                                style: AppTextStyle.ts14M(color: AppColor.grey),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                user.designation.isNotEmpty
+                                    ? user.designation
+                                    : '-',
+                                style: AppTextStyle.ts12M(color: AppColor.grey),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    horizontalSpacing(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            user.fullName,
-                            style: AppTextStyle.ts16SB(),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            user.department.isNotEmpty ? user.department : '-',
-                            style: AppTextStyle.ts14M(color: AppColor.grey),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            user.designation.isNotEmpty
-                                ? user.designation
-                                : '-',
-                            style: AppTextStyle.ts12M(color: AppColor.grey),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
+                  ),
+                  Divider(height: 1, color: AppColor.grey50),
+                  Expanded(child: MenuDrawerContent()),
+                  Divider(height: 1, color: AppColor.grey50),
+                  SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: CustomButton(
+                      leading: Icon(
+                        Icons.logout_outlined,
+                        size: 18,
+                        color: AppColor.white,
                       ),
+                      text: "Logout",
+                      onPressed: () async {
+                        logOutUser(context);
+                      },
                     ),
-                  ],
-                ),
-              ),
-              Divider(height: 1, color: AppColor.grey50),
-              Expanded(child: MenuDrawerContent()),
-              Divider(height: 1, color: AppColor.grey50),
-              SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: CustomButton(
-                  leading: Icon(Icons.login, size: 18, color: AppColor.white),
-                  text: "Log out",
-                  onPressed: () async {
-                    await showSuccessMessage(
-                      context,
-                      subTitle: "Logged out successfully",
-                    );
-                    await LocalStorageManager().removeAll();
-                    goRouter.replace(AppRoutes.splashScreen);
-                  },
-                ),
-              ),
-              SizedBox(height: 30),
-            ],
+                  ),
+                  SizedBox(height: 30),
+                ],
+              );
+            },
           ),
         ),
       ),
       body: BlocBuilder<MainScreenCubit, Key>(
         builder: (context, key) {
+          final userString = LocalStorageManager().getString(
+            StorageKey.currentUser,
+          );
+
+          if(userString!=null) {
+            user = UserModel.fromJson(jsonDecode(userString));
+          }
+
           return Row(
             children: [
               SizedBox.shrink(),

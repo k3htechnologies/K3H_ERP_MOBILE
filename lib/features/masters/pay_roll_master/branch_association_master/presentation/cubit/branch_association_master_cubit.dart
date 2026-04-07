@@ -213,7 +213,7 @@ class BranchAssociationMasterCubit extends Cubit<BranchAssociationMasterState> {
 
         showSuccessMessage(
           context,
-          subTitle: "Asset Mapping Deleted Successfully",
+          subTitle: "Branch Association deleted successfully",
         );
       },
     );
