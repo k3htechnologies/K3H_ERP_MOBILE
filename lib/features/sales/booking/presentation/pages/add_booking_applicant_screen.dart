@@ -127,6 +127,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
     fileNameList: [],
     deletedFileList: "",
   );
+
   @override
   void initState() {
     super.initState();

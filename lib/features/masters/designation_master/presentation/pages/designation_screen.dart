@@ -302,39 +302,39 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
                           Row(
                             spacing: 5,
                             children: [
-                              designation.numberOfEmployee == 0
-                                  ? SizedBox()
-                                  : CustomIconButton(
-                                    onPressed: () async {
-                                      await goRouter.pushNamed(
-                                        AppRoutes.employeeModuleAccess,
-                                        queryParameters: {
-                                          "designation": Uri.encodeComponent(
-                                            EncryptionManager.encryptData(
-                                              jsonEncode(designation.toJson()),
-                                            ),
-                                          ),
-                                        },
-                                      );
-                                      if (context.mounted) {
-                                        _designationMasterCubit
-                                            .getDesignationList(context, 1);
-                                      }
-                                    },
-                                    icon: Icon(
-                                      Icons.key,
-                                      size: 16,
-                                      color:
-                                          designation.isSetAccessModule == true
-                                              ? AppColor.primary
-                                              : AppColor.grey,
-                                    ),
-                                    backgroundColor:
-                                        designation.isSetAccessModule == true
-                                            ? AppColor.lightBlue
-                                            : AppColor.grey10,
-                                  ),
                               if (_routeAuthorizationModel.isAction) ...[
+                                designation.numberOfEmployee == 0
+                                    ? SizedBox()
+                                    : CustomIconButton(
+                                  onPressed: () async {
+                                    await goRouter.pushNamed(
+                                      AppRoutes.employeeModuleAccess,
+                                      queryParameters: {
+                                        "designation": Uri.encodeComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(designation.toJson()),
+                                          ),
+                                        ),
+                                      },
+                                    );
+                                    if (context.mounted) {
+                                      _designationMasterCubit
+                                          .getDesignationList(context, 1);
+                                    }
+                                  },
+                                  icon: Icon(
+                                    Icons.key,
+                                    size: 16,
+                                    color:
+                                    designation.isSetAccessModule == true
+                                        ? AppColor.primary
+                                        : AppColor.grey,
+                                  ),
+                                  backgroundColor:
+                                  designation.isSetAccessModule == true
+                                      ? AppColor.lightBlue
+                                      : AppColor.grey10,
+                                ),
                                 Row(
                                   spacing: 10,
                                   mainAxisSize: MainAxisSize.min,
