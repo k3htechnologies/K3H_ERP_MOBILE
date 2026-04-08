@@ -22,6 +22,8 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_chan
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_cubit.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/pages/pay_track_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/project_overview_screen.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
@@ -4527,6 +4529,24 @@ final GoRouter goRouter = GoRouter(
             //   builder:
             //       (context, state) => MaterialRequisitionGetQuotationScreen(),
             // ),
+          ],
+        ),
+        // CRM Pay Track
+        ShellRoute(
+          builder: (context, state, child) {
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => PayTrackCubit(), child: child),
+              ],
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              path: AppRoutes.payTrackMaster,
+              name: AppRoutes.payTrackMaster,
+              builder: (context, state) => PayTrackScreen(),
+            ),
           ],
         ),
       ],

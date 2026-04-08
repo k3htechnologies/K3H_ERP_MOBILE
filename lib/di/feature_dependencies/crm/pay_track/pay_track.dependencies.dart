@@ -16,7 +16,7 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/d
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/repository/request_management.repository.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 
-void registerPayTrackDependencies(GetIt serviceLocator) {
+void registerCRMPayTrackDependencies(GetIt serviceLocator) {
   // DATASOURCE
   serviceLocator.registerSingleton<PayTrackDatasource>(
     PayTrackDatasourceImpl(),
