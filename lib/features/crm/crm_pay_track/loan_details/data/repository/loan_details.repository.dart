@@ -3,7 +3,7 @@ import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/data/datasource/loan_details.datasource.dart';
 
-abstract interface class BookingLoanDetailsRepository {
+abstract interface class BankLoanDetailsRepository {
   Future<Either<Failure, Map<String, dynamic>>> getBookingLoanDetailsList({
     required int pageSize,
     required int pageNumber,
@@ -24,12 +24,10 @@ abstract interface class BookingLoanDetailsRepository {
   });
 }
 
-class BookingLoanDetailsRepositoryImpl extends BookingLoanDetailsRepository {
-  final BookingLoanDetailsDatasource bookingLoanDetailsDatasource;
+class BankLoanDetailsRepositoryImpl extends BankLoanDetailsRepository {
+  final BookingLoanDetailsDatasource bankLoanDetailsDatasource;
 
-  BookingLoanDetailsRepositoryImpl({
-    required this.bookingLoanDetailsDatasource,
-  });
+  BankLoanDetailsRepositoryImpl({required this.bankLoanDetailsDatasource});
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> getBookingLoanDetailsList({
@@ -40,7 +38,7 @@ class BookingLoanDetailsRepositoryImpl extends BookingLoanDetailsRepository {
     Map<String, dynamic>? queryParams,
   }) async {
     try {
-      var result = await bookingLoanDetailsDatasource
+      var result = await bankLoanDetailsDatasource
           .apicallPullBookingLoanDetails(
             pageSize: pageSize,
             pageNumber: pageNumber,
@@ -59,7 +57,7 @@ class BookingLoanDetailsRepositoryImpl extends BookingLoanDetailsRepository {
     required Map<String, dynamic> body,
   }) async {
     try {
-      var result = await bookingLoanDetailsDatasource
+      var result = await bankLoanDetailsDatasource
           .apicallAddUpdateBookingLoanDetails(body: body);
       return right(result);
     } catch (error) {
@@ -75,7 +73,7 @@ class BookingLoanDetailsRepositoryImpl extends BookingLoanDetailsRepository {
     required int bookingId,
   }) async {
     try {
-      var result = await bookingLoanDetailsDatasource
+      var result = await bankLoanDetailsDatasource
           .apicallDeleteBookingLoanDetails(
             bookingLoanDetailsId: bookingLoanDetailsId,
             uniqueKey: uniqueKey,

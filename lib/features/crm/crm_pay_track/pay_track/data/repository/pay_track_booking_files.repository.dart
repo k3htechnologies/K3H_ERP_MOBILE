@@ -4,8 +4,7 @@ import 'package:k3h_erp_app/core/failure.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/datasource/pay_track_booking_files.datasource.dart';
 
 abstract interface class PayTrackBookingFilesRepository {
-  Future<Either<Failure, Map<String, dynamic>>>
-  getPayTrackBookingFilesBookingFilesList({
+  Future<Either<Failure, Map<String, dynamic>>> getPayTrackBookingFilesList({
     required int pageNumber,
     required int pageSize,
     required String fileType,
@@ -36,8 +35,7 @@ class PayTrackBookingFilesRepositoryImpl
   });
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>>
-  getPayTrackBookingFilesBookingFilesList({
+  Future<Either<Failure, Map<String, dynamic>>> getPayTrackBookingFilesList({
     required int pageNumber,
     required int pageSize,
     required String fileType,
