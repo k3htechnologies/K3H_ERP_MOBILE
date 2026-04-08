@@ -205,4 +205,42 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
       },
     );
   }
+
+  Future exportExcelPdf(
+    BuildContext context,
+    String exportType,
+    int projectId,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _materialRequisitionRepository.exportRequisition(
+      pageNumber: 1,
+      pageSize: state.totalNumberOfRecord,
+      projectId: projectId,
+      queryParams:
+          state.searchText != ""
+              ? {
+                "ChannelPartnerName": state.searchText,
+                "ExportType": exportType,
+              }
+              : {"ExportType": exportType},
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "Channel Partner ${DateTime.now()}.pdf"
+              : "Channel Partner ${DateTime.now()}.xlsx",
+        );
+      },
+    );
+  }
 }

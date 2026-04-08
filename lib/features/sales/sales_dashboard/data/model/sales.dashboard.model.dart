@@ -22,6 +22,7 @@ class SalesDashboardModel {
 class Table0 {
   final String systemGeneratedCode;
   final String projectName;
+  final int projectId;
   final String name;
   final String mobileNumber;
   final DateTime enquiryDate;
@@ -34,6 +35,7 @@ class Table0 {
   Table0({
     required this.systemGeneratedCode,
     required this.projectName,
+    required this.projectId,
     required this.name,
     required this.mobileNumber,
     required this.enquiryDate,
@@ -47,6 +49,7 @@ class Table0 {
   factory Table0.fromJson(Map<String, dynamic> json) => Table0(
     systemGeneratedCode: parseValue<String>(json, "SystemGeneratedCode"),
     projectName: parseValue<String>(json, "ProjectName"),
+    projectId: parseValue<int>(json, "ProjectId"),
     name: parseValue<String>(json, "Name"),
     mobileNumber: parseValue<String>(json, "MobileNumber"),
     enquiryDate: parseValue<DateTime>(json, "EnquiryDate"),
@@ -60,6 +63,7 @@ class Table0 {
   Map<String, dynamic> toJson() => {
     "SystemGeneratedCode": systemGeneratedCode,
     "ProjectName": projectName,
+    "ProjectId": projectId,
     "Name": name,
     "MobileNumber": mobileNumber,
     "EnquiryDate": enquiryDate.toIso8601String(),

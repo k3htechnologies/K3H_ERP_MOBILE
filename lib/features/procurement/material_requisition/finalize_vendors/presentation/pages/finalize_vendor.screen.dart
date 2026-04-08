@@ -4,25 +4,25 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 
-class DetailsScreen extends StatefulWidget {
-  const DetailsScreen({super.key});
+class FinalizeVendorScreen extends StatefulWidget {
+  const FinalizeVendorScreen({super.key});
 
   @override
-  State<DetailsScreen> createState() => _DetailsScreenState();
+  State<FinalizeVendorScreen> createState() => _FinalizeVendorScreenState();
 }
 
-class _DetailsScreenState extends State<DetailsScreen> {
+class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: "Material Requisition",
+        screenTitle: "Finalize Vendor",
         authorization: AuthorizationModel(),
       ),
       body: Center(
         child: Text(
-          "DETAILS SCREEN",
-          style: AppTextStyle.ts16R(color: AppColor.primary),
+          "FINALIZE VENDOR SCREEN TAB",
+          style: AppTextStyle.ts14R(color: AppColor.primary),
         ),
       ),
     );

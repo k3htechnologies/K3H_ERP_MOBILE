@@ -22,12 +22,12 @@ abstract interface class MaterialRequisitionRepository {
     required String uniqueKey,
   });
 
-  // Future<Either<Failure, Map<String, dynamic>>> exportRequisition({
-  //   required int pageNumber,
-  //   required int pageSize,
-  //   required int projectId,
-  //   Map<String, dynamic>? queryParams,
-  // });
+  Future<Either<Failure, Map<String, dynamic>>> exportRequisition({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class MaterialRequisitionRepositoryImpl
@@ -92,24 +92,24 @@ class MaterialRequisitionRepositoryImpl
     }
   }
 
-  // @override
-  // Future<Either<Failure, Map<String, dynamic>>> exportRequisition({
-  //   required int pageNumber,
-  //   required int pageSize,
-  //   required int projectId,
-  //   Map<String, dynamic>? queryParams,
-  // }) async {
-  //   try {
-  //     var result = await materialRequisitionDatasource
-  //         .apicallPullMaterialRequisitionForExport(
-  //           pageNumber: pageNumber,
-  //           pageSize: pageSize,
-  //           projectId: projectId,
-  //           queryParams: queryParams,
-  //         );
-  //     return right(result);
-  //   } catch (error) {
-  //     return left(Failure(message: ErrorHandler.getErrorMessage(error)));
-  //   }
-  // }
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> exportRequisition({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await materialRequisitionDatasource
+          .apicallPullMaterialRequisitionForExport(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            projectId: projectId,
+            queryParams: queryParams,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
 }

@@ -12,7 +12,11 @@ import 'package:k3h_erp_app/di/feature_dependencies/masters/shift_mapping_master
 import 'package:k3h_erp_app/di/feature_dependencies/masters/shift_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/week_off_mapping_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/week_off_master.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/material_requisition/finalize_vendor.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/material_requisition/grn.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/material_requisition/invoice.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/material_requisition/material_requisition.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/material_requisition/purchase_order.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/notification/notification.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/payroll/resignation/resignation.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/profile/profile.dependencies.dart';
@@ -221,4 +225,8 @@ void initDependencies() {
   //CRM
   // CRM PAY TRACK
   registerCRMPayTrackDependencies(serviceLocator);
+  registerMaterialRequisitionFinalizeVendorDependencies(serviceLocator);
+  registerMaterialRequisitionPurchaseOrderDependencies(serviceLocator);
+  registerMaterialRequisitionGRNDependencies(serviceLocator);
+  registerMaterialRequisitionInvoiceDependencies(serviceLocator);
 }

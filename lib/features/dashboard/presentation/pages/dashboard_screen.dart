@@ -154,6 +154,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<bool> _ensureLocationPermission() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return false;
+
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    return permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse;
+  }
+
   double maxWidth = 0.0;
 
   bool isDraggingRight = true;
@@ -180,7 +194,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
       await FlutterBackgroundService().startService();
 
-      // ✅ START FOREGROUND TRACKING
+      //  START FOREGROUND TRACKING
       _startLocationTracking();
       startLatLng = LatLng(pos.latitude, pos.longitude);
       routePoints.clear();
@@ -411,7 +425,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             dragPositionNotifier.value = maxWidth;
           });
 
-          _startTimerFrom(record.punchIn!);
+          // _startTimerFrom(record.punchIn!);
+          if (_timer == null) {
+            _startTimerFrom(record.punchIn!);
+          }
         } else {
           _timer?.cancel();
 
@@ -632,6 +649,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       // Block re-punch-in after day completed
                                       if (isDayCompletedNotifier.value ||
                                           currentAttendanceId != null) {
+                                        dragPositionNotifier.value = 0;
+                                        return;
+                                      }
+                                      final hasPermission =
+                                          await _ensureLocationPermission();
+                                      if (!hasPermission) {
                                         dragPositionNotifier.value = 0;
                                         return;
                                       }
