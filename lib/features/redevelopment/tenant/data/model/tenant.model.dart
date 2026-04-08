@@ -167,6 +167,18 @@ class TenantApplicantData extends BookingApplicantData {
     deletedFileList: "",
   );
 
+  MultiFilePickerModel statementOfSourceOfFundsImage = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+
+  MultiFilePickerModel paymentProofImage = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+
   TenantApplicantData({
     required this.tenantApplicantId,
     required this.tenantId,
@@ -205,7 +217,7 @@ class TenantApplicantData extends BookingApplicantData {
     required super.createdDate,
     required super.modifiedById,
     required super.modifiedBy,
-    required super.modifiedDate,
+    required super.modifiedDate, required super.statementOfSourceOfFundsURL, required super.paymentProofURL,
   });
 
   factory TenantApplicantData.fromJson(Map<String, dynamic> json) =>
@@ -245,6 +257,8 @@ class TenantApplicantData extends BookingApplicantData {
         accountNumber: parseValue<String>(json, "AccountNumber"),
         ifscCode: parseValue<String>(json, "IFSCCode"),
         chequeURL: parseValue<String>(json, "ChequeURL"),
+        statementOfSourceOfFundsURL: parseValue<String>(json, "StatementOfSourceOfFundsURL"),
+        paymentProofURL: parseValue<String>(json, "PaymentProofURL"),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
         createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -285,6 +299,8 @@ class TenantApplicantData extends BookingApplicantData {
     "IncomeForm16ITRURL": incomeForm16Itrurl,
     "NreNroBankDetailsURL": nreNroBankDetailsUrl,
     "NomineeFormURL": nomineeFormUrl,
+    "StatementOfSourceOfFundsURL": statementOfSourceOfFundsURL,
+    "PaymentProofURL": paymentProofURL,
     "BankListMasterId": bankListMasterId,
     "BankName": bankName,
     "AccountNumber": accountNumber,

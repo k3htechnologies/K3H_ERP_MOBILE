@@ -459,6 +459,8 @@ class BookingApplicantData {
   String incomeForm16Itrurl;
   String nreNroBankDetailsUrl;
   String nomineeFormUrl;
+  String statementOfSourceOfFundsURL;
+  String paymentProofURL;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -533,6 +535,17 @@ class BookingApplicantData {
     fileNameList: [],
     deletedFileList: "",
   );
+  MultiFilePickerModel statementOfSourceOfFundImage = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel paymentProofImage = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+
   BookingApplicantData({
     required this.bookingApplicantId,
     required this.applicantType,
@@ -557,6 +570,8 @@ class BookingApplicantData {
     required this.incomeForm16Itrurl,
     required this.nreNroBankDetailsUrl,
     required this.nomineeFormUrl,
+    required this.statementOfSourceOfFundsURL,
+    required this.paymentProofURL,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -593,6 +608,8 @@ class BookingApplicantData {
         incomeForm16Itrurl: parseValue<String>(json, "IncomeForm16ITRURL"),
         nreNroBankDetailsUrl: parseValue<String>(json, "NreNroBankDetailsURL"),
         nomineeFormUrl: parseValue<String>(json, "NomineeFormURL"),
+        statementOfSourceOfFundsURL: parseValue<String>(json, "StatementOfSourceOfFundsURL"),
+        paymentProofURL: parseValue<String>(json, "PaymentProofURL"),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
         createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -628,6 +645,8 @@ class BookingApplicantData {
     "IncomeForm16ITRURL": incomeForm16Itrurl,
     "NreNroBankDetailsURL": nreNroBankDetailsUrl,
     "NomineeFormURL": nomineeFormUrl,
+    "StatementOfSourceOfFundsURL": statementOfSourceOfFundsURL,
+    "PaymentProofURL": paymentProofURL,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

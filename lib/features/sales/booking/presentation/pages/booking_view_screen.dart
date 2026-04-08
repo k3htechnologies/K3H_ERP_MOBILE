@@ -62,7 +62,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
       widget.projectId,
       widget.bookingId,
     );
-    if (mounted) {
+    if (mounted && bookingModel!=null) {
       _bookingCubit.getEnquiryList(
         context,
         1,
@@ -91,7 +91,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
         builder: (context, state) {
           return (state.isLoading ?? true)
               ? Center(child: loader())
-              : Column(
+              : bookingModel!=null? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
@@ -215,7 +215,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     ),
                   ),
                 ],
-              );
+              ):Text("data");
         },
       ),
     );
@@ -872,11 +872,16 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   ],
                 ),
                 Row(
+                  spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
                       title: "RERA Carpet Area (SqFt)",
                       value: bookingModel!.reraCarpetAreaSqFt.toString(),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Parking Number",
+                      value: bookingModel!.parkingNumber,
                     ),
                   ],
                 ),
@@ -1024,7 +1029,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     ),
                     buildColumnTitleValue(
                       title: "Number Of Parking",
-                      value: bookingModel!.parkingNumber,
+                      value: bookingModel!.numberOfParking.toString(),
                     ),
                   ],
                 ),
@@ -1051,7 +1056,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     ),
                     buildColumnTitleValue(
                       title: "Agreement Value (₹) Without TDS",
-                      value: "₹ ${bookingModel!.agreementValueTDS}",
+                      value: "₹ ${(bookingModel!.agreementValue-bookingModel!.agreementValueTDS)}",
                     ),
                   ],
                 ),

@@ -127,11 +127,12 @@ class LoginCubit extends Cubit<LoginState> {
         await localStorage.setString(StorageKey.authorizationToken, user.token);
         await localStorage.setString(StorageKey.userUniqueKey, user.uniqueKey);
 
-        // 🚀 RUN BOTH IN PARALLEL
-        await Future.wait([
-          _fetchAndStoreCompleteEmployeeData(user),
-          if (context.mounted) fetchAndStoreMenu(context, user),
-        ]);
+        //  RUN BOTH IN PARALLEL
+        await _fetchAndStoreCompleteEmployeeData(user);
+
+        if (context.mounted) {
+          await fetchAndStoreMenu(context, user);
+        }
 
         unawaited(_loadAddressInBackground());
 

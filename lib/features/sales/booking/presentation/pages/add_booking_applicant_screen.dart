@@ -102,6 +102,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
     fileNameList: [],
     deletedFileList: "",
   );
+
   MultiFilePickerModel cancelledChequeFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
@@ -123,6 +124,16 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
     deletedFileList: "",
   );
   MultiFilePickerModel nomineeFormFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel statementOfSourceOfFundFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel paymentProofURLFundFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
     deletedFileList: "",
@@ -192,6 +203,16 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
     setFileLists(drivingLicenseFile, applicant.drivingLicenseURL);
     setFileLists(votingIdFile, applicant.votingIdURL);
     setFileLists(gstFile, applicant.gstNumberURL);
+    setFileLists(cancelledChequeFile, applicant.cancelledChequeUrl);
+    setFileLists(poaFile, applicant.poaurl);
+    setFileLists(incomeForm16ItrFile, applicant.incomeForm16Itrurl);
+    setFileLists(nreNroBankDetailsFile, applicant.nreNroBankDetailsUrl);
+    setFileLists(nomineeFormFile, applicant.nomineeFormUrl);
+    setFileLists(
+      statementOfSourceOfFundFile,
+      applicant.statementOfSourceOfFundsURL,
+    );
+    setFileLists(paymentProofURLFundFile, applicant.paymentProofURL);
   }
 
   void _save() {
@@ -260,6 +281,14 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
           nomineeFormFile.fileNameList.isNotEmpty
               ? nomineeFormFile.fileNameList.join(",")
               : widget.applicant?.nomineeFormUrl ?? '',
+      statementOfSourceOfFundsURL:
+          statementOfSourceOfFundFile.fileNameList.isNotEmpty
+              ? statementOfSourceOfFundFile.fileNameList.join(",")
+              : widget.applicant?.statementOfSourceOfFundsURL ?? '',
+      paymentProofURL:
+          paymentProofURLFundFile.fileNameList.isNotEmpty
+              ? paymentProofURLFundFile.fileNameList.join(",")
+              : widget.applicant?.paymentProofURL ?? '',
       aadharCardNumber: _aadharC.text.trim(),
       panNumber: _panC.text.trim(),
       passportNumber: _passportC.text.trim(),
@@ -700,6 +729,132 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                         return "GST Certificate document is required";
                       }
                       return null;
+                    },
+                  ),
+                  CustomMultiFilePicker(
+                    title: "Cancelled Cheque",
+                    filePickType: FilePickType.kycDocument,
+                    initialFileList: cancelledChequeFile.fileNameList,
+                    onFilePickedCallback: (bytesList, fileNameList) {
+                      cancelledChequeFile.fileNameList = fileNameList;
+                      cancelledChequeFile.fileBytesList = bytesList;
+                    },
+                    onFileDeleteCallback: (
+                        fileBytesList,
+                        fileNameList,
+                        deleted,
+                        ) {
+                      cancelledChequeFile.fileBytesList = fileBytesList;
+                      cancelledChequeFile.fileNameList = fileNameList;
+                      cancelledChequeFile.deletedFileList = deleted;
+                    },
+                  ),
+                  CustomMultiFilePicker(
+                    title: "POA (if NRI Execution)",
+                    filePickType: FilePickType.kycDocument,
+                    initialFileList: poaFile.fileNameList,
+                    onFilePickedCallback: (bytesList, fileNameList) {
+                      poaFile.fileNameList = fileNameList;
+                      poaFile.fileBytesList = bytesList;
+                    },
+                    onFileDeleteCallback: (
+                        fileBytesList,
+                        fileNameList,
+                        deleted,
+                        ) {
+                      poaFile.fileBytesList = fileBytesList;
+                      poaFile.fileNameList = fileNameList;
+                      poaFile.deletedFileList = deleted;
+                    },
+                  ),
+                  CustomMultiFilePicker(
+                    title: "Income Docs (Form 16 / ITR)",
+                    filePickType: FilePickType.kycDocument,
+                    initialFileList: incomeForm16ItrFile.fileNameList,
+                    onFilePickedCallback: (bytesList, fileNameList) {
+                      incomeForm16ItrFile.fileNameList = fileNameList;
+                      incomeForm16ItrFile.fileBytesList = bytesList;
+                    },
+                    onFileDeleteCallback: (
+                        fileBytesList,
+                        fileNameList,
+                        deleted,
+                        ) {
+                      incomeForm16ItrFile.fileBytesList = fileBytesList;
+                      incomeForm16ItrFile.fileNameList = fileNameList;
+                      incomeForm16ItrFile.deletedFileList = deleted;
+                    },
+                  ),
+                  CustomMultiFilePicker(
+                    title: "NRE / NRO Bank Details",
+                    filePickType: FilePickType.kycDocument,
+                    initialFileList: nreNroBankDetailsFile.fileNameList,
+                    onFilePickedCallback: (bytesList, fileNameList) {
+                      nreNroBankDetailsFile.fileNameList = fileNameList;
+                      nreNroBankDetailsFile.fileBytesList = bytesList;
+                    },
+                    onFileDeleteCallback: (
+                        fileBytesList,
+                        fileNameList,
+                        deleted,
+                        ) {
+                      nreNroBankDetailsFile.fileBytesList = fileBytesList;
+                      nreNroBankDetailsFile.fileNameList = fileNameList;
+                      nreNroBankDetailsFile.deletedFileList = deleted;
+                    },
+                  ),
+                  CustomMultiFilePicker(
+                    title: "Nominee Form",
+                    filePickType: FilePickType.kycDocument,
+                    initialFileList: nomineeFormFile.fileNameList,
+                    onFilePickedCallback: (bytesList, fileNameList) {
+                      nomineeFormFile.fileNameList = fileNameList;
+                      nomineeFormFile.fileBytesList = bytesList;
+                    },
+                    onFileDeleteCallback: (
+                        fileBytesList,
+                        fileNameList,
+                        deleted,
+                        ) {
+                      nomineeFormFile.fileBytesList = fileBytesList;
+                      nomineeFormFile.fileNameList = fileNameList;
+                      nomineeFormFile.deletedFileList = deleted;
+                    },
+                  ),
+                  CustomMultiFilePicker(
+                    title: "Statement of Source of Funds",
+                    filePickType: FilePickType.kycDocument,
+                    initialFileList: statementOfSourceOfFundFile.fileNameList,
+                    onFilePickedCallback: (bytesList, fileNameList) {
+                      statementOfSourceOfFundFile.fileNameList = fileNameList;
+                      statementOfSourceOfFundFile.fileBytesList = bytesList;
+                    },
+                    onFileDeleteCallback: (
+                        fileBytesList,
+                        fileNameList,
+                        deleted,
+                        ) {
+                      statementOfSourceOfFundFile.fileBytesList = fileBytesList;
+                      statementOfSourceOfFundFile.fileNameList = fileNameList;
+                      statementOfSourceOfFundFile.deletedFileList = deleted;
+                    },
+                  ),
+                  CustomMultiFilePicker(
+                    title: "Payment Proof",
+                    filePickType: FilePickType.kycDocument,
+                    initialFileList: paymentProofURLFundFile.fileNameList,
+                    onFilePickedCallback: (bytesList, fileNameList) {
+                      paymentProofURLFundFile.fileNameList = fileNameList;
+                      paymentProofURLFundFile.fileBytesList = bytesList;
+                    },
+                    onFileDeleteCallback: (
+                        fileBytesList,
+                        fileNameList,
+                        deleted,
+                        ) {
+                      paymentProofURLFundFile.fileBytesList = fileBytesList;
+                      paymentProofURLFundFile.fileNameList = fileNameList;
+                      paymentProofURLFundFile.deletedFileList = deleted;
                     },
                   ),
                   verticalSpacing(height: 20),
