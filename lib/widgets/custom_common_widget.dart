@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -159,7 +160,12 @@ Widget buildDocumentRow({
   return Row(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Flexible(child: Text(docNumber, style: AppTextStyle.ts14M(color: AppColor.black))),
+      Flexible(
+        child: Text(
+          docNumber,
+          style: AppTextStyle.ts14M(color: AppColor.black),
+        ),
+      ),
       horizontalSpacing(),
       if (url.isNotEmpty && url != "-")
         CustomIconButton(
@@ -201,7 +207,8 @@ Widget approvalStatusWidget(String status) {
   }
 }
 
-Widget showSiteSelectedWidget({required String siteName}){
+Widget showSiteSelectedWidget() {
+  String projectName = getProject().projectName;
   return Container(
     decoration: commonCardDecoration(),
     padding: EdgeInsets.all(16),
@@ -209,8 +216,72 @@ Widget showSiteSelectedWidget({required String siteName}){
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Project: ",style: AppTextStyle.ts14M(color: AppColor.grey,)),
-        Flexible(child: Text(siteName.isNotEmpty?"No Project Selected":siteName,style:siteName.isNotEmpty? AppTextStyle.ts14R(color: AppColor.black) : AppTextStyle.ts14SB(color: AppColor.black,))),
+        Text("Project : ", style: AppTextStyle.ts14M(color: AppColor.grey)),
+        Flexible(
+          child: Text(
+            projectName.isEmpty ? "No Project Selected" : projectName,
+            style:
+                projectName.isEmpty
+                    ? AppTextStyle.ts14R(color: AppColor.black)
+                    : AppTextStyle.ts14SB(color: AppColor.black),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+// INFO HELPER CARD
+Widget infoCard(List<Map<String, dynamic>> items, {String? title}) {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(16),
+    margin: const EdgeInsets.symmetric(vertical: 8),
+    decoration: BoxDecoration(
+      color: AppColor.lightBlue,
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(color: AppColor.primary, width: .5),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (title != null) ...[
+          Text(title, style: AppTextStyle.ts16SB()),
+          verticalSpacing(),
+        ],
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: List.generate((items.length / 2).ceil(), (index) {
+            final first = items[index * 2];
+            final second =
+                (index * 2 + 1 < items.length) ? items[index * 2 + 1] : null;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: first["title"] ?? "",
+                    value: first["widget"] != null ? "" : first["value"] ?? "",
+                    customValueWidget: first["widget"],
+                  ),
+                  const SizedBox(width: 20),
+
+                  second != null
+                      ? buildColumnTitleValue(
+                        title: second["title"] ?? "",
+                        value:
+                            second["widget"] != null
+                                ? ""
+                                : second["value"] ?? "",
+                        customValueWidget: second["widget"],
+                      )
+                      : const SizedBox(),
+                ],
+              ),
+            );
+          }),
+        ),
       ],
     ),
   );

@@ -53,7 +53,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
   // PROJECT
   late ProjectModel _project;
 
-
   // TEXT CONTROLLER
   final TextEditingController _remarkC = TextEditingController();
 
@@ -146,10 +145,9 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       body: SafeArea(
         child: Column(
           children: [
-            if(_project.projectName.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: showSiteSelectedWidget(siteName: _project.projectName),
+              child: showSiteSelectedWidget(),
             ),
             _buildEnquiryTabBar(),
             verticalSpacing(),
@@ -166,7 +164,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       bottomNavigationBar: BlocBuilder<EnquiryCubit, EnquiryState>(
         builder: (context, state) {
           // 1️. SHOW ONLY ON TIMELINE TAB
-          if (_tabIndexNotifier.value != 1) {
+          if (_tabController.index != 1) {
             return const SizedBox.shrink();
           }
 
@@ -531,7 +529,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                         children: [
                           if (enquiry.channelPartnerTeamMemberName.isNotEmpty)
                             buildColumnTitleValue(
-                              title: "Team Member Name",
+                              title: "CP Team Member Name",
                               value:
                                   enquiry
                                           .channelPartnerTeamMemberName
@@ -544,7 +542,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                               .channelPartnerTeamMemberMobileNumber
                               .isNotEmpty)
                             buildColumnTitleValue(
-                              title: "Team Member Mobile",
+                              title: "CP Team Member Mobile",
                               value:
                                   enquiry
                                           .channelPartnerTeamMemberMobileNumber
@@ -552,6 +550,12 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                       ? enquiry
                                           .channelPartnerTeamMemberMobileNumber
                                       : "-",
+                              customValueWidget: CustomClickToContactText(
+                                value:
+                                    enquiry
+                                        .channelPartnerTeamMemberMobileNumber,
+                                type: ContactType.phone,
+                              ),
                             ),
                         ],
                       ),
@@ -974,7 +978,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
         }
 
         if (state.enquiryFollowUpList.isEmpty) {
-          return Expanded(child: Center(child: noDataWidget()));
+          return Center(child: noDataWidget());
         }
 
         final items = state.enquiryFollowUpList;
