@@ -21,12 +21,12 @@ abstract interface class MaterialRequisitionDatasource {
     required String uniqueKey,
   });
 
-  // Future<Map<String, dynamic>> apicallPullMaterialRequisitionForExport({
-  //   required int pageNumber,
-  //   required int pageSize,
-  //   required int projectId,
-  //   Map<String, dynamic>? queryParams,
-  // });
+  Future<Map<String, dynamic>> apicallPullMaterialRequisitionForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class MaterialRequisitionDataSourceImpl
@@ -128,28 +128,40 @@ class MaterialRequisitionDataSourceImpl
     }
   }
 
-  // @override
-  // Future<Map<String, dynamic>> apicallPullMaterialRequisitionForExport({
-  //   required int pageNumber,
-  //   required int pageSize,
-  //   required int projectId,
-  //   Map<String, dynamic>? queryParams,
-  // }) async {
-  //   try {
-  //     var networkResponse = await k3hHttpClient.materialRequisition
-  //         .pullMaterialRequisition(
-  //           pageNumber: pageNumber,
-  //           pageSize: pageSize,
-  //           projectId: projectId,
-  //           queryParams: queryParams,
-  //         );
+  @override
+  Future<Map<String, dynamic>> apicallPullMaterialRequisitionForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullmaterialRequisitionUrl({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "MaterialRequisition/PullMaterialRequisition?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
 
-  //     return {
-  //       'data': networkResponse["data"],
-  //       'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
-  //     };
-  //   } catch (error) {
-  //     rethrow;
-  //   }
-  // }
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullmaterialRequisitionUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+        ),
+      );
+
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      rethrow;
+    }
+  }
 }

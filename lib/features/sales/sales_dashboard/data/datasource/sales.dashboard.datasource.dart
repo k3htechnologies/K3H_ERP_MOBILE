@@ -65,10 +65,7 @@ class SalesDashboardDatasourceImpl extends SalesDashboardDatasource {
       );
       return {
         'isSuccess': networkResponse["IsSuccess"],
-        'message':
-            (networkResponse["SuccessMessage"] as List?)?.isNotEmpty == true
-                ? networkResponse["SuccessMessage"][0]
-                : "Success",
+        'message': networkResponse["message"],
       };
     } catch (error) {
       if (error is TokenExpiredException) {

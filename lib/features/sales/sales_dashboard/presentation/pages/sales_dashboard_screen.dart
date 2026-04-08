@@ -55,7 +55,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
       _salesDashboardCubit.markTimeOutEnquiry(
         context: context,
         enquiryId: item.enquiryId,
-        projectId: _selectedProject.projectId,
+        projectId: item.projectId,
       );
     }
   }
@@ -198,7 +198,6 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                     _buildEnquiriesWidget(context),
                     verticalSpacing(),
                     // TARGET PERFORMANCE WIDGET
-                    /* _buildTargetPerformanceWidget(context),*/
                     verticalSpacing(),
                     // ACTIVE FOLLOW-UPS WIDGET (ACCORDING TO STATUS)
                     _buildActiveFollowUpsWidget(context),
@@ -358,120 +357,6 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                           ),
                         );
                       }).toList(),
-
-                  // child: ListView.separated(
-                  //   itemCount: data.length,
-                  //   shrinkWrap: true,
-                  //   physics:
-                  //       data.length > 3
-                  //           ? AlwaysScrollableScrollPhysics()
-                  //           : NeverScrollableScrollPhysics(),
-                  //   separatorBuilder: (context, index) => SizedBox.shrink(),
-                  //   itemBuilder: (context, index) {
-                  //     final item = data[index];
-
-                  //     final bool isLast = index == data.length - 1;
-                  //     return Container(
-                  //       margin:
-                  //           !isLast
-                  //               ? EdgeInsets.only(bottom: 12)
-                  //               : EdgeInsets.zero,
-                  //       padding: const EdgeInsets.symmetric(
-                  //         horizontal: 16,
-                  //         vertical: 12.0,
-                  //       ),
-                  //       decoration: BoxDecoration(
-                  //         borderRadius: BorderRadius.circular(8),
-                  //         color: AppColor.lightGreyBackground,
-                  //       ),
-                  //       child: Column(
-                  //         crossAxisAlignment: CrossAxisAlignment.start,
-                  //         children: [
-                  //           Row(
-                  //             crossAxisAlignment: CrossAxisAlignment.start,
-                  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //             children: [
-                  //               Expanded(
-                  //                 child: _infoColumn(
-                  //                   "Project Name",
-                  //                   item.projectName,
-                  //                 ),
-                  //               ),
-                  //               horizontalSpacing(),
-                  //               Expanded(
-                  //                 child: _infoColumn("Client Name", item.name),
-                  //               ),
-                  //             ],
-                  //           ),
-                  //           verticalSpacing(),
-                  //           Row(
-                  //             crossAxisAlignment: CrossAxisAlignment.start,
-                  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //             children: [
-                  //               Expanded(
-                  //                 child: _infoColumn(
-                  //                   "Date",
-                  //                   formatDateTimeAsDDMMMYYYY(item.enquiryDate),
-                  //                 ),
-                  //               ),
-                  //               horizontalSpacing(),
-                  //               Expanded(
-                  //                 child: _infoColumn(
-                  //                   "Mobile Number",
-                  //                   item.mobileNumber,
-                  //                 ),
-                  //               ),
-                  //             ],
-                  //           ),
-                  //           verticalSpacing(),
-                  //           Row(
-                  //             crossAxisAlignment: CrossAxisAlignment.start,
-                  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //             children: [
-                  //               Expanded(
-                  //                 child: _infoColumn(
-                  //                   "Customer Time In",
-                  //                   item.enquiryTimeIn,
-                  //                 ),
-                  //               ),
-                  //               horizontalSpacing(),
-                  //               Expanded(
-                  //                 child: _infoColumn(
-                  //                   "Sales Advisor",
-                  //                   item.salesAdvisor,
-                  //                 ),
-                  //               ),
-                  //             ],
-                  //           ),
-                  //           verticalSpacing(),
-                  //           Row(
-                  //             crossAxisAlignment: CrossAxisAlignment.start,
-                  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //             children: [
-                  //               Expanded(
-                  //                 child: _infoColumn(
-                  //                   "Sourcing Manager",
-                  //                   item.sourcingManager.isEmpty
-                  //                       ? "-"
-                  //                       : item.sourcingManager,
-                  //                 ),
-                  //               ),
-                  //             ],
-                  //           ),
-                  //           verticalSpacing(),
-                  //           if (item.canTimeOut == 1) ...{
-                  //             CustomButton(
-                  //               text: "Time Out",
-                  //               onPressed: () {
-                  //                 _showMarkAsTimeOutPopup(context, item);
-                  //               },
-                  //             ),
-                  //           },
-                  //         ],
-                  //       ),
-                  //     );
-                  //   },
-                  // ),
                 ),
               ] else ...[
                 Center(
