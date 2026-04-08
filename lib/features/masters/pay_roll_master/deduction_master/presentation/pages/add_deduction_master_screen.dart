@@ -185,28 +185,30 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
         orElse: () => nameList.first,
       ),
     ];
-    selectedTypeList = [
-      typesList.firstWhere(
-        (item) => item['DisplayName'] == deductionMasterModel.type,
-        orElse: () => typesList.first,
-      ),
-    ];
-    if(deductionMasterModel.branchName.isNotEmpty) {
+    if (deductionMasterModel.type.isNotEmpty) {
+      selectedTypeList = [
+        typesList.firstWhere(
+          (item) => item['DisplayName'] == deductionMasterModel.type,
+          orElse: () => typesList.first,
+        ),
+      ];
+    }
+    if (deductionMasterModel.branchName.isNotEmpty) {
       selectedBranch = [
-      {
-        "zAttributesId": deductionMasterModel.branchMasterId,
-        "DisplayName": deductionMasterModel.branchName,
-      },
-    ];
+        {
+          "zAttributesId": deductionMasterModel.branchMasterId,
+          "DisplayName": deductionMasterModel.branchName,
+        },
+      ];
     }
 
-    if(deductionMasterModel.stateName.isNotEmpty) {
+    if (deductionMasterModel.stateName.isNotEmpty) {
       selectedStateList = [
-      {
-        "zAttributesId": deductionMasterModel.stateMasterId,
-        "DisplayName": deductionMasterModel.stateName,
-      },
-    ];
+        {
+          "zAttributesId": deductionMasterModel.stateMasterId,
+          "DisplayName": deductionMasterModel.stateName,
+        },
+      ];
     }
     applicableType.value =
         (deductionMasterModel.applicable).toLowerCase().trim() == 'percentage'
@@ -424,6 +426,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
                   children: [
                     CustomMultipleSelectPopup(
                       initialValue: selectedNameList,
+                      hintText: "Select Name",
                       title: "Name",
                       isRequired: true,
                       dataFetchCallBack: _fetchStaticDeductionNames,
@@ -444,14 +447,13 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
                     CustomMultipleSelectPopup(
                       initialValue: selectedTypeList,
                       title: "Type",
+                      hintText: "Select Type",
                       isRequired: false,
                       dataFetchCallBack: _fetchStaticDeductionTypes,
                       isMultiSelect: false,
                       dataList: typesList,
                       onSelected: (value) {
-                        setState(() {
-                          selectedTypeList = value;
-                        });
+                        selectedTypeList = value;
                       },
                     ),
                     Column(
@@ -663,25 +665,23 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
                     CustomMultipleSelectPopup(
                       initialValue: selectedStateList,
                       title: "State Name",
+                      hintText: "Select State",
                       isMultiSelect: false,
                       dataFetchCallBack: _fetchStates,
                       dataList: stateList,
                       onSelected: (value) {
-                        setState(() {
-                          selectedStateList = value;
-                        });
+                        selectedStateList = value;
                       },
                     ),
                     CustomMultipleSelectPopup(
                       initialValue: selectedBranch,
                       title: "Branch Name",
+                      hintText: "Select Branch",
                       dataFetchCallBack: _fetchBranch,
                       isMultiSelect: false,
                       dataList: [],
                       onSelected: (value) {
-                        setState(() {
-                          selectedBranch = value;
-                        });
+                        selectedBranch = value;
                       },
                     ),
                   ],

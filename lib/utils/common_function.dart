@@ -128,8 +128,12 @@ Future<void> updateRouteAuthorization(List<ModuleModel> moduleData) async {
     moduleData,
   );
 
-  // UPDATE THE GLOBAL ROUTE AUTHORIZATION MAP
-  Authorization.routeAuthorizationMap.addAll(updatedRouteMap);
+  final defaultMap = Authorization.routeAuthorizationMap;
+
+  Authorization.routeAuthorizationMap = {
+    ...defaultMap,
+    ...updatedRouteMap,
+  };
 }
 
 Map<String, AuthorizationModel> _processRouteAuthorizationModules(

@@ -368,6 +368,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                                   ),
                                 ),
                               ],
+                              if(_routeAuthorizationModel.isAction)
                               CustomIconButton.edit(
                                 onPressed: () async {
                                   goRouter.pushNamed(

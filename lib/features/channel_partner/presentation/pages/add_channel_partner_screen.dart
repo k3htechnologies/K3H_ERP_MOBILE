@@ -297,10 +297,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
             (e) => e['DisplayName'] == data.firmsType,
             orElse: () => firmsType[0],
           );
-          selectedType.value = type.firstWhere(
-            (e) => e['DisplayName'] == data.type,
-            orElse: () => type[0],
-          );
           selectedGSTCertificateForPopUpFile.value = MultiFilePickerModel(
             fileBytesList: [],
             fileNameList:
@@ -812,6 +808,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                   return CustomDropDownWidget(
                                     title: "Firms Type",
                                     isRequired: true,
+                                    hintText: "Select Firms Type",
                                     dataList: firmsType,
                                     initialValue: firmsValue,
                                     onSelected: (value) {
@@ -836,6 +833,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                 builder: (context, firmsValue, _) {
                                   return CustomTextField(
                                     title: "Firms Type",
+                                    hint: "Select Firms Type",
                                     isRequired: true,
                                     readOnly: true,
                                     textController: TextEditingController(
@@ -879,6 +877,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                             return CustomDropDownWidget(
                               title: "Type",
                               isRequired: true,
+                              hintText: "Select Type",
                               dataList: type,
                               initialValue: value,
                               onSelected: (val) {

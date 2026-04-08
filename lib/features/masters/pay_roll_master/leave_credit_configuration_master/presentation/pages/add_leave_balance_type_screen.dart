@@ -177,6 +177,7 @@ class _AddLeaveBalanceTypeScreenState extends State<AddLeaveBalanceTypeScreen> {
                       builder: (context, selectedDept, child) {
                         return CustomMultipleSelectPopup(
                           title: "Leave Type",
+                          hintText: "Select Leave Type",
                           isRequired: true,
                           isMultiSelect: false,
                           initialValue: selectedDept,

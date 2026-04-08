@@ -701,7 +701,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                                 Flexible(
                                   child: Text(
                                     formFieldState.errorText ?? '',
-                                    style: AppTextStyle.ts14R(
+                                    style: AppTextStyle.ts12R(
                                       color: AppColor.error,
                                     ),
                                   ),

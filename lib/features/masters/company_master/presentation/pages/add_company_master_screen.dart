@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/widgets/address/address_widget.dart';
@@ -223,6 +224,14 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       gstCertificateFile.fileNameList.length,
       (_) => Uint8List(0),
     );
+    selectedTANFile.fileNameList =
+    company?.tanURL == null || company?.tanURL == ""
+        ? []
+        : company!.tanURL.split(",");
+    selectedTANFile.fileBytesList = List.generate(
+      selectedTANFile.fileNameList.length,
+          (_) => Uint8List(0),
+    );
 
     selectedPANCardFile.fileNameList =
         company?.panCardURL == null || company?.panCardURL == ""
@@ -302,6 +311,24 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           );
         }
       }
+    }
+  }
+
+  // <---- DELETE COMPANY PARTNER ---->
+  Future<void> _showPopupToDeleteCompanyPartner(
+      BuildContext context,
+      int index,
+      ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a company partner ?',
+      'Deleting this company partner will permanently remove all associated data.',
+    );
+    if (result && context.mounted) {
+      _companyMasterAddCubit.deleteCompanyPartnerData(
+        context,
+        index,
+      );
     }
   }
 
@@ -575,7 +602,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             validator: (fileList) {
               if (_gstNumberC.text.trim().isNotEmpty &&
                   (fileList == null || fileList.isEmpty)) {
-                return "GST Certificate document is required";
+                return "GST Document is required";
               }
               return null;
             },
@@ -950,10 +977,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                   CustomIconButton.delete(
                     onPressed: () {
                       if (index != null) {
-                        _companyMasterAddCubit.deleteCompanyPartnerData(
-                          context,
-                          index,
-                        );
+                       _showPopupToDeleteCompanyPartner(context, index);
                       }
                     },
                   ),

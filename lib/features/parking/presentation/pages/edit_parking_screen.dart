@@ -70,7 +70,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
     {'zAttributesId': -1, 'DisplayName': 'Select'},
     {'zAttributesId': 1, 'DisplayName': 'Available'},
     {'zAttributesId': 2, 'DisplayName': 'Hold'},
-    {'zAttributesId': 3, 'DisplayName': 'Block'},
+    {'zAttributesId': 3, 'DisplayName': 'Blocked'},
     {'zAttributesId': 4, 'DisplayName': 'Member'},
   ];
 
@@ -168,7 +168,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
       case 1: // Surface Parking
         newTypeList.addAll([
           {'zAttributesId': 1, 'DisplayName': 'SU 1'},
-          {'zAttributesId': 11, 'DisplayName': 'Ground'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
         ]);
         break;
       case 2: // Stack Parking
@@ -183,43 +183,43 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
           {'zAttributesId': 8, 'DisplayName': 'ST 3'},
           {'zAttributesId': 9, 'DisplayName': 'ST 4'},
           {'zAttributesId': 10, 'DisplayName': 'ST 5'},
-          {'zAttributesId': 11, 'DisplayName': 'Ground'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
         ]);
         break;
       case 3: // Puzzle Parking
         newTypeList.addAll([
           {'zAttributesId': 1, 'DisplayName': 'PU 1'},
-          {'zAttributesId': 11, 'DisplayName': 'Ground'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
         ]);
         break;
       case 4: // Tower Parking
         newTypeList.addAll([
           {'zAttributesId': 1, 'DisplayName': 'TO 1'},
-          {'zAttributesId': 11, 'DisplayName': 'Ground'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
         ]);
         break;
       case 5: // Pit Puzzle Parking
         newTypeList.addAll([
           {'zAttributesId': 1, 'DisplayName': 'PIT 1'},
-          {'zAttributesId': 11, 'DisplayName': 'Ground'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
         ]);
         break;
       case 6: // Cantilever Parking
         newTypeList.addAll([
           {'zAttributesId': 1, 'DisplayName': 'CAN 1'},
-          {'zAttributesId': 11, 'DisplayName': 'Ground'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
         ]);
         break;
       case 7: // Tandem Parking
         newTypeList.addAll([
           {'zAttributesId': 1, 'DisplayName': 'TAN 1'},
-          {'zAttributesId': 11, 'DisplayName': 'Ground'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
         ]);
         break;
       case 8: // Podium Parking
         newTypeList.addAll([
           {'zAttributesId': 1, 'DisplayName': 'PO 1'},
-          {'zAttributesId': 11, 'DisplayName': 'Ground'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
         ]);
         break;
       case 9: // Pit + Stack
@@ -229,7 +229,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
           {'zAttributesId': 3, 'DisplayName': 'Pit + Stack 3'},
           {'zAttributesId': 4, 'DisplayName': 'Pit + Stack 4'},
           {'zAttributesId': 5, 'DisplayName': 'Pit + Stack 5'},
-          {'zAttributesId': 11, 'DisplayName': 'Ground'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
         ]);
         break;
     }
@@ -349,6 +349,40 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                     );
                   },
                 ),
+                CustomTextField(
+                  title: 'Parking Dimensions',
+                  hint: 'Enter Parking Dimensions',
+                  isRequired: true,
+                  textController: _parkingDimensionsC,
+                  inputFormatterList: [LengthLimitingTextInputFormatter(50)],
+                  validator: (string) {
+                    if (string == null || string.trim().isEmpty) {
+                      return 'Parking Dimensions are required';
+                    }
+                    return null;
+                  },
+                ),
+                ValueListenableBuilder<Map<String, dynamic>?>(
+                  valueListenable: selectedStatus,
+                  builder: (context, statusValue, child) {
+                    return CustomDropDownWidget(
+                      key: ValueKey('status_${statusValue?['zAttributesId']}'),
+                      title: 'Parking Status',
+                      isRequired: true,
+                      initialValue: statusValue,
+                      dataList: _parkingStatusList,
+                      validator: (value) {
+                        if (value == null || value['zAttributesId'] == -1) {
+                          return 'Parking Status is required';
+                        }
+                        return null;
+                      },
+                      onSelected: (value) {
+                        selectedStatus.value = value;
+                      },
+                    );
+                  },
+                ),
                 Text('Is Ev Charging Available?', style: AppTextStyle.ts16R()),
                 verticalSpacing(height: 6),
                 ValueListenableBuilder<bool>(
@@ -387,40 +421,6 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                     );
                   },
                 ),
-                CustomTextField(
-                  title: 'Parking Dimensions',
-                  hint: 'Enter Parking Dimensions',
-                  isRequired: true,
-                  textController: _parkingDimensionsC,
-                  inputFormatterList: [LengthLimitingTextInputFormatter(50)],
-                  validator: (string) {
-                    if (string == null || string.trim().isEmpty) {
-                      return 'Parking Dimensions are required';
-                    }
-                    return null;
-                  },
-                ),
-                ValueListenableBuilder<Map<String, dynamic>?>(
-                  valueListenable: selectedStatus,
-                  builder: (context, statusValue, child) {
-                    return CustomDropDownWidget(
-                      key: ValueKey('status_${statusValue?['zAttributesId']}'),
-                      title: 'Parking Status',
-                      isRequired: true,
-                      initialValue: statusValue,
-                      dataList: _parkingStatusList,
-                      validator: (value) {
-                        if (value == null || value['zAttributesId'] == -1) {
-                          return 'Parking Status is required';
-                        }
-                        return null;
-                      },
-                      onSelected: (value) {
-                        selectedStatus.value = value;
-                      },
-                    );
-                  },
-                ),
                 verticalSpacing(height: 20),
               ],
             ),
@@ -429,10 +429,11 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
-          height: 40,
-          padding: EdgeInsets.symmetric(horizontal: 16),
+          height: 70,
+          padding: EdgeInsets.symmetric(horizontal: 16,vertical: 16),
           child: CustomButton(
-            text: "Update Parking",
+            leading: Icon(Icons.edit,size: 16,color: AppColor.white,),
+            text: "Update",
             onPressed: _handleUpdateParking,
           ),
         ),

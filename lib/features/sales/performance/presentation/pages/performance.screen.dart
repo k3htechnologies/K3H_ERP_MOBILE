@@ -11,9 +11,11 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class PerformanceScreen extends StatefulWidget {
@@ -146,6 +148,162 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     _callPerformanceApi();
   }
 
+  // DATE WISE FILTER
+  Future<void> _showBottomSheetToFilter(BuildContext context) async {
+    final state = _performanceCubit.state;
+
+    DateTime? filterFromDate = state.filterStartDate;
+    DateTime? filterToDate = state.filterEndDate;
+    final DateTime? initialFrom = state.filterStartDate;
+    final DateTime? initialTo = state.filterEndDate;
+
+    bool manualClose = false;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    final filterFormKey = GlobalKey<FormState>();
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            (filterFromDate != initialFrom) || (filterToDate != initialTo);
+        final bool onlyOneSet =
+            (filterFromDate != null && filterToDate == null) ||
+            (filterFromDate == null && filterToDate != null);
+        final bool invalidRange =
+            filterFromDate != null &&
+            filterToDate != null &&
+            filterFromDate!.isAfter(
+              DateTime(
+                filterToDate!.year,
+                filterToDate!.month,
+                filterToDate!.day,
+              ),
+            );
+        final bool dobInvalid = onlyOneSet || invalidRange;
+        applyEnabled.value = manualClose && !dobInvalid;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter - Performance Report",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          return Form(
+            key: filterFormKey,
+            child: SingleChildScrollView(
+              padding: EdgeInsets.only(right: 15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomDatePicker(
+                    title: "From Date",
+                    initialDate: filterFromDate,
+                    setValue: (value) {
+                      innerState(() {
+                        filterFromDate = value;
+                        updateApplyState(innerState);
+                      });
+                    },
+                  ),
+                  if (filterFromDate != null && filterToDate == null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 4),
+                      child: Text(
+                        'Please select To date also',
+                        style: AppTextStyle.ts12R().copyWith(
+                          color: AppColor.error,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  if (filterToDate != null && filterFromDate == null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 4),
+                      child: Text(
+                        'Please select From date also',
+                        style: AppTextStyle.ts12R().copyWith(
+                          color: AppColor.error,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  if (filterFromDate != null &&
+                      filterToDate != null &&
+                      filterFromDate!.isAfter(
+                        DateTime(
+                          filterToDate!.year,
+                          filterToDate!.month,
+                          filterToDate!.day,
+                        ),
+                      ))
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 4),
+                      child: Text(
+                        'Invalid Date range',
+                        style: AppTextStyle.ts12R().copyWith(
+                          color: AppColor.error,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  verticalSpacing(height: 12),
+                  CustomDatePicker(
+                    title: "To Date",
+                    initialDate: filterToDate,
+                    setValue: (value) {
+                      innerState(() {
+                        filterToDate = value;
+                        updateApplyState(innerState);
+                      });
+                    },
+                    validator: (value) {
+                      if (filterToDate != null && value == null) {
+                        return 'To Date is required when From Date is entered';
+                      }
+                      if (filterFromDate != null &&
+                          value != null &&
+                          filterFromDate!.isAfter(
+                            DateTime(value.year, value.month, value.day),
+                          )) {
+                        return 'Invalid Date range';
+                      }
+                      return null;
+                    },
+                  ),
+                  verticalSpacing(),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+      onClear: () {
+        _performanceCubit.applyFilterAndSort(
+          context: context,
+          filterFromDate: null,
+          filterToDate: null,
+          projectId: _project.projectId,
+          reportType: _getReportType(),
+          periodType: _getTillDateType(),
+        );
+      },
+      onApply: () {
+        if (filterFormKey.currentState?.validate() ?? false) {
+          _performanceCubit.applyFilterAndSort(
+            context: context,
+            filterFromDate: filterFromDate,
+            filterToDate: filterToDate,
+            projectId: _project.projectId,
+            reportType: _getReportType(),
+            periodType: _getTillDateType(),
+          );
+        }
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -170,11 +328,18 @@ class _PerformanceScreenState extends State<PerformanceScreen>
             _project = value;
           },
           onExportCallback: (value) {
-            if(_project.projectId==0){
+            if (_project.projectId == 0) {
               showErrorMessage(context, "Error", "Please Select a Project");
               return;
             }
-            if(_performanceCubit.state.sourcingTotalNumberOfRecordPerformanceReport==0 || _performanceCubit.state.closingTotalNumberOfRecordPerformanceReport==0){
+            if (_performanceCubit
+                        .state
+                        .sourcingTotalNumberOfRecordPerformanceReport ==
+                    0 ||
+                _performanceCubit
+                        .state
+                        .closingTotalNumberOfRecordPerformanceReport ==
+                    0) {
               showErrorMessage(context, "Error", "Data Not Found");
               return;
             }
@@ -192,6 +357,10 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                       .state
                       .closingTotalNumberOfRecordPerformanceReport,
             );
+          },
+          isFilterOn: true,
+          onFilterTap: (){
+            _showBottomSheetToFilter(context);
           },
         ),
         body: Column(

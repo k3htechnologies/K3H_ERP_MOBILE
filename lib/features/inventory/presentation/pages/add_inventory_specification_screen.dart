@@ -616,6 +616,7 @@ class _AddInventorySpecificationScreenState
                       textController: _flatSqftC,
                       hint: "Enter Unit Area",
                       title: 'Unit Area (sq ft)',
+                      isRequired: true,
                       readOnly: true,
                       inputFormatterList:
                           inputFormatterListForDecimalValuesFixedToTwo(5),

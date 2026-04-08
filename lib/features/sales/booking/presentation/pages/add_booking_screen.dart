@@ -150,7 +150,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     {'zAttributesId': -1, 'DisplayName': 'Select Funding Source'},
     {'zAttributesId': 1, 'DisplayName': 'Loan'},
     {'zAttributesId': 2, 'DisplayName': 'Self-funded'},
-    {'zAttributesId': 3, 'DisplayName': 'Sale Of Property Funding'},
+    {'zAttributesId': 3, 'DisplayName': 'Sale Of Property'},
   ];
 
   // SELECTED SOURCE OF FUNDING
@@ -804,6 +804,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         showErrorMessage(context, "", "At least one applicant is required");
         return false;
       }
+    }
+
+    if (!(_remarkFormKey.currentState?.validate() ?? false)) {
+      _tabController.animateTo(5);
+      _bookingCubit.onTabChangedAddForm(5, context);
+      return false;
     }
 
     if (!_hasPrimaryApplicant(_applicants.value)) {

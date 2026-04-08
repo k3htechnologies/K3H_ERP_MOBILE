@@ -1047,7 +1047,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     'value': overview.passportNumber,
                   },
                   {
-                    'label': 'Driving / Licence Number',
+                    'label': 'Driving Licence Number',
                     'value': overview.drivingLicenceNumber,
                   },
                   {

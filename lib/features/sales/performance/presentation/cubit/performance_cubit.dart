@@ -72,6 +72,43 @@ class PerformanceCubit extends Cubit<PerformanceState> {
     );
   }
 
+  Future applyFilterAndSort({
+    required BuildContext context,
+    required int projectId,
+    required String reportType,
+    required String periodType,
+    DateTime? filterFromDate,
+    DateTime? filterToDate,
+  }) async {
+    emit(
+      state.copyWith(
+        filterStartDate: filterFromDate,
+        filterEndDate: filterToDate,
+        performanceReportClosingModel: [],
+        performanceReportSourcingModel: [],
+        closingCurrentPagePerformanceReport: 1,
+        sourcingCurrentPagePerformanceReport: 1,
+      ),
+    );
+
+    await Future.wait([
+      getPerformanceSourcingReportList(
+        context: context,
+        projectId: projectId,
+        reportType: reportType,
+        periodType: periodType,
+        pageNumber: 1,
+      ),
+      getPerformanceClosingReportList(
+        context: context,
+        projectId: projectId,
+        reportType: reportType,
+        periodType: periodType,
+        pageNumber: 1,
+      ),
+    ]);
+  }
+
   // ON TAB CHANGES METHOD
   void onTabChangedViewScreen(int index, BuildContext context) {
     emit(state.copyWith(currentTabIndexForView: index));
@@ -90,6 +127,14 @@ class PerformanceCubit extends Cubit<PerformanceState> {
       "PeriodType": periodType,
       "EmployeeName": value ?? "",
     };
+    if (state.filterStartDate != null) {
+      queryParams["FromDate"] =
+          state.filterStartDate!.toIso8601String();
+    }
+    if (state.filterEndDate != null) {
+      queryParams["ToDate"] =
+          state.filterEndDate!.toIso8601String();
+    }
     emit(state.copyWith(isLoading: true));
 
     var result = await _performanceReportRepository
@@ -144,6 +189,14 @@ class PerformanceCubit extends Cubit<PerformanceState> {
       "PeriodType": periodType,
       "EmployeeName": value ?? "",
     };
+    if (state.filterStartDate != null) {
+      queryParams["FromDate"] =
+          state.filterStartDate!.toIso8601String();
+    }
+    if (state.filterEndDate != null) {
+      queryParams["ToDate"] =
+          state.filterEndDate!.toIso8601String();
+    }
 
     emit(state.copyWith(isLoading: true));
 

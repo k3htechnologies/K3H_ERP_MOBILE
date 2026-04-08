@@ -119,7 +119,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
     if (partner == null) return;
 
     _selectedGenderNotifier.value = genderList.firstWhere(
-          (e) => e['DisplayName'] == partner.gender,
+      (e) => e['DisplayName'] == partner.gender,
       orElse: () => genderList.first,
     );
 
@@ -486,7 +486,15 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           color: AppColor.white,
-          child: CustomButton(text: "Save", onPressed: _save),
+          child: CustomButton(
+            leading: Icon(
+              widget.companyPartner == null ? Icons.add : Icons.edit,
+              size: 16,
+              color: AppColor.white,
+            ),
+            text: widget.companyPartner == null ? "Add" : "Update",
+            onPressed: _save,
+          ),
         ),
       ),
     );

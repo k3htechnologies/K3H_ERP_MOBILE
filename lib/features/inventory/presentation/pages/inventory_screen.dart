@@ -67,6 +67,7 @@ class _InventoryScreenState extends State<InventoryScreen>
         Authorization.routeAuthorizationMap[AppRoutes.inventory]!;
     _routeAuthorizationModelBooking =
         Authorization.routeAuthorizationMap[AppRoutes.booking]!;
+
     _initControllers();
     _inventoryCubit = context.read<InventoryCubit>();
     _loginCubit = context.read<LoginCubit>();
@@ -1068,7 +1069,6 @@ class _InventoryScreenState extends State<InventoryScreen>
               approvalStatus.toLowerCase() == "approved" &&
               _routeAuthorizationModelBooking.isAction) ...[
             verticalSpacing(),
-            Text("${_routeAuthorizationModelBooking.isAction}"),
             CustomButton(
               text: "Book",
               onPressed: () async {
