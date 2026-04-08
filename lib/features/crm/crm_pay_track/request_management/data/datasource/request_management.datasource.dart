@@ -1,3 +1,319 @@
-abstract interface class RequestManagementDatasource {}
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/booking_applicant_modification_request.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/flat_alteration_requests.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/parking_modification_request.model.dart';
+import 'package:k3h_erp_app/service/base_client.dart';
+import 'package:k3h_erp_app/service/exceptions.dart';
 
-class RequestManagementDatasourceImpl extends RequestManagementDatasource {}
+abstract interface class RequestManagementDatasource {
+  Future<Map<String, dynamic>> apicallPullFlatAlterationRequest({
+    required int pageSize,
+    required int pageNumber,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Map<String, dynamic>> apicallPullParkingModificationRequest({
+    required int pageSize,
+    required int pageNumber,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Map<String, dynamic>> apicallPullBookingApplicantModificationRequest({
+    required int pageSize,
+    required int pageNumber,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Map<String, dynamic>> apicallAddFlatAlterationRequest({
+    required Map<String, dynamic> body,
+  });
+  Future<Map<String, dynamic>> apicallAddParkingModificationRequest({
+    required Map<String, dynamic> body,
+  });
+
+  Future<Map<String, dynamic>>
+  apicallUpdateBookingApplicantModificationRequest({
+    required int bookingId,
+    required int projectId,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
+}
+
+class RequestManagementDatasourceImpl extends RequestManagementDatasource {
+  final BaseClient baseClient = BaseClient();
+
+  @override
+  Future<Map<String, dynamic>> apicallPullFlatAlterationRequest({
+    required int pageSize,
+    required int pageNumber,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String url({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      required int bookingId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String finalUrl =
+          "FlatAlterationRequest/PullFlatAlterationRequest?PageSize=$pageSize"
+          "&PageNumber=$pageNumber&ProjectId=$projectId&BookingId=$bookingId";
+
+      queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
+      return finalUrl;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        url(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          bookingId: bookingId,
+          queryParams: queryParams,
+        ),
+      );
+
+      return {
+        'data': List<FlatAlterationRequestsModel>.from(
+          networkResponse["data"].map(
+            (e) => FlatAlterationRequestsModel.fromJson(e),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallPullFlatAlterationRequest(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          bookingId: bookingId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullParkingModificationRequest({
+    required int pageSize,
+    required int pageNumber,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String url({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      required int bookingId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String finalUrl =
+          "ParkingModificationRequest/PullParkingModificationRequest?PageSize=$pageSize"
+          "&PageNumber=$pageNumber&ProjectId=$projectId&BookingId=$bookingId";
+
+      queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
+      return finalUrl;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        url(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          bookingId: bookingId,
+          queryParams: queryParams,
+        ),
+      );
+
+      return {
+        'data': List<ParkingModificationRequestModel>.from(
+          networkResponse["data"].map(
+            (e) => ParkingModificationRequestModel.fromJson(e),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallPullParkingModificationRequest(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          bookingId: bookingId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullBookingApplicantModificationRequest({
+    required int pageSize,
+    required int pageNumber,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String url({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      required int bookingId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String finalUrl =
+          "BookingApplicantModificationRequest/PullBookingApplicantModificationRequest?PageSize=$pageSize"
+          "&PageNumber=$pageNumber&ProjectId=$projectId&BookingId=$bookingId";
+
+      queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
+      return finalUrl;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        url(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          bookingId: bookingId,
+          queryParams: queryParams,
+        ),
+      );
+
+      return {
+        'data': List<BookingApplicantModificationRequestModel>.from(
+          networkResponse["data"].map(
+            (e) => BookingApplicantModificationRequestModel.fromJson(e),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallPullBookingApplicantModificationRequest(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          bookingId: bookingId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddFlatAlterationRequest({
+    required Map<String, dynamic> body,
+  }) async {
+    const url = "FlatAlterationRequest/AddUpdateFlatAlterationRequest";
+
+    try {
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        url,
+        body,
+      );
+
+      return {
+        'data': List<FlatAlterationRequestsModel>.from(
+          networkResponse["data"].map(
+            (e) => FlatAlterationRequestsModel.fromJson(e),
+          ),
+        ),
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallAddFlatAlterationRequest(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddParkingModificationRequest({
+    required Map<String, dynamic> body,
+  }) async {
+    const url =
+        "ParkingModificationRequest/AddUpdateParkingModificationRequest";
+
+    try {
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        url,
+        body,
+      );
+
+      return {
+        'data': List<ParkingModificationRequestModel>.from(
+          networkResponse["data"].map(
+            (e) => ParkingModificationRequestModel.fromJson(e),
+          ),
+        ),
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallAddParkingModificationRequest(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>>
+  apicallUpdateBookingApplicantModificationRequest({
+    required int bookingId,
+    required int projectId,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    const url =
+        "BookingApplicantModificationRequest/AddUpdateBookingApplicantModificationRequest";
+
+    body.addAll({
+      "BookingId": bookingId.toString(),
+      "ProjectId": projectId.toString(),
+    });
+
+    try {
+      var networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(url, fileList, body);
+
+      return {
+        'data': List<BookingApplicantModificationRequestModel>.from(
+          networkResponse["data"].map(
+            (e) => BookingApplicantModificationRequestModel.fromJson(e),
+          ),
+        ),
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallUpdateBookingApplicantModificationRequest(
+          bookingId: bookingId,
+          projectId: projectId,
+          body: body,
+          fileList: fileList,
+        );
+      }
+      rethrow;
+    }
+  }
+}
