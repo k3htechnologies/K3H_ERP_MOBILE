@@ -385,19 +385,8 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: CustomTextField(
-                readOnly: true,
-                textController: TextEditingController(
-                  text:
-                      (_project.projectName.isEmpty ||
-                              _project.projectName.toLowerCase() == "default")
-                          ? "No Project Selected"
-                          : _project.projectName,
-                ),
-                hint: 'Select Project',
-              ),
+              child: showSiteSelectedWidget(),
             ),
-
             Align(
               alignment: Alignment.centerLeft,
               child: IntrinsicWidth(

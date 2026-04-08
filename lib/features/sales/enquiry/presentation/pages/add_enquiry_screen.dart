@@ -109,6 +109,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   final ValueNotifier<Map<String, dynamic>?> _selectedFinalStage =
       ValueNotifier(null);
   final ValueNotifier<bool> _hasManualEntryNotifier = ValueNotifier(false);
+  late final ValueNotifier<FlatModel?> _flatDetailsNotifier;
   // DROPDOWN VARIABLES
   Map<String, dynamic>? _selectedOccupationType;
   Map<String, dynamic>? _selectedPossessionType;
@@ -168,11 +169,15 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     {'zAttributesId': 3, 'DisplayName': '2 BHK'},
     {'zAttributesId': 4, 'DisplayName': '3 BHK'},
     {'zAttributesId': 5, 'DisplayName': '4 BHK'},
-    {'zAttributesId': 6, 'DisplayName': '1 + 1 JODI'},
-    {'zAttributesId': 7, 'DisplayName': '2 + 1 JODI'},
-    {'zAttributesId': 8, 'DisplayName': '2 + 2 JODI'},
-    {'zAttributesId': 9, 'DisplayName': '2 + 3 JODI'},
-    {'zAttributesId': 10, 'DisplayName': 'PENTHOUSE'},
+    {'zAttributesId': 6, 'DisplayName': '5 BHK'},
+    {'zAttributesId': 7, 'DisplayName': '6 BHK'},
+    {'zAttributesId': 8, 'DisplayName': '7 BHK'},
+    {'zAttributesId': 9, 'DisplayName': '8 BHK'},
+    {'zAttributesId': 10, 'DisplayName': '1 + 1 JODI'},
+    {'zAttributesId': 11, 'DisplayName': '2 + 1 JODI'},
+    {'zAttributesId': 12, 'DisplayName': '2 + 2 JODI'},
+    {'zAttributesId': 13, 'DisplayName': '2 + 3 JODI'},
+    {'zAttributesId': 14, 'DisplayName': 'PENTHOUSE'},
   ];
 
   final List<Map<String, dynamic>> floorBrand = [
@@ -239,9 +244,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     {'zAttributesId': 13, 'DisplayName': 'Others'},
   ];
 
-  //  ['Site Visit', 'Re - Visit Proposed', 'Re - Visit Scheduled',
-  // 'Negotiation', 'Unit Selection / Blocked', 'Booking Done',
-  //'Blocked', 'Cancelled', 'Retention', 'Lost'],
   final List<Map<String, dynamic>> stageTypeList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Stage'},
     {'zAttributesId': 1, 'DisplayName': 'Site Visit'},
@@ -278,7 +280,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   final List<Map<String, dynamic>> channelPartnerActivityList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Activity'},
     {'zAttributesId': 1, 'DisplayName': 'Channel Partner Data Calling'},
-    {'zAttributesId': 2, 'DisplayName': 'Channel Partner Walked In'},
+    {'zAttributesId': 2, 'DisplayName': 'Channel Partner Walked IN'},
     {'zAttributesId': 3, 'DisplayName': 'Digital Activity'},
   ];
 
@@ -317,6 +319,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _selectedEmployeeNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     _selectedProjectNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     _selectedFlatNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
+    _flatDetailsNotifier = ValueNotifier(null);
     getCurrentUser();
     _project = getProject();
     if (_isEditMode) {
@@ -765,10 +768,10 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       "SubSource": getDisplayOrEmpty(_selectedSubSourceNotifier.value),
       "SubSubSource": subSubSource,
       if (_selectedProjectNotifier.value.isNotEmpty)
-        "ReferelProjectId":
+        "ReferralProjectId":
             _selectedProjectNotifier.value.first["zAttributesId"],
       if (_selectedFlatNotifier.value.isNotEmpty)
-        "ReferelInventoryFlatId":
+        "ReferralInventoryFlatId":
             _selectedFlatNotifier.value.first["zAttributesId"],
       if (_selectedProjectNotifier.value.isNotEmpty)
         "LoyaltyProjectId":
@@ -1004,6 +1007,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                 return {
                   "zAttributesId": flat.inventoryFlatId,
                   "DisplayName": flat.flat,
+                  "flatModel": flat,
                 };
               }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
@@ -1755,6 +1759,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                       valueListenable: _selectedProjectNotifier,
                       builder: (context, selectedProject, _) {
                         return Column(
+                          key: const ValueKey("loyalty_project_section"),
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CustomMultipleSelectPopup(
@@ -1788,6 +1793,15 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                   dataList: const [],
                                   onSelected: (value) {
                                     _selectedFlatNotifier.value = value;
+                                    final flatData = value.first['flatModel'];
+
+                                    if (flatData is FlatModel) {
+                                      _flatDetailsNotifier.value = flatData;
+                                    } else if (flatData
+                                        is Map<String, dynamic>) {
+                                      _flatDetailsNotifier
+                                          .value = FlatModel.fromJson(flatData);
+                                    }
                                   },
                                   dataFetchCallBack: (page, {value}) {
                                     if (_selectedProjectNotifier
@@ -1818,6 +1832,20 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                 );
                               },
                             ),
+                            ValueListenableBuilder(
+                              valueListenable: _selectedFlatNotifier,
+                              builder: (context, value, child) {
+                                if (value.isEmpty) {
+                                  return SizedBox.shrink();
+                                }
+                                return ValueListenableBuilder(
+                                  valueListenable: _flatDetailsNotifier,
+                                  builder: (context, value, child) {
+                                    return _flatDetails();
+                                  },
+                                );
+                              },
+                            ),
                           ],
                         );
                       },
@@ -1829,6 +1857,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                       valueListenable: _selectedProjectNotifier,
                       builder: (context, selectedProject, _) {
                         return Column(
+                          key: const ValueKey("reference_project_section"),
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CustomMultipleSelectPopup(
@@ -1890,6 +1919,20 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                 );
                               },
                             ),
+                            ValueListenableBuilder(
+                              valueListenable: _selectedFlatNotifier,
+                              builder: (context, value, child) {
+                                if (value.isEmpty) {
+                                  return SizedBox.shrink();
+                                }
+                                return ValueListenableBuilder(
+                                  valueListenable: _flatDetailsNotifier,
+                                  builder: (context, value, child) {
+                                    return _flatDetails();
+                                  },
+                                );
+                              },
+                            ),
                           ],
                         );
                       },
@@ -1902,6 +1945,43 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         );
       },
     );
+  }
+
+  Widget _flatDetails() {
+    return infoCard([
+      {
+        "title": "Building",
+        "value": _flatDetailsNotifier.value?.buildingNumber,
+      },
+      {"title": "Wing", "value": _flatDetailsNotifier.value?.wing},
+      {"title": "Floor", "value": _flatDetailsNotifier.value?.floor},
+      {"title": "Flat Number", "value": _flatDetailsNotifier.value?.flat},
+      {
+        "title": "Carpet Area (SqFt)",
+        "value": _flatDetailsNotifier.value?.reraCarpetAreaSqFt.toString(),
+      },
+      {"title": "Flat Type", "value": _flatDetailsNotifier.value?.flatType},
+      {
+        "title": "Configuration",
+        "value": _flatDetailsNotifier.value?.flatConfiguration,
+      },
+      {"title": "Facing", "value": _flatDetailsNotifier.value?.flatFacing},
+      {"title": "Status", "value": _flatDetailsNotifier.value?.flatStatus},
+      {"title": "Owner Name", "value": _flatDetailsNotifier.value?.ownerName},
+      {
+        "title": "Booked By",
+        "value": _flatDetailsNotifier.value?.bookingCreatedBy,
+      },
+      {
+        "title": "Booking Date",
+        "value":
+            _flatDetailsNotifier.value!.bookingCreatedDate == null
+                ? "-"
+                : formatDateTimeAsDDMMMYYYY(
+                  _flatDetailsNotifier.value!.bookingCreatedDate!,
+                ),
+      },
+    ]);
   }
 
   // ADDRESS
@@ -2003,6 +2083,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                 dataList: requirementType,
                 onSelected: (v) {
                   _selectedRequirementNotifier.value = v;
+
                   if (v["DisplayName"] == "Residential") {
                     _selectedResidentialTypeNotifier.value =
                         residentialType.first;
@@ -2018,6 +2099,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               const SizedBox(height: 8),
               if (dependentList.isNotEmpty)
                 CustomDropDownWidget(
+                  key: ValueKey(selectedRequirement?["DisplayName"]),
                   title: "${selectedRequirement?["DisplayName"]} Type",
                   hintText: "Select ${selectedRequirement?["DisplayName"]}",
                   isRequired: true,
@@ -2151,10 +2233,15 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       if (user.designation.toLowerCase() != 'GRE'.toLowerCase())
         CustomDatePicker(
           title: "Next Follow-Up Date",
+          isRequired: true,
           readOnly: _isEditMode,
           startDate: DateTime.now(),
           initialDate: _nextFollowUpDate,
           setValue: (v) => _nextFollowUpDate = v,
+          validator: (val) {
+            if (val == null) return "Next Follow-Up Date is required";
+            return null;
+          },
         ),
     ]);
   }

@@ -2994,62 +2994,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     );
   }
 
-  // INFO HELPER CARD
-  Widget infoCard(List<Map<String, dynamic>> items, {String? title}) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColor.lightBlue,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColor.primary, width: .5),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (title != null) ...[
-            Text(title, style: AppTextStyle.ts16SB()),
-            verticalSpacing(),
-          ],
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: List.generate((items.length / 2).ceil(), (index) {
-              final first = items[index * 2];
-              final second =
-                  (index * 2 + 1 < items.length) ? items[index * 2 + 1] : null;
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: first["title"] ?? "",
-                      value:
-                          first["widget"] != null ? "" : first["value"] ?? "",
-                      customValueWidget: first["widget"],
-                    ),
-                    const SizedBox(width: 20),
-
-                    second != null
-                        ? buildColumnTitleValue(
-                          title: second["title"] ?? "",
-                          value:
-                              second["widget"] != null
-                                  ? ""
-                                  : second["value"] ?? "",
-                          customValueWidget: second["widget"],
-                        )
-                        : const SizedBox(),
-                  ],
-                ),
-              );
-            }),
-          ),
-        ],
-      ),
-    );
-  }
 
   // COMMISSION SECTION FOR ENQUIRY WHICH HAD SOURCE: CHANNEL PARTNER (BROKERAGE) OR SUBSOURCE: REFERENCE, EMPLOYEE REFERENCE, LOYALTY
   Widget commissionSection({

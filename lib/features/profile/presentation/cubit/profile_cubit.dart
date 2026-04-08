@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
@@ -917,37 +916,32 @@ class ProfileCubit extends Cubit<ProfileState> {
         return;
       },
       (response) async {
-        final newUrl = (response["data"] as List).isNotEmpty
-            ? response["data"][0]
-            : "";
+        final newUrl =
+            (response["data"] as List).isNotEmpty ? response["data"][0] : "";
 
-        final userString =
-        LocalStorageManager().getString(StorageKey.currentUser);
+        final userString = LocalStorageManager().getString(
+          StorageKey.currentUser,
+        );
 
         if (userString != null && newUrl.isNotEmpty) {
           final userJson = jsonDecode(userString);
 
           userJson['ProfilePhotoURL'] = newUrl;
 
-
           await LocalStorageManager().setString(
             StorageKey.currentUser,
             jsonEncode(userJson),
           );
-
         }
 
-        final updatedUser = state.user?.copyWith(
-          profilePhotoURL: newUrl,
-        );
+        final updatedUser = state.user?.copyWith(profilePhotoURL: newUrl);
 
         emit(state.copyWith(user: updatedUser));
 
-        if(context.mounted) {
+        if (context.mounted) {
           context.read<MainScreenCubit>().rebuildChild();
           showSuccessMessage(context, subTitle: response["successMessage"]);
         }
-
       },
     );
   }
