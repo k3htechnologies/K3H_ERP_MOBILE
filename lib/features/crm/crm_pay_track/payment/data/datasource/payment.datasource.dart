@@ -218,7 +218,7 @@ class PaymentDatasourceImpl extends PaymentDatasource {
       Map<String, dynamic>? queryParams,
     }) {
       String finalUrl =
-          "PayTrack/PullPayTrackPaymentLedgerForExport?BookingId=$bookingId&ProjectId=$projectId";
+          "PayTrack/PullPayTrackPaymentLedger?BookingId=$bookingId&ProjectId=$projectId";
 
       queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
       return finalUrl;

@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
@@ -52,9 +53,10 @@ class _AddBookingPaymentScheduleScreenState
   final TextEditingController _percentageC = TextEditingController();
   final TextEditingController _otherStageC = TextEditingController();
 
-  final ValueNotifier<List<Map<String, dynamic>>?> _selectedStage =
-      ValueNotifier(null);
-
+  final ValueNotifier<Map<String, dynamic>?> _selectedStage = ValueNotifier(
+    null,
+  );
+  late List<Map<String, dynamic>> stageList;
   DateTime? date;
 
   late TabController _tabController;
@@ -65,8 +67,9 @@ class _AddBookingPaymentScheduleScreenState
   void initState() {
     super.initState();
     _bookingCubit = context.read<BookingCubit>();
-
+    _fetchStages();
     _tabController = TabController(length: 2, vsync: this);
+    stageList = [];
     _prefillData();
   }
 
@@ -83,9 +86,7 @@ class _AddBookingPaymentScheduleScreenState
     } else {
       _tabController.index = 1;
 
-      _selectedStage.value = [
-        {"zAttributesId": 1, "DisplayName": data.name},
-      ];
+      _selectedStage.value = {"zAttributesId": 1, "DisplayName": data.name};
 
       if (data.name == "Other") {
         _otherStageC.text = data.name;
@@ -160,8 +161,7 @@ class _AddBookingPaymentScheduleScreenState
 
     /// DUPLICATE STAGE CHECK
     if (!isDateTab) {
-      final selectedStageName =
-          _selectedStage.value?.first["DisplayName"] ?? "";
+      final selectedStageName = _selectedStage.value?["DisplayName"] ?? "";
 
       final alreadyExists = schedules.any(
         (e) =>
@@ -196,9 +196,9 @@ class _AddBookingPaymentScheduleScreenState
       name:
           isDateTab
               ? date!.toIso8601String()
-              : (_selectedStage.value?.first["DisplayName"] == "Other"
+              : (_selectedStage.value?["DisplayName"] == "Other"
                   ? _otherStageC.text.trim()
-                  : _selectedStage.value?.first["DisplayName"] ?? "Stage"),
+                  : _selectedStage.value?["DisplayName"] ?? "Stage"),
       date: isDateTab ? date : null,
       paymentSchedulePercentage: percentage,
       paymentCummulativePercentage: cumulativePercentage,
@@ -233,18 +233,14 @@ class _AddBookingPaymentScheduleScreenState
   }
 
   /// FETCH STAGES
-  Future<Map<String, dynamic>> fetchStages(
-    int pageNumber, {
-    String? value,
-  }) async {
+  Future<void> _fetchStages() async {
     final result = await _bookingRepository.getPaymentScheduleStagesList(
-      pageNumber: pageNumber,
+      pageNumber: 1,
       pageSize: 15,
       projectId: getProject().projectId,
       inventoryBuildingId: widget.inventoryBuildingId,
       inventoryFlatFloorBasementPodiumWingId:
           widget.inventoryFlatFloorBasementPodiumWingId,
-      queryParams: value != null && value.isNotEmpty ? {"Stage": value} : {},
     );
 
     return result.fold(
@@ -252,17 +248,16 @@ class _AddBookingPaymentScheduleScreenState
       (response) {
         final stagesList = response['data'] as List<dynamic>? ?? [];
 
-        return {
-          "itemList": List.generate(stagesList.length, (index) {
-            final stage = stagesList[index];
+        List.generate(stagesList.length, (index) {
+          final stage = stagesList[index];
 
-            return {
+          if (!stageList.any((e) => e['zAttributesId'] == index + 1)) {
+            stageList.add({
               "zAttributesId": index + 1,
               "DisplayName": stage["Stages"] ?? "",
-            };
-          }),
-          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
-        };
+            });
+          }
+        });
       },
     );
   }
@@ -317,16 +312,14 @@ class _AddBookingPaymentScheduleScreenState
   Widget _stageTab() {
     return Column(
       children: [
-        CustomMultipleSelectPopup(
+        CustomDropDownWidget(
           title: "Stages",
           isRequired: true,
-          isMultiSelect: false,
           hintText: "Select Stage",
           initialValue: _selectedStage.value,
-          dataList: [],
-          onClear: () => _selectedStage.value = null,
+          dataList: stageList,
+          onValueClear: () => _selectedStage.value = null,
           onSelected: (value) => _selectedStage.value = value,
-          dataFetchCallBack: fetchStages,
           validator: (value) {
             if (value == null || value.isEmpty) {
               return "Stage is required";
@@ -340,7 +333,7 @@ class _AddBookingPaymentScheduleScreenState
           builder: (context, selectedStage, _) {
             if (selectedStage != null &&
                 selectedStage.isNotEmpty &&
-                selectedStage.first['DisplayName'] == "Other") {
+                selectedStage['DisplayName'] == "Other") {
               return Column(
                 children: [
                   CustomTextField(
@@ -410,7 +403,7 @@ class _AddBookingPaymentScheduleScreenState
                         if (_isEditMode) return;
 
                         if (index == 0) {
-                          _selectedStage.value = null;
+                          _selectedStage.value = {};
                         } else {
                           date = null;
                         }

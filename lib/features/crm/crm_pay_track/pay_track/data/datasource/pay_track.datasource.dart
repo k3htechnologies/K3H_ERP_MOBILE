@@ -34,7 +34,7 @@ class PayTrackDatasourceImpl extends PayTrackDatasource {
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "PayTrackBooking/PullPayTrackBooking?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+          "PayTrack/PullPayTrackBooking?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }
@@ -80,7 +80,7 @@ class PayTrackDatasourceImpl extends PayTrackDatasource {
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "PayTrackMaster/PullPayTrackMaster?PageSize=$pageSize&PageNumber=$pageNumber";
+          "PayTrack/PullPayTrackBooking?PageSize=$pageSize&PageNumber=$pageNumber";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }
