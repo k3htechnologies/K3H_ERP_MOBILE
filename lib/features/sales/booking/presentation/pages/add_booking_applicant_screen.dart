@@ -311,6 +311,13 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
     applicant.drivingLicenseImage = drivingLicenseFile;
     applicant.votingIdImage = votingIdFile;
     applicant.gstImage = gstFile;
+    applicant.cancelledChequeImage = cancelledChequeFile;
+    applicant.poaImage = poaFile;
+    applicant.incomeForm16ItrImage = incomeForm16ItrFile;
+    applicant.nreNroBankDetailsImage = nreNroBankDetailsFile;
+    applicant.nomineeFormImage = nomineeFormFile;
+    applicant.statementOfSourceOfFundImage = statementOfSourceOfFundFile;
+    applicant.paymentProofImage = paymentProofURLFundFile;
 
     Navigator.pop(context, {"applicant": applicant, "index": widget.index});
   }
@@ -519,9 +526,12 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       panFile.deletedFileList = deleted;
                     },
                     validator: (fileList) {
+                      if (fileList == null || fileList.isEmpty) {
+                        return "PAN Card document is required";
+                      }
                       if (_panC.text.isNotEmpty &&
                           InputValidator.isValidPAN(_panC.text.trim()) &&
-                          (fileList == null || fileList.isEmpty)) {
+                          (fileList.isEmpty)) {
                         return "PAN Card document is required";
                       }
                       return null;

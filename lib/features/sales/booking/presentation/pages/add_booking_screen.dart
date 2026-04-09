@@ -748,52 +748,41 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // VALIDATE ALL TABS
   Future<bool> _validateAllTabs() async {
-    // VALIDATE DETAILS TAB
-    if (!(_detailsFormKey.currentState?.validate() ?? false)) {
-      _tabController.animateTo(0);
-      _bookingCubit.onTabChangedAddForm(0, context);
-      //CHECK APPLICANTS
 
-      if (_applicants.value.isEmpty) {
-        showErrorMessage(context, "", "At least one applicant is required");
-        return false;
-      }
+    // STEP 1: DETAILS TAB
+    if (!(_detailsFormKey.currentState?.validate() ?? false)) {
+      _bookingCubit.onTabChangedAddForm(0, context);
+      _tabController.animateTo(0);
+      return false;
     }
 
-    if (!(_remarkFormKey.currentState?.validate() ?? false)) {
-      _tabController.animateTo(5);
-      _bookingCubit.onTabChangedAddForm(5, context);
+    if (_applicants.value.isEmpty) {
+      _bookingCubit.onTabChangedAddForm(0, context);
+      _tabController.animateTo(0);
+      showErrorMessage(context, "", "At least one applicant is required");
       return false;
     }
 
     if (!_hasPrimaryApplicant(_applicants.value)) {
-      _tabController.animateTo(0);
       _bookingCubit.onTabChangedAddForm(0, context);
-      showErrorMessage(
-        context,
-        "",
-        "In Applicant List - One Applicant is required",
-      );
+      _tabController.animateTo(0);
+      showErrorMessage(context, "", "One Applicant is required");
       return false;
     }
 
-    // VALIDATE PAYMENT SCHEDULE
+    // STEP 2: PAYMENT SCHEDULE
     if (_bookingCubit.state.bookingPaymentScheduleList.isEmpty) {
-      _tabController.animateTo(1);
       _bookingCubit.onTabChangedAddForm(1, context);
+      _tabController.animateTo(1);
       showErrorMessage(context, "", "Add Payment Schedule Details");
       return false;
     }
 
-    if (_bookingCubit.totalCumulativePercentage.toStringAsFixed(2) !=
-        "100.00") {
-      _tabController.animateTo(1);
-      _bookingCubit.onTabChangedAddForm(1, context);
-      showErrorMessage(
-        context,
-        "",
-        "Payment schedule total must be exactly 100%. Current total is ${_bookingCubit.totalCumulativePercentage.toStringAsFixed(2)}%",
-      );
+
+    // STEP 5: REMARK
+    if (!(_remarkFormKey.currentState?.validate() ?? false)) {
+      _bookingCubit.onTabChangedAddForm(5, context);
+      _tabController.animateTo(5);
       return false;
     }
 
@@ -1638,6 +1627,17 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       if (value == null || value.trim().isEmpty) {
                         return "Agreement Value (with TDS) is required";
                       }
+
+                      final parsed = double.tryParse(value.trim());
+
+                      if (parsed == null) {
+                        return "Invalid amount";
+                      }
+
+                      if (parsed <= 0) {
+                        return "Amount must be greater than 0";
+                      }
+
                       return null;
                     },
                   ),
@@ -1690,6 +1690,13 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                           if (value == null || value.trim().isEmpty) {
                             return "Agreement GST Percentage is required";
                           }
+
+                          final parsed = double.tryParse(value);
+
+                          if (parsed == null || parsed < 0) {
+                            return "Invalid percentage";
+                          }
+
                           return null;
                         },
                         onChangeFunction: (value) {
