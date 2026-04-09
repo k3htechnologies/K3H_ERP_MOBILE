@@ -62,7 +62,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
       widget.projectId,
       widget.bookingId,
     );
-    if (mounted && bookingModel!=null) {
+    if (mounted && bookingModel != null) {
       _bookingCubit.getEnquiryList(
         context,
         1,
@@ -91,7 +91,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
         builder: (context, state) {
           return (state.isLoading ?? true)
               ? Center(child: loader())
-              : bookingModel!=null? Column(
+              : bookingModel != null
+              ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
@@ -170,7 +171,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                   _bookingCubit.generateBookingPDF(
                                     context,
                                     bookingModel!,
-                                    isSendEmail: false
+                                    isSendEmail: false,
                                   );
                                 }
                               } else if (selected == 'email') {
@@ -178,7 +179,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                   _bookingCubit.generateBookingPDF(
                                     context,
                                     bookingModel!,
-                                    isSendEmail: true
+                                    isSendEmail: true,
                                   );
                                 }
                               }
@@ -187,7 +188,13 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       ],
                     ),
                   ),
-                  showSiteSelectedWidget(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 10,
+                    ),
+                    child: showSiteSelectedWidget(),
+                  ),
                   ChipStyleTabBar(
                     controller: _tabController,
                     tabs: [
@@ -216,7 +223,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     ),
                   ),
                 ],
-              ):Text("data");
+              )
+              : Text("data");
         },
       ),
     );
@@ -1057,7 +1065,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     ),
                     buildColumnTitleValue(
                       title: "Agreement Value (₹) Without TDS",
-                      value: "₹ ${(bookingModel!.agreementValue-bookingModel!.agreementValueTDS)}",
+                      value:
+                          "₹ ${(bookingModel!.agreementValue - bookingModel!.agreementValueTDS)}",
                     ),
                   ],
                 ),
@@ -1113,37 +1122,37 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     ),
                   ],
                 ),
-                if(bookingModel!.loyaltyAmount>0)
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Loyalty (%)",
-                      value: "${bookingModel!.loyaltyPercentage} %",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Loyalty Amount (₹)",
-                      value: "₹ ${bookingModel!.loyaltyAmount}",
-                    ),
-                  ],
-                ),
-                if(bookingModel!.brokerageAmount>0)
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Brokerage (%)",
-                      value: "${bookingModel!.brokeragePercentage} %",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Brokerage Amount (₹)",
-                      value: "₹ ${bookingModel!.brokerageAmount}",
-                    ),
-                  ],
-                ),
-                if(bookingModel!.employeeReferenceAmount>0)
+                if (bookingModel!.loyaltyAmount > 0)
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Loyalty (%)",
+                        value: "${bookingModel!.loyaltyPercentage} %",
+                      ),
+                      buildColumnTitleValue(
+                        title: "Loyalty Amount (₹)",
+                        value: "₹ ${bookingModel!.loyaltyAmount}",
+                      ),
+                    ],
+                  ),
+                if (bookingModel!.brokerageAmount > 0)
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Brokerage (%)",
+                        value: "${bookingModel!.brokeragePercentage} %",
+                      ),
+                      buildColumnTitleValue(
+                        title: "Brokerage Amount (₹)",
+                        value: "₹ ${bookingModel!.brokerageAmount}",
+                      ),
+                    ],
+                  ),
+                if (bookingModel!.employeeReferenceAmount > 0)
                   Row(
                     spacing: 10,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1214,65 +1223,78 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 Text("Other Charges", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
                 Expanded(
-                  child:bookingModel!.bookingOtherChargesData.isNotEmpty?
-                  ListView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
-                    shrinkWrap: true,
-                    itemCount: bookingModel!.bookingOtherChargesData.length,
-                    itemBuilder: (_, index) {
-                      final extraCharge =
-                          bookingModel!.bookingOtherChargesData[index];
-                      return Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: AppColor.primary,
-                            width: .3,
+                  child:
+                      bookingModel!.bookingOtherChargesData.isNotEmpty
+                          ? ListView.builder(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 2,
+                              vertical: 10,
+                            ),
+                            shrinkWrap: true,
+                            itemCount:
+                                bookingModel!.bookingOtherChargesData.length,
+                            itemBuilder: (_, index) {
+                              final extraCharge =
+                                  bookingModel!.bookingOtherChargesData[index];
+                              return Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: AppColor.primary,
+                                    width: .3,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                margin: EdgeInsets.only(bottom: 10),
+                                padding: EdgeInsets.all(16),
+                                child: Column(
+                                  spacing: 10,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Name",
+                                          value: extraCharge.chargeName,
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Calculated On",
+                                          value: extraCharge.calculatedOn,
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Value (In ₹)",
+                                          value: "${extraCharge.value}",
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "GST (%)",
+                                          value:
+                                              extraCharge.gstPercentage
+                                                  .toString(),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "GST Value (₹)",
+                                          value: "₹ ${extraCharge.gstValue}",
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          )
+                          : Center(
+                            child: noDataWidget(
+                              message: "No Charges Available",
+                              iconSize: 180,
+                            ),
                           ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        margin: EdgeInsets.only(bottom: 10),
-                        padding: EdgeInsets.all(16),
-                        child: Column(
-                          spacing: 10,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Name",
-                                  value: extraCharge.chargeName,
-                                ),
-                                buildColumnTitleValue(
-                                  title: "Calculated On",
-                                  value: extraCharge.calculatedOn,
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Value (In ₹)",
-                                  value: "${extraCharge.value}",
-                                ),
-                                buildColumnTitleValue(
-                                  title: "GST (%)",
-                                  value: extraCharge.gstPercentage.toString(),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "GST Value (₹)",
-                                  value: "₹ ${extraCharge.gstValue}",
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ):Center(child: noDataWidget(message: "No Charges Available",iconSize: 180),),
                 ),
               ],
             ),
@@ -1493,8 +1515,13 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
                           ),
-                    ]else...[
-                      Center(child: noDataWidget(message: "No Terms & Conditions Available",iconSize: 180),)
+                    ] else ...[
+                      Center(
+                        child: noDataWidget(
+                          message: "No Terms & Conditions Available",
+                          iconSize: 180,
+                        ),
+                      ),
                     ],
                   ],
                 );
@@ -1828,7 +1855,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
   Widget _buildOtherChargesTab() {
     if (bookingModel!.bookingOtherChargesData.isEmpty) {
       return Center(
-          child: noDataWidget(message: "No Charges Available",iconSize: 180));
+        child: noDataWidget(message: "No Charges Available", iconSize: 180),
+      );
     }
     return ListView.builder(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -2071,7 +2099,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   ],
                 ),
               )
-              : Center(child: noDataWidget(message: "No Terms & Conditions Available")),
+              : Center(
+                child: noDataWidget(message: "No Terms & Conditions Available"),
+              ),
     );
   }
 
