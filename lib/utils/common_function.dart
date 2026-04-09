@@ -134,8 +134,6 @@ Future<void> updateRouteAuthorization(List<ModuleModel> moduleData) async {
     ...defaultMap,
     ...updatedRouteMap,
   };
-  print("HAS BOOKING => ${updatedRouteMap.containsKey('/booking')}");
-  print("FINAL HAS BOOKING => ${Authorization.routeAuthorizationMap.containsKey('/booking')}");
 }
 
 Map<String, AuthorizationModel> _processRouteAuthorizationModules(
