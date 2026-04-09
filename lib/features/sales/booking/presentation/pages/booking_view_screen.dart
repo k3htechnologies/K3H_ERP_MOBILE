@@ -1333,55 +1333,53 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
                                   title: "Type",
                                   value: payment.type,
                                 ),
-                                buildColumnTitleValue(
-                                  title: "Name",
+                                payment.type.contains("Date")
+                                    ? buildColumnTitleValue(
+                                  title: "Date",
+                                  value:
+                                  payment.date != null
+                                      ? formatDateTimeAsDDMMMYYYY(payment.date!)
+                                      : "-",
+                                )
+                                    : buildColumnTitleValue(
+                                  title: "Stage",
                                   value: payment.name,
                                 ),
                               ],
                             ),
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                buildColumnTitleValue(
-                                  title: "Date",
-                                  value:
-                                      payment.date != null
-                                          ? formatDateTimeAsDDMMMYYYY(
-                                            payment.date!,
-                                          )
-                                          : "-",
-                                ),
                                 buildColumnTitleValue(
                                   title: "Percentage (%)",
                                   value:
                                       payment.paymentSchedulePercentage
                                           .toString(),
                                 ),
-                              ],
-                            ),
-                            Row(
-                              children: [
                                 buildColumnTitleValue(
                                   title: "Amount (₹)",
                                   value: "₹ ${payment.paymentScheduleAmount}",
                                 ),
+                              ],
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 buildColumnTitleValue(
                                   title: "GST (₹)",
                                   value:
                                       "₹ ${payment.paymentScheduleGSTAmount}",
                                 ),
-                              ],
-                            ),
-                            Row(
-                              children: [
                                 buildColumnTitleValue(
                                   title: "TDS (₹)",
                                   value:
-                                      "₹ ${payment.paymentScheduleTDSAmount}",
+                                  "₹ ${payment.paymentScheduleTDSAmount}",
                                 ),
                               ],
                             ),

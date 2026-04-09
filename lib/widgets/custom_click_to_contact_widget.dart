@@ -34,7 +34,11 @@ class CustomClickToContactText extends StatelessWidget {
         final status = await Permission.phone.request();
         if (status.isGranted) {
           try {
-            serviceLocator<AppCallTrackerService>().setPendingCall(value);
+            final service = serviceLocator<AppCallTrackerService>();
+
+            service.setPendingCall(value);
+            service.forceStartCall(value);
+
           } catch (_) {}
         } else if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -48,7 +52,10 @@ class CustomClickToContactText extends StatelessWidget {
         }
       } else {
         try {
-          serviceLocator<AppCallTrackerService>().setPendingCall(value);
+          final service = serviceLocator<AppCallTrackerService>();
+
+          service.setPendingCall(value);
+          service.forceStartCall(value);
         } catch (_) {}
       }
     } else {

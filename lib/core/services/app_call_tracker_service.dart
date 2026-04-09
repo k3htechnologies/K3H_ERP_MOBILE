@@ -330,6 +330,36 @@ class AppCallTrackerService {
     }
   }
 
+  void forceStartCall(String number) {
+    _currentCallNumber = number;
+    _callStartTime = DateTime.now();
+
+    debugPrint("Force call start => $number");
+
+    // 🔥 fallback save after delay (important)
+    Future.delayed(const Duration(seconds: 10), () {
+      if (_currentCallNumber != null && _callStartTime != null) {
+        final endedAt = DateTime.now();
+
+        final entry = AppInitiatedCallEntry(
+          phoneNumber: _currentCallNumber!,
+          startedAt: _callStartTime!,
+          endedAt: endedAt,
+          durationSeconds: endedAt.difference(_callStartTime!).inSeconds,
+          isSynced: false,
+        );
+
+        _saveLog(entry);
+
+        debugPrint("Fallback log saved");
+
+        _currentCallNumber = null;
+        _callStartTime = null;
+        logsUpdated.value++;
+      }
+    });
+  }
+
   Future<bool> syncTodayCallLogsToApi() async {
     final logs = getAppInitiatedCallLogs();
     final now = DateTime.now();
@@ -339,7 +369,6 @@ class AppCallTrackerService {
       return d.year == now.year && d.month == now.month && d.day == now.day;
     }).toList();
 
-    print("hhh=>${todayLogs}");
 
     if (todayLogs.isEmpty) return true;
 
