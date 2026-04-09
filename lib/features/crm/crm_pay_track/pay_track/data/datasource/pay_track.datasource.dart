@@ -6,6 +6,7 @@ abstract interface class PayTrackDatasource {
   Future<Map<String, dynamic>> apiCallPullPayTrack({
     required int pageNumber,
     required int pageSize,
+    required int projectId,
     Map<String, dynamic>? queryParams,
   });
 
@@ -23,15 +24,17 @@ class PayTrackDatasourceImpl extends PayTrackDatasource {
   Future<Map<String, dynamic>> apiCallPullPayTrack({
     required int pageNumber,
     required int pageSize,
+    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     String pullPayTrackUrl({
       required int pageSize,
       required int pageNumber,
+      required int projectId,
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "PayTrackBooking/PullPayTrackBooking?PageSize=$pageSize&PageNumber=$pageNumber";
+          "PayTrackBooking/PullPayTrackBooking?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }
@@ -40,6 +43,7 @@ class PayTrackDatasourceImpl extends PayTrackDatasource {
       var networkResponse = await baseClient.getRequestWithAuthentication(
         pullPayTrackUrl(
           pageSize: pageSize,
+          projectId: projectId,
           pageNumber: pageNumber,
           queryParams: queryParams,
         ),
@@ -56,6 +60,7 @@ class PayTrackDatasourceImpl extends PayTrackDatasource {
         apiCallPullPayTrack(
           pageNumber: pageNumber,
           pageSize: pageSize,
+          projectId: projectId,
           queryParams: queryParams,
         );
       }

@@ -338,7 +338,9 @@ class _AddBookingPaymentScheduleScreenState
         ValueListenableBuilder(
           valueListenable: _selectedStage,
           builder: (context, selectedStage, _) {
-            if (selectedStage?.first['DisplayName'] == "Other") {
+            if (selectedStage != null &&
+                selectedStage.isNotEmpty &&
+                selectedStage.first['DisplayName'] == "Other") {
               return Column(
                 children: [
                   CustomTextField(

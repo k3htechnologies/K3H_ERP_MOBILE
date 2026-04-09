@@ -44,10 +44,9 @@ void registerCRMPayTrackDependencies(GetIt serviceLocator) {
           serviceLocator<PayTrackBookingFilesDatasource>(),
     ),
   );
-  serviceLocator.registerSingleton<BookingLoanDetailsRepository>(
-    BookingLoanDetailsRepositoryImpl(
-      bookingLoanDetailsDatasource:
-          serviceLocator<BookingLoanDetailsDatasource>(),
+  serviceLocator.registerSingleton<BankLoanDetailsRepository>(
+    BankLoanDetailsRepositoryImpl(
+      bankLoanDetailsDatasource: serviceLocator<BookingLoanDetailsDatasource>(),
     ),
   );
   serviceLocator.registerSingleton<PaymentRepository>(

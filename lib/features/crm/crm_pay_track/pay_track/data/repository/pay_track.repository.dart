@@ -7,6 +7,7 @@ abstract interface class PayTrackRepository {
   Future<Either<Failure, Map<String, dynamic>>> getPayTrackList({
     required int pageNumber,
     required int pageSize,
+    required int projectId,
     Map<String, dynamic>? queryParams,
   });
 
@@ -24,12 +25,14 @@ class PayTrackRepositoryImpl extends PayTrackRepository {
   Future<Either<Failure, Map<String, dynamic>>> getPayTrackList({
     required int pageNumber,
     required int pageSize,
+    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     try {
       var result = await payTrackDatasource.apiCallPullPayTrack(
         pageNumber: pageNumber,
         pageSize: pageSize,
+        projectId: projectId,
         queryParams: queryParams,
       );
       return right(result);
