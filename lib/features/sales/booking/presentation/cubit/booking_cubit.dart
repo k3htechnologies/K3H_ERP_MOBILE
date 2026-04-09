@@ -67,6 +67,14 @@ class BookingCubit extends Cubit<BookingState> {
     emit(state.copyWith(currentTabIndexAddForm: index));
   }
 
+  void clearParkingList() {
+    emit(state.copyWith(parkingList: [], totalNumberOfRecordParking: 0));
+  }
+
+  void clearTermsList() {
+    emit(state.copyWith(termsList: [], totalNumberOfRecordTerms: 0));
+  }
+
   //  GET BOOKING LIST
   Future getBookingList(
     BuildContext context,
@@ -142,7 +150,10 @@ class BookingCubit extends Cubit<BookingState> {
   ) async {
     emit(state.copyWith(isLoading: true));
 
-    Map<String, dynamic> queryParams = {"BookingId": bookingId};
+    Map<String, dynamic> queryParams = {
+      "BookingId": bookingId,
+      "IsCheckPermission": false,
+    };
 
     final result = await _bookingRepository.getBookingList(
       pageNumber: pageNumber,
@@ -510,6 +521,23 @@ class BookingCubit extends Cubit<BookingState> {
         "AddUpdateBookingApplicant[$i].GstNumber": e.gstNumber,
         "AddUpdateBookingApplicant[$i].RemoveGSTNumberURL":
             e.gstImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].CancelledChequeNumber":
+            e.cancelledChequeUrl,
+        "AddUpdateBookingApplicant[$i].RemoveCancelledChequeURL":
+            e.cancelledChequeImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].RemovePOAURL":
+        e.poaImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].RemoveIncomeForm16ITRURL":
+        e.incomeForm16ItrImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].RemoveNreNroBankDetailsURL":
+        e.nreNroBankDetailsImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].RemoveNomineeFormURL":
+        e.nomineeFormImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].RemoveStatementOfSourceOfFundsURL":
+        e.statementOfSourceOfFundImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].RemovePaymentProofURL":
+        e.paymentProofImage.deletedFileList,
+
       });
     }
 
@@ -524,6 +552,7 @@ class BookingCubit extends Cubit<BookingState> {
         if (applicantData.profilePhotoImage.fileNameList[i].contains("http")) {
           continue;
         }
+        if (i >= applicantData.profilePhotoImage.fileBytesList.length) continue;
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].PhotoURL",
           "value": applicantData.profilePhotoImage.fileBytesList[i],
@@ -535,6 +564,7 @@ class BookingCubit extends Cubit<BookingState> {
         if (applicantData.aadhaarImage.fileNameList[i].contains("http")) {
           continue;
         }
+        if (i >= applicantData.aadhaarImage.fileBytesList.length) continue;
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].AadharCardURL",
           "value": applicantData.aadhaarImage.fileBytesList[i],
@@ -546,6 +576,7 @@ class BookingCubit extends Cubit<BookingState> {
         if (applicantData.panImage.fileNameList[i].contains("http")) {
           continue;
         }
+        if (i >= applicantData.panImage.fileBytesList.length) continue;
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].PanCardURL",
           "value": applicantData.panImage.fileBytesList[i],
@@ -561,6 +592,7 @@ class BookingCubit extends Cubit<BookingState> {
         if (applicantData.passportImage.fileNameList[i].contains("http")) {
           continue;
         }
+        if (i >= applicantData.passportImage.fileBytesList.length) continue;
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].PassportURL",
           "value": applicantData.passportImage.fileBytesList[i],
@@ -578,6 +610,9 @@ class BookingCubit extends Cubit<BookingState> {
         )) {
           continue;
         }
+        if (i >= applicantData.drivingLicenseImage.fileBytesList.length) {
+          continue;
+        }
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].DrivingLicenseURL",
           "value": applicantData.drivingLicenseImage.fileBytesList[i],
@@ -593,6 +628,7 @@ class BookingCubit extends Cubit<BookingState> {
         if (applicantData.votingIdImage.fileNameList[i].contains("http")) {
           continue;
         }
+        if (i >= applicantData.votingIdImage.fileBytesList.length) continue;
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].VotingIdURL",
           "value": applicantData.votingIdImage.fileBytesList[i],
@@ -604,10 +640,129 @@ class BookingCubit extends Cubit<BookingState> {
         if (applicantData.gstImage.fileNameList[i].contains("http")) {
           continue;
         }
+        if (i >= applicantData.gstImage.fileBytesList.length) continue;
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].GstNumberURL",
           "value": applicantData.gstImage.fileBytesList[i],
           "fileName": applicantData.gstImage.fileNameList[i],
+        });
+      }
+      for (
+        int i = 0;
+        i < applicantData.cancelledChequeImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.cancelledChequeImage.fileNameList[i].contains(
+          "http",
+        )) {
+          continue;
+        }
+        if (i >= applicantData.cancelledChequeImage.fileBytesList.length) {
+          continue;
+        }
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].CancelledChequeURL",
+          "value": applicantData.cancelledChequeImage.fileBytesList[i],
+          "fileName": applicantData.cancelledChequeImage.fileNameList[i],
+        });
+      }
+      for (int i = 0; i < applicantData.poaImage.fileNameList.length; i++) {
+        if (applicantData.poaImage.fileNameList[i].contains("http")) {
+          continue;
+        }
+        if (i >= applicantData.poaImage.fileBytesList.length) continue;
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].POAURL",
+          "value": applicantData.poaImage.fileBytesList[i],
+          "fileName": applicantData.poaImage.fileNameList[i],
+        });
+      }
+      for (
+        int i = 0;
+        i < applicantData.incomeForm16ItrImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.incomeForm16ItrImage.fileNameList[i].contains(
+          "http",
+        )) {
+          continue;
+        }
+        if (i >= applicantData.incomeForm16ItrImage.fileBytesList.length) {
+          continue;
+        }
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].IncomeForm16ITRURL",
+          "value": applicantData.incomeForm16ItrImage.fileBytesList[i],
+          "fileName": applicantData.incomeForm16ItrImage.fileNameList[i],
+        });
+      }
+      for (
+        int i = 0;
+        i < applicantData.nreNroBankDetailsImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.nreNroBankDetailsImage.fileNameList[i].contains(
+          "http",
+        )) {
+          continue;
+        }
+        if (i >= applicantData.nreNroBankDetailsImage.fileBytesList.length) {
+          continue;
+        }
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].NreNroBankDetailsURL",
+          "value": applicantData.nreNroBankDetailsImage.fileBytesList[i],
+          "fileName": applicantData.nreNroBankDetailsImage.fileNameList[i],
+        });
+      }
+      for (
+        int i = 0;
+        i < applicantData.nomineeFormImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.nomineeFormImage.fileNameList[i].contains("http")) {
+          continue;
+        }
+        if (i >= applicantData.nomineeFormImage.fileBytesList.length) continue;
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].NomineeFormURL",
+          "value": applicantData.nomineeFormImage.fileBytesList[i],
+          "fileName": applicantData.nomineeFormImage.fileNameList[i],
+        });
+      }
+      for (
+        int i = 0;
+        i < applicantData.statementOfSourceOfFundImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.statementOfSourceOfFundImage.fileNameList[i].contains(
+          "http",
+        )) {
+          continue;
+        }
+        if (i >= applicantData.statementOfSourceOfFundImage.fileBytesList.length) {
+          continue;
+        }
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].StatementOfSourceOfFundsURL",
+          "value": applicantData.statementOfSourceOfFundImage.fileBytesList[i],
+          "fileName":
+              applicantData.statementOfSourceOfFundImage.fileNameList[i],
+        });
+      }
+      for (
+        int i = 0;
+        i < applicantData.paymentProofImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.paymentProofImage.fileNameList[i].contains("http")) {
+          continue;
+        }
+        if (i >= applicantData.paymentProofImage.fileBytesList.length) continue;
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].PaymentProofURL",
+          "value": applicantData.paymentProofImage.fileBytesList[i],
+          "fileName": applicantData.paymentProofImage.fileNameList[i],
         });
       }
     }
@@ -804,6 +959,20 @@ class BookingCubit extends Cubit<BookingState> {
         "AddUpdateBookingApplicant[$i].GstNumber": e.gstNumber,
         "AddUpdateBookingApplicant[$i].RemoveGSTNumberURL":
             e.gstImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].RemoveCancelledChequeURL":
+            e.cancelledChequeImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].RemovePOAURL":
+            e.poaImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].RemoveIncomeForm16ITRURL":
+            e.incomeForm16ItrImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].RemoveNreNroBankDetailsURL":
+            e.nreNroBankDetailsImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].RemoveNomineeFormURL":
+            e.nomineeFormImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].RemoveStatementOfSourceOfFundsURL":
+            e.statementOfSourceOfFundImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].RemovePaymentProofURL":
+            e.paymentProofImage.deletedFileList,
       });
     }
 
@@ -817,6 +986,7 @@ class BookingCubit extends Cubit<BookingState> {
         if (applicantData.profilePhotoImage.fileNameList[i].contains("http"))
           // ignore: curly_braces_in_flow_control_structures
           continue;
+        if (i >= applicantData.profilePhotoImage.fileBytesList.length) continue;
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].PhotoURL",
           "value": applicantData.profilePhotoImage.fileBytesList[i],
@@ -827,6 +997,7 @@ class BookingCubit extends Cubit<BookingState> {
         if (applicantData.aadhaarImage.fileNameList[i].contains("http"))
           // ignore: curly_braces_in_flow_control_structures
           continue;
+        if (i >= applicantData.aadhaarImage.fileBytesList.length) continue;
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].AadharCardURL",
           "value": applicantData.aadhaarImage.fileBytesList[i],
@@ -835,20 +1006,18 @@ class BookingCubit extends Cubit<BookingState> {
       }
       for (int i = 0; i < applicantData.panImage.fileNameList.length; i++) {
         if (applicantData.panImage.fileNameList[i].contains("http")) continue;
+        if (i >= applicantData.panImage.fileBytesList.length) continue;
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].PanCardURL",
           "value": applicantData.panImage.fileBytesList[i],
           "fileName": applicantData.panImage.fileNameList[i],
         });
       }
-      for (
-        int i = 0;
-        i < applicantData.passportImage.fileNameList.length;
-        i++
-      ) {
+      for (int i = 0; i < applicantData.passportImage.fileNameList.length; i++) {
         if (applicantData.passportImage.fileNameList[i].contains("http"))
           // ignore: curly_braces_in_flow_control_structures
           continue;
+        if (i >= applicantData.passportImage.fileBytesList.length) continue;
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].PassportURL",
           "value": applicantData.passportImage.fileBytesList[i],
@@ -863,6 +1032,7 @@ class BookingCubit extends Cubit<BookingState> {
         if (applicantData.drivingLicenseImage.fileNameList[i].contains("http"))
           // ignore: curly_braces_in_flow_control_structures
           continue;
+        if (i >= applicantData.drivingLicenseImage.fileBytesList.length) continue;
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].DrivingLicenseURL",
           "value": applicantData.drivingLicenseImage.fileBytesList[i],
@@ -877,6 +1047,7 @@ class BookingCubit extends Cubit<BookingState> {
         if (applicantData.votingIdImage.fileNameList[i].contains("http"))
           // ignore: curly_braces_in_flow_control_structures
           continue;
+        if (i >= applicantData.votingIdImage.fileBytesList.length) continue;
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].VotingIdURL",
           "value": applicantData.votingIdImage.fileBytesList[i],
@@ -885,10 +1056,113 @@ class BookingCubit extends Cubit<BookingState> {
       }
       for (int i = 0; i < applicantData.gstImage.fileNameList.length; i++) {
         if (applicantData.gstImage.fileNameList[i].contains("http")) continue;
+        if (i >= applicantData.gstImage.fileBytesList.length) continue;
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].GstNumberURL",
           "value": applicantData.gstImage.fileBytesList[i],
           "fileName": applicantData.gstImage.fileNameList[i],
+        });
+      }
+      for (
+        int i = 0;
+        i < applicantData.cancelledChequeImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.cancelledChequeImage.fileNameList[i].contains("http"))
+          continue;
+        if (i >= applicantData.cancelledChequeImage.fileBytesList.length)
+          continue;
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].CancelledChequeURL",
+          "value": applicantData.cancelledChequeImage.fileBytesList[i],
+          "fileName": applicantData.cancelledChequeImage.fileNameList[i],
+        });
+      }
+      for (int i = 0; i < applicantData.poaImage.fileNameList.length; i++) {
+        if (applicantData.poaImage.fileNameList[i].contains("http")) continue;
+        if (i >= applicantData.poaImage.fileBytesList.length) continue;
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].POAURL",
+          "value": applicantData.poaImage.fileBytesList[i],
+          "fileName": applicantData.poaImage.fileNameList[i],
+        });
+      }
+      for (
+        int i = 0;
+        i < applicantData.incomeForm16ItrImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.incomeForm16ItrImage.fileNameList[i].contains("http"))
+          continue;
+        if (i >= applicantData.incomeForm16ItrImage.fileBytesList.length)
+          continue;
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].IncomeForm16ITRURL",
+          "value": applicantData.incomeForm16ItrImage.fileBytesList[i],
+          "fileName": applicantData.incomeForm16ItrImage.fileNameList[i],
+        });
+      }
+      for (
+        int i = 0;
+        i < applicantData.nreNroBankDetailsImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.nreNroBankDetailsImage.fileNameList[i].contains(
+          "http",
+        ))
+          continue;
+        if (i >= applicantData.nreNroBankDetailsImage.fileBytesList.length)
+          continue;
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].NreNroBankDetailsURL",
+          "value": applicantData.nreNroBankDetailsImage.fileBytesList[i],
+          "fileName": applicantData.nreNroBankDetailsImage.fileNameList[i],
+        });
+      }
+      for (
+        int i = 0;
+        i < applicantData.nomineeFormImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.nomineeFormImage.fileNameList[i].contains("http"))
+          continue;
+        if (i >= applicantData.nomineeFormImage.fileBytesList.length) continue;
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].NomineeFormURL",
+          "value": applicantData.nomineeFormImage.fileBytesList[i],
+          "fileName": applicantData.nomineeFormImage.fileNameList[i],
+        });
+      }
+      for (
+        int i = 0;
+        i < applicantData.statementOfSourceOfFundImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.statementOfSourceOfFundImage.fileNameList[i].contains(
+          "http",
+        ))
+          continue;
+        if (i >= applicantData.statementOfSourceOfFundImage.fileBytesList.length)
+          continue;
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].StatementOfSourceOfFundsURL",
+          "value": applicantData.statementOfSourceOfFundImage.fileBytesList[i],
+          "fileName":
+              applicantData.statementOfSourceOfFundImage.fileNameList[i],
+        });
+      }
+      for (
+        int i = 0;
+        i < applicantData.paymentProofImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.paymentProofImage.fileNameList[i].contains("http"))
+          continue;
+        if (i >= applicantData.paymentProofImage.fileBytesList.length) continue;
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].PaymentProofURL",
+          "value": applicantData.paymentProofImage.fileBytesList[i],
+          "fileName": applicantData.paymentProofImage.fileNameList[i],
         });
       }
     }
@@ -1162,8 +1436,9 @@ class BookingCubit extends Cubit<BookingState> {
 
   Future generateBookingPDF(
     BuildContext context,
-    BookingModel bookingModel,{required bool isSendEmail}
-  ) async {
+    BookingModel bookingModel, {
+    required bool isSendEmail,
+  }) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _bookingRepository.exportBooking(
       pageNumber: 1,
@@ -1171,7 +1446,8 @@ class BookingCubit extends Cubit<BookingState> {
       projectId: bookingModel.projectId,
       queryParams: {
         "BookingId": bookingModel.bookingId,
-        "ExportType": isSendEmail?"BOOKING+FORM+PDF+MAIL":"BOOKING+FORM+PDF",
+        "ExportType":
+            isSendEmail ? "BOOKING+FORM+PDF+MAIL" : "BOOKING+FORM+PDF",
       },
     );
     goRouter.pop();
@@ -1180,7 +1456,11 @@ class BookingCubit extends Cubit<BookingState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        showSuccessMessage(context,subTitle: "Successfully Exported as PDF");
+        if(isSendEmail){
+          showSuccessMessage(context, subTitle: "E-Mail sent successfully");
+        }else{
+          showSuccessMessage(context, subTitle: "Successfully Exported as PDF");
+        }
         exportExcelOrPdfMobile(
           response["data"],
           "Booking Form - ${bookingModel.projectName} - ${bookingModel.applicantName} - ${bookingModel.flat} ${DateTime.now()}.pdf",

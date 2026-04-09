@@ -598,50 +598,27 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // FETCHING PARKING METHODS
   Future<Map<String, dynamic>> _fetchParking(
-    int pageNumber, {
-    String? value,
-  }) async {
-    if (value != null && value.isNotEmpty) {
-      await _bookingCubit.getParkingList(
-        context,
-        pageNumber,
-        _project.projectId,
-        searchQuery: value,
-        displayParkingId: _isEditMode ? widget.bookingModel!.parkingId : null,
-      );
+      int pageNumber, {
+        String? value,
+      }) async {
 
-      final parkingList = _bookingCubit.state.parkingList;
-      final totalCount = _bookingCubit.state.totalNumberOfRecordParking;
+    final isSearch = value != null && value.isNotEmpty;
 
-      final Map<int, Map<String, dynamic>> uniqueFiltered = {};
-      for (final p in parkingList) {
-        uniqueFiltered[p.parkingId] = {
-          "zAttributesId": p.parkingId,
-          "DisplayName": p.parkingNumber,
-        };
-      }
-
-      return {
-        "itemList": uniqueFiltered.values.toList(),
-        "totalNumberOfRecord":
-            totalCount > 0 ? totalCount : uniqueFiltered.length,
-      };
+    if (pageNumber == 1) {
+      _bookingCubit.clearParkingList();
     }
 
-    final parkingList = _bookingCubit.state.parkingList;
-    final totalCount = _bookingCubit.state.totalNumberOfRecordParking;
-    final currentLoadedCount = parkingList.length;
-
-    if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
-      await _bookingCubit.getParkingList(
-        context,
-        pageNumber,
-        _project.projectId,
-        displayParkingId: _isEditMode ? widget.bookingModel!.parkingId : null,
-      );
-    }
+    await _bookingCubit.getParkingList(
+      context,
+      pageNumber,
+      _project.projectId,
+      searchQuery: isSearch ? value : null,
+      displayParkingId:
+      _isEditMode ? widget.bookingModel!.parkingId : null,
+    );
 
     final updatedList = _bookingCubit.state.parkingList;
+    final totalCount = _bookingCubit.state.totalNumberOfRecordParking;
 
     final Map<int, Map<String, dynamic>> uniqueParking = {};
     for (final p in updatedList) {
@@ -653,56 +630,32 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
     return {
       "itemList": uniqueParking.values.toList(),
-      "totalNumberOfRecord": totalCount > 0 ? totalCount : uniqueParking.length,
+      "totalNumberOfRecord":
+      totalCount > 0 ? totalCount : uniqueParking.length,
     };
   }
 
   // FETCHING TERMS AND CONDITIONS METHODS
   Future<Map<String, dynamic>> _fetchTerms(
-    int pageNumber, {
-    String? value,
-  }) async {
-    // SEARCH MODE
-    if (value != null && value.isNotEmpty) {
-      await _bookingCubit.getTermsAndConditionsList(
-        context,
-        pageNumber,
-        moduleName: "BOOKING",
-        searchQuery: value,
-      );
+      int pageNumber, {
+        String? value,
+      }) async {
 
-      final termsList = _bookingCubit.state.termsList;
-      final totalCount = _bookingCubit.state.totalNumberOfRecordTerms;
+    final isSearch = value != null && value.isNotEmpty;
 
-      final Map<int, Map<String, dynamic>> uniqueFiltered = {};
-      for (final t in termsList) {
-        uniqueFiltered[t.termsAndConditionsMasterId] = {
-          "zAttributesId": t.termsAndConditionsMasterId,
-          "DisplayName": t.title,
-          "Description": t.description,
-        };
-      }
-
-      return {
-        "itemList": uniqueFiltered.values.toList(),
-        "totalNumberOfRecord":
-            totalCount > 0 ? totalCount : uniqueFiltered.length,
-      };
+    if (pageNumber == 1) {
+      _bookingCubit.clearTermsList();
     }
 
-    final termsList = _bookingCubit.state.termsList;
-    final totalCount = _bookingCubit.state.totalNumberOfRecordTerms;
-    final currentLoadedCount = termsList.length;
-
-    if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
-      await _bookingCubit.getTermsAndConditionsList(
-        context,
-        pageNumber,
-        moduleName: "BOOKING",
-      );
-    }
+    await _bookingCubit.getTermsAndConditionsList(
+      context,
+      pageNumber,
+      moduleName: "BOOKING",
+      searchQuery: isSearch ? value : null,
+    );
 
     final updatedList = _bookingCubit.state.termsList;
+    final totalCount = _bookingCubit.state.totalNumberOfRecordTerms;
 
     final Map<int, Map<String, dynamic>> uniqueTerms = {};
     for (final t in updatedList) {
@@ -715,7 +668,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
     return {
       "itemList": uniqueTerms.values.toList(),
-      "totalNumberOfRecord": totalCount > 0 ? totalCount : uniqueTerms.length,
+      "totalNumberOfRecord":
+      totalCount > 0 ? totalCount : uniqueTerms.length,
     };
   }
 
@@ -794,52 +748,41 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // VALIDATE ALL TABS
   Future<bool> _validateAllTabs() async {
-    // VALIDATE DETAILS TAB
-    if (!(_detailsFormKey.currentState?.validate() ?? false)) {
-      _tabController.animateTo(0);
-      _bookingCubit.onTabChangedAddForm(0, context);
-      //CHECK APPLICANTS
 
-      if (_applicants.value.isEmpty) {
-        showErrorMessage(context, "", "At least one applicant is required");
-        return false;
-      }
+    // STEP 1: DETAILS TAB
+    if (!(_detailsFormKey.currentState?.validate() ?? false)) {
+      _bookingCubit.onTabChangedAddForm(0, context);
+      _tabController.animateTo(0);
+      return false;
     }
 
-    if (!(_remarkFormKey.currentState?.validate() ?? false)) {
-      _tabController.animateTo(5);
-      _bookingCubit.onTabChangedAddForm(5, context);
+    if (_applicants.value.isEmpty) {
+      _bookingCubit.onTabChangedAddForm(0, context);
+      _tabController.animateTo(0);
+      showErrorMessage(context, "", "At least one applicant is required");
       return false;
     }
 
     if (!_hasPrimaryApplicant(_applicants.value)) {
-      _tabController.animateTo(0);
       _bookingCubit.onTabChangedAddForm(0, context);
-      showErrorMessage(
-        context,
-        "",
-        "In Applicant List - One Applicant is required",
-      );
+      _tabController.animateTo(0);
+      showErrorMessage(context, "", "One Applicant is required");
       return false;
     }
 
-    // VALIDATE PAYMENT SCHEDULE
+    // STEP 2: PAYMENT SCHEDULE
     if (_bookingCubit.state.bookingPaymentScheduleList.isEmpty) {
-      _tabController.animateTo(1);
       _bookingCubit.onTabChangedAddForm(1, context);
+      _tabController.animateTo(1);
       showErrorMessage(context, "", "Add Payment Schedule Details");
       return false;
     }
 
-    if (_bookingCubit.totalCumulativePercentage.toStringAsFixed(2) !=
-        "100.00") {
-      _tabController.animateTo(1);
-      _bookingCubit.onTabChangedAddForm(1, context);
-      showErrorMessage(
-        context,
-        "",
-        "Payment schedule total must be exactly 100%. Current total is ${_bookingCubit.totalCumulativePercentage.toStringAsFixed(2)}%",
-      );
+
+    // STEP 5: REMARK
+    if (!(_remarkFormKey.currentState?.validate() ?? false)) {
+      _bookingCubit.onTabChangedAddForm(5, context);
+      _tabController.animateTo(5);
       return false;
     }
 
@@ -1684,6 +1627,17 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       if (value == null || value.trim().isEmpty) {
                         return "Agreement Value (with TDS) is required";
                       }
+
+                      final parsed = double.tryParse(value.trim());
+
+                      if (parsed == null) {
+                        return "Invalid amount";
+                      }
+
+                      if (parsed <= 0) {
+                        return "Amount must be greater than 0";
+                      }
+
                       return null;
                     },
                   ),
@@ -1736,6 +1690,13 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                           if (value == null || value.trim().isEmpty) {
                             return "Agreement GST Percentage is required";
                           }
+
+                          final parsed = double.tryParse(value);
+
+                          if (parsed == null || parsed < 0) {
+                            return "Invalid percentage";
+                          }
+
                           return null;
                         },
                         onChangeFunction: (value) {
@@ -2285,6 +2246,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         return Center(
                           child: noDataWidget(
                             message: "No Payment Schedule Available",
+                            iconSize: 150
                           ),
                         );
                       }
@@ -2779,7 +2741,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
-                title: "Contact Number",
+                title: "Mobile Number",
                 value:
                     applicant.applicantMobileNumber.isEmpty
                         ? "-"
@@ -2963,6 +2925,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             ],
           ),
           Row(
+            spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
@@ -2980,7 +2943,129 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   isDisable: applicant.photoURL.isEmpty,
                 ),
               ),
-              const Expanded(child: SizedBox()),
+              buildColumnTitleValue(
+                title: "Cancelled Cheque",
+                value: applicant.cancelledChequeUrl.isEmpty ? "-" : applicant.cancelledChequeUrl,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.cancelledChequeUrl.isNotEmpty) {
+                      showFilePreviewDialog(
+                        context,
+                        applicant.cancelledChequeUrl.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.cancelledChequeUrl.isEmpty,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "POA (if NRI Execution)",
+                value: applicant.poaurl.isEmpty ? "-" : applicant.poaurl,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.poaurl.isNotEmpty) {
+                      showFilePreviewDialog(
+                        context,
+                        applicant.poaurl.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.poaurl.isEmpty,
+                ),
+              ),
+              buildColumnTitleValue(
+                title: "Income Docs (Form 16 / ITR)",
+                value: applicant.incomeForm16Itrurl.isEmpty ? "-" : applicant.incomeForm16Itrurl,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.incomeForm16Itrurl.isNotEmpty) {
+                      showFilePreviewDialog(
+                        context,
+                        applicant.incomeForm16Itrurl.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.incomeForm16Itrurl.isEmpty,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "NRE / NRO Bank Details",
+                value: applicant.nreNroBankDetailsUrl.isEmpty ? "-" : applicant.nreNroBankDetailsUrl,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.nreNroBankDetailsUrl.isNotEmpty) {
+                      showFilePreviewDialog(
+                        context,
+                        applicant.nreNroBankDetailsUrl.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.nreNroBankDetailsUrl.isEmpty,
+                ),
+              ),
+              buildColumnTitleValue(
+                title: "Nominee Form",
+                value: applicant.nomineeFormUrl.isEmpty ? "-" : applicant.nomineeFormUrl,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.nomineeFormUrl.isNotEmpty) {
+                      showFilePreviewDialog(
+                        context,
+                        applicant.nomineeFormUrl.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.nomineeFormUrl.isEmpty,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Statement of Source of Funds",
+                value: applicant.statementOfSourceOfFundsURL.isEmpty ? "-" : applicant.statementOfSourceOfFundsURL,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.statementOfSourceOfFundsURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        context,
+                        applicant.statementOfSourceOfFundsURL.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.statementOfSourceOfFundsURL.isEmpty,
+                ),
+              ),
+              buildColumnTitleValue(
+                title: "Payment Proof",
+                value: applicant.paymentProofURL.isEmpty ? "-" : applicant.paymentProofURL,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.paymentProofURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        context,
+                        applicant.paymentProofURL.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.paymentProofURL.isEmpty,
+                ),
+              ),
             ],
           ),
         ],

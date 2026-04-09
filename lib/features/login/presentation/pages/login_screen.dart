@@ -1,20 +1,14 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
-import 'package:k3h_erp_app/core/local_storage_manager.dart';
-import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
-import 'package:k3h_erp_app/core/repository/utils.repository.dart';
-import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
-import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -34,8 +28,6 @@ class _LoginScreenState extends State<LoginScreen> {
   late FocusNode _mobileFocus;
   late FocusNode _otpFocus;
 
-  final UtilsRepository _utilsRepository = serviceLocator<UtilsRepository>();
-  final LocalStorageManager _localStorageManager = LocalStorageManager();
   late UserModel userModel;
 
   @override
@@ -57,34 +49,6 @@ class _LoginScreenState extends State<LoginScreen> {
     _mobileFocus.dispose();
     _otpFocus.dispose();
     super.dispose();
-  }
-
-  Future<bool> getMenuForCurrentUser() async {
-    var result = await _utilsRepository.getMenu(
-      employeeId: UserModel.fromJson(
-        jsonDecode(
-          _localStorageManager.getString(StorageKey.currentUser) ?? '',
-        ),
-      ).employeeId,
-    );
-
-    return result.fold(
-          (failure) {
-        return false;
-      },
-          (data) async {
-        final menuList = data["menuData"] as List<ModuleModel>;
-
-        _localStorageManager.setString(
-          StorageKey.menu,
-          jsonEncode(menuList.map((e) => e.toJson()).toList()),
-        );
-
-        await updateRouteAuthorization(menuList);
-
-        return true;
-      },
-    );
   }
 
   @override

@@ -122,6 +122,18 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
     deletedFileList: "",
   );
 
+  MultiFilePickerModel statementOfSourceOfFundsFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+
+  MultiFilePickerModel paymentProofFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+
   @override
   void initState() {
     super.initState();
@@ -306,6 +318,8 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
             modifiedById: widget.applicant?.modifiedById ?? -1,
             modifiedBy: widget.applicant?.modifiedBy ?? '',
             modifiedDate: DateTime.now(),
+            statementOfSourceOfFundsURL: '',
+            paymentProofURL: '',
           )
           ..profilePhotoImage = profilePhotoFile
           ..aadhaarImage = aadhaarFile
@@ -314,7 +328,9 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
           ..drivingLicenseImage = drivingLicenseFile
           ..votingIdImage = votingIdFile
           ..gstImage = gstFile
-          ..chequeImage = chequeFile;
+          ..chequeImage = chequeFile
+          ..statementOfSourceOfFundsImage = statementOfSourceOfFundsFile
+          ..paymentProofImage = paymentProofFile;
 
     goRouter.pop({"applicant": applicant, "index": widget.index});
   }

@@ -62,7 +62,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
       widget.projectId,
       widget.bookingId,
     );
-    if (mounted) {
+    if (mounted && bookingModel!=null) {
       _bookingCubit.getEnquiryList(
         context,
         1,
@@ -91,7 +91,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
         builder: (context, state) {
           return (state.isLoading ?? true)
               ? Center(child: loader())
-              : Column(
+              : bookingModel!=null? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
@@ -187,6 +187,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       ],
                     ),
                   ),
+                  showSiteSelectedWidget(),
                   ChipStyleTabBar(
                     controller: _tabController,
                     tabs: [
@@ -215,7 +216,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     ),
                   ),
                 ],
-              );
+              ):Text("data");
         },
       ),
     );
@@ -407,7 +408,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
-                                  title: "Contact Number",
+                                  title: "Mobile Number",
                                   value:
                                       applicant.applicantMobileNumber.isEmpty
                                           ? "-"
@@ -872,11 +873,16 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   ],
                 ),
                 Row(
+                  spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
                       title: "RERA Carpet Area (SqFt)",
                       value: bookingModel!.reraCarpetAreaSqFt.toString(),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Parking Number",
+                      value: bookingModel!.parkingNumber,
                     ),
                   ],
                 ),
@@ -1024,7 +1030,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     ),
                     buildColumnTitleValue(
                       title: "Number Of Parking",
-                      value: bookingModel!.parkingNumber,
+                      value: bookingModel!.numberOfParking.toString(),
                     ),
                   ],
                 ),
@@ -1051,7 +1057,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     ),
                     buildColumnTitleValue(
                       title: "Agreement Value (₹) Without TDS",
-                      value: "₹ ${bookingModel!.agreementValueTDS}",
+                      value: "₹ ${(bookingModel!.agreementValue-bookingModel!.agreementValueTDS)}",
                     ),
                   ],
                 ),
@@ -1107,6 +1113,51 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     ),
                   ],
                 ),
+                if(bookingModel!.loyaltyAmount>0)
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Loyalty (%)",
+                      value: "${bookingModel!.loyaltyPercentage} %",
+                    ),
+                    buildColumnTitleValue(
+                      title: "Loyalty Amount (₹)",
+                      value: "₹ ${bookingModel!.loyaltyAmount}",
+                    ),
+                  ],
+                ),
+                if(bookingModel!.brokerageAmount>0)
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Brokerage (%)",
+                      value: "${bookingModel!.brokeragePercentage} %",
+                    ),
+                    buildColumnTitleValue(
+                      title: "Brokerage Amount (₹)",
+                      value: "₹ ${bookingModel!.brokerageAmount}",
+                    ),
+                  ],
+                ),
+                if(bookingModel!.employeeReferenceAmount>0)
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Employee Reference (%)",
+                        value: "${bookingModel!.employeeReferencePercentage} %",
+                      ),
+                      buildColumnTitleValue(
+                        title: "Employee Reference Amount (₹)",
+                        value: "₹ ${bookingModel!.employeeReferenceAmount}",
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -1129,7 +1180,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       value: bookingModel!.chequeRTGSNumber,
                     ),
                     buildColumnTitleValue(
-                      title: "NamCheque / RTGS Date",
+                      title: "Cheque / RTGS Date",
                       value:
                           bookingModel?.chequeRTGSDate != null
                               ? formatDateTimeAsDDMMMYYYY(
@@ -1163,7 +1214,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 Text("Other Charges", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
                 Expanded(
-                  child: ListView.builder(
+                  child:bookingModel!.bookingOtherChargesData.isNotEmpty?
+                  ListView.builder(
                     padding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
                     shrinkWrap: true,
                     itemCount: bookingModel!.bookingOtherChargesData.length,
@@ -1220,7 +1272,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                         ),
                       );
                     },
-                  ),
+                  ):Center(child: noDataWidget(message: "No Charges Available",iconSize: 180),),
                 ),
               ],
             ),
@@ -1441,6 +1493,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
                           ),
+                    ]else...[
+                      Center(child: noDataWidget(message: "No Terms & Conditions Available",iconSize: 180),)
                     ],
                   ],
                 );
@@ -1543,7 +1597,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   buildColumnTitleValue(
-                    title: "Contact Number",
+                    title: "Mobile Number",
                     value:
                         applicant.applicantMobileNumber.isEmpty
                             ? "-"
@@ -1774,7 +1828,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
   Widget _buildOtherChargesTab() {
     if (bookingModel!.bookingOtherChargesData.isEmpty) {
       return Center(
-          child: noDataWidget(message: "No Charges Available",));
+          child: noDataWidget(message: "No Charges Available",iconSize: 180));
     }
     return ListView.builder(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -1958,7 +2012,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Unit Remark", style: AppTextStyle.ts16SB()),
+                Text("Other Remark", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
                 Row(
                   spacing: 10,
@@ -2017,7 +2071,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   ],
                 ),
               )
-              : Center(child: noDataWidget()),
+              : Center(child: noDataWidget(message: "No Terms & Conditions Available")),
     );
   }
 
