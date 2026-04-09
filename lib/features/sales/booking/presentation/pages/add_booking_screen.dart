@@ -2741,7 +2741,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
-                title: "Contact Number",
+                title: "Mobile Number",
                 value:
                     applicant.applicantMobileNumber.isEmpty
                         ? "-"

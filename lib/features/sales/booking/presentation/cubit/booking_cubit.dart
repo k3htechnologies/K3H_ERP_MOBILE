@@ -1456,7 +1456,11 @@ class BookingCubit extends Cubit<BookingState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        showSuccessMessage(context, subTitle: "Successfully Exported as PDF");
+        if(isSendEmail){
+          showSuccessMessage(context, subTitle: "E-Mail sent successfully");
+        }else{
+          showSuccessMessage(context, subTitle: "Successfully Exported as PDF");
+        }
         exportExcelOrPdfMobile(
           response["data"],
           "Booking Form - ${bookingModel.projectName} - ${bookingModel.applicantName} - ${bookingModel.flat} ${DateTime.now()}.pdf",

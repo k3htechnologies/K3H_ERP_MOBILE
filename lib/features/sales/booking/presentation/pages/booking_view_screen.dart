@@ -187,6 +187,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       ],
                     ),
                   ),
+                  showSiteSelectedWidget(),
                   ChipStyleTabBar(
                     controller: _tabController,
                     tabs: [
@@ -407,7 +408,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
-                                  title: "Contact Number",
+                                  title: "Mobile Number",
                                   value:
                                       applicant.applicantMobileNumber.isEmpty
                                           ? "-"
@@ -1112,6 +1113,51 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     ),
                   ],
                 ),
+                if(bookingModel!.loyaltyAmount>0)
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Loyalty (%)",
+                      value: "${bookingModel!.loyaltyPercentage} %",
+                    ),
+                    buildColumnTitleValue(
+                      title: "Loyalty Amount (₹)",
+                      value: "₹ ${bookingModel!.loyaltyAmount}",
+                    ),
+                  ],
+                ),
+                if(bookingModel!.brokerageAmount>0)
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Brokerage (%)",
+                      value: "${bookingModel!.brokeragePercentage} %",
+                    ),
+                    buildColumnTitleValue(
+                      title: "Brokerage Amount (₹)",
+                      value: "₹ ${bookingModel!.brokerageAmount}",
+                    ),
+                  ],
+                ),
+                if(bookingModel!.employeeReferenceAmount>0)
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Employee Reference (%)",
+                        value: "${bookingModel!.employeeReferencePercentage} %",
+                      ),
+                      buildColumnTitleValue(
+                        title: "Employee Reference Amount (₹)",
+                        value: "₹ ${bookingModel!.employeeReferenceAmount}",
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -1134,7 +1180,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       value: bookingModel!.chequeRTGSNumber,
                     ),
                     buildColumnTitleValue(
-                      title: "NamCheque / RTGS Date",
+                      title: "Cheque / RTGS Date",
                       value:
                           bookingModel?.chequeRTGSDate != null
                               ? formatDateTimeAsDDMMMYYYY(
@@ -1168,7 +1214,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 Text("Other Charges", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
                 Expanded(
-                  child: ListView.builder(
+                  child:bookingModel!.bookingOtherChargesData.isNotEmpty?
+                  ListView.builder(
                     padding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
                     shrinkWrap: true,
                     itemCount: bookingModel!.bookingOtherChargesData.length,
@@ -1225,7 +1272,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                         ),
                       );
                     },
-                  ),
+                  ):Center(child: noDataWidget(message: "No Charges Available",iconSize: 180),),
                 ),
               ],
             ),
@@ -1446,6 +1493,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
                           ),
+                    ]else...[
+                      Center(child: noDataWidget(message: "No Terms & Conditions Available",iconSize: 180),)
                     ],
                   ],
                 );
@@ -1548,7 +1597,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   buildColumnTitleValue(
-                    title: "Contact Number",
+                    title: "Mobile Number",
                     value:
                         applicant.applicantMobileNumber.isEmpty
                             ? "-"
@@ -1779,7 +1828,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
   Widget _buildOtherChargesTab() {
     if (bookingModel!.bookingOtherChargesData.isEmpty) {
       return Center(
-          child: noDataWidget(message: "No Charges Available",));
+          child: noDataWidget(message: "No Charges Available",iconSize: 180));
     }
     return ListView.builder(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -1963,7 +2012,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Unit Remark", style: AppTextStyle.ts16SB()),
+                Text("Other Remark", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
                 Row(
                   spacing: 10,
@@ -2022,7 +2071,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   ],
                 ),
               )
-              : Center(child: noDataWidget()),
+              : Center(child: noDataWidget(message: "No Terms & Conditions Available")),
     );
   }
 
