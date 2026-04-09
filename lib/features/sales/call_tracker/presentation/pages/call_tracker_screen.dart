@@ -177,7 +177,6 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                 },
               ),
               CustomDatePicker(
-                isRequired: true,
                 title: "Reschedule Date",
                 initialDate: selectedRescheduleDate,
                 setValue: (value) {
