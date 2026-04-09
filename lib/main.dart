@@ -27,6 +27,7 @@ import 'package:flutter/scheduler.dart';
 // NAVIGATOR KEY
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
+String currentVersion = "";
 
 void main() async {
   // INITIAL SETUP
@@ -82,7 +83,7 @@ Future initialSetup() async {
   await notificationService
       .setupFlutterNotifications(); // The local notifications setup
   final info = await PackageInfo.fromPlatform();
-  final currentVersion = info.version;
+  currentVersion = info.version;
   if (Platform.isAndroid) {
     await FlutterBackgroundService().configure(
       androidConfiguration: AndroidConfiguration(

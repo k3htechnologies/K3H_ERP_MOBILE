@@ -45,7 +45,8 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String? importTableName;
   final int? projectId;
   final int? buildingId;
-  final Function(bool)? onImportResult;
+  final String? exportMonthYear;
+  final Function(String)? onImportResult;
 
   const CustomAppBar({
     super.key,
@@ -70,6 +71,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.importTableName,
     this.projectId,
     this.buildingId,
+    this.exportMonthYear,
     this.onImportResult,
   });
 
@@ -407,9 +409,10 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                         importButton(
                           context,
                           widget.importTableName!,
-                          widget.onImportResult ?? (success) {},
+                          widget.onImportResult ?? (value) {},
                           projectId: widget.projectId,
                           buildingId: widget.buildingId,
+                          monthYear: widget.exportMonthYear,
                         ),
                       ],
                     ],
@@ -426,15 +429,14 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
   Widget importButton(
     BuildContext context,
     String importTableName,
-    Function(bool) onImportCallback, {
+    Function(String) onImportCallback, {
     int? projectId,
     int? buildingId,
+    String? monthYear,
   }) {
     Future<bool> importFile() async {
       final Map<String, dynamic>? dialogResult =
-      await DialogHelper.showDeleteAllConfirmationDialog(
-        context: context,
-      );
+          await DialogHelper.showDeleteAllConfirmationDialog(context: context);
 
       if (dialogResult == null || !context.mounted) {
         return false;
@@ -451,6 +453,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
           "IsAllDelete": deleteAll ? "1" : "0",
           "ProjectId": projectId?.toString() ?? "0",
           "BuildingId": buildingId?.toString() ?? "0",
+          "MonthYear": monthYear ?? "",
         },
         [
           {"key": "ExcelFile", "value": fileBytes, "fileName": fileName},
@@ -462,15 +465,27 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
 
     return CustomIconButton(
       onPressed: () async {
+        if (projectId == 0) {
+          showErrorMessage(context, "", "Please select a project");
+          return;
+        }
+        if ((monthYear ?? "").isEmpty) {
+          showErrorMessage(context, "", "Please select a month");
+          return;
+        }
+
         final result = await DialogHelper.showUploadExcelDialog(context);
         if (result != null) {
           if (result == true) {
             var resultValue = await importFile();
-            onImportCallback(resultValue);
+
+            if (context.mounted) {
+              onImportCallback(resultValue ? "success" : "failed");
+            }
           } else if (result == false) {
             if (context.mounted) {
               if (importTableName == "SALES TARGET CLOSING") {
-                widget.onImportResult!(true);
+                widget.onImportResult!("download");
               } else {
                 sampleExcelImport(context, importTableName);
               }

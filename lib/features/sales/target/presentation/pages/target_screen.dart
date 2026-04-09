@@ -182,7 +182,7 @@ class _TargetScreenState extends State<TargetScreen>
     final formatted = _getFormattedMonth();
 
     _targetCubit.setMonthFilter(formatted);
-
+    
     if (_tabController.index == 0) {
       _targetCubit.getSalesTargetSourcingList(
         context: context,
@@ -297,6 +297,7 @@ class _TargetScreenState extends State<TargetScreen>
         authorization: _routeAuthorizationModel,
         textController: _searchC,
         searchHintText: "Search by Employee Name",
+        projectId: _project.projectId,
         onSearchSubmit: (value) {
           _targetCubit.searchSalesTarget(
             context,
@@ -327,24 +328,33 @@ class _TargetScreenState extends State<TargetScreen>
               pageNumber: 1,
             );
           }
+          setState(() {});
         },
         importTableName: "SALES TARGET CLOSING",
-        onImportResult: (result) {
-          if (result == false) return;
-          final formatedMonth = _getFormattedMonth();
-
-          if (formatedMonth == null) {
-            showErrorMessage(context, "", "Please select a month");
-            return;
-          }
-          if (_project.projectId == 0) {
-            showErrorMessage(context, "", "Please select a project");
-            return;
-          }
-          if (_tabController.index == 0) {
-            salesTargetSampleExcelImportSourcing(context);
-          } else {
-            salesTargetSampleExcelImportClosing(context);
+        exportMonthYear: _getFormattedMonth(),
+        onImportResult: (action) {
+          if (action == "success") {
+            if (_tabController.index == 0) {
+              _targetCubit.getSalesTargetSourcingList(
+                context: context,
+                projectId: getProject().projectId,
+                pageNumber: 1,
+              );
+              _tabController.animateTo(0);
+            } else {
+              _targetCubit.getSalesTargetClosingList(
+                context: context,
+                projectId: getProject().projectId,
+                pageNumber: 1,
+              );
+              _tabController.animateTo(1);
+            }
+          } else if (action == "download") {
+            if (_tabController.index == 0) {
+              salesTargetSampleExcelImportSourcing(context);
+            } else {
+              salesTargetSampleExcelImportClosing(context);
+            }
           }
         },
       ),
@@ -369,6 +379,7 @@ class _TargetScreenState extends State<TargetScreen>
                   isRequired: true,
                   setValue: (val) {
                     _monthNotifier.value = val;
+                    setState(() {});
                     _callMonthFilterAPI();
                   },
                 );
