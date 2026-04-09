@@ -58,11 +58,10 @@ class _AddClassificationParameterScreenState
 
   List<Map<String, dynamic>> _selectedLocations = [];
 
-  Map<String, dynamic>? _selectedPossessionType;
-  Map<String, dynamic>? _selectedTimeline;
+  final ValueNotifier<Map<String, dynamic>?> _selectedPossessionNotifier = ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedTimelineNotifier = ValueNotifier(null);
   // STATIC LISTS
   final List<Map<String, dynamic>> possessionType = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Possession Type'},
     {'zAttributesId': 1, 'DisplayName': 'RTMI'},
     {'zAttributesId': 2, 'DisplayName': 'Under 1 Year'},
     {'zAttributesId': 3, 'DisplayName': '1 Years To 2 Years'},
@@ -70,31 +69,31 @@ class _AddClassificationParameterScreenState
     {'zAttributesId': 5, 'DisplayName': '3 Years & Above'},
   ];
   final List<Map<String, dynamic>> residentialType = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Unit Type'},
     {'zAttributesId': 1, 'DisplayName': '1 RK'},
     {'zAttributesId': 2, 'DisplayName': '1 BHK'},
     {'zAttributesId': 3, 'DisplayName': '2 BHK'},
     {'zAttributesId': 4, 'DisplayName': '3 BHK'},
     {'zAttributesId': 5, 'DisplayName': '4 BHK'},
-    {'zAttributesId': 6, 'DisplayName': '1 + 1 JODI'},
-    {'zAttributesId': 7, 'DisplayName': '2 + 1 JODI'},
-    {'zAttributesId': 8, 'DisplayName': '2 + 2 JODI'},
-    {'zAttributesId': 9, 'DisplayName': '2 + 3 JODI'},
-    {'zAttributesId': 10, 'DisplayName': 'PENTHOUSE'},
+    {'zAttributesId': 6, 'DisplayName': '5 BHK'},
+    {'zAttributesId': 7, 'DisplayName': '6 BHK'},
+    {'zAttributesId': 8, 'DisplayName': '7 BHK'},
+    {'zAttributesId': 9, 'DisplayName': '8 BHK'},
+    {'zAttributesId': 10, 'DisplayName': '1 + 1 JODI'},
+    {'zAttributesId': 11, 'DisplayName': '2 + 1 JODI'},
+    {'zAttributesId': 12, 'DisplayName': '2 + 2 JODI'},
+    {'zAttributesId': 13, 'DisplayName': '2 + 3 JODI'},
+    {'zAttributesId': 14, 'DisplayName': 'PENTHOUSE'},
   ];
   final List<Map<String, dynamic>> requirementType = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Requirement'},
     {'zAttributesId': 1, 'DisplayName': 'Commercial'},
     {'zAttributesId': 2, 'DisplayName': 'Commercial Leasing'},
     {'zAttributesId': 3, 'DisplayName': 'Residential'},
   ];
   final List<Map<String, dynamic>> commercialUnitTypeList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Type'},
     {'zAttributesId': 1, 'DisplayName': 'OFFICE'},
     {'zAttributesId': 2, 'DisplayName': 'SHOP'},
   ];
   final List<Map<String, dynamic>> timelineTypeList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Timeline'},
     {'zAttributesId': 1, 'DisplayName': 'Within 1 Month'},
     {'zAttributesId': 2, 'DisplayName': 'Beyond 1 Month'},
   ];
@@ -130,6 +129,8 @@ class _AddClassificationParameterScreenState
     _selectedResidentialTypeNotifier.dispose();
     _selectedCommercialTypeNotifier.dispose();
     _selectedCommercialLeasingNotifier.dispose();
+    _selectedPossessionNotifier.dispose();
+    _selectedTimelineNotifier.dispose();
 
     super.dispose();
   }
@@ -160,8 +161,8 @@ class _AddClassificationParameterScreenState
     );
 
     // DROPDOWNS - PLAIN VARIABLES
-    _selectedPossessionType = findItem(possessionType, model.possessionType);
-    _selectedTimeline = findItem(timelineTypeList, model.timeLine);
+    _selectedPossessionNotifier.value = findItem(possessionType, model.possessionType);
+    _selectedTimelineNotifier.value = findItem(timelineTypeList, model.timeLine);
 
     // DEPENDENT REQUIREMENT TYPE DROPDOWNS
     final reqDisplay = model.requirement;
@@ -229,8 +230,14 @@ class _AddClassificationParameterScreenState
 
   String getDisplayOrEmpty(Map<String, dynamic>? item) {
     if (item == null) return "";
-    if (item["zAttributesId"] == -1) return "";
     return item["DisplayName"] ?? "";
+  }
+
+  ValueNotifier<Map<String, dynamic>?> _getDependentNotifier(String? req) {
+    if (req == "Residential") return _selectedResidentialTypeNotifier;
+    if (req == "Commercial") return _selectedCommercialTypeNotifier;
+    if (req == "Commercial Leasing") return _selectedCommercialLeasingNotifier;
+    return ValueNotifier(null); // fallback (won’t be used)
   }
 
   void _classificationParameterData() async {
@@ -250,7 +257,7 @@ class _AddClassificationParameterScreenState
       } else {
         requirementTypeValue = "";
       }
-      final timeline = getDisplayOrEmpty(_selectedTimeline);
+      final timeline = getDisplayOrEmpty(_selectedTimelineNotifier.value);
       final payload = {
         "ClassificationParameterId":
             _isEditMode
@@ -260,7 +267,7 @@ class _AddClassificationParameterScreenState
           "Uniquekey": widget.classificationParamterModel!.uniquekey,
         "ProjectId": projectId.projectId,
         "MinBudget": _budgetC.text.trim(),
-        "PossessionType": getDisplayOrEmpty(_selectedPossessionType),
+        "PossessionType": getDisplayOrEmpty(_selectedPossessionNotifier.value),
         "Requirement": getDisplayOrEmpty(_selectedRequirementNotifier.value),
         "RequirementType": requirementTypeValue,
         "VillageMasterId": selectedVillages,
@@ -354,18 +361,24 @@ class _AddClassificationParameterScreenState
                       ),
                     ),
                     verticalSpacing(height: 20),
-                    CustomDropDownWidget(
-                      isRequired: true,
-                      title: "Possession Type",
-                      initialValue:
-                          _selectedPossessionType ?? possessionType.first,
-                      dataList: possessionType,
-                      onSelected: (v) => _selectedPossessionType = v,
-                      validator: (value) {
-                        if (value == null || value["zAttributesId"] == -1) {
-                          return 'Possession Type is required';
-                        }
-                        return null;
+                    ValueListenableBuilder<Map<String, dynamic>?>(
+                      valueListenable: _selectedPossessionNotifier,
+                      builder: (context, value, _) {
+                        return CustomDropDownWidget(
+                          isRequired: true,
+                          title: "Possession Type",
+                          hintText: "Select Possession Type",
+                          initialValue: value,
+                          dataList: possessionType,
+                          onSelected: (v) => _selectedPossessionNotifier.value = v,
+                          onValueClear: () => _selectedPossessionNotifier.value = null,
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Possession Type is required';
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
                     ValueListenableBuilder<Map<String, dynamic>?>(
@@ -388,73 +401,64 @@ class _AddClassificationParameterScreenState
                             CustomDropDownWidget(
                               isRequired: true,
                               title: "Requirement",
+                              hintText: "Select Requirement",
                               initialValue:
-                                  selectedRequirement ?? requirementType.first,
+                                  selectedRequirement,
                               dataList: requirementType,
                               onSelected: (v) {
                                 _selectedRequirementNotifier.value = v;
-                                if (v["DisplayName"] == "Residential") {
-                                  _selectedResidentialTypeNotifier.value =
-                                      residentialType.first;
-                                } else if (v["DisplayName"] == "Commercial") {
-                                  _selectedCommercialTypeNotifier.value =
-                                      commercialUnitTypeList.first;
-                                } else if (v["DisplayName"] ==
-                                    "Commercial Leasing") {
-                                  _selectedCommercialLeasingNotifier.value =
-                                      commercialUnitTypeList.first;
-                                }
+
+                                _selectedResidentialTypeNotifier.value = null;
+                                _selectedCommercialTypeNotifier.value = null;
+                                _selectedCommercialLeasingNotifier.value = null;
                               },
                               validator: (value) {
-                                if (value == null ||
-                                    value["zAttributesId"] == -1) {
+                                if (value == null ) {
                                   return 'Requirement is required';
                                 }
                                 return null;
                               },
+                              onValueClear: () {
+                                _selectedRequirementNotifier.value = null;
+
+                                _selectedResidentialTypeNotifier.value = null;
+                                _selectedCommercialTypeNotifier.value = null;
+                                _selectedCommercialLeasingNotifier.value = null;
+                              },
                             ),
                             const SizedBox(height: 8),
                             if (dependentList.isNotEmpty)
-                              CustomDropDownWidget(
-                                isRequired: true,
-                                title:
-                                    "${selectedRequirement?["DisplayName"]} Type",
-                                initialValue: () {
-                                  if (selectedRequirement?["DisplayName"] ==
-                                      "Residential") {
-                                    return _selectedResidentialTypeNotifier
-                                        .value;
-                                  } else if (selectedRequirement?["DisplayName"] ==
-                                      "Commercial") {
-                                    return _selectedCommercialTypeNotifier
-                                        .value;
-                                  } else if (selectedRequirement?["DisplayName"] ==
-                                      "Commercial Leasing") {
-                                    return _selectedCommercialLeasingNotifier
-                                        .value;
-                                  }
-                                  return dependentList.first;
-                                }(),
-                                dataList: dependentList,
-                                onSelected: (v) {
-                                  if (selectedRequirement?["DisplayName"] ==
-                                      "Residential") {
-                                    _selectedResidentialTypeNotifier.value = v;
-                                  } else if (selectedRequirement?["DisplayName"] ==
-                                      "Commercial") {
-                                    _selectedCommercialTypeNotifier.value = v;
-                                  } else if (selectedRequirement?["DisplayName"] ==
-                                      "Commercial Leasing") {
-                                    _selectedCommercialLeasingNotifier.value =
-                                        v;
-                                  }
-                                },
-                                validator: (value) {
-                                  if (value == null ||
-                                      value["zAttributesId"] == -1) {
-                                    return '${selectedRequirement?["DisplayName"]} is required';
-                                  }
-                                  return null;
+                              ValueListenableBuilder<Map<String, dynamic>?>(
+                                valueListenable: _getDependentNotifier(
+                                  selectedRequirement?["DisplayName"],
+                                ),
+                                builder: (context, selectedValue, _) {
+                                  return CustomDropDownWidget(
+                                    isRequired: true,
+                                    title: "${selectedRequirement?["DisplayName"]} Type",
+                                    hintText: "Select ${selectedRequirement?["DisplayName"]} Type",
+                                    initialValue: selectedValue,
+                                    dataList: dependentList,
+
+                                    onSelected: (v) {
+                                      _getDependentNotifier(
+                                        selectedRequirement?["DisplayName"],
+                                      ).value = v;
+                                    },
+
+                                    validator: (value) {
+                                      if (value == null) {
+                                        return '${selectedRequirement?["DisplayName"]} is required';
+                                      }
+                                      return null;
+                                    },
+
+                                    onValueClear: () {
+                                      _getDependentNotifier(
+                                        selectedRequirement?["DisplayName"],
+                                      ).value = null;
+                                    },
+                                  );
                                 },
                               ),
                           ],
@@ -463,6 +467,7 @@ class _AddClassificationParameterScreenState
                     ),
                     CustomMultipleSelectPopup(
                       title: 'Location',
+                      hintText: 'Select Location',
                       isRequired: true,
                       isMultiSelect: true,
                       initialValue: _selectedLocations,
@@ -477,17 +482,24 @@ class _AddClassificationParameterScreenState
                         return null;
                       },
                     ),
-                    CustomDropDownWidget(
-                      isRequired: true,
-                      title: "Timeline",
-                      initialValue: _selectedTimeline ?? timelineTypeList.first,
-                      dataList: timelineTypeList,
-                      onSelected: (v) => _selectedTimeline = v,
-                      validator: (value) {
-                        if (value == null || value["zAttributesId"] == -1) {
-                          return 'Timeline is required';
-                        }
-                        return null;
+                    ValueListenableBuilder<Map<String, dynamic>?>(
+                      valueListenable: _selectedTimelineNotifier,
+                      builder: (context, value, _) {
+                        return CustomDropDownWidget(
+                          isRequired: true,
+                          title: "Timeline",
+                          hintText: "Select Timeline",
+                          initialValue: value,
+                          dataList: timelineTypeList,
+                          onSelected: (v) => _selectedTimelineNotifier.value = v,
+                          onValueClear: () => _selectedTimelineNotifier.value = null,
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Timeline is required';
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
                   ],

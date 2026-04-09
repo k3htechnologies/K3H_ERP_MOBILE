@@ -71,7 +71,6 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
     {'zAttributesId': 1, 'DisplayName': 'Available'},
     {'zAttributesId': 2, 'DisplayName': 'Hold'},
     {'zAttributesId': 3, 'DisplayName': 'Blocked'},
-    {'zAttributesId': 4, 'DisplayName': 'Member'},
   ];
 
   // DROPDOWN VARIABLES

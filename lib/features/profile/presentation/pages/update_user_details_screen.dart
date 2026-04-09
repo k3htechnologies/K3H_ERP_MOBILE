@@ -45,7 +45,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
       _passportNumberC;
 
   // DATES
-  DateTime? dateOfBirth;
+  final ValueNotifier<DateTime?> _dobNotifier = ValueNotifier(null);
   // SELECTED VALUES
   Map<String, dynamic>? selectedGender;
   Map<String, dynamic>? selectedMaritalStatus;
@@ -125,6 +125,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
     _drivingLicenceNumberC.dispose();
     _voterIdNumberC.dispose();
     _passportNumberC.dispose();
+    _dobNotifier.dispose();
     super.dispose();
   }
 
@@ -162,7 +163,8 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
     );
 
     // DATES
-    dateOfBirth = model.dateOfBirth;
+    _dobNotifier.value = model.dateOfBirth;
+
     _aadharNumberC.text = model.aadharCardNumber;
     _panNumberC.text = model.panCardNumber;
     _drivingLicenceNumberC.text = model.drivingLicenceNumber;
@@ -181,7 +183,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
         "LastName": _lastNameC.text.trim(),
         "Gender": selectedGender!["DisplayName"],
         "MaritalStatus": selectedMaritalStatus!["DisplayName"],
-        "DateOfBirth": dateOfBirth!.toIso8601String(),
+        "DateOfBirth": _dobNotifier.value!.toIso8601String(),
         "EmailId": _personalEmailC.text.trim(),
         "PersonalMobileNumber": _personalMobileNumberC.text.trim(),
         "CommunicationAddress": _communicationAddressC.text.trim(),
@@ -295,20 +297,23 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                     return null;
                   },
                 ),
-                CustomDatePicker(
-                  title: 'DOB',
-                  isRequired: true,
-                  initialDate: dateOfBirth,
-                  validator: (value) {
-                    if (value == null) {
-                      return 'DOB is required';
-                    }
-                    if (!InputValidator.isValidAge(value)) {
-                      return 'Age should be greater than or equal to 18.';
-                    }
-                    return null;
+                ValueListenableBuilder<DateTime?>(
+                  valueListenable: _dobNotifier,
+                  builder: (context, value, _) {
+                    return CustomDatePicker(
+                      title: 'DOB',
+                      isRequired: true,
+                      initialDate: value,
+                      validator: (value) {
+                        if (value == null) return 'DOB is required';
+                        if (!InputValidator.isValidAge(value)) {
+                          return 'Age should be greater than or equal to 18.';
+                        }
+                        return null;
+                      },
+                      setValue: (value) => _dobNotifier.value = value,
+                    );
                   },
-                  setValue: (value) => dateOfBirth = value,
                 ),
                 CustomTextField(
                   title: 'Email Id',

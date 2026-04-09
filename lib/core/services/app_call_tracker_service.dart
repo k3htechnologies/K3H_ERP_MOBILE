@@ -335,9 +335,11 @@ class AppCallTrackerService {
     final now = DateTime.now();
 
     final todayLogs = logs.where((log) {
-      final d = log.endedAt;
+      final d = log.startedAt;
       return d.year == now.year && d.month == now.month && d.day == now.day;
     }).toList();
+
+    print("hhh=>${todayLogs}");
 
     if (todayLogs.isEmpty) return true;
 

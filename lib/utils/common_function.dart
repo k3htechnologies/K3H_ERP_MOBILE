@@ -256,7 +256,6 @@ bool isValidMobileNumber(String value) {
 
 // DATE FORMATTERS
 String formatDateTimeAsDDMMMYYYY(DateTime d, {String? separator}) {
-  if (d.year == 1970) return "-";
   return DateFormat(
     'dd${separator ?? '-'}MMM${separator ?? '-'}yyyy',
   ).format(d);

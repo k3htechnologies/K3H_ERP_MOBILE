@@ -1,12 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/sales/target/data/model/sales_target_closing.model.dart';
-import 'package:k3h_erp_app/features/sales/target/data/model/sales_target_sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/target/data/repository/target.repository.dart';
 import 'package:k3h_erp_app/features/sales/target/presentation/cubit/target_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -117,14 +117,14 @@ class _TargetScreenState extends State<TargetScreen>
     ignoreSearch = true;
     _isHandlingTabChange = true;
     _lastHandledTabIndex = index;
-    _monthNotifier.value = null;
+    // _monthNotifier.value = null;
 
     _searchC.text = "";
     _startDateNotifier.value = null;
     _endDateNotifier.value = null;
 
     _targetCubit.onTabChanged(index, context);
-    _monthNotifier.value = null;
+    // _monthNotifier.value = null;
     _callMonthFilterAPI();
     Future.delayed(const Duration(milliseconds: 300), () {
       ignoreSearch = false;
@@ -414,11 +414,37 @@ class _TargetScreenState extends State<TargetScreen>
                               )
                               : const SizedBox.shrink();
                         }
-                        var termsAndCondition =
-                            state.salesTargetSourcing[index];
-                        return _buildSalesTargetSourcingCard(
-                          saleTargetSourcingModel: termsAndCondition,
-                          index: index,
+                        var sourcing = state.salesTargetSourcing[index];
+                        return GestureDetector(
+                          onTap: () {
+                            goRouter.pushNamed(
+                              AppRoutes.viewTarget,
+                              queryParameters: {
+                                "sourcing": Uri.encodeQueryComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(sourcing.toJson()),
+                                  ),
+                                ),
+                              },
+                            );
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            margin: EdgeInsets.only(bottom: 10),
+                            decoration: commonCardDecoration(),
+                            child: Text(
+                              sourcing.employeeName,
+                              style: AppTextStyle.ts14M(
+                                color: AppColor.primary,
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColor.primary,
+                              ),
+                            ),
+                          ),
                         );
                       },
                     );
@@ -455,168 +481,43 @@ class _TargetScreenState extends State<TargetScreen>
                               )
                               : const SizedBox.shrink();
                         }
-                        var termsAndCondition = state.salesTargetClosing[index];
-                        return _buildSalesTargetClosingCard(
-                          saleTargetClosingModel: termsAndCondition,
-                          index: index,
+                        var closing = state.salesTargetClosing[index];
+                        return GestureDetector(
+                          onTap: (){
+                            goRouter.pushNamed(
+                              AppRoutes.viewTarget,
+                              queryParameters: {
+                                "closing": Uri.encodeQueryComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(closing.toJson()),
+                                  ),
+                                ),
+                              },
+                            );
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            margin: EdgeInsets.only(bottom: 10),
+                            decoration: commonCardDecoration(),
+                            child: Text(
+                              closing.employeeName,
+                              style: AppTextStyle.ts14M(
+                                color: AppColor.primary,
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColor.primary,
+                              ),
+                            ),
+                          ),
                         );
                       },
                     );
                   },
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // BUILD SALES TARGET SOURCING CARD
-  Widget _buildSalesTargetSourcingCard({
-    required int index,
-    SalesTargetSourcingModel? saleTargetSourcingModel,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16.0),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  saleTargetSourcingModel?.employeeName ?? '',
-                  style: AppTextStyle.ts14M(color: AppColor.primary),
-                ),
-              ),
-            ],
-          ),
-          _leaveRow(
-            title: "Bookings",
-            value: saleTargetSourcingModel?.bookings.toString() ?? "",
-          ),
-          _leaveRow(
-            title: "Total Meetings",
-            value: saleTargetSourcingModel?.totalMeetings.toString() ?? "",
-          ),
-          _leaveRow(
-            title: "Total OBM",
-            value: saleTargetSourcingModel?.totalObm.toString() ?? "",
-          ),
-          _leaveRow(
-            title: "Total OBM Frsh Visits",
-            value:
-                saleTargetSourcingModel?.totalObmFreshVisits.toString() ?? "",
-          ),
-          _leaveRow(
-            title: "Total IBM",
-            value: saleTargetSourcingModel?.totalIbm.toString() ?? "",
-          ),
-          _leaveRow(
-            title: "Unique CP",
-            value: saleTargetSourcingModel?.uniqueCPs.toString() ?? "",
-          ),
-          _leaveRow(
-            title: "Active CP",
-            value: saleTargetSourcingModel?.activeCp.toString() ?? "",
-          ),
-          _leaveRow(
-            title: "New CP",
-            value: saleTargetSourcingModel?.newCp.toString() ?? "",
-          ),
-        ],
-      ),
-    );
-  }
-
-  // BUILD SALES TARGET CLOSING CARD
-  Widget _buildSalesTargetClosingCard({
-    required int index,
-    SaleTargetClosingModel? saleTargetClosingModel,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16.0),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  saleTargetClosingModel?.employeeName ?? "",
-                  style: AppTextStyle.ts14M(color: AppColor.primary),
-                ),
-              ),
-            ],
-          ),
-          _leaveRow(
-            title: "Walkins CP",
-            value: saleTargetClosingModel?.walkinsByCp.toString() ?? "",
-          ),
-          _leaveRow(
-            title: "Walkins Direct",
-            value: saleTargetClosingModel?.walkinsDirect.toString() ?? "",
-          ),
-          _leaveRow(
-            title: "Fresh Visits",
-            value: saleTargetClosingModel?.freshVisits.toString() ?? "",
-          ),
-          _leaveRow(
-            title: "Revisits",
-            value: saleTargetClosingModel?.revisits.toString() ?? "",
-          ),
-          _leaveRow(
-            title: "Bookings CP",
-            value: saleTargetClosingModel?.bookingByCp.toString() ?? "",
-          ),
-          _leaveRow(
-            title: "Bookings Direct",
-            value: saleTargetClosingModel?.bookingDirect.toString() ?? "",
-          ),
-        ],
-      ),
-    );
-  }
-
-  // BUILD LEAVE ROW
-  Widget _leaveRow({required String title, required String value}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 3,
-            child: Text(
-              title,
-              style: AppTextStyle.ts14R(
-                color: AppColor.black.withValues(alpha: 0.50),
-              ),
-            ),
-          ),
-
-          SizedBox(
-            width: 24,
-            child: Center(
-              child: Text(
-                ":",
-                style: AppTextStyle.ts14R(
-                  color: AppColor.black.withValues(alpha: 0.50),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: Text(value, style: AppTextStyle.ts14M()),
             ),
           ),
         ],

@@ -133,7 +133,7 @@ class AppRoutes {
 
   // SALES TARGET
   static String salesTarget = "/target";
-  static String addSalesTarget = "/addSalesTarget";
+  static String viewTarget = "/viewTarget";
 
   // PAYMENT SCHEDULE SUMMARY
   static String paymentSchedule = "/paymentSchedule";

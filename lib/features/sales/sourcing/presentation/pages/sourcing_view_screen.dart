@@ -81,6 +81,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
     _tabController.dispose();
     _remarkC.dispose();
     _sourcingCubit.clearSourcingList();
+    _sourcingCubit.onFilterChanged("ALL");
   }
 
   // HANDLE TAB CHANGE

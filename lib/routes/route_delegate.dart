@@ -314,8 +314,11 @@ import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/sa
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/pages/sourcing_screen.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/pages/sourcing_view_screen.dart';
+import 'package:k3h_erp_app/features/sales/target/data/model/sales_target_closing.model.dart';
+import 'package:k3h_erp_app/features/sales/target/data/model/sales_target_sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/target/presentation/cubit/target_cubit.dart';
 import 'package:k3h_erp_app/features/sales/target/presentation/pages/target_screen.dart';
+import 'package:k3h_erp_app/features/sales/target/presentation/pages/target_view_screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
@@ -3957,6 +3960,43 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.salesTarget,
                   builder: (context, state) {
                     return const TargetScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewTarget,
+                  path: AppRoutes.viewTarget,
+                  builder: (context, state) {
+                    final queryParameterSourcing =
+                    state.uri.queryParameters['sourcing'];
+                    final queryParameterClosing =
+                    state.uri.queryParameters['closing'];
+                    final sourcingTarget =
+                    queryParameterSourcing != null &&
+                        queryParameterSourcing.isNotEmpty
+                        ? SalesTargetSourcingModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterSourcing),
+                        ),
+                      ),
+                    )
+                        : null;
+                    final closingTarget =
+                    queryParameterClosing != null &&
+                        queryParameterClosing.isNotEmpty
+                        ? SaleTargetClosingModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterClosing),
+                        ),
+                      ),
+                    )
+                        : null;
+
+                    return TargetViewScreen(
+                      sourcing: sourcingTarget,
+                      closing: closingTarget,
+                    );
                   },
                 ),
               ],

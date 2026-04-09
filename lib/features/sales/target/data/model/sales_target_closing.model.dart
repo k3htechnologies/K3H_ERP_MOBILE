@@ -5,6 +5,7 @@ class SaleTargetClosingModel {
   final int projectId;
   final int employeeId;
   final String employeeName;
+  final String designationName;
   final int salesTargetClosingId;
   final int walkinsByCp;
   final int walkinsDirect;
@@ -26,6 +27,7 @@ class SaleTargetClosingModel {
     required this.projectId,
     required this.employeeId,
     required this.employeeName,
+    required this.designationName,
     required this.salesTargetClosingId,
     required this.walkinsByCp,
     required this.walkinsDirect,
@@ -49,6 +51,7 @@ class SaleTargetClosingModel {
         projectId: parseValue<int>(json, "ProjectId"),
         employeeId: parseValue<int>(json, "EmployeeId"),
         employeeName: parseValue<String>(json, "EmployeeName"),
+        designationName: parseValue<String>(json, "DesignationName"),
         salesTargetClosingId: parseValue<int>(json, "SalesTargetClosingId"),
         walkinsByCp: parseValue<int>(json, "WalkinsByCP"),
         walkinsDirect: parseValue<int>(json, "WalkinsDirect"),
@@ -71,6 +74,7 @@ class SaleTargetClosingModel {
     "ProjectId": projectId,
     "EmployeeId": employeeId,
     "EmployeeName": employeeName,
+    "DesignationName": designationName,
     "SalesTargetClosingId": salesTargetClosingId,
     "WalkinsByCP": walkinsByCp,
     "WalkinsDirect": walkinsDirect,
