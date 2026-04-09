@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_experience_details.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/widgets/employee_document_dialog.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:k3h_erp_app/main.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -52,9 +53,6 @@ class _ProfileScreenState extends State<ProfileScreen>
       _setMPIN;
   late TextEditingController _companyNameC, _roleC, _tenureC;
 
-  // APP VERSION
-  late String version;
-
   final ValueNotifier<PlatformFile?> profilePhotoNotifier = ValueNotifier(null);
 
   // FORM KEY FOR BOTTOM SHEETS
@@ -67,7 +65,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     super.initState();
     _profileCubit = context.read<ProfileCubit>();
     _initializeTextEditingControllers();
-    version = LocalStorageManager().getString(StorageKey.appVersion) ?? "";
     _tabController = TabController(length: 9, vsync: this);
     _tabController.addListener(_handleTabChange);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -633,9 +630,10 @@ class _ProfileScreenState extends State<ProfileScreen>
             ? _profileCubit.state.employeeMasterList.first
             : null;
 
-    final imageUrl = user.profilePhotoURL.trim().isNotEmpty
-        ? user.profilePhotoURL
-        : (apiUser?.profilePhotoURL ?? "");
+    final imageUrl =
+        user.profilePhotoURL.trim().isNotEmpty
+            ? user.profilePhotoURL
+            : (apiUser?.profilePhotoURL ?? "");
 
     return GestureDetector(
       onTap: _showProfilePhotoOptions,
@@ -1191,7 +1189,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     "Version: ",
                     style: AppTextStyle.ts14M(color: AppColor.grey),
                   ),
-                  Text(version, style: AppTextStyle.ts12M()),
+                  Text(currentVersion, style: AppTextStyle.ts12M()),
                 ],
               ),
               verticalSpacing(height: 20),
