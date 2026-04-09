@@ -431,7 +431,8 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
     int? buildingId,
   }) {
     Future<bool> importFile() async {
-      final dialogResult = await DialogHelper.showDeleteAllConfirmationDialog(
+      final Map<String, dynamic>? dialogResult =
+      await DialogHelper.showDeleteAllConfirmationDialog(
         context: context,
       );
 

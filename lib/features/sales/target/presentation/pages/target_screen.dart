@@ -306,6 +306,7 @@ class _TargetScreenState extends State<TargetScreen>
           );
         },
         onProjectChangeCallback: (value) {
+          _project = value;
           _monthNotifier.value = null;
 
           _searchC.clear();
@@ -328,22 +329,22 @@ class _TargetScreenState extends State<TargetScreen>
           }
         },
         importTableName: "SALES TARGET CLOSING",
-        onImportResult: (_) {
+        onImportResult: (result) {
+          if (result == false) return;
           final formatedMonth = _getFormattedMonth();
 
           if (formatedMonth == null) {
             showErrorMessage(context, "", "Please select a month");
             return;
           }
-          if (_project.projectId != 0) {
-            if (_tabController.index == 0) {
-              salesTargetSampleExcelImportSourcing(context);
-            } else {
-              salesTargetSampleExcelImportClosing(context);
-            }
-          } else {
+          if (_project.projectId == 0) {
             showErrorMessage(context, "", "Please select a project");
             return;
+          }
+          if (_tabController.index == 0) {
+            salesTargetSampleExcelImportSourcing(context);
+          } else {
+            salesTargetSampleExcelImportClosing(context);
           }
         },
       ),

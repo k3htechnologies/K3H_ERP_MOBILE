@@ -604,6 +604,9 @@ class _ParkingScreenState extends State<ParkingScreen>
       case 'Hold':
         statusColor = AppColor.yellow;
         break;
+      case 'Alloted':
+        statusColor = AppColor.purple;
+        break;
       default:
         statusColor = AppColor.grey;
     }
@@ -751,7 +754,7 @@ class _ParkingScreenState extends State<ParkingScreen>
           _buildCountItem(
             "Blocked",
             _parkingCubit.state.blockedParking,
-            AppColor.primary,
+            AppColor.black,
           ),
         ],
       ),

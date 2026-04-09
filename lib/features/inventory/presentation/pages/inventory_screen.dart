@@ -948,10 +948,10 @@ class _InventoryScreenState extends State<InventoryScreen>
                         color:
                             flat.flatStatus.toLowerCase() == "booked"
                                 ? AppColor.error
-                                : flat.flatStatus.toLowerCase() == "member"
+                                : flat.flatStatus.toLowerCase() == "alloted"
                                 ? AppColor.purple
                                 : flat.flatStatus.toLowerCase() == "hold"
-                                ? AppColor.brown
+                                ? AppColor.yellow
                                 : flat.flatStatus.toLowerCase() == "available"
                                 ? AppColor.darkGreen
                                 : flat.flatStatus.toLowerCase() == "blocked"
