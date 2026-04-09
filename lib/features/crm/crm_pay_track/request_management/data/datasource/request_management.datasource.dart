@@ -64,7 +64,7 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
       Map<String, dynamic>? queryParams,
     }) {
       String finalUrl =
-          "FlatAlterationRequest/PullFlatAlterationRequest?PageSize=$pageSize"
+          "BookingModificationRequest/PullFlatAlterationRequest?PageSize=$pageSize"
           "&PageNumber=$pageNumber&ProjectId=$projectId&BookingId=$bookingId";
 
       queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
@@ -120,7 +120,7 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
       Map<String, dynamic>? queryParams,
     }) {
       String finalUrl =
-          "ParkingModificationRequest/PullParkingModificationRequest?PageSize=$pageSize"
+          "BookingModificationRequest/PullParkingModificationRequest?PageSize=$pageSize"
           "&PageNumber=$pageNumber&ProjectId=$projectId&BookingId=$bookingId";
 
       queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
@@ -176,7 +176,7 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
       Map<String, dynamic>? queryParams,
     }) {
       String finalUrl =
-          "BookingApplicantModificationRequest/PullBookingApplicantModificationRequest?PageSize=$pageSize"
+          "BookingModificationRequest/PullBookingApplicantModificationRequest?PageSize=$pageSize"
           "&PageNumber=$pageNumber&ProjectId=$projectId&BookingId=$bookingId";
 
       queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
@@ -220,7 +220,7 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
   Future<Map<String, dynamic>> apicallAddFlatAlterationRequest({
     required Map<String, dynamic> body,
   }) async {
-    const url = "FlatAlterationRequest/AddUpdateFlatAlterationRequest";
+    const url = "BookingModificationRequest/AddFlatAlterationRequest";
 
     try {
       var networkResponse = await baseClient.postRequestWithAuthentication(
@@ -249,8 +249,7 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
   Future<Map<String, dynamic>> apicallAddParkingModificationRequest({
     required Map<String, dynamic> body,
   }) async {
-    const url =
-        "ParkingModificationRequest/AddUpdateParkingModificationRequest";
+    const url = "BookingModificationRequest/AddParkingModificationRequest";
 
     try {
       var networkResponse = await baseClient.postRequestWithAuthentication(
@@ -284,7 +283,7 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
     required List<Map<String, dynamic>> fileList,
   }) async {
     const url =
-        "BookingApplicantModificationRequest/AddUpdateBookingApplicantModificationRequest";
+        "BookingModificationRequest/BookingApplicantModificationRequest";
 
     body.addAll({
       "BookingId": bookingId.toString(),

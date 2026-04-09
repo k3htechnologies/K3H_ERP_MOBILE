@@ -610,8 +610,8 @@ class DialogHelper {
                 Row(
                   children: [
                     if (icon != null) ...[icon, horizontalSpacing()],
-                    if (title != null) Text(title, style: AppTextStyle.ts14M()),
-                    Spacer(),
+                    if (title != null)
+                      Expanded(child: Text(title, style: AppTextStyle.ts14M())),
                     IconButton(
                       onPressed: () {
                         goRouter.pop();
