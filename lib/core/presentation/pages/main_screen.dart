@@ -137,6 +137,7 @@ class _MainScreenState extends State<MainScreen>
                         size: 18,
                         color: AppColor.white,
                       ),
+                      backgroundColor: AppColor.error,
                       text: "Logout",
                       onPressed: () async {
                         logOutUser(context);
@@ -156,7 +157,7 @@ class _MainScreenState extends State<MainScreen>
             StorageKey.currentUser,
           );
 
-          if(userString!=null) {
+          if (userString != null) {
             user = UserModel.fromJson(jsonDecode(userString));
           }
 

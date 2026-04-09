@@ -702,7 +702,9 @@ class _BookingScreenState extends State<BookingScreen> {
                             actionTitle:
                                 isActionAllowed ? "Actions" : "History",
                             popupTitle:
-                                "${booking.applicantName} ${booking.flat.isNotEmpty ? " > ${booking.flat}" : ""}",
+                                booking.bookingType.toLowerCase() == 'parking'
+                                    ? "${booking.applicantName} > ${booking.parkingData.first.parkingNumber}}"
+                                    : "${booking.applicantName} > ${booking.flat}",
 
                             isActionAlreadyPerformed: !isActionAllowed,
                             onApprove: (val) async {
