@@ -211,7 +211,7 @@ class _ChannelPartnerDashboardScreenState
             .reduce((a, b) => a > b ? a : b);
 
         return Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.0),
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
           decoration: commonCardDecoration(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,7 +313,12 @@ class _ChannelPartnerDashboardScreenState
               ),
               verticalSpacing(),
               ...table3!.map((item) {
-                final widthFactor = item.totalChannelPartner;
+                final max = maxValue ?? 1;
+
+                final progress =
+                    max == 0
+                        ? 0.0
+                        : (item.totalChannelPartner / max).clamp(0.0, 1.0);
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 14),
                   child: Row(
@@ -331,10 +336,13 @@ class _ChannelPartnerDashboardScreenState
                       Expanded(
                         child: LayoutBuilder(
                           builder: (context, constraints) {
+                            final calculatedWidth =
+                                constraints.maxWidth * progress;
+                            final minWidth = 30.0;
                             final barWidth =
-                                constraints.maxWidth *
-                                widthFactor.clamp(0.0, 1.0);
-
+                                calculatedWidth < minWidth
+                                    ? minWidth
+                                    : calculatedWidth;
                             return Stack(
                               children: [
                                 Container(
@@ -361,7 +369,7 @@ class _ChannelPartnerDashboardScreenState
                                     horizontal: 12,
                                   ),
                                   child: Text(
-                                    maxValue.toString(),
+                                    item.totalChannelPartner.toString(),
                                     style: AppTextStyle.ts16SB(
                                       color: AppColor.primary,
                                     ),

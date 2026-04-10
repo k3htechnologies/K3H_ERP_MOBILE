@@ -42,7 +42,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
           }
           return Scaffold(
             appBar: CustomAppBarWithBackButton(
-              screenTitle: "Setting",
+              screenTitle: "Setting Dashboard",
               isMenuButton: true,
               authorization: AuthorizationModel(),
               showNotification: true,
@@ -160,15 +160,6 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
             ),
           ],
         );
-        // return GridView.count(
-        //   shrinkWrap: true,
-        //   physics: NeverScrollableScrollPhysics(),
-        //   crossAxisCount: 2,
-        //   mainAxisSpacing: 10,
-        //   crossAxisSpacing: 10,
-        //   childAspectRatio: 1.10,
-
-        // );
       },
     );
   }
@@ -270,7 +261,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                     value: table1?.branches.toInt() ?? 0,
                   ),
                   _companyDepartmentChip(
-                    title: "Banks Listed",
+                    title: "Banks",
                     value: table1?.banksListed.toInt() ?? 0,
                   ),
                   _companyDepartmentChip(
