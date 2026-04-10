@@ -17,6 +17,10 @@ class SalesDashboardCubit extends Cubit<SalesDashboardState> {
   final SalesDashboardRepository _salesDashboardRepository =
       serviceLocator<SalesDashboardRepository>();
 
+  void onTabChanged(int index, BuildContext context) {
+    emit(state.copyWith(currentTabIndex: index));
+  }
+
   // <---- GET Dashboard LIST ---->
   Future getSalesDashboardList(BuildContext context, int projectId) async {
     emit(state.copyWith(isLoading: true));

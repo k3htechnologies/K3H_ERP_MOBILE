@@ -48,7 +48,7 @@ class _ChannelPartnerDashboardScreenState
         return Scaffold(
           backgroundColor: AppColor.lightGreyBackground,
           appBar: CustomAppBarWithBackButton(
-            screenTitle: "Channel Partner Dashbaord",
+            screenTitle: "Channel Partner Dashboard",
             isMenuButton: true,
             showNotification: true,
             authorization: AuthorizationModel(),

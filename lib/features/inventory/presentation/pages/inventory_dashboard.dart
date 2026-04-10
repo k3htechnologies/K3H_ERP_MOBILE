@@ -48,7 +48,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
     return Scaffold(
       backgroundColor: AppColor.lightGreyBackground,
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Inventory",
+        screenTitle: "Inventory Dashboard",
         isMenuButton: true,
         authorization: _routeAuthorizationModel,
         onProjectChangeCallback: (value) {
