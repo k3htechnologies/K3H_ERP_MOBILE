@@ -46,12 +46,11 @@ class _AddUnitSpecificationScreenState
   late TextEditingController _unitLayoutC, _areaC, _lengthC, _widthC, _noteC;
 
   // UNIT SPECIFICATION LIST VARIABLE
-  late ValueNotifier<Map<String, dynamic>?> selectedUnitLayout;
+  ValueNotifier<Map<String, dynamic>?> selectedUnitLayout = ValueNotifier(null);
 
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<Map<String, dynamic>> unitLayoutTypeList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Flat Type'},
     {'zAttributesId': 1, 'DisplayName': 'Entire Flat'},
   ];
 
@@ -81,10 +80,6 @@ class _AddUnitSpecificationScreenState
     _lengthC = TextEditingController();
     _widthC = TextEditingController();
     _noteC = TextEditingController();
-
-    selectedUnitLayout = ValueNotifier<Map<String, dynamic>?>(
-      unitLayoutTypeList.first,
-    );
   }
 
   // PREFILL DATA IF IN EDIT MODE
@@ -174,6 +169,7 @@ class _AddUnitSpecificationScreenState
                     return CustomDropDownWidget(
                       key: ValueKey('layout_${layoutValue?['zAttributesId']}'),
                       title: 'Layout',
+                      hintText: "Select Layout",
                       isRequired: true,
                       dataList: unitLayoutTypeList,
                       initialValue: layoutValue,

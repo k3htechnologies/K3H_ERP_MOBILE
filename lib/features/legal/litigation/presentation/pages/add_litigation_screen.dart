@@ -52,17 +52,15 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
   DateTime? dateOfFilling;
 
   // DROPDOWN VARIABLE
-  late Map<String, dynamic> selectedCaseType;
-  late Map<String, dynamic> selectedCourtType;
+  Map<String, dynamic>? selectedCaseType;
+  Map<String, dynamic>? selectedCourtType;
 
   final List<Map<String, dynamic>> caseTypeList = [
-    {"zAttributesId": -1, "DisplayName": "Select Case Type"},
     {"zAttributesId": 1, "DisplayName": "Criminal"},
     {"zAttributesId": 2, "DisplayName": "Civil"},
   ];
 
   final List<Map<String, dynamic>> courtTypeList = [
-    {"zAttributesId": -1, "DisplayName": "Select Court Type"},
     {"zAttributesId": 1, "DisplayName": "Civil Court"},
     {"zAttributesId": 2, "DisplayName": "District Court"},
     {"zAttributesId": 3, "DisplayName": "High Court"},
@@ -75,9 +73,6 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
     super.initState();
     _litigationCubit = context.read<LitigationCubit>();
     _initControllers();
-
-    selectedCaseType = caseTypeList.first;
-    selectedCourtType = courtTypeList.first;
 
     if (_isEditMode) {
       _populateForm(widget.litigationModel!);
@@ -144,8 +139,8 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
       "ProjectId": getProject().projectId,
       "Title": _caseTitleC.text.trim(),
       "CaseNumber": _caseNumberC.text.trim(),
-      "CaseType": selectedCaseType['DisplayName'],
-      "CourtType": selectedCourtType['DisplayName'],
+      "CaseType": selectedCaseType?['DisplayName'],
+      "CourtType": selectedCourtType?['DisplayName'],
       "DateOfFilling": dateOfFilling!.toIso8601String(),
       "CourtName": _courtNameC.text.trim(),
       "CourtLocation": _courtLocationC.text.trim(),
@@ -237,6 +232,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
 
           CustomDropDownWidget(
             title: "Case Type",
+            hintText: "Select Case Type",
             initialValue: selectedCaseType,
             isRequired: true,
             dataList: caseTypeList,
@@ -248,7 +244,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
               return null;
             },
             onValueClear: () {
-              selectedCaseType = caseTypeList.first;
+              selectedCaseType = null;
             },
           ),
 
@@ -300,6 +296,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
 
           CustomDropDownWidget(
             title: "Court Type",
+            hintText: "Select Court Type",
             initialValue: selectedCourtType,
             dataList: courtTypeList,
             isRequired: true,
@@ -311,7 +308,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
               return null;
             },
             onValueClear: () {
-              selectedCourtType = courtTypeList.first;
+              selectedCourtType = null;
             },
           ),
 

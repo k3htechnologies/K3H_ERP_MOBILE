@@ -259,12 +259,12 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                   ),
                   ValueListenableBuilder(
                     valueListenable: selectedAccountType,
-                    builder: (context, _selectedAccountType, child) {
+                    builder: (context, selectedAccountT, child) {
                       return CustomDropDownWidget(
                         title: "Account Type",
                         hintText: "Select Account Type",
                         isRequired: true,
-                        initialValue: _selectedAccountType,
+                        initialValue: selectedAccountT,
                         dataList: accountTypeList,
                         onSelected: (value) {
                           selectedAccountType.value = value;

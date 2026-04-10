@@ -68,7 +68,7 @@ class CustomDropDownWidget extends StatelessWidget {
                 IgnorePointer(
                   ignoring: isDisabled,
                   child: CustomDropdown<Map<String, dynamic>>.search(
-                    initialItem: formFieldState.value,
+                    initialItem: selectedItem,
                     closedHeaderPadding: const EdgeInsets.symmetric(
                       horizontal: 10.0,
                       vertical: 10.0,
@@ -138,7 +138,7 @@ class CustomDropDownWidget extends StatelessWidget {
                                 formFieldState.didChange(null);
 
                                 // Call external clear callback
-                                onValueClear!();
+                                onValueClear!.call();
                               },
                               child: Padding(
                                 padding: const EdgeInsets.only(left: 6),
