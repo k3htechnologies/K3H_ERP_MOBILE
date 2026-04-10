@@ -283,6 +283,8 @@ class _RentDetailsState extends State<RentDetails> {
                                         v == null || v['zAttributesId'] == -1
                                             ? "Type is required"
                                             : null,
+                                onValueClear:
+                                    () => _selectedType = _typeList.first,
                               ),
                             ),
                             horizontalSpacing(),
@@ -302,6 +304,9 @@ class _RentDetailsState extends State<RentDetails> {
                                             return "Tenure is required";
                                           }
                                           return null;
+                                        },
+                                        onValueClear: () {
+                                          _selectedTenure = _tenureList.first;
                                         },
                                       )
                                       : const SizedBox(),
@@ -345,6 +350,10 @@ class _RentDetailsState extends State<RentDetails> {
                                         v == null || v['zAttributesId'] == -1
                                             ? "Unit Sq Ft Lumsum is required"
                                             : null,
+                                onValueClear:
+                                    () =>
+                                        _selectedUnitSqFtLumsum =
+                                            _unitSqFtLumsumList.first,
                               ),
                             ),
                           ],
@@ -664,11 +673,11 @@ class _RentDetailsState extends State<RentDetails> {
                             ),
                             _buildRentInfoRow(
                               "Pay Brokerage",
-                              rent.isPayBrokerage==true ? "Yes" : "No",
+                              rent.isPayBrokerage == true ? "Yes" : "No",
                             ),
                             _buildRentInfoRow(
                               "Additional Rent",
-                              rent.isAdditionalRent==true?"Yes":"No",
+                              rent.isAdditionalRent == true ? "Yes" : "No",
                             ),
                             _buildRentInfoRow(
                               "Last Modified By",

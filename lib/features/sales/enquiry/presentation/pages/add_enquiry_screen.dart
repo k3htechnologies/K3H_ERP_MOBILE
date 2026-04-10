@@ -1206,6 +1206,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   }
                   return null;
                 },
+                onValueClear: () {
+                  _selectedAccommodationNotifier.value = null;
+                },
               );
             },
           ),
@@ -1221,6 +1224,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               }
               return null;
             },
+            onValueClear: () => _selectedOccupationType = occupationType.first,
           ),
           Text("Nationality", style: AppTextStyle.ts14R()),
           Row(
@@ -1329,6 +1333,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                       }
                       return null;
                     },
+                    onValueClear: () {
+                      _selectedSourceNotifier.value = null;
+                    },
                   ),
 
                   if ((selectedSource?['zAttributesId'] ?? -1) != -1)
@@ -1357,6 +1364,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                           return "Sub source is required";
                         }
                         return null;
+                      },
+                      onValueClear: () {
+                        _selectedSubSourceNotifier.value = null;
                       },
                     ),
 
@@ -1637,6 +1647,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                             }
                             return null;
                           },
+                          onValueClear:
+                              () => _selectedSubSubSourceNotifier.value = null,
                         );
                       },
                     ),
@@ -2059,6 +2071,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         initialValue: _selectedPossessionType ?? possessionType.first,
         dataList: possessionType,
         onSelected: (v) => _selectedPossessionType = v,
+        onValueClear: () => _selectedPossessionType = possessionType.first,
       ),
       ValueListenableBuilder<Map<String, dynamic>?>(
         valueListenable: _selectedRequirementNotifier,
@@ -2094,6 +2107,12 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                     _selectedCommercialLeasingNotifier.value =
                         commercialLeasingTypeList.first;
                   }
+                },
+                onValueClear: () {
+                  _selectedRequirementNotifier.value = null;
+                  _selectedResidentialTypeNotifier.value = null;
+                  _selectedCommercialTypeNotifier.value = null;
+                  _selectedCommercialLeasingNotifier.value = null;
                 },
               ),
               const SizedBox(height: 8),
@@ -2135,6 +2154,17 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                     }
                     return null;
                   },
+                  onValueClear: () {
+                    if (selectedRequirement?["DisplayName"] == "Residential") {
+                      _selectedResidentialTypeNotifier.value = null;
+                    } else if (selectedRequirement?["DisplayName"] ==
+                        "Commercial") {
+                      _selectedCommercialTypeNotifier.value = null;
+                    } else if (selectedRequirement?["DisplayName"] ==
+                        "Commercial Leasing") {
+                      _selectedCommercialLeasingNotifier.value = null;
+                    }
+                  },
                 ),
             ],
           );
@@ -2153,6 +2183,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         initialValue: _selectedTimeline ?? timelineTypeList.first,
         dataList: timelineTypeList,
         onSelected: (v) => _selectedTimeline = v,
+        onValueClear: () {
+          _selectedTimeline = timelineTypeList.first;
+        },
       ),
       CustomTextField(
         title: "Area Preferred (SqFt)",
@@ -2165,6 +2198,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         initialValue: _selectedFloorBand ?? floorBrand.first,
         dataList: floorBrand,
         onSelected: (v) => _selectedFloorBand = v,
+        onValueClear: () {
+          _selectedFloorBand = floorBrand.first;
+        },
       ),
     ]);
   }
@@ -2177,12 +2213,18 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         initialValue: _selectedFunding ?? fundingSourceList.first,
         dataList: fundingSourceList,
         onSelected: (v) => _selectedFunding = v,
+        onValueClear: () {
+          _selectedFunding = fundingSourceList.first;
+        },
       ),
       CustomDropDownWidget(
         title: "Ethnicity",
         initialValue: _selectedEthnicity ?? ethnicityList.first,
         dataList: ethnicityList,
         onSelected: (v) => _selectedEthnicity = v,
+        onValueClear: () {
+          _selectedEthnicity = ethnicityList.first;
+        },
       ),
     ]);
   }
@@ -2199,6 +2241,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
           _selectedFinalStage.value = v;
           _selectedFinalStageDetail = finalStageDetailsList.first;
         },
+        onValueClear: () => _selectedFinalStage.value = null,
       ),
       ValueListenableBuilder(
         valueListenable: _selectedFinalStage,
@@ -2211,6 +2254,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                     _selectedFinalStageDetail ?? finalStageDetailsList.first,
                 dataList: finalStageDetailsList,
                 onSelected: (v) => _selectedFinalStageDetail = v,
+                onValueClear:
+                    () =>
+                        _selectedFinalStageDetail = finalStageDetailsList.first,
               )
               : SizedBox.shrink();
         },

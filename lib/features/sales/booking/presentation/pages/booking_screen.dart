@@ -400,6 +400,9 @@ class _BookingScreenState extends State<BookingScreen> {
                                     : directWalkingSubSourceList.first;
                             updateApplyState();
                           },
+                          onValueClear: () {
+                            _selectedSourceNotifier.value = null;
+                          },
                         ),
 
                         if ((selectedSource?['zAttributesId'] ?? -1) != -1)
@@ -421,6 +424,9 @@ class _BookingScreenState extends State<BookingScreen> {
                                   _selectedSubSourceNotifier.value = v;
                                   updateApplyState();
                                 },
+                                onValueClear:
+                                    () =>
+                                        _selectedSubSourceNotifier.value = null,
                               );
                             },
                           ),

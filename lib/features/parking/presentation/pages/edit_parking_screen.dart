@@ -294,6 +294,9 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                           selectedCategory.value!,
                         );
                       },
+                      onValueClear: () {
+                        selectedCategory.value = null;
+                      },
                     );
                   },
                 ),
@@ -320,6 +323,9 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                           onSelected: (value) {
                             selectedType.value = value;
                           },
+                          onValueClear: () {
+                            selectedType.value = null;
+                          },
                         );
                       },
                     );
@@ -344,6 +350,9 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                       },
                       onSelected: (value) {
                         selectedSizeType.value = value;
+                      },
+                      onValueClear: () {
+                        selectedSizeType.value = null;
                       },
                     );
                   },
@@ -378,6 +387,9 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                       },
                       onSelected: (value) {
                         selectedStatus.value = value;
+                      },
+                      onValueClear: () {
+                        selectedStatus.value = null;
                       },
                     );
                   },
@@ -429,9 +441,9 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
       bottomNavigationBar: SafeArea(
         child: Container(
           height: 70,
-          padding: EdgeInsets.symmetric(horizontal: 16,vertical: 16),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: CustomButton(
-            leading: Icon(Icons.edit,size: 16,color: AppColor.white,),
+            leading: Icon(Icons.edit, size: 16, color: AppColor.white),
             text: "Update",
             onPressed: _handleUpdateParking,
           ),

@@ -160,10 +160,7 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
     );
 
     _selectedBankNotifier.value = [
-      {
-        'zAttributesId': p.bankListMasterId,
-        'DisplayName': p.bankName,
-      },
+      {'zAttributesId': p.bankListMasterId, 'DisplayName': p.bankName},
     ];
     _selectedProjectWiseBankNotifier.value = [
       {
@@ -178,7 +175,9 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
     ];
 
     if (p.transactionChequeDemandDraftUrl.isNotEmpty) {
-      transactionChequeDemandDraftUrl.fileNameList = [p.transactionChequeDemandDraftUrl];
+      transactionChequeDemandDraftUrl.fileNameList = [
+        p.transactionChequeDemandDraftUrl,
+      ];
     }
     if (p.paymentReceiptUrl.isNotEmpty) {
       paymentReceiptUrl.fileNameList = [p.paymentReceiptUrl];
@@ -246,6 +245,8 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                         }
                         return null;
                       },
+                      onValueClear:
+                          () => selectedPaymentMode = paymentModeList.first,
                     ),
                     ValueListenableBuilder<List<Map<String, dynamic>>>(
                       valueListenable: _selectedBankNotifier,
@@ -329,6 +330,8 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                         }
                         return null;
                       },
+                      onValueClear:
+                          () => selectedAmountType = amountTypeList.first,
                     ),
                     CustomDropDownWidget(
                       title: "Payment Type",
@@ -344,6 +347,8 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                         }
                         return null;
                       },
+                      onValueClear:
+                          () => selectedPaymentType = paymentTypeList.first,
                     ),
                     CustomTextField(
                       title: "Account Number",
@@ -505,7 +510,11 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
           padding: const EdgeInsets.all(16),
           child: CustomButton(
             text: _isEditMode ? "Update Payment" : "Add Payment",
-            leading: Icon(_isEditMode ? Icons.edit : Icons.add,color: AppColor.white,size: 18,),
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              color: AppColor.white,
+              size: 18,
+            ),
             onPressed: () {
               if (!_formLedger.currentState!.validate()) return;
               if (_selectedBankNotifier.value.isEmpty) {
@@ -534,9 +543,10 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
               }
 
               final rentModel = widget.rentModel;
-              final tenure = widget.rentDetails.isNotEmpty
-                  ? widget.rentDetails.first.tenure
-                  : rentModel.tenure;
+              final tenure =
+                  widget.rentDetails.isNotEmpty
+                      ? widget.rentDetails.first.tenure
+                      : rentModel.tenure;
 
               if (_isEditMode && widget.paymentLedger != null) {
                 _rentCubit.updatePayTrackRent(
@@ -548,7 +558,10 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                   buildingId: rentModel.buildingId,
                   projectId: rentModel.projectId,
                   projectBankListMasterId:
-                      _selectedProjectWiseBankNotifier.value.first["zAttributesId"] as int,
+                      _selectedProjectWiseBankNotifier
+                              .value
+                              .first["zAttributesId"]
+                          as int,
                   accountHolderName: _accountHolderNameC.text,
                   bankListMasterId:
                       _selectedBankNotifier.value.first["zAttributesId"] as int,
@@ -560,7 +573,8 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                   payAmount: _payAmountC.text,
                   transactionChequeDemandDraftNumber: _transactionNumC.text,
                   transactionChequeDemandDraftDate: selectedDate!,
-                  transactionChequeDemandDraftURL: transactionChequeDemandDraftUrl,
+                  transactionChequeDemandDraftURL:
+                      transactionChequeDemandDraftUrl,
                   paymentReceiptURL: paymentReceiptUrl,
                   tenure: tenure,
                   chargeType: widget.paymentLedger?.chargeType ?? "RENT",
@@ -576,10 +590,14 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                       buildingId: rentModel.buildingId,
                       projectId: rentModel.projectId,
                       projectBankListMasterId:
-                          _selectedProjectWiseBankNotifier.value.first["zAttributesId"] as int,
+                          _selectedProjectWiseBankNotifier
+                                  .value
+                                  .first["zAttributesId"]
+                              as int,
                       accountHolderName: _accountHolderNameC.text,
                       bankListMasterId:
-                          _selectedBankNotifier.value.first["zAttributesId"] as int,
+                          _selectedBankNotifier.value.first["zAttributesId"]
+                              as int,
                       accountNumber: _accountNumberC.text,
                       ifscCode: _ifscCodeC.text,
                       paymentMode: selectedPaymentMode["DisplayName"] as String,

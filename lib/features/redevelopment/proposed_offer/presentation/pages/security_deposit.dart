@@ -158,6 +158,10 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                         }
                         return null;
                       },
+                      onValueClear:
+                          () =>
+                              selectedSecurityDepositType =
+                                  _securityDepositTypeList.first,
                     ),
 
                     /// STAGE

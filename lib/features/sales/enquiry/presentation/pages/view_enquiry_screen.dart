@@ -1348,6 +1348,11 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                         ),
                     validator:
                         (val) => val == null ? "Lost reason is required" : null,
+                    onValueClear: () {
+                      innerBottomsheetState(
+                        () => _selectedLostReason = _lostReasonList.first,
+                      );
+                    },
                   )
                   : const SizedBox.shrink();
 
@@ -1372,6 +1377,13 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                         }),
                     validator:
                         (val) => val == null ? "Status is required" : null,
+                    onValueClear: () {
+                      innerBottomsheetState(() {
+                        _selectedStatus = null;
+                        _selectedLostReason = null;
+                        _nextFollowupDate = null;
+                      });
+                    },
                   ),
 
                   followUpDateWidget(),

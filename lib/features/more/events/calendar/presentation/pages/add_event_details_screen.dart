@@ -146,6 +146,9 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
                               }
                               return null;
                             },
+                            onValueClear: () {
+                              selectedType = typeList.first;
+                            },
                           ),
                           CustomTextField(
                             textController: _titleC,
@@ -263,6 +266,9 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
                                   return "Please select priority";
                                 }
                                 return null;
+                              },
+                              onValueClear: () {
+                                selectedPriority = priorityList.first;
                               },
                             ),
                           ),
@@ -389,6 +395,9 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
                                   return "Please select room";
                                 }
                                 return null;
+                              },
+                              onValueClear: () {
+                                selectedRoom = roomList.first;
                               },
                             ),
                           ),

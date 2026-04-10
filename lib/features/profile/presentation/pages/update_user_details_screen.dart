@@ -270,6 +270,9 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                     }
                     return null;
                   },
+                  onValueClear: () {
+                    selectedGender = genderList.first;
+                  },
                 ),
                 CustomDropDownWidget(
                   title: 'Marital Status',
@@ -283,6 +286,9 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                     }
                     return null;
                   },
+                  onValueClear: () {
+                    selectedMaritalStatus = maritalStatusList.first;
+                  },
                 ),
                 CustomDropDownWidget(
                   title: 'Blood Group',
@@ -295,6 +301,9 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                       return 'Blood Group is required';
                     }
                     return null;
+                  },
+                  onValueClear: () {
+                    selectedBloodGroup = bloodGroupList.first;
                   },
                 ),
                 ValueListenableBuilder<DateTime?>(

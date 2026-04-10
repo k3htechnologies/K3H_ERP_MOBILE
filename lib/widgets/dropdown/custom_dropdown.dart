@@ -55,7 +55,7 @@ class CustomDropDownWidget extends StatelessWidget {
             if (initialValue != null) {
               try {
                 selectedItem = dataList.firstWhere(
-                      (e) => e['zAttributesId'] == initialValue?['zAttributesId'],
+                  (e) => e['zAttributesId'] == initialValue?['zAttributesId'],
                 );
               } catch (_) {
                 selectedItem = null;
@@ -68,7 +68,7 @@ class CustomDropDownWidget extends StatelessWidget {
                 IgnorePointer(
                   ignoring: isDisabled,
                   child: CustomDropdown<Map<String, dynamic>>.search(
-                    initialItem: selectedItem,
+                    initialItem: formFieldState.value,
                     closedHeaderPadding: const EdgeInsets.symmetric(
                       horizontal: 10.0,
                       vertical: 10.0,

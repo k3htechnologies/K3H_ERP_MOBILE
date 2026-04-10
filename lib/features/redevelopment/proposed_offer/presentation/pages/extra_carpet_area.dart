@@ -150,6 +150,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                         }
                         return null;
                       },
+                      onValueClear: () => _selectedExtraCarpetType = null,
                     ),
                     verticalSpacing(),
                     Text(

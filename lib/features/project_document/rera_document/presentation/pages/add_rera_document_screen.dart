@@ -40,16 +40,11 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
-  // FILE REQUIRED CHECK VARIABLE
-  final ValueNotifier<bool> isFileRequired = ValueNotifier(false);
-
-  final ValueNotifier<List<Map<String, dynamic>>> _selectedStatus =
-      ValueNotifier([
-        {'zAttributesId': -1, 'DisplayName': 'Select Status'},
-      ]);
+  final ValueNotifier<Map<String, dynamic>?> _selectedStatus = ValueNotifier(
+    null,
+  );
   // STATIC LISTS
   List<Map<String, dynamic>> statusList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Status'},
     {'zAttributesId': 1, 'DisplayName': 'Applied'},
     {'zAttributesId': 2, 'DisplayName': 'Doc Missing'},
     {'zAttributesId': 3, 'DisplayName': 'In Process'},
@@ -110,7 +105,7 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
         projectRERADocumentCategoryId:
             widget.documentModel!.projectRERADocumentCategoryId,
         documents: selectedDocumentFile,
-        projectRERADocumentStatus: _selectedStatus.value[0]['DisplayName'],
+        projectRERADocumentStatus: _selectedStatus.value?['DisplayName'],
         screenshots: selectedScreenShotFile,
         projectRERADocumentRemark: _remarkC.text.trim(),
         projectRERADocumentName: widget.documentModel!.projectRERADocumentName,
@@ -124,7 +119,7 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
         projectRERADocumentCategoryId:
             widget.documentModel!.projectRERADocumentCategoryId,
         documents: selectedDocumentFile,
-        projectRERADocumentStatus: _selectedStatus.value[0]['DisplayName'],
+        projectRERADocumentStatus: _selectedStatus.value?['DisplayName'],
         screenshots: selectedScreenShotFile,
         projectRERADocumentRemark: _remarkC.text.trim(),
         projectRERADocumentName: widget.documentModel!.projectRERADocumentName,
@@ -139,7 +134,7 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
       orElse: () => statusList.first,
     );
 
-    _selectedStatus.value = [matchedStatus];
+    _selectedStatus.value = matchedStatus;
 
     if (document.reraPortalScreenShotURL != null) {
       selectedScreenShotFile.fileNameList =
@@ -178,19 +173,20 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
                 CustomDropDownWidget(
                   title: "Status",
                   dataList: statusList,
-                  initialValue:
-                      _isEditMode ? _selectedStatus.value[0] : statusList[0],
+                  hintText: "Select Status",
+                  initialValue: _selectedStatus.value,
                   isRequired: true,
-                  onSelected: (Map<String, dynamic> p1) {
-                    _selectedStatus.value = [p1];
-
-                    isFileRequired.value = p1["zAttributesId"] == 4;
+                  onSelected: (value) {
+                    _selectedStatus.value = value;
                   },
                   validator: (value) {
                     if (value == null || value["zAttributesId"] == -1) {
                       return 'Status is required';
                     }
                     return null;
+                  },
+                  onValueClear: () {
+                    _selectedStatus.value = null;
                   },
                 ),
                 ValueListenableBuilder(
@@ -199,10 +195,12 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
                     return CustomMultiFilePicker(
                       maxFiles: 5,
                       title: "Files",
-                      isRequired: _selectedStatus.value[0]['DisplayName']
-                          .toString()
-                          .toLowerCase()
-                          .contains('issued'),
+                      isRequired:
+                          (_selectedStatus.value != null &&
+                              _selectedStatus.value!['DisplayName']
+                                  .toString()
+                                  .toLowerCase()
+                                  .contains('issued')),
                       initialFileList: selectedDocumentFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {
                         selectedDocumentFile.fileNameList = fileNameList;
@@ -218,7 +216,8 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
                         selectedDocumentFile.deletedFileList = deletedFile;
                       },
                       validator: (value) {
-                        if (_selectedStatus.value[0]['DisplayName']
+                        if (_selectedStatus.value != null &&
+                            _selectedStatus.value!['DisplayName']
                                 .toString()
                                 .toLowerCase()
                                 .contains('issued') &&

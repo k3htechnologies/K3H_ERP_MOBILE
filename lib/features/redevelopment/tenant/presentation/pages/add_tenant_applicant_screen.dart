@@ -372,6 +372,8 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                       }
                       return null;
                     },
+                    onValueClear:
+                        () => selectedApplicantType = applicantTypeList.first,
                   ),
                   if (widget.hasPrimaryApplicant && !_isEditingApplicantType)
                     Padding(

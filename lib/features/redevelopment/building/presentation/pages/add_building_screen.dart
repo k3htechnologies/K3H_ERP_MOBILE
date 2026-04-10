@@ -325,6 +325,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                             }
                             return null;
                           },
+                          onValueClear: () => _selectedRoadWidth.value = null,
                         );
                       },
                     ),
@@ -348,6 +349,8 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                             }
                             return null;
                           },
+                          onValueClear:
+                              () => _selectedLandOwnershipType.value = null,
                         );
                       },
                     ),

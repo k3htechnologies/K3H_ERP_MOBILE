@@ -285,6 +285,9 @@ class _AddLeaveCreditConfigurationMasterScreenState
                         }
                         return null;
                       },
+                      onValueClear: () {
+                        selectedLeavePeriod = leavePeriodList.first;
+                      },
                     ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,

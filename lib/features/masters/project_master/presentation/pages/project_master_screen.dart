@@ -254,6 +254,10 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                           selectedProjectSubScheme = null;
                         }
                       },
+                      onValueClear: () {
+                        projectSchemeNotifier.value = null;
+                        selectedProjectSubScheme = null;
+                      },
                     );
                   },
                 ),
@@ -268,6 +272,9 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                       isDisabled: selectedProjectScheme?["zAttributesId"] == -1,
                       onSelected: (value) {
                         selectedProjectSubScheme = value;
+                      },
+                      onValueClear: () {
+                        selectedProjectSubScheme = null;
                       },
                     );
                   },
@@ -299,7 +306,6 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
           projectStatus: _filterProjectStatusC.text.trim(),
           projectScheme: getDisplayOrEmpty(projectSchemeNotifier.value),
           projectSubScheme: getDisplayOrEmpty(selectedProjectSubScheme),
-          
         );
       },
       isApplyEnabled: applyEnabled.value,

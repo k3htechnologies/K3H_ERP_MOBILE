@@ -214,7 +214,9 @@ class _CorpusDetailsState extends State<CorpusDetails> {
   }
 
   // PREFILL BOTTOM SHEET
-  void _prefillBottomSheet(ProposedOfferCorpusDetailsWithPaymentStageData corpus) {
+  void _prefillBottomSheet(
+    ProposedOfferCorpusDetailsWithPaymentStageData corpus,
+  ) {
     _selectedCorpusType.value = _litigationTypeList.firstWhere(
       (e) => e['DisplayName'] == corpus.type,
       orElse: () => _litigationTypeList.first,
@@ -272,6 +274,8 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                         }
                         return null;
                       },
+                      onValueClear:
+                          () => selectedCorpusType = _litigationTypeList.first,
                     ),
 
                     // STAGE
@@ -312,13 +316,13 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                       },
                       onChangeFunction: (value) {
                         if (selectedCorpusType == null ||
-                            selectedCorpusType['zAttributesId'] == -1) {
+                            selectedCorpusType?['zAttributesId'] == -1) {
                           return;
                         }
 
                         double percentage = double.tryParse(value) ?? 0;
 
-                        if (selectedCorpusType['zAttributesId'] == 1) {
+                        if (selectedCorpusType?['zAttributesId'] == 1) {
                           _amountController.text =
                               ((double.tryParse(
                                             _residentialAmountController.text,
@@ -327,7 +331,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                                       percentage /
                                       100)
                                   .toString();
-                        } else if (selectedCorpusType['zAttributesId'] == 2) {
+                        } else if (selectedCorpusType?['zAttributesId'] == 2) {
                           _amountController.text =
                               ((double.tryParse(
                                             _commercialAmountController.text,
@@ -354,11 +358,11 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                         double amount = double.tryParse(value) ?? 0;
 
                         if (selectedCorpusType == null ||
-                            selectedCorpusType['zAttributesId'] == -1) {
+                            selectedCorpusType?['zAttributesId'] == -1) {
                           return "Type must be selected first";
                         }
 
-                        if (selectedCorpusType['zAttributesId'] == 1 &&
+                        if (selectedCorpusType?['zAttributesId'] == 1 &&
                             (double.tryParse(
                                       _residentialAmountController.text,
                                     ) ??
@@ -367,7 +371,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                           return "Residential amount is required";
                         }
 
-                        if (selectedCorpusType['zAttributesId'] == 2 &&
+                        if (selectedCorpusType?['zAttributesId'] == 2 &&
                             (double.tryParse(
                                       _commercialAmountController.text,
                                     ) ??
@@ -405,7 +409,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                             return;
                           }
 
-                          if (selectedCorpusType['zAttributesId'] == 2 &&
+                          if (selectedCorpusType?['zAttributesId'] == 2 &&
                               (double.tryParse(
                                         _commercialAmountController.text,
                                       ) ??
@@ -429,7 +433,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                                 uniquekey: '',
                                 buildingId: widget.buildingId,
                                 projectId: widget.projectId,
-                                type: selectedCorpusType['DisplayName'],
+                                type: selectedCorpusType?['DisplayName'],
                                 stage: _stageController.text,
                                 stagePercentage: double.parse(
                                   _stagePercentageController.text,
@@ -452,7 +456,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                                   uniquekey: corpus.uniquekey,
                                   buildingId: corpus.buildingId,
                                   projectId: corpus.projectId,
-                                  type: selectedCorpusType['DisplayName'],
+                                  type: selectedCorpusType?['DisplayName'],
                                   stage: _stageController.text,
                                   stagePercentage: double.parse(
                                     _stagePercentageController.text,
@@ -524,7 +528,8 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                     ),
                     verticalSpacing(),
                     ValueListenableBuilder<
-                        List<ProposedOfferCorpusDetailsWithPaymentStageData>>(
+                      List<ProposedOfferCorpusDetailsWithPaymentStageData>
+                    >(
                       valueListenable: _corpusListNotifier,
                       builder: (context, corpusList, _) {
                         final isResidentialReadOnly = corpusList.any(
@@ -546,8 +551,8 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                               readOnly: isResidentialReadOnly,
                               inputFormatterList:
                                   inputFormatterListForDecimalValuesFixedToTwo(
-                                10,
-                              ),
+                                    10,
+                                  ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
                                   return "Residential amount is required";
@@ -572,8 +577,8 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                               readOnly: isCommercialReadOnly,
                               inputFormatterList:
                                   inputFormatterListForDecimalValuesFixedToTwo(
-                                10,
-                              ),
+                                    10,
+                                  ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
                                   return "Commercial amount is required";

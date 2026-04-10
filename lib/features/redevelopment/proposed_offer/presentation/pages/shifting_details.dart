@@ -220,6 +220,10 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                         }
                         return null;
                       },
+                      onValueClear:
+                          () =>
+                              selectedShiftingType =
+                                  _configurationTypeList.first,
                     ),
 
                     /// STAGE
@@ -260,13 +264,13 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                       },
                       onChangeFunction: (value) {
                         if (selectedShiftingType == null ||
-                            selectedShiftingType['zAttributesId'] == -1) {
+                            selectedShiftingType?['zAttributesId'] == -1) {
                           return;
                         }
 
                         double percentage = double.tryParse(value) ?? 0;
 
-                        if (selectedShiftingType['zAttributesId'] == 1) {
+                        if (selectedShiftingType?['zAttributesId'] == 1) {
                           _amountController.text =
                               ((double.tryParse(
                                             _residentialAmountController.text,
@@ -275,7 +279,8 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                                       percentage /
                                       100)
                                   .toString();
-                        } else if (selectedShiftingType['zAttributesId'] == 2) {
+                        } else if (selectedShiftingType?['zAttributesId'] ==
+                            2) {
                           _amountController.text =
                               ((double.tryParse(
                                             _commercialAmountController.text,
@@ -304,11 +309,11 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                         double amount = double.tryParse(value) ?? 0;
 
                         if (selectedShiftingType == null ||
-                            selectedShiftingType['zAttributesId'] == -1) {
+                            selectedShiftingType?['zAttributesId'] == -1) {
                           return "Type must be selected first";
                         }
 
-                        if (selectedShiftingType['zAttributesId'] == 1 &&
+                        if (selectedShiftingType?['zAttributesId'] == 1 &&
                             (double.tryParse(
                                       _residentialAmountController.text,
                                     ) ??
@@ -317,7 +322,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                           return "Residential amount is required";
                         }
 
-                        if (selectedShiftingType['zAttributesId'] == 2 &&
+                        if (selectedShiftingType?['zAttributesId'] == 2 &&
                             (double.tryParse(
                                       _commercialAmountController.text,
                                     ) ??
@@ -355,7 +360,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                             return;
                           }
 
-                          if (selectedShiftingType['zAttributesId'] == 2 &&
+                          if (selectedShiftingType?['zAttributesId'] == 2 &&
                               (double.tryParse(
                                         _commercialAmountController.text,
                                       ) ??
@@ -380,7 +385,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                                 uniquekey: '',
                                 buildingId: widget.buildingId,
                                 projectId: widget.projectId,
-                                type: selectedShiftingType['DisplayName'],
+                                type: selectedShiftingType?['DisplayName'],
                                 stage: _stageController.text,
                                 stagePercentage: double.parse(
                                   _stagePercentageController.text,
@@ -403,7 +408,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                                   uniquekey: shifting.uniquekey,
                                   buildingId: shifting.buildingId,
                                   projectId: shifting.projectId,
-                                  type: selectedShiftingType['DisplayName'],
+                                  type: selectedShiftingType?['DisplayName'],
                                   stage: _stageController.text,
                                   stagePercentage: double.parse(
                                     _stagePercentageController.text,

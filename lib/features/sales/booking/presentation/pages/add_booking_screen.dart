@@ -598,10 +598,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // FETCHING PARKING METHODS
   Future<Map<String, dynamic>> _fetchParking(
-      int pageNumber, {
-        String? value,
-      }) async {
-
+    int pageNumber, {
+    String? value,
+  }) async {
     final isSearch = value != null && value.isNotEmpty;
 
     if (pageNumber == 1) {
@@ -613,8 +612,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       pageNumber,
       _project.projectId,
       searchQuery: isSearch ? value : null,
-      displayParkingId:
-      _isEditMode ? widget.bookingModel!.parkingId : null,
+      displayParkingId: _isEditMode ? widget.bookingModel!.parkingId : null,
     );
 
     final updatedList = _bookingCubit.state.parkingList;
@@ -630,17 +628,15 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
     return {
       "itemList": uniqueParking.values.toList(),
-      "totalNumberOfRecord":
-      totalCount > 0 ? totalCount : uniqueParking.length,
+      "totalNumberOfRecord": totalCount > 0 ? totalCount : uniqueParking.length,
     };
   }
 
   // FETCHING TERMS AND CONDITIONS METHODS
   Future<Map<String, dynamic>> _fetchTerms(
-      int pageNumber, {
-        String? value,
-      }) async {
-
+    int pageNumber, {
+    String? value,
+  }) async {
     final isSearch = value != null && value.isNotEmpty;
 
     if (pageNumber == 1) {
@@ -668,8 +664,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
     return {
       "itemList": uniqueTerms.values.toList(),
-      "totalNumberOfRecord":
-      totalCount > 0 ? totalCount : uniqueTerms.length,
+      "totalNumberOfRecord": totalCount > 0 ? totalCount : uniqueTerms.length,
     };
   }
 
@@ -748,7 +743,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // VALIDATE ALL TABS
   Future<bool> _validateAllTabs() async {
-
     // STEP 1: DETAILS TAB
     if (!(_detailsFormKey.currentState?.validate() ?? false)) {
       _bookingCubit.onTabChangedAddForm(0, context);
@@ -777,7 +771,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       showErrorMessage(context, "", "Add Payment Schedule Details");
       return false;
     }
-
 
     // STEP 5: REMARK
     if (!(_remarkFormKey.currentState?.validate() ?? false)) {
@@ -1102,7 +1095,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: showSiteSelectedWidget()
+                child: showSiteSelectedWidget(),
               ),
               ChipStyleTabBar(
                 controller: _tabController,
@@ -2002,6 +1995,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                           }
                           return null;
                         },
+                        onValueClear:
+                            () =>
+                                _selectedHandOverType.value =
+                                    handOverTypeList.first,
                       );
                     },
                   ),
@@ -2047,6 +2044,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                           }
                           return null;
                         },
+                        onValueClear:
+                            () =>
+                                _selectedFundingSource.value =
+                                    fundingSourceList.first,
                       );
                     },
                   ),
@@ -2123,6 +2124,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                             }
                             return null;
                           },
+                          onValueClear: () => selectedScheme.value = {},
                         );
                       },
                     );
@@ -2246,7 +2248,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         return Center(
                           child: noDataWidget(
                             message: "No Payment Schedule Available",
-                            iconSize: 150
+                            iconSize: 150,
                           ),
                         );
                       }
@@ -2945,7 +2947,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               ),
               buildColumnTitleValue(
                 title: "Cancelled Cheque",
-                value: applicant.cancelledChequeUrl.isEmpty ? "-" : applicant.cancelledChequeUrl,
+                value:
+                    applicant.cancelledChequeUrl.isEmpty
+                        ? "-"
+                        : applicant.cancelledChequeUrl,
                 customValueWidget: CustomButton.documentOutline(
                   onPressed: () {
                     if (applicant.cancelledChequeUrl.isNotEmpty) {
@@ -2981,7 +2986,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               ),
               buildColumnTitleValue(
                 title: "Income Docs (Form 16 / ITR)",
-                value: applicant.incomeForm16Itrurl.isEmpty ? "-" : applicant.incomeForm16Itrurl,
+                value:
+                    applicant.incomeForm16Itrurl.isEmpty
+                        ? "-"
+                        : applicant.incomeForm16Itrurl,
                 customValueWidget: CustomButton.documentOutline(
                   onPressed: () {
                     if (applicant.incomeForm16Itrurl.isNotEmpty) {
@@ -3002,7 +3010,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             children: [
               buildColumnTitleValue(
                 title: "NRE / NRO Bank Details",
-                value: applicant.nreNroBankDetailsUrl.isEmpty ? "-" : applicant.nreNroBankDetailsUrl,
+                value:
+                    applicant.nreNroBankDetailsUrl.isEmpty
+                        ? "-"
+                        : applicant.nreNroBankDetailsUrl,
                 customValueWidget: CustomButton.documentOutline(
                   onPressed: () {
                     if (applicant.nreNroBankDetailsUrl.isNotEmpty) {
@@ -3017,7 +3028,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               ),
               buildColumnTitleValue(
                 title: "Nominee Form",
-                value: applicant.nomineeFormUrl.isEmpty ? "-" : applicant.nomineeFormUrl,
+                value:
+                    applicant.nomineeFormUrl.isEmpty
+                        ? "-"
+                        : applicant.nomineeFormUrl,
                 customValueWidget: CustomButton.documentOutline(
                   onPressed: () {
                     if (applicant.nomineeFormUrl.isNotEmpty) {
@@ -3038,7 +3052,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             children: [
               buildColumnTitleValue(
                 title: "Statement of Source of Funds",
-                value: applicant.statementOfSourceOfFundsURL.isEmpty ? "-" : applicant.statementOfSourceOfFundsURL,
+                value:
+                    applicant.statementOfSourceOfFundsURL.isEmpty
+                        ? "-"
+                        : applicant.statementOfSourceOfFundsURL,
                 customValueWidget: CustomButton.documentOutline(
                   onPressed: () {
                     if (applicant.statementOfSourceOfFundsURL.isNotEmpty) {
@@ -3053,7 +3070,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               ),
               buildColumnTitleValue(
                 title: "Payment Proof",
-                value: applicant.paymentProofURL.isEmpty ? "-" : applicant.paymentProofURL,
+                value:
+                    applicant.paymentProofURL.isEmpty
+                        ? "-"
+                        : applicant.paymentProofURL,
                 customValueWidget: CustomButton.documentOutline(
                   onPressed: () {
                     if (applicant.paymentProofURL.isNotEmpty) {
@@ -3072,7 +3092,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       ),
     );
   }
-
 
   // COMMISSION SECTION FOR ENQUIRY WHICH HAD SOURCE: CHANNEL PARTNER (BROKERAGE) OR SUBSOURCE: REFERENCE, EMPLOYEE REFERENCE, LOYALTY
   Widget commissionSection({

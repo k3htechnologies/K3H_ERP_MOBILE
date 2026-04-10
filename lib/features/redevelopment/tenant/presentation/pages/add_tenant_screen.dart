@@ -475,6 +475,8 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                             }
                             return null;
                           },
+                          onValueClear:
+                              () => selectedFlatType.value = flatTypeList.first,
                         );
                       },
                     ),
@@ -504,6 +506,10 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                                   }
                                   return null;
                                 },
+                                onValueClear:
+                                    () =>
+                                        selectedFlatConfiguration.value =
+                                            residentialFlatList.first,
                               );
                             },
                           );
@@ -531,6 +537,9 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                                   }
                                   return null;
                                 },
+                                onValueClear:
+                                    () =>
+                                        selectedFlatConfiguration.value = null,
                               );
                             },
                           );
@@ -558,6 +567,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                             }
                             return null;
                           },
+                          onValueClear: () => selectedFlatFacing.value = null,
                         );
                       },
                     ),
@@ -621,8 +631,8 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                       textController: _extraAreaPurchasedSqFtC,
                     ),
                   ],
-                )
-              )
+                ),
+              ),
             ],
           ),
         ),
@@ -632,7 +642,11 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              color: AppColor.white,
+              size: 18,
+            ),
             text: _isEditMode ? 'Update Tenant' : 'Add Tenant',
             onPressed: _handleSubmit,
             backgroundColor: AppColor.primary,

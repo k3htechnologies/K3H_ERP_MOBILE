@@ -469,6 +469,9 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
               }
               return null;
             },
+            onValueClear: () {
+              selectedCompanyType = companyTypeList.first;
+            },
           ),
           CustomTextField(
             title: "Company Name",

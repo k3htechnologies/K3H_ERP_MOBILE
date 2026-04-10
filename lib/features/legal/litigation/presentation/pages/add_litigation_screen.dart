@@ -247,6 +247,9 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
               }
               return null;
             },
+            onValueClear: () {
+              selectedCaseType = caseTypeList.first;
+            },
           ),
 
           CustomTextField(
@@ -307,6 +310,9 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
               }
               return null;
             },
+            onValueClear: () {
+              selectedCourtType = courtTypeList.first;
+            },
           ),
 
           CustomTextField(
@@ -315,7 +321,10 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
             hint: "Enter Plaintiff / Complaint / Petitioner",
             textController: _plantiffC,
             validator:
-                (v) => v!.isEmpty ? "Plaintiff / Complaint / Petitioner is required" : null,
+                (v) =>
+                    v!.isEmpty
+                        ? "Plaintiff / Complaint / Petitioner is required"
+                        : null,
           ),
 
           CustomTextField(
@@ -357,7 +366,11 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
             textController: _caseBriefC,
             maxLines: 3,
             minLines: 3,
-            validator: (v) => v!.isEmpty ? "Case Brief / Petition / Suit is required" : null,
+            validator:
+                (v) =>
+                    v!.isEmpty
+                        ? "Case Brief / Petition / Suit is required"
+                        : null,
           ),
 
           CustomTextField(
@@ -367,7 +380,9 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
             textController: _remarkC,
             minLines: 3,
             maxLines: 3,
-            validator: (v) => v!.isEmpty ? "Case Remarks / Comments is required" : null,
+            validator:
+                (v) =>
+                    v!.isEmpty ? "Case Remarks / Comments is required" : null,
           ),
         ],
       ),

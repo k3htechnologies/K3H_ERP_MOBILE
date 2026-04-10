@@ -312,6 +312,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                         }
                         return null;
                       },
+                      onValueClear: () {
+                        selectedStartDuration = durationList.first;
+                      },
                     ),
                     CustomDropDownWidget(
                       title: "End Day Duration",
@@ -326,6 +329,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                           return 'End Duration is required';
                         }
                         return null;
+                      },
+                      onValueClear: () {
+                        selectedEndDuration = durationList.first;
                       },
                     ),
                     CustomTextField(

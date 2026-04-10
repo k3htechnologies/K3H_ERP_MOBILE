@@ -359,6 +359,8 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       }
                       return null;
                     },
+                    onValueClear:
+                        () => selectedApplicantType = applicantTypeList.first,
                   ),
                   if (widget.hasPrimaryApplicant && !_isEditingApplicantType)
                     Padding(
@@ -750,10 +752,10 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       cancelledChequeFile.fileBytesList = bytesList;
                     },
                     onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deleted,
-                        ) {
+                      fileBytesList,
+                      fileNameList,
+                      deleted,
+                    ) {
                       cancelledChequeFile.fileBytesList = fileBytesList;
                       cancelledChequeFile.fileNameList = fileNameList;
                       cancelledChequeFile.deletedFileList = deleted;
@@ -768,10 +770,10 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       poaFile.fileBytesList = bytesList;
                     },
                     onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deleted,
-                        ) {
+                      fileBytesList,
+                      fileNameList,
+                      deleted,
+                    ) {
                       poaFile.fileBytesList = fileBytesList;
                       poaFile.fileNameList = fileNameList;
                       poaFile.deletedFileList = deleted;
@@ -786,10 +788,10 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       incomeForm16ItrFile.fileBytesList = bytesList;
                     },
                     onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deleted,
-                        ) {
+                      fileBytesList,
+                      fileNameList,
+                      deleted,
+                    ) {
                       incomeForm16ItrFile.fileBytesList = fileBytesList;
                       incomeForm16ItrFile.fileNameList = fileNameList;
                       incomeForm16ItrFile.deletedFileList = deleted;
@@ -804,10 +806,10 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       nreNroBankDetailsFile.fileBytesList = bytesList;
                     },
                     onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deleted,
-                        ) {
+                      fileBytesList,
+                      fileNameList,
+                      deleted,
+                    ) {
                       nreNroBankDetailsFile.fileBytesList = fileBytesList;
                       nreNroBankDetailsFile.fileNameList = fileNameList;
                       nreNroBankDetailsFile.deletedFileList = deleted;
@@ -822,10 +824,10 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       nomineeFormFile.fileBytesList = bytesList;
                     },
                     onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deleted,
-                        ) {
+                      fileBytesList,
+                      fileNameList,
+                      deleted,
+                    ) {
                       nomineeFormFile.fileBytesList = fileBytesList;
                       nomineeFormFile.fileNameList = fileNameList;
                       nomineeFormFile.deletedFileList = deleted;
@@ -840,10 +842,10 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       statementOfSourceOfFundFile.fileBytesList = bytesList;
                     },
                     onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deleted,
-                        ) {
+                      fileBytesList,
+                      fileNameList,
+                      deleted,
+                    ) {
                       statementOfSourceOfFundFile.fileBytesList = fileBytesList;
                       statementOfSourceOfFundFile.fileNameList = fileNameList;
                       statementOfSourceOfFundFile.deletedFileList = deleted;
@@ -858,10 +860,10 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       paymentProofURLFundFile.fileBytesList = bytesList;
                     },
                     onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deleted,
-                        ) {
+                      fileBytesList,
+                      fileNameList,
+                      deleted,
+                    ) {
                       paymentProofURLFundFile.fileBytesList = fileBytesList;
                       paymentProofURLFundFile.fileNameList = fileNameList;
                       paymentProofURLFundFile.deletedFileList = deleted;

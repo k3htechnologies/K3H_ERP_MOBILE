@@ -186,6 +186,9 @@ class _AddUnitSpecificationScreenState
                         }
                         return null;
                       },
+                      onValueClear: () {
+                        selectedUnitLayout.value = null;
+                      },
                     );
                   },
                 ),
@@ -197,7 +200,7 @@ class _AddUnitSpecificationScreenState
                   textController: _areaC,
                   inputFormatterList:
                       inputFormatterListForDecimalValuesFixedToTwo(10),
-                  validator: (value){
+                  validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Area is required';
                     }

@@ -40,7 +40,8 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   // DROPDOWN VALUES
   Map<String, dynamic>? selectedBusinessCategory;
   Map<String, dynamic>? selectedProjectSubScheme;
-  late final ValueNotifier<Map<String, dynamic>?> _selectedProjectStatusNotifier;
+  late final ValueNotifier<Map<String, dynamic>?>
+  _selectedProjectStatusNotifier;
 
   // ADDRESS VARIABLES
   int? _stateMasterId;
@@ -247,9 +248,8 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     }
 
     _selectedProjectStatusNotifier.value = projectStatusList.firstWhereOrNull(
-          (status) => status["DisplayName"] == widget.project!.projectStatus,
+      (status) => status["DisplayName"] == widget.project!.projectStatus,
     );
-
 
     if (widget.project!.projectScheme.isNotEmpty) {
       projectSchemeNotifier.value = projectSchemeList.firstWhere(
@@ -326,7 +326,8 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     ? projectSchemeNotifier.value!["DisplayName"].toString()
                     : "",
             projectScope: _projectScopeC.text,
-            projectStatus:_selectedProjectStatusNotifier.value?["DisplayName"]??"",
+            projectStatus:
+                _selectedProjectStatusNotifier.value?["DisplayName"] ?? "",
             projectSubScheme:
                 selectedProjectSubScheme != null &&
                         selectedProjectSubScheme!["zAttributesId"] != -1
@@ -377,7 +378,8 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     ? projectSchemeNotifier.value!["DisplayName"].toString()
                     : "",
             projectScope: _projectScopeC.text,
-            projectStatus:_selectedProjectStatusNotifier.value?["DisplayName"]??"",
+            projectStatus:
+                _selectedProjectStatusNotifier.value?["DisplayName"] ?? "",
             projectSubScheme:
                 selectedProjectSubScheme != null &&
                         selectedProjectSubScheme!["zAttributesId"] != -1
@@ -521,6 +523,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         dataList: businessCategoryList,
                         onSelected: (value) {
                           selectedBusinessCategory = value;
+                        },
+                        onValueClear: () {
+                          selectedBusinessCategory = null;
                         },
                       ),
                       CustomTextField(
@@ -700,6 +705,10 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                 selectedProjectSubScheme = null;
                               }
                             },
+                            onValueClear: () {
+                              projectSchemeNotifier.value = null;
+                              selectedProjectSubScheme = null;
+                            },
                           );
                         },
                       ),
@@ -715,6 +724,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                 selectedProjectScheme?["zAttributesId"] == -1,
                             onSelected: (value) {
                               selectedProjectSubScheme = value;
+                            },
+                            onValueClear: () {
+                              selectedProjectScheme = null;
                             },
                           );
                         },

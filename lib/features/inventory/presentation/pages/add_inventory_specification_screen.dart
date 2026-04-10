@@ -673,6 +673,9 @@ class _AddInventorySpecificationScreenState
                             }
                             return null;
                           },
+                          onValueClear: () {
+                            selectedFlatFacing.value = null;
+                          },
                         );
                       },
                     ),
@@ -695,6 +698,9 @@ class _AddInventorySpecificationScreenState
                               return 'Status is required';
                             }
                             return null;
+                          },
+                          onValueClear: () {
+                            selectedFlatStatus.value = null;
                           },
                         );
                       },
