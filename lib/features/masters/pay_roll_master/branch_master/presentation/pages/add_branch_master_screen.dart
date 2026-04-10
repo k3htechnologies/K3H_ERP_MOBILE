@@ -159,6 +159,8 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
                     CustomTextField(
                       title: 'Location',
                       hint: 'Enter Location',
+                      minLines: 3,
+                      maxLines: 3,
                       textController: _locationC,
                       isRequired: true,
                       inputFormatterList: [

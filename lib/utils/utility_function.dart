@@ -16,7 +16,7 @@ ProjectModel getProject() {
       return ProjectModel(
         projectId: 0,
         uniquekey: "",
-        projectName: "Default",
+        projectName: "No Project Selected",
         projectLocation: "",
         projectPhotoUrl: "",
         companyId: "",
