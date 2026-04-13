@@ -41,7 +41,6 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
   late TextEditingController _residentialUnitsController;
   late TextEditingController _commercialUnitsController;
   final List<Map<String, dynamic>> _lienTypeList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select'},
     {'zAttributesId': 1, 'DisplayName': 'Residential'},
     {'zAttributesId': 2, 'DisplayName': 'Commercial'},
   ];
@@ -195,9 +194,9 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                           onSelected: (value) {
                             _selectedLienType.value = value;
                           },
-                          title: "Type*",
+                          title: "Type",
                           validator: (value) {
-                            if (value == null || value['zAttributesId'] == -1) {
+                            if (_selectedLienType.value == null) {
                               return "Type is required";
                             }
                             return null;
@@ -303,7 +302,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                           ],
                         ),
 
-                        verticalSpacing(height: 25),
+                        verticalSpacing(height: 15),
 
                         // SAVE
                         CustomButton(

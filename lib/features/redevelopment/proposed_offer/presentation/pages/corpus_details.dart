@@ -274,9 +274,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                         return null;
                       },
                       onValueClear: () {
-                        print("selectedCorpusType : $selectedCorpusType");
                         selectedCorpusType = null;
-                        print("selectedCorpusType : $selectedCorpusType");
                       },
                     ),
 

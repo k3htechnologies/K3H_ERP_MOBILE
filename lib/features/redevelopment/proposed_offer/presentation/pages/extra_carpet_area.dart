@@ -40,7 +40,6 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
 
   // DROPDOWN LISTS
   final List<Map<String, dynamic>> _extraCarpetTypeList = [
-    {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "RERA"},
     {"zAttributesId": 2, "DisplayName": "MOFA"},
   ];
@@ -138,6 +137,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                     ),
                     CustomDropDownWidget(
                       title: 'Extra Carpet Area Type',
+                      hintText: 'Select Extra Carpet Area Type',
                       isRequired: true,
                       dataList: _extraCarpetTypeList,
                       initialValue: _selectedExtraCarpetType,
@@ -145,7 +145,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                         _selectedExtraCarpetType = value;
                       },
                       validator: (value) {
-                        if (value == null || value['zAttributesId'] == -1) {
+                        if (_selectedExtraCarpetType == null) {
                           return "Extra Carpet Area Type is required";
                         }
                         return null;
