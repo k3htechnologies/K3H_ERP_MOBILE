@@ -237,9 +237,6 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                                     initialDate: endDate,
                                     setValue: (value) {
                                       _endDateNotifier.value = value;
-                                      print(
-                                        "End Date: ${_endDateNotifier.value}",
-                                      );
                                       _calculateTotalDays();
                                     },
                                     validator: (value) {

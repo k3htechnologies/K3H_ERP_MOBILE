@@ -299,8 +299,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
   }
 
   List<Map<String, dynamic>> get _currentSubSchemeList {
-    if (selectedProjectSchemeNotifier.value == null)
-      return projectSubSchemeBMCList;
+    if (selectedProjectSchemeNotifier.value == null) return [{}];
     final id = selectedProjectSchemeNotifier.value!["zAttributesId"] as int?;
     if (id == null || id == -1) return projectSubSchemeBMCList;
     switch (id) {

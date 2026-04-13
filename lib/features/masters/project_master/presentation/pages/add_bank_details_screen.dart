@@ -139,7 +139,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
       return;
     }
 
-    if (selectedAccountType == null ||
+    if (selectedAccountType.value == null ||
         selectedAccountType.value!['zAttributesId'] == -1) {
       showErrorMessage(context, "Error", "Please select an account type");
       return;

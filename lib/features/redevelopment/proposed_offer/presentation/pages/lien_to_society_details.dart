@@ -196,7 +196,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                           },
                           title: "Type",
                           validator: (value) {
-                            if (_selectedLienType.value == null) {
+                            if (value == null) {
                               return "Type is required";
                             }
                             return null;

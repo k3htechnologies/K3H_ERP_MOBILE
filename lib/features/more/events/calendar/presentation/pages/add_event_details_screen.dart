@@ -430,9 +430,7 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
                                     return null;
                                   },
                                   onValueClear: () {
-                                    print("Selected Room :  $selectedRoom");
                                     selectedRoom = null;
-                                    print("Selected Room :  $selectedRoom");
                                   },
                                 ),
                               ),

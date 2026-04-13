@@ -36,7 +36,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
   // TEXT EDITING CONTROLLERS
   late TextEditingController _securityDepositAmountController;
   final List<Map<String, dynamic>> _securityDepositTypeList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select'},
     {'zAttributesId': 1, 'DisplayName': 'Residential'},
     {'zAttributesId': 2, 'DisplayName': 'Commercial'},
   ];
@@ -151,7 +150,8 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                       onSelected: (value) {
                         _selectedSecurityDepositType.value = value;
                       },
-                      title: "Type*",
+                      title: "Type",
+                      hintText: "Select Type",
                       validator: (value) {
                         if (value == null || value['zAttributesId'] == -1) {
                           return "Type is required";
@@ -159,9 +159,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                         return null;
                       },
                       onValueClear:
-                          () =>
-                              selectedSecurityDepositType =
-                                  _securityDepositTypeList.first,
+                          () => _selectedSecurityDepositType.value = null,
                     ),
 
                     /// STAGE

@@ -47,24 +47,29 @@ class _RentDetailsState extends State<RentDetails> {
   final ValueNotifier<DateTime?> _rentEndDate = ValueNotifier<DateTime?>(null);
 
   // DROPDOWN SELECTIONS
-  Map<String, dynamic>? _selectedType;
-  Map<String, dynamic>? _selectedTenure;
-  Map<String, dynamic>? _selectedUnitSqFtLumsum;
 
+  final ValueNotifier<Map<String, dynamic>?> _selectedType = ValueNotifier(
+    null,
+  );
+
+  final ValueNotifier<Map<String, dynamic>?> _selectedTenure = ValueNotifier(
+    null,
+  );
+
+  final ValueNotifier<Map<String, dynamic>?> _selectedUnitSqFtLumsum =
+      ValueNotifier(null);
   // BOOLEAN VALUES
   final ValueNotifier<bool> _isAdditionalRent = ValueNotifier<bool>(false);
   final ValueNotifier<bool> _isPayBrokerage = ValueNotifier<bool>(false);
 
   // DROPDOWN LISTS
   final List<Map<String, dynamic>> _typeList = [
-    {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "Residential"},
     {"zAttributesId": 2, "DisplayName": "Commercial"},
   ];
 
   // TENURE LIST
   final List<Map<String, dynamic>> _tenureList = [
-    {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "Tenure 1"},
     {"zAttributesId": 2, "DisplayName": "Tenure 2"},
     {"zAttributesId": 3, "DisplayName": "Tenure 3"},
@@ -74,7 +79,6 @@ class _RentDetailsState extends State<RentDetails> {
 
   // UNIT SQ FT LUMSUM LIST
   final List<Map<String, dynamic>> _unitSqFtLumsumList = [
-    {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "Per Sq Ft"},
     {"zAttributesId": 2, "DisplayName": "Lump Sum"},
   ];
@@ -146,17 +150,17 @@ class _RentDetailsState extends State<RentDetails> {
     _isPayBrokerage.value = rentDetailsModel.isPayBrokerage;
 
     // Prefill dropdowns
-    _selectedType = _typeList.firstWhere(
+    _selectedType.value = _typeList.firstWhere(
       (e) => e['DisplayName'] == rentDetailsModel.type,
       orElse: () => _typeList.first,
     );
 
-    _selectedTenure = _tenureList.firstWhere(
+    _selectedTenure.value = _tenureList.firstWhere(
       (e) => e['DisplayName'] == rentDetailsModel.tenure,
       orElse: () => _tenureList.first,
     );
 
-    _selectedUnitSqFtLumsum = _unitSqFtLumsumList.firstWhere(
+    _selectedUnitSqFtLumsum.value = _unitSqFtLumsumList.firstWhere(
       (e) => e['DisplayName'] == rentDetailsModel.unitSqFtLumsum,
       orElse: () => _unitSqFtLumsumList.first,
     );
@@ -272,41 +276,56 @@ class _RentDetailsState extends State<RentDetails> {
                         Row(
                           children: [
                             Expanded(
-                              child: CustomDropDownWidget(
-                                title: 'Type',
-                                isRequired: true,
-                                dataList: _typeList,
-                                initialValue: _selectedType,
-                                onSelected: (v) => _selectedType = v,
-                                validator:
-                                    (v) =>
-                                        v == null || v['zAttributesId'] == -1
-                                            ? "Type is required"
-                                            : null,
-                                onValueClear:
-                                    () => _selectedType = _typeList.first,
+                              child: ValueListenableBuilder(
+                                valueListenable: _selectedType,
+                                builder: (context, value, child) {
+                                  return CustomDropDownWidget(
+                                    title: 'Type',
+                                    hintText: 'Select Type',
+                                    isRequired: true,
+                                    dataList: _typeList,
+                                    initialValue: value,
+                                    onSelected: (v) => _selectedType.value = v,
+                                    validator:
+                                        (v) =>
+                                            v == null ||
+                                                    v['zAttributesId'] == -1
+                                                ? "Type is required"
+                                                : null,
+                                    onValueClear:
+                                        () => _selectedType.value = null,
+                                  );
+                                },
                               ),
                             ),
                             horizontalSpacing(),
                             Expanded(
                               child:
                                   !isAdditionalRent
-                                      ? CustomDropDownWidget(
-                                        title: 'Tenure',
-                                        isRequired: true,
-                                        dataList: _tenureList,
-                                        initialValue: _selectedTenure,
-                                        onSelected: (v) => _selectedTenure = v,
-                                        validator: (v) {
-                                          if (isAdditionalRent) return null;
-                                          if (v == null ||
-                                              v['zAttributesId'] == -1) {
-                                            return "Tenure is required";
-                                          }
-                                          return null;
-                                        },
-                                        onValueClear: () {
-                                          _selectedTenure = _tenureList.first;
+                                      ? ValueListenableBuilder(
+                                        valueListenable: _selectedTenure,
+                                        builder: (context, value, child) {
+                                          return CustomDropDownWidget(
+                                            title: 'Tenure',
+                                            hintText: "Select Tenure",
+                                            isRequired: true,
+                                            dataList: _tenureList,
+                                            initialValue: value,
+                                            onSelected:
+                                                (v) =>
+                                                    _selectedTenure.value = v,
+                                            validator: (v) {
+                                              if (isAdditionalRent) return null;
+                                              if (v == null ||
+                                                  v['zAttributesId'] == -1) {
+                                                return "Tenure is required";
+                                              }
+                                              return null;
+                                            },
+                                            onValueClear: () {
+                                              _selectedTenure.value = null;
+                                            },
+                                          );
                                         },
                                       )
                                       : const SizedBox(),
@@ -339,21 +358,29 @@ class _RentDetailsState extends State<RentDetails> {
                             ),
                             horizontalSpacing(),
                             Expanded(
-                              child: CustomDropDownWidget(
-                                title: 'Unit Sq Ft Lumsum',
-                                isRequired: true,
-                                dataList: _unitSqFtLumsumList,
-                                initialValue: _selectedUnitSqFtLumsum,
-                                onSelected: (v) => _selectedUnitSqFtLumsum = v,
-                                validator:
-                                    (v) =>
-                                        v == null || v['zAttributesId'] == -1
-                                            ? "Unit Sq Ft Lumsum is required"
-                                            : null,
-                                onValueClear:
-                                    () =>
-                                        _selectedUnitSqFtLumsum =
-                                            _unitSqFtLumsumList.first,
+                              child: ValueListenableBuilder(
+                                valueListenable: _selectedUnitSqFtLumsum,
+                                builder: (context, value, child) {
+                                  return CustomDropDownWidget(
+                                    title: 'Unit Sq Ft Lumsum',
+                                    isRequired: true,
+                                    dataList: _unitSqFtLumsumList,
+                                    initialValue: value,
+                                    onSelected:
+                                        (v) =>
+                                            _selectedUnitSqFtLumsum.value = v,
+                                    validator:
+                                        (v) =>
+                                            v == null ||
+                                                    v['zAttributesId'] == -1
+                                                ? "Unit Sq Ft Lumsum is required"
+                                                : null,
+                                    onValueClear:
+                                        () =>
+                                            _selectedUnitSqFtLumsum.value =
+                                                null,
+                                  );
+                                },
                               ),
                             ),
                           ],
@@ -461,7 +488,7 @@ class _RentDetailsState extends State<RentDetails> {
                               }
 
                               if (isAdditionalRent) {
-                                _selectedTenure = {
+                                _selectedTenure.value = {
                                   'zAttributesId': -1,
                                   'zAttributesName': '',
                                 };
@@ -492,9 +519,9 @@ class _RentDetailsState extends State<RentDetails> {
 
   // CLEAR DIALOGUE TO UPDATED RENT DETAILS
   void _clearDialogueToUpdatedRentDetails() {
-    _selectedType = null;
-    _selectedTenure = null;
-    _selectedUnitSqFtLumsum = null;
+    _selectedType.value = null;
+    _selectedTenure.value = null;
+    _selectedUnitSqFtLumsum.value = null;
     _amountController.clear();
     _carpetAreaSqFtController.clear();
     _rentStartDate.value = null;
@@ -520,10 +547,10 @@ class _RentDetailsState extends State<RentDetails> {
                 rentDetailsModel.proposedOfferRentDetailsId,
             uniqueKey: rentDetailsModel.uniquekey,
             isAdditionalRent: _isAdditionalRent.value,
-            type: _selectedType!['DisplayName'],
-            tenure: _selectedTenure?['DisplayName'] ?? "",
+            type: _selectedType.value!['DisplayName'],
+            tenure: _selectedTenure.value?['DisplayName'] ?? "",
             amount: double.parse(_amountController.text),
-            unitSqFtLumsum: _selectedUnitSqFtLumsum!['DisplayName'],
+            unitSqFtLumsum: _selectedUnitSqFtLumsum.value!['DisplayName'],
             carpetAreaSqFt: double.parse(_carpetAreaSqFtController.text),
             rentStartDate: _rentStartDate.value!,
             rentEndDate: _rentEndDate.value!,
@@ -535,10 +562,10 @@ class _RentDetailsState extends State<RentDetails> {
             buildingId: widget.buildingId,
             projectId: widget.projectId,
             isAdditionalRent: _isAdditionalRent.value,
-            type: _selectedType!['DisplayName'],
-            tenure: _selectedTenure?['DisplayName'] ?? "",
+            type: _selectedType.value!['DisplayName'],
+            tenure: _selectedTenure.value?['DisplayName'] ?? "",
             amount: double.parse(_amountController.text),
-            unitSqFtLumsum: _selectedUnitSqFtLumsum!['DisplayName'],
+            unitSqFtLumsum: _selectedUnitSqFtLumsum.value!['DisplayName'],
             carpetAreaSqFt: double.parse(_carpetAreaSqFtController.text),
             rentStartDate: _rentStartDate.value!,
             rentEndDate: _rentEndDate.value!,
