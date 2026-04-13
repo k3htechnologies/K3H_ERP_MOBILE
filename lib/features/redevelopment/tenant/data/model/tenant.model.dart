@@ -173,12 +173,6 @@ class TenantApplicantData extends BookingApplicantData {
     deletedFileList: "",
   );
 
-  MultiFilePickerModel paymentProofImage = MultiFilePickerModel(
-    fileBytesList: [],
-    fileNameList: [],
-    deletedFileList: "",
-  );
-
   TenantApplicantData({
     required this.tenantApplicantId,
     required this.tenantId,
