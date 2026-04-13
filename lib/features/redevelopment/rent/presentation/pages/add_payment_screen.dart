@@ -72,9 +72,13 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
   DateTime? selectedDate;
 
   // DROPDOWN VARIABLES
-  late Map<String, dynamic> selectedPaymentMode;
-  late Map<String, dynamic> selectedAmountType;
-  late Map<String, dynamic> selectedPaymentType;
+  final ValueNotifier<Map<String, dynamic>?> selectedPaymentMode =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> selectedAmountType = ValueNotifier(
+    null,
+  );
+  final ValueNotifier<Map<String, dynamic>?> selectedPaymentType =
+      ValueNotifier(null);
 
   // Bank selections as list (single item when selected) for CustomMultipleSelectPopup
   final ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier =
@@ -96,7 +100,6 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
 
   // PAYMENT MODE LIST
   List<Map<String, dynamic>> paymentModeList = [
-    {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "Cheque"},
     {"zAttributesId": 2, "DisplayName": "Demand Draft"},
     {"zAttributesId": 3, "DisplayName": "IMPS"},
@@ -108,7 +111,6 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
 
   // AMOUNT TYPE LIST
   List<Map<String, dynamic>> amountTypeList = [
-    {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "Monthly"},
     {"zAttributesId": 2, "DisplayName": "Quarterly"},
     {"zAttributesId": 3, "DisplayName": "Yearly"},
@@ -117,7 +119,6 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
 
   // PAYMENT TYPE LIST
   List<Map<String, dynamic>> paymentTypeList = [
-    {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "Advance"},
     {"zAttributesId": 2, "DisplayName": "Regular"},
     {"zAttributesId": 3, "DisplayName": "Late Fee"},
@@ -129,7 +130,6 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
     super.initState();
     _rentCubit = context.read<RentCubit>();
     _project = getProject();
-    _initializeValues();
     _initializeTextControllers();
     if (_isEditMode && widget.paymentLedger != null) {
       _prefillFromPaymentLedger(widget.paymentLedger!);
@@ -146,15 +146,15 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
     _accountType.text = '';
     _accountHolderNameC.text = p.projectBankAccountHolderName;
 
-    selectedPaymentMode = paymentModeList.firstWhere(
+    selectedPaymentMode.value = paymentModeList.firstWhere(
       (e) => (e['DisplayName'] as String?) == p.paymentMode,
       orElse: () => paymentModeList.first,
     );
-    selectedAmountType = amountTypeList.firstWhere(
+    selectedAmountType.value = amountTypeList.firstWhere(
       (e) => (e['DisplayName'] as String?) == p.amountType,
       orElse: () => amountTypeList.first,
     );
-    selectedPaymentType = paymentTypeList.firstWhere(
+    selectedPaymentType.value = paymentTypeList.firstWhere(
       (e) => (e['DisplayName'] as String?) == p.paymentType,
       orElse: () => paymentTypeList.first,
     );
@@ -207,12 +207,6 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
     _accountHolderNameC = TextEditingController();
   }
 
-  void _initializeValues() {
-    selectedPaymentMode = paymentModeList.first;
-    selectedAmountType = amountTypeList.first;
-    selectedPaymentType = paymentTypeList.first;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -233,20 +227,20 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                   children: [
                     CustomDropDownWidget(
                       title: "Payment Mode",
+                      hintText: "Select Payment Mode",
                       isRequired: true,
                       dataList: paymentModeList,
-                      initialValue: selectedPaymentMode,
+                      initialValue: selectedPaymentMode.value,
                       onSelected: (value) {
-                        selectedPaymentMode = value;
+                        selectedPaymentMode.value = value;
                       },
                       validator: (value) {
-                        if (value == null || value['zAttributesId'] == -1) {
+                        if (value == null) {
                           return 'Payment Mode for is required';
                         }
                         return null;
                       },
-                      onValueClear:
-                          () => selectedPaymentMode = paymentModeList.first,
+                      onValueClear: () => selectedPaymentMode.value = null,
                     ),
                     ValueListenableBuilder<List<Map<String, dynamic>>>(
                       valueListenable: _selectedBankNotifier,
@@ -318,37 +312,37 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                     ),
                     CustomDropDownWidget(
                       title: "Amount Type",
+                      hintText: "Select Amount Type",
                       isRequired: true,
                       dataList: amountTypeList,
-                      initialValue: selectedAmountType,
+                      initialValue: selectedAmountType.value,
                       onSelected: (value) {
-                        selectedAmountType = value;
+                        selectedAmountType.value = value;
                       },
                       validator: (value) {
-                        if (value == null || value['zAttributesId'] == -1) {
+                        if (value == null) {
                           return 'Amount Type is required';
                         }
                         return null;
                       },
-                      onValueClear:
-                          () => selectedAmountType = amountTypeList.first,
+                      onValueClear: () => selectedAmountType.value = null,
                     ),
                     CustomDropDownWidget(
                       title: "Payment Type",
+                      hintText: "Select Payment Type",
                       isRequired: true,
                       dataList: paymentTypeList,
-                      initialValue: selectedPaymentType,
+                      initialValue: selectedPaymentType.value,
                       onSelected: (value) {
-                        selectedPaymentType = value;
+                        selectedPaymentType.value = value;
                       },
                       validator: (value) {
-                        if (value == null || value['zAttributesId'] == -1) {
+                        if (value == null) {
                           return 'Payment Type is required';
                         }
                         return null;
                       },
-                      onValueClear:
-                          () => selectedPaymentType = paymentTypeList.first,
+                      onValueClear: () => selectedPaymentType.value = null,
                     ),
                     CustomTextField(
                       title: "Account Number",
@@ -567,9 +561,12 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                       _selectedBankNotifier.value.first["zAttributesId"] as int,
                   accountNumber: _accountNumberC.text,
                   ifscCode: _ifscCodeC.text,
-                  paymentMode: selectedPaymentMode["DisplayName"] as String,
-                  amountType: selectedAmountType["DisplayName"] as String,
-                  paymentType: selectedPaymentType["DisplayName"] as String,
+                  paymentMode:
+                      selectedPaymentMode.value?["DisplayName"] as String,
+                  amountType:
+                      selectedAmountType.value?["DisplayName"] as String,
+                  paymentType:
+                      selectedPaymentType.value?["DisplayName"] as String,
                   payAmount: _payAmountC.text,
                   transactionChequeDemandDraftNumber: _transactionNumC.text,
                   transactionChequeDemandDraftDate: selectedDate!,
@@ -600,9 +597,12 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                               as int,
                       accountNumber: _accountNumberC.text,
                       ifscCode: _ifscCodeC.text,
-                      paymentMode: selectedPaymentMode["DisplayName"] as String,
-                      amountType: selectedAmountType["DisplayName"] as String,
-                      paymentType: selectedPaymentType["DisplayName"] as String,
+                      paymentMode:
+                          selectedPaymentMode.value?["DisplayName"] as String,
+                      amountType:
+                          selectedAmountType.value?["DisplayName"] as String,
+                      paymentType:
+                          selectedPaymentType.value?["DisplayName"] as String,
                       payAmount: _payAmountC.text,
                       transactionChequeDemandDraftNumber: _transactionNumC.text,
                       transactionChequeDemandDraftDate: selectedDate!,
