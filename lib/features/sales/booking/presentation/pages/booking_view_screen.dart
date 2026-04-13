@@ -38,11 +38,12 @@ class _BookingViewScreenState extends State<BookingViewScreen>
   late BookingModel? bookingModel;
 
   // FOR TERMS AND CONDITIONS EXPANSION TILE
-  final ValueNotifier<bool> isExpanded = ValueNotifier(false);
+  late ValueNotifier<bool> isExpanded;
 
   @override
   void initState() {
     super.initState();
+    isExpanded = ValueNotifier(false);
     _tabController = TabController(length: 7, vsync: this);
     _tabController.addListener(_handleTabChange);
     _bookingCubit = context.read<BookingCubit>();
@@ -53,6 +54,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
   void dispose() {
     super.dispose();
     _tabController.dispose();
+    isExpanded.dispose();
   }
 
   Future<void> loadBooking() async {
@@ -805,6 +807,29 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 ),
                               ],
                             ),
+                            Row(
+                              spacing: 5,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Profile Photo",
+                                  value:
+                                  applicant.photoURL.isEmpty ? "-" : applicant.photoURL,
+                                  customValueWidget: CustomButton.documentOutline(
+                                    onPressed: () {
+                                      if (applicant.photoURL.isNotEmpty) {
+                                        showFilePreviewDialog(
+                                          context,
+                                          applicant.photoURL.split(","),
+                                        );
+                                      }
+                                    },
+                                    isDisable: applicant.photoURL.isEmpty,
+                                  ),
+                                ),
+                                Expanded(child: SizedBox())
+                              ],
+                            )
                           ],
                         ),
                       );
@@ -1341,16 +1366,18 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 ),
                                 payment.type.contains("Date")
                                     ? buildColumnTitleValue(
-                                  title: "Date",
-                                  value:
-                                  payment.date != null
-                                      ? formatDateTimeAsDDMMMYYYY(payment.date!)
-                                      : "-",
-                                )
+                                      title: "Date",
+                                      value:
+                                          payment.date != null
+                                              ? formatDateTimeAsDDMMMYYYY(
+                                                payment.date!,
+                                              )
+                                              : "-",
+                                    )
                                     : buildColumnTitleValue(
-                                  title: "Stage",
-                                  value: payment.name,
-                                ),
+                                      title: "Stage",
+                                      value: payment.name,
+                                    ),
                               ],
                             ),
                             Row(
@@ -1359,8 +1386,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 buildColumnTitleValue(
                                   title: "Percentage (%)",
                                   value:
-                                      payment.paymentSchedulePercentage
-                                          .toString(),
+                                      "${payment.paymentSchedulePercentage} %",
                                 ),
                                 buildColumnTitleValue(
                                   title: "Amount (₹)",
@@ -1372,14 +1398,14 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
-                                  title: "GST (₹)",
+                                  title: "GST Amount (₹)",
                                   value:
                                       "₹ ${payment.paymentScheduleGSTAmount}",
                                 ),
                                 buildColumnTitleValue(
-                                  title: "TDS (₹)",
+                                  title: "TDS Amount (₹)",
                                   value:
-                                  "₹ ${payment.paymentScheduleTDSAmount}",
+                                      "₹ ${payment.paymentScheduleTDSAmount}",
                                 ),
                               ],
                             ),
@@ -1469,32 +1495,38 @@ class _BookingViewScreenState extends State<BookingViewScreen>
             child: ValueListenableBuilder<bool>(
               valueListenable: isExpanded,
               builder: (context, value, child) {
+                final hasData =
+                    bookingModel!.termsAndConditionsDescription
+                        .trim()
+                        .isNotEmpty;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    GestureDetector(
+                    InkWell(
                       onTap: () {
-                        isExpanded.value = !value;
+                        isExpanded.value = !isExpanded.value;
                       },
-                      child: Row(
-                        spacing: 10,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              "Terms & Conditions",
-                              style: AppTextStyle.ts16SB(),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                "Terms & Conditions",
+                                style: AppTextStyle.ts16SB(),
+                              ),
                             ),
-                          ),
-                          Icon(
-                            value
-                                ? Icons.keyboard_arrow_up
-                                : Icons.keyboard_arrow_down,
-                          ),
-                        ],
+                            Icon(
+                              value
+                                  ? Icons.keyboard_arrow_up
+                                  : Icons.keyboard_arrow_down,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
 
-                    if (value) ...[
+                    if (value && hasData) ...[
                       const SizedBox(height: 10),
                       isHtml
                           ? Html(
@@ -1510,10 +1542,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                           : Text(
                             bookingModel!.termsAndConditionsDescription,
                             style: AppTextStyle.ts14R(color: AppColor.grey),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                    ] else ...[
+                    ] else if (value && !hasData) ...[
                       Center(
                         child: noDataWidget(
                           message: "No Terms & Conditions Available",
@@ -1824,6 +1854,169 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   buildColumnTitleValue(
+                    title: "Cancelled Cheque",
+                    value:
+                    applicant.cancelledChequeUrl.isEmpty
+                        ? "-"
+                        : applicant.cancelledChequeUrl,
+                    customValueWidget:
+                    CustomButton.documentOutline(
+                      onPressed: () {
+                        if (applicant
+                            .cancelledChequeUrl
+                            .isNotEmpty) {
+                          showFilePreviewDialog(
+                            context,
+                            applicant.cancelledChequeUrl
+                                .split(","),
+                          );
+                        }
+                      },
+                      isDisable:
+                      applicant
+                          .cancelledChequeUrl
+                          .isEmpty,
+                    ),
+                  ),
+                  buildColumnTitleValue(
+                    title: "POA (if NRI Execution)",
+                    value:
+                    applicant.poaurl.isEmpty
+                        ? "-"
+                        : applicant.poaurl,
+                    customValueWidget:
+                    CustomButton.documentOutline(
+                      onPressed: () {
+                        if (applicant.poaurl.isNotEmpty) {
+                          showFilePreviewDialog(
+                            context,
+                            applicant.poaurl.split(","),
+                          );
+                        }
+                      },
+                      isDisable: applicant.poaurl.isEmpty,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 5,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Income Docs (Form 16 / ITR)",
+                    value:
+                    applicant.incomeForm16Itrurl.isEmpty
+                        ? "-"
+                        : applicant.incomeForm16Itrurl,
+                    customValueWidget:
+                    CustomButton.documentOutline(
+                      onPressed: () {
+                        if (applicant
+                            .incomeForm16Itrurl
+                            .isNotEmpty) {
+                          showFilePreviewDialog(
+                            context,
+                            applicant.incomeForm16Itrurl
+                                .split(","),
+                          );
+                        }
+                      },
+                      isDisable:
+                      applicant
+                          .cancelledChequeUrl
+                          .isEmpty,
+                    ),
+                  ),
+                  buildColumnTitleValue(
+                    title: "NRE / NRO Bank Details",
+                    value:
+                    applicant.nreNroBankDetailsUrl.isEmpty
+                        ? "-"
+                        : applicant.nreNroBankDetailsUrl,
+                    customValueWidget:
+                    CustomButton.documentOutline(
+                      onPressed: () {
+                        if (applicant
+                            .nreNroBankDetailsUrl
+                            .isNotEmpty) {
+                          showFilePreviewDialog(
+                            context,
+                            applicant.nreNroBankDetailsUrl
+                                .split(","),
+                          );
+                        }
+                      },
+                      isDisable:
+                      applicant
+                          .nreNroBankDetailsUrl
+                          .isEmpty,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 5,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Nominee Form",
+                    value:
+                    applicant.nomineeFormUrl.isEmpty
+                        ? "-"
+                        : applicant.nomineeFormUrl,
+                    customValueWidget:
+                    CustomButton.documentOutline(
+                      onPressed: () {
+                        if (applicant
+                            .nomineeFormUrl
+                            .isNotEmpty) {
+                          showFilePreviewDialog(
+                            context,
+                            applicant.nomineeFormUrl.split(
+                              ",",
+                            ),
+                          );
+                        }
+                      },
+                      isDisable:
+                      applicant
+                          .cancelledChequeUrl
+                          .isEmpty,
+                    ),
+                  ),
+                  buildColumnTitleValue(
+                    title: "NRE / NRO Bank Details",
+                    value:
+                    applicant.nreNroBankDetailsUrl.isEmpty
+                        ? "-"
+                        : applicant.nreNroBankDetailsUrl,
+                    customValueWidget:
+                    CustomButton.documentOutline(
+                      onPressed: () {
+                        if (applicant
+                            .nreNroBankDetailsUrl
+                            .isNotEmpty) {
+                          showFilePreviewDialog(
+                            context,
+                            applicant.nreNroBankDetailsUrl
+                                .split(","),
+                          );
+                        }
+                      },
+                      isDisable:
+                      applicant
+                          .nreNroBankDetailsUrl
+                          .isEmpty,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 5,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
                     title: "Profile Photo",
                     value:
                         applicant.photoURL.isEmpty ? "-" : applicant.photoURL,
@@ -1949,7 +2142,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 children: [
                   buildColumnTitleValue(
                     title: "Percentage (%)",
-                    value: payment.paymentSchedulePercentage.toString(),
+                    value: "${payment.paymentSchedulePercentage} %",
                   ),
                   buildColumnTitleValue(
                     title: "Amount (₹)",
@@ -1960,11 +2153,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               Row(
                 children: [
                   buildColumnTitleValue(
-                    title: "GST (₹)",
+                    title: "GST Amount (₹)",
                     value: "₹ ${payment.paymentScheduleGSTAmount}",
                   ),
                   buildColumnTitleValue(
-                    title: "TDS (₹)",
+                    title: "TDS Amount (₹)",
                     value: "₹ ${payment.paymentScheduleTDSAmount}",
                   ),
                 ],

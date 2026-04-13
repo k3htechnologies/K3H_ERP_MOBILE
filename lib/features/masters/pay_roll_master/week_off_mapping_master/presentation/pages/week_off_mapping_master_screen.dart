@@ -103,8 +103,8 @@ class _WeekOffMappingMasterScreenState
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a week off?',
-      'Deleting this week off will permanently remove its contents.',
+      'You are about to delete a weekOff Mapping ?',
+      'Deleting this weekOff Mapping will permanently remove all associated data.',
     );
     if (result && context.mounted) {
       _weekOffMappingMasterCubit.deleteWeekOffMapping(index, obj, context);

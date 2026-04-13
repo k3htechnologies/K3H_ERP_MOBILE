@@ -115,8 +115,8 @@ class _LeaveCreditConfigurationMasterScreenState
   ) {
     DialogHelper.deleteDialog(
       context,
-      "Delete Leave Credit Configuration",
-      "Are you sure you want to delete this leave credit configuration?",
+      "You are about to delete a Leave Credit Configuration ?",
+      "Deleting this Leave Credit Configuration will permanently remove all associated data.",
     ).then((value) {
       if (value == true) {
         if (context.mounted) {

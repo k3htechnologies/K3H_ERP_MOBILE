@@ -333,6 +333,12 @@ class _AddressWidgetState extends State<AddressWidget> {
                       }
                       return null;
                     },
+                    onValueClear: (){
+                      stateId.value = null;
+                      districtId.value = null;
+                      cityId.value = null;
+                      villageId.value = null;
+                    },
                   );
                 },
               ),
@@ -368,6 +374,11 @@ class _AddressWidgetState extends State<AddressWidget> {
                             return 'District is required';
                           }
                           return null;
+                        },
+                        onValueClear: (){
+                          districtId.value = null;
+                          cityId.value = null;
+                          villageId.value = null;
                         },
                       );
                     },
@@ -408,6 +419,10 @@ class _AddressWidgetState extends State<AddressWidget> {
                     }
                     return null;
                   },
+                  onValueClear: (){
+                    cityId.value = null;
+                    villageId.value = null;
+                  },
                 );
               },
             );
@@ -442,6 +457,9 @@ class _AddressWidgetState extends State<AddressWidget> {
                         return 'Village is required';
                       }
                       return null;
+                    },
+                    onValueClear: (){
+                      villageId.value = null;
                     },
                   );
                 },

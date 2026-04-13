@@ -101,8 +101,8 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a Shift?',
-      'Deleting this Shift will permanently remove its contents.',
+      'You are about to delete a Shift Mapping ?',
+      'Deleting this shiftMapping will permanently remove all associated data.',
     );
     if (result && context.mounted) {
       _shiftMappingMasterCubit.deleteShiftMapping(index, obj, context);

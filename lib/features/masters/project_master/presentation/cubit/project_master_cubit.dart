@@ -602,15 +602,13 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   // <---- GET PAGINATED BANK LIST (CLIENT-SIDE) ---->
   List<BankDetailsModel> getPaginatedBankList() {
     const int pageSize = 10;
-    final int startIndex = (state.currentPageBank - 1) * pageSize;
-    final int endIndex = startIndex + pageSize;
 
-    if (startIndex >= state.bankByProject.length) {
-      return [];
-    }
+    final int endIndex = state.currentPageBank * pageSize;
+
+    if (state.bankByProject.isEmpty) return [];
 
     return state.bankByProject.sublist(
-      startIndex,
+      0,
       endIndex > state.bankByProject.length
           ? state.bankByProject.length
           : endIndex,
@@ -668,15 +666,13 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   // <---- GET PAGINATED EMPLOYEE LIST (CLIENT-SIDE) ---->
   List<UserModel> getPaginatedEmployeeList() {
     const int pageSize = 10;
-    final int startIndex = (state.currentPageEmployee - 1) * pageSize;
-    final int endIndex = startIndex + pageSize;
 
-    if (startIndex >= state.employeeByProject.length) {
-      return [];
-    }
+    final int endIndex = state.currentPageEmployee * pageSize;
+
+    if (state.employeeByProject.isEmpty) return [];
 
     return state.employeeByProject.sublist(
-      startIndex,
+      0,
       endIndex > state.employeeByProject.length
           ? state.employeeByProject.length
           : endIndex,

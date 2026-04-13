@@ -259,6 +259,8 @@ class _AddWeekOffMappingMasterScreenState
                               onChanged: (value) {
                                 _weekOffMappingMasterCubit
                                     .onSelectedOptionChanged(value!);
+                                _selectedEmployeeNotifier.value = [];
+                                _selectedDepartmentNotifier.value = [];
                               },
                             ),
                             Text("Employee", style: AppTextStyle.ts14R()),
@@ -269,6 +271,8 @@ class _AddWeekOffMappingMasterScreenState
                               onChanged: (value) {
                                 _weekOffMappingMasterCubit
                                     .onSelectedOptionChanged(value!);
+                                _selectedEmployeeNotifier.value = [];
+                                _selectedDepartmentNotifier.value = [];
                               },
                             ),
                             Text("Department", style: AppTextStyle.ts14R()),

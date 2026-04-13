@@ -42,7 +42,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
           }
           return Scaffold(
             appBar: CustomAppBarWithBackButton(
-              screenTitle: "Setting",
+              screenTitle: "Setting Dashboard",
               isMenuButton: true,
               authorization: AuthorizationModel(),
               showNotification: true,
@@ -192,7 +192,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
         children: [
           Row(
             children: [
-              SvgPicture.asset(icon, width: 30, height: 30),
+              title=="Registered Vendors"?Image.asset(icon,width: 30,height: 30,):SvgPicture.asset(icon, width: 30, height: 30),
               horizontalSpacing(width: 12),
               Text(
                 value.toString(),
