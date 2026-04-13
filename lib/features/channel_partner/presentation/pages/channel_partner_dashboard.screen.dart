@@ -206,9 +206,6 @@ class _ChannelPartnerDashboardScreenState
           0,
           (sum, item) => sum + item.totalCount,
         );
-        final maxValue = table3
-            ?.map((e) => e.totalChannelPartner)
-            .reduce((a, b) => a > b ? a : b);
 
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.0),
@@ -361,7 +358,7 @@ class _ChannelPartnerDashboardScreenState
                                     horizontal: 12,
                                   ),
                                   child: Text(
-                                    maxValue.toString(),
+                                    item.totalChannelPartner.toString(),
                                     style: AppTextStyle.ts16SB(
                                       color: AppColor.primary,
                                     ),
