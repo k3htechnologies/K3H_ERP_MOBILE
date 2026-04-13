@@ -68,7 +68,8 @@ class CustomDropDownWidget extends StatelessWidget {
                 IgnorePointer(
                   ignoring: isDisabled,
                   child: CustomDropdown<Map<String, dynamic>>.search(
-                    initialItem: selectedItem,
+                    key: ValueKey(formFieldState.value?['zAttributesId']),
+                    initialItem: formFieldState.value,
                     closedHeaderPadding: const EdgeInsets.symmetric(
                       horizontal: 10.0,
                       vertical: 10.0,
@@ -136,7 +137,6 @@ class CustomDropDownWidget extends StatelessWidget {
                               onTap: () {
                                 // Clear FormField state
                                 formFieldState.didChange(null);
-
                                 // Call external clear callback
                                 onValueClear!.call();
                               },
@@ -154,10 +154,13 @@ class CustomDropDownWidget extends StatelessWidget {
                     },
                     onChanged: (value) {
                       if (!isDisabled) {
-                        formFieldState.didChange(value);
+                        if (formFieldState.value?['zAttributesId'] !=
+                            value?['zAttributesId']) {
+                          formFieldState.didChange(value);
 
-                        if (value != null) {
-                          onSelected(value);
+                          if (value != null) {
+                            onSelected(value);
+                          }
                         }
                       }
                     },

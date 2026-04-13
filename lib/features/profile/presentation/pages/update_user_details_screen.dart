@@ -53,20 +53,17 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
 
   // LISTS
   List<Map<String, dynamic>> genderList = [
-    {"zAttributesId": -1, "DisplayName": "Select Gender"},
     {"zAttributesId": 1, "DisplayName": "Male"},
     {"zAttributesId": 2, "DisplayName": "Female"},
     {"zAttributesId": 3, "DisplayName": "Other"},
   ];
   List<Map<String, dynamic>> maritalStatusList = [
-    {"zAttributesId": -1, "DisplayName": "Select Marital Status"},
     {"zAttributesId": 1, "DisplayName": "Single"},
     {"zAttributesId": 2, "DisplayName": "Married"},
     {"zAttributesId": 3, "DisplayName": "Divorce"},
     {"zAttributesId": 4, "DisplayName": "Widow"},
   ];
   List<Map<String, dynamic>> bloodGroupList = [
-    {"zAttributesId": -1, "DisplayName": "Select Blood Group"},
     {"zAttributesId": 1, "DisplayName": "A+"},
     {"zAttributesId": 2, "DisplayName": "A-"},
     {"zAttributesId": 3, "DisplayName": "O+"},
@@ -132,11 +129,10 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
   // INITIALIZE DROPDOWNS
   void _initializeDropdowns() {
     // BASIC EMPLOYEE DETAILS
-    selectedGender = genderList.first;
-    selectedMaritalStatus = maritalStatusList.first;
-    selectedBloodGroup = bloodGroupList.first;
+    // selectedGender = genderList.first;
+    // selectedMaritalStatus = maritalStatusList.first;
+    // selectedBloodGroup = bloodGroupList.first;
   }
-
   // PREFILL
   void _populateForm(UserModel model) async {
     // TEXT CONTROLLER
@@ -260,6 +256,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                 ),
                 CustomDropDownWidget(
                   title: 'Gender',
+                  hintText: 'Select Gender',
                   isRequired: true,
                   initialValue: selectedGender,
                   dataList: genderList,
@@ -271,11 +268,12 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                     return null;
                   },
                   onValueClear: () {
-                    selectedGender = genderList.first;
+                    selectedGender = null;
                   },
                 ),
                 CustomDropDownWidget(
                   title: 'Marital Status',
+                  hintText: 'Select Marital Status',
                   isRequired: true,
                   initialValue: selectedMaritalStatus,
                   dataList: maritalStatusList,
@@ -287,11 +285,12 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                     return null;
                   },
                   onValueClear: () {
-                    selectedMaritalStatus = maritalStatusList.first;
+                    selectedMaritalStatus = null;
                   },
                 ),
                 CustomDropDownWidget(
                   title: 'Blood Group',
+                  hintText: 'Select Blood Group',
                   isRequired: true,
                   initialValue: selectedBloodGroup,
                   dataList: bloodGroupList,
@@ -303,7 +302,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                     return null;
                   },
                   onValueClear: () {
-                    selectedBloodGroup = bloodGroupList.first;
+                    selectedBloodGroup = null;
                   },
                 ),
                 ValueListenableBuilder<DateTime?>(
