@@ -137,7 +137,7 @@ class CustomDropDownWidget extends StatelessWidget {
                             GestureDetector(
                               onTap: () {
                                 // Clear FormField state
-                                formFieldState.didChange({});
+                                formFieldState.didChange(null);
                                 // Call external clear callback
                                 onValueClear!.call();
                               },
