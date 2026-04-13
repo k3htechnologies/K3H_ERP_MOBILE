@@ -57,13 +57,15 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
 
   // APPLICANT TYPE LIST
   final List<Map<String, dynamic>> applicantTypeList = const [
-    {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "Applicant"},
     {"zAttributesId": 2, "DisplayName": "Co-Applicant"},
   ];
 
   // SELECTED APPLICANT TYPE
-  late Map<String, dynamic> selectedApplicantType;
+  // Map<String, dynamic>? selectedApplicantType;
+  ValueNotifier<Map<String, dynamic>?> selectedApplicantType = ValueNotifier(
+    null,
+  );
 
   // METHODS TO CHECK IF APPLICANT TYPE IS PRIMARY
   bool _isApplicantType(String type) =>
@@ -137,7 +139,6 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
   @override
   void initState() {
     super.initState();
-    selectedApplicantType = applicantTypeList.first;
     _initControllers(widget.applicant);
     _prefill(widget.applicant);
   }
@@ -178,7 +179,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
   // PREFILL APPLICANT DETAILS
   void _prefill(TenantApplicantData? applicant) {
     if (applicant == null) return;
-    selectedApplicantType = applicantTypeList.firstWhere(
+    selectedApplicantType.value = applicantTypeList.firstWhere(
       (e) =>
           e['DisplayName'].toString().toLowerCase() ==
           applicant.applicantType.toLowerCase(),
@@ -257,7 +258,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
   void _save() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    final selectedType = selectedApplicantType['DisplayName'].toString();
+    final selectedType = selectedApplicantType.value!['DisplayName'].toString();
     if (widget.hasPrimaryApplicant &&
         !_isEditingApplicantType &&
         _isApplicantType(selectedType)) {
@@ -285,7 +286,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
             buildingId: widget.applicant?.buildingId ?? 0,
             projectId: widget.applicant?.projectId ?? 0,
             bookingApplicantId: widget.applicant?.bookingApplicantId ?? 0,
-            applicantType: selectedApplicantType['DisplayName'],
+            applicantType: selectedApplicantType.value!['DisplayName'],
             applicantName: _applicantNameC.text.trim(),
             applicantMobileNumber: _mobileC.text,
             applicantEmailId: _emailC.text.trim(),
@@ -360,20 +361,26 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     style: AppTextStyle.ts16SB(color: AppColor.black),
                   ),
                   verticalSpacing(),
-                  CustomDropDownWidget(
-                    title: "Applicant Type",
-                    isRequired: true,
-                    initialValue: selectedApplicantType,
-                    dataList: _applicantTypeOptions,
-                    onSelected: (value) => selectedApplicantType = value,
-                    validator: (value) {
-                      if (value == null || value['zAttributesId'] == -1) {
-                        return "Applicant Type is required";
-                      }
-                      return null;
+                  ValueListenableBuilder(
+                    valueListenable: selectedApplicantType,
+                    builder: (context, value, child) {
+                      return CustomDropDownWidget(
+                        title: "Applicant Type",
+                        hintText: "Select Applicant Type",
+                        isRequired: true,
+                        initialValue: selectedApplicantType.value,
+                        dataList: _applicantTypeOptions,
+                        onSelected:
+                            (value) => selectedApplicantType.value = value,
+                        validator: (value) {
+                          if (value == null || value['zAttributesId'] == -1) {
+                            return "Applicant Type is required";
+                          }
+                          return null;
+                        },
+                        onValueClear: () => selectedApplicantType.value = null,
+                      );
                     },
-                    onValueClear:
-                        () => selectedApplicantType = applicantTypeList.first,
                   ),
                   if (widget.hasPrimaryApplicant && !_isEditingApplicantType)
                     Padding(
