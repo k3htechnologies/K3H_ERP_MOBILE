@@ -191,6 +191,12 @@ class _AddTermsAndConditionsScreenState
                       onFormattedTextChanged: (value) {
                         _descriptionC.text = value;
                       },
+                      validator: (value){
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Description is required';
+                        }
+                        return null;
+                      },
                     ),
                   ],
                 ),

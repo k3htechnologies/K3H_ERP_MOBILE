@@ -80,28 +80,44 @@ class PerformanceCubit extends Cubit<PerformanceState> {
     switch (periodType) {
       case "WTD":
         final now = DateTime.now();
-
         final currentMonday = now.subtract(Duration(days: now.weekday - 1));
 
-        final tuesday = currentMonday.add(const Duration(days: 1));
+        DateTime start;
+        DateTime end;
 
-        final nextMonday = currentMonday.add(const Duration(days: 7));
+        if (now.weekday == DateTime.monday) {
+          final prevMonday = currentMonday.subtract(const Duration(days: 7));
+
+          start = prevMonday.add(const Duration(days: 1));
+          end = currentMonday;
+        } else {
+          start = currentMonday.add(const Duration(days: 1));
+          end = currentMonday.add(const Duration(days: 7));
+        }
 
         return {
-          "from": DateTime(tuesday.year, tuesday.month, tuesday.day),
-          "to": DateTime(nextMonday.year, nextMonday.month, nextMonday.day),
+          "from": DateTime(start.year, start.month, start.day),
+          "to": DateTime(end.year, end.month, end.day),
         };
 
       case "MTD":
+        final start = DateTime(now.year, now.month, 1);
+
+        final end = DateTime(now.year, now.month + 1, 0);
+
         return {
-          "from": DateTime(now.year, now.month, 1),
-          "to": DateTime(now.year, now.month, now.day),
+          "from": start,
+          "to": DateTime(end.year, end.month, end.day),
         };
 
       case "YTD":
+        final start = DateTime(now.year, 1, 1);
+
+        final end = DateTime(now.year, 12, 31);
+
         return {
-          "from": DateTime(now.year, 1, 1),
-          "to": DateTime(now.year, now.month, now.day),
+          "from": start,
+          "to": end,
         };
 
       default:
