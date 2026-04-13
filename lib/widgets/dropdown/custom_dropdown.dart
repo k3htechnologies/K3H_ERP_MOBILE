@@ -69,7 +69,7 @@ class CustomDropDownWidget extends StatelessWidget {
                 IgnorePointer(
                   ignoring: isDisabled,
                   child: CustomDropdown<Map<String, dynamic>>.search(
-                    key: ValueKey(currentId),
+                    key: ValueKey(formFieldState.value?['zAttributesId']),
                     initialItem: currentItem,
                     closedHeaderPadding: const EdgeInsets.symmetric(
                       horizontal: 10.0,
@@ -137,9 +137,8 @@ class CustomDropDownWidget extends StatelessWidget {
                             GestureDetector(
                               onTap: () {
                                 // Clear FormField state
-                                formFieldState.didChange(null);
+                                formFieldState.didChange({});
                                 // Call external clear callback
-                                formFieldState.value?.clear();
                                 onValueClear!.call();
                               },
                               child: Padding(

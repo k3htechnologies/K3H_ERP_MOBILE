@@ -273,7 +273,11 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                         }
                         return null;
                       },
-                      onValueClear: () => selectedCorpusType = null,
+                      onValueClear: () {
+                        print("selectedCorpusType : $selectedCorpusType");
+                        selectedCorpusType = null;
+                        print("selectedCorpusType : $selectedCorpusType");
+                      },
                     ),
 
                     // STAGE
