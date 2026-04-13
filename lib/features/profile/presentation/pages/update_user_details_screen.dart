@@ -45,28 +45,27 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
       _passportNumberC;
 
   // DATES
-  DateTime? dateOfBirth;
+  final ValueNotifier<DateTime?> _dobNotifier = ValueNotifier(null);
   // SELECTED VALUES
-  Map<String, dynamic>? selectedGender;
-  Map<String, dynamic>? selectedMaritalStatus;
-  Map<String, dynamic>? selectedBloodGroup;
+  ValueNotifier<Map<String, dynamic>?> selectedGender = ValueNotifier(null);
+  ValueNotifier<Map<String, dynamic>?> selectedMaritalStatus = ValueNotifier(
+    null,
+  );
+  ValueNotifier<Map<String, dynamic>?> selectedBloodGroup = ValueNotifier(null);
 
   // LISTS
   List<Map<String, dynamic>> genderList = [
-    {"zAttributesId": -1, "DisplayName": "Select Gender"},
     {"zAttributesId": 1, "DisplayName": "Male"},
     {"zAttributesId": 2, "DisplayName": "Female"},
     {"zAttributesId": 3, "DisplayName": "Other"},
   ];
   List<Map<String, dynamic>> maritalStatusList = [
-    {"zAttributesId": -1, "DisplayName": "Select Marital Status"},
     {"zAttributesId": 1, "DisplayName": "Single"},
     {"zAttributesId": 2, "DisplayName": "Married"},
     {"zAttributesId": 3, "DisplayName": "Divorce"},
     {"zAttributesId": 4, "DisplayName": "Widow"},
   ];
   List<Map<String, dynamic>> bloodGroupList = [
-    {"zAttributesId": -1, "DisplayName": "Select Blood Group"},
     {"zAttributesId": 1, "DisplayName": "A+"},
     {"zAttributesId": 2, "DisplayName": "A-"},
     {"zAttributesId": 3, "DisplayName": "O+"},
@@ -125,17 +124,17 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
     _drivingLicenceNumberC.dispose();
     _voterIdNumberC.dispose();
     _passportNumberC.dispose();
+    _dobNotifier.dispose();
     super.dispose();
   }
 
   // INITIALIZE DROPDOWNS
   void _initializeDropdowns() {
     // BASIC EMPLOYEE DETAILS
-    selectedGender = genderList.first;
-    selectedMaritalStatus = maritalStatusList.first;
-    selectedBloodGroup = bloodGroupList.first;
+    // selectedGender = genderList.first;
+    // selectedMaritalStatus = maritalStatusList.first;
+    // selectedBloodGroup = bloodGroupList.first;
   }
-
   // PREFILL
   void _populateForm(UserModel model) async {
     // TEXT CONTROLLER
@@ -148,21 +147,22 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
     _permanentAddressC.text = model.permanentAddress;
 
     // DROPDOWNS
-    selectedGender = genderList.firstWhere(
+    selectedGender.value = genderList.firstWhere(
       (item) => item['DisplayName'] == model.gender,
       orElse: () => genderList.first,
     );
-    selectedMaritalStatus = maritalStatusList.firstWhere(
+    selectedMaritalStatus.value = maritalStatusList.firstWhere(
       (item) => item['DisplayName'] == model.maritalStatus,
       orElse: () => maritalStatusList.first,
     );
-    selectedBloodGroup = bloodGroupList.firstWhere(
+    selectedBloodGroup.value = bloodGroupList.firstWhere(
       (item) => item['DisplayName'] == model.bloodGroup,
       orElse: () => bloodGroupList.first,
     );
 
     // DATES
-    dateOfBirth = model.dateOfBirth;
+    _dobNotifier.value = model.dateOfBirth;
+
     _aadharNumberC.text = model.aadharCardNumber;
     _panNumberC.text = model.panCardNumber;
     _drivingLicenceNumberC.text = model.drivingLicenceNumber;
@@ -179,14 +179,14 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
         "FirstName": _firstNameC.text.trim(),
         "MiddleName": _middleNameC.text.trim(),
         "LastName": _lastNameC.text.trim(),
-        "Gender": selectedGender!["DisplayName"],
-        "MaritalStatus": selectedMaritalStatus!["DisplayName"],
-        "DateOfBirth": dateOfBirth!.toIso8601String(),
+        "Gender": selectedGender.value!["DisplayName"],
+        "MaritalStatus": selectedMaritalStatus.value!["DisplayName"],
+        "DateOfBirth": _dobNotifier.value!.toIso8601String(),
         "EmailId": _personalEmailC.text.trim(),
         "PersonalMobileNumber": _personalMobileNumberC.text.trim(),
         "CommunicationAddress": _communicationAddressC.text.trim(),
         "PermanentAddress": _permanentAddressC.text.trim(),
-        "BloodGroup": selectedBloodGroup!["DisplayName"],
+        "BloodGroup": selectedBloodGroup.value!["DisplayName"],
         "AadharCardNumber": _aadharNumberC.text.trim(),
         "PanCardNumber": _panNumberC.text.trim(),
         "DrivingLicenceNumber": _drivingLicenceNumberC.text.trim(),
@@ -256,59 +256,90 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                     return null;
                   },
                 ),
-                CustomDropDownWidget(
-                  title: 'Gender',
-                  isRequired: true,
-                  initialValue: selectedGender,
-                  dataList: genderList,
-                  onSelected: (value) => selectedGender = value,
-                  validator: (value) {
-                    if (value == null || value["zAttributesId"] == -1) {
-                      return 'Gender is required';
-                    }
-                    return null;
+                ValueListenableBuilder(
+                  valueListenable: selectedGender,
+                  builder: (context, value, child) {
+                    return CustomDropDownWidget(
+                      title: 'Gender',
+                      hintText: 'Select Gender',
+                      isRequired: true,
+                      initialValue: value,
+                      dataList: genderList,
+                      onSelected: (value) => selectedGender.value = value,
+                      validator: (value) {
+                        if (value == null || value["zAttributesId"] == -1) {
+                          return 'Gender is required';
+                        }
+                        return null;
+                      },
+                      onValueClear: () {
+                        selectedGender.value = null;
+                      },
+                    );
                   },
                 ),
-                CustomDropDownWidget(
-                  title: 'Marital Status',
-                  isRequired: true,
-                  initialValue: selectedMaritalStatus,
-                  dataList: maritalStatusList,
-                  onSelected: (value) => selectedMaritalStatus = value,
-                  validator: (value) {
-                    if (value == null || value["zAttributesId"] == -1) {
-                      return 'Marital Status is required';
-                    }
-                    return null;
+                ValueListenableBuilder(
+                  valueListenable: selectedMaritalStatus,
+                  builder: (context, value, child) {
+                    return CustomDropDownWidget(
+                      title: 'Marital Status',
+                      hintText: 'Select Marital Status',
+                      isRequired: true,
+                      initialValue: value,
+                      dataList: maritalStatusList,
+                      onSelected:
+                          (value) => selectedMaritalStatus.value = value,
+                      validator: (value) {
+                        if (value == null || value["zAttributesId"] == -1) {
+                          return 'Marital Status is required';
+                        }
+                        return null;
+                      },
+                      onValueClear: () {
+                        selectedMaritalStatus.value = null;
+                      },
+                    );
                   },
                 ),
-                CustomDropDownWidget(
-                  title: 'Blood Group',
-                  isRequired: true,
-                  initialValue: selectedBloodGroup,
-                  dataList: bloodGroupList,
-                  onSelected: (value) => selectedBloodGroup = value,
-                  validator: (value) {
-                    if (value == null || value["zAttributesId"] == -1) {
-                      return 'Blood Group is required';
-                    }
-                    return null;
+                ValueListenableBuilder(
+                  valueListenable: selectedBloodGroup,
+                  builder: (context, value, child) {
+                    return CustomDropDownWidget(
+                      title: 'Blood Group',
+                      hintText: 'Select Blood Group',
+                      isRequired: true,
+                      initialValue: value,
+                      dataList: bloodGroupList,
+                      onSelected: (value) => selectedBloodGroup.value = value,
+                      validator: (value) {
+                        if (value == null || value["zAttributesId"] == -1) {
+                          return 'Blood Group is required';
+                        }
+                        return null;
+                      },
+                      onValueClear: () {
+                        selectedBloodGroup.value = null;
+                      },
+                    );
                   },
                 ),
-                CustomDatePicker(
-                  title: 'DOB',
-                  isRequired: true,
-                  initialDate: dateOfBirth,
-                  validator: (value) {
-                    if (value == null) {
-                      return 'DOB is required';
-                    }
-                    if (!InputValidator.isValidAge(value)) {
-                      return 'Age should be greater than or equal to 18.';
-                    }
-                    return null;
+                ValueListenableBuilder<DateTime?>(
+                  valueListenable: _dobNotifier,
+                  builder: (context, value, _) {
+                    return CustomDatePicker(
+                      title: 'DOB',
+                      isRequired: true,
+                      initialDate: value,
+                      validator: (value) {
+                        if (value == null) return 'DOB is required';
+                        if (!InputValidator.isValidAge(value)) {
+                          return 'Age should be greater than or equal to 18.';
+                        }
+                        return null;
+                      },
+                      setValue: (value) => _dobNotifier.value = value,
+                    );
                   },
-                  setValue: (value) => dateOfBirth = value,
                 ),
                 CustomTextField(
                   title: 'Email Id',

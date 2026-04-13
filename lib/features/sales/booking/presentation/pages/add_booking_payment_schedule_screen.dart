@@ -14,7 +14,6 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
-import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
 class AddBookingPaymentScheduleScreen extends StatefulWidget {
@@ -312,19 +311,24 @@ class _AddBookingPaymentScheduleScreenState
   Widget _stageTab() {
     return Column(
       children: [
-        CustomDropDownWidget(
-          title: "Stages",
-          isRequired: true,
-          hintText: "Select Stage",
-          initialValue: _selectedStage.value,
-          dataList: stageList,
-          onValueClear: () => _selectedStage.value = null,
-          onSelected: (value) => _selectedStage.value = value,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return "Stage is required";
-            }
-            return null;
+        ValueListenableBuilder(
+          valueListenable: _selectedStage,
+          builder: (context, value, child) {
+            return CustomDropDownWidget(
+              title: "Stages",
+              isRequired: true,
+              hintText: "Select Stage",
+              initialValue: _selectedStage.value,
+              dataList: stageList,
+              onValueClear: () => _selectedStage.value = null,
+              onSelected: (value) => _selectedStage.value = value,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return "Stage is required";
+                }
+                return null;
+              },
+            );
           },
         ),
 

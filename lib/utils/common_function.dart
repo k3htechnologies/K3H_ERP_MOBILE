@@ -134,8 +134,6 @@ Future<void> updateRouteAuthorization(List<ModuleModel> moduleData) async {
     ...defaultMap,
     ...updatedRouteMap,
   };
-  print("HAS BOOKING => ${updatedRouteMap.containsKey('/booking')}");
-  print("FINAL HAS BOOKING => ${Authorization.routeAuthorizationMap.containsKey('/booking')}");
 }
 
 Map<String, AuthorizationModel> _processRouteAuthorizationModules(
@@ -256,7 +254,6 @@ bool isValidMobileNumber(String value) {
 
 // DATE FORMATTERS
 String formatDateTimeAsDDMMMYYYY(DateTime d, {String? separator}) {
-  if (d.year == 1970) return "-";
   return DateFormat(
     'dd${separator ?? '-'}MMM${separator ?? '-'}yyyy',
   ).format(d);

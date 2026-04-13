@@ -102,7 +102,6 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required BuildContext context,
     String? ctsNumber,
     String? projectLocation,
-    String? projectName,
     String? projectStatus,
     String? village,
     String? architectName,
@@ -134,7 +133,6 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
           filterCTSNumber: ctsNumber ?? state.filterCTSNumber,
           filterProjectLocation: projectLocation ?? state.filterProjectLocation,
           currentPage: 1,
-          filterProjectName: projectName ?? state.filterProjectName,
           filterProjectStatus: projectStatus ?? state.filterProjectStatus,
           filterVillage: village ?? state.filterVillage,
           filterArchitectName: architectName ?? state.filterArchitectName,
@@ -167,8 +165,32 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       pageSize: state.pageSize,
       queryParams: {
         "ProjectName": state.searchText,
-        "ProjectLocation": state.filterProjectLocation,
-        "CTCNumber": state.filterCTSNumber,
+        if (state.filterProjectLocation.isNotEmpty)
+          "ProjectLocation": state.filterProjectLocation,
+        if (state.filterCTSNumber.isNotEmpty)
+          "CTCNumber": state.filterCTSNumber,
+        if (state.filterProjectStatus != null &&
+            state.filterProjectStatus!.isNotEmpty)
+          "ProjectStatus": state.filterProjectStatus,
+
+        if (state.filterVillage != null && state.filterVillage!.isNotEmpty)
+          "VillageName": state.filterVillage,
+
+        if (state.filterArchitectName != null &&
+            state.filterArchitectName!.isNotEmpty)
+          "ArchitectName": state.filterArchitectName,
+
+        if (state.filterRERANumber != null &&
+            state.filterRERANumber!.isNotEmpty)
+          "RERANumber": state.filterRERANumber,
+
+        if (state.filterProjectScheme != null &&
+            state.filterProjectScheme!.isNotEmpty)
+          "ProjectScheme": state.filterProjectScheme,
+
+        if (state.filterProjectSubScheme != null &&
+            state.filterProjectSubScheme!.isNotEmpty)
+          "ProjectSubScheme": state.filterProjectSubScheme,
       },
     );
 
@@ -580,15 +602,13 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   // <---- GET PAGINATED BANK LIST (CLIENT-SIDE) ---->
   List<BankDetailsModel> getPaginatedBankList() {
     const int pageSize = 10;
-    final int startIndex = (state.currentPageBank - 1) * pageSize;
-    final int endIndex = startIndex + pageSize;
 
-    if (startIndex >= state.bankByProject.length) {
-      return [];
-    }
+    final int endIndex = state.currentPageBank * pageSize;
+
+    if (state.bankByProject.isEmpty) return [];
 
     return state.bankByProject.sublist(
-      startIndex,
+      0,
       endIndex > state.bankByProject.length
           ? state.bankByProject.length
           : endIndex,
@@ -646,15 +666,13 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   // <---- GET PAGINATED EMPLOYEE LIST (CLIENT-SIDE) ---->
   List<UserModel> getPaginatedEmployeeList() {
     const int pageSize = 10;
-    final int startIndex = (state.currentPageEmployee - 1) * pageSize;
-    final int endIndex = startIndex + pageSize;
 
-    if (startIndex >= state.employeeByProject.length) {
-      return [];
-    }
+    final int endIndex = state.currentPageEmployee * pageSize;
+
+    if (state.employeeByProject.isEmpty) return [];
 
     return state.employeeByProject.sublist(
-      startIndex,
+      0,
       endIndex > state.employeeByProject.length
           ? state.employeeByProject.length
           : endIndex,

@@ -177,7 +177,6 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                 },
               ),
               CustomDatePicker(
-                isRequired: true,
                 title: "Reschedule Date",
                 initialDate: selectedRescheduleDate,
                 setValue: (value) {
@@ -641,6 +640,7 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
@@ -654,6 +654,7 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
             ],
           ),
           Row(
+            spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(

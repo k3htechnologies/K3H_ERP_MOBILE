@@ -38,7 +38,6 @@ class _CorpusDetailsState extends State<CorpusDetails> {
   late TextEditingController _residentialAmountController;
   late TextEditingController _commercialAmountController;
   final List<Map<String, dynamic>> _litigationTypeList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select'},
     {'zAttributesId': 1, 'DisplayName': 'Residential'},
     {'zAttributesId': 2, 'DisplayName': 'Commercial'},
   ];
@@ -214,7 +213,9 @@ class _CorpusDetailsState extends State<CorpusDetails> {
   }
 
   // PREFILL BOTTOM SHEET
-  void _prefillBottomSheet(ProposedOfferCorpusDetailsWithPaymentStageData corpus) {
+  void _prefillBottomSheet(
+    ProposedOfferCorpusDetailsWithPaymentStageData corpus,
+  ) {
     _selectedCorpusType.value = _litigationTypeList.firstWhere(
       (e) => e['DisplayName'] == corpus.type,
       orElse: () => _litigationTypeList.first,
@@ -266,11 +267,15 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                         _stagePercentageController.text = '0.0';
                       },
                       title: "Type",
+                      hintText: "Select Type",
                       validator: (value) {
                         if (value == null || value['zAttributesId'] == -1) {
                           return "Type is required";
                         }
                         return null;
+                      },
+                      onValueClear: () {
+                        _selectedCorpusType.value = null;
                       },
                     ),
 
@@ -311,8 +316,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                         return null;
                       },
                       onChangeFunction: (value) {
-                        if (selectedCorpusType == null ||
-                            selectedCorpusType['zAttributesId'] == -1) {
+                        if (selectedCorpusType == null) {
                           return;
                         }
 
@@ -344,6 +348,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                     CustomTextField(
                       title: "Amount (₹)",
                       textController: _amountController,
+                      hint: "Enter Amount",
                       keyboardType: TextInputType.number,
                       readOnly: true,
                       validator: (value) {
@@ -353,8 +358,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
 
                         double amount = double.tryParse(value) ?? 0;
 
-                        if (selectedCorpusType == null ||
-                            selectedCorpusType['zAttributesId'] == -1) {
+                        if (selectedCorpusType == null) {
                           return "Type must be selected first";
                         }
 
@@ -384,7 +388,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                       },
                     ),
 
-                    verticalSpacing(height: 20),
+                    verticalSpacing(height: 15),
 
                     // SAVE BUTTON
                     CustomButton(
@@ -524,7 +528,8 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                     ),
                     verticalSpacing(),
                     ValueListenableBuilder<
-                        List<ProposedOfferCorpusDetailsWithPaymentStageData>>(
+                      List<ProposedOfferCorpusDetailsWithPaymentStageData>
+                    >(
                       valueListenable: _corpusListNotifier,
                       builder: (context, corpusList, _) {
                         final isResidentialReadOnly = corpusList.any(
@@ -546,8 +551,8 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                               readOnly: isResidentialReadOnly,
                               inputFormatterList:
                                   inputFormatterListForDecimalValuesFixedToTwo(
-                                10,
-                              ),
+                                    10,
+                                  ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
                                   return "Residential amount is required";
@@ -572,8 +577,8 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                               readOnly: isCommercialReadOnly,
                               inputFormatterList:
                                   inputFormatterListForDecimalValuesFixedToTwo(
-                                10,
-                              ),
+                                    10,
+                                  ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
                                   return "Commercial amount is required";

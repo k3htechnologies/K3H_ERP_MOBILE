@@ -446,7 +446,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Basic Details'),
+          _buildSectionHeader('Basic Company Details'),
           CustomTextField(
             title: 'Company Name',
             textController: _companyNameC,
@@ -474,7 +474,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                 },
                 validator: (value) {
                   if (value == null || value["zAttributesId"] == -1) {
-                    return 'Firm Type is required';
+                    return 'Firms Type is required';
                   }
                   return null;
                 },

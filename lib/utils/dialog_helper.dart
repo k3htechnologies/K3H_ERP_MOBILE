@@ -637,7 +637,7 @@ class DialogHelper {
     );
   }
 
-  // <--- IMPORT - DELETE CONFIRMATION DIALOG ---->
+  // <--- IMPORT  DIALOG ---->
   static Future<Map<String, dynamic>?> showDeleteAllConfirmationDialog({
     required BuildContext context,
   }) async {
@@ -681,21 +681,13 @@ class DialogHelper {
                             ),
                             horizontalSpacing(),
                             Text(
-                              "Import Excel",
+                              "Upload Excel",
                               style: AppTextStyle.ts20R(
                                 color: AppColor.primary,
                               ),
                               textAlign: TextAlign.center,
                             ),
                           ],
-                        ),
-
-                        verticalSpacing(),
-
-                        Text(
-                          "Upload Excel file and choose how existing records should be handled.",
-                          style: AppTextStyle.ts16R(color: AppColor.grey),
-                          textAlign: TextAlign.start,
                         ),
 
                         verticalSpacing(),
@@ -784,7 +776,7 @@ class DialogHelper {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Upload with existing records?",
+                              "Do you want to upload the file with existing record?",
                               style: AppTextStyle.ts14SB(),
                             ),
                             verticalSpacing(),
@@ -856,27 +848,66 @@ class DialogHelper {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        bulletText(
-                                          "If Yes is selected, existing records will be kept and new data will be merged.",
-                                        ),
-                                        bulletText(
-                                          "If No is selected, all existing records will be permanently deleted before uploading new data.",
-                                        ),
-                                        bulletText(
-                                          "Only .xlsx, .xls, or .csv files are allowed.",
-                                        ),
-                                        bulletText(
-                                          "Do not change the column header names in the downloaded sample Excel file.",
-                                        ),
-                                        bulletText(
-                                          "Do not modify, remove, or add extra columns.",
-                                        ),
-                                        bulletText(
-                                          "Do not write data outside the provided column boundaries.",
-                                        ),
-                                        bulletText(
-                                          "Blank rows or completely empty columns should not be added.",
-                                        ),
+                                        bulletRichText([
+                                          const TextSpan(text: "If "),
+                                          TextSpan(text: "Yes", style: AppTextStyle.ts14SB()),
+                                          const TextSpan(
+                                            text:
+                                            " is selected, existing records will be kept and new data will be merged.",
+                                          ),
+                                        ]),
+
+                                        bulletRichText([
+                                          const TextSpan(text: "If "),
+                                          TextSpan(
+                                            text: "No",
+                                            style: AppTextStyle.ts14R(color: AppColor.error),
+                                          ),
+                                          const TextSpan(
+                                            text:
+                                            " is selected, all existing records will be permanently deleted before uploading new data.",
+                                          ),
+                                        ]),
+
+                                        bulletRichText([
+                                          const TextSpan(
+                                            text: "Only .xlsx, .xls, or .csv files are allowed.",
+                                          ),
+                                        ]),
+
+                                        bulletRichText([
+                                          const TextSpan(text: "Do "),
+                                          TextSpan(
+                                            text: "not change the column header names",
+                                            style: AppTextStyle.ts14SB(),
+                                          ),
+                                          const TextSpan(
+                                            text: " in the downloaded sample Excel file.",
+                                          ),
+                                        ]),
+
+                                        bulletRichText([
+                                          const TextSpan(text: "Do "),
+                                          TextSpan(
+                                            text: "not modify, remove, or add extra columns.",
+                                            style: AppTextStyle.ts14SB(),
+                                          ),
+                                        ]),
+
+                                        bulletRichText([
+                                          const TextSpan(text: "Do "),
+                                          TextSpan(
+                                            text: "not write data outside the provided column boundaries.",
+                                            style: AppTextStyle.ts14SB(),
+                                          ),
+                                        ]),
+
+                                        bulletRichText([
+                                          const TextSpan(
+                                            text:
+                                            "Blank rows or completely empty columns should not be added.",
+                                          ),
+                                        ]),
                                       ],
                                     ),
                                   ),

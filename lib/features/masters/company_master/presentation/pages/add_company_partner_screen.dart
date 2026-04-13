@@ -450,6 +450,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Photo",
+                    maxFiles: 1,
                     isRequired: true,
                     filePickType: FilePickType.image,
                     initialFileList: photoFile.fileNameList,

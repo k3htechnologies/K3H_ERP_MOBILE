@@ -61,7 +61,6 @@ class _AddLeaveCreditConfigurationMasterScreenState
 
   // STATIC LEAVE PERIOD LIST
   List<Map<String, dynamic>> leavePeriodList = [
-    {"zAttributesId": -1, "DisplayName": "Select Leave Period"},
     {"zAttributesId": 1, "DisplayName": "Yearly"},
     {"zAttributesId": 2, "DisplayName": "Monthly"},
   ];
@@ -90,8 +89,6 @@ class _AddLeaveCreditConfigurationMasterScreenState
     super.initState();
     _leaveCreditConfigurationMasterCubit =
         context.read<LeaveCreditConfigurationMasterCubit>();
-    selectedLeavePeriod = leavePeriodList.first;
-
     if (_isEditMode && widget.leaveCreditConfigurationMasterModel != null) {
       final model = widget.leaveCreditConfigurationMasterModel!;
 
@@ -284,6 +281,9 @@ class _AddLeaveCreditConfigurationMasterScreenState
                           return 'Leave Period Mode is required';
                         }
                         return null;
+                      },
+                      onValueClear: () {
+                        selectedLeavePeriod = null;
                       },
                     ),
                     Row(

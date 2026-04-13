@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
-import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
@@ -14,6 +13,7 @@ import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_experience_details.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/widgets/employee_document_dialog.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:k3h_erp_app/main.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -21,7 +21,6 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
-import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
@@ -52,9 +51,6 @@ class _ProfileScreenState extends State<ProfileScreen>
       _setMPIN;
   late TextEditingController _companyNameC, _roleC, _tenureC;
 
-  // APP VERSION
-  late String version;
-
   final ValueNotifier<PlatformFile?> profilePhotoNotifier = ValueNotifier(null);
 
   // FORM KEY FOR BOTTOM SHEETS
@@ -67,7 +63,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     super.initState();
     _profileCubit = context.read<ProfileCubit>();
     _initializeTextEditingControllers();
-    version = LocalStorageManager().getString(StorageKey.appVersion) ?? "";
     _tabController = TabController(length: 9, vsync: this);
     _tabController.addListener(_handleTabChange);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -633,9 +628,10 @@ class _ProfileScreenState extends State<ProfileScreen>
             ? _profileCubit.state.employeeMasterList.first
             : null;
 
-    final imageUrl = user.profilePhotoURL.trim().isNotEmpty
-        ? user.profilePhotoURL
-        : (apiUser?.profilePhotoURL ?? "");
+    final imageUrl =
+        user.profilePhotoURL.trim().isNotEmpty
+            ? user.profilePhotoURL
+            : (apiUser?.profilePhotoURL ?? "");
 
     return GestureDetector(
       onTap: _showProfilePhotoOptions,
@@ -1009,6 +1005,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           return Center(child: noDataWidget(message: "No Overview Data Found"));
         }
         final overview = state.employeeMasterList[0];
+
         return SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1191,7 +1188,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     "Version: ",
                     style: AppTextStyle.ts14M(color: AppColor.grey),
                   ),
-                  Text(version, style: AppTextStyle.ts12M()),
+                  Text(currentVersion, style: AppTextStyle.ts12M()),
                 ],
               ),
               verticalSpacing(height: 20),

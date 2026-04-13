@@ -3,14 +3,16 @@ part of 'sales_dashboard_cubit.dart';
 final class SalesDashboardState extends BaseState {
   final SalesDashboardModel? salesData;
   final List<SalesDashboardModel> salesDashboardList;
+  final int currentTabIndex;
   const SalesDashboardState({
     super.isLoading,
     this.salesData,
     required this.salesDashboardList,
+    required this.currentTabIndex,
   });
 
   factory SalesDashboardState.initial() =>
-      SalesDashboardState(isLoading: true, salesDashboardList: []);
+      SalesDashboardState(isLoading: true, salesDashboardList: [], currentTabIndex: 0);
 
   SalesDashboardState copyWith({
     bool? isLoading,
@@ -18,14 +20,16 @@ final class SalesDashboardState extends BaseState {
     int? currentPage,
     SalesDashboardModel? salesData,
     List<SalesDashboardModel>? salesDashboardList,
+    int? currentTabIndex,
   }) {
     return SalesDashboardState(
       isLoading: isLoading ?? this.isLoading,
       salesData: salesData ?? this.salesData,
       salesDashboardList: salesDashboardList ?? this.salesDashboardList,
+      currentTabIndex: currentTabIndex ?? this.currentTabIndex,
     );
   }
 
   @override
-  List<Object?> get props => [isLoading, salesData, salesDashboardList];
+  List<Object?> get props => [isLoading, salesData, salesDashboardList, currentTabIndex];
 }

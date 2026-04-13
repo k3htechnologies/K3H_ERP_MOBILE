@@ -15,7 +15,6 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/bottom_navigation/bottom_navigation_bar_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
-import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 final GlobalKey<ScaffoldState> mobileScreenGlobalScaffoldKey =
@@ -75,11 +74,25 @@ class _MainScreenState extends State<MainScreen>
                             child:
                                 user.profilePhotoURL.isNotEmpty
                                     ? ClipOval(
-                                      child: NetworkImageWidget(
-                                        imageUrl: user.profilePhotoURL,
+                                      child: Image.network(
+                                        user.profilePhotoURL,
                                         fit: BoxFit.fill,
                                         width: 70,
                                         height: 70,
+                                        errorBuilder: (
+                                          context,
+                                          error,
+                                          stackTrace,
+                                        ) {
+                                          return SizedBox(
+                                            height: 70,
+                                            width: 70,
+                                            child: Icon(
+                                              Icons
+                                                  .image_not_supported_outlined,
+                                            ),
+                                          );
+                                        },
                                       ),
                                     )
                                     : Text(
@@ -137,6 +150,7 @@ class _MainScreenState extends State<MainScreen>
                         size: 18,
                         color: AppColor.white,
                       ),
+                      backgroundColor: AppColor.error,
                       text: "Logout",
                       onPressed: () async {
                         logOutUser(context);
@@ -156,7 +170,7 @@ class _MainScreenState extends State<MainScreen>
             StorageKey.currentUser,
           );
 
-          if(userString!=null) {
+          if (userString != null) {
             user = UserModel.fromJson(jsonDecode(userString));
           }
 

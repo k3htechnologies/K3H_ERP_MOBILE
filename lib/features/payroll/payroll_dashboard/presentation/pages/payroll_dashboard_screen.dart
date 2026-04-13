@@ -346,7 +346,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     crossAxisSpacing: 10,
-                    childAspectRatio: 1.45,
+                    childAspectRatio: 1.25,
                   ),
                   itemBuilder: (context, index) {
                     final item = actions[index];
@@ -382,11 +382,13 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
           backgroundColor: backgroundColor ?? AppColor.lightBlue,
         ),
         verticalSpacing(),
-        Text(
-          text,
-          maxLines: 2,
-          style: AppTextStyle.ts12M(),
-          textAlign: TextAlign.center,
+        Flexible(
+          child: Text(
+            text,
+            maxLines: 2,
+            style: AppTextStyle.ts12M(),
+            textAlign: TextAlign.center,
+          ),
         ),
       ],
     );

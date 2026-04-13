@@ -1,9 +1,13 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/data/model/sales.dashboard.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/cubit/sales_dashboard_cubit.dart';
@@ -12,9 +16,11 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class SalesDashboardScreen extends StatefulWidget {
@@ -24,21 +30,66 @@ class SalesDashboardScreen extends StatefulWidget {
   State<SalesDashboardScreen> createState() => _SalesDashboardScreenState();
 }
 
-class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
+class _SalesDashboardScreenState extends State<SalesDashboardScreen>
+    with SingleTickerProviderStateMixin {
   // CUBIT
   late SalesDashboardCubit _salesDashboardCubit;
 
+  // PROJECT MODEL
   late ProjectModel _selectedProject;
+
+  // USER MODEL
+  late UserModel? _user;
+
+  // TAB CONTROLLER
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     _salesDashboardCubit = context.read<SalesDashboardCubit>();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(_handleTabChange);
+    getCurrentUser();
     _selectedProject = getProject();
     _salesDashboardCubit.getSalesDashboardList(
       context,
       _selectedProject.projectId,
     );
+  }
+
+  Future getCurrentUser() async {
+    var userJson = jsonDecode(
+      LocalStorageManager().getString(StorageKey.currentUser) ?? "",
+    );
+    _user = UserModel.fromJson(userJson);
+  }
+
+  Table3? getCurrentUserDataClosing(List<Table3> list) {
+    final empId = _user?.employeeId;
+
+    if (empId == null) return null;
+
+    return list.where((e) => e.employeeId == empId).isNotEmpty
+        ? list.firstWhere((e) => e.employeeId == empId)
+        : null;
+  }
+
+  Table2? getCurrentUserDataSourcing(List<Table2> list) {
+    final empId = _user?.employeeId;
+
+    if (empId == null) return null;
+
+    return list.where((e) => e.employeeId == empId).isNotEmpty
+        ? list.firstWhere((e) => e.employeeId == empId)
+        : null;
+  }
+
+  // HANDLE TAB CHANGE
+  void _handleTabChange() {
+    if (!_tabController.indexIsChanging) {
+      _salesDashboardCubit.onTabChanged(_tabController.index, context);
+    }
   }
 
   Future<void> _showMarkAsTimeOutPopup(
@@ -145,7 +196,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
           }
           return Scaffold(
             appBar: CustomAppBarWithBackButton(
-              screenTitle: "Sales",
+              screenTitle: "Sales Dashboard",
               isMenuButton: true,
               authorization: AuthorizationModel(),
               onProjectChangeCallback: (value) {
@@ -157,51 +208,56 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
               },
               showNotification: true,
             ),
-            body: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // GENERATE REPORT
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 5.0,
-                        horizontal: 6.0,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6.0),
-                        color: AppColor.lightBlue,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SvgPicture.asset(
-                            AppAssets.generateReportIcon,
-                            width: 16,
-                            height: 16,
-                          ),
-                          horizontalSpacing(),
-                          Flexible(
-                            child: Text(
-                              "Generate Report",
-                              style: AppTextStyle.ts14M(
-                                color: AppColor.primary,
+            body: SafeArea(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // GENERATE REPORT
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 5.0,
+                          horizontal: 6.0,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6.0),
+                          color: AppColor.lightBlue,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SvgPicture.asset(
+                              AppAssets.generateReportIcon,
+                              width: 16,
+                              height: 16,
+                            ),
+                            horizontalSpacing(),
+                            Flexible(
+                              child: Text(
+                                "Generate Report",
+                                style: AppTextStyle.ts14M(
+                                  color: AppColor.primary,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    verticalSpacing(),
-                    // ENQURIES LIST WIDGET
-                    _buildEnquiriesWidget(context),
-                    verticalSpacing(),
-                    // TARGET PERFORMANCE WIDGET
-                    verticalSpacing(),
-                    // ACTIVE FOLLOW-UPS WIDGET (ACCORDING TO STATUS)
-                    _buildActiveFollowUpsWidget(context),
-                  ],
+                      verticalSpacing(),
+                      // ENQUIRIES LIST WIDGET
+                      _buildEnquiriesWidget(context),
+                      verticalSpacing(),
+                      // TARGET PERFORMANCE WIDGET
+                      verticalSpacing(),
+                      // ACTIVE FOLLOW-UPS WIDGET (ACCORDING TO STATUS)
+                      _buildActiveFollowUpsWidget(context),
+                      // PERFORMANCE REPORT
+                      verticalSpacing(),
+                      _buildPerformanceWidget(context),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -644,6 +700,298 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
       ],
     );
   }
+
+  Widget _buildPerformanceWidget(BuildContext context) {
+    return BlocBuilder<SalesDashboardCubit, SalesDashboardState>(
+      builder: (context, state) {
+        if (state.isLoading == true) {
+          return Center(child: loader());
+        }
+        final closingData =
+        (state.salesDashboardList.isNotEmpty)
+            ? state.salesDashboardList.first.table3
+            : <Table3>[];
+
+        final sourcingData =
+        (state.salesDashboardList.isNotEmpty)
+            ? state.salesDashboardList.first.table2
+            : <Table2>[];
+        return Container(
+          padding: const EdgeInsets.only(
+            left: 16.0,
+            right: 16.0,
+            top: 12.0,
+            bottom: 8.0,
+          ),
+          decoration: commonCardDecoration(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Performance Report",
+                style: AppTextStyle.ts14M(color: AppColor.grey),
+              ),
+              verticalSpacing(),
+              ChipStyleTabBar(
+                controller: _tabController,
+                tabs: ["Closing", "Sourcing"],
+                margin: EdgeInsets.zero,
+              ),
+              verticalSpacing(),
+              Builder(
+                builder: (_) {
+                  if (state.currentTabIndex == 0) {
+                    return _buildClosingExpansionList(closingData);
+                  } else {
+                    return _buildSourcingExpansionList(sourcingData);
+                  }
+                },
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildClosingExpansionList(List<Table3> list) {
+    final data = getCurrentUserDataClosing(list);
+
+    if (_user == null) {
+      return Center(child: loader());
+    }
+
+    if (data == null) {
+      return Center(child: noDataWidget(message: "No Performance Report Data Found",iconSize: 180));
+    }
+
+    final walkinsExpanded = ValueNotifier(false);
+    final bookingsExpanded = ValueNotifier(false);
+    final meetingExpanded = ValueNotifier(false);
+    final obmExpanded = ValueNotifier(false);
+    final cpsExpanded = ValueNotifier(false);
+
+    return Column(
+      children: [
+        _buildExpandableCard(
+          title: "Walkins",
+          subTitle: "${(data.performanceWalkinsByCP+data.performanceFreshVisits+data.performanceRevisits)}",
+          notifier: walkinsExpanded,
+          children: [
+            _buildRow("Walkins By CP", data.walkinsByCP,
+                data.actualWalkinsByCP, data.performanceWalkinsByCP),
+            _buildRow("Fresh Visits", data.freshVisits,
+                data.actualFreshVisits, data.performanceFreshVisits),
+            _buildRow("Revisits", data.revisits,
+                data.actualRevisits, data.performanceRevisits),
+          ],
+        ),
+
+        _buildExpandableCard(
+          title: "Bookings",
+          subTitle: "${(data.performanceBookings)}",
+          notifier: bookingsExpanded,
+          children: [
+            _buildRow("Bookings", data.bookings,
+                data.actualBookings, data.performanceBookings),
+          ],
+        ),
+
+        _buildExpandableCard(
+          title: "Meetings",
+          subTitle: "${(data.performanceTotalMeetings)}",
+          notifier: meetingExpanded,
+          children: [
+            _buildRow("Total Meetings", data.totalMeetings,
+                data.actualTotalMeetings, data.performanceTotalMeetings),
+          ],
+        ),
+
+        _buildExpandableCard(
+          title: "OBM & IBM",
+          subTitle: "${(data.performanceTotalOBM+data.performanceTotalIBM)}",
+          notifier: obmExpanded,
+          children: [
+            _buildRow("Total OBM", data.totalOBM,
+                data.actualTotalOBM, data.performanceTotalOBM),
+
+            _buildRow("OBM Fresh Visits", data.totalOBMFreshVisits,
+                data.actualTotalOBMFreshVisits, data.performanceTotalOBMFreshVisits),
+
+            _buildRow("OBM", data.totalOBMRevisits,
+                data.actualTotalOBMRevisits, data.performanceTotalOBMRevisits),
+
+            _buildRow("IBM", data.totalIBM,
+                data.actualTotalIBM, data.performanceTotalIBM),
+          ],
+        ),
+
+        _buildExpandableCard(
+          title: "CPs",
+          subTitle: "${(data.performanceUniqueCPs+data.performanceActiveCP+data.performanceNewCP)}",
+          notifier: cpsExpanded,
+          children: [
+            _buildRow("Unique CPs", data.uniqueCPs,
+                data.actualUniqueCPs, data.performanceUniqueCPs),
+
+            _buildRow("Active CP", data.activeCP,
+                data.actualActiveCP, data.performanceActiveCP),
+
+            _buildRow("New CP", data.newCP,
+                data.actualNewCP, data.performanceNewCP),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSourcingExpansionList(List<Table2> list) {
+    final data = getCurrentUserDataSourcing(list);
+
+    if (_user == null) {
+      return Center(child: loader());
+    }
+
+    if (data == null) {
+      return Center(child: noDataWidget(message: "No Performance Report Data Found",iconSize: 180));
+    }
+
+    final walkinsExpanded = ValueNotifier(false);
+    final bookingsExpanded = ValueNotifier(false);
+
+    return Column(
+      children: [
+        _buildExpandableCard(
+          title: "Walkins",
+          subTitle: "${(data.performanceWalkinsByCp+data.performanceFreshVisits+data.performanceRevisits+data.performanceWalkinsDirect)}",
+          notifier: walkinsExpanded,
+          children: [
+            _buildRow("Walkins By CP", data.walkinsByCp,
+                data.actualWalkinsByCp, data.performanceWalkinsByCp),
+            _buildRow("Walkins Direct", data.walkinsDirect,
+                data.actualWalkinsDirect, data.performanceWalkinsDirect),
+            _buildRow("Fresh Visits", data.freshVisits,
+                data.actualFreshVisits, data.performanceFreshVisits),
+            _buildRow("Revisits", data.revisits,
+                data.actualRevisits, data.performanceRevisits),
+          ],
+        ),
+
+        _buildExpandableCard(
+          title: "Bookings",
+          subTitle: "${(data.performanceBookingByCp+data.performanceBookingDirect)}",
+          notifier: bookingsExpanded,
+          children: [
+            _buildRow("Booking By CP", data.bookingByCp,
+                data.actualBookingByCp, data.performanceWalkinsByCp),
+            _buildRow("Booking Direct", data.bookingDirect,
+                data.actualBookingDirect, data.performanceBookingDirect),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExpandableCard({
+    required String title,
+    required String subTitle,
+    required ValueNotifier<bool> notifier,
+    required List<Widget> children,
+  }) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: notifier,
+      builder: (context, isExpanded, child) {
+        return GestureDetector(
+          onTap: () => notifier.value = !isExpanded,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: AppColor.white,
+              border: Border.all(color: AppColor.lightGrey),
+            ),
+
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(title, style: AppTextStyle.ts14M()),
+                        Text("Performance: $subTitle %", style: AppTextStyle.ts12M(color: AppColor.grey)),
+                      ],
+                    ),
+                    Icon(
+                      isExpanded
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                    ),
+                  ],
+                ),
+
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  child: isExpanded
+                      ? Column(
+                    key: ValueKey(true),
+                    children: [
+                      verticalSpacing(),
+                      ...children,
+                    ],
+                  )
+                      : const SizedBox.shrink(),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildRow(
+      String title,
+      int target,
+      int actual,
+      double performance,
+      ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 3,
+            child: Text(title, style: AppTextStyle.ts12R()),
+          ),
+          Expanded(
+            child: Text("$target", textAlign: TextAlign.center),
+          ),
+          Expanded(
+            child: Text("$actual", textAlign: TextAlign.center),
+          ),
+          Expanded(
+            child: Text(
+              "${performance.toStringAsFixed(1)}%",
+              textAlign: TextAlign.center,
+              style: AppTextStyle.ts12M(
+                color: performance >= 100 ? Colors.green : Colors.red,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
 }
 
 class DashboardStatCard extends StatelessWidget {

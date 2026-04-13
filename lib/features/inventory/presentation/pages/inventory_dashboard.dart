@@ -48,7 +48,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
     return Scaffold(
       backgroundColor: AppColor.lightGreyBackground,
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Inventory",
+        screenTitle: "Inventory Dashboard",
         isMenuButton: true,
         authorization: _routeAuthorizationModel,
         onProjectChangeCallback: (value) {
@@ -460,60 +460,61 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
               ),
               verticalSpacing(height: 20),
               if (table0 != null) ...[
-                CommonRadialChart(
-                  items:
-                      [
-                        RadialChartItem(
-                          title: "Blocked Units",
-                          value:
-                              state
-                                  .inventoryDashboardModel!
-                                  .table0
-                                  .first
-                                  .blockedFlats,
-                          color: AppColor.black.withValues(alpha: 0.5),
-                        ),
-                        RadialChartItem(
-                          title: "Member Units",
-                          value:
-                              state
-                                  .inventoryDashboardModel!
-                                  .table0
-                                  .first
-                                  .allotedFlats,
-                          color: AppColor.purple,
-                        ),
-                        RadialChartItem(
-                          title: "Booked Units",
-                          value:
-                              state
-                                  .inventoryDashboardModel!
-                                  .table0
-                                  .first
-                                  .bookedFlats,
-                          color: AppColor.error,
-                        ),
-                        RadialChartItem(
-                          title: "Hold Units",
-                          value:
-                              state
-                                  .inventoryDashboardModel!
-                                  .table0
-                                  .first
-                                  .holdFlats,
-                          color: AppColor.yellow,
-                        ),
-                        RadialChartItem(
-                          title: "Available Units",
-                          value:
-                              state
-                                  .inventoryDashboardModel!
-                                  .table0
-                                  .first
-                                  .availableFlats,
-                          color: AppColor.green,
-                        ),
-                      ].where((e) => e.value > 0).toList(),
+                Center(
+                  child: CommonRadialChart(
+                    items: [
+                      RadialChartItem(
+                        title: "Blocked Units",
+                        value:
+                            state
+                                .inventoryDashboardModel!
+                                .table0
+                                .first
+                                .blockedFlats,
+                        color: AppColor.black.withValues(alpha: 0.5),
+                      ),
+                      RadialChartItem(
+                        title: "Member Units",
+                        value:
+                            state
+                                .inventoryDashboardModel!
+                                .table0
+                                .first
+                                .allotedFlats,
+                        color: AppColor.purple,
+                      ),
+                      RadialChartItem(
+                        title: "Booked Units",
+                        value:
+                            state
+                                .inventoryDashboardModel!
+                                .table0
+                                .first
+                                .bookedFlats,
+                        color: AppColor.error,
+                      ),
+                      RadialChartItem(
+                        title: "Hold Units",
+                        value:
+                            state
+                                .inventoryDashboardModel!
+                                .table0
+                                .first
+                                .holdFlats,
+                        color: AppColor.yellow,
+                      ),
+                      RadialChartItem(
+                        title: "Available Units",
+                        value:
+                            state
+                                .inventoryDashboardModel!
+                                .table0
+                                .first
+                                .availableFlats,
+                        color: AppColor.green,
+                      ),
+                    ],
+                  ),
                 ),
               ] else ...[
                 Center(

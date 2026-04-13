@@ -45,13 +45,14 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
 
   // APPLICANT TYPE LIST
   final List<Map<String, dynamic>> applicantTypeList = const [
-    {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "Applicant"},
     {"zAttributesId": 2, "DisplayName": "Co-Applicant"},
   ];
 
   // SELECTED APPLICANT TYPE
-  late Map<String, dynamic> selectedApplicantType;
+  ValueNotifier<Map<String, dynamic>?> selectedApplicantType = ValueNotifier(
+    null,
+  );
 
   // METHODS TO CHECK IF APPLICANT TYPE IS PRIMARY
   bool _isApplicantType(String type) =>
@@ -142,7 +143,6 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
   @override
   void initState() {
     super.initState();
-    selectedApplicantType = applicantTypeList.first;
     _initControllers(widget.applicant);
     _prefill(widget.applicant);
   }
@@ -179,7 +179,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
   // PREFILL APPLICANT DETAILS
   void _prefill(BookingApplicantData? applicant) {
     if (applicant == null) return;
-    selectedApplicantType = applicantTypeList.firstWhere(
+    selectedApplicantType.value = applicantTypeList.firstWhere(
       (e) =>
           e['DisplayName'].toString().toLowerCase() ==
           applicant.applicantType.toLowerCase(),
@@ -219,7 +219,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     // PREVENT DUPLICATE PRIMARY APPLICANT
-    if (selectedApplicantType['DisplayName'] == "Applicant" &&
+    if (selectedApplicantType.value!['DisplayName'] == "Applicant" &&
         widget.hasPrimaryApplicant &&
         !_isEditingApplicantType) {
       showErrorMessage(context, "", "Primary Applicant already exists");
@@ -228,7 +228,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
 
     final applicant = BookingApplicantData(
       bookingApplicantId: widget.applicant?.bookingApplicantId ?? 0,
-      applicantType: selectedApplicantType['DisplayName'],
+      applicantType: selectedApplicantType.value!['DisplayName'],
       applicantName: _applicantNameC.text.trim(),
       applicantMobileNumber: _mobileC.text.trim(),
       applicantEmailId: _emailC.text.trim(),
@@ -347,17 +347,25 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     style: AppTextStyle.ts16SB(color: AppColor.black),
                   ),
                   verticalSpacing(),
-                  CustomDropDownWidget(
-                    title: "Applicant Type",
-                    isRequired: true,
-                    initialValue: selectedApplicantType,
-                    dataList: _applicantTypeOptions,
-                    onSelected: (value) => selectedApplicantType = value,
-                    validator: (value) {
-                      if (value == null || value['zAttributesId'] == -1) {
-                        return "Applicant Type is required";
-                      }
-                      return null;
+                  ValueListenableBuilder(
+                    valueListenable: selectedApplicantType,
+                    builder: (context, value, child) {
+                      return CustomDropDownWidget(
+                        title: "Applicant Type",
+                        hintText: "Select Applicant Type",
+                        isRequired: true,
+                        initialValue: selectedApplicantType.value,
+                        dataList: _applicantTypeOptions,
+                        onSelected:
+                            (value) => selectedApplicantType.value = value,
+                        validator: (value) {
+                          if (value == null) {
+                            return "Applicant Type is required";
+                          }
+                          return null;
+                        },
+                        onValueClear: () => selectedApplicantType.value = null,
+                      );
                     },
                   ),
                   if (widget.hasPrimaryApplicant && !_isEditingApplicantType)
@@ -750,10 +758,10 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       cancelledChequeFile.fileBytesList = bytesList;
                     },
                     onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deleted,
-                        ) {
+                      fileBytesList,
+                      fileNameList,
+                      deleted,
+                    ) {
                       cancelledChequeFile.fileBytesList = fileBytesList;
                       cancelledChequeFile.fileNameList = fileNameList;
                       cancelledChequeFile.deletedFileList = deleted;
@@ -768,10 +776,10 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       poaFile.fileBytesList = bytesList;
                     },
                     onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deleted,
-                        ) {
+                      fileBytesList,
+                      fileNameList,
+                      deleted,
+                    ) {
                       poaFile.fileBytesList = fileBytesList;
                       poaFile.fileNameList = fileNameList;
                       poaFile.deletedFileList = deleted;
@@ -786,10 +794,10 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       incomeForm16ItrFile.fileBytesList = bytesList;
                     },
                     onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deleted,
-                        ) {
+                      fileBytesList,
+                      fileNameList,
+                      deleted,
+                    ) {
                       incomeForm16ItrFile.fileBytesList = fileBytesList;
                       incomeForm16ItrFile.fileNameList = fileNameList;
                       incomeForm16ItrFile.deletedFileList = deleted;
@@ -804,10 +812,10 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       nreNroBankDetailsFile.fileBytesList = bytesList;
                     },
                     onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deleted,
-                        ) {
+                      fileBytesList,
+                      fileNameList,
+                      deleted,
+                    ) {
                       nreNroBankDetailsFile.fileBytesList = fileBytesList;
                       nreNroBankDetailsFile.fileNameList = fileNameList;
                       nreNroBankDetailsFile.deletedFileList = deleted;
@@ -822,10 +830,10 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       nomineeFormFile.fileBytesList = bytesList;
                     },
                     onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deleted,
-                        ) {
+                      fileBytesList,
+                      fileNameList,
+                      deleted,
+                    ) {
                       nomineeFormFile.fileBytesList = fileBytesList;
                       nomineeFormFile.fileNameList = fileNameList;
                       nomineeFormFile.deletedFileList = deleted;
@@ -840,10 +848,10 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       statementOfSourceOfFundFile.fileBytesList = bytesList;
                     },
                     onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deleted,
-                        ) {
+                      fileBytesList,
+                      fileNameList,
+                      deleted,
+                    ) {
                       statementOfSourceOfFundFile.fileBytesList = fileBytesList;
                       statementOfSourceOfFundFile.fileNameList = fileNameList;
                       statementOfSourceOfFundFile.deletedFileList = deleted;
@@ -858,10 +866,10 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       paymentProofURLFundFile.fileBytesList = bytesList;
                     },
                     onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deleted,
-                        ) {
+                      fileBytesList,
+                      fileNameList,
+                      deleted,
+                    ) {
                       paymentProofURLFundFile.fileBytesList = fileBytesList;
                       paymentProofURLFundFile.fileNameList = fileNameList;
                       paymentProofURLFundFile.deletedFileList = deleted;

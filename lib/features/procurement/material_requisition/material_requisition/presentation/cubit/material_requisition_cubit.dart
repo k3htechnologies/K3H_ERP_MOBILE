@@ -30,7 +30,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
     var result = await _materialRequisitionRepository
         .getMaterialRequisitionList(
           pageNumber: pageNumber,
-          pageSize: 50,
+          pageSize: 10,
           projectId: projectId,
         );
 
@@ -50,6 +50,43 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
             isLoading: false,
           ),
         );
+      },
+    );
+  }
+
+  //  Needed for Overview
+  Future<MaterialRequisitionModel?> getMaterialRequisitionDetailsById(
+    BuildContext context,
+    int pageNumber,
+    int projectId,
+    int materialRequisitionId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    var result = await _materialRequisitionRepository
+        .getMaterialRequisitionList(
+          pageNumber: pageNumber,
+          pageSize: 10,
+          projectId: projectId,
+          queryParams: {"MaterialRequisitionId": materialRequisitionId},
+        );
+
+    return result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+        return null;
+      },
+      (response) {
+        final List<MaterialRequisitionModel> materialRequisitionList =
+            response['data'] as List<MaterialRequisitionModel>;
+        final materialRequisitionDetails =
+            materialRequisitionList.isNotEmpty
+                ? materialRequisitionList.first
+                : null;
+
+        emit(state.copyWith(isLoading: false));
+        return materialRequisitionDetails;
       },
     );
   }

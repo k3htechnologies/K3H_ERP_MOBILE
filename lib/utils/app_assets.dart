@@ -99,7 +99,7 @@ class AppAssets {
   static const String totalCompaniesIcon = "$svgPath/totalCompaniesIcon.svg";
   static const String activeProjectsIcon = "$svgPath/activeProjectsIcon.svg";
   static const String registeredVendorsIcon =
-      "$svgPath/registeredVendorsIcon.svg";
+      "assets/icons/registeredVendorsIcon.png";
 
   static const String totalBuildingsIcon = "$svgPath/totalBuildingIcon.svg";
   static const String basementIcon = "$svgPath/basementIcon.svg";

@@ -604,6 +604,9 @@ class _ParkingScreenState extends State<ParkingScreen>
       case 'Hold':
         statusColor = AppColor.yellow;
         break;
+      case 'Alloted':
+        statusColor = AppColor.purple;
+        break;
       default:
         statusColor = AppColor.grey;
     }
@@ -700,8 +703,13 @@ class _ParkingScreenState extends State<ParkingScreen>
           ],
           if (parking.parkingStatus == "Hold")
             Text(
-              "Hold on ${formatDateTimeAsDDMMMYYYY(parking.modifiedDate!)} by ${parking.modifiedBy}",
-              style: AppTextStyle.ts12R(),
+              "Hold by ${parking.modifiedBy} on ${formatDate(parking.modifiedDate!)}",
+              style: AppTextStyle.ts12R(color: AppColor.yellow),
+            ),
+          if (parking.parkingStatus == "Blocked")
+            Text(
+              "Blocked by ${parking.modifiedBy} on ${formatDate(parking.modifiedDate!)}",
+              style: AppTextStyle.ts12R(color: AppColor.grey),
             ),
         ],
       ),
@@ -709,13 +717,36 @@ class _ParkingScreenState extends State<ParkingScreen>
   }
 
   // COUNTS ROW
-  Widget _buildCountsRow(List wingList) {
-    final totalParking =
-        _parkingCubit.state.availableParking +
-        _parkingCubit.state.bookedParking +
-        _parkingCubit.state.blockedParking +
-        _parkingCubit.state.holdParking +
-        _parkingCubit.state.allotedParking;
+  Widget _buildCountsRow(List<ParkingModel> wingList) {
+    int available = 0;
+    int booked = 0;
+    int blocked = 0;
+    int hold = 0;
+    int alloted = 0;
+
+    for (var p in wingList) {
+      switch (p.parkingStatus) {
+        case 'Available':
+          available++;
+          break;
+        case 'Booked':
+          booked++;
+          break;
+        case 'Block':
+        case 'Blocked':
+          blocked++;
+          break;
+        case 'Hold':
+          hold++;
+          break;
+        case 'Alloted':
+          alloted++;
+          break;
+      }
+    }
+
+    final total = wingList.length;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -727,32 +758,12 @@ class _ParkingScreenState extends State<ParkingScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildCountItem("Total", totalParking, AppColor.primary),
-          _buildCountItem(
-            "Available",
-            _parkingCubit.state.availableParking,
-            AppColor.darkGreen,
-          ),
-          _buildCountItem(
-            "Booked",
-            _parkingCubit.state.bookedParking,
-            AppColor.error,
-          ),
-          _buildCountItem(
-            "Alloted",
-            _parkingCubit.state.allotedParking,
-            AppColor.purple,
-          ),
-          _buildCountItem(
-            "Hold",
-            _parkingCubit.state.holdParking,
-            AppColor.yellow,
-          ),
-          _buildCountItem(
-            "Blocked",
-            _parkingCubit.state.blockedParking,
-            AppColor.primary,
-          ),
+          _buildCountItem("Total", total, AppColor.primary),
+          _buildCountItem("Available", available, AppColor.darkGreen),
+          _buildCountItem("Booked", booked, AppColor.error),
+          _buildCountItem("Alloted", alloted, AppColor.purple),
+          _buildCountItem("Hold", hold, AppColor.yellow),
+          _buildCountItem("Blocked", blocked, AppColor.black),
         ],
       ),
     );

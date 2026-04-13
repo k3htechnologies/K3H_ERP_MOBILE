@@ -161,6 +161,12 @@ class _PerformanceScreenState extends State<PerformanceScreen>
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     final filterFormKey = GlobalKey<FormState>();
 
+    if (filterFromDate == null && filterToDate == null) {
+      final auto = _performanceCubit.getAutoDateRange(_getTillDateType());
+      filterFromDate = auto["from"];
+      filterToDate = auto["to"];
+    }
+
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
@@ -197,6 +203,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                 children: [
                   CustomDatePicker(
                     title: "From Date",
+                    key: ValueKey("from_${filterFromDate?.toIso8601String() ?? "null"}"),
                     initialDate: filterFromDate,
                     setValue: (value) {
                       innerState(() {
@@ -249,6 +256,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                   verticalSpacing(height: 12),
                   CustomDatePicker(
                     title: "To Date",
+                    key: ValueKey(filterToDate),
                     initialDate: filterToDate,
                     setValue: (value) {
                       innerState(() {

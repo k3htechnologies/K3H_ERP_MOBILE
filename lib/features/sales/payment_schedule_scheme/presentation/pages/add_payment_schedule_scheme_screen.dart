@@ -131,7 +131,11 @@ class _AddPaymentScheduleSchemeScreenState
                     CustomDropDownWidget(
                       title: "Select Building",
                       isRequired: true,
-                      isDisabled: (widget.paymentScheduleSchemeModel != null && widget.paymentScheduleSchemeModel!.isExistsPaymentScheduleScheme),
+                      isDisabled:
+                          (widget.paymentScheduleSchemeModel != null &&
+                              widget
+                                  .paymentScheduleSchemeModel!
+                                  .isExistsPaymentScheduleScheme),
                       dataList: buildingListMap,
                       initialValue: selectedBuildingMap,
                       onSelected: (value) {
@@ -143,13 +147,21 @@ class _AddPaymentScheduleSchemeScreenState
                       validator:
                           (value) =>
                               value == null ? "Building is required" : null,
+                      onValueClear: () {
+                        _selectedBuildingId = null;
+                        _selectedWingId = null;
+                      },
                     ),
 
                     /// ---------------- WING DROPDOWN ----------------
                     CustomDropDownWidget(
                       title: "Select Wing",
                       isRequired: true,
-                      isDisabled: (widget.paymentScheduleSchemeModel != null && widget.paymentScheduleSchemeModel!.isExistsPaymentScheduleScheme),
+                      isDisabled:
+                          (widget.paymentScheduleSchemeModel != null &&
+                              widget
+                                  .paymentScheduleSchemeModel!
+                                  .isExistsPaymentScheduleScheme),
                       dataList: wingListMap,
                       initialValue: selectedWingMap,
                       onSelected: (value) {
@@ -159,6 +171,9 @@ class _AddPaymentScheduleSchemeScreenState
                       },
                       validator:
                           (value) => value == null ? "Wing is required" : null,
+                      onValueClear: () {
+                        _selectedWingId = null;
+                      },
                     ),
 
                     /// ---------------- SCHEME NAME ----------------

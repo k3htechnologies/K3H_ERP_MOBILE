@@ -45,7 +45,6 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
 
   // PARKING CATEGORY LISTS
   final List<Map<String, dynamic>> _parkingCategoryList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select'},
     {'zAttributesId': 1, 'DisplayName': 'Surface Parking'},
     {'zAttributesId': 2, 'DisplayName': 'Stack Parking'},
     {'zAttributesId': 3, 'DisplayName': 'Puzzle Parking'},
@@ -61,17 +60,14 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
   late ValueNotifier<List<Map<String, dynamic>>> _parkingTypeList;
 
   final List<Map<String, dynamic>> _parkingSizeTypeList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select'},
     {'zAttributesId': 1, 'DisplayName': 'Big'},
     {'zAttributesId': 2, 'DisplayName': 'Small'},
   ];
 
   final List<Map<String, dynamic>> _parkingStatusList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select'},
     {'zAttributesId': 1, 'DisplayName': 'Available'},
     {'zAttributesId': 2, 'DisplayName': 'Hold'},
     {'zAttributesId': 3, 'DisplayName': 'Blocked'},
-    {'zAttributesId': 4, 'DisplayName': 'Member'},
   ];
 
   // DROPDOWN VARIABLES
@@ -140,12 +136,13 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
       orElse: () => _parkingCategoryList.first,
     );
 
-    _updateParkingTypeListForCategory(selectedCategory.value!);
-
-    selectedType.value = _parkingTypeList.value.firstWhere(
-      (element) => element['DisplayName'] == parking.parkingType,
-      orElse: () => _parkingTypeList.value.first,
-    );
+    if (parking.parkingType.isNotEmpty) {
+      final subList = _parkingList;
+      selectedType.value = subList.firstWhere(
+        (item) => item["DisplayName"] == widget.parking.parkingType,
+        orElse: () => subList.first,
+      );
+    }
 
     selectedSizeType.value = _parkingSizeTypeList.firstWhere(
       (element) => element['DisplayName'] == parking.parkingSubType,
@@ -159,6 +156,90 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
   }
 
   // UPDATE PARKING TYPE LIST BASED ON SELECTED CATEGORY
+  List<Map<String, dynamic>> get _parkingList {
+    if (selectedCategory.value == null) return [{}];
+    List<Map<String, dynamic>> newTypeList = [];
+
+    final id = selectedCategory.value!["zAttributesId"] as int?;
+    switch (id) {
+      case 1:
+        newTypeList.addAll([
+          {'zAttributesId': 1, 'DisplayName': 'SU 1'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
+        ]);
+        return newTypeList;
+      case 2:
+        newTypeList.addAll([
+          {'zAttributesId': 1, 'DisplayName': 'PIT 1'},
+          {'zAttributesId': 2, 'DisplayName': 'PIT 2'},
+          {'zAttributesId': 3, 'DisplayName': 'PIT 3'},
+          {'zAttributesId': 4, 'DisplayName': 'PIT 4'},
+          {'zAttributesId': 5, 'DisplayName': 'PIT 5'},
+          {'zAttributesId': 6, 'DisplayName': 'ST 1'},
+          {'zAttributesId': 7, 'DisplayName': 'ST 2'},
+          {'zAttributesId': 8, 'DisplayName': 'ST 3'},
+          {'zAttributesId': 9, 'DisplayName': 'ST 4'},
+          {'zAttributesId': 10, 'DisplayName': 'ST 5'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
+        ]);
+        return newTypeList;
+      case 3:
+        newTypeList.addAll([
+          {'zAttributesId': 1, 'DisplayName': 'PU 1'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
+        ]);
+        return newTypeList;
+      case 4: // Tower Parking
+        newTypeList.addAll([
+          {'zAttributesId': 1, 'DisplayName': 'TO 1'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
+        ]);
+        return newTypeList;
+
+      case 5: // Pit Puzzle Parking
+        newTypeList.addAll([
+          {'zAttributesId': 1, 'DisplayName': 'PIT 1'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
+        ]);
+        return newTypeList;
+
+      case 6: // Cantilever Parking
+        newTypeList.addAll([
+          {'zAttributesId': 1, 'DisplayName': 'CAN 1'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
+        ]);
+        return newTypeList;
+
+      case 7: // Tandem Parking
+        newTypeList.addAll([
+          {'zAttributesId': 1, 'DisplayName': 'TAN 1'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
+        ]);
+        return newTypeList;
+
+      case 8: // Podium Parking
+        newTypeList.addAll([
+          {'zAttributesId': 1, 'DisplayName': 'PO 1'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
+        ]);
+        return newTypeList;
+
+      case 9: // Pit + Stack
+        newTypeList.addAll([
+          {'zAttributesId': 1, 'DisplayName': 'Pit + Stack 1'},
+          {'zAttributesId': 2, 'DisplayName': 'Pit + Stack 2'},
+          {'zAttributesId': 3, 'DisplayName': 'Pit + Stack 3'},
+          {'zAttributesId': 4, 'DisplayName': 'Pit + Stack 4'},
+          {'zAttributesId': 5, 'DisplayName': 'Pit + Stack 5'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
+        ]);
+        return newTypeList;
+
+      default:
+        return newTypeList;
+    }
+  }
+
   void _updateParkingTypeListForCategory(Map<String, dynamic> category) {
     List<Map<String, dynamic>> newTypeList = [
       {'zAttributesId': -1, 'DisplayName': 'Select'},
@@ -280,6 +361,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                         'category_${categoryValue?['zAttributesId']}',
                       ),
                       title: 'Parking Category',
+                      hintText: 'Select Parking Category',
                       isRequired: true,
                       initialValue: categoryValue,
                       dataList: _parkingCategoryList,
@@ -295,33 +377,32 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                           selectedCategory.value!,
                         );
                       },
+                      onValueClear: () {
+                        selectedCategory.value = null;
+                      },
                     );
                   },
                 ),
-                ValueListenableBuilder(
-                  valueListenable: _parkingTypeList,
-                  builder: (context, list, child) {
-                    return ValueListenableBuilder<Map<String, dynamic>?>(
-                      valueListenable: selectedType,
-                      builder: (context, typeValue, child) {
-                        return CustomDropDownWidget(
-                          key: ValueKey(
-                            'type_${typeValue?['zAttributesId']}_${list.length}',
-                          ),
-                          title: 'Parking Type',
-                          isRequired: true,
-                          initialValue: typeValue,
-                          dataList: list,
-                          validator: (value) {
-                            if (value == null || value['zAttributesId'] == -1) {
-                              return 'Parking Type is required';
-                            }
-                            return null;
-                          },
-                          onSelected: (value) {
-                            selectedType.value = value;
-                          },
-                        );
+                ValueListenableBuilder<Map<String, dynamic>?>(
+                  valueListenable: selectedType,
+                  builder: (context, typeValue, child) {
+                    return CustomDropDownWidget(
+                      title: 'Parking Type',
+                      isRequired: true,
+                      hintText: "Select Parking Type",
+                      initialValue: typeValue,
+                      dataList: _parkingList,
+                      validator: (value) {
+                        if (value == null || value['zAttributesId'] == -1) {
+                          return 'Parking Type is required';
+                        }
+                        return null;
+                      },
+                      onSelected: (value) {
+                        selectedType.value = value;
+                      },
+                      onValueClear: () {
+                        selectedType.value = null;
                       },
                     );
                   },
@@ -334,6 +415,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                         'subtype_${subTypeValue?['zAttributesId']}',
                       ),
                       title: 'Parking Size Type',
+                      hintText: 'Select Parking Size Type',
                       isRequired: true,
                       initialValue: subTypeValue,
                       dataList: _parkingSizeTypeList,
@@ -345,6 +427,9 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                       },
                       onSelected: (value) {
                         selectedSizeType.value = value;
+                      },
+                      onValueClear: () {
+                        selectedSizeType.value = null;
                       },
                     );
                   },
@@ -368,6 +453,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                     return CustomDropDownWidget(
                       key: ValueKey('status_${statusValue?['zAttributesId']}'),
                       title: 'Parking Status',
+                      hintText: 'Select Parking Status',
                       isRequired: true,
                       initialValue: statusValue,
                       dataList: _parkingStatusList,
@@ -379,6 +465,9 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                       },
                       onSelected: (value) {
                         selectedStatus.value = value;
+                      },
+                      onValueClear: () {
+                        selectedStatus.value = null;
                       },
                     );
                   },
@@ -430,9 +519,9 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
       bottomNavigationBar: SafeArea(
         child: Container(
           height: 70,
-          padding: EdgeInsets.symmetric(horizontal: 16,vertical: 16),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: CustomButton(
-            leading: Icon(Icons.edit,size: 16,color: AppColor.white,),
+            leading: Icon(Icons.edit, size: 16, color: AppColor.white),
             text: "Update",
             onPressed: _handleUpdateParking,
           ),

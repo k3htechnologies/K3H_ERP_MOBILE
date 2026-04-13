@@ -36,11 +36,11 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
   late TextEditingController _commercialPercentController;
 
   // DROPDOWN SELECTIONS
-  Map<String, dynamic>? _selectedExtraCarpetType;
+  final ValueNotifier<Map<String, dynamic>?> _selectedExtraCarpetType =
+      ValueNotifier(null);
 
   // DROPDOWN LISTS
   final List<Map<String, dynamic>> _extraCarpetTypeList = [
-    {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "RERA"},
     {"zAttributesId": 2, "DisplayName": "MOFA"},
   ];
@@ -79,7 +79,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
     _commercialPercentController.text =
         extraCarpetModel.commercialExtraCarpetPercent.toString();
 
-    _selectedExtraCarpetType = _extraCarpetTypeList.firstWhere(
+    _selectedExtraCarpetType.value = _extraCarpetTypeList.firstWhere(
       (e) => e['DisplayName'] == extraCarpetModel.extraCarpetAreaOfferedType,
       orElse: () => _extraCarpetTypeList.first,
     );
@@ -92,7 +92,8 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
         context,
         buildingId: widget.buildingId,
         projectId: widget.projectId,
-        extraCarpetAreaOfferedType: _selectedExtraCarpetType!['DisplayName'],
+        extraCarpetAreaOfferedType:
+            _selectedExtraCarpetType.value!['DisplayName'],
         residentialExtraCarpetPercent: double.parse(
           _residentialPercentController.text,
         ),
@@ -113,7 +114,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
           } else {
             _residentialPercentController.clear();
             _commercialPercentController.clear();
-            _selectedExtraCarpetType = null;
+            _selectedExtraCarpetType.value = null;
           }
         },
         builder: (context, state) {
@@ -136,19 +137,27 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                       "Basic Details",
                       style: AppTextStyle.ts14M(color: AppColor.grey),
                     ),
-                    CustomDropDownWidget(
-                      title: 'Extra Carpet Area Type',
-                      isRequired: true,
-                      dataList: _extraCarpetTypeList,
-                      initialValue: _selectedExtraCarpetType,
-                      onSelected: (value) {
-                        _selectedExtraCarpetType = value;
-                      },
-                      validator: (value) {
-                        if (value == null || value['zAttributesId'] == -1) {
-                          return "Extra Carpet Area Type is required";
-                        }
-                        return null;
+                    ValueListenableBuilder(
+                      valueListenable: _selectedExtraCarpetType,
+                      builder: (context, value, child) {
+                        return CustomDropDownWidget(
+                          title: 'Extra Carpet Area Type',
+                          hintText: 'Select Extra Carpet Area Type',
+                          isRequired: true,
+                          dataList: _extraCarpetTypeList,
+                          initialValue: value,
+                          onSelected: (value) {
+                            _selectedExtraCarpetType.value = value;
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return "Extra Carpet Area Type is required";
+                            }
+                            return null;
+                          },
+                          onValueClear:
+                              () => _selectedExtraCarpetType.value = null,
+                        );
                       },
                     ),
                     verticalSpacing(),

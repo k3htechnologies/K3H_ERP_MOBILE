@@ -531,6 +531,7 @@ class _AddInventorySpecificationScreenState
                             'type_${typeValue?['zAttributesId'] ?? ""}',
                           ),
                           title: 'Unit Type',
+                          hintText: "Select Unit Type",
                           isRequired: true,
                           dataList: flatTypeList,
                           initialValue: typeValue,
@@ -565,6 +566,7 @@ class _AddInventorySpecificationScreenState
                                   'config_residential_${configValue?['zAttributesId']}',
                                 ),
                                 title: 'Unit Configuration',
+                                hintText: 'Select Unit Configuration',
                                 isRequired: true,
                                 dataList: residentialFlatList,
                                 initialValue: configValue,
@@ -589,6 +591,7 @@ class _AddInventorySpecificationScreenState
                                   'config_commercial_${configValue?['zAttributesId']}',
                                 ),
                                 title: 'Unit Configuration',
+                                hintText: 'Select Unit Configuration',
                                 isRequired: true,
                                 dataList: commercialFlatList,
                                 initialValue: configValue,
@@ -661,6 +664,7 @@ class _AddInventorySpecificationScreenState
                             'facing_${facingValue?['zAttributesId']}',
                           ),
                           title: 'Facing',
+                          hintText: 'Select Facing',
                           isRequired: true,
                           dataList: flatFacingList,
                           initialValue: facingValue,
@@ -673,6 +677,9 @@ class _AddInventorySpecificationScreenState
                             }
                             return null;
                           },
+                          onValueClear: () {
+                            selectedFlatFacing.value = null;
+                          },
                         );
                       },
                     ),
@@ -684,6 +691,7 @@ class _AddInventorySpecificationScreenState
                             'status_${statusValue?['zAttributesId'] ?? ""}',
                           ),
                           title: 'Status',
+                          hintText: 'Select Status',
                           isRequired: true,
                           dataList: flatStatusList,
                           initialValue: statusValue,
@@ -695,6 +703,9 @@ class _AddInventorySpecificationScreenState
                               return 'Status is required';
                             }
                             return null;
+                          },
+                          onValueClear: () {
+                            selectedFlatStatus.value = null;
                           },
                         );
                       },

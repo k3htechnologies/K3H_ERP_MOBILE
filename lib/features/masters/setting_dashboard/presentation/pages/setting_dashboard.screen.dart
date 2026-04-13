@@ -183,7 +183,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
         children: [
           Row(
             children: [
-              SvgPicture.asset(icon, width: 30, height: 30),
+              title=="Registered Vendors"?Image.asset(icon,width: 30,height: 30,):SvgPicture.asset(icon, width: 30, height: 30),
               horizontalSpacing(width: 12),
               Text(
                 value.toString(),
@@ -504,34 +504,33 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
               verticalSpacing(height: 20.0),
               if (table7 != null) ...[
                 CommonRadialChart(
-                  items:
-                      [
-                        RadialChartItem(
-                          title: "Ongoing Projects",
-                          value: table7.ongoingProjects,
-                          color: AppColor.primary,
-                        ),
-                        RadialChartItem(
-                          title: "On hold Projects",
-                          value: table7.onHoldProjects,
-                          color: AppColor.yellow,
-                        ),
-                        RadialChartItem(
-                          title: "Completed Projects",
-                          value: table7.completedProjects,
-                          color: AppColor.green,
-                        ),
-                        RadialChartItem(
-                          title: "Cancelled Projects",
-                          value: table7.cancelledProjects,
-                          color: AppColor.grey,
-                        ),
-                        RadialChartItem(
-                          title: "Planning Projects",
-                          value: table7.planningProjects,
-                          color: AppColor.blue,
-                        ),
-                      ].where((e) => e.value > 0).toList(),
+                  items: [
+                    RadialChartItem(
+                      title: "Ongoing Projects",
+                      value: table7.ongoingProjects,
+                      color: AppColor.primary,
+                    ),
+                    RadialChartItem(
+                      title: "On hold Projects",
+                      value: table7.onHoldProjects,
+                      color: AppColor.yellow,
+                    ),
+                    RadialChartItem(
+                      title: "Completed Projects",
+                      value: table7.completedProjects,
+                      color: AppColor.green,
+                    ),
+                    RadialChartItem(
+                      title: "Cancelled Projects",
+                      value: table7.cancelledProjects,
+                      color: AppColor.grey,
+                    ),
+                    RadialChartItem(
+                      title: "Planning Projects",
+                      value: table7.planningProjects,
+                      color: AppColor.blue,
+                    ),
+                  ],
                 ),
               ] else ...[
                 Center(

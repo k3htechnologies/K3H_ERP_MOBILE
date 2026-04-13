@@ -35,14 +35,18 @@ Widget noDataWidget({String? message, double? iconSize}) => Container(
 );
 
 // BULLET TEXT
-Widget bulletText(String text) {
+Widget bulletRichText(List<TextSpan> children) {
   return Row(
-    crossAxisAlignment: CrossAxisAlignment.center,
+    crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text("•", style: AppTextStyle.ts16M(color: AppColor.black)),
-      SizedBox(width: 6.w),
+      const Text("• "),
       Expanded(
-        child: Text(text, style: AppTextStyle.ts12M(color: AppColor.grey)),
+        child: Text.rich(
+          TextSpan(
+            style: AppTextStyle.ts14R(color: AppColor.black),
+            children: children,
+          ),
+        ),
       ),
     ],
   );

@@ -66,10 +66,66 @@ class PerformanceCubit extends Cubit<PerformanceState> {
         searchText: "",
         performanceReportClosingModel: [],
         performanceReportSourcingModel: [],
+        filterStartDate: null,
+        filterEndDate: null,
         closingCurrentPagePerformanceReport: 1,
         sourcingCurrentPagePerformanceReport: 1,
       ),
     );
+  }
+
+  Map<String, DateTime> getAutoDateRange(String periodType) {
+    final now = DateTime.now();
+
+    switch (periodType) {
+      case "WTD":
+        final now = DateTime.now();
+        final currentMonday = now.subtract(Duration(days: now.weekday - 1));
+
+        DateTime start;
+        DateTime end;
+
+        if (now.weekday == DateTime.monday) {
+          final prevMonday = currentMonday.subtract(const Duration(days: 7));
+
+          start = prevMonday.add(const Duration(days: 1));
+          end = currentMonday;
+        } else {
+          start = currentMonday.add(const Duration(days: 1));
+          end = currentMonday.add(const Duration(days: 7));
+        }
+
+        return {
+          "from": DateTime(start.year, start.month, start.day),
+          "to": DateTime(end.year, end.month, end.day),
+        };
+
+      case "MTD":
+        final start = DateTime(now.year, now.month, 1);
+
+        final end = DateTime(now.year, now.month + 1, 0);
+
+        return {
+          "from": start,
+          "to": DateTime(end.year, end.month, end.day),
+        };
+
+      case "YTD":
+        final start = DateTime(now.year, 1, 1);
+
+        final end = DateTime(now.year, 12, 31);
+
+        return {
+          "from": start,
+          "to": end,
+        };
+
+      default:
+        return {
+          "from": now,
+          "to": now,
+        };
+    }
   }
 
   Future applyFilterAndSort({
@@ -127,14 +183,21 @@ class PerformanceCubit extends Cubit<PerformanceState> {
       "PeriodType": periodType,
       "EmployeeName": value ?? "",
     };
-    if (state.filterStartDate != null) {
-      queryParams["FromDate"] =
-          state.filterStartDate!.toIso8601String();
+    DateTime? fromDate;
+    DateTime? toDate;
+
+    /// 🔥 Priority: Manual filter > Auto period
+    if (state.filterStartDate != null && state.filterEndDate != null) {
+      fromDate = state.filterStartDate;
+      toDate = state.filterEndDate;
+    } else {
+      final auto = getAutoDateRange(periodType);
+      fromDate = auto["from"];
+      toDate = auto["to"];
     }
-    if (state.filterEndDate != null) {
-      queryParams["ToDate"] =
-          state.filterEndDate!.toIso8601String();
-    }
+
+    queryParams["FromDate"] = fromDate!.toIso8601String();
+    queryParams["ToDate"] = toDate!.toIso8601String();
     emit(state.copyWith(isLoading: true));
 
     var result = await _performanceReportRepository
@@ -189,14 +252,20 @@ class PerformanceCubit extends Cubit<PerformanceState> {
       "PeriodType": periodType,
       "EmployeeName": value ?? "",
     };
-    if (state.filterStartDate != null) {
-      queryParams["FromDate"] =
-          state.filterStartDate!.toIso8601String();
+    DateTime? fromDate;
+    DateTime? toDate;
+
+    if (state.filterStartDate != null && state.filterEndDate != null) {
+      fromDate = state.filterStartDate;
+      toDate = state.filterEndDate;
+    } else {
+      final auto = getAutoDateRange(periodType);
+      fromDate = auto["from"];
+      toDate = auto["to"];
     }
-    if (state.filterEndDate != null) {
-      queryParams["ToDate"] =
-          state.filterEndDate!.toIso8601String();
-    }
+
+    queryParams["FromDate"] = fromDate!.toIso8601String();
+    queryParams["ToDate"] = toDate!.toIso8601String();
 
     emit(state.copyWith(isLoading: true));
 

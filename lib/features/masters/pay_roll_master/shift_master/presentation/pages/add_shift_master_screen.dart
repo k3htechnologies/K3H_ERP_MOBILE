@@ -490,7 +490,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
             builder: (_, value, __) {
               return CustomTextField(
                 textController: _shiftDurationC,
-                title: "Shift Duration",
+                title: "Shift Duration (24 hours Format)",
                 readOnly: true,
                 hint: value,
               );
@@ -501,7 +501,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
             builder: (_, value, __) {
               return CustomTextField(
                 textController: _shiftWorkDurationC,
-                title: "Shift Work Duration",
+                title: "Shift Work Duration (24 hours Format)",
                 readOnly: true,
                 hint: value,
               );

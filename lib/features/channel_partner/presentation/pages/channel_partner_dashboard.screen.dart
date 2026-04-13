@@ -48,7 +48,7 @@ class _ChannelPartnerDashboardScreenState
         return Scaffold(
           backgroundColor: AppColor.lightGreyBackground,
           appBar: CustomAppBarWithBackButton(
-            screenTitle: "Channel Partner Dashbaord",
+            screenTitle: "Channel Partner Dashboard",
             isMenuButton: true,
             showNotification: true,
             authorization: AuthorizationModel(),
@@ -206,9 +206,6 @@ class _ChannelPartnerDashboardScreenState
           0,
           (sum, item) => sum + item.totalCount,
         );
-        final maxValue = table3
-            ?.map((e) => e.totalChannelPartner)
-            .reduce((a, b) => a > b ? a : b);
 
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
@@ -313,12 +310,7 @@ class _ChannelPartnerDashboardScreenState
               ),
               verticalSpacing(),
               ...table3!.map((item) {
-                final max = maxValue ?? 1;
-
-                final progress =
-                    max == 0
-                        ? 0.0
-                        : (item.totalChannelPartner / max).clamp(0.0, 1.0);
+                final widthFactor = item.totalChannelPartner;
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 14),
                   child: Row(
@@ -336,13 +328,10 @@ class _ChannelPartnerDashboardScreenState
                       Expanded(
                         child: LayoutBuilder(
                           builder: (context, constraints) {
-                            final calculatedWidth =
-                                constraints.maxWidth * progress;
-                            final minWidth = 30.0;
                             final barWidth =
-                                calculatedWidth < minWidth
-                                    ? minWidth
-                                    : calculatedWidth;
+                                constraints.maxWidth *
+                                widthFactor.clamp(0.0, 1.0);
+
                             return Stack(
                               children: [
                                 Container(

@@ -39,8 +39,11 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
 
   // DROPDOWN VALUES
   Map<String, dynamic>? selectedBusinessCategory;
-  Map<String, dynamic>? selectedProjectSubScheme;
-  late final ValueNotifier<Map<String, dynamic>?> _selectedProjectStatusNotifier;
+  ValueNotifier<Map<String, dynamic>?> selectedProjectSubScheme = ValueNotifier(
+    null,
+  );
+  late final ValueNotifier<Map<String, dynamic>?>
+  _selectedProjectStatusNotifier;
 
   // ADDRESS VARIABLES
   int? _stateMasterId;
@@ -95,7 +98,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
 
   // STATIC LISTS
   List<Map<String, dynamic>> projectSchemeList = [
-    {"zAttributesId": -1, "DisplayName": "Select Project Scheme"},
     {"zAttributesId": 1, "DisplayName": "BMC"},
     {"zAttributesId": 2, "DisplayName": "MHADA"},
     {"zAttributesId": 3, "DisplayName": "SRA"},
@@ -103,7 +105,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
 
   // STATIC LISTS
   List<Map<String, dynamic>> projectSubSchemeBMCList = [
-    {"zAttributesId": -1, "DisplayName": "Select Project Sub Scheme"},
     {"zAttributesId": 1, "DisplayName": "33 (20) B"},
     {"zAttributesId": 2, "DisplayName": "33 (19)"},
     {"zAttributesId": 3, "DisplayName": "33 (7)"},
@@ -115,21 +116,18 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
 
   // STATIC LISTS
   List<Map<String, dynamic>> projectSubSchemeMHADAList = [
-    {"zAttributesId": -1, "DisplayName": "Select Project Sub Scheme"},
     {"zAttributesId": 1, "DisplayName": "33 (5)"},
   ];
 
   // STATIC LISTS
   List<Map<String, dynamic>> projectSubSchemeSRAList = [
-    {"zAttributesId": -1, "DisplayName": "Select Project Sub Scheme"},
     {"zAttributesId": 1, "DisplayName": "33 (10)"},
     {"zAttributesId": 2, "DisplayName": "33 (11)"},
   ];
 
   List<Map<String, dynamic>> get _currentSubSchemeList {
-    if (projectSchemeNotifier.value == null) return projectSubSchemeBMCList;
+    if (projectSchemeNotifier.value == null) return [{}];
     final id = projectSchemeNotifier.value!["zAttributesId"] as int?;
-    if (id == null || id == -1) return projectSubSchemeBMCList;
     switch (id) {
       case 1:
         return projectSubSchemeBMCList; // BMC
@@ -158,9 +156,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   void initState() {
     super.initState();
     _projectMasterCubit = context.read<ProjectMasterCubit>();
-    projectSchemeNotifier.value = projectSchemeList.first;
-    selectedProjectSubScheme =
-        _currentSubSchemeList.isNotEmpty ? _currentSubSchemeList.first : null;
     _selectedProjectStatusNotifier = ValueNotifier(null);
     _initializeTextEditingController();
     if (_isEditMode) {
@@ -247,9 +242,8 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     }
 
     _selectedProjectStatusNotifier.value = projectStatusList.firstWhereOrNull(
-          (status) => status["DisplayName"] == widget.project!.projectStatus,
+      (status) => status["DisplayName"] == widget.project!.projectStatus,
     );
-
 
     if (widget.project!.projectScheme.isNotEmpty) {
       projectSchemeNotifier.value = projectSchemeList.firstWhere(
@@ -257,13 +251,13 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
         orElse: () => projectSchemeList.first,
       );
       final subList = _currentSubSchemeList;
-      selectedProjectSubScheme = subList.firstWhere(
+      selectedProjectSubScheme.value = subList.firstWhere(
         (item) => item["DisplayName"] == widget.project!.projectSubScheme,
         orElse: () => subList.first,
       );
     } else {
       projectSchemeNotifier.value = projectSchemeList.first;
-      selectedProjectSubScheme =
+      selectedProjectSubScheme.value =
           _currentSubSchemeList.isNotEmpty ? _currentSubSchemeList.first : null;
     }
 
@@ -321,16 +315,15 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     ? _projectEstimateCostC.text
                     : "0.0",
             projectScheme:
-                projectSchemeNotifier.value != null &&
-                        projectSchemeNotifier.value!["zAttributesId"] != -1
+                projectSchemeNotifier.value != null
                     ? projectSchemeNotifier.value!["DisplayName"].toString()
                     : "",
             projectScope: _projectScopeC.text,
-            projectStatus:_selectedProjectStatusNotifier.value?["DisplayName"]??"",
+            projectStatus:
+                _selectedProjectStatusNotifier.value?["DisplayName"] ?? "",
             projectSubScheme:
-                selectedProjectSubScheme != null &&
-                        selectedProjectSubScheme!["zAttributesId"] != -1
-                    ? selectedProjectSubScheme!["DisplayName"].toString()
+                selectedProjectSubScheme.value != null
+                    ? selectedProjectSubScheme.value!["DisplayName"].toString()
                     : "",
             reraNumber: _reraNumberC.text,
             reraCertificateDate: reraCertificateDate?.toIso8601String() ?? "",
@@ -372,16 +365,15 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     ? _projectEstimateCostC.text
                     : "0.0",
             projectScheme:
-                projectSchemeNotifier.value != null &&
-                        projectSchemeNotifier.value!["zAttributesId"] != -1
+                projectSchemeNotifier.value != null
                     ? projectSchemeNotifier.value!["DisplayName"].toString()
                     : "",
             projectScope: _projectScopeC.text,
-            projectStatus:_selectedProjectStatusNotifier.value?["DisplayName"]??"",
+            projectStatus:
+                _selectedProjectStatusNotifier.value?["DisplayName"] ?? "",
             projectSubScheme:
-                selectedProjectSubScheme != null &&
-                        selectedProjectSubScheme!["zAttributesId"] != -1
-                    ? selectedProjectSubScheme!["DisplayName"].toString()
+                selectedProjectSubScheme.value != null
+                    ? selectedProjectSubScheme.value!["DisplayName"].toString()
                     : "",
             reraNumber: _reraNumberC.text,
             reraCertificateDate: reraCertificateDate?.toIso8601String() ?? "",
@@ -521,6 +513,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         dataList: businessCategoryList,
                         onSelected: (value) {
                           selectedBusinessCategory = value;
+                        },
+                        onValueClear: () {
+                          selectedBusinessCategory = null;
                         },
                       ),
                       CustomTextField(
@@ -684,21 +679,15 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         builder: (context, selectedProjectScheme, _) {
                           return CustomDropDownWidget(
                             title: 'Project Scheme',
+                            hintText: 'Select Project Scheme',
                             initialValue: selectedProjectScheme,
                             dataList: projectSchemeList,
                             onSelected: (value) {
                               projectSchemeNotifier.value = value;
-
-                              if (projectSchemeNotifier
-                                      .value?['zAttributesId'] !=
-                                  -1) {
-                                selectedProjectSubScheme =
-                                    _currentSubSchemeList.isNotEmpty
-                                        ? _currentSubSchemeList.first
-                                        : null;
-                              } else {
-                                selectedProjectSubScheme = null;
-                              }
+                            },
+                            onValueClear: () {
+                              projectSchemeNotifier.value = null;
+                              selectedProjectSubScheme.value = null;
                             },
                           );
                         },
@@ -706,15 +695,22 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       ValueListenableBuilder<Map<String, dynamic>?>(
                         valueListenable: projectSchemeNotifier,
                         builder: (context, selectedProjectScheme, _) {
-                          return CustomDropDownWidget(
-                            title: 'Project Sub Scheme',
-                            hintText: "Select Project Sub Scheme",
-                            initialValue: selectedProjectSubScheme,
-                            dataList: _currentSubSchemeList,
-                            isDisabled:
-                                selectedProjectScheme?["zAttributesId"] == -1,
-                            onSelected: (value) {
-                              selectedProjectSubScheme = value;
+                          return ValueListenableBuilder(
+                            valueListenable: selectedProjectSubScheme,
+                            builder: (context, value, child) {
+                              return CustomDropDownWidget(
+                                title: 'Project Sub Scheme',
+                                hintText: "Select Project Sub Scheme",
+                                initialValue: value,
+                                dataList: _currentSubSchemeList,
+                                isDisabled: projectSchemeNotifier.value == null,
+                                onSelected: (value) {
+                                  selectedProjectSubScheme.value = value;
+                                },
+                                onValueClear: () {
+                                  selectedProjectSubScheme.value = null;
+                                },
+                              );
                             },
                           );
                         },

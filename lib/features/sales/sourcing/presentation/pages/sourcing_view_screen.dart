@@ -81,6 +81,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
     _tabController.dispose();
     _remarkC.dispose();
     _sourcingCubit.clearSourcingList();
+    _sourcingCubit.onFilterChanged("ALL");
   }
 
   // HANDLE TAB CHANGE
@@ -204,6 +205,9 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                       onSelected: (value) {
                         selectedSupport = value;
                       },
+                      onValueClear: () {
+                        selectedSupport = supportList.first;
+                      },
                     ),
 
                     // Update button
@@ -308,6 +312,9 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                       dataList: supportList,
                       onSelected: (value) {
                         selectedSupport = value;
+                      },
+                      onValueClear: () {
+                        selectedSupport = supportList.first;
                       },
                     ),
 
