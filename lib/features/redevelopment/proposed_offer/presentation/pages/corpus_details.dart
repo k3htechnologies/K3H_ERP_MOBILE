@@ -38,7 +38,6 @@ class _CorpusDetailsState extends State<CorpusDetails> {
   late TextEditingController _residentialAmountController;
   late TextEditingController _commercialAmountController;
   final List<Map<String, dynamic>> _litigationTypeList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select'},
     {'zAttributesId': 1, 'DisplayName': 'Residential'},
     {'zAttributesId': 2, 'DisplayName': 'Commercial'},
   ];
@@ -274,8 +273,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                         }
                         return null;
                       },
-                      onValueClear:
-                          () => selectedCorpusType = _litigationTypeList.first,
+                      onValueClear: () => selectedCorpusType = null,
                     ),
 
                     // STAGE

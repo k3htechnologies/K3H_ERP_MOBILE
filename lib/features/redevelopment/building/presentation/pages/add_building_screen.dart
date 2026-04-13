@@ -73,7 +73,6 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
   final ValueNotifier<Map<String, dynamic>?> _selectedLandOwnershipType =
       ValueNotifier<Map<String, dynamic>?>(null);
   final List<Map<String, dynamic>> _ownershipTypeList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Land Ownership Type'},
     {'zAttributesId': 1, 'DisplayName': 'Landlord'},
     {'zAttributesId': 2, 'DisplayName': 'Society'},
     {'zAttributesId': 3, 'DisplayName': 'Government'},
@@ -82,7 +81,6 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
   final ValueNotifier<Map<String, dynamic>?> _selectedRoadWidth =
       ValueNotifier<Map<String, dynamic>?>(null);
   final List<Map<String, dynamic>> _roadWidthList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Road Width'},
     {'zAttributesId': 1, 'DisplayName': '6.10 M'},
     {'zAttributesId': 2, 'DisplayName': '9.15 M'},
     {'zAttributesId': 3, 'DisplayName': '12.20 M'},
@@ -304,15 +302,12 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                         return null;
                       },
                     ),
-
                     ValueListenableBuilder<Map<String, dynamic>?>(
                       valueListenable: _selectedRoadWidth,
                       builder: (context, selectedValue, child) {
                         return CustomDropDownWidget(
-                          key: ValueKey(
-                            'roadWidth_${selectedValue?['zAttributesId'] ?? 'null'}',
-                          ),
                           title: 'Road Width',
+                          hintText: 'Select Road Width',
                           isRequired: true,
                           dataList: _roadWidthList,
                           initialValue: selectedValue,
@@ -333,10 +328,8 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                       valueListenable: _selectedLandOwnershipType,
                       builder: (context, selectedValue, child) {
                         return CustomDropDownWidget(
-                          key: ValueKey(
-                            'landOwnership_${selectedValue?['zAttributesId'] ?? 'null'}',
-                          ),
                           title: 'Land Ownership Type',
+                          hintText: 'Select Land Ownership Type',
                           isRequired: true,
                           dataList: _ownershipTypeList,
                           initialValue: selectedValue,
