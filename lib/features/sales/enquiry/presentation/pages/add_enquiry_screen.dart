@@ -171,7 +171,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   ];
 
   final List<Map<String, dynamic>> residentialType = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Residential Type'},
     {'zAttributesId': 1, 'DisplayName': '1 RK'},
     {'zAttributesId': 2, 'DisplayName': '1 BHK'},
     {'zAttributesId': 3, 'DisplayName': '2 BHK'},
@@ -843,13 +842,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     } else {
       requirementTypeValue = "";
     }
-    print(
-      "_selectedProjectNotifier.value.isNotEmpty: ${_selectedProjectNotifier.value.isNotEmpty}",
-    );
-    print("source : $subSource");
-    print(
-      "source :${(subSource.toLowerCase().contains('Loyalty'.toLowerCase()))}",
-    );
 
     final payload = {
       "EnquiryId": _isEditMode ? widget.enquiryModel!.enquiryId : 0,
@@ -937,13 +929,11 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
   String getDisplayOrEmpty(Map<String, dynamic>? item) {
     if (item == null) return "";
-    if (item["zAttributesId"] == -1) return "";
     return item["DisplayName"] ?? "";
   }
 
   String getDisplayOrEmptySubSub(Map<String, dynamic>? item) {
     if (item == null) return "";
-    if (item["zAttributesId"] == -1) return "";
     return item["DisplayName"] ?? "";
   }
 
@@ -1308,7 +1298,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                 dataList: currentAccommodation,
                 onSelected: (v) => _selectedAccommodationNotifier.value = v,
                 validator: (val) {
-                  if (val?['zAttributesId'] == -1) {
+                  if (val == null) {
                     return "Please select accommodation";
                   }
                   return null;
@@ -1330,7 +1320,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                 dataList: occupationType,
                 onSelected: (v) => _selectedOccupationType.value = v,
                 validator: (val) {
-                  if (val?['zAttributesId'] == -1) {
+                  if (val == null) {
                     return "Please select occupation type";
                   }
                   return null;
@@ -1438,7 +1428,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                       _selectedFlatNotifier.value = [];
                     },
                     validator: (value) {
-                      if (value?['zAttributesId'] == -1) {
+                      if (value == null) {
                         return "Source is required";
                       }
                       return null;
@@ -1465,7 +1455,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                         _selectedEmployeeNotifier.value = [];
                       },
                       validator: (value) {
-                        if (value?['zAttributesId'] == -1) {
+                        if (value == null) {
                           return "Sub source is required";
                         }
                         return null;
@@ -1741,7 +1731,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                           onSelected:
                               (v) => _selectedSubSubSourceNotifier.value = v,
                           validator: (value) {
-                            if (value?['zAttributesId'] == -1) {
+                            if (value == null) {
                               return "Sub Sub Source is required";
                             }
                             return null;
@@ -2203,17 +2193,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                 dataList: requirementType,
                 onSelected: (v) {
                   _selectedRequirementNotifier.value = v;
-
-                  if (v["DisplayName"] == "Residential") {
-                    _selectedResidentialTypeNotifier.value =
-                        residentialType.first;
-                  } else if (v["DisplayName"] == "Commercial") {
-                    _selectedCommercialTypeNotifier.value =
-                        commercialUnitTypeList.first;
-                  } else if (v["DisplayName"] == "Commercial Leasing") {
-                    _selectedCommercialLeasingNotifier.value =
-                        commercialLeasingTypeList.first;
-                  }
                 },
                 onValueClear: () {
                   _selectedRequirementNotifier.value = null;
@@ -2254,9 +2233,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                     }
                   },
                   validator: (value) {
-                    if (value == null ||
-                        value.toString().trim().isEmpty ||
-                        value['zAttributesId'] == -1) {
+                    if (value == null || value.toString().trim().isEmpty) {
                       return "${selectedRequirement?["DisplayName"]} Type is required";
                     }
                     return null;

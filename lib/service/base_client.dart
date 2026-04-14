@@ -274,7 +274,6 @@ class BaseClient {
   }
 }*/
 
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -316,7 +315,6 @@ class BaseClient {
         },
       ),
     );
-
 
     // REMOVE THIS IN PRODUCTION (BY PASSiNG CERTIFICATE VERIFICATION)
     if (!kIsWeb) {
@@ -532,9 +530,11 @@ class BaseClient {
         formData.files.add(MapEntry(fileList[i]["key"], files[i]));
       }
 
-      final response = await _dio.post(url, data: formData, options: Options(
-        contentType: 'multipart/form-data',
-      ),);
+      final response = await _dio.post(
+        url,
+        data: formData,
+        options: Options(contentType: 'multipart/form-data'),
+      );
       return _processResponse(response);
     } on DioException catch (e) {
       return _handleDioError(e);
