@@ -40,7 +40,6 @@ class ProjectMasterState extends BaseState {
 
   final String filterProjectLocation;
   final String filterCTSNumber;
-  final String? filterProjectName;
   final String? filterProjectStatus;
   final String? filterVillage;
   final String? filterArchitectName;
@@ -78,7 +77,6 @@ class ProjectMasterState extends BaseState {
     required this.searchText,
     required this.filterProjectLocation,
     required this.filterCTSNumber,
-    required this.filterProjectName,
     required this.filterProjectStatus,
     required this.filterVillage,
     required this.filterArchitectName,
@@ -123,13 +121,12 @@ class ProjectMasterState extends BaseState {
     searchText: "",
     filterCTSNumber: '',
     filterProjectLocation: '',
-    filterProjectName: '',
     filterProjectStatus: '',
     filterVillage: '',
     filterArchitectName: '',
     filterRERANumber: '',
-    filterProjectScheme: '',
-    filterProjectSubScheme: '',
+    filterProjectScheme: null,
+    filterProjectSubScheme: null,
     isRedevelopment: null,
 
     currentSortColumn: "Created Date",
@@ -234,7 +231,6 @@ class ProjectMasterState extends BaseState {
 
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
-      filterProjectName: filterProjectName ?? this.filterProjectName,
       filterProjectStatus: filterProjectStatus ?? this.filterProjectStatus,
       filterVillage: filterVillage ?? this.filterVillage,
       filterArchitectName: filterArchitectName ?? this.filterArchitectName,
@@ -282,7 +278,6 @@ class ProjectMasterState extends BaseState {
 
     filterCTSNumber,
     filterProjectLocation,
-    filterProjectName,
     filterProjectStatus,
     filterVillage,
     filterArchitectName,

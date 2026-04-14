@@ -52,17 +52,15 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
   DateTime? dateOfFilling;
 
   // DROPDOWN VARIABLE
-  late Map<String, dynamic> selectedCaseType;
-  late Map<String, dynamic> selectedCourtType;
+  Map<String, dynamic>? selectedCaseType;
+  Map<String, dynamic>? selectedCourtType;
 
   final List<Map<String, dynamic>> caseTypeList = [
-    {"zAttributesId": -1, "DisplayName": "Select Case Type"},
     {"zAttributesId": 1, "DisplayName": "Criminal"},
     {"zAttributesId": 2, "DisplayName": "Civil"},
   ];
 
   final List<Map<String, dynamic>> courtTypeList = [
-    {"zAttributesId": -1, "DisplayName": "Select Court Type"},
     {"zAttributesId": 1, "DisplayName": "Civil Court"},
     {"zAttributesId": 2, "DisplayName": "District Court"},
     {"zAttributesId": 3, "DisplayName": "High Court"},
@@ -75,9 +73,6 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
     super.initState();
     _litigationCubit = context.read<LitigationCubit>();
     _initControllers();
-
-    selectedCaseType = caseTypeList.first;
-    selectedCourtType = courtTypeList.first;
 
     if (_isEditMode) {
       _populateForm(widget.litigationModel!);
@@ -144,8 +139,8 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
       "ProjectId": getProject().projectId,
       "Title": _caseTitleC.text.trim(),
       "CaseNumber": _caseNumberC.text.trim(),
-      "CaseType": selectedCaseType['DisplayName'],
-      "CourtType": selectedCourtType['DisplayName'],
+      "CaseType": selectedCaseType?['DisplayName'],
+      "CourtType": selectedCourtType?['DisplayName'],
       "DateOfFilling": dateOfFilling!.toIso8601String(),
       "CourtName": _courtNameC.text.trim(),
       "CourtLocation": _courtLocationC.text.trim(),
@@ -237,6 +232,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
 
           CustomDropDownWidget(
             title: "Case Type",
+            hintText: "Select Case Type",
             initialValue: selectedCaseType,
             isRequired: true,
             dataList: caseTypeList,
@@ -246,6 +242,9 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
                 return "Case Type is required";
               }
               return null;
+            },
+            onValueClear: () {
+              selectedCaseType = null;
             },
           ),
 
@@ -297,6 +296,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
 
           CustomDropDownWidget(
             title: "Court Type",
+            hintText: "Select Court Type",
             initialValue: selectedCourtType,
             dataList: courtTypeList,
             isRequired: true,
@@ -307,6 +307,9 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
               }
               return null;
             },
+            onValueClear: () {
+              selectedCourtType = null;
+            },
           ),
 
           CustomTextField(
@@ -315,7 +318,10 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
             hint: "Enter Plaintiff / Complaint / Petitioner",
             textController: _plantiffC,
             validator:
-                (v) => v!.isEmpty ? "Plaintiff / Complaint / Petitioner is required" : null,
+                (v) =>
+                    v!.isEmpty
+                        ? "Plaintiff / Complaint / Petitioner is required"
+                        : null,
           ),
 
           CustomTextField(
@@ -357,7 +363,11 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
             textController: _caseBriefC,
             maxLines: 3,
             minLines: 3,
-            validator: (v) => v!.isEmpty ? "Case Brief / Petition / Suit is required" : null,
+            validator:
+                (v) =>
+                    v!.isEmpty
+                        ? "Case Brief / Petition / Suit is required"
+                        : null,
           ),
 
           CustomTextField(
@@ -367,7 +377,9 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
             textController: _remarkC,
             minLines: 3,
             maxLines: 3,
-            validator: (v) => v!.isEmpty ? "Case Remarks / Comments is required" : null,
+            validator:
+                (v) =>
+                    v!.isEmpty ? "Case Remarks / Comments is required" : null,
           ),
         ],
       ),

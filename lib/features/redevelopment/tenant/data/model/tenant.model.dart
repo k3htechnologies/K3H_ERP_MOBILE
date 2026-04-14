@@ -173,12 +173,6 @@ class TenantApplicantData extends BookingApplicantData {
     deletedFileList: "",
   );
 
-  MultiFilePickerModel paymentProofImage = MultiFilePickerModel(
-    fileBytesList: [],
-    fileNameList: [],
-    deletedFileList: "",
-  );
-
   TenantApplicantData({
     required this.tenantApplicantId,
     required this.tenantId,
@@ -217,7 +211,9 @@ class TenantApplicantData extends BookingApplicantData {
     required super.createdDate,
     required super.modifiedById,
     required super.modifiedBy,
-    required super.modifiedDate, required super.statementOfSourceOfFundsURL, required super.paymentProofURL,
+    required super.modifiedDate,
+    required super.statementOfSourceOfFundsURL,
+    required super.paymentProofURL,
   });
 
   factory TenantApplicantData.fromJson(Map<String, dynamic> json) =>
@@ -257,7 +253,10 @@ class TenantApplicantData extends BookingApplicantData {
         accountNumber: parseValue<String>(json, "AccountNumber"),
         ifscCode: parseValue<String>(json, "IFSCCode"),
         chequeURL: parseValue<String>(json, "ChequeURL"),
-        statementOfSourceOfFundsURL: parseValue<String>(json, "StatementOfSourceOfFundsURL"),
+        statementOfSourceOfFundsURL: parseValue<String>(
+          json,
+          "StatementOfSourceOfFundsURL",
+        ),
         paymentProofURL: parseValue<String>(json, "PaymentProofURL"),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),

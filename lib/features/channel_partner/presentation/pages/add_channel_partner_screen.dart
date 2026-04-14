@@ -822,6 +822,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                       }
                                       return null;
                                     },
+                                    onValueClear: () {
+                                      selectedFirmsType.value = null;
+                                    },
                                   );
                                 },
                               ),
@@ -865,6 +868,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                             }
                             return null;
                           },
+                          onValueClear: () {
+                            selectedDesignation.value = null;
+                          },
                         );
                       },
                     ),
@@ -888,6 +894,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                   return "Type is required";
                                 }
                                 return null;
+                              },
+                              onValueClear: () {
+                                selectedType.value = null;
                               },
                             );
                           },
@@ -1003,6 +1012,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                           return "Speciality is required";
                         }
                         return null;
+                      },
+                      onValueClear: () {
+                        selectedSpeciality = null;
                       },
                     ),
                   ],

@@ -102,7 +102,6 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required BuildContext context,
     String? ctsNumber,
     String? projectLocation,
-    String? projectName,
     String? projectStatus,
     String? village,
     String? architectName,
@@ -134,7 +133,6 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
           filterCTSNumber: ctsNumber ?? state.filterCTSNumber,
           filterProjectLocation: projectLocation ?? state.filterProjectLocation,
           currentPage: 1,
-          filterProjectName: projectName ?? state.filterProjectName,
           filterProjectStatus: projectStatus ?? state.filterProjectStatus,
           filterVillage: village ?? state.filterVillage,
           filterArchitectName: architectName ?? state.filterArchitectName,
@@ -167,8 +165,32 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       pageSize: state.pageSize,
       queryParams: {
         "ProjectName": state.searchText,
-        "ProjectLocation": state.filterProjectLocation,
-        "CTCNumber": state.filterCTSNumber,
+        if (state.filterProjectLocation.isNotEmpty)
+          "ProjectLocation": state.filterProjectLocation,
+        if (state.filterCTSNumber.isNotEmpty)
+          "CTCNumber": state.filterCTSNumber,
+        if (state.filterProjectStatus != null &&
+            state.filterProjectStatus!.isNotEmpty)
+          "ProjectStatus": state.filterProjectStatus,
+
+        if (state.filterVillage != null && state.filterVillage!.isNotEmpty)
+          "VillageName": state.filterVillage,
+
+        if (state.filterArchitectName != null &&
+            state.filterArchitectName!.isNotEmpty)
+          "ArchitectName": state.filterArchitectName,
+
+        if (state.filterRERANumber != null &&
+            state.filterRERANumber!.isNotEmpty)
+          "RERANumber": state.filterRERANumber,
+
+        if (state.filterProjectScheme != null &&
+            state.filterProjectScheme!.isNotEmpty)
+          "ProjectScheme": state.filterProjectScheme,
+
+        if (state.filterProjectSubScheme != null &&
+            state.filterProjectSubScheme!.isNotEmpty)
+          "ProjectSubScheme": state.filterProjectSubScheme,
       },
     );
 

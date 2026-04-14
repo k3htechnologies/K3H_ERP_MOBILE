@@ -48,7 +48,6 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
 
   // STATIC DURATION LIST
   List<Map<String, dynamic>> durationList = [
-    {"zAttributesId": -1, "DisplayName": "Select Duration"},
     {
       "zAttributesId": 1,
       "DisplayName": "Half Day (First Half)",
@@ -80,9 +79,6 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
     _initializeTextController();
     if (_isEditMode && widget.leaveModel != null) {
       _populateFormFields(widget.leaveModel!);
-    } else {
-      selectedStartDuration = durationList.first;
-      selectedEndDuration = durationList.first;
     }
   }
 
@@ -300,6 +296,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                     ),
                     CustomDropDownWidget(
                       title: "Start Day Duration",
+                      hintText: "Select Start Day Duration",
                       isRequired: true,
                       dataList: durationList,
                       initialValue: selectedStartDuration,
@@ -312,9 +309,13 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                         }
                         return null;
                       },
+                      onValueClear: () {
+                        selectedStartDuration = durationList.first;
+                      },
                     ),
                     CustomDropDownWidget(
                       title: "End Day Duration",
+                      hintText: "Select End Day Duration",
                       isRequired: true,
                       dataList: durationList,
                       initialValue: selectedEndDuration,
@@ -326,6 +327,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                           return 'End Duration is required';
                         }
                         return null;
+                      },
+                      onValueClear: () {
+                        selectedEndDuration = durationList.first;
                       },
                     ),
                     CustomTextField(
@@ -382,7 +386,6 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
               final startDate = _startDateNotifier.value!;
               final endDate = _endDateNotifier.value!;
               final startDateLeaveDuration = selectedStartDuration!["value"];
-
               final endDateLeaveDuration = selectedEndDuration!["value"];
               final reason = _reasonC.text;
 

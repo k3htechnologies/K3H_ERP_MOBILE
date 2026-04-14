@@ -111,13 +111,24 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   final ValueNotifier<bool> _hasManualEntryNotifier = ValueNotifier(false);
   late final ValueNotifier<FlatModel?> _flatDetailsNotifier;
   // DROPDOWN VARIABLES
-  Map<String, dynamic>? _selectedOccupationType;
-  Map<String, dynamic>? _selectedPossessionType;
-  Map<String, dynamic>? _selectedTimeline;
-  Map<String, dynamic>? _selectedFloorBand;
-  Map<String, dynamic>? _selectedFunding;
-  Map<String, dynamic>? _selectedEthnicity;
-  Map<String, dynamic>? _selectedFinalStageDetail;
+  final ValueNotifier<Map<String, dynamic>?> _selectedOccupationType =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedPossessionType =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedTimeline = ValueNotifier(
+    null,
+  );
+  final ValueNotifier<Map<String, dynamic>?> _selectedFloorBand = ValueNotifier(
+    null,
+  );
+  final ValueNotifier<Map<String, dynamic>?> _selectedFunding = ValueNotifier(
+    null,
+  );
+  final ValueNotifier<Map<String, dynamic>?> _selectedEthnicity = ValueNotifier(
+    null,
+  );
+  final ValueNotifier<Map<String, dynamic>?> _selectedFinalStageDetail =
+      ValueNotifier(null);
   List<Map<String, dynamic>> _selectedLocations = [];
   List<Map<String, dynamic>> _selectedSourcingManager = [];
   late UserModel user;
@@ -142,13 +153,11 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
   // STATIC DROPDOWN LISTS
   final List<Map<String, dynamic>> currentAccommodation = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Current Accomodation'},
     {'zAttributesId': 1, 'DisplayName': 'Rented'},
     {'zAttributesId': 2, 'DisplayName': 'Self-Owned'},
   ];
 
   final List<Map<String, dynamic>> occupationType = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Occupation Type'},
     {'zAttributesId': 1, 'DisplayName': 'Business'},
     {'zAttributesId': 2, 'DisplayName': 'Homemaker'},
     {'zAttributesId': 3, 'DisplayName': 'Professional'},
@@ -157,7 +166,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   ];
 
   final List<Map<String, dynamic>> sourceTypeList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Source'},
     {'zAttributesId': 1, 'DisplayName': 'Channel Partner'},
     {'zAttributesId': 2, 'DisplayName': 'Direct Walking'},
   ];
@@ -181,14 +189,12 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   ];
 
   final List<Map<String, dynamic>> floorBrand = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Floor Brand'},
     {'zAttributesId': 1, 'DisplayName': 'Higher'},
     {'zAttributesId': 2, 'DisplayName': 'Middle'},
     {'zAttributesId': 3, 'DisplayName': 'Lower'},
   ];
 
   final List<Map<String, dynamic>> possessionType = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Possession Type'},
     {'zAttributesId': 1, 'DisplayName': 'RTMI'},
     {'zAttributesId': 2, 'DisplayName': 'Under 1 Year'},
     {'zAttributesId': 3, 'DisplayName': '1 Years To 2 Years'},
@@ -197,38 +203,32 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   ];
 
   final List<Map<String, dynamic>> requirementType = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Requirement'},
     {'zAttributesId': 1, 'DisplayName': 'Commercial'},
     {'zAttributesId': 2, 'DisplayName': 'Commercial Leasing'},
     {'zAttributesId': 3, 'DisplayName': 'Residential'},
   ];
 
   final List<Map<String, dynamic>> commercialUnitTypeList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Commercial Type'},
     {'zAttributesId': 1, 'DisplayName': 'OFFICE'},
     {'zAttributesId': 2, 'DisplayName': 'SHOP'},
   ];
   final List<Map<String, dynamic>> commercialLeasingTypeList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Commercial Leasing Type'},
     {'zAttributesId': 1, 'DisplayName': 'OFFICE'},
     {'zAttributesId': 2, 'DisplayName': 'SHOP'},
   ];
 
   final List<Map<String, dynamic>> timelineTypeList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Timeline'},
     {'zAttributesId': 1, 'DisplayName': 'Within 1 Month'},
     {'zAttributesId': 2, 'DisplayName': 'Beyond 1 Month'},
   ];
 
   final List<Map<String, dynamic>> fundingSourceList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Funding Source'},
     {'zAttributesId': 1, 'DisplayName': 'Loan'},
     {'zAttributesId': 2, 'DisplayName': 'Self-funded'},
     {'zAttributesId': 3, 'DisplayName': 'Sale Of Property'},
   ];
 
   final List<Map<String, dynamic>> ethnicityList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Ethnicity'},
     {'zAttributesId': 1, 'DisplayName': 'Bengali'},
     {'zAttributesId': 2, 'DisplayName': 'Christian'},
     {'zAttributesId': 3, 'DisplayName': 'Gujarati'},
@@ -245,7 +245,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   ];
 
   final List<Map<String, dynamic>> stageTypeList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Stage'},
     {'zAttributesId': 1, 'DisplayName': 'Site Visit'},
     {'zAttributesId': 2, 'DisplayName': 'Re - Visit Proposed'},
     {'zAttributesId': 3, 'DisplayName': 'Re - Visit Scheduled'},
@@ -259,7 +258,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   ];
 
   final List<Map<String, dynamic>> finalStageDetailsList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Final Stage Detail'},
     {'zAttributesId': 1, 'DisplayName': 'Purchased with competition'},
     {'zAttributesId': 2, 'DisplayName': 'Purchased somewhere else'},
     {'zAttributesId': 3, 'DisplayName': 'Not connected calls >7'},
@@ -278,14 +276,12 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   ];
 
   final List<Map<String, dynamic>> channelPartnerActivityList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Activity'},
     {'zAttributesId': 1, 'DisplayName': 'Channel Partner Data Calling'},
     {'zAttributesId': 2, 'DisplayName': 'Channel Partner Walked IN'},
     {'zAttributesId': 3, 'DisplayName': 'Digital Activity'},
   ];
 
   final List<Map<String, dynamic>> directWalkingSubSourceList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Sub Source'},
     {'zAttributesId': 1, 'DisplayName': 'Advertisement'},
     {'zAttributesId': 2, 'DisplayName': 'Exhibition'},
     {'zAttributesId': 3, 'DisplayName': 'Employee Reference'},
@@ -300,7 +296,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   ];
 
   final List<Map<String, dynamic>> subSubSourceList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Sub-Sub Source'},
     {'zAttributesId': 1, 'DisplayName': 'Facebook'},
     {'zAttributesId': 2, 'DisplayName': 'Hoarding'},
     {'zAttributesId': 3, 'DisplayName': 'Instagram'},
@@ -583,17 +578,23 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
 
     // DROPDOWNS - PLAIN VARIABLES
-    _selectedOccupationType = findItem(occupationType, model.occupationType);
-    _selectedPossessionType = findItem(possessionType, model.possessionType);
-    _selectedFloorBand = findItem(floorBrand, model.desiredFloorBand);
-    _selectedFunding = findItem(fundingSourceList, model.sourceOfFunding);
-    _selectedEthnicity = findItem(ethnicityList, model.ethnicity);
+    _selectedOccupationType.value = findItem(
+      occupationType,
+      model.occupationType,
+    );
+    _selectedPossessionType.value = findItem(
+      possessionType,
+      model.possessionType,
+    );
+    _selectedFloorBand.value = findItem(floorBrand, model.desiredFloorBand);
+    _selectedFunding.value = findItem(fundingSourceList, model.sourceOfFunding);
+    _selectedEthnicity.value = findItem(ethnicityList, model.ethnicity);
     _selectedFinalStage.value = findItem(stageTypeList, model.finalStage);
-    _selectedFinalStageDetail = findItem(
+    _selectedFinalStageDetail.value = findItem(
       finalStageDetailsList,
       model.finalStageDetail,
     );
-    _selectedTimeline = findItem(timelineTypeList, model.timeline);
+    _selectedTimeline.value = findItem(timelineTypeList, model.timeline);
 
     // DEPENDENT REQUIREMENT TYPE DROPDOWNS
     final reqDisplay = model.requirement;
@@ -756,21 +757,21 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
           _nameC.text.isNotEmpty &&
           _mobileC.text.isNotEmpty &&
           getDisplayOrEmpty(_selectedAccommodationNotifier.value).isNotEmpty &&
-          getDisplayOrEmpty(_selectedOccupationType).isNotEmpty;
+          getDisplayOrEmpty(_selectedOccupationType.value).isNotEmpty;
 
       bool isSourceCompleted =
           getDisplayOrEmpty(_selectedSourceNotifier.value).isNotEmpty;
       bool isPropertyCompleted =
           _budgetC.text.isNotEmpty &&
           getDisplayOrEmpty(_selectedRequirementNotifier.value).isNotEmpty &&
-          getDisplayOrEmpty(_selectedPossessionType).isNotEmpty &&
+          getDisplayOrEmpty(_selectedPossessionType.value).isNotEmpty &&
           getDisplayOrEmpty(_selectedRequirementNotifier.value).isNotEmpty &&
           _areaPrefC.text.isNotEmpty &&
-          getDisplayOrEmpty(_selectedFloorBand).isNotEmpty;
+          getDisplayOrEmpty(_selectedFloorBand.value).isNotEmpty;
 
       bool isCustomerCompleted =
-          getDisplayOrEmpty(_selectedFunding).isNotEmpty &&
-          getDisplayOrEmpty(_selectedEthnicity).isNotEmpty;
+          getDisplayOrEmpty(_selectedFunding.value).isNotEmpty &&
+          getDisplayOrEmpty(_selectedEthnicity.value).isNotEmpty;
 
       bool isFollowUpCompleted = _nextFollowUpDate != null;
       //  THEN SHOW VERIFICATION DIALOG
@@ -802,7 +803,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             : getDisplayOrEmptySubSub(_selectedSubSubSourceNotifier.value);
     // CUSTOMER CLASSIFICATION LOGIC
     int selectedCount = 0;
-    if ((_selectedPossessionType?["DisplayName"] ?? "").trim().isNotEmpty) {
+    if ((_selectedPossessionType.value?["DisplayName"] ?? "")
+        .trim()
+        .isNotEmpty) {
       selectedCount++;
     }
     if ((_selectedRequirementNotifier.value?["DisplayName"] ?? "")
@@ -813,7 +816,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     if (_locationC.text.trim().isNotEmpty) selectedCount++;
     if (_budgetC.text.trim().isNotEmpty) selectedCount++;
 
-    final timeline = getDisplayOrEmpty(_selectedTimeline);
+    final timeline = getDisplayOrEmpty(_selectedTimeline.value);
     String customerClassification;
     if (selectedCount >= 3 && timeline.contains("Within 1 Month")) {
       customerClassification = "Hot";
@@ -850,7 +853,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       "EmailId": _emailC.text.trim(),
       "DateOfBirth": _dateOfBirthNotifier.value?.toIso8601String(),
       "Accommodation": getDisplayOrEmpty(_selectedAccommodationNotifier.value),
-      "OccupationType": getDisplayOrEmpty(_selectedOccupationType),
+      "OccupationType": getDisplayOrEmpty(_selectedOccupationType.value),
       "Source": source,
       "SubSource": getDisplayOrEmpty(_selectedSubSourceNotifier.value),
       "SubSubSource": subSubSource,
@@ -883,17 +886,17 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       "CityOfResidence": _cityOfResidenceC.text.trim(),
       "CurrentLocation": _locationC.text.trim(),
       "VillageMasterId": selectedVillages,
-      "PossessionType": getDisplayOrEmpty(_selectedPossessionType),
+      "PossessionType": getDisplayOrEmpty(_selectedPossessionType.value),
       "AreaPreferred": double.tryParse(_areaPrefC.text.trim()) ?? 0,
-      "DesiredFloorBand": getDisplayOrEmpty(_selectedFloorBand),
+      "DesiredFloorBand": getDisplayOrEmpty(_selectedFloorBand.value),
       "Budget": _budgetC.text.trim(),
       "Requirement": getDisplayOrEmpty(_selectedRequirementNotifier.value),
       "RequirementType": requirementTypeValue,
       "CustomerClassification": customerClassification,
-      "SourceOfFunding": getDisplayOrEmpty(_selectedFunding),
-      "Ethnicity": getDisplayOrEmpty(_selectedEthnicity),
+      "SourceOfFunding": getDisplayOrEmpty(_selectedFunding.value),
+      "Ethnicity": getDisplayOrEmpty(_selectedEthnicity.value),
       "FinalStage": getDisplayOrEmpty(_selectedFinalStage.value),
-      "FinalStageDetail": getDisplayOrEmpty(_selectedFinalStageDetail),
+      "FinalStageDetail": getDisplayOrEmpty(_selectedFinalStageDetail.value),
       "EnquiryDate": _enquiryDate?.toIso8601String(),
       "NextFollowUpDate": _nextFollowUpDate?.toIso8601String(),
       "SalesAdvisorId":
@@ -1282,8 +1285,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             builder: (context, selectedAccommodation, child) {
               return CustomDropDownWidget(
                 title: "Current Accommodation",
-                initialValue:
-                    selectedAccommodation ?? currentAccommodation.first,
+                hintText: "Select Current Accommodation",
+                initialValue: selectedAccommodation,
                 isRequired: true,
                 dataList: currentAccommodation,
                 onSelected: (v) => _selectedAccommodationNotifier.value = v,
@@ -1293,20 +1296,30 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   }
                   return null;
                 },
+                onValueClear: () {
+                  _selectedAccommodationNotifier.value = null;
+                },
               );
             },
           ),
-          CustomDropDownWidget(
-            title: "Occupation Type",
-            isRequired: true,
-            initialValue: _selectedOccupationType ?? occupationType.first,
-            dataList: occupationType,
-            onSelected: (v) => _selectedOccupationType = v,
-            validator: (val) {
-              if (val?['zAttributesId'] == -1) {
-                return "Please select occupation type";
-              }
-              return null;
+          ValueListenableBuilder(
+            valueListenable: _selectedOccupationType,
+            builder: (context, value, child) {
+              return CustomDropDownWidget(
+                title: "Occupation Type",
+                hintText: "Select Occupation Type",
+                isRequired: true,
+                initialValue: _selectedOccupationType.value,
+                dataList: occupationType,
+                onSelected: (v) => _selectedOccupationType.value = v,
+                validator: (val) {
+                  if (val?['zAttributesId'] == -1) {
+                    return "Please select occupation type";
+                  }
+                  return null;
+                },
+                onValueClear: () => _selectedOccupationType.value = null,
+              );
             },
           ),
           Text("Nationality", style: AppTextStyle.ts14R()),
@@ -1390,7 +1403,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   CustomDropDownWidget(
                     title: "Source",
                     isRequired: true,
-                    initialValue: selectedSource ?? sourceTypeList.first,
+                    initialValue: selectedSource,
                     dataList: sourceTypeList,
                     onSelected: (v) {
                       _selectedSourceNotifier.value = v;
@@ -1415,6 +1428,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                         return "Source is required";
                       }
                       return null;
+                    },
+                    onValueClear: () {
+                      _selectedSourceNotifier.value = null;
                     },
                   ),
 
@@ -1444,6 +1460,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                           return "Sub source is required";
                         }
                         return null;
+                      },
+                      onValueClear: () {
+                        _selectedSubSourceNotifier.value = null;
                       },
                     ),
 
@@ -1724,6 +1743,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                             }
                             return null;
                           },
+                          onValueClear:
+                              () => _selectedSubSubSourceNotifier.value = null,
                         );
                       },
                     ),
@@ -2141,11 +2162,18 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         ),
       ),
       verticalSpacing(height: 20),
-      CustomDropDownWidget(
-        title: "Possession Type",
-        initialValue: _selectedPossessionType ?? possessionType.first,
-        dataList: possessionType,
-        onSelected: (v) => _selectedPossessionType = v,
+      ValueListenableBuilder(
+        valueListenable: _selectedPossessionType,
+        builder: (context, value, child) {
+          return CustomDropDownWidget(
+            title: "Possession Type",
+            hintText: "Select Possession Type",
+            initialValue: _selectedPossessionType.value,
+            dataList: possessionType,
+            onSelected: (v) => _selectedPossessionType.value = v,
+            onValueClear: () => _selectedPossessionType.value = null,
+          );
+        },
       ),
       ValueListenableBuilder<Map<String, dynamic>?>(
         valueListenable: _selectedRequirementNotifier,
@@ -2166,7 +2194,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             children: [
               CustomDropDownWidget(
                 title: "Requirement",
-                initialValue: selectedRequirement ?? requirementType.first,
+                hintText: "Select Requirement",
+                initialValue: selectedRequirement,
                 dataList: requirementType,
                 onSelected: (v) {
                   _selectedRequirementNotifier.value = v;
@@ -2181,6 +2210,12 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                     _selectedCommercialLeasingNotifier.value =
                         commercialLeasingTypeList.first;
                   }
+                },
+                onValueClear: () {
+                  _selectedRequirementNotifier.value = null;
+                  _selectedResidentialTypeNotifier.value = null;
+                  _selectedCommercialTypeNotifier.value = null;
+                  _selectedCommercialLeasingNotifier.value = null;
                 },
               ),
               const SizedBox(height: 8),
@@ -2222,6 +2257,17 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                     }
                     return null;
                   },
+                  onValueClear: () {
+                    if (selectedRequirement?["DisplayName"] == "Residential") {
+                      _selectedResidentialTypeNotifier.value = null;
+                    } else if (selectedRequirement?["DisplayName"] ==
+                        "Commercial") {
+                      _selectedCommercialTypeNotifier.value = null;
+                    } else if (selectedRequirement?["DisplayName"] ==
+                        "Commercial Leasing") {
+                      _selectedCommercialLeasingNotifier.value = null;
+                    }
+                  },
                 ),
             ],
           );
@@ -2235,11 +2281,20 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         dataFetchCallBack: _enquiryCubit.fetchVillages,
         onSelected: (value) => _selectedLocations = value,
       ),
-      CustomDropDownWidget(
-        title: "Timeline",
-        initialValue: _selectedTimeline ?? timelineTypeList.first,
-        dataList: timelineTypeList,
-        onSelected: (v) => _selectedTimeline = v,
+      ValueListenableBuilder(
+        valueListenable: _selectedTimeline,
+        builder: (context, value, child) {
+          return CustomDropDownWidget(
+            title: "Timeline",
+            hintText: "Select Timeline",
+            initialValue: _selectedTimeline.value,
+            dataList: timelineTypeList,
+            onSelected: (v) => _selectedTimeline.value = v,
+            onValueClear: () {
+              _selectedTimeline.value = null;
+            },
+          );
+        },
       ),
       CustomTextField(
         title: "Area Preferred (SqFt)",
@@ -2247,11 +2302,20 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         textController: _areaPrefC,
         inputFormatterList: InputValidator.digit(6),
       ),
-      CustomDropDownWidget(
-        title: "Desired Floor Band",
-        initialValue: _selectedFloorBand ?? floorBrand.first,
-        dataList: floorBrand,
-        onSelected: (v) => _selectedFloorBand = v,
+      ValueListenableBuilder(
+        valueListenable: _selectedFloorBand,
+        builder: (context, value, child) {
+          return CustomDropDownWidget(
+            title: "Desired Floor Band",
+            hintText: "Select Desired Floor Band",
+            initialValue: _selectedFloorBand.value,
+            dataList: floorBrand,
+            onSelected: (v) => _selectedFloorBand.value = v,
+            onValueClear: () {
+              _selectedFloorBand.value = null;
+            },
+          );
+        },
       ),
     ]);
   }
@@ -2259,17 +2323,35 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   // CUSTOMER DETAILS
   Widget _customerDetailsCard() {
     return _card("Customer Details", [
-      CustomDropDownWidget(
-        title: "Source Of Funding",
-        initialValue: _selectedFunding ?? fundingSourceList.first,
-        dataList: fundingSourceList,
-        onSelected: (v) => _selectedFunding = v,
+      ValueListenableBuilder(
+        valueListenable: _selectedFunding,
+        builder: (context, value, child) {
+          return CustomDropDownWidget(
+            title: "Source Of Funding",
+            hintText: "Select Source Of Funding",
+            initialValue: _selectedFunding.value,
+            dataList: fundingSourceList,
+            onSelected: (v) => _selectedFunding.value = v,
+            onValueClear: () {
+              _selectedFunding.value = null;
+            },
+          );
+        },
       ),
-      CustomDropDownWidget(
-        title: "Ethnicity",
-        initialValue: _selectedEthnicity ?? ethnicityList.first,
-        dataList: ethnicityList,
-        onSelected: (v) => _selectedEthnicity = v,
+      ValueListenableBuilder(
+        valueListenable: _selectedEthnicity,
+        builder: (context, value, child) {
+          return CustomDropDownWidget(
+            title: "Ethnicity",
+            hintText: "Select Ethnicity",
+            initialValue: _selectedEthnicity.value,
+            dataList: ethnicityList,
+            onSelected: (v) => _selectedEthnicity.value = v,
+            onValueClear: () {
+              _selectedEthnicity.value = null;
+            },
+          );
+        },
       ),
     ]);
   }
@@ -2277,29 +2359,42 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   // ENQUIRY INFO
   Widget _enquiryInfoCard() {
     return _card("Enquiry Information", [
-      CustomDropDownWidget(
-        title: "Stage",
-        isDisabled: _isEditMode,
-        initialValue: _selectedFinalStage.value ?? stageTypeList.first,
-        dataList: stageTypeList,
-        onSelected: (v) {
-          _selectedFinalStage.value = v;
-          _selectedFinalStageDetail = finalStageDetailsList.first;
+      ValueListenableBuilder(
+        valueListenable: _selectedFinalStage,
+        builder: (context, value, child) {
+          return CustomDropDownWidget(
+            title: "Stage",
+            hintText: "Select Stage",
+            isDisabled: _isEditMode,
+            initialValue: _selectedFinalStage.value,
+            dataList: stageTypeList,
+            onSelected: (v) {
+              _selectedFinalStage.value = v;
+              _selectedFinalStageDetail.value = finalStageDetailsList.first;
+            },
+            onValueClear: () => _selectedFinalStage.value = null,
+          );
         },
       ),
       ValueListenableBuilder(
-        valueListenable: _selectedFinalStage,
-        builder: (context, finalStage, child) {
-          return finalStage?["zAttributesId"] == 5
-              ? CustomDropDownWidget(
-                title: "Final Stage Detail",
-                isDisabled: _isEditMode,
-                initialValue:
-                    _selectedFinalStageDetail ?? finalStageDetailsList.first,
-                dataList: finalStageDetailsList,
-                onSelected: (v) => _selectedFinalStageDetail = v,
-              )
-              : SizedBox.shrink();
+        valueListenable: _selectedFinalStageDetail,
+        builder: (context, value, child) {
+          return ValueListenableBuilder(
+            valueListenable: _selectedFinalStage,
+            builder: (context, finalStage, child) {
+              return finalStage?["zAttributesId"] == 5
+                  ? CustomDropDownWidget(
+                    title: "Final Stage Detail",
+                    hintText: "Select Final Stage Details",
+                    isDisabled: _isEditMode,
+                    initialValue: _selectedFinalStageDetail.value,
+                    dataList: finalStageDetailsList,
+                    onSelected: (v) => _selectedFinalStageDetail.value = v,
+                    onValueClear: () => _selectedFinalStageDetail.value = null,
+                  )
+                  : SizedBox.shrink();
+            },
+          );
         },
       ),
     ]);

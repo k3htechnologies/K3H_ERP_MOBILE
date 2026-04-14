@@ -41,13 +41,11 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
   DateTime? expiryDate;
-  final ValueNotifier<List<Map<String, dynamic>>> _selectedStatus =
-      ValueNotifier([
-        {'zAttributesId': -1, 'DisplayName': 'Select Status'},
-      ]);
+  final ValueNotifier<Map<String, dynamic>?> _selectedStatus = ValueNotifier(
+    null,
+  );
   // STATIC LISTS
   List<Map<String, dynamic>> statusList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Status'},
     {'zAttributesId': 1, 'DisplayName': 'Applied'},
     {'zAttributesId': 2, 'DisplayName': 'Doc Missing'},
     {'zAttributesId': 3, 'DisplayName': 'In Process'},
@@ -105,7 +103,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
         projectDocumentCategoryId:
             widget.documentModel!.projectDocumentCategoryId,
         documents: selectedDocumentFile,
-        projectDocumentStatus: _selectedStatus.value[0]['DisplayName'],
+        projectDocumentStatus: _selectedStatus.value?['DisplayName'],
         projectDocumentExpiryDate: expiryDate,
         projectDocumentRemark: _remarkC.text.trim(),
         projectDocumentName: widget.documentModel!.projectDocumentName,
@@ -119,7 +117,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
         projectDocumentCategoryId:
             widget.documentModel!.projectDocumentCategoryId,
         documents: selectedDocumentFile,
-        projectDocumentStatus: _selectedStatus.value[0]['DisplayName'],
+        projectDocumentStatus: _selectedStatus.value?['DisplayName'],
         projectDocumentExpiryDate: expiryDate,
         projectDocumentRemark: _remarkC.text.trim(),
       );
@@ -135,7 +133,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
       orElse: () => statusList.first, // fallback to "Select Status"
     );
 
-    _selectedStatus.value = [matchedStatus];
+    _selectedStatus.value = matchedStatus;
 
     // Prefill expiry date
     expiryDate = document.projectDocumentExpiryDate;
@@ -181,17 +179,20 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
                 CustomDropDownWidget(
                   title: "Status",
                   dataList: statusList,
-                  initialValue:
-                      _isEditMode ? _selectedStatus.value[0] : statusList[0],
+                  initialValue: _selectedStatus.value,
+                  hintText: "Select Status",
                   isRequired: true,
-                  onSelected: (Map<String, dynamic> p1) {
-                    _selectedStatus.value = [p1];
+                  onSelected: (value) {
+                    _selectedStatus.value = value;
                   },
                   validator: (value) {
                     if (value == null || value['zAttributesId'] == -1) {
                       return "Status is required";
                     }
                     return null;
+                  },
+                  onValueClear: () {
+                    _selectedStatus.value = null;
                   },
                 ),
                 ValueListenableBuilder(
@@ -200,10 +201,12 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
                     return CustomMultiFilePicker(
                       maxFiles: 5,
                       title: "Files",
-                      isRequired: _selectedStatus.value[0]['DisplayName']
-                          .toString()
-                          .toLowerCase()
-                          .contains('issued'),
+                      isRequired:
+                          (_selectedStatus.value != null &&
+                              _selectedStatus.value!['DisplayName']
+                                  .toString()
+                                  .toLowerCase()
+                                  .contains('issued')),
                       initialFileList: selectedDocumentFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {
                         selectedDocumentFile.fileNameList = fileNameList;
@@ -219,7 +222,8 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
                         selectedDocumentFile.deletedFileList = deletedFile;
                       },
                       validator: (value) {
-                        if (_selectedStatus.value[0]['DisplayName']
+                        if (_selectedStatus.value != null &&
+                            _selectedStatus.value!['DisplayName']
                                 .toString()
                                 .toLowerCase()
                                 .contains('issued') &&

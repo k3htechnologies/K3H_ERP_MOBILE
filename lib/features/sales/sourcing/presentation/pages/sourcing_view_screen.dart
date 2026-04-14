@@ -205,6 +205,9 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                       onSelected: (value) {
                         selectedSupport = value;
                       },
+                      onValueClear: () {
+                        selectedSupport = supportList.first;
+                      },
                     ),
 
                     // Update button
@@ -309,6 +312,9 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                       dataList: supportList,
                       onSelected: (value) {
                         selectedSupport = value;
+                      },
+                      onValueClear: () {
+                        selectedSupport = supportList.first;
                       },
                     ),
 

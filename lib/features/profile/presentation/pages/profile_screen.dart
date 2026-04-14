@@ -1005,6 +1005,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           return Center(child: noDataWidget(message: "No Overview Data Found"));
         }
         final overview = state.employeeMasterList[0];
+
         return SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -136,25 +136,23 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // STATIC HAND OVER TYPE LIST
   List<Map<String, dynamic>> handOverTypeList = [
-    {"zAttributesId": -1, "DisplayName": "Select Handover Type"},
     {"zAttributesId": 1, "DisplayName": "Bare Shell"},
     {"zAttributesId": 2, "DisplayName": "Builder Finished"},
   ];
 
   // SELECTED HAND OVER TYPE
-  final ValueNotifier<Map<String, dynamic>> _selectedHandOverType =
+  final ValueNotifier<Map<String, dynamic>?> _selectedHandOverType =
       ValueNotifier({});
 
   // STATIC HAND OVER TYPE LIST
   final List<Map<String, dynamic>> fundingSourceList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Funding Source'},
     {'zAttributesId': 1, 'DisplayName': 'Loan'},
     {'zAttributesId': 2, 'DisplayName': 'Self-funded'},
     {'zAttributesId': 3, 'DisplayName': 'Sale Of Property'},
   ];
 
   // SELECTED SOURCE OF FUNDING
-  final ValueNotifier<Map<String, dynamic>> _selectedFundingSource =
+  final ValueNotifier<Map<String, dynamic>?> _selectedFundingSource =
       ValueNotifier({});
 
   // METHODS TO CHECK IF APPLICANT TYPE IS PRIMARY
@@ -211,9 +209,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
     _tabController = TabController(length: 6, vsync: this);
     _bookingCubit.onTabChangedAddForm(0, context);
-    _selectedHandOverType.value = handOverTypeList.first;
-    _selectedFundingSource.value = fundingSourceList.first;
-
     _agreementValueNotifier.addListener(_calculateTds);
 
     schemeListNotifier = ValueNotifier([]);
@@ -598,10 +593,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // FETCHING PARKING METHODS
   Future<Map<String, dynamic>> _fetchParking(
-      int pageNumber, {
-        String? value,
-      }) async {
-
+    int pageNumber, {
+    String? value,
+  }) async {
     final isSearch = value != null && value.isNotEmpty;
 
     if (pageNumber == 1) {
@@ -613,8 +607,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       pageNumber,
       _project.projectId,
       searchQuery: isSearch ? value : null,
-      displayParkingId:
-      _isEditMode ? widget.bookingModel!.parkingId : null,
+      displayParkingId: _isEditMode ? widget.bookingModel!.parkingId : null,
     );
 
     final updatedList = _bookingCubit.state.parkingList;
@@ -630,17 +623,15 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
     return {
       "itemList": uniqueParking.values.toList(),
-      "totalNumberOfRecord":
-      totalCount > 0 ? totalCount : uniqueParking.length,
+      "totalNumberOfRecord": totalCount > 0 ? totalCount : uniqueParking.length,
     };
   }
 
   // FETCHING TERMS AND CONDITIONS METHODS
   Future<Map<String, dynamic>> _fetchTerms(
-      int pageNumber, {
-        String? value,
-      }) async {
-
+    int pageNumber, {
+    String? value,
+  }) async {
     final isSearch = value != null && value.isNotEmpty;
 
     if (pageNumber == 1) {
@@ -668,8 +659,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
     return {
       "itemList": uniqueTerms.values.toList(),
-      "totalNumberOfRecord":
-      totalCount > 0 ? totalCount : uniqueTerms.length,
+      "totalNumberOfRecord": totalCount > 0 ? totalCount : uniqueTerms.length,
     };
   }
 
@@ -748,7 +738,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // VALIDATE ALL TABS
   Future<bool> _validateAllTabs() async {
-
     // STEP 1: DETAILS TAB
     if (!(_detailsFormKey.currentState?.validate() ?? false)) {
       _bookingCubit.onTabChangedAddForm(0, context);
@@ -777,7 +766,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       showErrorMessage(context, "", "Add Payment Schedule Details");
       return false;
     }
-
 
     // STEP 5: REMARK
     if (!(_remarkFormKey.currentState?.validate() ?? false)) {
@@ -923,8 +911,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         _selectedExpectedRegistrationDate.value ?? DateTime.now();
     final chequeDate = _selectedChequeDate;
     final parkingId = selectedParkings;
-    final modeOfPayment = _selectedFundingSource.value['DisplayName'] ?? "";
-    final handoverType = _selectedHandOverType.value['DisplayName'] ?? "";
+    final modeOfPayment = _selectedFundingSource.value!['DisplayName'] ?? "";
+    final handoverType = _selectedHandOverType.value!['DisplayName'] ?? "";
     final inventoryFlatId =
         widget.inventoryObject?[0]['inventoryFlatId'] ??
         widget.bookingModel!.inventoryFlatId;
@@ -954,7 +942,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         inventoryFlatId: inventoryFlatId,
         agreementValue: _agreementValueNotifier.value,
         agreementValueTds: _tdsNotifier.value,
-        sourceOfFunding: _selectedFundingSource.value['DisplayName'] ?? "",
+        sourceOfFunding: _selectedFundingSource.value!['DisplayName'] ?? "",
 
         agreementValueGSTPercentage:
             double.tryParse(_agreementGstPercentageC.text) ?? 0.0,
@@ -1012,7 +1000,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         stampDutyPercentage: double.tryParse(_stampDutyPercentageC.text) ?? 0.0,
         stampDutyAmount: double.parse(_stampDutyAmountC.text.trim()),
         registrationFees: double.parse(_registrationFeesC.text.trim()),
-        sourceOfFunding: _selectedFundingSource.value['DisplayName'] ?? "",
+        sourceOfFunding: _selectedFundingSource.value!['DisplayName'] ?? "",
         parkingId: parkingId,
         numberOfParking:
             _noOfParkingC.text.trim().isNotEmpty
@@ -1102,7 +1090,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: showSiteSelectedWidget()
+                child: showSiteSelectedWidget(),
               ),
               ChipStyleTabBar(
                 controller: _tabController,
@@ -1988,6 +1976,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     builder: (context, selectedHandOverType, child) {
                       return CustomDropDownWidget(
                         title: "Handover Type",
+                        hintText: "Select Handover Type",
                         isRequired: true,
                         initialValue: selectedHandOverType,
                         dataList: handOverTypeList,
@@ -1995,13 +1984,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                           _selectedHandOverType.value = value;
                         },
                         validator: (value) {
-                          if (value == null ||
-                              value.isEmpty ||
-                              value["zAttributesId"] == -1) {
+                          if (value == null || value.isEmpty) {
                             return "Handover Type is required";
                           }
                           return null;
                         },
+                        onValueClear: () => _selectedHandOverType.value = null,
                       );
                     },
                   ),
@@ -2033,6 +2021,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     builder: (context, selectedFundingSource, child) {
                       return CustomDropDownWidget(
                         title: "Source Of Funding",
+                        hintText: "Select Source Of Funding",
                         isRequired: true,
                         initialValue: selectedFundingSource,
                         dataList: fundingSourceList,
@@ -2040,13 +2029,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                           _selectedFundingSource.value = value;
                         },
                         validator: (value) {
-                          if (value == null ||
-                              value.isEmpty ||
-                              value["zAttributesId"] == -1) {
+                          if (value == null || value.isEmpty) {
                             return "Funding Source is required";
                           }
                           return null;
                         },
+                        onValueClear: () => _selectedFundingSource.value = null,
                       );
                     },
                   ),
@@ -2122,6 +2110,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                               return "Payment Schedule Scheme is required";
                             }
                             return null;
+                          },
+                          onValueClear: () {
+                            selectedScheme.value = {};
+                            _bookingCubit.clearPaymentScheduleList();
                           },
                         );
                       },
@@ -2246,7 +2238,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         return Center(
                           child: noDataWidget(
                             message: "No Payment Schedule Available",
-                            iconSize: 150
+                            iconSize: 150,
                           ),
                         );
                       }
@@ -2945,7 +2937,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               ),
               buildColumnTitleValue(
                 title: "Cancelled Cheque",
-                value: applicant.cancelledChequeUrl.isEmpty ? "-" : applicant.cancelledChequeUrl,
+                value:
+                    applicant.cancelledChequeUrl.isEmpty
+                        ? "-"
+                        : applicant.cancelledChequeUrl,
                 customValueWidget: CustomButton.documentOutline(
                   onPressed: () {
                     if (applicant.cancelledChequeUrl.isNotEmpty) {
@@ -2981,7 +2976,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               ),
               buildColumnTitleValue(
                 title: "Income Docs (Form 16 / ITR)",
-                value: applicant.incomeForm16Itrurl.isEmpty ? "-" : applicant.incomeForm16Itrurl,
+                value:
+                    applicant.incomeForm16Itrurl.isEmpty
+                        ? "-"
+                        : applicant.incomeForm16Itrurl,
                 customValueWidget: CustomButton.documentOutline(
                   onPressed: () {
                     if (applicant.incomeForm16Itrurl.isNotEmpty) {
@@ -3002,7 +3000,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             children: [
               buildColumnTitleValue(
                 title: "NRE / NRO Bank Details",
-                value: applicant.nreNroBankDetailsUrl.isEmpty ? "-" : applicant.nreNroBankDetailsUrl,
+                value:
+                    applicant.nreNroBankDetailsUrl.isEmpty
+                        ? "-"
+                        : applicant.nreNroBankDetailsUrl,
                 customValueWidget: CustomButton.documentOutline(
                   onPressed: () {
                     if (applicant.nreNroBankDetailsUrl.isNotEmpty) {
@@ -3017,7 +3018,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               ),
               buildColumnTitleValue(
                 title: "Nominee Form",
-                value: applicant.nomineeFormUrl.isEmpty ? "-" : applicant.nomineeFormUrl,
+                value:
+                    applicant.nomineeFormUrl.isEmpty
+                        ? "-"
+                        : applicant.nomineeFormUrl,
                 customValueWidget: CustomButton.documentOutline(
                   onPressed: () {
                     if (applicant.nomineeFormUrl.isNotEmpty) {
@@ -3038,7 +3042,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             children: [
               buildColumnTitleValue(
                 title: "Statement of Source of Funds",
-                value: applicant.statementOfSourceOfFundsURL.isEmpty ? "-" : applicant.statementOfSourceOfFundsURL,
+                value:
+                    applicant.statementOfSourceOfFundsURL.isEmpty
+                        ? "-"
+                        : applicant.statementOfSourceOfFundsURL,
                 customValueWidget: CustomButton.documentOutline(
                   onPressed: () {
                     if (applicant.statementOfSourceOfFundsURL.isNotEmpty) {
@@ -3053,7 +3060,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               ),
               buildColumnTitleValue(
                 title: "Payment Proof",
-                value: applicant.paymentProofURL.isEmpty ? "-" : applicant.paymentProofURL,
+                value:
+                    applicant.paymentProofURL.isEmpty
+                        ? "-"
+                        : applicant.paymentProofURL,
                 customValueWidget: CustomButton.documentOutline(
                   onPressed: () {
                     if (applicant.paymentProofURL.isNotEmpty) {
@@ -3072,7 +3082,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       ),
     );
   }
-
 
   // COMMISSION SECTION FOR ENQUIRY WHICH HAD SOURCE: CHANNEL PARTNER (BROKERAGE) OR SUBSOURCE: REFERENCE, EMPLOYEE REFERENCE, LOYALTY
   Widget commissionSection({

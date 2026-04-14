@@ -45,8 +45,11 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
   final GlobalKey<FormState> _statusFormKey = GlobalKey<FormState>();
 
   // DROPDOWN VARIABLE
-  Map<String, dynamic>? _selectedStatus;
-  Map<String, dynamic>? _selectedLostReason;
+  final ValueNotifier<Map<String, dynamic>?> _selectedStatus = ValueNotifier(
+    null,
+  );
+  final ValueNotifier<Map<String, dynamic>?> _selectedLostReason =
+      ValueNotifier(null);
   // DATETIME VARIABLE
   DateTime? _nextFollowupDate;
 
@@ -1278,12 +1281,12 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
   }) async {
     // ===================== PREFILL FOR EDIT =====================
     if (followUpModel != null) {
-      _selectedStatus = _statusList.firstWhere(
+      _selectedStatus.value = _statusList.firstWhere(
         (e) => e['DisplayName'] == followUpModel.status,
         orElse: () => {},
       );
 
-      _selectedLostReason =
+      _selectedLostReason.value =
           (followUpModel.lostReason.isEmpty)
               ? _lostReasonList.firstWhere(
                 (e) => e['DisplayName'] == followUpModel.lostReason,
@@ -1311,8 +1314,8 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       index != null ? "Update Follow Up" : "Add Follow Up",
       StatefulBuilder(
         builder: (context, innerBottomsheetState) {
-          final statusId = _selectedStatus?['zAttributesId'];
-          final statusName = _selectedStatus?['DisplayName'];
+          final statusId = _selectedStatus.value?['zAttributesId'];
+          final statusName = _selectedStatus.value?['DisplayName'];
 
           // ===================== CONDITIONAL WIDGETS =====================
           Widget followUpDateWidget() =>
@@ -1339,15 +1342,21 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
               (statusName == "Lost")
                   ? CustomDropDownWidget(
                     title: "Lost Reason",
+                    hintText: "Select Lost Reason",
                     isRequired: true,
                     dataList: _lostReasonList,
-                    initialValue: _selectedLostReason,
+                    initialValue: _selectedLostReason.value,
                     onSelected:
                         (val) => innerBottomsheetState(
-                          () => _selectedLostReason = val,
+                          () => _selectedLostReason.value = val,
                         ),
                     validator:
                         (val) => val == null ? "Lost reason is required" : null,
+                    onValueClear: () {
+                      innerBottomsheetState(
+                        () => _selectedLostReason.value = null,
+                      );
+                    },
                   )
                   : const SizedBox.shrink();
 
@@ -1363,15 +1372,22 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                     isRequired: true,
                     hintText: "Select Status",
                     dataList: _statusList,
-                    initialValue: _selectedStatus,
+                    initialValue: _selectedStatus.value,
                     onSelected:
                         (val) => innerBottomsheetState(() {
-                          _selectedStatus = val;
-                          _selectedLostReason = null;
+                          _selectedStatus.value = val;
+                          _selectedLostReason.value = null;
                           _nextFollowupDate = null;
                         }),
                     validator:
                         (val) => val == null ? "Status is required" : null,
+                    onValueClear: () {
+                      innerBottomsheetState(() {
+                        _selectedStatus.value = null;
+                        _selectedLostReason.value = null;
+                        _nextFollowupDate = null;
+                      });
+                    },
                   ),
 
                   followUpDateWidget(),
@@ -1411,8 +1427,8 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
   }
 
   void _clearStatusSheet() {
-    _selectedStatus = null;
-    _selectedLostReason = null;
+    _selectedStatus.value = null;
+    _selectedLostReason.value = null;
     _nextFollowupDate = null;
     _remarkC.clear();
   }
@@ -1420,8 +1436,8 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
   void _submitForm({EnquiryFollowUpModel? followUpModel, int? index}) {
     if (!_statusFormKey.currentState!.validate()) return;
 
-    final statusName = _selectedStatus?['DisplayName'];
-    final lostReasonName = _selectedLostReason?['DisplayName'];
+    final statusName = _selectedStatus.value?['DisplayName'];
+    final lostReasonName = _selectedLostReason.value?['DisplayName'];
 
     final payload = {
       "EnquiryFollowUpId":

@@ -53,7 +53,6 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
 
   // STATIC FLAT TYPE LIST
   List<Map<String, dynamic>> flatTypeList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Flat Type'},
     {'zAttributesId': 1, 'DisplayName': 'Residential'},
     {'zAttributesId': 2, 'DisplayName': 'Commercial'},
     {'zAttributesId': 3, 'DisplayName': 'Void'},
@@ -62,14 +61,12 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
 
   // STATIC FLAT CONFIGURATION LIST
   List<Map<String, dynamic>> commercialFlatList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Flat Configuration'},
     {'zAttributesId': 1, 'DisplayName': 'Shop'},
     {'zAttributesId': 2, 'DisplayName': 'Office'},
   ];
 
   // STATIC FLAT CONFIGURATION LIST
   List<Map<String, dynamic>> residentialFlatList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Flat Configuration'},
     {'zAttributesId': 1, 'DisplayName': '1 BHK'},
     {'zAttributesId': 2, 'DisplayName': '2 BHK'},
     {'zAttributesId': 3, 'DisplayName': '3 BHK'},
@@ -81,7 +78,6 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
 
   // STATIC FLAT FACING LIST
   List<Map<String, dynamic>> flatFacingList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Flat Facing'},
     {'zAttributesId': 1, 'DisplayName': 'North'},
     {'zAttributesId': 2, 'DisplayName': 'South'},
     {'zAttributesId': 3, 'DisplayName': 'East'},
@@ -93,11 +89,12 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
   ];
 
   // SELECTED FLAT TYPE
-  late ValueNotifier<Map<String, dynamic>> selectedFlatType;
+  ValueNotifier<Map<String, dynamic>?> selectedFlatType = ValueNotifier(null);
 
   // SELECTED DROPDOWN VALUES (reactive, without setState)
-  late ValueNotifier<Map<String, dynamic>?> selectedFlatFacing;
-  late ValueNotifier<Map<String, dynamic>?> selectedFlatConfiguration;
+  ValueNotifier<Map<String, dynamic>?> selectedFlatFacing = ValueNotifier(null);
+  ValueNotifier<Map<String, dynamic>?> selectedFlatConfiguration =
+      ValueNotifier(null);
 
   // METHODS TO CHECK IF APPLICANT TYPE IS PRIMARY
   bool _isApplicantType(String type) =>
@@ -124,13 +121,6 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     _freeAreaOfferedPercentageC = TextEditingController();
     _extraAreaPurchasedSqFtC = TextEditingController();
     _totalAreaSqFtC = TextEditingController();
-    selectedFlatFacing = ValueNotifier<Map<String, dynamic>?>(
-      flatFacingList.first,
-    );
-    selectedFlatType = ValueNotifier(flatTypeList.first);
-    selectedFlatConfiguration = ValueNotifier<Map<String, dynamic>?>(
-      commercialFlatList.first,
-    );
   }
 
   // PREFILL TENANT DETAILS
@@ -264,7 +254,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
 
     final cubit = context.read<TenantCubit>();
 
-    final flatType = selectedFlatType.value['DisplayName'].toString();
+    final flatType = selectedFlatType.value!['DisplayName'].toString();
     final flatConfiguration =
         selectedFlatConfiguration.value?['DisplayName']?.toString() ?? '';
     final facing = selectedFlatFacing.value?['DisplayName']?.toString() ?? '';
@@ -450,46 +440,49 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                         return null;
                       },
                     ),
-                    ValueListenableBuilder<Map<String, dynamic>>(
+                    ValueListenableBuilder<Map<String, dynamic>?>(
                       valueListenable: selectedFlatType,
                       builder: (context, flatTypeValue, child) {
                         return CustomDropDownWidget(
                           key: ValueKey(
-                            'flatType_${flatTypeValue['zAttributesId']}',
+                            'flatType_${flatTypeValue?['zAttributesId']}',
                           ),
                           title: 'Unit Type',
+                          hintText: "Select Unit Type",
                           dataList: flatTypeList,
                           isRequired: true,
                           initialValue: flatTypeValue,
                           onSelected: (value) {
                             // Only clear configuration if flat type actually changed
-                            if (selectedFlatType.value['zAttributesId'] !=
+                            if (selectedFlatType.value?['zAttributesId'] !=
                                 value['zAttributesId']) {
                               selectedFlatConfiguration.value = null;
                             }
                             selectedFlatType.value = value;
                           },
                           validator: (value) {
-                            if (value == null || value["zAttributesId"] == -1) {
+                            if (value == null) {
                               return 'Unit Type is required';
                             }
                             return null;
                           },
+                          onValueClear: () => selectedFlatType.value = null,
                         );
                       },
                     ),
                     ValueListenableBuilder(
                       valueListenable: selectedFlatType,
                       builder: (context, value, child) {
-                        if (value['zAttributesId'] == 1) {
+                        if (value?['zAttributesId'] == 1) {
                           return ValueListenableBuilder<Map<String, dynamic>?>(
                             valueListenable: selectedFlatConfiguration,
                             builder: (context, configValue, child) {
                               return CustomDropDownWidget(
                                 key: ValueKey(
-                                  'residential_config_${value['zAttributesId']}_${configValue?['zAttributesId'] ?? 'null'}',
+                                  'residential_config_${value?['zAttributesId']}_${configValue?['zAttributesId'] ?? 'null'}',
                                 ),
                                 title: 'Flat Configuration',
+                                hintText: "Select Flat Configuration",
                                 isRequired: true,
                                 dataList: residentialFlatList,
                                 initialValue: configValue,
@@ -504,19 +497,23 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                                   }
                                   return null;
                                 },
+                                onValueClear:
+                                    () =>
+                                        selectedFlatConfiguration.value = null,
                               );
                             },
                           );
                         }
-                        if (value['zAttributesId'] == 2) {
+                        if (value?['zAttributesId'] == 2) {
                           return ValueListenableBuilder<Map<String, dynamic>?>(
                             valueListenable: selectedFlatConfiguration,
                             builder: (context, configValue, child) {
                               return CustomDropDownWidget(
                                 key: ValueKey(
-                                  'commercial_config_${value['zAttributesId']}_${configValue?['zAttributesId'] ?? 'null'}',
+                                  'commercial_config_${value?['zAttributesId']}_${configValue?['zAttributesId'] ?? 'null'}',
                                 ),
                                 title: 'Flat Configuration',
+                                hintText: "Select Flat Configuration",
                                 isRequired: true,
                                 dataList: commercialFlatList,
                                 initialValue: configValue,
@@ -525,12 +522,14 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                                       selectedValue;
                                 },
                                 validator: (val) {
-                                  if (val == null ||
-                                      val["zAttributesId"] == -1) {
+                                  if (val == null) {
                                     return 'Flat Configuration is required';
                                   }
                                   return null;
                                 },
+                                onValueClear:
+                                    () =>
+                                        selectedFlatConfiguration.value = null,
                               );
                             },
                           );
@@ -546,6 +545,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                             'facing_${facingValue?['zAttributesId'] ?? 'null'}',
                           ),
                           title: 'Facing',
+                          hintText: "Select Facing",
                           isRequired: true,
                           dataList: flatFacingList,
                           initialValue: facingValue,
@@ -553,11 +553,12 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                             selectedFlatFacing.value = value;
                           },
                           validator: (value) {
-                            if (value == null || value["zAttributesId"] == -1) {
+                            if (value == null) {
                               return 'Facing is required';
                             }
                             return null;
                           },
+                          onValueClear: () => selectedFlatFacing.value = null,
                         );
                       },
                     ),
@@ -621,8 +622,8 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                       textController: _extraAreaPurchasedSqFtC,
                     ),
                   ],
-                )
-              )
+                ),
+              ),
             ],
           ),
         ),
@@ -632,7 +633,11 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              color: AppColor.white,
+              size: 18,
+            ),
             text: _isEditMode ? 'Update Tenant' : 'Add Tenant',
             onPressed: _handleSubmit,
             backgroundColor: AppColor.primary,

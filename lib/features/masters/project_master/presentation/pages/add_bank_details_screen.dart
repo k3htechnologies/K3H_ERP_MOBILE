@@ -46,7 +46,9 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
 
   // DROPDOWN VARIABLES
   late final ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier;
-  Map<String, dynamic>? selectedAccountType;
+  ValueNotifier<Map<String, dynamic>?> selectedAccountType = ValueNotifier(
+    null,
+  );
 
   // ACCOUNT TYPE LIST
   final List<Map<String, dynamic>> accountTypeList = [
@@ -100,24 +102,26 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
   // INITIALISING DROPDOWN
   void _initializeDropdowns() {
     if (widget.bankDetailsModel != null) {
-      _selectedBankNotifier.value = [{
-        'zAttributesId': widget.bankDetailsModel!.bankListMasterId,
-        'DisplayName': widget.bankDetailsModel!.bankName,
-      }];
+      _selectedBankNotifier.value = [
+        {
+          'zAttributesId': widget.bankDetailsModel!.bankListMasterId,
+          'DisplayName': widget.bankDetailsModel!.bankName,
+        },
+      ];
 
       final acType = widget.bankDetailsModel!.acType.toLowerCase();
       if (acType.contains('current')) {
-        selectedAccountType = accountTypeList[0]; // Current
+        selectedAccountType.value = accountTypeList[0]; // Current
       } else if (acType.contains('demat')) {
-        selectedAccountType = accountTypeList[1]; // DEMAT
+        selectedAccountType.value = accountTypeList[1]; // DEMAT
       } else if (acType.contains('fixed')) {
-        selectedAccountType = accountTypeList[2]; // Fixed
+        selectedAccountType.value = accountTypeList[2]; // Fixed
       } else if (acType.contains('salary')) {
-        selectedAccountType = accountTypeList[3]; // Salary
+        selectedAccountType.value = accountTypeList[3]; // Salary
       } else if (acType.contains('savings')) {
-        selectedAccountType = accountTypeList[4]; // Savings
+        selectedAccountType.value = accountTypeList[4]; // Savings
       } else {
-        selectedAccountType = accountTypeList[0]; // Select
+        selectedAccountType.value = accountTypeList[0]; // Select
       }
     } else {
       _selectedBankNotifier.value.isNotEmpty;
@@ -135,8 +139,8 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
       return;
     }
 
-    if (selectedAccountType == null ||
-        selectedAccountType!['zAttributesId'] == -1) {
+    if (selectedAccountType.value == null ||
+        selectedAccountType.value!['zAttributesId'] == -1) {
       showErrorMessage(context, "Error", "Please select an account type");
       return;
     }
@@ -153,7 +157,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
       "AccountNumber": _accountNumberC.text.trim(),
       "Branch": _branchC.text.trim(),
       "IFSCCode": _ifscCodeC.text.trim(),
-      "AcType": selectedAccountType!['DisplayName'],
+      "AcType": selectedAccountType.value!['DisplayName'],
     };
 
     await _projectMasterCubit.addUpdateProjectWithBankDetails(
@@ -253,22 +257,28 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                       );
                     },
                   ),
-                  CustomDropDownWidget(
-                    title: "Account Type",
-                    hintText: "Select Account Type",
-                    isRequired: true,
-                    initialValue: selectedAccountType,
-                    dataList: accountTypeList,
-                    onSelected: (value) {
-                      setState(() {
-                        selectedAccountType = value;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null || value['zAttributesId'] == -1) {
-                        return 'Account Type is required';
-                      }
-                      return null;
+                  ValueListenableBuilder(
+                    valueListenable: selectedAccountType,
+                    builder: (context, selectedAccountT, child) {
+                      return CustomDropDownWidget(
+                        title: "Account Type",
+                        hintText: "Select Account Type",
+                        isRequired: true,
+                        initialValue: selectedAccountT,
+                        dataList: accountTypeList,
+                        onSelected: (value) {
+                          selectedAccountType.value = value;
+                        },
+                        validator: (value) {
+                          if (value == null || value['zAttributesId'] == -1) {
+                            return 'Account Type is required';
+                          }
+                          return null;
+                        },
+                        onValueClear: () {
+                          selectedAccountType.value = null;
+                        },
+                      );
                     },
                   ),
                   CustomTextField(
@@ -290,9 +300,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                     textController: _branchC,
                     hint: "Enter Branch Name",
                     isRequired: true,
-                    inputFormatterList: [
-                      LengthLimitingTextInputFormatter(200)
-                    ],
+                    inputFormatterList: [LengthLimitingTextInputFormatter(200)],
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return "Bank Branch Name is required";
@@ -329,7 +337,10 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            text: widget.bankDetailsModel == null ? "Save Bank Details" : "Update Bank Details",
+            text:
+                widget.bankDetailsModel == null
+                    ? "Save Bank Details"
+                    : "Update Bank Details",
             onPressed: _handleSubmit,
             backgroundColor: AppColor.primary,
           ),

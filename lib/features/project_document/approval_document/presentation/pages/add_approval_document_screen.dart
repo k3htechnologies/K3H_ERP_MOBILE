@@ -43,13 +43,11 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
   final _formKey = GlobalKey<FormState>();
 
   DateTime? expiryDate;
-  final ValueNotifier<List<Map<String, dynamic>>> _selectedStatus =
-      ValueNotifier([
-        {'zAttributesId': -1, 'DisplayName': 'Select Status'},
-      ]);
+  final ValueNotifier<Map<String, dynamic>?> _selectedStatus = ValueNotifier(
+    null,
+  );
   // STATIC LISTS
   List<Map<String, dynamic>> statusList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Status'},
     {'zAttributesId': 1, 'DisplayName': 'Applied'},
     {'zAttributesId': 2, 'DisplayName': 'Doc Missing'},
     {'zAttributesId': 3, 'DisplayName': 'In Process'},
@@ -105,7 +103,7 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
         approvalDocumentCategoryId:
             widget.documentModel!.approvalDocumentCategoryId,
         documents: selectedApprovalDocumentFile,
-        approvalDocumentStatus: _selectedStatus.value[0]['DisplayName'],
+        approvalDocumentStatus: _selectedStatus.value?['DisplayName'],
         approvalDocumentExpiryDate: expiryDate,
         approvalDocumentRemark: _remarkC.text.trim(),
         approvalDocumentName: widget.documentModel!.approvalDocumentName,
@@ -119,7 +117,7 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
         approvalDocumentCategoryId:
             widget.documentModel!.approvalDocumentCategoryId,
         documents: selectedApprovalDocumentFile,
-        approvalDocumentStatus: _selectedStatus.value[0]['DisplayName'],
+        approvalDocumentStatus: _selectedStatus.value?['DisplayName'],
         approvalDocumentExpiryDate: expiryDate,
         approvalDocumentRemark: _remarkC.text.trim(),
       );
@@ -133,7 +131,7 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
       orElse: () => statusList.first,
     );
 
-    _selectedStatus.value = [matchedStatus];
+    _selectedStatus.value = matchedStatus;
 
     expiryDate = document.approvalDocumentExpiryDate;
 
@@ -177,17 +175,20 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
                 CustomDropDownWidget(
                   title: "Status",
                   dataList: statusList,
-                  initialValue:
-                      _isEditMode ? _selectedStatus.value[0] : statusList[0],
+                  hintText: "Select Status",
+                  initialValue: _selectedStatus.value,
                   isRequired: true,
-                  onSelected: (Map<String, dynamic> p1) {
-                    _selectedStatus.value = [p1];
+                  onSelected: (value) {
+                    _selectedStatus.value = value;
                   },
                   validator: (value) {
                     if (value == null || value["zAttributesId"] == -1) {
                       return 'Status is required';
                     }
                     return null;
+                  },
+                  onValueClear: () {
+                    _selectedStatus.value = null;
                   },
                 ),
                 ValueListenableBuilder(
@@ -196,10 +197,12 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
                     return CustomMultiFilePicker(
                       maxFiles: 5,
                       title: "Files",
-                      isRequired: _selectedStatus.value[0]['DisplayName']
-                          .toString()
-                          .toLowerCase()
-                          .contains('issued'),
+                      isRequired:
+                          (_selectedStatus.value != null &&
+                              _selectedStatus.value!['DisplayName']
+                                  .toString()
+                                  .toLowerCase()
+                                  .contains('issued')),
                       initialFileList:
                           selectedApprovalDocumentFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {
@@ -220,7 +223,8 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
                             deletedFile;
                       },
                       validator: (value) {
-                        if (_selectedStatus.value[0]['DisplayName']
+                        if (_selectedStatus.value != null &&
+                            _selectedStatus.value!['DisplayName']
                                 .toString()
                                 .toLowerCase()
                                 .contains('issued') &&

@@ -58,14 +58,14 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
 
   // COMPANY TYPE DROPDOWN
   List<Map<String, dynamic>> companyTypeList = [
-    {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "LLP"},
     {"zAttributesId": 2, "DisplayName": "Private Limited Company"},
     {"zAttributesId": 3, "DisplayName": "Proprietorship"},
   ];
 
   // DROPDOWN VARIABLES
-  late Map<String, dynamic> selectedCompanyType;
+  final ValueNotifier<Map<String, dynamic>?> selectedCompanyType =
+      ValueNotifier(null);
 
   // STRINGS TO STORE THE PICKED FILE PATH
   MultiFilePickerModel aadhaarCard = MultiFilePickerModel(
@@ -153,7 +153,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
 
   // INITIALIZE DROPDOWN VARIABLES
   void initializeDropdown() {
-    selectedCompanyType = companyTypeList[0];
+    selectedCompanyType.value = companyTypeList[0];
   }
 
   // --------------------------- FETCHING METHODS --------------------------- //
@@ -193,7 +193,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     districtMasterId = vendor.districtMasterId.toString();
     cityMasterId = vendor.cityMasterId.toString();
 
-    selectedCompanyType = companyTypeList.firstWhere(
+    selectedCompanyType.value = companyTypeList.firstWhere(
       (element) => element['DisplayName'] == vendor.companyType,
       orElse: () => companyTypeList.first,
     );
@@ -455,19 +455,28 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
               return null;
             },
           ),
-          CustomDropDownWidget(
-            title: "Company Type",
-            initialValue: selectedCompanyType,
-            isRequired: true,
-            dataList: companyTypeList,
-            onSelected: (value) {
-              selectedCompanyType = value;
-            },
-            validator: (value) {
-              if (value == null || value['zAttributesId'] == -1) {
-                return 'Company Type is required';
-              }
-              return null;
+          ValueListenableBuilder(
+            valueListenable: selectedCompanyType,
+            builder: (context, value, child) {
+              return CustomDropDownWidget(
+                title: "Company Type",
+                hintText: "Select Company Type",
+                initialValue: selectedCompanyType.value,
+                isRequired: true,
+                dataList: companyTypeList,
+                onSelected: (value) {
+                  selectedCompanyType.value = value;
+                },
+                validator: (value) {
+                  if (value == null || value['zAttributesId'] == -1) {
+                    return 'Company Type is required';
+                  }
+                  return null;
+                },
+                onValueClear: () {
+                  selectedCompanyType.value = null;
+                },
+              );
             },
           ),
           CustomTextField(
@@ -955,7 +964,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
       _vendorAddCubit.addVendor(
         context: context,
         companyName: companyNameC.value.text,
-        companyType: selectedCompanyType["DisplayName"],
+        companyType: selectedCompanyType.value?["DisplayName"],
         vendorName: nameC.value.text,
         mobileNumber: mobileC.value.text,
         emailId: emailC.value.text,
@@ -979,7 +988,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
         vendor: widget.vendor,
         context: context,
         companyName: companyNameC.value.text,
-        companyType: selectedCompanyType["DisplayName"],
+        companyType: selectedCompanyType.value?["DisplayName"],
         vendorName: nameC.value.text,
         mobileNumber: mobileC.value.text,
         emailId: emailC.value.text,

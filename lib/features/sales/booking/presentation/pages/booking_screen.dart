@@ -65,18 +65,15 @@ class _BookingScreenState extends State<BookingScreen> {
   final ValueNotifier<Map<String, dynamic>?> _selectedSubSourceNotifier =
       ValueNotifier(null);
   final List<Map<String, dynamic>> sourceTypeList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Source'},
     {'zAttributesId': 1, 'DisplayName': 'Channel Partner'},
     {'zAttributesId': 2, 'DisplayName': 'Direct Walking'},
   ];
   final List<Map<String, dynamic>> channelPartnerActivityList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Activity'},
     {'zAttributesId': 1, 'DisplayName': 'Channel Partner Data Calling'},
     {'zAttributesId': 2, 'DisplayName': 'Channel Partner Walked In'},
     {'zAttributesId': 3, 'DisplayName': 'Digital Activity'},
   ];
   final List<Map<String, dynamic>> directWalkingSubSourceList = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Sub Source'},
     {'zAttributesId': 1, 'DisplayName': 'Advertisement'},
     {'zAttributesId': 2, 'DisplayName': 'Exhibition'},
     {'zAttributesId': 3, 'DisplayName': 'Employee Reference'},
@@ -97,8 +94,6 @@ class _BookingScreenState extends State<BookingScreen> {
     _project = getProject();
     _routhAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.booking]!;
-    _selectedSourceNotifier.value = sourceTypeList.first;
-    _selectedSubSourceNotifier.value = channelPartnerActivityList.first;
     _initializeTextEditingController();
     _onScroll();
     _bookingCubit.getBookingList(context, 1, _project.projectId);
@@ -187,10 +182,12 @@ class _BookingScreenState extends State<BookingScreen> {
     _startDateNotifier.value = initialStartDate;
     _endDateNotifier.value = initialEndDate;
 
-    _selectedSourceNotifier.value = sourceTypeList.firstWhere(
-      (e) => e['DisplayName'] == initialSource,
-      orElse: () => sourceTypeList.first,
-    );
+    if (initialSource.isNotEmpty) {
+      _selectedSourceNotifier.value = sourceTypeList.firstWhere(
+        (e) => e['DisplayName'] == initialSource,
+        orElse: () => sourceTypeList.first,
+      );
+    }
 
     _selectedSubSourceNotifier.value =
         (initialSubSource.isNotEmpty)
@@ -390,35 +387,36 @@ class _BookingScreenState extends State<BookingScreen> {
                       children: [
                         CustomDropDownWidget(
                           title: 'Source',
-                          initialValue: selectedSource ?? sourceTypeList.first,
+                          hintText: 'Select Source',
+                          initialValue: selectedSource,
                           dataList: sourceTypeList,
                           onSelected: (v) {
                             _selectedSourceNotifier.value = v;
-                            _selectedSubSourceNotifier.value =
-                                v['zAttributesId'] == 1
-                                    ? channelPartnerActivityList.first
-                                    : directWalkingSubSourceList.first;
+                            updateApplyState();
+                          },
+                          onValueClear: () {
+                            _selectedSourceNotifier.value = null;
                             updateApplyState();
                           },
                         ),
 
-                        if ((selectedSource?['zAttributesId'] ?? -1) != -1)
+                        if ((selectedSource != null))
                           ValueListenableBuilder(
                             valueListenable: _selectedSubSourceNotifier,
                             builder: (context, selectedSubSource, _) {
                               return CustomDropDownWidget(
                                 title: "Sub Source",
-                                initialValue:
-                                    selectedSubSource ??
-                                    (isChannelPartner
-                                        ? channelPartnerActivityList.first
-                                        : directWalkingSubSourceList.first),
+                                initialValue: selectedSubSource,
                                 dataList:
                                     isChannelPartner
                                         ? channelPartnerActivityList
                                         : directWalkingSubSourceList,
                                 onSelected: (v) {
                                   _selectedSubSourceNotifier.value = v;
+                                  updateApplyState();
+                                },
+                                onValueClear: () {
+                                  _selectedSubSourceNotifier.value = null;
                                   updateApplyState();
                                 },
                               );

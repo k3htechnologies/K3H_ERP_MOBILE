@@ -32,13 +32,10 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
 
   // TEXT CONTROLLER
   late TextEditingController _searchC,
-      _filterProjectNameC,
       _filterProjectStatusC,
       _filterVillageC,
       _filterArchitectNameC,
       _filterRERANumberC,
-      _filterProjectSchemeC,
-      _filterProjectSubSchemeC,
       _filterProjectLocationC,
       _filterCTSNumberC;
 
@@ -48,13 +45,13 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-  final ValueNotifier<Map<String, dynamic>?> projectSchemeNotifier =
+  final ValueNotifier<Map<String, dynamic>?> selectedProjectSchemeNotifier =
       ValueNotifier(null);
-  Map<String, dynamic>? selectedProjectSubScheme;
+  ValueNotifier<Map<String, dynamic>?> selectedProjectSubSchemeNotifier =
+      ValueNotifier(null);
 
   // STATIC LISTS
   List<Map<String, dynamic>> projectSchemeList = [
-    {"zAttributesId": -1, "DisplayName": "Select Project Scheme"},
     {"zAttributesId": 1, "DisplayName": "BMC"},
     {"zAttributesId": 2, "DisplayName": "MHADA"},
     {"zAttributesId": 3, "DisplayName": "SRA"},
@@ -62,7 +59,6 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
 
   // STATIC LISTS
   List<Map<String, dynamic>> projectSubSchemeBMCList = [
-    {"zAttributesId": -1, "DisplayName": "Select Project Sub Scheme"},
     {"zAttributesId": 1, "DisplayName": "33 (20) B"},
     {"zAttributesId": 2, "DisplayName": "33 (19)"},
     {"zAttributesId": 3, "DisplayName": "33 (7)"},
@@ -74,13 +70,11 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
 
   // STATIC LISTS
   List<Map<String, dynamic>> projectSubSchemeMHADAList = [
-    {"zAttributesId": -1, "DisplayName": "Select Project Sub Scheme"},
     {"zAttributesId": 1, "DisplayName": "33 (5)"},
   ];
 
   // STATIC LISTS
   List<Map<String, dynamic>> projectSubSchemeSRAList = [
-    {"zAttributesId": -1, "DisplayName": "Select Project Sub Scheme"},
     {"zAttributesId": 1, "DisplayName": "33 (10)"},
     {"zAttributesId": 2, "DisplayName": "33 (11)"},
   ];
@@ -93,9 +87,6 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
         Authorization.routeAuthorizationMap[AppRoutes.projectMaster]!;
     _projectMasterCubit = BlocProvider.of<ProjectMasterCubit>(context);
     _projectMasterCubit.getProjectList(context: context, pageNumber: 1);
-    projectSchemeNotifier.value = projectSchemeList.first;
-    selectedProjectSubScheme =
-        _currentSubSchemeList.isNotEmpty ? _currentSubSchemeList.first : null;
     _onScroll();
   }
 
@@ -111,13 +102,10 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
 
     _filterCTSNumberC = TextEditingController();
     _filterProjectLocationC = TextEditingController();
-    _filterProjectNameC = TextEditingController();
     _filterProjectStatusC = TextEditingController();
     _filterVillageC = TextEditingController();
     _filterArchitectNameC = TextEditingController();
     _filterRERANumberC = TextEditingController();
-    _filterProjectSchemeC = TextEditingController();
-    _filterProjectSubSchemeC = TextEditingController();
   }
 
   // <---- PAGINATION ---->
@@ -143,7 +131,6 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
 
   String getDisplayOrEmpty(Map<String, dynamic>? item) {
     if (item == null) return "";
-    if (item["zAttributesId"] == -1) return "";
     return item["DisplayName"] ?? "";
   }
 
@@ -155,13 +142,10 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
 
     _filterCTSNumberC.text = state.filterCTSNumber;
     _filterProjectLocationC.text = state.filterProjectLocation;
-    final String initialProjectName = _filterProjectNameC.text;
     final String initialProjectLocation = _filterProjectLocationC.text;
     final String initialCTSNumber = _filterCTSNumberC.text;
-    final String initialProjectScheme =
-        projectSchemeNotifier.value?['DisplayText'] ?? "";
-    final String initialProjectSubScheme =
-        selectedProjectSubScheme?['DisplayText'] ?? "";
+    final String? initialProjectScheme = state.filterProjectScheme;
+    final String? initialProjectSubScheme = state.filterProjectSubScheme;
     final String initialArchitectName = _filterArchitectNameC.text;
     final String initialRERANumber = _filterRERANumberC.text;
     final String initialProjectStatus = _filterProjectStatusC.text;
@@ -174,11 +158,12 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
-            (_filterProjectNameC.text.trim() != initialProjectName) ||
             (_filterProjectLocationC.text.trim() != initialProjectLocation) ||
             (_filterCTSNumberC.text.trim() != initialCTSNumber) ||
-            (_filterProjectSchemeC.text.trim() != initialProjectScheme) ||
-            (_filterProjectSubSchemeC.text.trim() != initialProjectSubScheme) ||
+            (getDisplayOrEmpty(selectedProjectSchemeNotifier.value) !=
+                initialProjectScheme) ||
+            (getDisplayOrEmpty(selectedProjectSubSchemeNotifier.value) !=
+                initialProjectSubScheme) ||
             (_filterArchitectNameC.text.trim() != initialArchitectName) ||
             (_filterRERANumberC.text.trim() != initialRERANumber) ||
             (_filterProjectStatusC.text.trim() != initialProjectStatus) ||
@@ -197,12 +182,6 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 verticalSpacing(height: 5),
-                CustomTextField(
-                  title: "Project Name",
-                  hint: "Enter Project Name",
-                  textController: _filterProjectNameC,
-                  onChangeFunction: (_) => updateApplyState(innerState),
-                ),
                 CustomTextField(
                   title: "Project Location",
                   hint: "Enter Project Location",
@@ -235,39 +214,46 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 ValueListenableBuilder<Map<String, dynamic>?>(
-                  valueListenable: projectSchemeNotifier,
+                  valueListenable: selectedProjectSchemeNotifier,
                   builder: (context, selectedProjectScheme, _) {
                     return CustomDropDownWidget(
                       title: 'Project Scheme',
+                      hintText: 'Select Project Scheme',
                       initialValue: selectedProjectScheme,
                       dataList: projectSchemeList,
                       onSelected: (value) {
-                        projectSchemeNotifier.value = value;
-
-                        if (projectSchemeNotifier.value?['zAttributesId'] !=
-                            -1) {
-                          selectedProjectSubScheme =
-                              _currentSubSchemeList.isNotEmpty
-                                  ? _currentSubSchemeList.first
-                                  : null;
-                        } else {
-                          selectedProjectSubScheme = null;
-                        }
+                        selectedProjectSchemeNotifier.value = value;
+                        updateApplyState(innerState);
+                      },
+                      onValueClear: () {
+                        selectedProjectSchemeNotifier.value = null;
+                        selectedProjectSubSchemeNotifier.value = null;
+                        updateApplyState(innerState);
                       },
                     );
                   },
                 ),
                 ValueListenableBuilder<Map<String, dynamic>?>(
-                  valueListenable: projectSchemeNotifier,
+                  valueListenable: selectedProjectSchemeNotifier,
                   builder: (context, selectedProjectScheme, _) {
-                    return CustomDropDownWidget(
-                      title: 'Project Sub Scheme',
-                      hintText: "Select Project Sub Scheme",
-                      initialValue: selectedProjectSubScheme,
-                      dataList: _currentSubSchemeList,
-                      isDisabled: selectedProjectScheme?["zAttributesId"] == -1,
-                      onSelected: (value) {
-                        selectedProjectSubScheme = value;
+                    return ValueListenableBuilder(
+                      valueListenable: selectedProjectSubSchemeNotifier,
+                      builder: (context, value, child) {
+                        return CustomDropDownWidget(
+                          title: 'Project Sub Scheme',
+                          hintText: "Select Project Sub Scheme",
+                          initialValue: value,
+                          dataList: _currentSubSchemeList,
+                          isDisabled: selectedProjectScheme == null,
+                          onSelected: (value) {
+                            selectedProjectSubSchemeNotifier.value = value;
+                            updateApplyState(innerState);
+                          },
+                          onValueClear: () {
+                            selectedProjectSubSchemeNotifier.value = null;
+                            updateApplyState(innerState);
+                          },
+                        );
                       },
                     );
                   },
@@ -281,12 +267,11 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
         _filterCTSNumberC.clear();
         _filterProjectLocationC.clear();
         _filterArchitectNameC.clear();
-        _filterProjectNameC.clear();
         _filterProjectStatusC.clear();
         _filterRERANumberC.clear();
         _filterVillageC.clear();
-        projectSchemeNotifier.value = projectSchemeList.first;
-        selectedProjectSubScheme = null;
+        selectedProjectSchemeNotifier.value = null;
+        selectedProjectSubSchemeNotifier.value = null;
         _projectMasterCubit.sortProject(context: context, isClear: true);
       },
       onApply: () {
@@ -295,11 +280,11 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
           context: context,
           ctsNumber: _filterCTSNumberC.text.trim(),
           projectLocation: _filterProjectLocationC.text.trim(),
-          projectName: _filterProjectNameC.text.trim(),
           projectStatus: _filterProjectStatusC.text.trim(),
-          projectScheme: getDisplayOrEmpty(projectSchemeNotifier.value),
-          projectSubScheme: getDisplayOrEmpty(selectedProjectSubScheme),
-          
+          projectScheme: getDisplayOrEmpty(selectedProjectSchemeNotifier.value),
+          projectSubScheme: getDisplayOrEmpty(
+            selectedProjectSubSchemeNotifier.value,
+          ),
         );
       },
       isApplyEnabled: applyEnabled.value,
@@ -314,8 +299,8 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
   }
 
   List<Map<String, dynamic>> get _currentSubSchemeList {
-    if (projectSchemeNotifier.value == null) return projectSubSchemeBMCList;
-    final id = projectSchemeNotifier.value!["zAttributesId"] as int?;
+    if (selectedProjectSchemeNotifier.value == null) return [{}];
+    final id = selectedProjectSchemeNotifier.value!["zAttributesId"] as int?;
     if (id == null || id == -1) return projectSubSchemeBMCList;
     switch (id) {
       case 1:

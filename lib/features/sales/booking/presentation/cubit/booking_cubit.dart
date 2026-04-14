@@ -94,6 +94,7 @@ class BookingCubit extends Cubit<BookingState> {
       if (state.filterFlat.isNotEmpty) "Flat": state.filterFlat,
       if (state.filterFloor.isNotEmpty) "Floor": state.filterFloor,
       if (state.filterSource.isNotEmpty) "Source": state.filterSource,
+      if (state.filterSubSource.isNotEmpty) "SubSource": state.filterSubSource,
       if (state.filterAgreementValue != 0)
         "AgreementValue": state.filterAgreementValue,
       if (state.filterBookingType.isNotEmpty)
