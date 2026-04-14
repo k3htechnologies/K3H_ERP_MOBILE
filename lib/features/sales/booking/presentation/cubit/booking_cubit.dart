@@ -867,6 +867,7 @@ class BookingCubit extends Cubit<BookingState> {
     }
 
     List<Map<String, dynamic>> fileList = [];
+
     for (
       int applicantIndex = 0;
       applicantIndex < addUpdateBookingApplicant.length;
