@@ -11,6 +11,8 @@ import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/data/model/sales.dashboard.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/cubit/sales_dashboard_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
@@ -65,7 +67,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
     _user = UserModel.fromJson(userJson);
   }
 
-  Table3? getCurrentUserDataClosing(List<Table3> list) {
+  Table2? getCurrentUserDataClosing(List<Table2> list) {
     final empId = _user?.employeeId;
 
     if (empId == null) return null;
@@ -75,7 +77,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
         : null;
   }
 
-  Table2? getCurrentUserDataSourcing(List<Table2> list) {
+  Table3? getCurrentUserDataSourcing(List<Table3> list) {
     final empId = _user?.employeeId;
 
     if (empId == null) return null;
@@ -708,14 +710,14 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
           return Center(child: loader());
         }
         final closingData =
-        (state.salesDashboardList.isNotEmpty)
-            ? state.salesDashboardList.first.table3
-            : <Table3>[];
+            (state.salesDashboardList.isNotEmpty)
+                ? state.salesDashboardList.first.table2
+                : <Table2>[];
 
         final sourcingData =
-        (state.salesDashboardList.isNotEmpty)
-            ? state.salesDashboardList.first.table2
-            : <Table2>[];
+            (state.salesDashboardList.isNotEmpty)
+                ? state.salesDashboardList.first.table3
+                : <Table3>[];
         return Container(
           padding: const EdgeInsets.only(
             left: 16.0,
@@ -728,9 +730,36 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Performance Report",
-                style: AppTextStyle.ts14M(color: AppColor.grey),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Performance Report",
+                    style: AppTextStyle.ts14M(color: AppColor.grey),
+                  ),
+                  Visibility(
+                    visible:
+                        ((state.currentTabIndex == 0 &&
+                                state
+                                    .salesDashboardList
+                                    .first
+                                    .table2
+                                    .isNotEmpty) ||
+                            (state.currentTabIndex == 1 &&
+                                state
+                                    .salesDashboardList
+                                    .first
+                                    .table3
+                                    .isNotEmpty)),
+                    child: CustomButton(
+                      text: "View All",
+                      titleTextStyle: AppTextStyle.ts12M(color: AppColor.white),
+                      onPressed: () {
+                        goRouter.pushNamed(AppRoutes.salesPerformanceReport);
+                      },
+                    ),
+                  ),
+                ],
               ),
               verticalSpacing(),
               ChipStyleTabBar(
@@ -747,7 +776,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                     return _buildSourcingExpansionList(sourcingData);
                   }
                 },
-              )
+              ),
             ],
           ),
         );
@@ -755,36 +784,62 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
     );
   }
 
-  Widget _buildClosingExpansionList(List<Table3> list) {
-    final data = getCurrentUserDataClosing(list);
+  Widget _buildSourcingExpansionList(List<Table3> list) {
+    final data = getCurrentUserDataSourcing(list);
 
     if (_user == null) {
       return Center(child: loader());
     }
 
     if (data == null) {
-      return Center(child: noDataWidget(message: "No Performance Report Data Found",iconSize: 180));
+      return Center(
+        child: noDataWidget(
+          message: "No Performance Report Data Found",
+          iconSize: 180,
+        ),
+      );
     }
 
     final walkinsExpanded = ValueNotifier(false);
     final bookingsExpanded = ValueNotifier(false);
     final meetingExpanded = ValueNotifier(false);
-    final obmExpanded = ValueNotifier(false);
     final cpsExpanded = ValueNotifier(false);
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _buildDescriptionRow(),
+        verticalSpacing(height: 10),
         _buildExpandableCard(
           title: "Walkins",
-          subTitle: "${(data.performanceWalkinsByCP+data.performanceFreshVisits+data.performanceRevisits)}",
+          subTitle:
+              "${(data.performanceWalkinsByCP + data.performanceFreshVisits + data.performanceRevisits)}",
           notifier: walkinsExpanded,
           children: [
-            _buildRow("Walkins By CP", data.walkinsByCP,
-                data.actualWalkinsByCP, data.performanceWalkinsByCP),
-            _buildRow("Fresh Visits", data.freshVisits,
-                data.actualFreshVisits, data.performanceFreshVisits),
-            _buildRow("Revisits", data.revisits,
-                data.actualRevisits, data.performanceRevisits),
+            _buildTitleRow(),
+            Divider(color: AppColor.grey50),
+
+            _buildRow(
+              "Walkins By CP",
+              data.walkinsByCP,
+              data.actualWalkinsByCP,
+              data.performanceWalkinsByCP,
+            ),
+            Divider(color: AppColor.grey50),
+            _buildRow(
+              "Fresh Visits",
+              data.freshVisits,
+              data.actualFreshVisits,
+              data.performanceFreshVisits,
+            ),
+            Divider(color: AppColor.grey50),
+
+            _buildRow(
+              "Revisits",
+              data.revisits,
+              data.actualRevisits,
+              data.performanceRevisits,
+            ),
           ],
         ),
 
@@ -793,8 +848,15 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
           subTitle: "${(data.performanceBookings)}",
           notifier: bookingsExpanded,
           children: [
-            _buildRow("Bookings", data.bookings,
-                data.actualBookings, data.performanceBookings),
+            _buildTitleRow(),
+            Divider(color: AppColor.grey50),
+
+            _buildRow(
+              "Bookings",
+              data.bookings,
+              data.actualBookings,
+              data.performanceBookings,
+            ),
           ],
         ),
 
@@ -803,90 +865,170 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
           subTitle: "${(data.performanceTotalMeetings)}",
           notifier: meetingExpanded,
           children: [
-            _buildRow("Total Meetings", data.totalMeetings,
-                data.actualTotalMeetings, data.performanceTotalMeetings),
-          ],
-        ),
+            _buildTitleRow(),
+            Divider(color: AppColor.grey50),
 
-        _buildExpandableCard(
-          title: "OBM & IBM",
-          subTitle: "${(data.performanceTotalOBM+data.performanceTotalIBM)}",
-          notifier: obmExpanded,
-          children: [
-            _buildRow("Total OBM", data.totalOBM,
-                data.actualTotalOBM, data.performanceTotalOBM),
-
-            _buildRow("OBM Fresh Visits", data.totalOBMFreshVisits,
-                data.actualTotalOBMFreshVisits, data.performanceTotalOBMFreshVisits),
-
-            _buildRow("OBM", data.totalOBMRevisits,
-                data.actualTotalOBMRevisits, data.performanceTotalOBMRevisits),
-
-            _buildRow("IBM", data.totalIBM,
-                data.actualTotalIBM, data.performanceTotalIBM),
+            _buildRow(
+              "Total Meetings",
+              data.totalMeetings,
+              data.actualTotalMeetings,
+              data.performanceTotalMeetings,
+            ),
+            Divider(color: AppColor.grey50),
+            _buildRow(
+              "Total OBM",
+              data.totalOBM,
+              data.actualTotalOBM,
+              data.performanceTotalOBM,
+            ),
+            Divider(color: AppColor.grey50),
+            _buildRow(
+              "OBM Fresh Visits",
+              data.totalOBMFreshVisits,
+              data.actualTotalOBMFreshVisits,
+              data.performanceTotalOBMFreshVisits,
+            ),
+            Divider(color: AppColor.grey50),
+            _buildRow(
+              "OBM Revisits",
+              data.totalOBMRevisits,
+              data.actualTotalOBMRevisits,
+              data.performanceTotalOBMRevisits,
+            ),
+            Divider(color: AppColor.grey50),
+            _buildRow(
+              "Total IBM",
+              data.totalIBM,
+              data.actualTotalIBM,
+              data.performanceTotalIBM,
+            ),
           ],
         ),
 
         _buildExpandableCard(
           title: "CPs",
-          subTitle: "${(data.performanceUniqueCPs+data.performanceActiveCP+data.performanceNewCP)}",
+          subTitle:
+              "${(data.performanceUniqueCPs + data.performanceActiveCP + data.performanceNewCP)}",
           notifier: cpsExpanded,
           children: [
-            _buildRow("Unique CPs", data.uniqueCPs,
-                data.actualUniqueCPs, data.performanceUniqueCPs),
+            _buildTitleRow(),
+            Divider(color: AppColor.grey50),
+            _buildRow(
+              "Unique CPs",
+              data.uniqueCPs,
+              data.actualUniqueCPs,
+              data.performanceUniqueCPs,
+            ),
+            Divider(color: AppColor.grey50),
 
-            _buildRow("Active CP", data.activeCP,
-                data.actualActiveCP, data.performanceActiveCP),
+            _buildRow(
+              "Active CP",
+              data.activeCP,
+              data.actualActiveCP,
+              data.performanceActiveCP,
+            ),
+            Divider(color: AppColor.grey50),
 
-            _buildRow("New CP", data.newCP,
-                data.actualNewCP, data.performanceNewCP),
+            _buildRow(
+              "New CP",
+              data.newCP,
+              data.actualNewCP,
+              data.performanceNewCP,
+            ),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildSourcingExpansionList(List<Table2> list) {
-    final data = getCurrentUserDataSourcing(list);
+  Widget _buildClosingExpansionList(List<Table2> list) {
+    final data = getCurrentUserDataClosing(list);
 
     if (_user == null) {
       return Center(child: loader());
     }
 
     if (data == null) {
-      return Center(child: noDataWidget(message: "No Performance Report Data Found",iconSize: 180));
+      return Center(
+        child: noDataWidget(
+          message: "No Performance Report Data Found",
+          iconSize: 180,
+        ),
+      );
     }
 
     final walkinsExpanded = ValueNotifier(false);
     final bookingsExpanded = ValueNotifier(false);
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _buildDescriptionRow(),
+        verticalSpacing(height: 10),
         _buildExpandableCard(
           title: "Walkins",
-          subTitle: "${(data.performanceWalkinsByCp+data.performanceFreshVisits+data.performanceRevisits+data.performanceWalkinsDirect)}",
+          subTitle:
+              "${(data.performanceWalkinsByCp + data.performanceFreshVisits + data.performanceRevisits + data.performanceWalkinsDirect)}",
           notifier: walkinsExpanded,
           children: [
-            _buildRow("Walkins By CP", data.walkinsByCp,
-                data.actualWalkinsByCp, data.performanceWalkinsByCp),
-            _buildRow("Walkins Direct", data.walkinsDirect,
-                data.actualWalkinsDirect, data.performanceWalkinsDirect),
-            _buildRow("Fresh Visits", data.freshVisits,
-                data.actualFreshVisits, data.performanceFreshVisits),
-            _buildRow("Revisits", data.revisits,
-                data.actualRevisits, data.performanceRevisits),
+            _buildTitleRow(),
+            Divider(color: AppColor.grey50),
+
+            _buildRow(
+              "Walkins By CP",
+              data.walkinsByCp,
+              data.actualWalkinsByCp,
+              data.performanceWalkinsByCp,
+            ),
+            Divider(color: AppColor.grey50),
+            _buildRow(
+              "Walkins Direct",
+              data.walkinsDirect,
+              data.actualWalkinsDirect,
+              data.performanceWalkinsDirect,
+            ),
+            Divider(color: AppColor.grey50),
+
+            _buildRow(
+              "Fresh Visits",
+              data.freshVisits,
+              data.actualFreshVisits,
+              data.performanceFreshVisits,
+            ),
+            Divider(color: AppColor.grey50),
+
+            _buildRow(
+              "Revisits",
+              data.revisits,
+              data.actualRevisits,
+              data.performanceRevisits,
+            ),
           ],
         ),
 
         _buildExpandableCard(
           title: "Bookings",
-          subTitle: "${(data.performanceBookingByCp+data.performanceBookingDirect)}",
+          subTitle:
+              "${(data.performanceBookingByCp + data.performanceBookingDirect)}",
           notifier: bookingsExpanded,
           children: [
-            _buildRow("Booking By CP", data.bookingByCp,
-                data.actualBookingByCp, data.performanceWalkinsByCp),
-            _buildRow("Booking Direct", data.bookingDirect,
-                data.actualBookingDirect, data.performanceBookingDirect),
+            _buildTitleRow(),
+            Divider(color: AppColor.grey50),
+
+            _buildRow(
+              "Booking By CP",
+              data.bookingByCp,
+              data.actualBookingByCp,
+              data.performanceWalkinsByCp,
+            ),
+            Divider(color: AppColor.grey50),
+
+            _buildRow(
+              "Booking Direct",
+              data.bookingDirect,
+              data.actualBookingDirect,
+              data.performanceBookingDirect,
+            ),
           ],
         ),
       ],
@@ -926,7 +1068,10 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(title, style: AppTextStyle.ts14M()),
-                        Text("Performance: $subTitle %", style: AppTextStyle.ts12M(color: AppColor.grey)),
+                        Text(
+                          "Performance: $subTitle %",
+                          style: AppTextStyle.ts12M(color: AppColor.grey),
+                        ),
                       ],
                     ),
                     Icon(
@@ -939,15 +1084,13 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
 
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 250),
-                  child: isExpanded
-                      ? Column(
-                    key: ValueKey(true),
-                    children: [
-                      verticalSpacing(),
-                      ...children,
-                    ],
-                  )
-                      : const SizedBox.shrink(),
+                  child:
+                      isExpanded
+                          ? Column(
+                            key: ValueKey(true),
+                            children: [verticalSpacing(), ...children],
+                          )
+                          : const SizedBox.shrink(),
                 ),
               ],
             ),
@@ -957,26 +1100,14 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
     );
   }
 
-  Widget _buildRow(
-      String title,
-      int target,
-      int actual,
-      double performance,
-      ) {
+  Widget _buildRow(String title, int target, int actual, double performance) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Expanded(
-            flex: 3,
-            child: Text(title, style: AppTextStyle.ts12R()),
-          ),
-          Expanded(
-            child: Text("$target", textAlign: TextAlign.center),
-          ),
-          Expanded(
-            child: Text("$actual", textAlign: TextAlign.center),
-          ),
+          Expanded(flex: 3, child: Text(title, style: AppTextStyle.ts12R())),
+          Expanded(child: Text("$target", textAlign: TextAlign.center)),
+          Expanded(child: Text("$actual", textAlign: TextAlign.center)),
           Expanded(
             child: Text(
               "${performance.toStringAsFixed(1)}%",
@@ -990,8 +1121,88 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
       ),
     );
   }
+}
 
+Widget _buildTitleRow() {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 6),
+    child: Row(
+      children: [
+        Expanded(flex: 3, child: Text("Metrics", style: AppTextStyle.ts12SB())),
+        Expanded(
+          child: Text(
+            "T",
+            textAlign: TextAlign.center,
+            style: AppTextStyle.ts12SB(),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            "A",
+            textAlign: TextAlign.center,
+            style: AppTextStyle.ts12SB(),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            "P",
+            textAlign: TextAlign.center,
+            style: AppTextStyle.ts12SB(),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
+Widget _buildDescriptionRow() {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 6),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        RichText(
+          text: TextSpan(
+            style: AppTextStyle.ts12M(color: AppColor.black),
+            text: "T : ",
+            children: [
+              TextSpan(
+                style: AppTextStyle.ts12M(color: AppColor.grey),
+                text: "Target",
+              ),
+            ],
+          ),
+        ),
+        horizontalSpacing(),
+        RichText(
+          text: TextSpan(
+            style: AppTextStyle.ts12M(color: AppColor.black),
+            text: "A : ",
+            children: [
+              TextSpan(
+                style: AppTextStyle.ts12M(color: AppColor.grey),
+                text: "Actual",
+              ),
+            ],
+          ),
+        ),
+        horizontalSpacing(),
+
+        RichText(
+          text: TextSpan(
+            style: AppTextStyle.ts12M(color: AppColor.black),
+            text: "P : ",
+            children: [
+              TextSpan(
+                style: AppTextStyle.ts12M(color: AppColor.grey),
+                text: "Performance",
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class DashboardStatCard extends StatelessWidget {

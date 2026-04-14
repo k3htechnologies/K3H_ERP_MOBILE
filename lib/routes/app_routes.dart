@@ -143,6 +143,7 @@ class AppRoutes {
 
   // SALES REPORT (PERFORMANCE)
   static String performanceReport = "/performance";
+  static String salesPerformanceReport = "/salesPerformance";
   static String viewPerformanceReport = "/viewPerformance";
 
   // SALES CLASSIFICATION PARAMETERS

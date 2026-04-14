@@ -311,6 +311,7 @@ import 'package:k3h_erp_app/features/sales/performance/data/model/performance_re
 import 'package:k3h_erp_app/features/sales/performance/presentation/cubit/performance_cubit.dart';
 import 'package:k3h_erp_app/features/sales/performance/presentation/pages/performance.screen.dart';
 import 'package:k3h_erp_app/features/sales/performance/presentation/pages/view_performance.screen.dart';
+import 'package:k3h_erp_app/features/sales/performance/presentation_without_access/pages/performance.screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/cubit/sales_dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/sales_dashboard_screen.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
@@ -3914,6 +3915,13 @@ final GoRouter goRouter = GoRouter(
                   },
                 ),
                 GoRoute(
+                  name: AppRoutes.salesPerformanceReport,
+                  path: AppRoutes.salesPerformanceReport,
+                  builder: (context, state) {
+                    return const SalesPerformanceWithoutAccessScreen();
+                  },
+                ),
+                GoRoute(
                   name: AppRoutes.viewPerformanceReport,
                   path: AppRoutes.viewPerformanceReport,
                   builder: (context, state) {
@@ -3969,31 +3977,31 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.viewTarget,
                   builder: (context, state) {
                     final queryParameterSourcing =
-                    state.uri.queryParameters['sourcing'];
+                        state.uri.queryParameters['sourcing'];
                     final queryParameterClosing =
-                    state.uri.queryParameters['closing'];
+                        state.uri.queryParameters['closing'];
                     final sourcingTarget =
-                    queryParameterSourcing != null &&
-                        queryParameterSourcing.isNotEmpty
-                        ? SalesTargetSourcingModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(queryParameterSourcing),
-                        ),
-                      ),
-                    )
-                        : null;
+                        queryParameterSourcing != null &&
+                                queryParameterSourcing.isNotEmpty
+                            ? SalesTargetSourcingModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterSourcing),
+                                ),
+                              ),
+                            )
+                            : null;
                     final closingTarget =
-                    queryParameterClosing != null &&
-                        queryParameterClosing.isNotEmpty
-                        ? SaleTargetClosingModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(queryParameterClosing),
-                        ),
-                      ),
-                    )
-                        : null;
+                        queryParameterClosing != null &&
+                                queryParameterClosing.isNotEmpty
+                            ? SaleTargetClosingModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterClosing),
+                                ),
+                              ),
+                            )
+                            : null;
 
                     return TargetViewScreen(
                       sourcing: sourcingTarget,

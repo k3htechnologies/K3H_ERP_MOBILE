@@ -321,7 +321,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     } else {
       _timeInC = DateTime.now().toIso8601String().split("T")[1].split(".")[0];
       _enquiryDate = DateTime.now();
-      _budgetC.text = ">1";
+      _budgetC.text = "<1";
     }
   }
 
@@ -524,11 +524,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     // PREFILL FLAT
     if (model.loyaltyInventoryFlatId != 0 &&
         model.loyaltyExistingUnitNumber.isNotEmpty) {
-      _fetchFlatsByProjectId(
-        1,
-        projectId: _project.projectId,
-        inventoryFlatId: model.loyaltyInventoryFlatId,
-      );
       _selectedFlatNotifier.value = [
         {
           "zAttributesId": model.loyaltyInventoryFlatId,
@@ -543,11 +538,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
     if (model.referralInventoryFlatId != 0 &&
         model.referralUnitNumber.isNotEmpty) {
-      _fetchFlatsByProjectId(
-        1,
-        projectId: _project.projectId,
-        inventoryFlatId: model.referralInventoryFlatId,
-      );
       _selectedFlatNotifier.value = [
         {
           "zAttributesId": model.referralInventoryFlatId,
@@ -2133,7 +2123,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                 int val = budgetOptions[index];
 
                 return val == 1
-                    ? ">1"
+                    ? "<1"
                     : val == 25
                     ? "25+"
                     : "$val";
@@ -2146,7 +2136,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                 _budgetValueNotifier.value = val;
                 _budgetC.text =
                     val == 1
-                        ? ">1"
+                        ? "<1"
                         : val == 25
                         ? "25+"
                         : val.toString();
