@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
@@ -374,9 +375,7 @@ class BookingCubit extends Cubit<BookingState> {
 
       final bytes = fileModel.fileBytesList[i];
 
-      final finalBytes = isImage(fileName)
-          ? await compress(bytes)
-          : bytes;
+      final finalBytes = isImage(fileName) ? await compress(bytes) : bytes;
 
       fileList.add({
         "key": "AddUpdateBookingApplicant[$applicantIndex].$fieldName",
@@ -387,10 +386,7 @@ class BookingCubit extends Cubit<BookingState> {
   }
 
   Future<Uint8List> compress(Uint8List bytes) async {
-    return await FlutterImageCompress.compressWithList(
-      bytes,
-      quality: 50,
-    );
+    return await FlutterImageCompress.compressWithList(bytes, quality: 50);
   }
 
   //  ADD BOOKING
@@ -420,6 +416,8 @@ class BookingCubit extends Cubit<BookingState> {
     required String handoverType,
     required DateTime registrationDate,
     required String modeOfPayment,
+    required int paymentScheduleSchemeMasterId,
+    required String paymentScheduleScheme,
 
     /// CHANGE LATER IN API
     required double referelPercentage,
@@ -500,6 +498,8 @@ class BookingCubit extends Cubit<BookingState> {
             )
             .toList(),
       ),
+      "PaymentScheduleSchemeMasterId": paymentScheduleSchemeMasterId.toString(),
+      "PaymentScheduleScheme": paymentScheduleScheme,
       "PaymentScheduleDetailJSON": jsonEncode(
         paymentScheduleDetailJSON
             .map(
@@ -529,7 +529,7 @@ class BookingCubit extends Cubit<BookingState> {
       if (tenantId != null) "TenantId": tenantId.toString(),
       "OTP": otp,
     };
-
+    log("the request body is : $requestBody ");
     for (int i = 0; i < addUpdateBookingApplicant.length; i++) {
       var e = addUpdateBookingApplicant[i];
       requestBody.addAll({
@@ -553,104 +553,104 @@ class BookingCubit extends Cubit<BookingState> {
     List<Map<String, dynamic>> fileList = [];
 
     for (
-    int applicantIndex = 0;
-    applicantIndex < addUpdateBookingApplicant.length;
-    applicantIndex++
+      int applicantIndex = 0;
+      applicantIndex < addUpdateBookingApplicant.length;
+      applicantIndex++
     ) {
       final applicant = addUpdateBookingApplicant[applicantIndex];
 
-      _addFiles(
+      await _addFiles(
         fileList: fileList,
         applicantIndex: applicantIndex,
         fieldName: "PhotoURL",
         fileModel: applicant.profilePhotoImage,
       );
 
-      _addFiles(
+      await _addFiles(
         fileList: fileList,
         applicantIndex: applicantIndex,
         fieldName: "AadharCardURL",
         fileModel: applicant.aadhaarImage,
       );
 
-      _addFiles(
+      await _addFiles(
         fileList: fileList,
         applicantIndex: applicantIndex,
         fieldName: "PanCardURL",
         fileModel: applicant.panImage,
       );
 
-      _addFiles(
+      await _addFiles(
         fileList: fileList,
         applicantIndex: applicantIndex,
         fieldName: "PassportURL",
         fileModel: applicant.passportImage,
       );
 
-      _addFiles(
+      await _addFiles(
         fileList: fileList,
         applicantIndex: applicantIndex,
         fieldName: "DrivingLicenseURL",
         fileModel: applicant.drivingLicenseImage,
       );
 
-      _addFiles(
+      await _addFiles(
         fileList: fileList,
         applicantIndex: applicantIndex,
         fieldName: "VotingIdURL",
         fileModel: applicant.votingIdImage,
       );
 
-      _addFiles(
+      await _addFiles(
         fileList: fileList,
         applicantIndex: applicantIndex,
         fieldName: "GstNumberURL",
         fileModel: applicant.gstImage,
       );
 
-      _addFiles(
+      await _addFiles(
         fileList: fileList,
         applicantIndex: applicantIndex,
         fieldName: "CancelledChequeURL",
         fileModel: applicant.cancelledChequeImage,
       );
 
-      _addFiles(
+      await _addFiles(
         fileList: fileList,
         applicantIndex: applicantIndex,
         fieldName: "POAURL",
         fileModel: applicant.poaImage,
       );
 
-      _addFiles(
+      await _addFiles(
         fileList: fileList,
         applicantIndex: applicantIndex,
         fieldName: "IncomeForm16ITRURL",
         fileModel: applicant.incomeForm16ItrImage,
       );
 
-      _addFiles(
+      await _addFiles(
         fileList: fileList,
         applicantIndex: applicantIndex,
         fieldName: "NreNroBankDetailsURL",
         fileModel: applicant.nreNroBankDetailsImage,
       );
 
-      _addFiles(
+      await _addFiles(
         fileList: fileList,
         applicantIndex: applicantIndex,
         fieldName: "NomineeFormURL",
         fileModel: applicant.nomineeFormImage,
       );
 
-      _addFiles(
+      await _addFiles(
         fileList: fileList,
         applicantIndex: applicantIndex,
         fieldName: "StatementOfSourceOfFundsURL",
         fileModel: applicant.statementOfSourceOfFundImage,
       );
 
-      _addFiles(
+      await _addFiles(
         fileList: fileList,
         applicantIndex: applicantIndex,
         fieldName: "PaymentProofURL",
@@ -726,6 +726,8 @@ class BookingCubit extends Cubit<BookingState> {
     required String flatAlterationRemark,
     required String termsAndConditionsDescription,
     String bookingType = 'FLAT',
+    required int paymentScheduleSchemeMasterId,
+    required String paymentScheduleScheme,
     required List<OtherChargeModel> otherChargesDetailJSON,
     required List<BookingPaymentScheduleData> paymentScheduleDetailJSON,
     required double bookingAmount,
@@ -789,6 +791,8 @@ class BookingCubit extends Cubit<BookingState> {
             )
             .toList(),
       ),
+      "PaymentScheduleSchemeMasterId": paymentScheduleSchemeMasterId.toString(),
+      "PaymentScheduleScheme": paymentScheduleScheme,
       "PaymentScheduleDetailJSON": jsonEncode(
         paymentScheduleDetailJSON
             .map(

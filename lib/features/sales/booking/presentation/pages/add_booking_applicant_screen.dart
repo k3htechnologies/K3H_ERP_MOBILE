@@ -62,7 +62,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
   bool get _isEditingApplicantType =>
       widget.applicant != null &&
       _isApplicantType(widget.applicant!.applicantType);
-
+  bool get isEditMode => widget.applicant != null;
   // APPLICANT TYPE OPTIONS
   List<Map<String, dynamic>> get _applicantTypeOptions => applicantTypeList;
 
@@ -888,8 +888,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
           padding: const EdgeInsets.all(16),
           color: AppColor.white,
           child: CustomButton(
-            text:
-                _isEditingApplicantType ? "Update Applicant" : "Add Applicant",
+            text: isEditMode ? "Update Applicant" : "Add Applicant",
             onPressed: _save,
           ),
         ),
