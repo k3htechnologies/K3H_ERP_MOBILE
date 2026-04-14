@@ -645,15 +645,15 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                           buildColumnTitleValue(
                             title: "Referral Project Name",
                             value:
-                                enquiry.referelProjectName.isNotEmpty
-                                    ? enquiry.referelProjectName
+                                enquiry.referralProjectName.isNotEmpty
+                                    ? enquiry.referralProjectName
                                     : "-",
                           ),
                           buildColumnTitleValue(
                             title: "Referral Unit Number",
                             value:
-                                enquiry.referelUnitNumber.isNotEmpty
-                                    ? enquiry.referelUnitNumber
+                                enquiry.referralUnitNumber.isNotEmpty
+                                    ? enquiry.referralUnitNumber
                                     : "-",
                           ),
                         ],

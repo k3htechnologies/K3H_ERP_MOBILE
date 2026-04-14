@@ -1261,19 +1261,15 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                   infoCard([
                                     {
                                       "title": "Referral Name",
-                                      "value": enquiry.referelName,
-                                    },
-                                    {
-                                      "title": "Referral Mobile",
-                                      "value": enquiry.referelMobileNumber,
+                                      "value": enquiry.referralName,
                                     },
                                     {
                                       "title": "Referral Project",
-                                      "value": enquiry.referelProjectName,
+                                      "value": enquiry.referralProjectName,
                                     },
                                     {
                                       "title": "Referral Unit No",
-                                      "value": enquiry.referelUnitNumber,
+                                      "value": enquiry.referralUnitNumber,
                                     },
                                   ]),
 
