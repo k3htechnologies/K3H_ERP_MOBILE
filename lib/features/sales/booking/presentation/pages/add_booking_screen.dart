@@ -197,7 +197,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   late ValueNotifier<Map<String, dynamic>> selectedScheme;
 
   // MANUAL PAYMENT SCHEDULE HANDLER
-  bool isAutoPaymentSchedule = false;
+  final ValueNotifier<bool> isAutoPaymentSchedule = ValueNotifier(false);
 
   @override
   void initState() {
@@ -377,6 +377,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       (item) => item["DisplayName"] == bm.paymentScheduleScheme,
       orElse: () => {},
     );
+    isAutoPaymentSchedule.value =
+        selectedScheme.value["DisplayName"] != "Other" ? true : false;
     // OTHER CHARGES
     _bookingCubit.updateOtherChargesList(bm.bookingOtherChargesData);
 
@@ -577,7 +579,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       ),
     );
 
-    isAutoPaymentSchedule = false;
+    isAutoPaymentSchedule.value = false;
   }
 
   // DELETE APPLICANT
@@ -961,6 +963,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             _termsAndConditionDescriptionC.text.trim(),
         bookingType: 'FLAT',
         otherChargesDetailJSON: _bookingCubit.state.otherChargesList,
+        paymentScheduleScheme: selectedScheme.value["DisplayName"],
+        paymentScheduleSchemeMasterId:
+            selectedScheme.value["zAttributesId"] == -1
+                ? 0
+                : selectedScheme.value["zAttributesId"],
         paymentScheduleDetailJSON:
             _bookingCubit.state.bookingPaymentScheduleList,
         bookingAmount: double.tryParse(_bookingAmountC.text) ?? 0.0,
@@ -1016,7 +1023,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             _termsAndConditionDescriptionC.text.trim(),
         bookingType: 'FLAT',
         otherChargesDetailJSON: _bookingCubit.state.otherChargesList,
-
+        paymentScheduleScheme: selectedScheme.value["DisplayName"],
+        paymentScheduleSchemeMasterId:
+            selectedScheme.value["zAttributesId"] == -1
+                ? 0
+                : selectedScheme.value["zAttributesId"],
         paymentScheduleDetailJSON:
             _bookingCubit.state.bookingPaymentScheduleList,
         bookingAmount: double.tryParse(_bookingAmountC.text) ?? 0.0,
@@ -2077,7 +2088,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
                               if (selectedScheme.value["DisplayName"] !=
                                   'Other') {
-                                isAutoPaymentSchedule = await _bookingCubit
+                                isAutoPaymentSchedule
+                                    .value = await _bookingCubit
                                     .getPaymentScheduleMasterList(
                                       context,
                                       1,
@@ -2234,7 +2246,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         return Center(
                           child: noDataWidget(
                             message: "No Payment Schedule Available",
-                            iconSize: 150,
+                            iconSize: 120,
                           ),
                         );
                       }
@@ -2288,8 +2300,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                             title: "Stage Name",
                                             value: stageName,
                                           ),
-                                          if (!isAutoPaymentSchedule)
-                                            Row(
+
+                                          Visibility(
+                                            visible:
+                                                !isAutoPaymentSchedule.value,
+                                            child: Row(
                                               spacing: 10,
                                               children: [
                                                 CustomIconButton.edit(
@@ -2309,6 +2324,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                                 ),
                                               ],
                                             ),
+                                          ),
                                         ],
                                       ),
                                       verticalSpacing(),
