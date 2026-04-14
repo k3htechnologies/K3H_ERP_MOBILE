@@ -49,12 +49,12 @@ class EnquiryModel {
     required this.systemGeneratedCode,
     required this.channelPartnerName,
     required this.villageName,
-    required this.referelName,
-    required this.referelMobileNumber,
-    required this.referelProjectId,
-    required this.referelInventoryFlatId,
-    required this.referelProjectName,
-    required this.referelUnitNumber,
+    required this.referralName,
+    required this.referralMobileNumber,
+    required this.referralProjectId,
+    required this.referralInventoryFlatId,
+    required this.referralProjectName,
+    required this.referralUnitNumber,
     required this.referralUnitOwnerName,
     required this.loyaltyProjectId,
     required this.loyaltyInventoryFlatId,
@@ -132,12 +132,12 @@ class EnquiryModel {
   String villageName;
 
   /// REFERRAL
-  String referelName;
-  String referelMobileNumber;
-  int referelProjectId;
-  int referelInventoryFlatId;
-  String referelProjectName;
-  String referelUnitNumber;
+  String referralName;
+  String referralMobileNumber;
+  int referralProjectId;
+  int referralInventoryFlatId;
+  String referralProjectName;
+  String referralUnitNumber;
   String referralUnitOwnerName;
 
   /// LOYALTY
@@ -239,12 +239,12 @@ class EnquiryModel {
       channelPartnerType: parseValue<String>(json, "ChannelPartnerType"),
       channelPartnerCompany: parseValue<String>(json, "ChannelPartnerCompany"),
       villageName: parseValue<String>(json, "VillageName"),
-      referelName: parseValue<String>(json, "ReferelName"),
-      referelMobileNumber: parseValue<String>(json, "ReferelMobileNumber"),
-      referelProjectId: parseValue<int>(json, "ReferelProjectId"),
-      referelInventoryFlatId: parseValue<int>(json, "ReferelInventoryFlatId"),
-      referelProjectName: parseValue<String>(json, "ReferelProjectName"),
-      referelUnitNumber: parseValue<String>(json, "ReferelUnitNumber"),
+      referralName: parseValue<String>(json, "ReferralName"),
+      referralMobileNumber: parseValue<String>(json, "ReferralMobileNumber"),
+      referralProjectId: parseValue<int>(json, "ReferralProjectId"),
+      referralInventoryFlatId: parseValue<int>(json, "ReferralInventoryFlatId"),
+      referralProjectName: parseValue<String>(json, "ReferralProjectName"),
+      referralUnitNumber: parseValue<String>(json, "ReferralUnitNumber"),
       referralUnitOwnerName: parseValue<String>(json, "ReferralUnitOwnerName"),
       loyaltyProjectId: parseValue<int>(json, "LoyaltyProjectId"),
       loyaltyInventoryFlatId: parseValue<int>(json, "LoyaltyInventoryFlatId"),
@@ -332,12 +332,12 @@ class EnquiryModel {
     "ChannelPartnerType": channelPartnerType,
     "ChannelPartnerCompany": channelPartnerCompany,
     "VillageName": villageName,
-    "ReferelName": referelName,
-    "ReferelMobileNumber": referelMobileNumber,
-    "ReferelProjectId": referelProjectId,
-    "ReferelInventoryFlatId": referelInventoryFlatId,
-    "ReferelProjectName": referelProjectName,
-    "ReferelUnitNumber": referelUnitNumber,
+    "ReferralName": referralName,
+    "ReferralMobileNumber": referralMobileNumber,
+    "ReferralProjectId": referralProjectId,
+    "ReferralInventoryFlatId": referralInventoryFlatId,
+    "ReferralProjectName": referralProjectName,
+    "ReferralUnitNumber": referralUnitNumber,
     "ReferralUnitOwnerName": referralUnitOwnerName,
     "LoyaltyProjectId": loyaltyProjectId,
     "LoyaltyInventoryFlatId": loyaltyInventoryFlatId,

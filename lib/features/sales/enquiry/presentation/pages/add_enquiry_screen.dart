@@ -490,10 +490,13 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _updateAge();
 
     // HELPER: Find item in list by DisplayName
-    Map<String, dynamic> findItem(
+    Map<String, dynamic>? findItem(
       List<Map<String, dynamic>> list,
       String value,
     ) {
+      if (value.isEmpty) {
+        return null;
+      }
       return list.firstWhere(
         (e) =>
             e["DisplayName"].toString().toLowerCase().trim() ==
@@ -507,10 +510,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       currentAccommodation,
       model.accommodation,
     );
-    _selectedRequirementNotifier.value = findItem(
-      requirementType,
-      model.requirement,
-    );
 
     // PREFILL PROJECT
     if (model.loyaltyProjectId != 0 &&
@@ -523,11 +522,11 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       ];
     }
 
-    if (model.referelProjectId != 0 && model.referelProjectName.isNotEmpty) {
+    if (model.referralProjectId != 0 && model.referralProjectName.isNotEmpty) {
       _selectedProjectNotifier.value = [
         {
-          "zAttributesId": model.referelProjectId,
-          "DisplayName": model.referelProjectName,
+          "zAttributesId": model.referralProjectId,
+          "DisplayName": model.referralProjectName,
         },
       ];
     }
@@ -535,6 +534,11 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     // PREFILL FLAT
     if (model.loyaltyInventoryFlatId != 0 &&
         model.loyaltyExistingUnitNumber.isNotEmpty) {
+      _fetchFlatsByProjectId(
+        1,
+        projectId: _project.projectId,
+        inventoryFlatId: model.loyaltyInventoryFlatId,
+      );
       _selectedFlatNotifier.value = [
         {
           "zAttributesId": model.loyaltyInventoryFlatId,
@@ -547,12 +551,17 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       );
     }
 
-    if (model.referelInventoryFlatId != 0 &&
-        model.referelUnitNumber.isNotEmpty) {
+    if (model.referralInventoryFlatId != 0 &&
+        model.referralUnitNumber.isNotEmpty) {
+      _fetchFlatsByProjectId(
+        1,
+        projectId: _project.projectId,
+        inventoryFlatId: model.referralInventoryFlatId,
+      );
       _selectedFlatNotifier.value = [
         {
-          "zAttributesId": model.referelInventoryFlatId,
-          "DisplayName": model.referelUnitNumber,
+          "zAttributesId": model.referralInventoryFlatId,
+          "DisplayName": model.referralUnitNumber,
         },
       ];
        _fetchFlatDetailsById(
@@ -598,23 +607,28 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
     // DEPENDENT REQUIREMENT TYPE DROPDOWNS
     final reqDisplay = model.requirement;
-    if (reqDisplay == "Residential") {
-      _selectedResidentialTypeNotifier.value = findItem(
-        residentialType,
-        model.requirementType,
+    if (reqDisplay.isNotEmpty) {
+      _selectedRequirementNotifier.value = findItem(
+        requirementType,
+        model.requirement,
       );
-    } else if (reqDisplay == "Commercial") {
-      _selectedCommercialTypeNotifier.value = findItem(
-        commercialUnitTypeList,
-        model.requirementType,
-      );
-    } else if (reqDisplay == "Commercial Leasing") {
-      _selectedCommercialLeasingNotifier.value = findItem(
-        commercialLeasingTypeList,
-        model.requirementType,
-      );
+      if (reqDisplay == "Residential") {
+        _selectedResidentialTypeNotifier.value = findItem(
+          residentialType,
+          model.requirementType,
+        );
+      } else if (reqDisplay == "Commercial") {
+        _selectedCommercialTypeNotifier.value = findItem(
+          commercialUnitTypeList,
+          model.requirementType,
+        );
+      } else if (reqDisplay == "Commercial Leasing") {
+        _selectedCommercialLeasingNotifier.value = findItem(
+          commercialLeasingTypeList,
+          model.requirementType,
+        );
+      }
     }
-
     _selectedSourceNotifier.value = findItem(sourceTypeList, model.source);
 
     // SUB SOURCE
@@ -797,6 +811,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   void _submitEnquiryData() async {
     // SOURCE & SUB SUB SOURCE
     final source = _selectedSourceNotifier.value?["DisplayName"] ?? "";
+    final subSource = _selectedSubSourceNotifier.value?["DisplayName"] ?? "";
     final subSubSource =
         source.trim().toLowerCase() == "channel partner"
             ? (_selectedSubSubSourceNotifier.value?["zAttributesId"]).toString()
@@ -841,6 +856,13 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     } else {
       requirementTypeValue = "";
     }
+    print(
+      "_selectedProjectNotifier.value.isNotEmpty: ${_selectedProjectNotifier.value.isNotEmpty}",
+    );
+    print("source : $subSource");
+    print(
+      "source :${(subSource.toLowerCase().contains('Loyalty'.toLowerCase()))}",
+    );
 
     final payload = {
       "EnquiryId": _isEditMode ? widget.enquiryModel!.enquiryId : 0,
@@ -857,19 +879,24 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       "Source": source,
       "SubSource": getDisplayOrEmpty(_selectedSubSourceNotifier.value),
       "SubSubSource": subSubSource,
-      if (_selectedProjectNotifier.value.isNotEmpty)
+      if (_selectedProjectNotifier.value.isNotEmpty &&
+          subSource.toLowerCase().contains('Reference'.toLowerCase()))
         "ReferralProjectId":
             _selectedProjectNotifier.value.first["zAttributesId"],
-      if (_selectedFlatNotifier.value.isNotEmpty)
+      if (_selectedProjectNotifier.value.isNotEmpty &&
+          subSource.toLowerCase().contains('Reference'.toLowerCase()))
         "ReferralInventoryFlatId":
             _selectedFlatNotifier.value.first["zAttributesId"],
-      if (_selectedProjectNotifier.value.isNotEmpty)
+      if (_selectedProjectNotifier.value.isNotEmpty &&
+          subSource.toLowerCase().contains('Loyalty'.toLowerCase()))
         "LoyaltyProjectId":
             _selectedProjectNotifier.value.first["zAttributesId"],
-      if (_selectedFlatNotifier.value.isNotEmpty)
+      if (_selectedFlatNotifier.value.isNotEmpty &&
+          subSource.toLowerCase().contains('Loyalty'.toLowerCase()))
         "LoyaltyInventoryFlatId":
             _selectedFlatNotifier.value.first["zAttributesId"],
-      if (_selectedEmployeeNotifier.value.isNotEmpty)
+      if (_selectedEmployeeNotifier.value.isNotEmpty &&
+          subSource.toLowerCase().contains('Employee Reference'.toLowerCase()))
         "EmployeeReferenceEmployeeId":
             _selectedEmployeeNotifier.value.first["zAttributesId"],
       if (_selectedTeamMemberNotifier.value.isNotEmpty)
@@ -1075,6 +1102,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   Future<Map<String, dynamic>> _fetchFlatsByProjectId(
     int pageNumber, {
     required int projectId,
+    required int? inventoryFlatId,
   }) async {
     final result = await _inventoryRepository.getPaginatedFlats(
       pageNumber: pageNumber,
@@ -1082,7 +1110,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       projectId: projectId,
       queryParams: {"FlatStatus": "Booked,Alloted"},
     );
-
     return result.fold(
       (failure) => {
         "itemList": <Map<String, dynamic>>[],
@@ -1091,6 +1118,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       (response) {
         final flats = response['data'] as List<FlatModel>;
 
+        if (inventoryFlatId != null && flats.isNotEmpty) {
+          _flatDetailsNotifier.value = flats.first;
+        }
         return {
           "itemList":
               flats.map((flat) {
@@ -1402,17 +1432,14 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                 return _card("Source", [
                   CustomDropDownWidget(
                     title: "Source",
+                    hintText: "Select Source",
                     isRequired: true,
                     initialValue: selectedSource,
                     dataList: sourceTypeList,
                     onSelected: (v) {
                       _selectedSourceNotifier.value = v;
-                      _selectedSubSourceNotifier.value =
-                          v['zAttributesId'] == 1
-                              ? channelPartnerActivityList.first
-                              : directWalkingSubSourceList.first;
-                      _selectedSubSubSourceNotifier.value =
-                          subSubSourceList.first;
+                      _selectedSubSourceNotifier.value = null;
+                      _selectedSubSubSourceNotifier.value = null;
                       _channelPartnerMobileC.clear();
                       _channelPartnerMobileNotifier.value = '';
                       _selectedTeamMemberNotifier.value = [];
@@ -1434,23 +1461,18 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                     },
                   ),
 
-                  if ((selectedSource?['zAttributesId'] ?? -1) != -1)
+                  if (selectedSource != null)
                     CustomDropDownWidget(
                       title: "Sub Source",
+                      hintText: "Select Sub Source",
                       isRequired: true,
-                      initialValue:
-                          selectedSubSource ??
-                          (isChannelPartner
-                              ? channelPartnerActivityList.first
-                              : directWalkingSubSourceList.first),
+                      initialValue: selectedSubSource,
                       dataList:
                           isChannelPartner
                               ? channelPartnerActivityList
                               : directWalkingSubSourceList,
                       onSelected: (v) {
                         _selectedSubSourceNotifier.value = v;
-                        _selectedSubSubSourceNotifier.value =
-                            subSubSourceList.first;
                         _selectedProjectNotifier.value = [];
                         _selectedFlatNotifier.value = [];
                         _selectedEmployeeNotifier.value = [];
@@ -1664,7 +1686,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                       title: "Team Member Name",
                                       hint: "Enter Team Member Name",
                                       textController: _teamMemberNameC,
-                                      isRequired: true,
                                       onChangeFunction: (_) {
                                         _selectedTeamMemberNotifier.value = [];
                                         _hasManualEntryNotifier.value =
@@ -1676,7 +1697,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                                 .isNotEmpty;
                                       },
                                       validator: (val) {
-                                        if (_teamMemberMobileC.text.isEmpty &&
+                                        if (_teamMemberMobileC
+                                                .text
+                                                .isNotEmpty &&
                                             (val == null ||
                                                 val.trim().isEmpty)) {
                                           return "Team Member name is required";
@@ -1690,7 +1713,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                       hint: "Enter Mobile Number",
                                       textController: _teamMemberMobileC,
                                       keyboardType: TextInputType.phone,
-                                      isRequired: true,
                                       inputFormatterList: InputValidator.digit(
                                         10,
                                       ),
@@ -1705,11 +1727,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                                 .isNotEmpty;
                                       },
                                       validator: (val) {
-                                        if (_teamMemberNameC.text.isEmpty &&
-                                            (val == null ||
-                                                val.trim().isEmpty)) {
-                                          return "Team Member mobile number is required";
-                                        }
                                         if (val != null &&
                                             val.isNotEmpty &&
                                             val.length != 10) {
@@ -1732,8 +1749,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                         return CustomDropDownWidget(
                           title: "Sub Sub Source",
                           isRequired: true,
-                          initialValue:
-                              selectedSubSubSource ?? subSubSourceList.first,
+                          initialValue: selectedSubSubSource,
                           dataList: subSubSourceList,
                           onSelected:
                               (v) => _selectedSubSubSourceNotifier.value = v,
@@ -1902,14 +1918,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                   onSelected: (value) {
                                     _selectedFlatNotifier.value = value;
                                     final flatData = value.first['flatModel'];
-
-                                    if (flatData is FlatModel) {
-                                      _flatDetailsNotifier.value = flatData;
-                                    } else if (flatData
-                                        is Map<String, dynamic>) {
-                                      _flatDetailsNotifier
-                                          .value = FlatModel.fromJson(flatData);
-                                    }
+                                    _flatDetailsNotifier.value = flatData;
                                   },
                                   dataFetchCallBack: (page, {value}) {
                                     if (_selectedProjectNotifier
@@ -1929,6 +1938,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                     return _fetchFlatsByProjectId(
                                       page,
                                       projectId: projectId,
+                                      inventoryFlatId: 0,
                                     );
                                   },
                                   validator: (value) {
@@ -1997,6 +2007,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                   dataList: const [],
                                   onSelected: (value) {
                                     _selectedFlatNotifier.value = value;
+                                    final flatData = value.first['flatModel'];
+
+                                    _flatDetailsNotifier.value = flatData;
                                   },
                                   dataFetchCallBack: (page, {value}) {
                                     if (_selectedProjectNotifier
@@ -2016,6 +2029,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                     return _fetchFlatsByProjectId(
                                       page,
                                       projectId: projectId,
+                                      inventoryFlatId: 0,
                                     );
                                   },
                                   validator: (value) {
@@ -2056,6 +2070,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   }
 
   Widget _flatDetails() {
+    if (_flatDetailsNotifier.value == null) {
+      return SizedBox.shrink();
+    }
     return infoCard([
       {
         "title": "Building",
@@ -2235,7 +2252,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                         "Commercial Leasing") {
                       return _selectedCommercialLeasingNotifier.value;
                     }
-                    return dependentList.first;
+                    return null;
                   }(),
                   dataList: dependentList,
                   onSelected: (v) {
