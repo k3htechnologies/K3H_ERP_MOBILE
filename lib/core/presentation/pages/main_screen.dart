@@ -70,7 +70,7 @@ class _MainScreenState extends State<MainScreen>
                           },
                           child: CircleAvatar(
                             radius: 35,
-                            backgroundColor: AppColor.primary,
+                            backgroundColor: AppColor.lightBlue,
                             child:
                                 user.profilePhotoURL.isNotEmpty
                                     ? ClipOval(

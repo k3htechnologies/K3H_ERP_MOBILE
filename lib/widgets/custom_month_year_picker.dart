@@ -74,7 +74,7 @@ class _CustomMonthYearPickerState extends State<CustomMonthYearPicker> {
     final now = DateTime.now();
 
     int selectedYear = date?.year ?? now.year;
-    int selectedMonth = date?.month ?? now.month;
+    int? selectedMonth = date?.month;
 
     final minYear = widget.startDate?.year ?? 1900;
     final maxYear = widget.endDate?.year ?? 3000;
@@ -119,19 +119,76 @@ class _CustomMonthYearPickerState extends State<CustomMonthYearPicker> {
                           child: Center(
                             child: InkWell(
                               onTap: () async {
-                                final year = await showModalBottomSheet<int>(
+                                final year = await showDialog<int>(
                                   context: context,
+                                  barrierColor: Colors.transparent,
                                   builder: (_) {
-                                    return ListView.builder(
-                                      itemCount: maxYear - minYear + 1,
-                                      itemBuilder: (_, i) {
-                                        final y = minYear + i;
-                                        return ListTile(
-                                          title: Text(y.toString()),
-                                          onTap:
-                                              () => Navigator.pop(context, y),
-                                        );
-                                      },
+                                    return Dialog(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16),
+                                        child: SizedBox(
+                                          width: 320,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                "Select Year",
+                                                style: AppTextStyle.ts16SB(),
+                                              ),
+                                              const SizedBox(height: 16),
+
+                                              /// 🔥 WRAP GRID
+                                              SizedBox(
+                                                height: 250, // scrollable area
+                                                child: SingleChildScrollView(
+                                                  child: Wrap(
+                                                    spacing: 10,
+                                                    runSpacing: 10,
+                                                    children: List.generate(
+                                                      maxYear - minYear + 1,
+                                                          (i) {
+                                                        final y = minYear + i;
+                                                        final isSelected = y == selectedYear;
+
+                                                        return InkWell(
+                                                          onTap: () => Navigator.pop(context, y),
+                                                          child: Container(
+                                                            width: 70,
+                                                            height: 40,
+                                                            alignment: Alignment.center,
+                                                            decoration: BoxDecoration(
+                                                              color: isSelected
+                                                                  ? AppColor.primary.withValues(alpha: 0.1)
+                                                                  : null,
+                                                              border: Border.all(
+                                                                color: isSelected
+                                                                    ? AppColor.primary
+                                                                    : AppColor.grey30,
+                                                              ),
+                                                              borderRadius: BorderRadius.circular(8),
+                                                            ),
+                                                            child: Text(
+                                                              y.toString(),
+                                                              style: TextStyle(
+                                                                color: isSelected
+                                                                    ? AppColor.primary
+                                                                    : Colors.black,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
                                     );
                                   },
                                 );
@@ -175,7 +232,7 @@ class _CustomMonthYearPickerState extends State<CustomMonthYearPicker> {
                       runSpacing: 12,
                       children: List.generate(12, (i) {
                         final m = i + 1;
-                        final selected = selectedMonth == m;
+                        final selected = selectedMonth != null && selectedMonth == m;
                         final disabled = isDisabled(m);
 
                         return InkWell(
@@ -241,6 +298,7 @@ class _CustomMonthYearPickerState extends State<CustomMonthYearPicker> {
   @override
   Widget build(BuildContext context) {
     return FormField<DateTime>(
+      key: ValueKey(date),
       validator: widget.validator,
       initialValue: date,
       builder: (state) {
@@ -294,7 +352,7 @@ class _CustomMonthYearPickerState extends State<CustomMonthYearPicker> {
                             finalDate != null ? AppColor.black : AppColor.grey,
                       ),
                     ),
-                    const Icon(Icons.calendar_month, color: AppColor.grey),
+                    const Icon(Icons.calendar_month_outlined, color: AppColor.grey),
                   ],
                 ),
               ),

@@ -100,6 +100,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
     final table0 = state.payrollDashboardModel?.table0;
     final table1 = state.payrollDashboardModel?.table1;
     final table3 = state.payrollDashboardModel?.table3;
+    final table5 = state.payrollDashboardModel?.table5;
 
     if ((table0 == null || table0.isEmpty) &&
         (table1 == null || table1.isEmpty) &&
@@ -108,15 +109,11 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
     }
 
     final data = table0?.first;
-    int getLateInCount(List<Table6> list) {
-      return list
-          .where((e) => e.attendanceStatus.trim().toLowerCase() == "late in")
-          .length;
-    }
 
-    final table6 = state.payrollDashboardModel?.table6 ?? [];
+    final int lateInCount =  table5?.first.absentCount??0;
 
-    final lateInCount = getLateInCount(table6);
+
+
     final avatarLeaveNames =
     table1?.map((e) => e.fullName).where((e) => e.isNotEmpty).toList();
     final avatarOutdoorNames =

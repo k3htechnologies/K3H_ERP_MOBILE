@@ -29,6 +29,7 @@ import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
+import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -424,8 +425,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             dragPositionNotifier.value = maxWidth;
           });
-
-          // _startTimerFrom(record.punchIn!);
           if (_timer == null) {
             _startTimerFrom(record.punchIn!);
           }
@@ -1361,6 +1360,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         final table5List = state.userData?.table5;
 
+        final totalLeaves =
+            table4List?.fold<int>(0, (sum, item) => sum + (item.totalLeaves)) ??
+            0;
+
+        final usedLeaves =
+            table4List?.fold<double>(
+              0,
+              (sum, item) => sum + (item.usedLeaves),
+            ) ??
+            0;
+
+        final remainingLeaves =
+            table4List?.fold<double>(
+              0,
+              (sum, item) => sum + (item.remainingLeaves),
+            ) ??
+            0;
+
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -1375,20 +1392,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               verticalSpacing(height: 20),
               if (table4List != null && table4List.isNotEmpty) ...[
-                _leaveRow(
-                  title: "Total Leaves",
-                  value: "${table4List.first.totalLeaves}",
-                ),
+                _leaveRow(title: "Total Leaves", value: "$totalLeaves"),
                 verticalSpacing(),
-                _leaveRow(
-                  title: "Used Leaves",
-                  value: "${table4List.first.usedLeaves}",
-                ),
+                _leaveRow(title: "Used Leaves", value: "$usedLeaves"),
                 verticalSpacing(),
-                _leaveRow(
-                  title: "Pending Leaves",
-                  value: "${table4List.first.pendingLeaves}",
-                ),
+                _leaveRow(title: "Pending Leaves", value: "$remainingLeaves"),
 
                 const SizedBox(height: 20),
 
@@ -1652,8 +1660,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 color: AppColor.black.withValues(alpha: 0.50),
               ),
               const SizedBox(height: 12),
+
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Text(
@@ -1663,13 +1671,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ],
               ),
+
               const SizedBox(height: 12),
-              if (table8List != null) ...[
+
+              if (table8List != null && table8List.isNotEmpty) ...[
                 ListView.builder(
                   itemCount: table8List.length,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemBuilder: (context, int index) {
+                  itemBuilder: (context, index) {
                     var upcomingBirthday = table8List[index];
                     return ListTile(
                       isThreeLine: true,
@@ -1698,42 +1708,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 12),
-                Divider(
-                  thickness: 0.3,
-                  color: AppColor.black.withValues(alpha: 0.50),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        "Upcoming Events",
-                        style: AppTextStyle.ts14SB(color: AppColor.black),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Center(
-                  child: Text(
-                    "No Upcoming Events Available",
-                    style: AppTextStyle.ts12M(
-                      color: AppColor.black.withValues(alpha: 0.50),
-                    ),
-                  ),
-                ),
               ] else ...[
                 Center(
                   child: Text(
-                    "No Data Found",
+                    "No Upcoming Birthdays",
                     style: AppTextStyle.ts12M(
                       color: AppColor.black.withValues(alpha: 0.50),
                     ),
                   ),
                 ),
               ],
+
+              const SizedBox(height: 12),
+
+              Divider(
+                thickness: 0.3,
+                color: AppColor.black.withValues(alpha: 0.50),
+              ),
+
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Upcoming Events",
+                      style: AppTextStyle.ts14SB(color: AppColor.black),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 12),
+
+              Center(
+                child: Text(
+                  "Coming Soon",
+                  style: AppTextStyle.ts12M(
+                    color: AppColor.black.withValues(alpha: 0.50),
+                  ),
+                ),
+              ),
             ],
           ),
         );
@@ -1776,11 +1790,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   contentPadding: EdgeInsets.zero,
                   isThreeLine: true,
                   leading: CircleAvatar(
+                    radius: 30,
                     backgroundColor: AppColor.primary,
-                    child: Text(
-                      getInitials(table10List!.first.managerName),
-                      style: AppTextStyle.ts16B(color: AppColor.white),
-                    ),
+                    child:
+                        table10List!.first.profilePhotoURL.isNotEmpty
+                            ? ClipOval(
+                              child: NetworkImageWidget(
+                                key: ValueKey(
+                                  table10List.first.profilePhotoURL,
+                                ),
+                                imageUrl: table10List.first.profilePhotoURL,
+                                fit: BoxFit.fill,
+                                width: 50,
+                                height: 50,
+                              ),
+                            )
+                            : Text(
+                              table10List.first.managerName.isNotEmpty
+                                  ? table10List.first.managerName[0]
+                                      .toUpperCase()
+                                  : 'U',
+                              style: AppTextStyle.ts24B(color: AppColor.white),
+                            ),
                   ),
                   title: Text(
                     table10List.first.managerName,

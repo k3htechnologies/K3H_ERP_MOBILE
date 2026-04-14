@@ -340,15 +340,15 @@ class _PerformanceScreenState extends State<PerformanceScreen>
               showErrorMessage(context, "Error", "Please Select a Project");
               return;
             }
-            if (_performanceCubit
-                        .state
-                        .sourcingTotalNumberOfRecordPerformanceReport ==
-                    0 ||
-                _performanceCubit
-                        .state
-                        .closingTotalNumberOfRecordPerformanceReport ==
-                    0) {
-              showErrorMessage(context, "Error", "Data Not Found");
+            if (_performanceCubit.state.currentTabIndexSecond == 0 &&
+                _performanceCubit.state.performanceReportSourcingModel.isEmpty) {
+              showErrorMessage(context, "Error", "No Sourcing Data Found");
+              return;
+            }
+
+            if (_performanceCubit.state.currentTabIndexSecond == 1 &&
+                _performanceCubit.state.performanceReportClosingModel.isEmpty) {
+              showErrorMessage(context, "Error", "No Closing Data Found");
               return;
             }
             _performanceCubit.exportExcelPdf(

@@ -547,6 +547,9 @@ class _ProfileScreenState extends State<ProfileScreen>
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ProfileCubit, ProfileState>(
+      buildWhen: (previous, current) {
+        return previous.user != current.user;
+      },
       builder: (context, state) {
         if (state.user == null) {
           return Scaffold(
@@ -569,15 +572,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             child: Column(
               children: [
                 verticalSpacing(),
-                // _buildHeader(state.user!, state.selectedProject),
-                BlocBuilder<ProfileCubit, ProfileState>(
-                  builder: (context, state) {
-                    final user = state.user;
-                    if (user == null) return SizedBox();
-
-                    return _buildHeader(user, state.selectedProject);
-                  },
-                ),
+                _buildHeader(state.user!, state.selectedProject),
                 verticalSpacing(),
                 ChipStyleTabBar(
                   controller: _tabController,
@@ -652,7 +647,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       imageUrl.isNotEmpty
                           ? ClipOval(
                             child: NetworkImageWidget(
-                              key: ValueKey(imageUrl),
+                              // key: ValueKey(imageUrl),
                               imageUrl: imageUrl,
                               fit: BoxFit.fill,
                               width: 70,

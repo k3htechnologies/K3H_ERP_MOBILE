@@ -38,6 +38,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
 
 import 'feature_dependencies/calendar/calendar.dependencies.dart';
 import 'feature_dependencies/channel_partner/channel_partner.dependencies.dart';
+import 'feature_dependencies/crm/brokerage/brokerage.dependencies.dart';
 import 'feature_dependencies/inventory/inventory.dependencies.dart';
 import 'feature_dependencies/login/login.dependencies.dart';
 import 'feature_dependencies/masters/asset_master.dependencies.dart';
@@ -216,7 +217,7 @@ void initDependencies() {
   registerLitigationDashboardDependencies(serviceLocator);
   // PAYROLL DASHBOARD
   registerPayrollDashboardDependencies(serviceLocator);
-  // CLASSIFICATION PARAMTERES DEPENDENCIES
+  // CLASSIFICATION PARAMETERS DEPENDENCIES
   registerClassificationParameterDependencies(serviceLocator);
   // PERFORMANCE REPORT DEPENDENCIES
   registerPerformanceReportDependencies(serviceLocator);
@@ -229,4 +230,6 @@ void initDependencies() {
   registerMaterialRequisitionPurchaseOrderDependencies(serviceLocator);
   registerMaterialRequisitionGRNDependencies(serviceLocator);
   registerMaterialRequisitionInvoiceDependencies(serviceLocator);
+  // CRM BROKERAGE
+  registerBrokerageDependencies(serviceLocator);
 }

@@ -643,7 +643,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                   Expanded(
                     child: _projectManagementChip(
                       title: "Company Type",
-                      value: table5?.length ?? 0,
+                      value: 3,
                       bgColor: AppColor.lightGreyBackground,
                       valueColor: AppColor.black,
                     ),

@@ -218,38 +218,30 @@ class Table3 {
 }
 
 class Table4 {
-  final double totalLeaves;
+  final int totalLeaves;
   final double usedLeaves;
-  final double pendingLeaves;
+  final double remainingLeaves;
   final String leaveTypeName;
-  final int leaveTypeMasterId;
-  final String message;
 
   Table4({
     required this.totalLeaves,
     required this.usedLeaves,
-    required this.pendingLeaves,
+    required this.remainingLeaves,
     required this.leaveTypeName,
-    required this.leaveTypeMasterId,
-    required this.message,
   });
 
   factory Table4.fromJson(Map<String, dynamic> json) => Table4(
-    totalLeaves: parseValue<double>(json, "TotalLeaves").toDouble(),
+    totalLeaves: parseValue<int>(json, "TotalLeaves"),
     usedLeaves: parseValue<double>(json, "UsedLeaves").toDouble(),
-    pendingLeaves: parseValue<double>(json, "PendingLeaves").toDouble(),
+    remainingLeaves: parseValue<double>(json, "RemainingLeaves").toDouble(),
     leaveTypeName: parseValue<String>(json, "LeaveTypeName"),
-    leaveTypeMasterId: parseValue<int>(json, "LeaveTypeMasterId"),
-    message: parseValue<String>(json, "Message"),
   );
 
   Map<String, dynamic> toJson() => {
     "TotalLeaves": totalLeaves,
     "UsedLeaves": usedLeaves,
-    "PendingLeaves": pendingLeaves,
+    "RemainingLeaves": remainingLeaves,
     "LeaveTypeName": leaveTypeName,
-    "LeaveTypeMasterId": leaveTypeMasterId,
-    "Message": message,
   };
 }
 
@@ -404,6 +396,7 @@ class Table10 {
   final String managerPhone;
   final String managerDepartment;
   final String managerDesignation;
+  final String profilePhotoURL;
 
   Table10({
     required this.managerId,
@@ -412,6 +405,7 @@ class Table10 {
     required this.managerPhone,
     required this.managerDepartment,
     required this.managerDesignation,
+    required this.profilePhotoURL,
   });
 
   factory Table10.fromJson(Map<String, dynamic> json) => Table10(
@@ -421,6 +415,7 @@ class Table10 {
     managerPhone: parseValue<String>(json, "ManagerPhone"),
     managerDepartment: parseValue<String>(json, "ManagerDepartment"),
     managerDesignation: parseValue<String>(json, "ManagerDesignation"),
+    profilePhotoURL: parseValue<String>(json, "ProfilePhotoURL"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -430,6 +425,7 @@ class Table10 {
     "ManagerPhone": managerPhone,
     "ManagerDepartment": managerDepartment,
     "ManagerDesignation": managerDesignation,
+    "ProfilePhotoURL": profilePhotoURL,
   };
 }
 

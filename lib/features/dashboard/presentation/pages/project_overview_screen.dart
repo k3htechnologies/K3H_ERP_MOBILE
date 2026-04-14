@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -333,11 +334,11 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                     buildColumnTitleValue(
                       title: "RERA Certificate Date",
                       value:
-                      widget.project.reraCertificateDate != null
-                          ? formatDateTimeAsDDMMMYYYY(
-                        widget.project.reraCertificateDate!,
-                      )
-                          : "-",
+                          widget.project.reraCertificateDate != null
+                              ? formatDateTimeAsDDMMMYYYY(
+                                widget.project.reraCertificateDate!,
+                              )
+                              : "-",
                     ),
                   ],
                 ),
@@ -346,11 +347,11 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                     buildColumnTitleValue(
                       title: "RERA Completion Date",
                       value:
-                      widget.project.reraComplitionDate != null
-                          ? formatDateTimeAsDDMMMYYYY(
-                        widget.project.reraComplitionDate!,
-                      )
-                          : "-",
+                          widget.project.reraComplitionDate != null
+                              ? formatDateTimeAsDDMMMYYYY(
+                                widget.project.reraComplitionDate!,
+                              )
+                              : "-",
                     ),
                   ],
                 ),
@@ -374,20 +375,20 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                     buildColumnTitleValue(
                       title: "Survey Date",
                       value:
-                      widget.project.surveyDate != null
-                          ? formatDateTimeAsDDMMMYYYY(
-                        widget.project.surveyDate!,
-                      )
-                          : "-",
+                          widget.project.surveyDate != null
+                              ? formatDateTimeAsDDMMMYYYY(
+                                widget.project.surveyDate!,
+                              )
+                              : "-",
                     ),
                     buildColumnTitleValue(
                       title: "Expected Start Date",
                       value:
-                      widget.project.expectedStartDate != null
-                          ? formatDateTimeAsDDMMMYYYY(
-                        widget.project.expectedStartDate!,
-                      )
-                          : "-",
+                          widget.project.expectedStartDate != null
+                              ? formatDateTimeAsDDMMMYYYY(
+                                widget.project.expectedStartDate!,
+                              )
+                              : "-",
                     ),
                   ],
                 ),
@@ -396,11 +397,11 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                     buildColumnTitleValue(
                       title: "Execution Start Date",
                       value:
-                      widget.project.executionStartDate != null
-                          ? formatDateTimeAsDDMMMYYYY(
-                        widget.project.executionStartDate!,
-                      )
-                          : "-",
+                          widget.project.executionStartDate != null
+                              ? formatDateTimeAsDDMMMYYYY(
+                                widget.project.executionStartDate!,
+                              )
+                              : "-",
                     ),
                   ],
                 ),
@@ -458,7 +459,11 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
         children: [
           SearchWidget(
             onSubmit: (value) {
-              _dashboardCubit.getProjectEmployeesList(context, widget.project.projectId, searchText: value);
+              _dashboardCubit.getProjectEmployeesList(
+                context,
+                widget.project.projectId,
+                searchText: value,
+              );
             },
             textController: _searchEmployeeC,
             hintText: "Search by Employee Name",
@@ -467,12 +472,12 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
           Expanded(
             child: BlocBuilder<DashboardCubit, DashboardState>(
               builder: (context, state) {
-
                 if (state.isLoading == true) {
                   return loader();
                 }
 
-                if (state.employeeByProject == null || state.employeeByProject!.isEmpty) {
+                if (state.employeeByProject == null ||
+                    state.employeeByProject!.isEmpty) {
                   return noDataWidget(message: "No Employee Found");
                 }
 
@@ -490,17 +495,72 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                         children: [
                           CircleAvatar(
                             radius: 20,
-                            child: Text(state.employeeByProject![index].fullName[0].toUpperCase()),
+                            backgroundColor: AppColor.primary,
+                            child:
+                                state
+                                        .employeeByProject![index]
+                                        .profilePhotoURL
+                                        .isNotEmpty
+                                    ? ClipOval(
+                                      child: NetworkImageWidget(
+                                        key: ValueKey(
+                                          state
+                                              .employeeByProject![index]
+                                              .profilePhotoURL,
+                                        ),
+                                        imageUrl:
+                                            state
+                                                .employeeByProject![index]
+                                                .profilePhotoURL,
+                                        fit: BoxFit.fill,
+                                        width: 70,
+                                        height: 70,
+                                      ),
+                                    )
+                                    : Text(
+                                      state
+                                              .employeeByProject![index]
+                                              .fullName
+                                              .isNotEmpty
+                                          ? state
+                                              .employeeByProject![index]
+                                              .fullName[0]
+                                              .toUpperCase()
+                                          : 'U',
+                                      style: AppTextStyle.ts16B(
+                                        color: AppColor.white,
+                                      ),
+                                    ),
                           ),
                           horizontalSpacing(),
                           Flexible(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(state.employeeByProject![index].fullName,style: AppTextStyle.ts14M(),),
-                                Text(state.employeeByProject![index].personalMobileNumber,style: AppTextStyle.ts12R(color: AppColor.grey)),
-                                Text(state.employeeByProject![index].department,style: AppTextStyle.ts12R(color: AppColor.grey)),
-                                Text(state.employeeByProject![index].designation,style: AppTextStyle.ts12R(color: AppColor.grey)),
+                                Text(
+                                  state.employeeByProject![index].fullName,
+                                  style: AppTextStyle.ts14M(),
+                                ),
+                                Text(
+                                  state
+                                      .employeeByProject![index]
+                                      .personalMobileNumber,
+                                  style: AppTextStyle.ts12R(
+                                    color: AppColor.grey,
+                                  ),
+                                ),
+                                Text(
+                                  state.employeeByProject![index].department,
+                                  style: AppTextStyle.ts12R(
+                                    color: AppColor.grey,
+                                  ),
+                                ),
+                                Text(
+                                  state.employeeByProject![index].designation,
+                                  style: AppTextStyle.ts12R(
+                                    color: AppColor.grey,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -510,11 +570,10 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                   },
                 );
               },
-            )
+            ),
           ),
         ],
       ),
     );
   }
-  
 }
