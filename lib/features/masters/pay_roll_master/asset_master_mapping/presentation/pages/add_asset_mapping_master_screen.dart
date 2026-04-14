@@ -544,7 +544,7 @@ class _AddAssetMappingMasterScreenState
                                     ),
                                     Row(
                                       children: [
-                                        buildColumnTitleValue(title: "Joining Date", value:  formatDateTimeAsDDMMMYYYY(selectedEmployee.first["joiningDate"]))
+                                        buildColumnTitleValue(title: "Joining Date", value: selectedEmployee.first["joiningDate"]!=null? formatDateTimeAsDDMMMYYYY(selectedEmployee.first["joiningDate"]):"-")
                                       ],
                                     )
                                   ],

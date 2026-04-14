@@ -46,7 +46,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
   List<FlSpot> _mapToSpots(List<int> values) {
     return List.generate(
       values.length,
-      (i) => FlSpot(i.toDouble(), values[i].toDouble()),
+          (i) => FlSpot(i.toDouble(), values[i].toDouble()),
     );
   }
 
@@ -92,16 +92,16 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(6),
                           color:
-                              isSelected
-                                  ? AppColor.lightBlue
-                                  : Colors.transparent,
+                          isSelected
+                              ? AppColor.lightBlue
+                              : Colors.transparent,
                           border: Border.all(color: AppColor.grey, width: .5),
                         ),
                         child: Text(
                           labels[index],
                           style: AppTextStyle.ts12R(
                             color:
-                                isSelected ? AppColor.primary : AppColor.black,
+                            isSelected ? AppColor.primary : AppColor.black,
                           ),
                         ),
                       ),
@@ -236,13 +236,13 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
   }
 
   Widget _buildTotalCasesWidget(
-    BuildContext context, {
-    Color? bgColor,
-    String? title,
-    Color? titleColor,
-    int? value,
-    Color? valueColor,
-  }) {
+      BuildContext context, {
+        Color? bgColor,
+        String? title,
+        Color? titleColor,
+        int? value,
+        Color? valueColor,
+      }) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
@@ -269,26 +269,26 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
         }
         final litigationDashboardModel = state.litigationDashboardModel;
         final table2List =
-            (litigationDashboardModel?.table2.isNotEmpty ?? false)
-                ? litigationDashboardModel!.table2
-                : null;
+        (litigationDashboardModel?.table2.isNotEmpty ?? false)
+            ? litigationDashboardModel!.table2
+            : null;
         final civil =
             table2List
                 ?.firstWhere(
                   (e) => e.caseType.toLowerCase() == "civil",
-                  orElse: () => Table2(caseType: "civil", totalCases: 0),
-                )
+              orElse: () => Table2(caseType: "civil", totalCases: 0),
+            )
                 .totalCases ??
-            0;
+                0;
 
         final criminal =
             table2List
                 ?.firstWhere(
                   (e) => e.caseType.toLowerCase() == "criminal",
-                  orElse: () => Table2(caseType: "criminal", totalCases: 0),
-                )
+              orElse: () => Table2(caseType: "criminal", totalCases: 0),
+            )
                 .totalCases ??
-            0;
+                0;
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
           decoration: commonCardDecoration(),
@@ -311,19 +311,18 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
               verticalSpacing(),
               if (table2List != null) ...[
                 CommonRadialChart(
-                  items:
-                      [
-                        RadialChartItem(
-                          title: "Civil",
-                          value: civil,
-                          color: AppColor.primary,
-                        ),
-                        RadialChartItem(
-                          title: "Criminal",
-                          value: criminal,
-                          color: AppColor.blueBgColor,
-                        ),
-                      ].where((e) => e.value > 0).toList(),
+                  items: [
+                    RadialChartItem(
+                      title: "Civil",
+                      value: civil,
+                      color: AppColor.primary,
+                    ),
+                    RadialChartItem(
+                      title: "Criminal",
+                      value: criminal,
+                      color: AppColor.blueBgColor,
+                    ),
+                  ],
                 ),
               ] else ...[
                 Center(
@@ -381,13 +380,13 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
               if (table3 != null && table3.isNotEmpty) ...[
                 Column(
                   children:
-                      table3.map((court) {
-                        return _courtDistributionItem(
-                          court.courtType,
-                          court.totalCases,
-                          court.openCases,
-                        );
-                      }).toList(),
+                  table3.map((court) {
+                    return _courtDistributionItem(
+                      court.courtType,
+                      court.totalCases,
+                      court.openCases,
+                    );
+                  }).toList(),
                 ),
               ] else ...[
                 Center(
@@ -671,9 +670,9 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                                 children: [
                                   Row(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    CrossAxisAlignment.start,
                                     mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                     children: [
                                       Expanded(
                                         child: Text(
@@ -684,7 +683,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                                       horizontalSpacing(width: 20.0),
                                       Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.end,
+                                        MainAxisAlignment.end,
                                         children: [
                                           Text(
                                             formatDateTimeAsDDMMMYYYY(
@@ -708,7 +707,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                                   verticalSpacing(height: 6),
                                   Row(
                                     mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                     children: [
                                       Expanded(
                                         child: Text(
@@ -816,10 +815,10 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
         }
 
         final closedData =
-            allMonths.map((m) => dataMap[m]?.closedCases ?? 0).toList();
+        allMonths.map((m) => dataMap[m]?.closedCases ?? 0).toList();
 
         final openedData =
-            allMonths.map((m) => dataMap[m]?.openCases ?? 0).toList();
+        allMonths.map((m) => dataMap[m]?.openCases ?? 0).toList();
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
           decoration: commonCardDecoration(),
@@ -901,16 +900,16 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
   }
 
   LineChartData _buildChartData(
-    List<String> months,
-    List<int> closedData,
-    List<int> openedData,
-  ) {
+      List<String> months,
+      List<int> closedData,
+      List<int> openedData,
+      ) {
     final allValues = [...closedData, ...openedData];
 
     double maxY =
-        allValues.isNotEmpty
-            ? (allValues.reduce((a, b) => a > b ? a : b) * 1.5)
-            : 10;
+    allValues.isNotEmpty
+        ? (allValues.reduce((a, b) => a > b ? a : b) * 1.5)
+        : 10;
     if (maxY <= 0) {
       maxY = 10;
     }

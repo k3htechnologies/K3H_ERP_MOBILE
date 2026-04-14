@@ -31,7 +31,7 @@ class _ChannelPartnerDashboardScreenState
   void initState() {
     _channelPartnerCubit = context.read<ChannelPartnerCubit>();
     _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.channelPartner]!;
+    Authorization.routeAuthorizationMap[AppRoutes.channelPartner]!;
     _channelPartnerCubit.getChannelPartnerDashboardList(context);
     super.initState();
   }
@@ -136,16 +136,16 @@ class _ChannelPartnerDashboardScreenState
   }
 
   Widget _buildTotalCasesWidget(
-    BuildContext context, {
-    required Color bgColor,
-    required String title,
-    required Color titleColor,
-    required int value,
-    required Color valueColor,
-    String? subText,
-    Color? valuesubTextColor,
-    Color? borderColor,
-  }) {
+      BuildContext context, {
+        required Color bgColor,
+        required String title,
+        required Color titleColor,
+        required int value,
+        required Color valueColor,
+        String? subText,
+        Color? valuesubTextColor,
+        Color? borderColor,
+      }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 18.0),
@@ -153,9 +153,9 @@ class _ChannelPartnerDashboardScreenState
         borderRadius: BorderRadius.circular(12.0),
         color: bgColor,
         border:
-            borderColor != null
-                ? Border.all(color: borderColor, width: 1)
-                : null,
+        borderColor != null
+            ? Border.all(color: borderColor, width: 1)
+            : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,14 +204,11 @@ class _ChannelPartnerDashboardScreenState
         final table3 = channelPartnerDashboardModel?.table3;
         final totalSum = table2?.fold<int>(
           0,
-          (sum, item) => sum + item.totalCount,
+              (sum, item) => sum + item.totalCount,
         );
-        final maxValue = table3
-            ?.map((e) => e.totalChannelPartner)
-            .reduce((a, b) => a > b ? a : b);
 
         return Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.0),
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
           decoration: commonCardDecoration(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,13 +245,13 @@ class _ChannelPartnerDashboardScreenState
               if (table2 != null && table2.isNotEmpty) ...[
                 Column(
                   children:
-                      table2.map((partnerTypeDistribution) {
-                        return _buildParkingRow(
-                          title: partnerTypeDistribution.type,
-                          count: partnerTypeDistribution.totalCount,
-                          totalSum: totalSum!,
-                        );
-                      }).toList(),
+                  table2.map((partnerTypeDistribution) {
+                    return _buildParkingRow(
+                      title: partnerTypeDistribution.type,
+                      count: partnerTypeDistribution.totalCount,
+                      totalSum: totalSum!,
+                    );
+                  }).toList(),
                 ),
               ] else ...[
                 Center(
@@ -333,7 +330,7 @@ class _ChannelPartnerDashboardScreenState
                           builder: (context, constraints) {
                             final barWidth =
                                 constraints.maxWidth *
-                                widthFactor.clamp(0.0, 1.0);
+                                    widthFactor.clamp(0.0, 1.0);
 
                             return Stack(
                               children: [
@@ -361,7 +358,7 @@ class _ChannelPartnerDashboardScreenState
                                     horizontal: 12,
                                   ),
                                   child: Text(
-                                    maxValue.toString(),
+                                    item.totalChannelPartner.toString(),
                                     style: AppTextStyle.ts16SB(
                                       color: AppColor.primary,
                                     ),
@@ -422,9 +419,9 @@ class _ChannelPartnerDashboardScreenState
                       final bool isLast = index == table4.length - 1;
                       return Container(
                         margin:
-                            isLast
-                                ? EdgeInsets.zero
-                                : EdgeInsets.only(bottom: 12),
+                        isLast
+                            ? EdgeInsets.zero
+                            : EdgeInsets.only(bottom: 12),
                         padding: EdgeInsets.all(12.0),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4.0),
@@ -628,7 +625,7 @@ class _ChannelPartnerDashboardScreenState
     required int totalSum,
   }) {
     final double progress =
-        totalSum == 0 ? 0 : (count / totalSum).clamp(0.0, 1.0);
+    totalSum == 0 ? 0 : (count / totalSum).clamp(0.0, 1.0);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 18.0),

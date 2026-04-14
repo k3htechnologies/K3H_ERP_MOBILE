@@ -100,9 +100,9 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
         }
 
         final table0 =
-            (state.settingDashboardModel?.table0.isNotEmpty ?? false)
-                ? state.settingDashboardModel!.table0.first
-                : null;
+        (state.settingDashboardModel?.table0.isNotEmpty ?? false)
+            ? state.settingDashboardModel!.table0.first
+            : null;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -116,7 +116,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                     value: table0?.totalCompanies.toString() ?? "0.0",
                     title: "Total Companies",
                     subtitle:
-                        "+${table0?.companiesAddedThisMonth.toInt() ?? 0} this month",
+                    "+${table0?.companiesAddedThisMonth.toInt() ?? 0} this month",
                     subtitleColor: AppColor.green,
                   ),
                 ),
@@ -127,7 +127,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                     value: table0?.totalEmployees.toString() ?? "0.0",
                     title: "Total Employees",
                     subtitle:
-                        "+${table0?.employeesAddedThisMonth.toInt() ?? 0} this month",
+                    "+${table0?.employeesAddedThisMonth.toInt() ?? 0} this month",
                     subtitleColor: AppColor.green,
                   ),
                 ),
@@ -153,22 +153,13 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                   value: table0?.registeredVendors.toString() ?? "0.0",
                   title: "Registered Vendors",
                   subtitle:
-                      "+${table0?.vendorsAddedThisMonth.toInt() ?? 0} this month",
+                  "+${table0?.vendorsAddedThisMonth.toInt() ?? 0} this month",
                   subtitleColor: AppColor.green,
                 ),
               ],
             ),
           ],
         );
-        // return GridView.count(
-        //   shrinkWrap: true,
-        //   physics: NeverScrollableScrollPhysics(),
-        //   crossAxisCount: 2,
-        //   mainAxisSpacing: 10,
-        //   crossAxisSpacing: 10,
-        //   childAspectRatio: 1.10,
-
-        // );
       },
     );
   }
@@ -222,9 +213,9 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
         }
 
         final table1 =
-            (state.settingDashboardModel?.table1.isNotEmpty ?? false)
-                ? state.settingDashboardModel!.table1.first
-                : null;
+        (state.settingDashboardModel?.table1.isNotEmpty ?? false)
+            ? state.settingDashboardModel!.table1.first
+            : null;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -270,7 +261,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                     value: table1?.branches.toInt() ?? 0,
                   ),
                   _companyDepartmentChip(
-                    title: "Banks Listed",
+                    title: "Banks",
                     value: table1?.banksListed.toInt() ?? 0,
                   ),
                   _companyDepartmentChip(
@@ -328,9 +319,9 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
         }
 
         final table2 =
-            (state.settingDashboardModel?.table2.isNotEmpty ?? false)
-                ? state.settingDashboardModel!.table2.first
-                : null;
+        (state.settingDashboardModel?.table2.isNotEmpty ?? false)
+            ? state.settingDashboardModel!.table2.first
+            : null;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           decoration: commonCardDecoration(),
@@ -453,13 +444,13 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
         }
 
         final table4 =
-            (state.settingDashboardModel?.table4.isNotEmpty ?? false)
-                ? state.settingDashboardModel!.table4.first
-                : null;
+        (state.settingDashboardModel?.table4.isNotEmpty ?? false)
+            ? state.settingDashboardModel!.table4.first
+            : null;
         final table7 =
-            (state.settingDashboardModel?.table7.isNotEmpty ?? false)
-                ? state.settingDashboardModel!.table7.first
-                : null;
+        (state.settingDashboardModel?.table7.isNotEmpty ?? false)
+            ? state.settingDashboardModel!.table7.first
+            : null;
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -513,34 +504,33 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
               verticalSpacing(height: 20.0),
               if (table7 != null) ...[
                 CommonRadialChart(
-                  items:
-                      [
-                        RadialChartItem(
-                          title: "Ongoing Projects",
-                          value: table7.ongoingProjects,
-                          color: AppColor.primary,
-                        ),
-                        RadialChartItem(
-                          title: "On hold Projects",
-                          value: table7.onHoldProjects,
-                          color: AppColor.yellow,
-                        ),
-                        RadialChartItem(
-                          title: "Completed Projects",
-                          value: table7.completedProjects,
-                          color: AppColor.green,
-                        ),
-                        RadialChartItem(
-                          title: "Cancelled Projects",
-                          value: table7.cancelledProjects,
-                          color: AppColor.grey,
-                        ),
-                        RadialChartItem(
-                          title: "Planning Projects",
-                          value: table7.planningProjects,
-                          color: AppColor.blue,
-                        ),
-                      ].where((e) => e.value > 0).toList(),
+                  items: [
+                    RadialChartItem(
+                      title: "Ongoing Projects",
+                      value: table7.ongoingProjects,
+                      color: AppColor.primary,
+                    ),
+                    RadialChartItem(
+                      title: "On hold Projects",
+                      value: table7.onHoldProjects,
+                      color: AppColor.yellow,
+                    ),
+                    RadialChartItem(
+                      title: "Completed Projects",
+                      value: table7.completedProjects,
+                      color: AppColor.green,
+                    ),
+                    RadialChartItem(
+                      title: "Cancelled Projects",
+                      value: table7.cancelledProjects,
+                      color: AppColor.grey,
+                    ),
+                    RadialChartItem(
+                      title: "Planning Projects",
+                      value: table7.planningProjects,
+                      color: AppColor.blue,
+                    ),
+                  ],
                 ),
               ] else ...[
                 Center(
@@ -601,14 +591,14 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
         }
 
         final table3 =
-            (state.settingDashboardModel?.table3.isNotEmpty ?? false)
-                ? state.settingDashboardModel!.table3.first
-                : null;
+        (state.settingDashboardModel?.table3.isNotEmpty ?? false)
+            ? state.settingDashboardModel!.table3.first
+            : null;
 
         final table5 =
-            (state.settingDashboardModel?.table5.isNotEmpty ?? false)
-                ? state.settingDashboardModel!.table5
-                : null;
+        (state.settingDashboardModel?.table5.isNotEmpty ?? false)
+            ? state.settingDashboardModel!.table5
+            : null;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           decoration: commonCardDecoration(),
@@ -690,16 +680,16 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
               if (table5 != null && table5.isNotEmpty) ...[
                 Column(
                   children:
-                      table5.map((item) {
-                        return VendorDistributionProgressBar(
-                          title: item.companyType,
-                          value: item.vendorCount,
-                          total: table5.fold(
-                            0,
+                  table5.map((item) {
+                    return VendorDistributionProgressBar(
+                      title: item.companyType,
+                      value: item.vendorCount,
+                      total: table5.fold(
+                        0,
                             (sum, e) => sum + e.vendorCount,
-                          ),
-                        );
-                      }).toList(),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ] else ...[
                 Center(

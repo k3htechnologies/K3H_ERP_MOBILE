@@ -395,6 +395,68 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     user = UserModel.fromJson(userJson);
   }
 
+  Future<void> _fetchFlatDetailsById(int flatId, int projectId) async {
+    final result = await _inventoryRepository.getPaginatedFlats(
+      pageNumber: 1,
+      pageSize: 1,
+      projectId: projectId,
+      queryParams: {
+        "InventoryFlatId": flatId,
+      },
+    );
+
+    result.fold(
+          (failure) {
+        _flatDetailsNotifier.value = null;
+      },
+          (response) {
+        final flats = response['data'] as List<FlatModel>;
+
+        if (flats.isNotEmpty) {
+          _flatDetailsNotifier.value = flats.first;
+        }
+      },
+    );
+  }
+
+  Future<void> _fetchEmployeeDetailsById(int employeeId) async {
+    final result = await _employeeMasterRepository.getEmployeeMasterList(
+      pageNumber: 1,
+      pageSize: 1,
+      queryParams: {
+        "EmployeeId": employeeId,
+        "isCheckPermission": false,
+      },
+    );
+
+    result.fold(
+          (failure) {},
+          (response) {
+        final employees = response['data'] as List<UserModel>;
+
+        if (employees.isEmpty) return;
+
+        final emp = employees.first;
+
+        if (!mounted) return;
+
+        _selectedEmployeeNotifier.value = [
+          {
+            "zAttributesId": emp.employeeId,
+            "DisplayName": emp.fullName,
+            "department": emp.department,
+            "designation": emp.designation,
+            "branch": emp.branch,
+            "reportingPerson": emp.reportPersonName,
+            "email": emp.emailId,
+            "personalNumber": emp.personalMobileNumber,
+          },
+        ];
+      },
+    );
+  }
+
+
   // PREFILL
   void _populateForm(EnquiryModel model) async {
     // TEXT CONTROLLERS
@@ -484,7 +546,12 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
           "DisplayName": model.loyaltyExistingUnitNumber,
         },
       ];
+       _fetchFlatDetailsById(
+        model.loyaltyInventoryFlatId,
+        model.loyaltyProjectId,
+      );
     }
+
     if (model.referelInventoryFlatId != 0 &&
         model.referelUnitNumber.isNotEmpty) {
       _selectedFlatNotifier.value = [
@@ -493,7 +560,27 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
           "DisplayName": model.referelUnitNumber,
         },
       ];
+       _fetchFlatDetailsById(
+        model.referelInventoryFlatId,
+        model.referelProjectId,
+      );
     }
+
+    if (model.employeeReferenceEmployeeId != 0 &&
+        model.employeeReferenceName.isNotEmpty) {
+
+      _selectedEmployeeNotifier.value = [
+        {
+          "zAttributesId": model.employeeReferenceEmployeeId,
+          "DisplayName": model.employeeReferenceName,
+        },
+      ];
+
+       _fetchEmployeeDetailsById(
+        model.employeeReferenceEmployeeId,
+      );
+    }
+
 
     // DROPDOWNS - PLAIN VARIABLES
     _selectedOccupationType = findItem(occupationType, model.occupationType);
@@ -990,7 +1077,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       pageNumber: pageNumber,
       pageSize: 15,
       projectId: projectId,
-      queryParams: {"FlatStatus": "booked"},
+      queryParams: {"FlatStatus": "Booked,Alloted"},
     );
 
     return result.fold(
@@ -1975,7 +2062,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       {
         "title": "Booking Date",
         "value":
-            _flatDetailsNotifier.value!.bookingCreatedDate == null
+            _flatDetailsNotifier.value?.bookingCreatedDate == null
                 ? "-"
                 : formatDateTimeAsDDMMMYYYY(
                   _flatDetailsNotifier.value!.bookingCreatedDate!,

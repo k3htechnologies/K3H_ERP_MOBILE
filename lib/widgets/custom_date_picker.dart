@@ -82,7 +82,6 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
           date = value;
           finalDate = formatDateTimeAsDDMMMYYYY(value);
           state.didChange(date);
-          state.validate();
         });
       }
     });

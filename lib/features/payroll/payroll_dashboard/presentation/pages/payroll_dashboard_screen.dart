@@ -118,9 +118,9 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
 
     final lateInCount = getLateInCount(table6);
     final avatarLeaveNames =
-        table1?.map((e) => e.fullName).where((e) => e.isNotEmpty).toList();
+    table1?.map((e) => e.fullName).where((e) => e.isNotEmpty).toList();
     final avatarOutdoorNames =
-        table3?.map((e) => e.createdBy).where((e) => e.isNotEmpty).toList();
+    table3?.map((e) => e.createdBy).where((e) => e.isNotEmpty).toList();
     return Column(
       children: [
         Row(
@@ -261,7 +261,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                 child: Stack(
                   children: List.generate(
                     avatarNames.length > 3 ? 3 : avatarNames.length,
-                    (index) {
+                        (index) {
                       final name = avatarNames[index];
 
                       return Positioned(
@@ -346,7 +346,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     crossAxisSpacing: 10,
-                    childAspectRatio: 1.45,
+                    childAspectRatio: 1.25,
                   ),
                   itemBuilder: (context, index) {
                     final item = actions[index];
@@ -382,11 +382,13 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
           backgroundColor: backgroundColor ?? AppColor.lightBlue,
         ),
         verticalSpacing(),
-        Text(
-          text,
-          maxLines: 2,
-          style: AppTextStyle.ts12M(),
-          textAlign: TextAlign.center,
+        Flexible(
+          child: Text(
+            text,
+            maxLines: 2,
+            style: AppTextStyle.ts12M(),
+            textAlign: TextAlign.center,
+          ),
         ),
       ],
     );
@@ -459,120 +461,120 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
           ),
           verticalSpacing(),
           (state.payrollDashboardModel?.table1 == null ||
-                  state.payrollDashboardModel!.table1.isEmpty)
+              state.payrollDashboardModel!.table1.isEmpty)
               ? Center(
-                child: Text(
-                  "No Data Found",
-                  style: AppTextStyle.ts12M(
-                    color: AppColor.black.withValues(alpha: .5),
-                  ),
-                ),
-              )
+            child: Text(
+              "No Data Found",
+              style: AppTextStyle.ts12M(
+                color: AppColor.black.withValues(alpha: .5),
+              ),
+            ),
+          )
               : SizedBox(
-                height: 300,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  physics: AlwaysScrollableScrollPhysics(),
-                  itemCount: state.payrollDashboardModel!.table1.length,
-                  itemBuilder: (_, index) {
-                    final employee = state.payrollDashboardModel!.table1[index];
-                    final absentEmployeeData = employee;
+            height: 300,
+            child: ListView.builder(
+              shrinkWrap: true,
+              physics: AlwaysScrollableScrollPhysics(),
+              itemCount: state.payrollDashboardModel!.table1.length,
+              itemBuilder: (_, index) {
+                final employee = state.payrollDashboardModel!.table1[index];
+                final absentEmployeeData = employee;
 
-                    switch (absentEmployeeData.status.toLowerCase()) {
-                      case "approved":
-                        statusColor = AppColor.green;
-                        break;
+                switch (absentEmployeeData.status.toLowerCase()) {
+                  case "approved":
+                    statusColor = AppColor.green;
+                    break;
 
-                      case "rejected":
-                        statusColor = AppColor.red;
-                        break;
+                  case "rejected":
+                    statusColor = AppColor.red;
+                    break;
 
-                      default:
-                        statusColor = AppColor.black.withValues(alpha: 0.5);
-                    }
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 14),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 13,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: AppColor.lightGreyBackground,
-                      ),
-                      child: Column(
+                  default:
+                    statusColor = AppColor.black.withValues(alpha: 0.5);
+                }
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 13,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: AppColor.lightGreyBackground,
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CircleAvatar(
-                                radius: 16,
-                                backgroundColor: AppColor.primary.withValues(
-                                  alpha: 0.2,
-                                ),
-                                child: Text(
-                                  _getInitials(absentEmployeeData.fullName),
-                                  style: AppTextStyle.ts12M(
-                                    color: AppColor.primary,
-                                  ),
-                                ),
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundColor: AppColor.primary.withValues(
+                              alpha: 0.2,
+                            ),
+                            child: Text(
+                              _getInitials(absentEmployeeData.fullName),
+                              style: AppTextStyle.ts12M(
+                                color: AppColor.primary,
                               ),
-                              horizontalSpacing(),
-                              Expanded(
-                                child: Text(
-                                  absentEmployeeData.fullName,
-                                  style: AppTextStyle.ts14M(),
-                                ),
-                              ),
-                              CustomButton(
-                                text: "Approve",
-                                onPressed: () {},
-                                isDisable:
-                                    absentEmployeeData.canApprove == 0
-                                        ? true
-                                        : false,
-                              ),
-                            ],
+                            ),
                           ),
-                          verticalSpacing(),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Status",
-                                value: absentEmployeeData.status,
-                                valueTextStyle: AppTextStyle.ts14M(
-                                  color: statusColor,
-                                ),
-                              ),
-                              buildColumnTitleValue(
-                                title: "Leave Type",
-                                value: absentEmployeeData.leaveType,
-                              ),
-                            ],
+                          horizontalSpacing(),
+                          Expanded(
+                            child: Text(
+                              absentEmployeeData.fullName,
+                              style: AppTextStyle.ts14M(),
+                            ),
                           ),
-                          verticalSpacing(),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "No. Of Days",
-                                value:
-                                    "${absentEmployeeData.noOfDays.toString()} Days",
-                              ),
-                              buildColumnTitleValue(
-                                title: "Duration",
-                                value:
-                                    "${formatDateTimeAsDDMMMYYYY(absentEmployeeData.startDate)}- ${formatDateTimeAsDDMMMYYYY(absentEmployeeData.endDate)}",
-                              ),
-                            ],
+                          CustomButton(
+                            text: "Approve",
+                            onPressed: () {},
+                            isDisable:
+                            absentEmployeeData.canApprove == 0
+                                ? true
+                                : false,
                           ),
                         ],
                       ),
-                    );
-                  },
-                ),
-              ),
+                      verticalSpacing(),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Status",
+                            value: absentEmployeeData.status,
+                            valueTextStyle: AppTextStyle.ts14M(
+                              color: statusColor,
+                            ),
+                          ),
+                          buildColumnTitleValue(
+                            title: "Leave Type",
+                            value: absentEmployeeData.leaveType,
+                          ),
+                        ],
+                      ),
+                      verticalSpacing(),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "No. Of Days",
+                            value:
+                            "${absentEmployeeData.noOfDays.toString()} Days",
+                          ),
+                          buildColumnTitleValue(
+                            title: "Duration",
+                            value:
+                            "${formatDateTimeAsDDMMMYYYY(absentEmployeeData.startDate)}- ${formatDateTimeAsDDMMMYYYY(absentEmployeeData.endDate)}",
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -599,75 +601,75 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
           verticalSpacing(),
           (outdoorList.isNotEmpty)
               ? SizedBox(
-                height: 300,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: outdoorList.length,
-                  itemBuilder: (_, index) {
-                    final outdoor = outdoorList[index];
-                    return Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 16.0,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(color: AppColor.grey2, width: .5),
+            height: 300,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: outdoorList.length,
+              itemBuilder: (_, index) {
+                final outdoor = outdoorList[index];
+                return Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 16.0,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(color: AppColor.grey2, width: .5),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              outdoor.companyName,
+                              style: AppTextStyle.ts16SB(
+                                color: AppColor.primary,
+                              ),
+                            ),
+                            verticalSpacing(),
+                            Text(
+                              outdoor.createdBy,
+                              style: AppTextStyle.ts14M(
+                                color: AppColor.grey,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      child: Row(
+                      horizontalSpacing(),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  outdoor.companyName,
-                                  style: AppTextStyle.ts16SB(
-                                    color: AppColor.primary,
-                                  ),
-                                ),
-                                verticalSpacing(),
-                                Text(
-                                  outdoor.createdBy,
-                                  style: AppTextStyle.ts14M(
-                                    color: AppColor.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
+                          Text(
+                            formatDateTimeAsDDMMMYYYY(outdoor.outDoorDate),
+                            style: AppTextStyle.ts14M(),
                           ),
-                          horizontalSpacing(),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                formatDateTimeAsDDMMMYYYY(outdoor.outDoorDate),
-                                style: AppTextStyle.ts14M(),
-                              ),
-                              verticalSpacing(),
-                              Text(
-                                formatTime(outdoor.outDoorTime),
-                                style: AppTextStyle.ts14M(
-                                  color: AppColor.black.withValues(alpha: 0.5),
-                                ),
-                              ),
-                            ],
+                          verticalSpacing(),
+                          Text(
+                            formatTime(outdoor.outDoorTime),
+                            style: AppTextStyle.ts14M(
+                              color: AppColor.black.withValues(alpha: 0.5),
+                            ),
                           ),
                         ],
                       ),
-                    );
-                  },
-                ),
-              )
-              : Center(
-                child: Text(
-                  "No Data Found",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.5),
+                    ],
                   ),
-                ),
+                );
+              },
+            ),
+          )
+              : Center(
+            child: Text(
+              "No Data Found",
+              style: AppTextStyle.ts14M(
+                color: AppColor.black.withValues(alpha: 0.5),
               ),
+            ),
+          ),
         ],
       ),
     );
@@ -694,101 +696,101 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
           verticalSpacing(),
           compoffList.isNotEmpty
               ? SizedBox(
-                height: 300,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: compoffList.length,
-                  itemBuilder: (_, index) {
-                    final compoff = compoffList[index];
-                    return Container(
-                      margin: EdgeInsets.only(bottom: 10),
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4),
-                        color: AppColor.grey2.withValues(alpha: .12),
-                      ),
-                      child: Column(
+            height: 300,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: compoffList.length,
+              itemBuilder: (_, index) {
+                final compoff = compoffList[index];
+                return Container(
+                  margin: EdgeInsets.only(bottom: 10),
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: AppColor.grey2.withValues(alpha: .12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CircleAvatar(
-                                radius: 16,
-                                backgroundColor: AppColor.primary.withValues(
-                                  alpha: 0.2,
-                                ),
-                                child: Text(
-                                  _getInitials(compoff.createdBy),
-                                  style: AppTextStyle.ts12M(
-                                    color: AppColor.primary,
-                                  ),
-                                ),
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundColor: AppColor.primary.withValues(
+                              alpha: 0.2,
+                            ),
+                            child: Text(
+                              _getInitials(compoff.createdBy),
+                              style: AppTextStyle.ts12M(
+                                color: AppColor.primary,
                               ),
-                              horizontalSpacing(),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      compoff.createdBy,
-                                      style: AppTextStyle.ts14M(),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              CustomButton(text: "Approve", onPressed: () {}),
-                            ],
+                            ),
                           ),
-                          verticalSpacing(),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Status",
-                                value: compoff.status,
-                                valueTextStyle: AppTextStyle.ts14M(
-                                  color:
-                                      compoff.status.toLowerCase() == "approved"
-                                          ? AppColor.green
-                                          : AppColor.error,
+                          horizontalSpacing(),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  compoff.createdBy,
+                                  style: AppTextStyle.ts14M(),
                                 ),
-                              ),
-                              Expanded(child: SizedBox()),
-                            ],
+                              ],
+                            ),
                           ),
-                          verticalSpacing(),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Working Date",
-                                value: formatDateTimeAsDDMMMYYYY(
-                                  compoff.workingDate,
-                                ),
-                              ),
-                              buildColumnTitleValue(
-                                title: "Requested Date",
-                                value: formatDateTimeAsDDMMMYYYY(
-                                  compoff.compoffDate,
-                                ),
-                              ),
-                            ],
+                          CustomButton(text: "Approve", onPressed: () {}),
+                        ],
+                      ),
+                      verticalSpacing(),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Status",
+                            value: compoff.status,
+                            valueTextStyle: AppTextStyle.ts14M(
+                              color:
+                              compoff.status.toLowerCase() == "approved"
+                                  ? AppColor.green
+                                  : AppColor.error,
+                            ),
+                          ),
+                          Expanded(child: SizedBox()),
+                        ],
+                      ),
+                      verticalSpacing(),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Working Date",
+                            value: formatDateTimeAsDDMMMYYYY(
+                              compoff.workingDate,
+                            ),
+                          ),
+                          buildColumnTitleValue(
+                            title: "Requested Date",
+                            value: formatDateTimeAsDDMMMYYYY(
+                              compoff.compoffDate,
+                            ),
                           ),
                         ],
                       ),
-                    );
-                  },
-                ),
-              )
-              : Center(
-                child: Text(
-                  "No Data Found",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.5),
+                    ],
                   ),
-                ),
+                );
+              },
+            ),
+          )
+              : Center(
+            child: Text(
+              "No Data Found",
+              style: AppTextStyle.ts14M(
+                color: AppColor.black.withValues(alpha: 0.5),
               ),
+            ),
+          ),
         ],
       ),
     );
@@ -815,93 +817,93 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
           verticalSpacing(),
           (resignationList.isNotEmpty)
               ? SizedBox(
-                height: 300,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: resignationList.length,
-                  itemBuilder: (_, index) {
-                    final resignation = resignationList[index];
-                    return Container(
-                      margin: EdgeInsets.only(bottom: 10),
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4),
-                        color: AppColor.grey2.withValues(alpha: .12),
-                      ),
-                      child: Column(
-                        spacing: 10,
+            height: 300,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: resignationList.length,
+              itemBuilder: (_, index) {
+                final resignation = resignationList[index];
+                return Container(
+                  margin: EdgeInsets.only(bottom: 10),
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: AppColor.grey2.withValues(alpha: .12),
+                  ),
+                  child: Column(
+                    spacing: 10,
+                    children: [
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 16,
-                                backgroundColor: AppColor.primary.withValues(
-                                  alpha: 0.2,
-                                ),
-                                child: Text(
-                                  _getInitials(resignation.fullName),
-                                  style: AppTextStyle.ts12M(
-                                    color: AppColor.primary,
-                                  ),
-                                ),
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundColor: AppColor.primary.withValues(
+                              alpha: 0.2,
+                            ),
+                            child: Text(
+                              _getInitials(resignation.fullName),
+                              style: AppTextStyle.ts12M(
+                                color: AppColor.primary,
                               ),
-                              horizontalSpacing(),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      resignation.fullName,
-                                      style: AppTextStyle.ts14M(),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              CustomButton(text: "Approve", onPressed: () {}),
-                            ],
+                            ),
                           ),
-                          Row(
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Resignation Date",
-                                value: formatDateTimeAsDDMMMYYYY(
-                                  resignation.resignationDate,
+                          horizontalSpacing(),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  resignation.fullName,
+                                  style: AppTextStyle.ts14M(),
                                 ),
-                              ),
-                              buildColumnTitleValue(
-                                title: "Relieving Date",
-                                value: formatDateTimeAsDDMMMYYYY(
-                                  resignation.expectedRelievingDate,
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                          Row(
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Offer In Hand",
-                                value:
-                                    resignation.isAnyOfferInHand.toString() ==
-                                            "false"
-                                        ? "No"
-                                        : "Yes",
-                              ),
-                            ],
+                          CustomButton(text: "Approve", onPressed: () {}),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Resignation Date",
+                            value: formatDateTimeAsDDMMMYYYY(
+                              resignation.resignationDate,
+                            ),
+                          ),
+                          buildColumnTitleValue(
+                            title: "Relieving Date",
+                            value: formatDateTimeAsDDMMMYYYY(
+                              resignation.expectedRelievingDate,
+                            ),
                           ),
                         ],
                       ),
-                    );
-                  },
-                ),
-              )
-              : Center(
-                child: Text(
-                  "No Data Found",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.5),
+                      Row(
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Offer In Hand",
+                            value:
+                            resignation.isAnyOfferInHand.toString() ==
+                                "false"
+                                ? "No"
+                                : "Yes",
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
+                );
+              },
+            ),
+          )
+              : Center(
+            child: Text(
+              "No Data Found",
+              style: AppTextStyle.ts14M(
+                color: AppColor.black.withValues(alpha: 0.5),
               ),
+            ),
+          ),
         ],
       ),
     );

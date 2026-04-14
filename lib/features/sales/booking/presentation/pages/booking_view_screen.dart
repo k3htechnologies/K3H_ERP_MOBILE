@@ -1358,6 +1358,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
+                              spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
@@ -1381,6 +1382,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                               ],
                             ),
                             Row(
+                              spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
@@ -1395,6 +1397,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                               ],
                             ),
                             Row(
+                              spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
@@ -2122,6 +2125,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   buildColumnTitleValue(title: "Type", value: payment.type),
                   payment.type.contains("Date")
@@ -2139,6 +2144,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 ],
               ),
               Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   buildColumnTitleValue(
                     title: "Percentage (%)",
@@ -2151,6 +2158,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 ],
               ),
               Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   buildColumnTitleValue(
                     title: "GST Amount (₹)",

@@ -61,6 +61,7 @@ class EnquiryModel {
     required this.loyaltyExistingProjectName,
     required this.loyaltyExistingUnitNumber,
     required this.loyaltyExistingUnitOwnerName,
+    required this.employeeReferenceEmployeeId,
     required this.employeeReferenceName,
     required this.employeeReferenceMobileNumber,
     required this.remark,
@@ -147,6 +148,7 @@ class EnquiryModel {
   String loyaltyExistingUnitOwnerName;
 
   /// EMPLOYEE REF
+  int employeeReferenceEmployeeId;
   String employeeReferenceName;
   String employeeReferenceMobileNumber;
 
@@ -258,6 +260,10 @@ class EnquiryModel {
         json,
         "LoyaltyExistingUnitOwnerName",
       ),
+      employeeReferenceEmployeeId: parseValue<int>(
+        json,
+        "EmployeeReferenceEmployeeId",
+      ),
       employeeReferenceName: parseValue<String>(json, "EmployeeReferenceName"),
       employeeReferenceMobileNumber: parseValue<String>(
         json,
@@ -338,6 +344,7 @@ class EnquiryModel {
     "LoyaltyExistingProjectName": loyaltyExistingProjectName,
     "LoyaltyExistingUnitNumber": loyaltyExistingUnitNumber,
     "LoyaltyExistingUnitOwnerName": loyaltyExistingUnitOwnerName,
+    "EmployeeReferenceEmployeeId": employeeReferenceEmployeeId,
     "EmployeeReferenceName": employeeReferenceName,
     "EmployeeReferenceMobileNumber": employeeReferenceMobileNumber,
     "Remark": remark,
