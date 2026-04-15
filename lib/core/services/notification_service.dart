@@ -60,18 +60,22 @@ class NotificationService {
 
       print("I m in");
 
-      //  NON-BLOCKING iOS handling
+      // ✅ Small delay for iOS
       if (Platform.isIOS) {
-        _fcm.getAPNSToken().then((apnsToken) {
-          log("APNS Token: $apnsToken");
-        });
+        await Future.delayed(const Duration(seconds: 2));
       }
 
-      //  Get FCM token without waiting forever
-      String? token = await _fcm.getToken();
+      String? token;
+
+      try {
+        token = await _fcm.getToken();
+      } catch (e) {
+        log("FCM error: $e");
+      }
+
+      print("FCM TOKEN => $token");
 
       if (token != null) {
-        print("FCM TOKEN => $token");
         await LocalStorageManager().setString(StorageKey.fcmToken, token);
       }
 

@@ -1,5 +1,6 @@
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.model.dart';
+import 'package:k3h_erp_app/features/crm/brokerage/data/model/paid_brokerage_booking.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
@@ -27,6 +28,25 @@ abstract interface class BrokerageDatasource {
     required int projectId,
     required int brokerageInvoiceId,
     required int bookingId,
+    required String uniqueKey,
+  });
+
+  Future<Map<String, dynamic>> pullPaidBrokerageBooking({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Map<String, dynamic>> addUpdatePaidBrokerageBooking({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
+
+  Future<Map<String, dynamic>> deletePaidBrokerageBooking({
+    required int projectId,
+    required int bookingId,
+    required int paidBrokerageBookingId,
     required String uniqueKey,
   });
 
@@ -202,6 +222,124 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
           brokerageInvoiceId: brokerageInvoiceId,
           bookingId: bookingId,
           uniqueKey: uniqueKey,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> pullPaidBrokerageBooking({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullPaidCrmBrokerageBookingUrl({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "Brokerage/PullPaidBrokerageBooking?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      final networkResponse = await baseClient.getRequestWithAuthentication(
+        pullPaidCrmBrokerageBookingUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': List<PaidBrokerageBookingModel>.from(
+          (networkResponse['data'] as List<dynamic>).map(
+            (e) => PaidBrokerageBookingModel.fromJson(e),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        pullPaidBrokerageBooking(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          projectId: projectId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> addUpdatePaidBrokerageBooking({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    String addUpdatePaidCrmBrokerageBookingURL =
+        "Brokerage/AddUpdatePaidBrokerageBooking";
+
+    try {
+      final networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(
+            addUpdatePaidCrmBrokerageBookingURL,
+            fileList,
+            body,
+          );
+      return {
+        'data': networkResponse['data'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        addUpdatePaidBrokerageBooking(body: body, fileList: fileList);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> deletePaidBrokerageBooking({
+    required int projectId,
+    required int bookingId,
+    required int paidBrokerageBookingId,
+    required String uniqueKey,
+  }) async {
+    String deletePaidCrmBrokerageBookingUrl({
+      required int projectId,
+      required int paidBrokerageBookingId,
+      required String uniqueKey,
+      required int bookingId,
+    }) {
+      return "Brokerage/DeletePaidBrokerageBooking?PaidBrokerageBookingId=$paidBrokerageBookingId&Uniquekey=$uniqueKey&ProjectId=$projectId&BookingId=$bookingId";
+    }
+
+    try {
+      final networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deletePaidCrmBrokerageBookingUrl(
+          projectId: projectId,
+          paidBrokerageBookingId: paidBrokerageBookingId,
+          uniqueKey: uniqueKey,
+          bookingId: bookingId,
+        ),
+      );
+      return {
+        'data': networkResponse['data'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        deletePaidBrokerageBooking(
+          projectId: projectId,
+          paidBrokerageBookingId: paidBrokerageBookingId,
+          uniqueKey: uniqueKey,
+          bookingId: bookingId,
         );
       }
       rethrow;

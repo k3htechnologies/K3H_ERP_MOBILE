@@ -26,9 +26,6 @@ class _SplashMobileScreenState extends State<SplashScreen> {
     super.initState();
 
     Future.delayed(const Duration(seconds: 2), () async {
-      final notificationService = NotificationService();
-
-      await notificationService.initNotifications();
 
       final localStorage = LocalStorageManager();
 
@@ -46,14 +43,6 @@ class _SplashMobileScreenState extends State<SplashScreen> {
         final UtilsRepository utilsRepository =
             serviceLocator<UtilsRepository>();
 
-        // utilsRepository.getAddressMaster().then((res) {
-        //   res.fold(
-        //     (failure) => debugPrint("Address failed"),
-        //     (data) => debugPrint("Address cached successfully"),
-        //   );
-        // });
-
-        // 👇 NOW check menu
         if (menu != null && menu.isNotEmpty) {
           goRouter.goNamed(AppRoutes.dashboardScreen);
           return;

@@ -1,8 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage.model.dart';
+import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.model.dart';
+import 'package:k3h_erp_app/features/crm/brokerage/data/model/paid_brokerage_booking.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/repository/brokerage.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -17,7 +20,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
   final BrokerageRepository _brokerageRepository =
       serviceLocator<BrokerageRepository>();
 
-  // <---- SEARCH DEPARTMENT ---->
+  // <---- SEARCH BROKERAGE ---->
   Future searchBrokerage(
     BuildContext context,
     String value,
@@ -62,6 +65,441 @@ class BrokerageCubit extends Cubit<BrokerageState> {
             isLoading: false,
             totalNumberOfRecord: response["totalNumberOfRecord"],
             currentPage: pageNumber,
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- GET BROKERAGE INVOICE LIST ---->
+  Future getBrokerageInvoiceList(
+    BuildContext context,
+    int pageNumber,
+    int projectId,
+    int bookingId,
+  ) async {
+    var result = await _brokerageRepository.pullBrokerageInvoice(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      projectId: projectId,
+      bookingId: bookingId,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<BrokerageInvoiceModel> newData =
+            List<BrokerageInvoiceModel>.from(response['data'] ?? []);
+
+        final List<BrokerageInvoiceModel> updatedList =
+            pageNumber == 1
+                ? newData
+                : [...state.brokerageInvoiceList, ...newData];
+        emit(
+          state.copyWith(
+            brokerageInvoiceList: updatedList,
+            isLoading: false,
+            totalNumberOfRecordInvoice: response["totalNumberOfRecord"],
+            currentPageInvoice: pageNumber,
+          ),
+        );
+      },
+    );
+  }
+
+  // ADD BROKERAGE INVOICE
+  Future addBrokerageInvoice({
+    required BuildContext context,
+    required String bookingId,
+    required String projectId,
+    required String invoiceNumber,
+    required String invoiceDate,
+    required String bankListMasterId,
+    required String accountName,
+    required String accountNumber,
+    required String iFSCCode,
+    required String invoiceAmount,
+    required String dueDate,
+    required String remark,
+    required MultiFilePickerModel invoiceFiles,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, String> requestBody = {
+      "BrokerageInvoiceId": "0",
+      "BookingId": bookingId,
+      "ProjectId": projectId,
+      "InvoiceNumber": invoiceNumber,
+      "InvoiceDate": invoiceDate,
+      "BankListMasterId": bankListMasterId,
+      "AccountName": accountName,
+      "AccountNumber": accountNumber,
+      "IFSCCode": iFSCCode,
+      "InvoiceAmount": invoiceAmount,
+      "DueDate": dueDate,
+      "Remark": remark,
+    };
+
+    List<Map<String, dynamic>> fileList = [];
+
+    for (int i = 0; i < invoiceFiles.fileNameList.length; i++) {
+      if (invoiceFiles.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "UploadInvoiceURL",
+        "value": invoiceFiles.fileBytesList[i],
+        "fileName": invoiceFiles.fileNameList[i],
+      });
+    }
+
+    var updateResult = await _brokerageRepository.addUpdateBrokerageInvoice(
+      body: requestBody,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    updateResult.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error Message', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(context, subTitle: "Invoice Added Successfully");
+      },
+    );
+  }
+
+  // UPDATE BROKERAGE INVOICE
+  Future updateBrokerageInvoice({
+    required BuildContext context,
+    required String brokerageInvoiceId,
+    required String uniquekey,
+    required String bookingId,
+    required String projectId,
+    required String invoiceNumber,
+    required String invoiceDate,
+    required String bankListMasterId,
+    required String accountName,
+    required String accountNumber,
+    required String iFSCCode,
+    required String invoiceAmount,
+    required String dueDate,
+    required String remark,
+    required MultiFilePickerModel invoiceFiles,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, String> requestBody = {
+      "BrokerageInvoiceId": brokerageInvoiceId,
+      "Uniquekey": uniquekey,
+      "BookingId": bookingId,
+      "ProjectId": projectId,
+      "InvoiceNumber": invoiceNumber,
+      "InvoiceDate": invoiceDate,
+      "BankListMasterId": bankListMasterId,
+      "AccountName": accountName,
+      "AccountNumber": accountNumber,
+      "IFSCCode": iFSCCode,
+      "InvoiceAmount": invoiceAmount,
+      "DueDate": dueDate,
+      "Remark": remark,
+      "RemoveUploadInvoiceURL": invoiceFiles.deletedFileList,
+    };
+
+    List<Map<String, dynamic>> fileList = [];
+
+    for (int i = 0; i < invoiceFiles.fileNameList.length; i++) {
+      if (invoiceFiles.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "UploadInvoiceURL",
+        "value": invoiceFiles.fileBytesList[i],
+        "fileName": invoiceFiles.fileNameList[i],
+      });
+    }
+
+    var updateResult = await _brokerageRepository.addUpdateBrokerageInvoice(
+      body: requestBody,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    updateResult.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error Message', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+        final updatedBrokerageInvoice =
+            response['data'][0] as BrokerageInvoiceModel;
+        if (state.brokerageInvoiceList.isNotEmpty &&
+            index < state.brokerageInvoiceList.length) {
+          final updatedList = List<BrokerageInvoiceModel>.from(
+            state.brokerageInvoiceList,
+          );
+          updatedList[index] = updatedBrokerageInvoice;
+          emit(state.copyWith(brokerageInvoiceList: updatedList));
+        }
+        showSuccessMessage(context, subTitle: "Invoice Updated Successfully");
+      },
+    );
+  }
+
+  // <---- DELETE BROKERAGE INVOICE ---->
+  Future deleteBrokerageInvoice({
+    required BuildContext context,
+    required int brokerageInvoiceId,
+    required String uniqueKey,
+    required int bookingId,
+    required int projectId,
+    required int pageNumber,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _brokerageRepository.deleteBrokerageInvoice(
+      projectId: projectId,
+      brokerageInvoiceId: brokerageInvoiceId,
+      bookingId: bookingId,
+      uniqueKey: uniqueKey,
+    );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(context, subTitle: 'Invoice Deleted Successfully');
+        final updatedList = List<BrokerageInvoiceModel>.from(
+          state.brokerageInvoiceList,
+        );
+        updatedList.removeAt(index);
+
+        emit(
+          state.copyWith(
+            brokerageInvoiceList: updatedList,
+            totalNumberOfRecordInvoice:
+                state.totalNumberOfRecordInvoice > 0
+                    ? state.totalNumberOfRecordInvoice - 1
+                    : 0,
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- GET PAID BROKERAGE LIST ---->
+  Future getBrokeragePaidList(
+    BuildContext context,
+    int pageNumber,
+    int projectId,
+  ) async {
+    var result = await _brokerageRepository.pullPaidBrokerageBooking(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      projectId: projectId,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<PaidBrokerageBookingModel> newData =
+            List<PaidBrokerageBookingModel>.from(response['data'] ?? []);
+
+        final List<PaidBrokerageBookingModel> updatedList =
+            pageNumber == 1
+                ? newData
+                : [...state.brokeragePaidList, ...newData];
+        emit(
+          state.copyWith(
+            brokeragePaidList: updatedList,
+            isLoading: false,
+            totalNumberOfRecordPaid: response["totalNumberOfRecord"],
+            currentPagePaid: pageNumber,
+          ),
+        );
+      },
+    );
+  }
+
+  // ADD BROKERAGE PAYMENT
+  Future addBrokeragePayment({
+    required BuildContext context,
+    required String bookingId,
+    required String projectId,
+    required String brokerageInvoiceId,
+    required String paymentMode,
+    required String bankListMasterId,
+    required String paymentType,
+    required String amountPaid,
+    required String tDSAmount,
+    required String transactionNumber,
+    required MultiFilePickerModel transactionReceiptFiles,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, String> requestBody = {
+      "PaidBrokerageBookingId": "0",
+      "BookingId": bookingId,
+      "ProjectId": projectId,
+      "BrokerageInvoiceId": brokerageInvoiceId,
+      "PaymentMode": paymentMode,
+      "BankListMasterId": bankListMasterId,
+      "PaymentType": paymentType,
+      "AmountPaid": amountPaid,
+      "TDSAmount": tDSAmount,
+      "TransactionNumber": transactionNumber,
+    };
+
+    List<Map<String, dynamic>> fileList = [];
+
+    for (int i = 0; i < transactionReceiptFiles.fileNameList.length; i++) {
+      if (transactionReceiptFiles.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "TransactionReceiptURL",
+        "value": transactionReceiptFiles.fileBytesList[i],
+        "fileName": transactionReceiptFiles.fileNameList[i],
+      });
+    }
+
+    var updateResult = await _brokerageRepository.addUpdatePaidBrokerageBooking(
+      body: requestBody,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    updateResult.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error Message', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(context, subTitle: "Payment Added Successfully");
+      },
+    );
+  }
+
+  // UPDATE BROKERAGE INVOICE
+  Future updateBrokeragePayment({
+    required BuildContext context,
+    required String paidBrokerageBookingId,
+    required String uniquekey,
+    required String bookingId,
+    required String projectId,
+    required String brokerageInvoiceId,
+    required String paymentMode,
+    required String bankListMasterId,
+    required String paymentType,
+    required String amountPaid,
+    required String tDSAmount,
+    required String transactionNumber,
+    required MultiFilePickerModel transactionReceiptFiles,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, String> requestBody = {
+      "PaidBrokerageBookingId": paidBrokerageBookingId,
+      "Uniquekey": uniquekey,
+      "BookingId": bookingId,
+      "ProjectId": projectId,
+      "BrokerageInvoiceId": brokerageInvoiceId,
+      "PaymentMode": paymentMode,
+      "BankListMasterId": bankListMasterId,
+      "PaymentType": paymentType,
+      "AmountPaid": amountPaid,
+      "TDSAmount": tDSAmount,
+      "TransactionNumber": transactionNumber,
+      "RemoveUploadInvoiceURL": transactionReceiptFiles.deletedFileList,
+    };
+
+    List<Map<String, dynamic>> fileList = [];
+
+    for (int i = 0; i < transactionReceiptFiles.fileNameList.length; i++) {
+      if (transactionReceiptFiles.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "TransactionReceiptURL",
+        "value": transactionReceiptFiles.fileBytesList[i],
+        "fileName": transactionReceiptFiles.fileNameList[i],
+      });
+    }
+
+    var updateResult = await _brokerageRepository.addUpdatePaidBrokerageBooking(
+      body: requestBody,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    updateResult.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error Message', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+        final updatedBrokeragePayment =
+            response['data'][0] as PaidBrokerageBookingModel;
+        if (state.brokeragePaidList.isNotEmpty &&
+            index < state.brokeragePaidList.length) {
+          final updatedList = List<PaidBrokerageBookingModel>.from(
+            state.brokeragePaidList,
+          );
+          updatedList[index] = updatedBrokeragePayment;
+          emit(state.copyWith(brokeragePaidList: updatedList));
+        }
+        showSuccessMessage(context, subTitle: "Payment Updated Successfully");
+      },
+    );
+  }
+
+  // <---- DELETE BROKERAGE PAYMENT ---->
+  Future deleteBrokeragePayment({
+    required BuildContext context,
+    required int paidBrokerageBookingId,
+    required String uniqueKey,
+    required int brokerageInvoiceId,
+    required int bookingId,
+    required int projectId,
+    required int pageNumber,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _brokerageRepository.deletePaidBrokerageBooking(
+      projectId: projectId,
+      paidBrokerageBookingId: paidBrokerageBookingId,
+      bookingId: bookingId,
+      uniqueKey: uniqueKey,
+    );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(context, subTitle: 'Payment Deleted Successfully');
+        final updatedList = List<PaidBrokerageBookingModel>.from(
+          state.brokeragePaidList,
+        );
+        updatedList.removeAt(index);
+
+        emit(
+          state.copyWith(
+            brokeragePaidList: updatedList,
+            totalNumberOfRecordPaid:
+                state.totalNumberOfRecordPaid > 0
+                    ? state.totalNumberOfRecordPaid - 1
+                    : 0,
           ),
         );
       },
