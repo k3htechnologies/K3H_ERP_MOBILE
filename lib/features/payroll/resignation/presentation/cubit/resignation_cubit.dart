@@ -139,7 +139,7 @@ class ResignationCubit extends Cubit<ResignationState> {
     addResult.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final newData = List<ResignationModel>.from((response['data']));
@@ -199,7 +199,7 @@ class ResignationCubit extends Cubit<ResignationState> {
     addResult.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         goRouter.pop();

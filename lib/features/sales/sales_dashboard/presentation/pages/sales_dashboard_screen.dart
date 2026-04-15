@@ -740,12 +740,14 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                   Visibility(
                     visible:
                         ((state.currentTabIndex == 0 &&
+                                state.salesDashboardList.isNotEmpty &&
                                 state
                                     .salesDashboardList
                                     .first
                                     .table2
                                     .isNotEmpty) ||
                             (state.currentTabIndex == 1 &&
+                                state.salesDashboardList.isNotEmpty &&
                                 state
                                     .salesDashboardList
                                     .first

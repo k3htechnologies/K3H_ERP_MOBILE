@@ -56,7 +56,7 @@ class LeaveModel {
     noOfDays: parseValue<double>(json, "NoOfDays"),
     reason: parseValue<String>(json, "Reason"),
     leaveDocumentUrl: parseValue<String>(json, "LeaveDocumentURL"),
-    leaveStatus: parseValue<String>(json, "LeaveStatus"),
+    leaveStatus: parseValue<String>(json, "Status"),
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
     createdDate: parseValue<DateTime>(json, "CreatedDate"),

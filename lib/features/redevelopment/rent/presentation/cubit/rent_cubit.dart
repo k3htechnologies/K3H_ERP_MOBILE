@@ -50,7 +50,13 @@ class RentCubit extends Cubit<RentState> {
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
-
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
     var result = await _buildingRepository.pullBuilding(
       pageNumber: pageNumber,
       pageSize: pageSize,
@@ -60,7 +66,7 @@ class RentCubit extends Cubit<RentState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
 
       (response) {
@@ -189,7 +195,7 @@ class RentCubit extends Cubit<RentState> {
     );
     return result.fold(
       (failure) {
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final List<RentDetailsModel> rentDetailsList =
@@ -250,7 +256,7 @@ class RentCubit extends Cubit<RentState> {
     return result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final List<RentModel> rawData = List<RentModel>.from(
@@ -459,7 +465,7 @@ class RentCubit extends Cubit<RentState> {
     goRouter.pop();
     addResult.fold(
       (failure) {
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         goRouter.pop();
@@ -562,7 +568,7 @@ class RentCubit extends Cubit<RentState> {
     goRouter.pop();
     updateResult.fold(
       (failure) {
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
         return;
       },
       (response) {

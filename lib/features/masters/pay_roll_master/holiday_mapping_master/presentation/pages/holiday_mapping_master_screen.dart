@@ -41,7 +41,9 @@ class _HolidayMappingMasterScreenState
   Timer? _debounce;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC, _filterBranchNameC,_filterDepartmentNameC;
+  late TextEditingController _searchC,
+      _filterBranchNameC,
+      _filterDepartmentNameC;
 
   @override
   void initState() {

@@ -161,7 +161,7 @@ class VendorAddCubit extends Cubit<VendorAddState> {
     result.fold(
       (failure) {
         emit(state.copyWith(errorMessage: failure.message));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         goRouter.pop();
@@ -271,10 +271,7 @@ class VendorAddCubit extends Cubit<VendorAddState> {
             (response['data'] as List).isNotEmpty) {
           final updatedVendor = response['data'][0] as VendorModel;
 
-          context.read<VendorCubit>().updateVendorInList(
-            updatedVendor,
-            index,
-          );
+          context.read<VendorCubit>().updateVendorInList(updatedVendor, index);
         }
 
         showSuccessMessage(context, subTitle: 'Vendor Updated Successfully!!!');

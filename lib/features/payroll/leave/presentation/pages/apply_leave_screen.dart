@@ -62,8 +62,12 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
   ];
 
   // DROPDOWN VARIABLE
-  Map<String, dynamic>? selectedStartDuration;
-  Map<String, dynamic>? selectedEndDuration;
+  ValueNotifier<Map<String, dynamic>?> selectedStartDuration = ValueNotifier(
+    null,
+  );
+  ValueNotifier<Map<String, dynamic>?> selectedEndDuration = ValueNotifier(
+    null,
+  );
 
   // FILE VARIABLES
   MultiFilePickerModel leaveDocument = MultiFilePickerModel(
@@ -90,11 +94,11 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
     _endDateNotifier.value = m.endDate;
     _totalDaysC.text = m.noOfDays.toString();
     _reasonC.text = m.reason;
-    selectedStartDuration = durationList.firstWhere(
+    selectedStartDuration.value = durationList.firstWhere(
       (d) => d['value'].toString().toUpperCase() == m.startDateLeaveDuration,
       orElse: () => durationList.first,
     );
-    selectedEndDuration = durationList.firstWhere(
+    selectedEndDuration.value = durationList.firstWhere(
       (d) => d['value'].toString().toUpperCase() == m.endDateLeaveDuration,
       orElse: () => durationList.first,
     );
@@ -147,7 +151,15 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
       return;
     }
 
-    final totalDays = end.difference(start).inDays + 1;
+    double totalDays = (end.difference(start).inDays + 1).toDouble();
+    if ((selectedStartDuration.value != null &&
+        selectedStartDuration.value?['zAttributesId'] != 3)) {
+      totalDays = totalDays - 0.5;
+    }
+    if (selectedEndDuration.value != null &&
+        selectedEndDuration.value?['zAttributesId'] != 3) {
+      totalDays = totalDays - 0.5;
+    }
     _totalDaysC.text = totalDays.toString();
   }
 
@@ -272,6 +284,59 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                         ),
                       ],
                     ),
+
+                    ValueListenableBuilder(
+                      valueListenable: selectedStartDuration,
+                      builder: (context, value, child) {
+                        return CustomDropDownWidget(
+                          title: "Start Day Duration",
+                          hintText: "Select Start Day Duration",
+                          isRequired: true,
+                          dataList: durationList,
+                          initialValue: value,
+                          onSelected: (value) {
+                            selectedStartDuration.value = value;
+                            _calculateTotalDays();
+                          },
+                          validator: (value) {
+                            if (value == null || value["zAttributesId"] == -1) {
+                              return 'Start Duration is required';
+                            }
+                            return null;
+                          },
+                          onValueClear: () {
+                            selectedStartDuration.value = null;
+                            _calculateTotalDays();
+                          },
+                        );
+                      },
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: selectedEndDuration,
+                      builder: (context, value, child) {
+                        return CustomDropDownWidget(
+                          title: "End Day Duration",
+                          hintText: "Select End Day Duration",
+                          isRequired: true,
+                          dataList: durationList,
+                          initialValue: value,
+                          onSelected: (value) {
+                            selectedEndDuration.value = value;
+                            _calculateTotalDays();
+                          },
+                          validator: (value) {
+                            if (value == null || value["zAttributesId"] == -1) {
+                              return 'End Duration is required';
+                            }
+                            return null;
+                          },
+                          onValueClear: () {
+                            selectedEndDuration.value = null;
+                            _calculateTotalDays();
+                          },
+                        );
+                      },
+                    ),
                     FormField<String>(
                       validator: (_) {
                         if (_totalDaysC.text.isEmpty) {
@@ -292,44 +357,6 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                             ),
                           ],
                         );
-                      },
-                    ),
-                    CustomDropDownWidget(
-                      title: "Start Day Duration",
-                      hintText: "Select Start Day Duration",
-                      isRequired: true,
-                      dataList: durationList,
-                      initialValue: selectedStartDuration,
-                      onSelected: (value) {
-                        selectedStartDuration = value;
-                      },
-                      validator: (value) {
-                        if (value == null || value["zAttributesId"] == -1) {
-                          return 'Start Duration is required';
-                        }
-                        return null;
-                      },
-                      onValueClear: () {
-                        selectedStartDuration = durationList.first;
-                      },
-                    ),
-                    CustomDropDownWidget(
-                      title: "End Day Duration",
-                      hintText: "Select End Day Duration",
-                      isRequired: true,
-                      dataList: durationList,
-                      initialValue: selectedEndDuration,
-                      onSelected: (value) {
-                        selectedEndDuration = value;
-                      },
-                      validator: (value) {
-                        if (value == null || value["zAttributesId"] == -1) {
-                          return 'End Duration is required';
-                        }
-                        return null;
-                      },
-                      onValueClear: () {
-                        selectedEndDuration = durationList.first;
                       },
                     ),
                     CustomTextField(
@@ -385,8 +412,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                       .toString();
               final startDate = _startDateNotifier.value!;
               final endDate = _endDateNotifier.value!;
-              final startDateLeaveDuration = selectedStartDuration!["value"];
-              final endDateLeaveDuration = selectedEndDuration!["value"];
+              final startDateLeaveDuration =
+                  selectedStartDuration.value!["value"];
+              final endDateLeaveDuration = selectedEndDuration.value!["value"];
               final reason = _reasonC.text;
 
               if (_isEditMode && widget.leaveModel != null) {

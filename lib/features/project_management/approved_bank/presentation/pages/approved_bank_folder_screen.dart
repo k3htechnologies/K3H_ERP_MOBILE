@@ -96,7 +96,7 @@ class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
             );
           }
         },
-        onProjectChangeCallback: (value){
+        onProjectChangeCallback: (value) {
           _project = value;
           _approvedBankCubit.searchFolder(context, "", value.projectId);
         },
@@ -113,7 +113,9 @@ class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
               return loader();
             }
             if (state.approvedBankFolderList.isEmpty) {
-              return Center(child: noDataWidget(message: "No Approved Bank Found"));
+              return Center(
+                child: noDataWidget(message: "No Approved Bank Found"),
+              );
             }
             return ListView.builder(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -138,15 +140,16 @@ class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
                                 final result = await goRouter.pushNamed(
                                   AppRoutes.approvedBankFile,
                                   queryParameters: {
-                                    "approvedBankFolderId": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(
-                                          state
-                                              .approvedBankFolderList[index]
-                                              .approvedBankFolderId,
+                                    "approvedBankFolderId":
+                                        Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(
+                                              state
+                                                  .approvedBankFolderList[index]
+                                                  .approvedBankFolderId,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
                                   },
                                 );
                                 if (result == true && context.mounted) {
@@ -183,16 +186,29 @@ class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                         Row(
-                           mainAxisSize: MainAxisSize.min,
-                           children: [
-                             Text("Document Count : ",style: AppTextStyle.ts14R(color: AppColor.grey),),
-                             Text(folder.numberOfApprovedBankFile.toString(),style: AppTextStyle.ts14M(),),
-                           ],
-                         ),
-                        CustomIconButton(onPressed: (){}, icon: Icon(Icons.file_download_outlined,size: 16,color: AppColor.primary,))
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                "Document Count : ",
+                                style: AppTextStyle.ts14R(color: AppColor.grey),
+                              ),
+                              Text(
+                                folder.numberOfApprovedBankFile.toString(),
+                                style: AppTextStyle.ts14M(),
+                              ),
+                            ],
+                          ),
+                          CustomIconButton(
+                            onPressed: () {},
+                            icon: Icon(
+                              Icons.file_download_outlined,
+                              size: 16,
+                              color: AppColor.primary,
+                            ),
+                          ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 );

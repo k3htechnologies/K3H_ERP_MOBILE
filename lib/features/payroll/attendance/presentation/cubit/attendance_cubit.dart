@@ -28,7 +28,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
     Map<String, dynamic> queryParams = {
       "StartDate": startDate.toIso8601String(),
       "EndDate": endDate.toIso8601String(),
-      "isReport": "false"
+      "isReport": "false",
     };
     var result = await _attendanceRepository.getAttendanceList(
       pageNumber: pageNumber,
@@ -78,7 +78,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
     addResult.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
         goRouter.pop();
       },
       (response) {

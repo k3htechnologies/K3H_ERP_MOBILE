@@ -28,11 +28,10 @@ class BankListMasterCubit extends Cubit<BankListMasterState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        final List<BankListMasterModel> newData = List<BankListMasterModel>.from(
-          response['data'] ?? [],
-        );
+        final List<BankListMasterModel> newData =
+            List<BankListMasterModel>.from(response['data'] ?? []);
         final List<BankListMasterModel> updatedList =
-        pageNumber == 1 ? newData : [...state.bankList, ...newData];
+            pageNumber == 1 ? newData : [...state.bankList, ...newData];
         emit(
           state.copyWith(
             bankList: updatedList,

@@ -430,67 +430,49 @@ class _LeaveScreenState extends State<LeaveScreen>
                                 children: [
                                   Row(
                                     children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          goRouter.pushNamed(
-                                            AppRoutes.viewLeave,
-                                            queryParameters: {
-                                              "leave": Uri.encodeQueryComponent(
-                                                EncryptionManager.encryptData(
-                                                  jsonEncode(leave.toJson()),
+                                      Expanded(
+                                        flex: 6,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            goRouter.pushNamed(
+                                              AppRoutes.viewLeave,
+                                              queryParameters: {
+                                                "leave": Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(leave.toJson()),
+                                                  ),
                                                 ),
-                                              ),
-                                            },
-                                          );
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.only(bottom: 4),
-                                          decoration: BoxDecoration(
-                                            border: Border(
-                                              bottom: BorderSide(
-                                                color: AppColor.primary,
-                                              ),
-                                            ),
-                                          ),
+                                              },
+                                            );
+                                          },
                                           child: Text(
                                             leave.leaveType,
                                             style: AppTextStyle.ts16M(
                                               color: AppColor.primary,
+                                            ).copyWith(
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              decorationColor: AppColor.primary,
                                             ),
                                           ),
                                         ),
                                       ),
+
                                       Spacer(),
                                       _statusWidget(leave.leaveStatus),
                                       horizontalSpacing(),
+
                                       Row(
                                         spacing: 10,
                                         children: [
                                           CustomIconButton.edit(
                                             onPressed: () {
-                                              goRouter.pushNamed(
-                                                AppRoutes.applyLeave,
-                                                queryParameters: {
-                                                  "leave": Uri.encodeQueryComponent(
-                                                    EncryptionManager.encryptData(
-                                                      jsonEncode(
-                                                        leave.toJson(),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  "index": index.toString(),
-                                                },
-                                              );
+                                              /* your code */
                                             },
                                           ),
                                           CustomIconButton.delete(
                                             onPressed: () {
-                                              _showPopupToDeleteLeave(
-                                                context,
-                                                leave,
-                                                state.currentPage,
-                                                index,
-                                              );
+                                              /* your code */
                                             },
                                           ),
                                         ],

@@ -239,8 +239,11 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: [
                   SizedBox(
-                      height: getActualHeight(context) * .7,
-                      child: Center(child: noDataWidget(message: "No Week Off Found"))),
+                    height: getActualHeight(context) * .7,
+                    child: Center(
+                      child: noDataWidget(message: "No Week Off Found"),
+                    ),
+                  ),
                 ],
               );
             }
@@ -346,13 +349,11 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
                       ),
                       buildRowTitleValue(
                         title: "Weekly Off2",
-                        value:
-                            weekOffMaster.weeklyOff2,
+                        value: weekOffMaster.weeklyOff2,
                       ),
                       buildRowTitleValue(
                         title: "Weekly Off2 Type",
-                        value:
-                            weekOffMaster.weeklyOff2Type,
+                        value: weekOffMaster.weeklyOff2Type,
                       ),
                       buildRowTitleValue(
                         title: "Not Applicable For Months",

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule/data/model/payment_schedule.model.dart';
@@ -47,6 +48,8 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
   // SELECTED SCHEME
   final ValueNotifier<PaymentScheduleSchemeModel?> selectedSchemeNotifier =
       ValueNotifier(null);
+  // PROJECT
+  late ProjectModel _project;
 
   @override
   void initState() {
@@ -55,6 +58,13 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
     _paymentScheduleCubit = context.read<PaymentScheduleCubit>();
     super.initState();
     _onScroll();
+    _project = getProject();
+    if (_project.projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
+      _paymentScheduleCubit.reset();
+    }
   }
 
   // ---------------- FETCH SCHEME ----------------
@@ -130,10 +140,7 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
           _paymentScheduleCubit.getPaymentScheduleMasterList(
             context,
             _paymentScheduleCubit.state.currentPage + 1,
-            scheme:
-                _paymentScheduleCubit
-                    .state
-                    .selectedScheme!,
+            scheme: _paymentScheduleCubit.state.selectedScheme!,
           );
         });
       }
@@ -283,7 +290,11 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
                       state.isLoading == true
                           ? const Center(child: CircularProgressIndicator())
                           : state.paymentScheduleMasterList.isEmpty
-                          ? Center(child: noDataWidget())
+                          ? Center(
+                            child: noDataWidget(
+                              message: "No Payment Schedule Data Found",
+                            ),
+                          )
                           : ListView.builder(
                             controller: scrollController,
                             itemCount:
@@ -321,7 +332,9 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
                                             item.stage,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
-                                            style: AppTextStyle.ts16M(color: AppColor.primary),
+                                            style: AppTextStyle.ts16M(
+                                              color: AppColor.primary,
+                                            ),
                                           ),
                                         ),
                                         if (_routeAuthorizationModel

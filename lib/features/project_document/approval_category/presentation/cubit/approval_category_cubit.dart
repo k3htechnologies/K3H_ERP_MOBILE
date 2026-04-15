@@ -23,7 +23,7 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
     emit(state.copyWith(isLoading: true));
     if (projectId == 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        showErrorMessage(context, "Error Message", "Please select a project");
+        showErrorMessage(context, "Error", "Please select a project");
         ApprovalCategoryCubit();
         emit(state.copyWith(isLoading: false, approvalCategoryList: []));
       });

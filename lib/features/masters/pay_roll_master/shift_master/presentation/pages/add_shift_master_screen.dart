@@ -75,9 +75,6 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
   String? breakEndTime;
 
   // VALUE NOTIFIERS
-  final shiftDurationVN = ValueNotifier<String>("");
-  final shiftWorkDurationVN = ValueNotifier<String>("");
-  final breakDurationVN = ValueNotifier<String>("");
 
   final absentWorkingHoursVN = ValueNotifier<String>("00:00");
   final halfDayWorkingHoursVN = ValueNotifier<String>("00:00");
@@ -117,9 +114,6 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
     _breakDurationC.dispose();
     _shiftWorkDurationC.dispose();
 
-    shiftDurationVN.dispose();
-    shiftWorkDurationVN.dispose();
-    breakDurationVN.dispose();
     absentWorkingHoursVN.dispose();
     halfDayWorkingHoursVN.dispose();
     halfDayInAfterVN.dispose();
@@ -129,6 +123,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
 
   // ON TIME CHANGED
   void _onTimeChanged(Function(String) setter, TimeOfDay value) {
+    print("break : ${value}");
     setter(formatTimeOfDayHHmm(value));
     _calculateAllDurations();
   }
@@ -175,13 +170,15 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
     firstHalfUpTo = shiftMasterModel.firstHalfUpTo;
 
     //  SHIFT DURATIONS
-    shiftDurationVN.value = normalizeTime(shiftMasterModel.shiftDurationTime);
+    _shiftWorkDurationC.text = normalizeTime(
+      shiftMasterModel.shiftDurationTime,
+    );
 
-    shiftWorkDurationVN.value = normalizeTime(
+    _shiftWorkDurationC.text = normalizeTime(
       shiftMasterModel.shiftWorkDurationTime,
     );
 
-    _shiftWorkDurationC.text = shiftWorkDurationVN.value;
+    // _shiftWorkDurationC.text = shiftWorkDurationVN.value;
 
     // ABSENT WORKING HOURS
     final absent = shiftMasterModel.absentWorkingHours;
@@ -208,9 +205,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
     breakBeginTime = normalizeTime(shiftMasterModel.breakBeginTime);
     breakEndTime = normalizeTime(shiftMasterModel.breakEndTime);
 
-    breakDurationVN.value = normalizeTime(shiftMasterModel.breakDurationTime);
-
-    _breakDurationC.text = breakDurationVN.value;
+    _breakDurationC.text = normalizeTime(shiftMasterModel.breakDurationTime);
 
     //  GRACE TIME
     final grace = shiftMasterModel.graceTime;
@@ -246,9 +241,9 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
     _calculateAllDurations();
 
     //  GET VALUES FROM VALUE NOTIFIERS
-    final shiftDuration = shiftDurationVN.value;
-    final shiftWorkDuration = shiftWorkDurationVN.value;
-    final breakDuration = breakDurationVN.value;
+    final shiftDuration = _shiftDurationC.text;
+    final shiftWorkDuration = _shiftWorkDurationC.text;
+    final breakDuration = _breakDurationC.text;
 
     final absentWorkingHours = absentWorkingHoursVN.value;
     final halfDayWorkingHours = halfDayWorkingHoursVN.value;
@@ -301,7 +296,10 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
         breakDurationTime: breakDuration,
         graceTime: graceTime,
         lateArrivalAction: _selectedLateArrivalAction,
-        lateCount: _lateCountC.text.isNotEmpty? double.parse(_lateCountC.text.trim()):0,
+        lateCount:
+            _lateCountC.text.isNotEmpty
+                ? double.parse(_lateCountC.text.trim())
+                : 0,
         remarks: _remarksC.text.trim(),
       );
     }
@@ -485,27 +483,17 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
               return null;
             },
           ),
-          ValueListenableBuilder<String>(
-            valueListenable: shiftDurationVN,
-            builder: (_, value, __) {
-              return CustomTextField(
-                textController: _shiftDurationC,
-                title: "Shift Duration (24 hours Format)",
-                readOnly: true,
-                hint: value,
-              );
-            },
+          CustomTextField(
+            textController: _shiftDurationC,
+            title: "Shift Duration (24 hours Format)",
+            readOnly: true,
+            hint: _shiftDurationC.text,
           ),
-          ValueListenableBuilder<String>(
-            valueListenable: shiftWorkDurationVN,
-            builder: (_, value, __) {
-              return CustomTextField(
-                textController: _shiftWorkDurationC,
-                title: "Shift Work Duration (24 hours Format)",
-                readOnly: true,
-                hint: value,
-              );
-            },
+          CustomTextField(
+            textController: _shiftWorkDurationC,
+            title: "Shift Work Duration (24 hours Format)",
+            readOnly: true,
+            hint: _shiftWorkDurationC.text,
           ),
         ],
       ),
@@ -556,16 +544,11 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
               return null;
             },
           ),
-          ValueListenableBuilder<String>(
-            valueListenable: breakDurationVN,
-            builder: (_, value, __) {
-              return CustomTextField(
-                textController: _breakDurationC,
-                title: "Break Duration Time",
-                readOnly: true,
-                hint: value,
-              );
-            },
+          CustomTextField(
+            textController: _breakDurationC,
+            title: "Break Duration Time",
+            readOnly: true,
+            hint: _breakDurationC.text,
           ),
         ],
       ),
@@ -574,15 +557,16 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
 
   void _calculateAllDurations() {
     final shiftMinutes = getDiffInMinutes(shiftBeginTime, shiftEndTime);
-    shiftDurationVN.value = toHHmm(shiftMinutes);
+    _shiftDurationC.text = toHHmm(shiftMinutes);
 
     final breakMinutes = getDiffInMinutes(breakBeginTime, breakEndTime);
-    breakDurationVN.value = toHHmm(breakMinutes);
+    _breakDurationC.text = toHHmm(breakMinutes);
+    print("break Duration: ${_breakDurationC.text}");
 
     int workMinutes = shiftMinutes - breakMinutes;
     if (workMinutes < 0) workMinutes = 0;
 
-    shiftWorkDurationVN.value = toHHmm(workMinutes);
+    _shiftWorkDurationC.text = toHHmm(workMinutes);
   }
 
   // BUILD ADVANCE SETTING
@@ -600,7 +584,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
             title: "First Half Up To",
             isRequired: true,
             initialTime: parseTimeOfDayFromHHmm(firstHalfUpTo),
-            validator: (value){
+            validator: (value) {
               if (value == null) {
                 return "First Half Up To is required";
               }

@@ -343,14 +343,16 @@ class _PerformanceScreenState extends State<PerformanceScreen>
               showErrorMessage(context, "Error", "Please Select a Project");
               return;
             }
-            if (_performanceCubit
-                        .state
-                        .sourcingTotalNumberOfRecordPerformanceReport ==
-                    0 ||
-                _performanceCubit
-                        .state
-                        .closingTotalNumberOfRecordPerformanceReport ==
-                    0) {
+            if ((_performanceCubit
+                            .state
+                            .sourcingTotalNumberOfRecordPerformanceReport ==
+                        0 &&
+                    _tabControllerSecond.index == 0) ||
+                (_performanceCubit
+                            .state
+                            .closingTotalNumberOfRecordPerformanceReport ==
+                        0 &&
+                    _tabControllerSecond.index == 1)) {
               showErrorMessage(context, "Error", "Data Not Found");
               return;
             }
@@ -367,7 +369,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                   : _performanceCubit
                       .state
                       .closingTotalNumberOfRecordPerformanceReport,
-                      
             );
           },
           isFilterOn: true,
@@ -386,6 +387,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
             ChipStyleTabBar(
               controller: _tabControllerSecond,
               tabs: ["Sourcing Target", "Closing Target"],
+              isSecondaryStyle: true,
             ),
             verticalSpacing(),
             Expanded(

@@ -238,9 +238,12 @@ Widget infoCard(List<Map<String, dynamic>> items, {String? title}) {
     padding: const EdgeInsets.all(16),
     margin: const EdgeInsets.symmetric(vertical: 8),
     decoration: BoxDecoration(
-      color: AppColor.lightBlue,
+      color: AppColor.lightBlue.withValues(alpha: 0.6),
       borderRadius: BorderRadius.circular(8),
-      border: Border.all(color: AppColor.primary, width: .5),
+      border: Border.all(
+        color: AppColor.primary.withValues(alpha: 0.6),
+        width: .5,
+      ),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,

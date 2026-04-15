@@ -309,7 +309,7 @@ import 'package:k3h_erp_app/features/sales/performance/data/model/performance_re
 import 'package:k3h_erp_app/features/sales/performance/presentation/cubit/performance_cubit.dart';
 import 'package:k3h_erp_app/features/sales/performance/presentation/pages/performance.screen.dart';
 import 'package:k3h_erp_app/features/sales/performance/presentation/pages/view_performance.screen.dart';
-import 'package:k3h_erp_app/features/sales/performance/presentation_without_access/pages/performance.screen.dart';
+import 'package:k3h_erp_app/features/sales/performance/presentation_without_access/pages/performance._without_accessscreen.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/cubit/sales_dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/sales_dashboard_screen.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
@@ -3916,7 +3916,7 @@ final GoRouter goRouter = GoRouter(
                   name: AppRoutes.salesPerformanceReport,
                   path: AppRoutes.salesPerformanceReport,
                   builder: (context, state) {
-                    return const SalesPerformanceWithoutAccessScreen();
+                    return const PerformanceWithoutAccessScreen();
                   },
                 ),
                 GoRoute(

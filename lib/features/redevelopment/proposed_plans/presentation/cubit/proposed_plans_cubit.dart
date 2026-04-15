@@ -21,6 +21,13 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
   // <---- GET PROPOSED PLANS LIST ---->
   Future getDepartmentList(BuildContext context, int projectId) async {
     emit(state.copyWith(isLoading: true));
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
     var result = await _proposedPlansRepository.getProposedPlanList(
       projectId: projectId,
     );
@@ -82,18 +89,13 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
     addResult.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final List<ProposedPlansModel> list = List<ProposedPlansModel>.from(
           response['data'] ?? [],
         );
-        emit(
-          state.copyWith(
-            isLoading: false,
-            proposedPlansList: list,
-          ),
-        );
+        emit(state.copyWith(isLoading: false, proposedPlansList: list));
         showSuccessMessage(
           context,
           subTitle: "Proposed plans added successfully",
@@ -148,18 +150,13 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
     addResult.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final List<ProposedPlansModel> list = List<ProposedPlansModel>.from(
           response['data'] ?? [],
         );
-        emit(
-          state.copyWith(
-            isLoading: false,
-            proposedPlansList: list,
-          ),
-        );
+        emit(state.copyWith(isLoading: false, proposedPlansList: list));
         showSuccessMessage(
           context,
           subTitle: "Proposed plans updated successfully",
@@ -170,14 +167,9 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
 
   // ON TAB CHANGE
   void onTabChanged(int index, BuildContext context, projectId) {
-
     // PROJECT CHANGED
     if (state.currentProjectId != projectId) {
-
-      emit(state.copyWith(
-        currentProjectId: projectId,
-        proposedPlansList: [],
-      ));
+      emit(state.copyWith(currentProjectId: projectId, proposedPlansList: []));
 
       getDepartmentList(context, projectId);
       return;

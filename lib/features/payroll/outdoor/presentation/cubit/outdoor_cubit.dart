@@ -262,7 +262,7 @@ class OutdoorCubit extends Cubit<OutdoorState> {
     addResult.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         emit(state.copyWith(isLoading: false));
@@ -322,7 +322,7 @@ class OutdoorCubit extends Cubit<OutdoorState> {
     addResult.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         goRouter.pop();

@@ -242,7 +242,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
             errorMessage: failure.message,
           ),
         );
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         emit(
@@ -552,7 +552,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
             stateType: StateType.companyPartnerLoading,
           ),
         );
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         emit(

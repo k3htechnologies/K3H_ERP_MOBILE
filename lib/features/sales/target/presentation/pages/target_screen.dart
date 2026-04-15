@@ -182,7 +182,7 @@ class _TargetScreenState extends State<TargetScreen>
     final formatted = _getFormattedMonth();
 
     _targetCubit.setMonthFilter(formatted);
-    
+
     if (_tabController.index == 0) {
       _targetCubit.getSalesTargetSourcingList(
         context: context,
@@ -494,7 +494,7 @@ class _TargetScreenState extends State<TargetScreen>
                         }
                         var closing = state.salesTargetClosing[index];
                         return GestureDetector(
-                          onTap: (){
+                          onTap: () {
                             goRouter.pushNamed(
                               AppRoutes.viewTarget,
                               queryParameters: {

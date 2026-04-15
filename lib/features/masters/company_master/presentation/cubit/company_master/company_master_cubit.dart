@@ -91,7 +91,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final fetched = response['data'] as List<CompanyModel>;
@@ -135,7 +135,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     goRouter.pop();
     deleteResult.fold(
       (failure) {
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         showSuccessMessage(context, subTitle: "Company deleted successfully");
@@ -370,7 +370,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
             stateType: StateType.companyPartnerLoading,
           ),
         );
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         emit(

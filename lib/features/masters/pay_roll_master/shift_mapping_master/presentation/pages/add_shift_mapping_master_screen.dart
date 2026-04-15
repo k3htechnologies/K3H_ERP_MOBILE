@@ -321,76 +321,42 @@ class _AddShiftMappingMasterScreenState
                                   ),
 
                                   if (selectedEmployee.isNotEmpty) ...[
-                                    Container(
-                                      margin: const EdgeInsets.only(top: 10),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                          color: AppColor.lightBlue,
-                                        ),
-                                      ),
-                                      padding: const EdgeInsets.all(16),
-                                      child: Column(
-                                        spacing: 10,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              buildColumnTitleValue(
-                                                title: "Department",
-                                                value:
-                                                    selectedEmployee
-                                                        .first["department"] ??
-                                                    '',
-                                              ),
-                                              buildColumnTitleValue(
-                                                title: "Designation",
-                                                value:
-                                                    selectedEmployee
-                                                        .first["designation"] ??
-                                                    '',
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              buildColumnTitleValue(
-                                                title: "Branch",
-                                                value:
-                                                    selectedEmployee
-                                                        .first["branch"] ??
-                                                    '',
-                                              ),
-                                              buildColumnTitleValue(
-                                                title: "Reporting Person",
-                                                value:
-                                                    selectedEmployee
-                                                        .first["reportingPerson"] ??
-                                                    '',
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            spacing: 10,
-                                            children: [
-                                              buildColumnTitleValue(
-                                                title: "Email ID",
-                                                value:
-                                                    selectedEmployee
-                                                        .first["emailId"] ??
-                                                    '',
-                                              ),
-                                              buildColumnTitleValue(
-                                                title: "Personal Mobile Number",
-                                                value:
-                                                    selectedEmployee
-                                                        .first["personalMobileNumber"] ??
-                                                    '',
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
+                                    infoCard([
+                                      {
+                                        "title": "Department",
+                                        "value":
+                                            selectedEmployee
+                                                .first["department"],
+                                      },
+                                      {
+                                        "title": "Designation",
+                                        "value":
+                                            selectedEmployee
+                                                .first["designation"],
+                                      },
+                                      {
+                                        "title": "Branch",
+                                        "value":
+                                            selectedEmployee.first["branch"],
+                                      },
+                                      {
+                                        "title": "Reporting Person",
+                                        "value":
+                                            selectedEmployee
+                                                .first["reportingPerson"],
+                                      },
+                                      {
+                                        "title": "Email ID",
+                                        "value":
+                                            selectedEmployee.first["emailId"],
+                                      },
+                                      {
+                                        "title": "Personal Mobile Number",
+                                        "value":
+                                            selectedEmployee
+                                                .first["personalMobileNumber"],
+                                      },
+                                    ]),
                                   ],
                                 ],
                               );
@@ -422,10 +388,14 @@ class _AddShiftMappingMasterScreenState
                                     Container(
                                       margin: const EdgeInsets.only(top: 10),
                                       decoration: BoxDecoration(
-                                        color: AppColor.lightBlue,
+                                        color: AppColor.lightBlue.withValues(
+                                          alpha: 0.6,
+                                        ),
                                         borderRadius: BorderRadius.circular(10),
                                         border: Border.all(
-                                          color: AppColor.primary,
+                                          color: AppColor.primary.withValues(
+                                            alpha: 0.6,
+                                          ),
                                           width: .5,
                                         ),
                                       ),

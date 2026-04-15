@@ -1,4 +1,4 @@
-part of 'performance_cubit.dart';
+part of 'performance_without_access_cubit.dart';
 
 final class PerformanceState extends BaseState {
   final List<PerformanceReportClosingModel> performanceReportClosingModel;
@@ -37,7 +37,6 @@ final class PerformanceState extends BaseState {
     currentTabIndexForView: 0,
     searchText: "",
   );
-  static const _noChange = Object();
   PerformanceState copyWith({
     String? errorMessage,
     bool? isLoading,

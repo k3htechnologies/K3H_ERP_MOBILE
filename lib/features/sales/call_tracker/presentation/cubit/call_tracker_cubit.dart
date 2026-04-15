@@ -51,6 +51,13 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
     var queryParams = {"Name": state.searchText};
 
     emit(state.copyWith(isLoading: true));
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
     var result = await _callTrackerRepository.getCallingData(
       pageNumber: pageNumber,
       pageSize: 20,
@@ -90,6 +97,13 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
   ) async {
     var queryParams = {"Name": state.searchText};
     emit(state.copyWith(isLoading: true));
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
     var result = await _callTrackerRepository.getCallLog(
       pageNumber: pageNumber,
       pageSize: 20,
@@ -138,8 +152,8 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
       "Uniquekey": uniqueKey,
       "Status": "",
       "Remark": remark,
-      if(rescheduleDate!=null)
-      "RescheduleDate": rescheduleDate.toIso8601String(),
+      if (rescheduleDate != null)
+        "RescheduleDate": rescheduleDate.toIso8601String(),
     };
     var addResult = await _callTrackerRepository.updateCallLog(
       body: requestBody,

@@ -10,8 +10,6 @@ class LeaveCreditConfigurationMasterState extends BaseState {
   final List<LeaveTypeModel> leaveTypeList;
   final int leaveTotalCount;
   final String searchText;
-  final String currentSortColumn;
-  final String currentSortDirection;
 
   final String filterDesignationName;
 
@@ -28,8 +26,6 @@ class LeaveCreditConfigurationMasterState extends BaseState {
     required this.leaveTypeList,
     required this.leaveTotalCount,
     required this.searchText,
-    required this.currentSortColumn,
-    required this.currentSortDirection,
     this.filterDesignationName = "",
     this.filterFromLeaveCreditDate,
     this.filterToLeaveCreditDate,
@@ -45,8 +41,6 @@ class LeaveCreditConfigurationMasterState extends BaseState {
         designationList: [],
         leaveTypeList: [],
         leaveTotalCount: 0,
-        currentSortColumn: "Created Date",
-        currentSortDirection: "DESC",
         searchText: "",
         filterDesignationName: "",
         filterFromLeaveCreditDate: null,
@@ -64,8 +58,6 @@ class LeaveCreditConfigurationMasterState extends BaseState {
     List<LeaveTypeModel>? leaveTypeList,
     int? leaveTotalCount,
     String? searchText,
-    String? currentSortColumn,
-    String? currentSortDirection,
     String? filterDesignationName,
 
     Object? filterFromLeaveCreditDate = _noChange,
@@ -83,9 +75,8 @@ class LeaveCreditConfigurationMasterState extends BaseState {
       leaveTypeList: leaveTypeList ?? this.leaveTypeList,
       leaveTotalCount: leaveTotalCount ?? this.leaveTotalCount,
       searchText: searchText ?? this.searchText,
-      currentSortColumn: currentSortColumn ?? this.currentSortColumn,
-      currentSortDirection: currentSortDirection ?? this.currentSortDirection,
-      filterDesignationName: filterDesignationName ?? this.filterDesignationName,
+      filterDesignationName:
+          filterDesignationName ?? this.filterDesignationName,
 
       filterFromLeaveCreditDate:
           filterFromLeaveCreditDate == _noChange
@@ -112,8 +103,6 @@ class LeaveCreditConfigurationMasterState extends BaseState {
     leaveTypeList,
     leaveTotalCount,
     searchText,
-    currentSortColumn,
-    currentSortDirection,
     filterDesignationName,
     filterFromLeaveCreditDate,
     filterToLeaveCreditDate,

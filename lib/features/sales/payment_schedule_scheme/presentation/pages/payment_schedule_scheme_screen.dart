@@ -154,7 +154,11 @@ class _PaymentScheduleSchemeScreenState
           }
 
           if (state.paymentScheduleSchemeList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(
+              child: noDataWidget(
+                message: "No Payment Schedule Scheme Data Found",
+              ),
+            );
           }
 
           return ListView.builder(

@@ -33,7 +33,7 @@ class NotificationCubit extends Cubit<NotificationState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final List<NotificationModel> newData =

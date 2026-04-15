@@ -86,6 +86,14 @@ class BookingCubit extends Cubit<BookingState> {
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error Message", "Please select a project");
+      });
+      emit(state.copyWith(isLoading: false));
+
+      return;
+    }
     Map<String, dynamic> queryParams = {
       if (state.searchText.isNotEmpty) "ApplicantName": state.searchText.trim(),
       if (state.filterMobileNumber.isNotEmpty)
@@ -374,9 +382,7 @@ class BookingCubit extends Cubit<BookingState> {
 
       final bytes = fileModel.fileBytesList[i];
 
-      final finalBytes = isImage(fileName)
-          ? await compress(bytes)
-          : bytes;
+      final finalBytes = isImage(fileName) ? await compress(bytes) : bytes;
 
       fileList.add({
         "key": "AddUpdateBookingApplicant[$applicantIndex].$fieldName",
@@ -387,10 +393,7 @@ class BookingCubit extends Cubit<BookingState> {
   }
 
   Future<Uint8List> compress(Uint8List bytes) async {
-    return await FlutterImageCompress.compressWithList(
-      bytes,
-      quality: 50,
-    );
+    return await FlutterImageCompress.compressWithList(bytes, quality: 50);
   }
 
   //  ADD BOOKING
@@ -553,9 +556,9 @@ class BookingCubit extends Cubit<BookingState> {
     List<Map<String, dynamic>> fileList = [];
 
     for (
-    int applicantIndex = 0;
-    applicantIndex < addUpdateBookingApplicant.length;
-    applicantIndex++
+      int applicantIndex = 0;
+      applicantIndex < addUpdateBookingApplicant.length;
+      applicantIndex++
     ) {
       final applicant = addUpdateBookingApplicant[applicantIndex];
 

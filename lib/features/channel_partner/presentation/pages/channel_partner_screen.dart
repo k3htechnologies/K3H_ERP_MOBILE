@@ -368,23 +368,23 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                                   ),
                                 ),
                               ],
-                              if(_routeAuthorizationModel.isAction)
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  goRouter.pushNamed(
-                                    AppRoutes.addChannelPartner,
-                                    queryParameters: {
-                                      "channelPartner":
-                                          Uri.encodeQueryComponent(
-                                            EncryptionManager.encryptData(
-                                              jsonEncode(channelPartner),
+                              if (_routeAuthorizationModel.isAction)
+                                CustomIconButton.edit(
+                                  onPressed: () async {
+                                    goRouter.pushNamed(
+                                      AppRoutes.addChannelPartner,
+                                      queryParameters: {
+                                        "channelPartner":
+                                            Uri.encodeQueryComponent(
+                                              EncryptionManager.encryptData(
+                                                jsonEncode(channelPartner),
+                                              ),
                                             ),
-                                          ),
-                                      "index": index.toString(),
-                                    },
-                                  );
-                                },
-                              ),
+                                        "index": index.toString(),
+                                      },
+                                    );
+                                  },
+                                ),
                             ],
                           ),
                         ],

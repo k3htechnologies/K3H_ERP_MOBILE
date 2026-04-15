@@ -11,25 +11,22 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
-import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class SalesPerformanceWithoutAccessScreen extends StatefulWidget {
-  const SalesPerformanceWithoutAccessScreen({super.key});
+class PerformanceWithoutAccessScreen extends StatefulWidget {
+  const PerformanceWithoutAccessScreen({super.key});
 
   @override
-  State<SalesPerformanceWithoutAccessScreen> createState() =>
-      _SalesPerformanceWithoutAccessScreenState();
+  State<PerformanceWithoutAccessScreen> createState() =>
+      _PerformanceWithoutAccessScreenState();
 }
 
-class _SalesPerformanceWithoutAccessScreenState
-    extends State<SalesPerformanceWithoutAccessScreen>
+class _PerformanceWithoutAccessScreenState
+    extends State<PerformanceWithoutAccessScreen>
     with TickerProviderStateMixin {
   // CUBIT
   late PerformanceCubit _performanceCubit;
@@ -37,8 +34,6 @@ class _SalesPerformanceWithoutAccessScreenState
   // PROJECT
   late ProjectModel _project;
 
-  // AUTHORIZATION
-  late AuthorizationModel _routeAuthorizationModel;
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC;
   // SCROLL CONTROLLERS
@@ -86,15 +81,6 @@ class _SalesPerformanceWithoutAccessScreenState
     _searchC = TextEditingController();
   }
 
-  // HANDLE TAB CHANGE
-  // void _handleTabChangeFirst() {
-  //   if (!_tabControllerFirst.indexIsChanging) {
-  //     _searchC.clear();
-  //     _performanceCubit.resetSearch();
-  //     _callPerformanceApi();
-  //   }
-  // }
-
   void _handleTabChangeSecond() {
     if (!_tabControllerSecond.indexIsChanging) {
       _searchC.clear();
@@ -102,19 +88,6 @@ class _SalesPerformanceWithoutAccessScreenState
       _callPerformanceApi();
     }
   }
-
-  // String _getTillDateType() {
-  //   switch (_tabControllerFirst.index) {
-  //     case 0:
-  //       return "WTD";
-  //     case 1:
-  //       return "MTD";
-  //     case 2:
-  //       return "YTD";
-  //     default:
-  //       return "WTD";
-  //   }
-  // }
 
   String _getReportType() {
     return _tabControllerSecond.index == 0 ? "Sourcing" : "Closing";
