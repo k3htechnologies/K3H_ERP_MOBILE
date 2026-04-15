@@ -614,7 +614,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
-                                  title: "GST No. dndnd",
+                                  title: "GST No.",
                                   value:
                                       applicant.gstNumber.isEmpty
                                           ? "-"
@@ -814,22 +814,25 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 buildColumnTitleValue(
                                   title: "Profile Photo",
                                   value:
-                                  applicant.photoURL.isEmpty ? "-" : applicant.photoURL,
-                                  customValueWidget: CustomButton.documentOutline(
-                                    onPressed: () {
-                                      if (applicant.photoURL.isNotEmpty) {
-                                        showFilePreviewDialog(
-                                          context,
-                                          applicant.photoURL.split(","),
-                                        );
-                                      }
-                                    },
-                                    isDisable: applicant.photoURL.isEmpty,
-                                  ),
+                                      applicant.photoURL.isEmpty
+                                          ? "-"
+                                          : applicant.photoURL,
+                                  customValueWidget:
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant.photoURL.isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              context,
+                                              applicant.photoURL.split(","),
+                                            );
+                                          }
+                                        },
+                                        isDisable: applicant.photoURL.isEmpty,
+                                      ),
                                 ),
-                                Expanded(child: SizedBox())
+                                Expanded(child: SizedBox()),
                               ],
-                            )
+                            ),
                           ],
                         ),
                       );
@@ -1859,36 +1862,25 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   buildColumnTitleValue(
                     title: "Cancelled Cheque",
                     value:
-                    applicant.cancelledChequeUrl.isEmpty
-                        ? "-"
-                        : applicant.cancelledChequeUrl,
-                    customValueWidget:
-                    CustomButton.documentOutline(
+                        applicant.cancelledChequeUrl.isEmpty
+                            ? "-"
+                            : applicant.cancelledChequeUrl,
+                    customValueWidget: CustomButton.documentOutline(
                       onPressed: () {
-                        if (applicant
-                            .cancelledChequeUrl
-                            .isNotEmpty) {
+                        if (applicant.cancelledChequeUrl.isNotEmpty) {
                           showFilePreviewDialog(
                             context,
-                            applicant.cancelledChequeUrl
-                                .split(","),
+                            applicant.cancelledChequeUrl.split(","),
                           );
                         }
                       },
-                      isDisable:
-                      applicant
-                          .cancelledChequeUrl
-                          .isEmpty,
+                      isDisable: applicant.cancelledChequeUrl.isEmpty,
                     ),
                   ),
                   buildColumnTitleValue(
                     title: "POA (if NRI Execution)",
-                    value:
-                    applicant.poaurl.isEmpty
-                        ? "-"
-                        : applicant.poaurl,
-                    customValueWidget:
-                    CustomButton.documentOutline(
+                    value: applicant.poaurl.isEmpty ? "-" : applicant.poaurl,
+                    customValueWidget: CustomButton.documentOutline(
                       onPressed: () {
                         if (applicant.poaurl.isNotEmpty) {
                           showFilePreviewDialog(
@@ -1909,51 +1901,37 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   buildColumnTitleValue(
                     title: "Income Docs (Form 16 / ITR)",
                     value:
-                    applicant.incomeForm16Itrurl.isEmpty
-                        ? "-"
-                        : applicant.incomeForm16Itrurl,
-                    customValueWidget:
-                    CustomButton.documentOutline(
+                        applicant.incomeForm16Itrurl.isEmpty
+                            ? "-"
+                            : applicant.incomeForm16Itrurl,
+                    customValueWidget: CustomButton.documentOutline(
                       onPressed: () {
-                        if (applicant
-                            .incomeForm16Itrurl
-                            .isNotEmpty) {
+                        if (applicant.incomeForm16Itrurl.isNotEmpty) {
                           showFilePreviewDialog(
                             context,
-                            applicant.incomeForm16Itrurl
-                                .split(","),
+                            applicant.incomeForm16Itrurl.split(","),
                           );
                         }
                       },
-                      isDisable:
-                      applicant
-                          .cancelledChequeUrl
-                          .isEmpty,
+                      isDisable: applicant.cancelledChequeUrl.isEmpty,
                     ),
                   ),
                   buildColumnTitleValue(
                     title: "NRE / NRO Bank Details",
                     value:
-                    applicant.nreNroBankDetailsUrl.isEmpty
-                        ? "-"
-                        : applicant.nreNroBankDetailsUrl,
-                    customValueWidget:
-                    CustomButton.documentOutline(
+                        applicant.nreNroBankDetailsUrl.isEmpty
+                            ? "-"
+                            : applicant.nreNroBankDetailsUrl,
+                    customValueWidget: CustomButton.documentOutline(
                       onPressed: () {
-                        if (applicant
-                            .nreNroBankDetailsUrl
-                            .isNotEmpty) {
+                        if (applicant.nreNroBankDetailsUrl.isNotEmpty) {
                           showFilePreviewDialog(
                             context,
-                            applicant.nreNroBankDetailsUrl
-                                .split(","),
+                            applicant.nreNroBankDetailsUrl.split(","),
                           );
                         }
                       },
-                      isDisable:
-                      applicant
-                          .nreNroBankDetailsUrl
-                          .isEmpty,
+                      isDisable: applicant.nreNroBankDetailsUrl.isEmpty,
                     ),
                   ),
                 ],
@@ -1965,52 +1943,37 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   buildColumnTitleValue(
                     title: "Nominee Form",
                     value:
-                    applicant.nomineeFormUrl.isEmpty
-                        ? "-"
-                        : applicant.nomineeFormUrl,
-                    customValueWidget:
-                    CustomButton.documentOutline(
+                        applicant.nomineeFormUrl.isEmpty
+                            ? "-"
+                            : applicant.nomineeFormUrl,
+                    customValueWidget: CustomButton.documentOutline(
                       onPressed: () {
-                        if (applicant
-                            .nomineeFormUrl
-                            .isNotEmpty) {
+                        if (applicant.nomineeFormUrl.isNotEmpty) {
                           showFilePreviewDialog(
                             context,
-                            applicant.nomineeFormUrl.split(
-                              ",",
-                            ),
+                            applicant.nomineeFormUrl.split(","),
                           );
                         }
                       },
-                      isDisable:
-                      applicant
-                          .cancelledChequeUrl
-                          .isEmpty,
+                      isDisable: applicant.cancelledChequeUrl.isEmpty,
                     ),
                   ),
                   buildColumnTitleValue(
                     title: "NRE / NRO Bank Details",
                     value:
-                    applicant.nreNroBankDetailsUrl.isEmpty
-                        ? "-"
-                        : applicant.nreNroBankDetailsUrl,
-                    customValueWidget:
-                    CustomButton.documentOutline(
+                        applicant.nreNroBankDetailsUrl.isEmpty
+                            ? "-"
+                            : applicant.nreNroBankDetailsUrl,
+                    customValueWidget: CustomButton.documentOutline(
                       onPressed: () {
-                        if (applicant
-                            .nreNroBankDetailsUrl
-                            .isNotEmpty) {
+                        if (applicant.nreNroBankDetailsUrl.isNotEmpty) {
                           showFilePreviewDialog(
                             context,
-                            applicant.nreNroBankDetailsUrl
-                                .split(","),
+                            applicant.nreNroBankDetailsUrl.split(","),
                           );
                         }
                       },
-                      isDisable:
-                      applicant
-                          .nreNroBankDetailsUrl
-                          .isEmpty,
+                      isDisable: applicant.nreNroBankDetailsUrl.isEmpty,
                     ),
                   ),
                 ],
