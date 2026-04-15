@@ -47,7 +47,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   }) async {
-    String pullDepartmentUrl({
+    String pullBrokerageBookingUrl({
       required int pageSize,
       required int pageNumber,
       Map<String, dynamic>? queryParams,
@@ -60,7 +60,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullDepartmentUrl(
+        pullBrokerageBookingUrl(
           pageSize: pageSize,
           pageNumber: pageNumber,
           queryParams: queryParams,
@@ -92,7 +92,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
     required int bookingId,
     Map<String, dynamic>? queryParams,
   }) async {
-    String pullBrokerageInvoice({
+    String pullBrokerageInvoiceUrl({
       required int pageSize,
       required int pageNumber,
       required int projectId,
@@ -107,7 +107,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
 
     try {
       final networkResponse = await baseClient.getRequestWithAuthentication(
-        pullBrokerageInvoice(
+        pullBrokerageInvoiceUrl(
           pageSize: pageSize,
           pageNumber: pageNumber,
           projectId: projectId,
@@ -124,7 +124,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        return apicallPullBrokerageInvoice(
+        apicallPullBrokerageInvoice(
           pageNumber: pageNumber,
           pageSize: pageSize,
           projectId: projectId,
@@ -141,12 +141,12 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   }) async {
-    String addUpdateBrokerageInvoice = "Brokerage/AddUpdateBrokerageInvoice";
+    String addUpdateBrokerageInvoiceUrl = "Brokerage/AddUpdateBrokerageInvoice";
 
     try {
       final networkResponse = await baseClient
           .multipartRequestWithAuthenticationBytes(
-            addUpdateBrokerageInvoice,
+            addUpdateBrokerageInvoiceUrl,
             fileList,
             body,
           );
@@ -159,6 +159,9 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
+      if (error is TokenExpiredException) {
+        return addUpdateBrokerageInvoice(body: body, fileList: fileList);
+      }
       rethrow;
     }
   }
@@ -170,7 +173,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
     required int bookingId,
     required String uniqueKey,
   }) async {
-    String deleteCrmBrokerageInvoice({
+    String deleteCrmBrokerageInvoiceUrl({
       required int projectId,
       required int brokerageInvoiceId,
       required int bookingId,
@@ -181,7 +184,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
 
     try {
       final networkResponse = await baseClient.deleteRequestWithAuthentication(
-        deleteCrmBrokerageInvoice(
+        deleteCrmBrokerageInvoiceUrl(
           projectId: projectId,
           brokerageInvoiceId: brokerageInvoiceId,
           bookingId: bookingId,
@@ -193,6 +196,14 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
+      if (error is TokenExpiredException) {
+        deleteBrokerageInvoice(
+          projectId: projectId,
+          brokerageInvoiceId: brokerageInvoiceId,
+          bookingId: bookingId,
+          uniqueKey: uniqueKey,
+        );
+      }
       rethrow;
     }
   }
@@ -204,7 +215,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
     required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
-    String pullBrokerageBooking({
+    String pullBrokerageBookingUrl({
       required int pageSize,
       required int pageNumber,
       required int projectId,
@@ -218,7 +229,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
 
     try {
       final networkResponse = await baseClient.getRequestWithAuthentication(
-        pullBrokerageBooking(
+        pullBrokerageBookingUrl(
           pageSize: pageSize,
           pageNumber: pageNumber,
           projectId: projectId,

@@ -10,13 +10,32 @@ abstract interface class BrokerageRepository {
     Map<String, dynamic>? queryParams,
   });
 
+  Future<Either<Failure, Map<String, dynamic>>> pullBrokerageInvoice({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateBrokerageInvoice({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> deleteBrokerageInvoice({
+    required int projectId,
+    required int brokerageInvoiceId,
+    required int bookingId,
+    required String uniqueKey,
+  });
+
   Future<Either<Failure, Map<String, dynamic>>> exportBrokerageBooking({
     required int pageNumber,
     required int pageSize,
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-
 }
 
 class BrokerageRepositoryImp extends BrokerageRepository {
@@ -43,6 +62,64 @@ class BrokerageRepositoryImp extends BrokerageRepository {
   }
 
   @override
+  Future<Either<Failure, Map<String, dynamic>>> pullBrokerageInvoice({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      final result = await brokerageDatasource.apicallPullBrokerageInvoice(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        projectId: projectId,
+        bookingId: bookingId,
+        queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateBrokerageInvoice({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    try {
+      final result = await brokerageDatasource.addUpdateBrokerageInvoice(
+        body: body,
+        fileList: fileList,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteBrokerageInvoice({
+    required int projectId,
+    required int brokerageInvoiceId,
+    required int bookingId,
+    required String uniqueKey,
+  }) async {
+    try {
+      final result = await brokerageDatasource.deleteBrokerageInvoice(
+        projectId: projectId,
+        brokerageInvoiceId: brokerageInvoiceId,
+        bookingId: bookingId,
+        uniqueKey: uniqueKey,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
   Future<Either<Failure, Map<String, dynamic>>> exportBrokerageBooking({
     required int pageNumber,
     required int pageSize,
@@ -50,12 +127,13 @@ class BrokerageRepositoryImp extends BrokerageRepository {
     Map<String, dynamic>? queryParams,
   }) async {
     try {
-      final result = await brokerageDatasource.apicallPullBrokerageBookingForExport(
-        pageNumber: pageNumber,
-        pageSize: pageSize,
-        projectId: projectId,
-        queryParams: queryParams,
-      );
+      final result = await brokerageDatasource
+          .apicallPullBrokerageBookingForExport(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            projectId: projectId,
+            queryParams: queryParams,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

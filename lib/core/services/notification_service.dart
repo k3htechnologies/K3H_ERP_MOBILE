@@ -1,4 +1,5 @@
 import 'dart:developer'; // For logging
+import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
@@ -46,7 +47,6 @@ class NotificationService {
 
   Future<void> initNotifications() async {
     try {
-      // 1. Request permissions with error checking
       NotificationSettings settings = await _fcm.requestPermission(
         alert: true,
         badge: true,
@@ -58,22 +58,25 @@ class NotificationService {
         return;
       }
 
-      // 2. Get token safely (can throw if Firebase config is missing)
-      String? token = await _fcm.getToken();
-      if (token != null) {
-        // Use a try-catch for the storage/API call specifically
-        try {
-          await LocalStorageManager().setString(StorageKey.fcmToken, token);
-        } catch (storageError) {
-          log("Failed to save FCM token: $storageError");
-        }
+      print("I m in");
+
+      //  NON-BLOCKING iOS handling
+      if (Platform.isIOS) {
+        _fcm.getAPNSToken().then((apnsToken) {
+          log("APNS Token: $apnsToken");
+        });
       }
 
-      // 3. Listen for incoming messages
+      //  Get FCM token without waiting forever
+      String? token = await _fcm.getToken();
+
+      if (token != null) {
+        print("FCM TOKEN => $token");
+        await LocalStorageManager().setString(StorageKey.fcmToken, token);
+      }
+
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         _showLocalNotification(message);
-      }, onError: (error) {
-        log("Stream Error in onMessage: $error");
       });
 
     } catch (e) {
