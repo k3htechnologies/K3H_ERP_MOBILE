@@ -210,7 +210,6 @@ class LeaveCubit extends Cubit<LeaveState> {
     required BuildContext context,
     required int leaveId,
     required String uniqueKey,
-    required int pageNumber,
     int? index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
