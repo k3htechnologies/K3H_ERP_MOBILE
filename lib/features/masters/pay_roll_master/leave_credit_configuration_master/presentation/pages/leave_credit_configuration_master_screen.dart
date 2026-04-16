@@ -427,22 +427,13 @@ class _LeaveCreditConfigurationMasterScreenState
                                   },
                                 );
                               },
-                              child: Container(
-                                padding: EdgeInsets.only(
-                                  bottom: 4,
-                                  left: 4,
-                                  right: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(color: AppColor.primary),
-                                  ),
-                                ),
-                                child: Text(
-                                  leaveCreditConfigurationMaster.departmentName,
-                                  style: AppTextStyle.ts16M(
-                                    color: AppColor.primary,
-                                  ),
+                              child: Text(
+                                leaveCreditConfigurationMaster.departmentName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  color: AppColor.primary,
+                                  decoration: TextDecoration.underline,
                                 ),
                               ),
                             ),

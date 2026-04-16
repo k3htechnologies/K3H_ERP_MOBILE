@@ -224,6 +224,9 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
                                 category.projectDocumentCategoryName,
                                 style: AppTextStyle.ts16M(
                                   color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
                                 ),
                               ),
                             ),

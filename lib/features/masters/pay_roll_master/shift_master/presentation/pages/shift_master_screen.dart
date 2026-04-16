@@ -297,6 +297,9 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
                                 shiftMaster.shiftName,
                                 style: AppTextStyle.ts16M(
                                   color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  color: AppColor.primary,
                                 ),
                               ),
                             ),
