@@ -466,8 +466,18 @@ class _LeaveScreenState extends State<LeaveScreen>
                                         spacing: 10,
                                         children: [
                                           CustomIconButton.edit(
-                                            onPressed: () {
-                                              /* your code */
+                                            onPressed: () async {
+                                              await goRouter.pushNamed(
+                                                AppRoutes.applyLeave,
+                                                queryParameters: {
+                                                  "leave": Uri.encodeQueryComponent(
+                                                    EncryptionManager.encryptData(
+                                                      jsonEncode(leave),
+                                                    ),
+                                                  ),
+                                                  'index': index.toString(),
+                                                },
+                                              );
                                             },
                                           ),
                                           CustomIconButton.delete(

@@ -96,9 +96,12 @@ class _ResignationScreenState extends State<ResignationScreen> {
         screenTitle: 'Resignation',
         authorization: _routeAuthorizationModel,
         isMenuButton: true,
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addresignation);
-        },
+        onAddCallback:
+            _resignationCubit.state.resignationList.isNotEmpty
+                ? null
+                : () {
+                  goRouter.pushNamed(AppRoutes.addresignation);
+                },
       ),
       body: BlocBuilder<ResignationCubit, ResignationState>(
         builder: (context, state) {
@@ -145,37 +148,45 @@ class _ResignationScreenState extends State<ResignationScreen> {
                             ),
                           ),
                         ),
-                        _statusButton(resignation, index),
-                        horizontalSpacing(),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addresignation,
-                                  queryParameters: {
-                                    "resignation": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(resignation),
-                                      ),
-                                    ),
-                                    'index': index.toString(),
-                                  },
-                                );
-                              },
-                            ),
-                            const SizedBox(width: 8),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeleteResignation(
-                                  context,
-                                  resignation,
-                                  state.currentPage,
-                                  index,
-                                );
-                              },
-                            ),
+                            approvalStatusWidget(resignation.approvalStatus),
+                            if (resignation.approvalStatus.toLowerCase() !=
+                                'approved') ...[
+                              horizontalSpacing(),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  CustomIconButton.edit(
+                                    onPressed: () async {
+                                      await goRouter.pushNamed(
+                                        AppRoutes.addresignation,
+                                        queryParameters: {
+                                          "resignation":
+                                              Uri.encodeQueryComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(resignation),
+                                                ),
+                                              ),
+                                          'index': index.toString(),
+                                        },
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 8),
+                                  CustomIconButton.delete(
+                                    onPressed: () {
+                                      _showPopupToDeleteResignation(
+                                        context,
+                                        resignation,
+                                        state.currentPage,
+                                        index,
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
                       ],

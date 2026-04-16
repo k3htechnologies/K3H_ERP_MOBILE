@@ -10,7 +10,7 @@ class ResignationModel {
   DateTime expectedRelievingDate;
   bool isAnyOfferInHand;
   String offerLetterUrl;
-  int offerAmount;
+  double offerAmount;
   String approvalStatus;
   int createdById;
   String createdBy;
@@ -54,8 +54,8 @@ class ResignationModel {
           "ExpectedRelievingDate",
         ),
         isAnyOfferInHand: parseValue<bool>(json, "IsAnyOfferInHand"),
-        offerLetterUrl: parseValue<String>(json, "OfferLetterUrl"),
-        offerAmount: parseValue<int>(json, "OfferAmount"),
+        offerLetterUrl: parseValue<String>(json, "OfferLetterURL"),
+        offerAmount: parseValue<double>(json, "OfferAmount"),
         approvalStatus: parseValue<String>(json, "ApprovalStatus"),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
@@ -78,7 +78,7 @@ class ResignationModel {
       "ReasonOfLeaving": reasonOfLeaving,
       "ExpectedRelievingDate": expectedRelievingDate.toIso8601String(),
       "IsAnyOfferInHand": isAnyOfferInHand,
-      "OfferLetterUrl": offerLetterUrl,
+      "OfferLetterURL": offerLetterUrl,
       "OfferAmount": offerAmount,
       "ApprovalStatus": approvalStatus,
       "CreatedById": createdById,
