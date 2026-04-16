@@ -63,8 +63,9 @@ class EnquiryCubit extends Cubit<EnquiryState> {
   ) async {
     emit(state.copyWith(isLoading: true));
     if (projectId == 0) {
-      showErrorMessage(context, "Error Message", "Please select a project");
-      EnquiryCubit();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
       emit(state.copyWith(isLoading: false));
       return;
     }

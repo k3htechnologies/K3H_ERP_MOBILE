@@ -55,7 +55,6 @@ class LeaveCreditConfigurationMasterCubit
       "DepartmentName": state.searchText,
       if (state.filterDesignationName.isNotEmpty)
         "DesignationName": state.filterDesignationName,
-      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     if (state.filterFromLeaveCreditDate != null) {
       queryParams["StartDate"] =
@@ -292,7 +291,7 @@ class LeaveCreditConfigurationMasterCubit
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final newData = List<LeaveTypeModel>.from(response['data']);
@@ -318,16 +317,12 @@ class LeaveCreditConfigurationMasterCubit
     required String filterDesignationName,
     required DateTime? filterFromLeaveCreditDate,
     required DateTime? filterToLeaveCreditDate,
-    String? sortColumn,
-    String? sortDirection,
   }) async {
     emit(
       state.copyWith(
         filterDesignationName: filterDesignationName,
         filterFromLeaveCreditDate: filterFromLeaveCreditDate,
         filterToLeaveCreditDate: filterToLeaveCreditDate,
-        currentSortColumn: sortColumn ?? state.currentSortColumn,
-        currentSortDirection: sortDirection ?? state.currentSortDirection,
         leaveCreditConfigurationMasterList: [],
         currentPage: 1,
       ),

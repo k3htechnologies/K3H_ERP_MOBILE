@@ -30,7 +30,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
     emit(state.copyWith(isLoading: true));
     if (projectId == 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        showErrorMessage(context, "Error Message", "Please select a project");
+        showErrorMessage(context, "Error", "Please select a project");
         ApprovalDocumentCubit();
         emit(
           state.copyWith(

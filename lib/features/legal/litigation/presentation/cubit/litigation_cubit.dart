@@ -74,6 +74,13 @@ class LitigationCubit extends Cubit<LitigationState> {
     required int pageNumber,
   }) async {
     emit(state.copyWith(isLoading: true));
+    if (getProject().projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
     var queryParams = {
       "Title": state.searchText,
       "CaseNumber": state.filterCaseNumber,
@@ -220,7 +227,6 @@ class LitigationCubit extends Cubit<LitigationState> {
     Map<String, dynamic>? queryParams,
   }) async {
     emit(state.copyWith(isLoading: true));
-
     final result = await _litigationRepository.pullLitigationHearing(
       pageNumber: pageNumber,
       pageSize: 5,
@@ -406,7 +412,6 @@ class LitigationCubit extends Cubit<LitigationState> {
     Map<String, dynamic>? queryParams,
   }) async {
     emit(state.copyWith(isLoading: true));
-
     final result = await _litigationRepository.pullLitigationDocument(
       pageNumber: pageNumber,
       pageSize: 15,

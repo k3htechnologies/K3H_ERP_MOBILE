@@ -7,7 +7,6 @@ import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/payroll/comp_off/data/model/comp_off.model.dart';
 import 'package:k3h_erp_app/features/payroll/comp_off/presentation/cubit/comp_off_cubit.dart';
-import 'package:k3h_erp_app/features/payroll/leave/presentation/pages/leave_screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -283,136 +282,82 @@ class _CompOffScreenState extends State<CompOffScreen> {
           margin: EdgeInsets.only(bottom: 10),
           padding: EdgeInsets.all(12),
           decoration: commonCardDecoration(),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Column(
             children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            goRouter.pushNamed(
-                              AppRoutes.viewCompOff,
-                              queryParameters: {
-                                "compOff": Uri.encodeComponent(
-                                  EncryptionManager.encryptData(
-                                    jsonEncode(compOff),
-                                  ),
-                                ),
-                              },
-                            );
-                          },
-                          child: Text(
-                            formatDateTimeAsDDMMMYYYY(compOff.compOffDate),
-                            style: AppTextStyle.ts16M(color: AppColor.primary),
-                          ),
-                        ),
-                        horizontalSpacing(width: 20),
-                        _statusWidget("Pending"),
-                      ],
-                    ),
-                    verticalSpacing(),
-                    buildRowTitleValue(
-                      title: "Working Date",
-                      value: formatDateTimeAsDDMMMYYYY(compOff.workingDate),
-                    ),
-                    buildRowTitleValue(title: "Reason", value: compOff.reason),
-                  ],
-                ),
-              ),
-              horizontalSpacing(),
               Row(
+                mainAxisAlignment: MainAxisAlignment.start,
                 spacing: 10,
-                mainAxisSize: MainAxisSize.min,
                 children: [
-                  CustomIconButton.edit(
-                    onPressed: () {
-                      goRouter.pushNamed(
-                        AppRoutes.addCompOff,
-                        queryParameters: {
-                          "compOff": Uri.encodeComponent(
-                            EncryptionManager.encryptData(jsonEncode(compOff)),
-                          ),
-                        },
-                      );
-                    },
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        goRouter.pushNamed(
+                          AppRoutes.viewCompOff,
+                          queryParameters: {
+                            "compOff": Uri.encodeComponent(
+                              EncryptionManager.encryptData(
+                                jsonEncode(compOff),
+                              ),
+                            ),
+                          },
+                        );
+                      },
+                      child: Text(
+                        formatDateTimeAsDDMMMYYYY(compOff.compOffDate),
+                        style: AppTextStyle.ts16M(
+                          color: AppColor.primary,
+                        ).copyWith(
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppColor.primary,
+                        ),
+                      ),
+                    ),
                   ),
-                  CustomIconButton.delete(
-                    onPressed: () {
-                      _showPopupToDeleteDepartmentMaster(
-                        context,
-                        compOff,
-                        state.currentPage,
-                        index,
-                      );
-                    },
+                  if (compOff.status.isNotEmpty)
+                    approvalStatusWidget(compOff.status),
+
+                  Row(
+                    spacing: 10,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CustomIconButton.edit(
+                        onPressed: () {
+                          goRouter.pushNamed(
+                            AppRoutes.addCompOff,
+                            queryParameters: {
+                              "compOff": Uri.encodeComponent(
+                                EncryptionManager.encryptData(
+                                  jsonEncode(compOff),
+                                ),
+                              ),
+                            },
+                          );
+                        },
+                      ),
+                      CustomIconButton.delete(
+                        onPressed: () {
+                          _showPopupToDeleteDepartmentMaster(
+                            context,
+                            compOff,
+                            state.currentPage,
+                            index,
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
+              verticalSpacing(),
+              buildRowTitleValue(
+                title: "Working Date",
+                value: formatDateTimeAsDDMMMYYYY(compOff.workingDate),
+              ),
+              buildRowTitleValue(title: "Reason", value: compOff.reason),
             ],
           ),
         );
       },
     );
-  }
-
-  // STATUS WIDGET
-  Widget _statusWidget(String status) {
-    final statusConfig = _getStatusConfig(status);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: statusConfig.backgroundColor,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        statusConfig.label,
-        style: AppTextStyle.ts12M().copyWith(color: statusConfig.textColor),
-      ),
-    );
-  }
-
-  // HELPER METHOD TO GET STATUS CONFIG
-  StatusConfig _getStatusConfig(String status) {
-    switch (status.toLowerCase()) {
-      case "pending":
-        return StatusConfig(
-          label: "Pending",
-          textColor: AppColor.white,
-          backgroundColor: AppColor.darkBlue,
-        );
-
-      case "approved":
-        return StatusConfig(
-          label: "Approved",
-          textColor: AppColor.white,
-          backgroundColor: AppColor.green,
-        );
-
-      case "upcoming":
-        return StatusConfig(
-          label: "Upcoming",
-          textColor: AppColor.white,
-          backgroundColor: AppColor.warning,
-        );
-
-      case "rejected":
-        return StatusConfig(
-          label: "Rejected",
-          textColor: AppColor.white,
-          backgroundColor: AppColor.error,
-        );
-
-      default:
-        return StatusConfig(
-          label: status,
-          textColor: AppColor.grey,
-          backgroundColor: AppColor.grey.withValues(alpha: 0.1),
-        );
-    }
   }
 }

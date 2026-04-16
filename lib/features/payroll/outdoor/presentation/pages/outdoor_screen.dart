@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/payroll/outdoor/data/model/outdoor.model.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/presentation/cubit/outdoor_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -17,6 +16,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -290,6 +290,19 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
                     : const SizedBox.shrink();
               }
               var outdoor = state.outdoorList[index];
+              // FOR CONCLUSION BUTTON COLOR AND DISABILITY HANDLING
+              DateTime now = DateTime.now();
+
+              DateTime today = DateTime(now.year, now.month, now.day);
+              DateTime outdoorDate = DateTime(
+                outdoor.outDoorDate.year,
+                outdoor.outDoorDate.month,
+                outdoor.outDoorDate.day,
+              );
+
+              bool isValidDate =
+                  outdoorDate.isAfter(today) ||
+                  outdoorDate.isAtSameMomentAs(today);
               return Container(
                 margin: EdgeInsets.only(bottom: 10),
                 padding: EdgeInsets.all(12),
@@ -300,11 +313,8 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
                   children: [
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 10,
                       children: [
-                        _punchOutMissingWidget(
-                          outdoor.punchIn,
-                          outdoor.punchOut,
-                        ),
                         Expanded(
                           child: GestureDetector(
                             onTap: () {
@@ -323,13 +333,100 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
                               formatDateTimeAsDDMMMYYYY(outdoor.outDoorDate),
                               style: AppTextStyle.ts16M(
                                 color: AppColor.primary,
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColor.primary,
                               ),
                             ),
                           ),
                         ),
-                        horizontalSpacing(),
+
+                        if (outdoor.status.isNotEmpty)
+                          approvalStatusWidget(outdoor.status),
                         Row(
+                          spacing: 10,
                           children: [
+                            CustomIconButton(
+                              onPressed:
+                                  isValidDate
+                                      ? () {
+                                        _conclusionC.text = outdoor.conclusion;
+
+                                        DialogHelper.showCustomDialogue(
+                                          context,
+                                          title: "Add Conclusion",
+                                          childContent: Column(
+                                            children: [
+                                              CustomTextField(
+                                                textController: _conclusionC,
+                                                isRequired: true,
+                                                hint: "Enter Conclusion",
+                                                minLines: 3,
+                                                maxLines: 3,
+                                                validator: (value) {
+                                                  if (value!.isEmpty) {
+                                                    return "Please enter conclusion";
+                                                  }
+                                                  return null;
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                          bottomSection: Row(
+                                            children: [
+                                              SizedBox(
+                                                width: 120,
+                                                child: CustomButton(
+                                                  text: "Clear",
+                                                  onPressed: () {
+                                                    _conclusionC.clear();
+                                                  },
+                                                  backgroundColor:
+                                                      AppColor.grey,
+                                                ),
+                                              ),
+                                              Spacer(),
+                                              SizedBox(
+                                                width: 120,
+                                                child: CustomButton(
+                                                  text: "Save",
+                                                  onPressed: () {
+                                                    goRouter.pop();
+                                                    _outdoorCubit
+                                                        .addUpdateConclusion(
+                                                          context: context,
+                                                          outdoorId:
+                                                              outdoor.outdoorId,
+                                                          conclusion:
+                                                              _conclusionC.text,
+                                                          index: index,
+                                                        );
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }
+                                      : () {},
+                              backgroundColor:
+                                  isValidDate
+                                      ? outdoor.conclusion.isNotEmpty
+                                          ? AppColor.lightPurple
+                                          : AppColor.lightBlue
+                                      : AppColor.lightGreyBackground,
+                              icon: Icon(
+                                grade: 100.0,
+                                Icons.assignment_turned_in_outlined,
+                                color:
+                                    isValidDate
+                                        ? outdoor.conclusion.isNotEmpty
+                                            ? AppColor.purple
+                                            : AppColor.primary
+                                        : AppColor.grey2,
+                                size: 18,
+                              ),
+                            ),
                             CustomIconButton.edit(
                               onPressed: () {
                                 goRouter.pushNamed(
@@ -354,177 +451,12 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
                       style: AppTextStyle.ts14M(),
                     ),
                     verticalSpacing(),
-                    _statusButton(outdoor, index),
                   ],
                 ),
               );
             },
           );
         },
-      ),
-    );
-  }
-
-  // HELPER WIDGET
-  Widget _statusButton(OutdoorModel outdoor, int index) {
-    String status;
-
-    if (outdoor.punchIn == null) {
-      status = "punchin";
-    } else if (outdoor.punchOut == null) {
-      status = "punchout";
-    } else {
-      status = "conclusion";
-    }
-
-    late String buttonText;
-    late Color bgColor;
-    late Color textColor;
-
-    VoidCallback? onTap;
-
-    switch (status) {
-      case "punchin":
-        buttonText = "Punch In";
-        bgColor = AppColor.lightGreen;
-        textColor = AppColor.darkGreen;
-        onTap = () {
-          _outdoorCubit.addOutdoorAttendance(
-            context: context,
-            outdoorId: outdoor.outdoorId,
-            punchTime: DateTime.now().toIso8601String(),
-            address: "Maheshmati .... SaamRajya....",
-            index: index,
-          );
-        };
-        break;
-
-      case "punchout":
-        buttonText = "Punch Out";
-        bgColor = AppColor.lightBlue;
-        textColor = AppColor.primary;
-        onTap = () {
-          _outdoorCubit.addOutdoorAttendance(
-            context: context,
-            outdoorId: outdoor.outdoorId,
-            punchTime: DateTime.now().toIso8601String(),
-            address: "Maheshmati .... SaamRajya....",
-            index: index,
-          );
-        };
-        break;
-
-      default:
-        buttonText = "Conclusion";
-        bgColor = AppColor.purple20;
-        textColor = AppColor.purple;
-        onTap = () {
-          // Set conclusion text right before opening the dialog
-          _conclusionC.text = outdoor.conclusion;
-
-          DialogHelper.showCustomDialogue(
-            context,
-            title: "Add Conclusion",
-            childContent: Column(
-              children: [
-                CustomTextField(
-                  textController: _conclusionC,
-                  isRequired: true,
-                  hint: "Enter Conclusion",
-                  minLines: 3,
-                  maxLines: 3,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return "Please enter conclusion";
-                    }
-                    return null;
-                  },
-                ),
-              ],
-            ),
-            bottomSection: Row(
-              children: [
-                SizedBox(
-                  width: 120,
-                  child: CustomButton(
-                    text: "Clear",
-                    onPressed: () {
-                      _conclusionC.clear();
-                    },
-                    backgroundColor: AppColor.grey,
-                  ),
-                ),
-                Spacer(),
-                SizedBox(
-                  width: 120,
-                  child: CustomButton(
-                    text: "Save",
-                    onPressed: () {
-                      goRouter.pop();
-                      _outdoorCubit.addUpdateConclusion(
-                        context: context,
-                        outdoorId: outdoor.outdoorId,
-                        conclusion: _conclusionC.text,
-                        index: index,
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          );
-        };
-    }
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.fingerprint, size: 16, color: textColor),
-            const SizedBox(width: 4),
-            Text(buttonText, style: AppTextStyle.ts14M(color: textColor)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // <---- PADDING WIDGET ---->
-  Widget _punchOutMissingWidget(DateTime? punchInTime, DateTime? punchOutTime) {
-    final DateTime today = DateTime.now();
-
-    bool isPreviousDay = false;
-
-    if (punchInTime != null) {
-      final DateTime punchDate = DateTime(
-        punchInTime.year,
-        punchInTime.month,
-        punchInTime.day,
-      );
-
-      final DateTime currentDate = DateTime(today.year, today.month, today.day);
-
-      isPreviousDay = punchDate.isBefore(currentDate);
-    }
-
-    final bool isVisible =
-        punchInTime != null && punchOutTime == null && isPreviousDay;
-
-    return Visibility(
-      visible: isVisible,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.warning, color: AppColor.warning, size: 16),
-          horizontalSpacing(),
-        ],
       ),
     );
   }

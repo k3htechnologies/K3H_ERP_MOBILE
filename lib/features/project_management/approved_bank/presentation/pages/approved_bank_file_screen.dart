@@ -302,17 +302,21 @@ class _ApprovedBankFieScreenState extends State<ApprovedBankFieScreen> {
           Expanded(
             child: BlocBuilder<ApprovedBankFileCubit, ApprovedBankFileState>(
               builder: (context, state) {
-                if ((state.isLoading ?? true) && state.approvedBankFileList.isEmpty) {
+                if ((state.isLoading ?? true) &&
+                    state.approvedBankFileList.isEmpty) {
                   return Center(child: loader());
                 }
                 if (state.approvedBankFileList.isEmpty) {
-                  return Center(child: noDataWidget(message: "No Approved Bank File Found"));
+                  return Center(
+                    child: noDataWidget(message: "No Approved Bank File Found"),
+                  );
                 }
                 return ListView.builder(
                   controller: scrollController,
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
                   itemCount:
-                      _approvedBankFileCubit.state.approvedBankFileList.length + 1,
+                      _approvedBankFileCubit.state.approvedBankFileList.length +
+                      1,
                   itemBuilder: (context, index) {
                     if (index == state.approvedBankFileList.length) {
                       return state.approvedBankFileList.length <
@@ -330,7 +334,11 @@ class _ApprovedBankFieScreenState extends State<ApprovedBankFieScreen> {
                       child: Column(
                         children: [
                           Padding(
-                            padding: EdgeInsets.only(top: 16, left: 16, right: 16),
+                            padding: EdgeInsets.only(
+                              top: 16,
+                              left: 16,
+                              right: 16,
+                            ),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,7 +349,9 @@ class _ApprovedBankFieScreenState extends State<ApprovedBankFieScreen> {
                                     Expanded(
                                       child: Text(
                                         files.approvedBankFileName,
-                                        style: AppTextStyle.ts14R(color: AppColor.primary),
+                                        style: AppTextStyle.ts14R(
+                                          color: AppColor.primary,
+                                        ),
                                       ),
                                     ),
                                     horizontalSpacing(),
@@ -370,7 +380,8 @@ class _ApprovedBankFieScreenState extends State<ApprovedBankFieScreen> {
                                 ),
                                 verticalSpacing(),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Expanded(
                                       child: Column(
@@ -393,7 +404,7 @@ class _ApprovedBankFieScreenState extends State<ApprovedBankFieScreen> {
                                                     : formatDate(
                                                       files.modifiedDate,
                                                     ),
-                                            singleLine: false
+                                            singleLine: false,
                                           ),
                                         ],
                                       ),

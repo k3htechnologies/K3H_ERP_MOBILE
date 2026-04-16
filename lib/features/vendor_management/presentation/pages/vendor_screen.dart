@@ -283,7 +283,9 @@ class _VendorScreenState extends State<VendorScreen> {
             return loader();
           }
           if (state.vendorList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Vendors Data Found"));
+            return Center(
+              child: noDataWidget(message: "No Vendors Data Found"),
+            );
           }
           return ListView.builder(
             controller: scrollController,
@@ -335,7 +337,7 @@ class _VendorScreenState extends State<VendorScreen> {
                             ),
                           ),
                         ),
-                        if(_routeAuthorizationModel.isAction)...[
+                        if (_routeAuthorizationModel.isAction) ...[
                           Row(
                             spacing: 10,
                             children: [
@@ -370,20 +372,26 @@ class _VendorScreenState extends State<VendorScreen> {
                               ),
                             ],
                           ),
-                        ]
+                        ],
                       ],
                     ),
                     buildRowTitleValue(
                       title: "Company Name",
                       value: vendor.companyName,
-                      singleLine: false
+                      singleLine: false,
                     ),
                     buildRowTitleValue(
                       title: "Company Type",
                       value: vendor.companyType,
-                      singleLine: false
+                      singleLine: false,
                     ),
-                    buildRowTitleValue(title: "Mobile Number", value: vendor.mobileNumber,customValueWidget: CustomClickToContactText(value: vendor.mobileNumber)),
+                    buildRowTitleValue(
+                      title: "Mobile Number",
+                      value: vendor.mobileNumber,
+                      customValueWidget: CustomClickToContactText(
+                        value: vendor.mobileNumber,
+                      ),
+                    ),
                     buildRowTitleValue(
                       title: "Email ID",
                       value: vendor.emailId,

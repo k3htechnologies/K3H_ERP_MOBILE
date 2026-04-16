@@ -66,47 +66,7 @@ class _CompOffViewScreenState extends State<CompOffViewScreen>
               ),
             ),
             verticalSpacing(height: 15),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: IntrinsicWidth(
-                child: Container(
-                  height: 35,
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: AppColor.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: AppColor.grey.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: TabBar(
-                    controller: _tabController,
-                    isScrollable: true,
-                    tabAlignment: TabAlignment.start,
-                    labelColor: AppColor.primary,
-                    unselectedLabelColor: AppColor.grey,
-                    indicator: BoxDecoration(
-                      color: AppColor.lightBlue,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    dividerColor: Colors.transparent,
-                    labelStyle: AppTextStyle.ts14M(),
-                    unselectedLabelStyle: AppTextStyle.ts14M(),
-                    labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    padding: EdgeInsets.zero,
-                    tabs: const [Tab(text: 'Overview'), Tab(text: 'Document')],
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              child: TabBarView(
-                physics: NeverScrollableScrollPhysics(),
-                controller: _tabController,
-                children: [_buildOverView(), _buildDocument()],
-              ),
-            ),
+            _buildOverView(),
           ],
         ),
       ),
@@ -147,6 +107,18 @@ class _CompOffViewScreenState extends State<CompOffViewScreen>
                 Row(
                   children: [
                     buildColumnTitleValue(
+                      title: "Approval Status",
+                      value: widget.compOffModel.status,
+                      customValueWidget:
+                          widget.compOffModel.status.isNotEmpty
+                              ? approvalStatusWidget(widget.compOffModel.status)
+                              : null,
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
                       title: "Reason",
                       value: widget.compOffModel.reason,
                     ),
@@ -155,85 +127,13 @@ class _CompOffViewScreenState extends State<CompOffViewScreen>
               ],
             ),
           ),
-          Container(
-            padding: EdgeInsets.all(10),
-            decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 10,
-              children: [
-                Text("Action Details", style: AppTextStyle.ts16SB()),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Approved By",
-                      value: "Hahahaha",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Approved Date",
-                      value: "Hahahaha",
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Created By",
-                      value: widget.compOffModel.createdBy,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Created Date",
-                      value: formatDateTimeAsDDMMMYYYY(
-                        widget.compOffModel.createdDate,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          actionCardWidget(
+            createdBy: widget.compOffModel.createdBy,
+            createdDate: widget.compOffModel.createdDate,
+            modifiedBy: widget.compOffModel.modifiedBy,
+            modifiedDate: widget.compOffModel.modifiedDate,
           ),
         ],
-      ),
-    );
-  }
-
-  // DOCUMENT
-  Widget _buildDocument() {
-    return SingleChildScrollView(
-      child: Container(
-        decoration: commonCardDecoration(),
-        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        padding: EdgeInsets.all(16),
-        // child: GestureDetector(
-        //   onTap: () {
-        //     if (widget.compOffModel.documentUrl.isNotEmpty) {
-        //       showFilePreviewDialog(
-        //         context,
-        //         widget.compOffModel.documentUrl.split(","),
-        //       );
-        //     } else {
-        //       showErrorMessage(context, "Image Error", "No Document Found");
-        //     }
-        //   },
-        //   child: Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //     children: [
-        //       Text("Leave Document", style: AppTextStyle.ts16M()),
-        //       Container(
-        //         padding: EdgeInsets.all(5),
-        //         decoration: BoxDecoration(
-        //           color:
-        //           widget.compOffModel.documentUrl.isNotEmpty
-        //               ? AppColor.lightBlue
-        //               : AppColor.grey,
-        //           borderRadius: BorderRadius.circular(4),
-        //         ),
-        //         child: Icon(Icons.remove_red_eye, size: 16),
-        //       ),
-        //     ],
-        //   ),
-        // ),
       ),
     );
   }

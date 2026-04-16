@@ -50,7 +50,7 @@ class PaymentCubit extends Cubit<PaymentState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         emit(

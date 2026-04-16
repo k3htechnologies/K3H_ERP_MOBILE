@@ -54,8 +54,8 @@ class _LeaveScreenState extends State<LeaveScreen>
   late TextEditingController _searchC;
 
   // LEAVE TYPE VARIABLE
-  final ValueNotifier<List<Map<String, dynamic>>> _selectedLeaveTypeNotifier =
-      ValueNotifier([]);
+  final ValueNotifier<List<Map<String, dynamic>>?> _selectedLeaveTypeNotifier =
+      ValueNotifier(null);
 
   // DATE VARIABLES
   final ValueNotifier<DateTime?> _startDateNotifier = ValueNotifier(null);
@@ -193,7 +193,6 @@ class _LeaveScreenState extends State<LeaveScreen>
   Future<void> _showPopupToDeleteLeave(
     BuildContext context,
     LeaveModel obj,
-    int currentPage,
     int index,
   ) async {
     var result = await DialogHelper.deleteDialog(
@@ -206,7 +205,6 @@ class _LeaveScreenState extends State<LeaveScreen>
         context: context,
         leaveId: obj.leaveId,
         uniqueKey: obj.uniquekey,
-        pageNumber: currentPage,
         index: index,
       );
     }
@@ -216,9 +214,11 @@ class _LeaveScreenState extends State<LeaveScreen>
   Future<void> _showBottomSheetToFilterLeave(BuildContext context) async {
     _prefillFilterFromState();
     final state = _leaveCubit.state;
-    _selectedLeaveTypeNotifier.value = [
-      {"DisplayName": state.filterLeaveType},
-    ];
+    if (state.filterLeaveType != null && state.filterLeaveType!.isNotEmpty) {
+      _selectedLeaveTypeNotifier.value = [
+        {"DisplayName": state.filterLeaveType},
+      ];
+    }
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(
       state.filterLeaveType != null ||
           state.filterStartDate != null ||
@@ -294,12 +294,13 @@ class _LeaveScreenState extends State<LeaveScreen>
                   ),
                 ],
               ),
-              ValueListenableBuilder<List<Map<String, dynamic>>>(
+              ValueListenableBuilder<List<Map<String, dynamic>>?>(
                 valueListenable: _selectedLeaveTypeNotifier,
                 builder: (context, leaveTy, child) {
                   return CustomMultipleSelectPopup(
                     title: "Leave Type",
                     isRequired: false,
+                    hintText: "Select Leave Type",
                     isMultiSelect: false,
                     initialValue: leaveTy,
                     dataFetchCallBack: _fetchLeaveType,
@@ -308,6 +309,9 @@ class _LeaveScreenState extends State<LeaveScreen>
                       applyEnabled.value = true;
                     },
                     validator: (value) => null,
+                    onClear: () {
+                      _selectedLeaveTypeNotifier.value = null;
+                    },
                   );
                 },
               ),
@@ -316,15 +320,16 @@ class _LeaveScreenState extends State<LeaveScreen>
         },
       ),
       onClear: () {
-        _selectedLeaveTypeNotifier.value = [];
+        _selectedLeaveTypeNotifier.value = null;
         _startDateNotifier.value = null;
         _endDateNotifier.value = null;
         _leaveCubit.clearFilterOnLeave(context);
       },
       onApply: () {
         final leaveType =
-            _selectedLeaveTypeNotifier.value.isNotEmpty
-                ? (_selectedLeaveTypeNotifier.value[0]["DisplayName"]
+            (_selectedLeaveTypeNotifier.value != null &&
+                    _selectedLeaveTypeNotifier.value!.isNotEmpty)
+                ? (_selectedLeaveTypeNotifier.value![0]["DisplayName"]
                     as String?)
                 : null;
         final startDate = _startDateNotifier.value;
@@ -388,16 +393,18 @@ class _LeaveScreenState extends State<LeaveScreen>
               leading: Icon(Icons.add, size: 16, color: AppColor.white),
             ),
       ),
-      body: BlocBuilder<LeaveCubit, LeaveState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.leaveList.isEmpty) {
-            return Center(child: loader());
-          }
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildStatusTabBar(),
-              Expanded(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildStatusTabBar(),
+          BlocBuilder<LeaveCubit, LeaveState>(
+            builder: (context, state) {
+              if ((state.isLoading ?? true) && state.leaveList.isEmpty) {
+                return Expanded(
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+              return Expanded(
                 child:
                     state.leaveList.isEmpty
                         ? Center(child: noDataWidget(message: "No Leave Found"))
@@ -429,69 +436,73 @@ class _LeaveScreenState extends State<LeaveScreen>
                                 spacing: 5,
                                 children: [
                                   Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          goRouter.pushNamed(
-                                            AppRoutes.viewLeave,
-                                            queryParameters: {
-                                              "leave": Uri.encodeQueryComponent(
-                                                EncryptionManager.encryptData(
-                                                  jsonEncode(leave.toJson()),
+                                      Expanded(
+                                        flex: 6,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            goRouter.pushNamed(
+                                              AppRoutes.viewLeave,
+                                              queryParameters: {
+                                                "leave": Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(leave.toJson()),
+                                                  ),
                                                 ),
-                                              ),
-                                            },
-                                          );
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.only(bottom: 4),
-                                          decoration: BoxDecoration(
-                                            border: Border(
-                                              bottom: BorderSide(
-                                                color: AppColor.primary,
-                                              ),
-                                            ),
-                                          ),
+                                              },
+                                            );
+                                          },
                                           child: Text(
                                             leave.leaveType,
                                             style: AppTextStyle.ts16M(
                                               color: AppColor.primary,
+                                            ).copyWith(
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              decorationColor: AppColor.primary,
                                             ),
                                           ),
                                         ),
                                       ),
-                                      Spacer(),
-                                      _statusWidget(leave.leaveStatus),
-                                      horizontalSpacing(),
+
                                       Row(
-                                        spacing: 10,
                                         children: [
-                                          CustomIconButton.edit(
-                                            onPressed: () {
-                                              goRouter.pushNamed(
-                                                AppRoutes.applyLeave,
-                                                queryParameters: {
-                                                  "leave": Uri.encodeQueryComponent(
-                                                    EncryptionManager.encryptData(
-                                                      jsonEncode(
-                                                        leave.toJson(),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  "index": index.toString(),
-                                                },
-                                              );
-                                            },
+                                          approvalStatusWidget(
+                                            leave.leaveStatus,
                                           ),
-                                          CustomIconButton.delete(
-                                            onPressed: () {
-                                              _showPopupToDeleteLeave(
-                                                context,
-                                                leave,
-                                                state.currentPage,
-                                                index,
-                                              );
-                                            },
+                                          horizontalSpacing(),
+
+                                          Row(
+                                            spacing: 10,
+                                            children: [
+                                              CustomIconButton.edit(
+                                                onPressed: () async {
+                                                  await goRouter.pushNamed(
+                                                    AppRoutes.applyLeave,
+                                                    queryParameters: {
+                                                      "leave":
+                                                          Uri.encodeQueryComponent(
+                                                            EncryptionManager.encryptData(
+                                                              jsonEncode(leave),
+                                                            ),
+                                                          ),
+                                                      'index': index.toString(),
+                                                    },
+                                                  );
+                                                },
+                                              ),
+                                              CustomIconButton.delete(
+                                                onPressed: () {
+                                                  _showPopupToDeleteLeave(
+                                                    context,
+                                                    leave,
+                                                    index,
+                                                  );
+                                                },
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
@@ -522,10 +533,10 @@ class _LeaveScreenState extends State<LeaveScreen>
                             );
                           },
                         ),
-              ),
-            ],
-          );
-        },
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -534,26 +545,6 @@ class _LeaveScreenState extends State<LeaveScreen>
     return ChipStyleTabBar(
       controller: _tabController!,
       tabs: _statusTabs.map((t) => t).toList(),
-    );
-  }
-
-  // STATUS WIDGET
-  Widget _statusWidget(String status) {
-    if (status.trim().isEmpty) {
-      return SizedBox.shrink();
-    }
-    final statusConfig = _getStatusConfig(status);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: statusConfig.backgroundColor,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        statusConfig.label,
-        style: AppTextStyle.ts12M().copyWith(color: statusConfig.textColor),
-      ),
     );
   }
 

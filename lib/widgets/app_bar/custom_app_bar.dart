@@ -484,7 +484,9 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
             }
           } else if (result == false) {
             if (context.mounted) {
-              if (importTableName == "SALES TARGET CLOSING") {
+              if (importTableName == "SALES TARGET SOURCING") {
+                widget.onImportResult!("download");
+              } else if (importTableName == "SALES TARGET CLOSING") {
                 widget.onImportResult!("download");
               } else {
                 sampleExcelImport(context, importTableName);

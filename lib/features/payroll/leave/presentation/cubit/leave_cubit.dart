@@ -42,8 +42,8 @@ class LeaveCubit extends Cubit<LeaveState> {
                 ? _statusTabs[state.currentTabIndex]
                 : "");
     final Map<String, dynamic> queryParams = {
-      "LeaveType": state.searchText,
-      "Status": status,
+      if (state.leaveTypeList.isNotEmpty) "LeaveType": state.searchText,
+      if (status.isNotEmpty) "Status": status,
     };
     if (state.filterLeaveType != null && state.filterLeaveType!.isNotEmpty) {
       queryParams["LeaveType"] = state.filterLeaveType!;
@@ -131,7 +131,7 @@ class LeaveCubit extends Cubit<LeaveState> {
     addResult.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         emit(state.copyWith(isLoading: false));
@@ -189,7 +189,7 @@ class LeaveCubit extends Cubit<LeaveState> {
     addResult.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         goRouter.pop();
@@ -210,7 +210,6 @@ class LeaveCubit extends Cubit<LeaveState> {
     required BuildContext context,
     required int leaveId,
     required String uniqueKey,
-    required int pageNumber,
     int? index,
   }) async {
     DialogHelper.showProcessingOverlay(context);

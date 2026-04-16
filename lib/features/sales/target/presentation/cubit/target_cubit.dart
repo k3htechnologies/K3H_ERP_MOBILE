@@ -75,7 +75,9 @@ class TargetCubit extends Cubit<TargetState> {
   }) async {
     emit(state.copyWith(isSourcingLoading: true));
     if (projectId == 0) {
-      showErrorMessage(context, "Error Message", "Please select a project");
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
       emit(state.copyWith(isSourcingLoading: false));
 
       return;
@@ -132,7 +134,9 @@ class TargetCubit extends Cubit<TargetState> {
   }) async {
     emit(state.copyWith(isClosingLoading: true));
     if (projectId == 0) {
-      showErrorMessage(context, "Error Message", "Please select a project");
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
       emit(state.copyWith(isClosingLoading: false));
       return;
     }

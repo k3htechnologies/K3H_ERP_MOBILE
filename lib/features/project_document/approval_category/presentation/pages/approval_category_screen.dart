@@ -229,24 +229,16 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
                                   },
                                 );
                               },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 0,
-                                  vertical: 4,
+                              child: Text(
+                                approvalCategory.approvalDocumentCategoryName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
                                 ),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(color: AppColor.primary),
-                                  ),
-                                ),
-                                child: Text(
-                                  approvalCategory.approvalDocumentCategoryName,
-                                  style: AppTextStyle.ts16M(
-                                    color: AppColor.primary,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ),

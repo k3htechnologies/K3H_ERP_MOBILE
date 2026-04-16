@@ -299,7 +299,7 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
                                   color: AppColor.primary,
                                 ).copyWith(
                                   decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
+                                  color: AppColor.primary,
                                 ),
                               ),
                             ),

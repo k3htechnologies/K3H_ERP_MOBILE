@@ -41,7 +41,13 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
-
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
+      emit(state.copyWith(isLoading: false));
+      return [];
+    }
     final result = await _buildingRepository.pullBuilding(
       pageNumber: pageNumber,
       pageSize: pageSize,
@@ -51,7 +57,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     final buildingList = result.fold<List<RedevelopmentBuildingModel>>(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
         return state.buildingList;
       },
 
@@ -161,7 +167,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     goRouter.pop();
     result.fold(
       (failure) {
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
         emit(state.copyWith(isLoading: false));
       },
       (response) {
@@ -255,7 +261,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     goRouter.pop();
     result.fold(
       (failure) {
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
         emit(state.copyWith(isLoading: false));
       },
       (response) {
@@ -624,7 +630,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         emit(
@@ -704,7 +710,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     goRouter.pop();
     result.fold(
       (failure) {
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
         emit(state.copyWith(isLoading: false));
       },
       (response) {
@@ -786,7 +792,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     goRouter.pop();
     result.fold(
       (failure) {
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
         emit(state.copyWith(isLoading: false));
       },
       (response) {
@@ -820,7 +826,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     return result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         emit(
@@ -872,7 +878,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         var list = [
@@ -937,7 +943,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final updatedList = List<RentDetailsModel>.from(state.rentDetails);

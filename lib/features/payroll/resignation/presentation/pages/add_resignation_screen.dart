@@ -10,7 +10,9 @@ import 'package:k3h_erp_app/features/masters/designation_master/presentation/pag
 import 'package:k3h_erp_app/features/payroll/resignation/data/model/resignation.model.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/cubit/resignation_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -39,7 +41,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   // DATE VARIABLE
-  DateTime? resignationDate, relievingDate, expectedRelievingDate;
+  DateTime? resignationDate, expectedRelievingDate;
 
   // TEXT CONTROLLER
   late TextEditingController reasonC, offerAmountC;
@@ -73,17 +75,16 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
   }
 
   void _prefillDataForEdit(ResignationModel resignation) {
-    if (_isEditMode) {
-      resignationDate = resignation.resignationDate;
-      relievingDate = resignation.expectedRelievingDate;
-      reasonC.text = resignation.reasonOfLeaving;
+    resignationDate = resignation.resignationDate;
+    reasonC.text = resignation.reasonOfLeaving;
 
-      expectedRelievingDate = resignation.expectedRelievingDate;
-      isOfferInHand.value = resignation.isAnyOfferInHand;
+    expectedRelievingDate = resignation.expectedRelievingDate;
+    isOfferInHand.value = resignation.isAnyOfferInHand;
+    if (resignation.offerAmount > 0.0) {
       offerAmountC.text = resignation.offerAmount.toString();
-      if (resignation.offerLetterUrl.isNotEmpty) {
-        offerLetter.fileNameList = [resignation.offerLetterUrl];
-      }
+    }
+    if (resignation.offerLetterUrl.isNotEmpty) {
+      offerLetter.fileNameList = resignation.offerLetterUrl.split(",");
     }
   }
 
@@ -97,8 +98,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
               widget.resignationModel!.employeeResignationId.toString(),
           uniquekey: widget.resignationModel!.uniqueKey,
           employeeId: widget.resignationModel!.employeeId.toString(),
-          resignationDate: resignationDate!.toIso8601String(),
-          relievingDate: relievingDate!.toIso8601String(),
+          resignationDate: DateTime.now().toIso8601String(),
           expectedRelievingDate:
               expectedRelievingDate != null
                   ? expectedRelievingDate!.toIso8601String()
@@ -112,8 +112,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
         _resignationCubit.addResignation(
           context: context,
           employeeId: userModel.employeeId.toString(),
-          relievingDate: relievingDate!.toIso8601String(),
-          resignationDate: resignationDate!.toIso8601String().split('T').first,
+          resignationDate: DateTime.now().toIso8601String().split('T').first,
           expectedRelievingDate:
               expectedRelievingDate != null
                   ? expectedRelievingDate!.toIso8601String().split('T').first
@@ -138,128 +137,126 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: _isEditMode ? "Update Resignation" : "Add Resignation",
+        screenTitle: "Resignation",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-        child: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: commonCardDecoration(),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _isEditMode ? "Update Resignation" : "Add Resignation",
+              style: AppTextStyle.ts14M(),
+            ),
+            verticalSpacing(),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: commonCardDecoration(),
+              child: Form(
+                key: _formKey,
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: CustomDatePicker(
-                        title: 'Resignation Date',
-                        isRequired: true,
-                        initialDate: resignationDate,
-                        validator: (value) {
-                          if (value == null) {
-                            return 'Resignation Date is required';
-                          }
-                          return null;
-                        },
-                        setValue: (value) => resignationDate = value,
-                      ),
+                    CustomDatePicker(
+                      title: 'Resignation Date',
+                      isRequired: true,
+                      readOnly: true,
+                      initialDate: DateTime.now(),
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Resignation Date is required';
+                        }
+                        return null;
+                      },
+                      setValue: (value) => resignationDate = value,
                     ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: CustomDatePicker(
-                        title: 'Relieving Date',
-                        initialDate: relievingDate,
-                        setValue: (value) => relievingDate = value,
-                      ),
+                    CustomTextField(
+                      textController: reasonC,
+                      title: 'Reason Of Leaving',
+                      maxLines: 10,
+                      minLines: 3,
+                      isRequired: true,
+                      hint: 'Enter Reason Of Leaving',
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Reason Of Leaving is required";
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomDatePicker(
+                      title: 'Expected Relieving Date',
+                      initialDate: expectedRelievingDate,
+                      startDate: DateTime.now(),
+                      setValue: (value) => expectedRelievingDate = value,
+                    ),
+                    ValueListenableBuilder<bool>(
+                      valueListenable: isOfferInHand,
+                      builder: (context, value, _) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomCheckBox(
+                              isSelected: value,
+                              onChanged: (newValue) {
+                                isOfferInHand.value = newValue;
+                              },
+                              title: "Offer In Hand",
+                            ),
+                            verticalSpacing(),
+                            CustomTextField(
+                              textController: offerAmountC,
+                              title: 'Offer Amount',
+                              isRequired: value,
+                              readOnly: !value,
+                              hint: 'Enter Offer Amount',
+                              inputFormatterList: InputValidator.digit(8),
+                              validator: (value) {
+                                if ((value == null || value.trim().isEmpty) &&
+                                    isOfferInHand.value) {
+                                  return "Offer Amoun is required";
+                                }
+                                return null;
+                              },
+                              keyboardType: TextInputType.number,
+                            ),
+                            CustomMultiFilePicker(
+                              title: "Offer Letter",
+                              filePickType: FilePickType.kycDocument,
+                              isRequired: value,
+                              readOnly: !value,
+                              validator: (val) {
+                                if ((val == null || val.isEmpty) &&
+                                    isOfferInHand.value) {
+                                  return "Offer Letter is required";
+                                }
+                                return null;
+                              },
+                              initialFileList: offerLetter.fileNameList,
+                              onFilePickedCallback: (bytesList, fileNameList) {
+                                offerLetter.fileNameList = fileNameList;
+                                offerLetter.fileBytesList = bytesList;
+                              },
+                              onFileDeleteCallback: (
+                                fileBytesList,
+                                fileNameList,
+                                deleted,
+                              ) {
+                                offerLetter.fileBytesList = fileBytesList;
+                                offerLetter.fileNameList = fileNameList;
+                                offerLetter.deletedFileList = deleted;
+                              },
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ],
                 ),
-                CustomTextField(
-                  textController: reasonC,
-                  title: 'Reason Of Leaving',
-                  maxLines: 10,
-                  minLines: 3,
-                  isRequired: true,
-                  hint: 'Enter Reason Of Leaving',
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Reason Of Leaving is required";
-                    }
-                    return null;
-                  },
-                ),
-                CustomDatePicker(
-                  title: 'Expected Relieving Date',
-                  initialDate: expectedRelievingDate,
-                  setValue: (value) => expectedRelievingDate = value,
-                ),
-                ValueListenableBuilder<bool>(
-                  valueListenable: isOfferInHand,
-                  builder: (context, value, _) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomCheckBox(
-                          isSelected: value,
-                          onChanged: (newValue) {
-                            isOfferInHand.value = newValue;
-                          },
-                          title: "Offer In Hand",
-                        ),
-                        verticalSpacing(),
-                        CustomTextField(
-                          textController: offerAmountC,
-                          title: 'Offer Amount',
-                          isRequired: value,
-                          readOnly: !value,
-                          hint: 'Enter Offer Amount',
-                          validator: (value) {
-                            if ((value == null || value.trim().isEmpty) &&
-                                isOfferInHand.value) {
-                              return "Offer Amoun is required";
-                            }
-                            return null;
-                          },
-                          keyboardType: TextInputType.number,
-                        ),
-                        CustomMultiFilePicker(
-                          title: "Offer Letter",
-                          filePickType: FilePickType.kycDocument,
-                          isRequired: value,
-                          readOnly: !value,
-                          validator: (val) {
-                            if ((val == null || val.isEmpty) &&
-                                isOfferInHand.value) {
-                              return "Offer Letter is required";
-                            }
-                            return null;
-                          },
-                          initialFileList: offerLetter.fileNameList,
-                          onFilePickedCallback: (bytesList, fileNameList) {
-                            offerLetter.fileNameList = fileNameList;
-                            offerLetter.fileBytesList = bytesList;
-                          },
-                          onFileDeleteCallback: (
-                            fileBytesList,
-                            fileNameList,
-                            deleted,
-                          ) {
-                            offerLetter.fileBytesList = fileBytesList;
-                            offerLetter.fileNameList = fileNameList;
-                            offerLetter.deletedFileList = deleted;
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -272,7 +269,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
               size: 16,
               color: AppColor.white,
             ),
-            text: _isEditMode ? "Update Resignation" : "Add Resignation",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _handleSubmit,
           ),
         ),

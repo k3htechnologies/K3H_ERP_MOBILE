@@ -179,6 +179,19 @@ class _OutdoorViewScreenState extends State<OutdoorViewScreen>
                     ),
                   ],
                 ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Approval Status",
+                      value: widget.outdoorModel.status,
+                      customValueWidget:
+                          widget.outdoorModel.status.isNotEmpty
+                              ? approvalStatusWidget(widget.outdoorModel.status)
+                              : null,
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

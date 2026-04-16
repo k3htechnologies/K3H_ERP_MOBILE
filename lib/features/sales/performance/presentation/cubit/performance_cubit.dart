@@ -111,7 +111,7 @@ class PerformanceCubit extends Cubit<PerformanceState> {
       case "YTD":
         final start = DateTime(now.year, 1, 1);
 
-        final end = DateTime(now.year, 12, 31);
+        final end = DateTime.now();
 
         return {"from": start, "to": end};
 
@@ -171,6 +171,13 @@ class PerformanceCubit extends Cubit<PerformanceState> {
     int pageNumber = 1,
     String? value,
   }) async {
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
     Map<String, dynamic> queryParams = {
       "PeriodType": periodType,
       "EmployeeName": value ?? "",
@@ -237,6 +244,13 @@ class PerformanceCubit extends Cubit<PerformanceState> {
     int pageNumber = 1,
     String? value,
   }) async {
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
     Map<String, dynamic> queryParams = {
       "PeriodType": periodType,
       "EmployeeName": value ?? "",
@@ -320,7 +334,12 @@ class PerformanceCubit extends Cubit<PerformanceState> {
                 "FromDate": DateFormat('yyyy-MM-dd').format(fromDate!),
                 "ToDate": DateFormat('yyyy-MM-dd').format(toDate!),
               }
-              : {"ExportType": exportType, "PeriodType": periodType},
+              : {
+                "ExportType": exportType,
+                "PeriodType": periodType,
+                "FromDate": DateFormat('yyyy-MM-dd').format(fromDate!),
+                "ToDate": DateFormat('yyyy-MM-dd').format(toDate!),
+              },
     );
     goRouter.pop();
     result.fold(

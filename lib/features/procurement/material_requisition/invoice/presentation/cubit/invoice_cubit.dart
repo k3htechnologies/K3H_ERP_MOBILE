@@ -33,7 +33,7 @@ class InvoiceCubit extends Cubit<InvoiceState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         emit(
@@ -110,7 +110,7 @@ class InvoiceCubit extends Cubit<InvoiceState> {
     goRouter.pop();
     result.fold(
       (failure) {
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         goRouter.pop();
@@ -149,7 +149,7 @@ class InvoiceCubit extends Cubit<InvoiceState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         emit(state.copyWith(isLoading: false));
@@ -213,7 +213,7 @@ class InvoiceCubit extends Cubit<InvoiceState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         goRouter.pop();
@@ -246,7 +246,7 @@ class InvoiceCubit extends Cubit<InvoiceState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         emit(
@@ -282,7 +282,7 @@ class InvoiceCubit extends Cubit<InvoiceState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         vendors =

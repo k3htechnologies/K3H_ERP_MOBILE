@@ -80,7 +80,13 @@ class BuildingCubit extends Cubit<BuildingState> {
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
-
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
     final queryParams = {
       "BuildingName": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",

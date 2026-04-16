@@ -24,7 +24,10 @@ class SalesDashboardCubit extends Cubit<SalesDashboardState> {
   // <---- GET Dashboard LIST ---->
   Future getSalesDashboardList(BuildContext context, int projectId) async {
     emit(state.copyWith(isLoading: true));
-
+    if (projectId == 0) {
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
     var result = await _salesDashboardRepository.getSalesDashboardList(
       projectId: projectId,
     );

@@ -148,8 +148,11 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
                 physics: AlwaysScrollableScrollPhysics(),
                 children: [
                   SizedBox(
-                      height: MediaQuery.of(context).size.height,
-                      child: Center(child: noDataWidget(message: "No Materials Data Found"))),
+                    height: MediaQuery.of(context).size.height,
+                    child: Center(
+                      child: noDataWidget(message: "No Materials Data Found"),
+                    ),
+                  ),
                 ],
               );
             }
@@ -205,7 +208,7 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
                             ),
                           ),
                           horizontalSpacing(),
-                          if(_routeAuthorizationModel.isAction)...[
+                          if (_routeAuthorizationModel.isAction) ...[
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -237,7 +240,7 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
                                 ),
                               ],
                             ),
-                          ]
+                          ],
                         ],
                       ),
                       verticalSpacing(height: 12),

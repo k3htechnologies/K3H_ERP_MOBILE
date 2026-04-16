@@ -159,7 +159,10 @@ class _WeekOffMappingMasterScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Sort By Week Off Policy Name", style: AppTextStyle.ts14M()),
+                Text(
+                  "Sort By Week Off Policy Name",
+                  style: AppTextStyle.ts14M(),
+                ),
                 verticalSpacing(),
                 Row(
                   children: [

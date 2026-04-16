@@ -282,7 +282,11 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
         .getEmployeeShiftManagementList(
           pageNumber: pageNumber,
           pageSize: pageSize,
-          queryParams: {"EmployeeId": employeeId, "IsCheckPermission": false,"IsCheckEmployeeShift":true},
+          queryParams: {
+            "EmployeeId": employeeId,
+            "IsCheckPermission": false,
+            "IsCheckEmployeeShift": true,
+          },
         );
 
     result.fold(
@@ -313,7 +317,11 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     final result = await employeeMasterRepository.getEmployeeWeekOffMappingList(
       pageNumber: pageNumber,
       pageSize: pageSize,
-      queryParams: {"EmployeeId": employeeId, "IsCheckPermission": false,"IsCheckEmployeeWeekOffPolicy":true},
+      queryParams: {
+        "EmployeeId": employeeId,
+        "IsCheckPermission": false,
+        "IsCheckEmployeeWeekOffPolicy": true,
+      },
     );
 
     result.fold(
@@ -595,7 +603,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final newData = List<BankListMasterModel>.from(response['data']);
@@ -639,7 +647,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final newData = List<CompanyModel>.from(response['data']);
@@ -683,7 +691,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final newData = List<DepartmentModel>.from(response['data']);
@@ -727,7 +735,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final newData = List<DesignationMasterModel>.from(response['data']);
@@ -771,7 +779,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final newData = List<UserModel>.from(response['data']);
@@ -817,7 +825,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final newData = List<BranchModel>.from(response['data']);

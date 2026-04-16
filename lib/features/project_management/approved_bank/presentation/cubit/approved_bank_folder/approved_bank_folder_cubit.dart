@@ -29,6 +29,13 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true, approvedBankFolderList: []));
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
     Map<String, dynamic> queryParams = {"BankName": state.searchTextFolder};
     var result = await _approvedBankRepository.getApprovedBankFolderList(
       pageSize: pageSize,
@@ -64,17 +71,16 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
     );
 
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
-          (response) {
-
+      (response) {
         final List<BankListMasterModel> newData =
-        response['data'] as List<BankListMasterModel>;
+            response['data'] as List<BankListMasterModel>;
 
         final List<BankListMasterModel> updatedList =
-        pageNumber == 1 ? newData : [...state.bankList, ...newData];
+            pageNumber == 1 ? newData : [...state.bankList, ...newData];
 
         emit(
           state.copyWith(

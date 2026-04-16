@@ -337,62 +337,62 @@ class _LitigationScreenState extends State<LitigationScreen> {
                         ),
                         const SizedBox(width: 8),
 
-                        if(_routeAuthorizationModel.isAction)
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if(litigation.status.toLowerCase()!="closed")
-                            CustomButton(
-                              backgroundColor: AppColor.lightBlue,
-                              leading: const Icon(Icons.add, size: 18),
-                              textColor: AppColor.primary,
-                              text: 'Add Hearing',
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 6,
-                                horizontal: 8,
-                              ),
-                              onPressed: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.addLitigationHearing,
-                                  queryParameters: {
-                                    'litigationId':
-                                        litigation.litigationId.toString(),
+                        if (_routeAuthorizationModel.isAction)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (litigation.status.toLowerCase() != "closed")
+                                CustomButton(
+                                  backgroundColor: AppColor.lightBlue,
+                                  leading: const Icon(Icons.add, size: 18),
+                                  textColor: AppColor.primary,
+                                  text: 'Add Hearing',
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 6,
+                                    horizontal: 8,
+                                  ),
+                                  onPressed: () {
+                                    goRouter.pushNamed(
+                                      AppRoutes.addLitigationHearing,
+                                      queryParameters: {
+                                        'litigationId':
+                                            litigation.litigationId.toString(),
+                                      },
+                                    );
                                   },
-                                );
-                              },
-                            ),
+                                ),
 
-                            const SizedBox(width: 8),
-                            if (litigation.status.toLowerCase() != "closed")
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addLitigation,
-                                    queryParameters: {
-                                      "litigation": Uri.encodeQueryComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(litigation.toJson()),
+                              const SizedBox(width: 8),
+                              if (litigation.status.toLowerCase() != "closed")
+                                CustomIconButton.edit(
+                                  onPressed: () async {
+                                    await goRouter.pushNamed(
+                                      AppRoutes.addLitigation,
+                                      queryParameters: {
+                                        "litigation": Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(litigation.toJson()),
+                                          ),
                                         ),
-                                      ),
-                                      'index': index.toString(),
-                                    },
-                                  );
-                                },
-                              ),
-                            if (litigation.isDelete) ...[
-                              const SizedBox(width: 6),
-                              CustomIconButton.delete(
-                                onPressed: () {
-                                  _showPopupToDeleteLitigation(
-                                    context,
-                                    litigation,
-                                    index,
-                                  );
-                                },
-                              ),
+                                        'index': index.toString(),
+                                      },
+                                    );
+                                  },
+                                ),
+                              if (litigation.isDelete) ...[
+                                const SizedBox(width: 6),
+                                CustomIconButton.delete(
+                                  onPressed: () {
+                                    _showPopupToDeleteLitigation(
+                                      context,
+                                      litigation,
+                                      index,
+                                    );
+                                  },
+                                ),
+                              ],
                             ],
-                          ],
-                        ),
+                          ),
                       ],
                     ),
                     verticalSpacing(height: 10),

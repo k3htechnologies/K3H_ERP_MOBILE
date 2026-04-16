@@ -106,7 +106,13 @@ class TenantCubit extends Cubit<TenantState> {
     String? searchQuery,
   }) async {
     emit(state.copyWith(isLoading: true));
-
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
+      emit(state.copyWith(isLoading: false));
+      return [];
+    }
     final result = await _buildingRepository.pullBuilding(
       pageNumber: pageNumber,
       pageSize: pageSize,
@@ -120,7 +126,7 @@ class TenantCubit extends Cubit<TenantState> {
     final buildingList = result.fold<List<RedevelopmentBuildingModel>>(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
         return state.buildingList;
       },
 

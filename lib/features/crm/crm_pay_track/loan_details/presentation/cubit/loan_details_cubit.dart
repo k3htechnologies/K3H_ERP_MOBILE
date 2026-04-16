@@ -51,7 +51,7 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         if (response['data'].isNotEmpty) {

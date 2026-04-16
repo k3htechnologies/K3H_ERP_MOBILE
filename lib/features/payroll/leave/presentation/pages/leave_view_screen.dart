@@ -160,7 +160,13 @@ class _LeaveViewScreenState extends State<LeaveViewScreen>
                       title: "No. Of Days",
                       value: widget.leaveModel.noOfDays.toString(),
                     ),
-                    Expanded(child: SizedBox()),
+                    buildColumnTitleValue(
+                      title: "Approval Status",
+                      value: widget.leaveModel.leaveStatus,
+                      customValueWidget: approvalStatusWidget(
+                        widget.leaveModel.leaveStatus,
+                      ),
+                    ),
                   ],
                 ),
                 Text("Reason", style: AppTextStyle.ts14M(color: AppColor.grey)),
@@ -177,40 +183,11 @@ class _LeaveViewScreenState extends State<LeaveViewScreen>
               ],
             ),
           ),
-          Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(10),
-            margin: EdgeInsets.only(bottom: 10),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Leave Details", style: AppTextStyle.ts16SB()),
-                Row(
-                  children: [
-                    buildColumnTitleValue(title: "Approved By", value: "haha"),
-                    buildColumnTitleValue(
-                      title: "Approved Date",
-                      value: "hahaha",
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Created By",
-                      value: widget.leaveModel.createdBy,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Created Date",
-                      value: formatDateTimeAsDDMMMYYYY(
-                        widget.leaveModel.createdDate,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          actionCardWidget(
+            createdBy: widget.leaveModel.createdBy,
+            createdDate: widget.leaveModel.createdDate,
+            modifiedBy: widget.leaveModel.modifiedBy,
+            modifiedDate: widget.leaveModel.modifiedDate,
           ),
         ],
       ),

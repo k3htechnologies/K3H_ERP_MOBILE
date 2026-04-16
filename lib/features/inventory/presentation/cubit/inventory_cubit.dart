@@ -80,17 +80,18 @@ class InventoryCubit extends Cubit<InventoryState> {
 
   // GET ENTIRE INVENTORY
   Future<void> getInventory(BuildContext context, int projectId) async {
-    if (projectId == 0) {
-      showErrorMessage(context, "Error Message", "Project Not Selected");
-      emit(state.copyWith(isLoading: false));
-      return;
-    }
     if (_isApiCallInProgress) return;
 
     _isApiCallInProgress = true;
 
     emit(state.copyWith(isLoading: true));
-
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
     final result = await _inventoryRepository.getInventory(
       projectId: projectId,
     );
@@ -100,7 +101,7 @@ class InventoryCubit extends Cubit<InventoryState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final List<BuildingModel> buildings =
@@ -324,7 +325,13 @@ class InventoryCubit extends Cubit<InventoryState> {
     required int inventoryFlatFloorBasementPodiumWingId,
   }) async {
     emit(state.copyWith(isLoading: true));
-
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
     final payload = {
       "ProjectId": projectId,
       "InventoryBuildingId": inventoryBuildingId,

@@ -39,7 +39,13 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
-
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
     Map<String, dynamic> queryParams = {
       "PaymentScheduleScheme": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",

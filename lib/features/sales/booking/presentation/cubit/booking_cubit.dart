@@ -87,6 +87,14 @@ class BookingCubit extends Cubit<BookingState> {
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error Message", "Please select a project");
+      });
+      emit(state.copyWith(isLoading: false));
+
+      return;
+    }
     Map<String, dynamic> queryParams = {
       if (state.searchText.isNotEmpty) "ApplicantName": state.searchText.trim(),
       if (state.filterMobileNumber.isNotEmpty)

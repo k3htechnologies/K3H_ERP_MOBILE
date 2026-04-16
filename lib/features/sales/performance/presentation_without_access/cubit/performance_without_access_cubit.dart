@@ -6,11 +6,9 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/performance/data/model/performance_report_sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/performance/data/model/performance_report_closing.model.dart';
 import 'package:k3h_erp_app/features/sales/performance/data/repository/performance_report.repository.dart';
-import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
-part 'performance_state.dart';
+part 'performance_without_access_state.dart';
 
 class PerformanceCubit extends Cubit<PerformanceState> {
   PerformanceCubit() : super(PerformanceState.initial());
@@ -209,57 +207,6 @@ class PerformanceCubit extends Cubit<PerformanceState> {
                 response['totalNumberOfRecord'],
             closingCurrentPagePerformanceReport: pageNumber,
           ),
-        );
-      },
-    );
-  }
-
-  // <---- EXPORT EXCEL PDF ---->
-  Future exportExcelPdf(
-    BuildContext context,
-    String exportType,
-    String reportType,
-    String periodType,
-    int projectId,
-    int totalNumberOfRecord,
-  ) async {
-    DialogHelper.showProcessingOverlay(context);
-    final auto = getAutoDateRange(periodType);
-    final fromDate = auto["from"];
-    final toDate = auto["to"];
-    var result = await _performanceReportRepository.exportPerformanceReport(
-      projectId: projectId,
-      pageNumber: 1,
-      pageSize: totalNumberOfRecord,
-      reportType: reportType,
-      queryParams:
-          state.searchText != ""
-              ? {
-                "EmployeeName": state.searchText,
-                "ExportType": exportType,
-                "PeriodType": periodType,
-                "FromDate": DateFormat('yyyy-MM-dd').format(fromDate!),
-                "ToDate": DateFormat('yyyy-MM-dd').format(toDate!),
-              }
-              : {"ExportType": exportType, "PeriodType": periodType},
-    );
-    goRouter.pop();
-    result.fold(
-      (failure) {
-        showErrorMessage(context, 'Error', failure.message);
-      },
-      (response) {
-        final fileName =
-            "${reportType == "closing" ? "Closing Performance Report" : "Sourcing Performance Report"} ${DateTime.now()}";
-        showSuccessMessage(
-          context,
-          subTitle: 'Successfully Exported as $exportType',
-        );
-        exportExcelOrPdfMobile(
-          response["data"],
-          exportType.toLowerCase() == "pdf"
-              ? "$fileName.pdf"
-              : "$fileName.xlsx",
         );
       },
     );

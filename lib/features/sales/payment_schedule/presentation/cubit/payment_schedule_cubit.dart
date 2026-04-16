@@ -17,6 +17,10 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
   final PaymentScheduleRepository _repository =
       serviceLocator<PaymentScheduleRepository>();
 
+  void reset() {
+    emit(state.copyWith(isLoading: false));
+  }
+
   // SEARCH
   Future searchPaymentScheduleMaster(
     BuildContext context,
@@ -34,7 +38,6 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
     required PaymentScheduleSchemeModel scheme,
   }) async {
     emit(state.copyWith(isLoading: true));
-
     Map<String, dynamic> queryParams = {
       "Stage": state.searchText,
       "PaymentScheduleSchemeMasterId": scheme.paymentScheduleSchemeMasterId,
@@ -46,7 +49,7 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
     var result = await _repository.getPaymentScheduleMasterList(
       pageNumber: pageNumber,
       pageSize: 10,
-      projectId: getProject().projectId,
+      projectId: scheme.projectId,
       queryParams: queryParams,
     );
 

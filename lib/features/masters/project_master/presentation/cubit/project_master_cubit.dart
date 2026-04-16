@@ -197,7 +197,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) async {
         final List<ProjectModel> newData = List<ProjectModel>.from(
@@ -307,7 +307,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     addResult.fold(
       (failure) {
         emit(state.copyWith());
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         goRouter.pop();
@@ -410,7 +410,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     addResult.fold(
       (failure) {
         emit(state.copyWith());
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) async {
         goRouter.pop();
@@ -496,7 +496,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final allCompanies =
@@ -556,7 +556,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         try {
@@ -639,7 +639,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isEmployeeLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final allEmployees =
@@ -702,7 +702,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     goRouter.pop();
     result.fold(
       (failure) {
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         goRouter.pop();
@@ -732,7 +732,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         emit(state.copyWith(isLoading: false));
@@ -767,7 +767,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final rawList = response['data'] as List<CompanyModel>;
@@ -810,7 +810,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final rawList = response['data'] as List<UserModel>;
@@ -851,7 +851,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) async {
         emit(state.copyWith(isLoading: false));
@@ -886,7 +886,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     emit(state.copyWith(isLoading: false));
     result.fold(
       (failure) {
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) async {
         await showSuccessMessage(
@@ -921,7 +921,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         emit(state.copyWith(isLoading: false));

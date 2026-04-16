@@ -141,13 +141,7 @@ class _LeaveCreditConfigurationMasterScreenState
 
     _filterDesignationNameC.text = state.filterDesignationName;
 
-    String? selectedDirection =
-        state.currentSortColumn == "Department Name"
-            ? state.currentSortDirection
-            : null;
-
     final String initialBranchName = _filterDesignationNameC.text;
-    final String? initialDirection = selectedDirection;
 
     DateTime? filterFromDate = state.filterFromLeaveCreditDate;
     DateTime? filterToDate = state.filterToLeaveCreditDate;
@@ -163,7 +157,6 @@ class _LeaveCreditConfigurationMasterScreenState
       innerState(() {
         manualClose =
             (_filterDesignationNameC.text.trim() != initialBranchName) ||
-            (selectedDirection != initialDirection) ||
             (filterFromDate != initialFromDate) ||
             (filterToDate != initialToDate);
         // Disable Apply when only one of From/To is set (both or neither required)
@@ -191,13 +184,6 @@ class _LeaveCreditConfigurationMasterScreenState
       title: "Filter Leave Credit Configuration",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
-          void selectDirection(String direction) {
-            innerState(() {
-              selectedDirection = direction;
-            });
-            updateApplyState(innerState);
-          }
-
           return Form(
             key: filterFormKey,
             child: SingleChildScrollView(
@@ -205,55 +191,6 @@ class _LeaveCreditConfigurationMasterScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Sort By Leave Credit Name",
-                    style: AppTextStyle.ts14M(),
-                  ),
-                  verticalSpacing(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      GestureDetector(
-                        onTap: () => selectDirection("ASC"),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 6,
-                            horizontal: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4),
-                            color:
-                                selectedDirection == "ASC"
-                                    ? AppColor.lightBlue
-                                    : Colors.transparent,
-                            border: Border.all(color: AppColor.grey, width: .5),
-                          ),
-                          child: Text("A-Z", style: AppTextStyle.ts12R()),
-                        ),
-                      ),
-                      horizontalSpacing(),
-                      GestureDetector(
-                        onTap: () => selectDirection("DESC"),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 6,
-                            horizontal: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4),
-                            color:
-                                selectedDirection == "DESC"
-                                    ? AppColor.lightBlue
-                                    : Colors.transparent,
-                            border: Border.all(color: AppColor.grey, width: .5),
-                          ),
-                          child: Text("Z-A", style: AppTextStyle.ts12R()),
-                        ),
-                      ),
-                    ],
-                  ),
-                  verticalSpacing(height: 20),
-
                   CustomTextField(
                     textController: _filterDesignationNameC,
                     hint: "Enter Designation Name",
@@ -348,8 +285,6 @@ class _LeaveCreditConfigurationMasterScreenState
           context: context,
           filterFromLeaveCreditDate: null,
           filterToLeaveCreditDate: null,
-          sortColumn: "Created Date",
-          sortDirection: "DESC",
           filterDesignationName: '',
         );
       },
@@ -361,8 +296,6 @@ class _LeaveCreditConfigurationMasterScreenState
             filterDesignationName: _filterDesignationNameC.text,
             filterFromLeaveCreditDate: filterFromDate,
             filterToLeaveCreditDate: filterToDate,
-            sortColumn: selectedDirection != null ? "Department Name" : null,
-            sortDirection: selectedDirection,
           );
         }
       },
@@ -494,22 +427,13 @@ class _LeaveCreditConfigurationMasterScreenState
                                   },
                                 );
                               },
-                              child: Container(
-                                padding: EdgeInsets.only(
-                                  bottom: 4,
-                                  left: 4,
-                                  right: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(color: AppColor.primary),
-                                  ),
-                                ),
-                                child: Text(
-                                  leaveCreditConfigurationMaster.departmentName,
-                                  style: AppTextStyle.ts16M(
-                                    color: AppColor.primary,
-                                  ),
+                              child: Text(
+                                leaveCreditConfigurationMaster.departmentName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decorationColor: AppColor.primary,
+                                  decoration: TextDecoration.underline,
                                 ),
                               ),
                             ),

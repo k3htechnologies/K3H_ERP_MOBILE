@@ -57,7 +57,7 @@ class ParkingCubit extends Cubit<ParkingState> {
   Future getParking(BuildContext context, int projectId) async {
     emit(state.copyWith(isLoading: true, parkingList: []));
     if (projectId == 0) {
-      showErrorMessage(context, "Error Message", "Project Not Selected");
+      showErrorMessage(context, "Error", "Project Not Selected");
       ParkingCubit();
       emit(state.copyWith(isLoading: false));
 
@@ -68,7 +68,7 @@ class ParkingCubit extends Cubit<ParkingState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (result) {
         var parkingList = result["data"] as List<ParkingModel>;
