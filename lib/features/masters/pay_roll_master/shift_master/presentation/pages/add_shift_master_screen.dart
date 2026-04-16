@@ -123,7 +123,6 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
 
   // ON TIME CHANGED
   void _onTimeChanged(Function(String) setter, TimeOfDay value) {
-    print("break : ${value}");
     setter(formatTimeOfDayHHmm(value));
     _calculateAllDurations();
   }
@@ -561,7 +560,6 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
 
     final breakMinutes = getDiffInMinutes(breakBeginTime, breakEndTime);
     _breakDurationC.text = toHHmm(breakMinutes);
-    print("break Duration: ${_breakDurationC.text}");
 
     int workMinutes = shiftMinutes - breakMinutes;
     if (workMinutes < 0) workMinutes = 0;
