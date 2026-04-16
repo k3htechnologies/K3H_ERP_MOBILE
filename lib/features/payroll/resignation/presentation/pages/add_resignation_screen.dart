@@ -12,6 +12,7 @@ import 'package:k3h_erp_app/features/payroll/resignation/presentation/cubit/resi
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -40,7 +41,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   // DATE VARIABLE
-  DateTime? resignationDate, relievingDate, expectedRelievingDate;
+  DateTime? resignationDate, expectedRelievingDate;
 
   // TEXT CONTROLLER
   late TextEditingController reasonC, offerAmountC;
@@ -66,7 +67,6 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
     if (_isEditMode) {
       _prefillDataForEdit(widget.resignationModel!);
     }
-    print("Offer Letter: ${widget.resignationModel?.offerLetterUrl}");
   }
 
   void _initializeTextEditingControllers() {
@@ -76,12 +76,13 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
 
   void _prefillDataForEdit(ResignationModel resignation) {
     resignationDate = resignation.resignationDate;
-    relievingDate = resignation.expectedRelievingDate;
     reasonC.text = resignation.reasonOfLeaving;
 
     expectedRelievingDate = resignation.expectedRelievingDate;
     isOfferInHand.value = resignation.isAnyOfferInHand;
-    offerAmountC.text = resignation.offerAmount.toString();
+    if (resignation.offerAmount > 0.0) {
+      offerAmountC.text = resignation.offerAmount.toString();
+    }
     if (resignation.offerLetterUrl.isNotEmpty) {
       offerLetter.fileNameList = resignation.offerLetterUrl.split(",");
     }
@@ -97,8 +98,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
               widget.resignationModel!.employeeResignationId.toString(),
           uniquekey: widget.resignationModel!.uniqueKey,
           employeeId: widget.resignationModel!.employeeId.toString(),
-          resignationDate: resignationDate!.toIso8601String(),
-          relievingDate: relievingDate!.toIso8601String(),
+          resignationDate: DateTime.now().toIso8601String(),
           expectedRelievingDate:
               expectedRelievingDate != null
                   ? expectedRelievingDate!.toIso8601String()
@@ -112,8 +112,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
         _resignationCubit.addResignation(
           context: context,
           employeeId: userModel.employeeId.toString(),
-          relievingDate: relievingDate!.toIso8601String(),
-          resignationDate: resignationDate!.toIso8601String().split('T').first,
+          resignationDate: DateTime.now().toIso8601String().split('T').first,
           expectedRelievingDate:
               expectedRelievingDate != null
                   ? expectedRelievingDate!.toIso8601String().split('T').first
@@ -159,32 +158,18 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: CustomDatePicker(
-                            title: 'Resignation Date',
-                            isRequired: true,
-                            initialDate: resignationDate,
-                            validator: (value) {
-                              if (value == null) {
-                                return 'Resignation Date is required';
-                              }
-                              return null;
-                            },
-                            setValue: (value) => resignationDate = value,
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: CustomDatePicker(
-                            title: 'Relieving Date',
-                            initialDate: relievingDate,
-                            setValue: (value) => relievingDate = value,
-                          ),
-                        ),
-                      ],
+                    CustomDatePicker(
+                      title: 'Resignation Date',
+                      isRequired: true,
+                      readOnly: true,
+                      initialDate: DateTime.now(),
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Resignation Date is required';
+                        }
+                        return null;
+                      },
+                      setValue: (value) => resignationDate = value,
                     ),
                     CustomTextField(
                       textController: reasonC,
@@ -203,6 +188,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
                     CustomDatePicker(
                       title: 'Expected Relieving Date',
                       initialDate: expectedRelievingDate,
+                      startDate: DateTime.now(),
                       setValue: (value) => expectedRelievingDate = value,
                     ),
                     ValueListenableBuilder<bool>(
@@ -225,6 +211,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
                               isRequired: value,
                               readOnly: !value,
                               hint: 'Enter Offer Amount',
+                              inputFormatterList: InputValidator.digit(8),
                               validator: (value) {
                                 if ((value == null || value.trim().isEmpty) &&
                                     isOfferInHand.value) {

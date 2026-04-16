@@ -70,66 +70,6 @@ class OutdoorCubit extends Cubit<OutdoorState> {
   }
 
   // <---- UPDATE OUTDOOR ATTENDANCE ---->
-  Future addOutdoorAttendance({
-    required BuildContext context,
-    required int outdoorId,
-    required String punchTime,
-    required String address,
-    required int index,
-  }) async {
-    DialogHelper.showProcessingOverlay(context);
-    Map<String, dynamic> requestBody = {
-      "OutdoorId": outdoorId,
-      "Punch": punchTime,
-      "Address": "string",
-    };
-    var addResult = await _outdoorRepository.addOutdoorAttendance(
-      body: requestBody,
-    );
-    goRouter.pop();
-    addResult.fold(
-      (failure) {
-        showErrorMessage(context, 'Error', failure.message);
-        return;
-      },
-      (response) {
-        // Check message for error messages (base client puts SuccessMessage[0] into message)
-        final apiMessage = response["message"]?.toString() ?? "";
-        if (apiMessage.isNotEmpty &&
-            apiMessage.toLowerCase().contains("error")) {
-          showErrorMessage(context, "Error", apiMessage);
-          return;
-        }
-
-        // Check if data exists and is not null/empty
-        if (response["data"] != null &&
-            response["data"] is List &&
-            (response["data"] as List).isNotEmpty) {
-          final updatedDepartment = response["data"][0] as OutdoorModel;
-
-          if (state.outdoorList.isNotEmpty &&
-              index < state.outdoorList.length) {
-            final updatedList = List<OutdoorModel>.from(state.outdoorList);
-            updatedList[index] = updatedDepartment;
-            emit(state.copyWith(outdoorList: updatedList, isLoading: false));
-          }
-
-          showSuccessMessage(
-            context,
-            subTitle: 'Outdoor Attendance Updated Successfully!!!',
-          );
-        } else {
-          // If no data returned, still show success if no errors
-          showSuccessMessage(
-            context,
-            subTitle: 'Outdoor Attendance Updated Successfully!!!',
-          );
-        }
-      },
-    );
-  }
-
-  // <---- UPDATE OUTDOOR ATTENDANCE ---->
   Future addUpdateConclusion({
     required BuildContext context,
     required int outdoorId,

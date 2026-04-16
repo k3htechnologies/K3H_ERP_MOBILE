@@ -73,10 +73,8 @@ class LitigationCubit extends Cubit<LitigationState> {
     required BuildContext context,
     required int pageNumber,
   }) async {
-    final _project = getProject();
-
     emit(state.copyWith(isLoading: true));
-    if (_project.projectId == 0) {
+    if (getProject().projectId == 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showErrorMessage(context, "Error", "Please select a project");
       });
@@ -92,7 +90,7 @@ class LitigationCubit extends Cubit<LitigationState> {
     final result = await _litigationRepository.pullLitigation(
       pageNumber: pageNumber,
       pageSize: 4,
-      projectId: _project.projectId,
+      projectId: getProject().projectId,
       queryParams: queryParams,
     );
 
@@ -228,12 +226,11 @@ class LitigationCubit extends Cubit<LitigationState> {
     required int litigationId,
     Map<String, dynamic>? queryParams,
   }) async {
-    final _project = getProject();
     emit(state.copyWith(isLoading: true));
     final result = await _litigationRepository.pullLitigationHearing(
       pageNumber: pageNumber,
       pageSize: 5,
-      projectId: _project.projectId,
+      projectId: getProject().projectId,
       litigationId: litigationId,
       queryParams: queryParams,
     );
@@ -414,12 +411,11 @@ class LitigationCubit extends Cubit<LitigationState> {
     required int litigationId,
     Map<String, dynamic>? queryParams,
   }) async {
-    final _project = getProject();
     emit(state.copyWith(isLoading: true));
     final result = await _litigationRepository.pullLitigationDocument(
       pageNumber: pageNumber,
       pageSize: 15,
-      projectId: _project.projectId,
+      projectId: getProject().projectId,
       litigationId: litigationId,
       queryParams: queryParams,
     );
@@ -614,13 +610,12 @@ class LitigationCubit extends Cubit<LitigationState> {
     required int litigationId,
     Map<String, dynamic>? queryParams,
   }) async {
-    final _project = getProject();
     emit(state.copyWith(isLoading: true));
 
     final result = await _litigationRepository.pullLitigationClosure(
       pageNumber: pageNumber,
       pageSize: 10,
-      projectId: _project.projectId,
+      projectId: getProject().projectId,
       litigationId: litigationId,
       queryParams: queryParams,
     );

@@ -13,6 +13,7 @@ class OutdoorModel {
   String companyAddress;
   String visitingCardUrl;
   String purpose;
+  String status;
   String conclusion;
   DateTime? punchIn;
   DateTime? punchOut;
@@ -39,6 +40,7 @@ class OutdoorModel {
     required this.visitingCardUrl,
     required this.purpose,
     required this.conclusion,
+    required this.status,
     required this.punchIn,
     required this.punchOut,
     required this.punchInAddress,
@@ -60,6 +62,7 @@ class OutdoorModel {
     accompaniedByName: parseValue<String>(json, "AccompaniedByName"),
     departmentId: parseValue<int>(json, "DepartmentId"),
     departmentName: parseValue<String>(json, "DepartmentName"),
+    status: parseValue<String>(json, "Status"),
     companyName: parseValue<String>(json, "CompanyName"),
     companyAddress: parseValue<String>(json, "CompanyAddress"),
     visitingCardUrl: parseValue<String>(json, "VisitingCardURL"),
@@ -97,6 +100,7 @@ class OutdoorModel {
     "CompanyAddress": companyAddress,
     "VisitingCardURL": visitingCardUrl,
     "Purpose": purpose,
+    "Status": status,
     "Conclusion": conclusion,
     "PunchIn": punchIn?.toIso8601String(),
     "PunchOut": punchOut?.toIso8601String(),

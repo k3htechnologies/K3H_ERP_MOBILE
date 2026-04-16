@@ -42,8 +42,8 @@ class LeaveCubit extends Cubit<LeaveState> {
                 ? _statusTabs[state.currentTabIndex]
                 : "");
     final Map<String, dynamic> queryParams = {
-      "LeaveType": state.searchText,
-      "Status": status,
+      if (state.leaveTypeList.isNotEmpty) "LeaveType": state.searchText,
+      if (status.isNotEmpty) "Status": status,
     };
     if (state.filterLeaveType != null && state.filterLeaveType!.isNotEmpty) {
       queryParams["LeaveType"] = state.filterLeaveType!;

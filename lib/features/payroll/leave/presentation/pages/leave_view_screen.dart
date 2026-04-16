@@ -160,7 +160,13 @@ class _LeaveViewScreenState extends State<LeaveViewScreen>
                       title: "No. Of Days",
                       value: widget.leaveModel.noOfDays.toString(),
                     ),
-                    Expanded(child: SizedBox()),
+                    buildColumnTitleValue(
+                      title: "Approval Status",
+                      value: widget.leaveModel.leaveStatus,
+                      customValueWidget: approvalStatusWidget(
+                        widget.leaveModel.leaveStatus,
+                      ),
+                    ),
                   ],
                 ),
                 Text("Reason", style: AppTextStyle.ts14M(color: AppColor.grey)),

@@ -107,6 +107,18 @@ class _CompOffViewScreenState extends State<CompOffViewScreen>
                 Row(
                   children: [
                     buildColumnTitleValue(
+                      title: "Approval Status",
+                      value: widget.compOffModel.status,
+                      customValueWidget:
+                          widget.compOffModel.status.isNotEmpty
+                              ? approvalStatusWidget(widget.compOffModel.status)
+                              : null,
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
                       title: "Reason",
                       value: widget.compOffModel.reason,
                     ),
@@ -115,43 +127,11 @@ class _CompOffViewScreenState extends State<CompOffViewScreen>
               ],
             ),
           ),
-          Container(
-            padding: EdgeInsets.all(10),
-            decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 10,
-              children: [
-                Text("Action Details", style: AppTextStyle.ts16SB()),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Approved By",
-                      value: "Hahahaha",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Approved Date",
-                      value: "Hahahaha",
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Created By",
-                      value: widget.compOffModel.createdBy,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Created Date",
-                      value: formatDateTimeAsDDMMMYYYY(
-                        widget.compOffModel.createdDate,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          actionCardWidget(
+            createdBy: widget.compOffModel.createdBy,
+            createdDate: widget.compOffModel.createdDate,
+            modifiedBy: widget.compOffModel.modifiedBy,
+            modifiedDate: widget.compOffModel.modifiedDate,
           ),
         ],
       ),

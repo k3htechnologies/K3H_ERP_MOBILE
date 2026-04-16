@@ -5,6 +5,7 @@ class CompOffModel {
   String uniquekey;
   DateTime compOffDate;
   DateTime workingDate;
+  String status;
   String reason;
   int createdById;
   String createdBy;
@@ -19,6 +20,7 @@ class CompOffModel {
     required this.compOffDate,
     required this.workingDate,
     required this.reason,
+    required this.status,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -32,6 +34,7 @@ class CompOffModel {
     uniquekey: parseValue<String>(json, "Uniquekey"),
     compOffDate: parseValue<DateTime>(json, "CompOffDate"),
     workingDate: parseValue<DateTime>(json, "WorkingDate"),
+    status: parseValue<String>(json, "Status"),
     reason: parseValue<String>(json, "Reason"),
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
@@ -49,6 +52,7 @@ class CompOffModel {
     "Uniquekey": uniquekey,
     "CompOffDate": compOffDate.toIso8601String(),
     "WorkingDate": workingDate.toIso8601String(),
+    "Status": status,
     "Reason": reason,
     "CreatedById": createdById,
     "CreatedBy": createdBy,

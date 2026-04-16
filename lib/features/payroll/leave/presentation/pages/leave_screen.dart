@@ -548,26 +548,6 @@ class _LeaveScreenState extends State<LeaveScreen>
     );
   }
 
-  // STATUS WIDGET
-  Widget _statusWidget(String status) {
-    if (status.trim().isEmpty) {
-      return SizedBox.shrink();
-    }
-    final statusConfig = _getStatusConfig(status);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: statusConfig.backgroundColor,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        statusConfig.label,
-        style: AppTextStyle.ts12M().copyWith(color: statusConfig.textColor),
-      ),
-    );
-  }
-
   // HELPER METHOD TO GET STATUS CONFIG
   StatusConfig _getStatusConfig(String status) {
     switch (status.toLowerCase()) {

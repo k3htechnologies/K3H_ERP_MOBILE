@@ -127,15 +127,35 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
     }
 
     if (widget.outdoorModel!.accompaniedById.isNotEmpty) {
-      final employeeId = int.tryParse(widget.outdoorModel!.accompaniedById);
-      if (employeeId != null && employeeId > 0) {
-        _selectedEmployeeNotifier.value = [
-          {
-            "zAttributesId": employeeId,
-            "DisplayName": widget.outdoorModel!.accompaniedByName,
-          },
-        ];
-      }
+      final employeeIdsRaw = widget.outdoorModel!.accompaniedById;
+      final employeeNamesRaw = widget.outdoorModel!.accompaniedByName;
+
+      final employeeIds =
+          employeeIdsRaw
+              .split(',')
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .map((e) => int.parse(e))
+              .toList();
+
+      final employeeNames =
+          employeeNamesRaw
+              .split(',')
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .toList();
+
+      final maxLength =
+          employeeIds.length < employeeNames.length
+              ? employeeIds.length
+              : employeeNames.length;
+
+      _selectedEmployeeNotifier.value = List.generate(maxLength, (index) {
+        return {
+          "zAttributesId": employeeIds[index],
+          "DisplayName": employeeNames[index],
+        };
+      });
     }
 
     // Pre-fill visiting card file if available
@@ -217,6 +237,10 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
     );
   }
 
+  String get selectEmployees => _selectedEmployeeNotifier.value
+      .map((v) => v["zAttributesId"].toString())
+      .toSet()
+      .join(",");
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -269,29 +293,18 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
                         return null;
                       },
                     ),
-                    ValueListenableBuilder<List<Map<String, dynamic>>>(
-                      valueListenable: _selectedDepartmentNotifier,
-                      builder: (context, selectedDept, child) {
-                        return CustomMultipleSelectPopup(
-                          title: "Department",
-                          isRequired: true,
-                          isMultiSelect: false,
-                          initialValue: selectedDept,
-                          dataFetchCallBack: _fetchDepartment,
-                          onSelected: (value) {
-                            // Clear employee list and selection first, before updating department
-                            _outdoorCubit.clearEmployeeList();
-                            _selectedEmployeeNotifier.value = [];
-                            // Then update department
-                            _selectedDepartmentNotifier.value = value;
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Department is required';
-                            }
-                            return null;
-                          },
-                        );
+
+                    CustomTextField(
+                      title: 'Company Address',
+                      isRequired: true,
+                      hint: "Enter Company Address",
+                      textController: _companyAddressC,
+                      maxLines: 3,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Company Address is required';
+                        }
+                        return null;
                       },
                     ),
                     ValueListenableBuilder<List<Map<String, dynamic>>>(
@@ -304,6 +317,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
                           builder: (context, selectedEmp, child) {
                             return CustomMultipleSelectPopup(
                               title: "Accompanied By",
+                              hintText: "Select Accompanied By",
                               isRequired: true,
                               isReadOnly:
                                   _selectedDepartmentNotifier.value.isEmpty,
@@ -337,19 +351,33 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
                         return null;
                       },
                     ),
-                    CustomTextField(
-                      title: 'Company Address',
-                      isRequired: true,
-                      hint: "Enter Company Address",
-                      textController: _companyAddressC,
-                      maxLines: 3,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Company Address is required';
-                        }
-                        return null;
+                    ValueListenableBuilder<List<Map<String, dynamic>>>(
+                      valueListenable: _selectedDepartmentNotifier,
+                      builder: (context, selectedDept, child) {
+                        return CustomMultipleSelectPopup(
+                          title: "Department",
+                          isRequired: true,
+                          isMultiSelect: false,
+                          hintText: "Select Department",
+                          initialValue: selectedDept,
+                          dataFetchCallBack: _fetchDepartment,
+                          onSelected: (value) {
+                            // Clear employee list and selection first, before updating department
+                            _outdoorCubit.clearEmployeeList();
+                            _selectedEmployeeNotifier.value = [];
+                            // Then update department
+                            _selectedDepartmentNotifier.value = value;
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Department is required';
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
+
                     CustomMultiFilePicker(
                       title: "Visiting Card",
                       filePickType: FilePickType.kycDocument,
@@ -429,8 +457,6 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
 
     final departmentId =
         _selectedDepartmentNotifier.value.first['zAttributesId'].toString();
-    final employeeId =
-        _selectedEmployeeNotifier.value.first['zAttributesId'].toString();
 
     // Format date and time
     final formattedDate = outdoorDate!.toIso8601String();
@@ -449,7 +475,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
         companyName: _companyNameC.text.trim(),
         companyAddress: _companyAddressC.text.trim(),
         purpose: _purposeC.text.trim(),
-        accompaniedById: employeeId,
+        accompaniedById: selectEmployees,
         visitingCardFile: visitingCardFile,
       );
     } else {
@@ -462,7 +488,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
         companyName: _companyNameC.text.trim(),
         companyAddress: _companyAddressC.text.trim(),
         purpose: _purposeC.text.trim(),
-        accompaniedById: employeeId,
+        accompaniedById: selectEmployees,
         visitingCardFile: visitingCardFile,
       );
     }

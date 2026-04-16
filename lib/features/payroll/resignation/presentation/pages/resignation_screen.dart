@@ -10,7 +10,6 @@ import 'package:k3h_erp_app/features/payroll/resignation/presentation/cubit/resi
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/cubit/resignation_state.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -91,183 +90,154 @@ class _ResignationScreenState extends State<ResignationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBarWithBackButton(
-        screenTitle: 'Resignation',
-        authorization: _routeAuthorizationModel,
-        isMenuButton: true,
-        onAddCallback:
-            _resignationCubit.state.resignationList.isNotEmpty
-                ? null
-                : () {
-                  goRouter.pushNamed(AppRoutes.addresignation);
-                },
-      ),
-      body: BlocBuilder<ResignationCubit, ResignationState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.resignationList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.resignationList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Data Found"));
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.resignationList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.resignationList.length) {
-                return state.resignationList.length < state.totalNumberOfRecord
-                    ? Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
+    return BlocBuilder<ResignationCubit, ResignationState>(
+      builder: (context, state) {
+        final disableAdd =
+            state.resignationList.isEmpty
+                ? false
+                : state.resignationList
+                    .where((e) => e.approvalStatus.toLowerCase() == 'pending')
+                    .isEmpty
+                ? false
+                : true;
+        return Scaffold(
+          appBar: CustomAppBarWithBackButton(
+            screenTitle: 'Resignation',
+            authorization: _routeAuthorizationModel,
+            isMenuButton: true,
+            onAddCallback:
+                disableAdd
+                    ? null
+                    : () {
+                      goRouter.pushNamed(AppRoutes.addresignation);
+                    },
+          ),
+          body: BlocBuilder<ResignationCubit, ResignationState>(
+            builder: (context, state) {
+              if ((state.isLoading ?? true) && state.resignationList.isEmpty) {
+                return Center(child: loader());
               }
-              final resignation = state.resignationList[index];
+              if (state.resignationList.isEmpty) {
+                return Center(child: noDataWidget(message: "No Data Found"));
+              }
+              return ListView.builder(
+                controller: scrollController,
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                itemCount: state.resignationList.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == state.resignationList.length) {
+                    return state.resignationList.length <
+                            state.totalNumberOfRecord
+                        ? Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : const SizedBox.shrink();
+                  }
+                  final resignation = state.resignationList[index];
 
-              return Container(
-                margin: EdgeInsets.only(bottom: 10),
-                padding: EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 10),
+                    padding: EdgeInsets.all(12),
+                    decoration: commonCardDecoration(),
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () {},
-                            child: Text(
-                              resignation.employeeName,
-                              style: AppTextStyle.ts16M(),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            approvalStatusWidget(resignation.approvalStatus),
-                            if (resignation.approvalStatus.toLowerCase() !=
-                                'approved') ...[
-                              horizontalSpacing(),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  CustomIconButton.edit(
-                                    onPressed: () async {
-                                      await goRouter.pushNamed(
-                                        AppRoutes.addresignation,
-                                        queryParameters: {
-                                          "resignation":
-                                              Uri.encodeQueryComponent(
-                                                EncryptionManager.encryptData(
-                                                  jsonEncode(resignation),
-                                                ),
-                                              ),
-                                          'index': index.toString(),
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () {},
+                                child: Text(
+                                  resignation.employeeName,
+                                  style: AppTextStyle.ts16M(),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                approvalStatusWidget(
+                                  resignation.approvalStatus,
+                                ),
+                                if (resignation.approvalStatus.toLowerCase() ==
+                                    'pending') ...[
+                                  horizontalSpacing(),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      CustomIconButton.edit(
+                                        onPressed: () async {
+                                          await goRouter.pushNamed(
+                                            AppRoutes.addresignation,
+                                            queryParameters: {
+                                              "resignation":
+                                                  Uri.encodeQueryComponent(
+                                                    EncryptionManager.encryptData(
+                                                      jsonEncode(resignation),
+                                                    ),
+                                                  ),
+                                              'index': index.toString(),
+                                            },
+                                          );
                                         },
-                                      );
-                                    },
-                                  ),
-                                  const SizedBox(width: 8),
-                                  CustomIconButton.delete(
-                                    onPressed: () {
-                                      _showPopupToDeleteResignation(
-                                        context,
-                                        resignation,
-                                        state.currentPage,
-                                        index,
-                                      );
-                                    },
+                                      ),
+                                      const SizedBox(width: 8),
+                                      CustomIconButton.delete(
+                                        onPressed: () {
+                                          _showPopupToDeleteResignation(
+                                            context,
+                                            resignation,
+                                            state.currentPage,
+                                            index,
+                                          );
+                                        },
+                                      ),
+                                    ],
                                   ),
                                 ],
-                              ),
-                            ],
+                              ],
+                            ),
                           ],
+                        ),
+                        verticalSpacing(height: 10),
+
+                        buildRowTitleValue(
+                          title: "Resignation Date",
+                          value: formatDateTimeAsDDMMMYYYY(
+                            resignation.resignationDate,
+                          ),
+                        ),
+                        buildRowTitleValue(
+                          title: "Expected Relieving Date",
+                          value: formatDateTimeAsDDMMMYYYY(
+                            resignation.resignationDate,
+                          ),
+                        ),
+                        buildRowTitleValue(
+                          title: "Offer In Hand",
+                          value: resignation.isAnyOfferInHand ? "Yes" : "No",
+                        ),
+                        buildRowTitleValue(
+                          title: "Offer Amount",
+                          value: resignation.offerAmount.toString(),
+                        ),
+                        buildRowTitleValue(
+                          title: "Reason Of Leaving",
+                          value: resignation.reasonOfLeaving,
                         ),
                       ],
                     ),
-                    verticalSpacing(height: 10),
-
-                    buildRowTitleValue(
-                      title: "Resignation Date",
-                      value: formatDateTimeAsDDMMMYYYY(
-                        resignation.resignationDate,
-                      ),
-                    ),
-                    buildRowTitleValue(
-                      title: "Expected Relieving Date",
-                      value: formatDateTimeAsDDMMMYYYY(
-                        resignation.resignationDate,
-                      ),
-                    ),
-                    buildRowTitleValue(
-                      title: "Offer In Hand",
-                      value: resignation.isAnyOfferInHand ? "Yes" : "No",
-                    ),
-                    buildRowTitleValue(
-                      title: "Offer Amount",
-                      value: resignation.offerAmount.toString(),
-                    ),
-                    buildRowTitleValue(
-                      title: "Reason Of Leaving",
-                      value: resignation.reasonOfLeaving,
-                    ),
-                  ],
-                ),
+                  );
+                },
               );
             },
-          );
-        },
-      ),
-    );
-  }
-
-  // HELPER WIDGET
-  Widget _statusButton(ResignationModel resignation, int index) {
-    String status;
-    status = 'Pending';
-
-    late String buttonText;
-    late Color bgColor;
-    late Color textColor;
-
-    VoidCallback? onTap;
-
-    switch (status.toLowerCase()) {
-      case 'pending':
-        buttonText = "Pending";
-        bgColor = AppColor.darkBlue;
-        textColor = AppColor.white;
-        onTap = () {};
-        break;
-      case 'approved':
-        buttonText = "Approved";
-        bgColor = AppColor.darkGreen10;
-        textColor = AppColor.white;
-        onTap = () {};
-        break;
-      default:
-        buttonText = "Pending";
-        bgColor = AppColor.darkBlue;
-        textColor = AppColor.white;
-        onTap = () {};
-    }
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-        child: Text(buttonText, style: AppTextStyle.ts14M(color: textColor)),
-      ),
+          ),
+        );
+      },
     );
   }
 }

@@ -79,6 +79,7 @@ class LeaveModel {
     "StartDateLeaveDuration": startDateLeaveDuration,
     "EndDateLeaveDuration": endDateLeaveDuration,
     "NoOfDays": noOfDays,
+    "Status": leaveStatus,
     "Reason": reason,
     "LeaveDocumentURL": leaveDocumentUrl,
     "LeaveStatus": leaveStatus,

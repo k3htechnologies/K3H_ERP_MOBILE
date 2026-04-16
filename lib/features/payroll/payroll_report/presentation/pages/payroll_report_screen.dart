@@ -995,7 +995,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.white,
+      backgroundColor: AppColor.greyBackground,
       appBar: CustomAppBar(
         screenTitle: "Report",
         authorization: AuthorizationModel(),
