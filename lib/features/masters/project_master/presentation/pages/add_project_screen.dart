@@ -255,10 +255,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
         (item) => item["DisplayName"] == widget.project!.projectSubScheme,
         orElse: () => subList.first,
       );
-    } else {
-      projectSchemeNotifier.value = projectSchemeList.first;
-      selectedProjectSubScheme.value =
-          _currentSubSchemeList.isNotEmpty ? _currentSubSchemeList.first : null;
     }
 
     projectPhotoImage.fileNameList =
