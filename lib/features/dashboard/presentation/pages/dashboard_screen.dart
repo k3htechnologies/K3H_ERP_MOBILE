@@ -1431,7 +1431,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         title: upcomingLeaves.leaveTypeName,
                         value: "",
                         subtitle:
-                            "$formattedStart - $formattedEnd (${upcomingLeaves.noOfDays.toString()} days)",
+                            "$formattedStart - $formattedEnd (${upcomingLeaves.noOfDays} days)",
                         bgColor: Color(0xFFEFFAF3),
                         borderColor: Color(0xFFB7E4C7),
                       );

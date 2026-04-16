@@ -249,7 +249,7 @@ class Table5 {
   final int leaveId;
   final DateTime startDate;
   final DateTime endDate;
-  final int noOfDays;
+  final double noOfDays;
   final String leaveTypeName;
   final String reason;
   final String message;
@@ -268,7 +268,7 @@ class Table5 {
     leaveId: parseValue<int>(json, "LeaveId"),
     startDate: parseValue<DateTime>(json, "StartDate"),
     endDate: parseValue<DateTime>(json, "EndDate"),
-    noOfDays: parseValue<int>(json, "NoOfDays"),
+    noOfDays: parseValue<double>(json, "NoOfDays"),
     leaveTypeName: parseValue<String>(json, "LeaveTypeName"),
     reason: parseValue<String>(json, "Reason"),
     message: parseValue<String>(json, "Message"),

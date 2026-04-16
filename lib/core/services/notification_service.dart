@@ -9,8 +9,6 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 
-
-
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
@@ -67,9 +65,6 @@ class NotificationService {
         log("User denied notification permissions.");
         return;
       }
-
-      print("I m in");
-
       //  Small delay for iOS
       if (Platform.isIOS) {
         await Future.delayed(const Duration(seconds: 2));
@@ -123,7 +118,8 @@ class NotificationService {
           android: AndroidNotificationDetails(
             'high_importance_channel',
             'High Importance Notifications',
-            channelDescription: 'This channel is used for important notifications.',
+            channelDescription:
+                'This channel is used for important notifications.',
             importance: Importance.max,
             priority: Priority.high,
           ),

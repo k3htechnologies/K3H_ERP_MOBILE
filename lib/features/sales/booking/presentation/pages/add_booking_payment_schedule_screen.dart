@@ -66,9 +66,18 @@ class _AddBookingPaymentScheduleScreenState
   void initState() {
     super.initState();
     _bookingCubit = context.read<BookingCubit>();
-    _fetchStages();
-    _tabController = TabController(length: 2, vsync: this);
     stageList = [];
+    if (_isEditMode) {
+      initEditMode();
+    } else {
+      _fetchStages();
+    }
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  void initEditMode() async {
+    await _fetchStages();
+
     _prefillData();
   }
 
@@ -85,7 +94,11 @@ class _AddBookingPaymentScheduleScreenState
     } else {
       _tabController.index = 1;
 
-      _selectedStage.value = {"zAttributesId": 1, "DisplayName": data.name};
+      _selectedStage.value = stageList.firstWhere(
+        (item) =>
+            item['DisplayName'].toString().toLowerCase() ==
+            data.name.toLowerCase(),
+      );
 
       if (data.name == "Other") {
         _otherStageC.text = data.name;
@@ -318,7 +331,7 @@ class _AddBookingPaymentScheduleScreenState
               title: "Stages",
               isRequired: true,
               hintText: "Select Stage",
-              initialValue: _selectedStage.value,
+              initialValue: value,
               dataList: stageList,
               onValueClear: () => _selectedStage.value = null,
               onSelected: (value) => _selectedStage.value = value,
