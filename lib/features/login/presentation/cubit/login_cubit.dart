@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
@@ -120,7 +121,6 @@ class LoginCubit extends Cubit<LoginState> {
         showErrorMessage(context, "Login Failed", failure.message);
       },
       (user) async {
-
         emit(state.copyWith(user: user));
 
         // SAVE USER
@@ -135,6 +135,29 @@ class LoginCubit extends Cubit<LoginState> {
         }
 
         unawaited(_loadAddressInBackground());
+
+        // ` REGISTER DEVICE TOKEN
+        String currentToken =
+            localStorage.getString(StorageKey.fcmToken) ?? "";
+
+        if (currentToken.isEmpty) {
+          currentToken = await FirebaseMessaging.instance.getToken() ?? "";
+        }
+
+        final oldToken =
+            localStorage.getString(StorageKey.oldFcmToken) ?? "";
+
+        if (currentToken.isNotEmpty && currentToken != oldToken) {
+          if(context.mounted) {
+            await registerDeviceToken(
+            context: context,
+            oldToken: oldToken,
+            newToken: currentToken,
+          );
+          }
+
+          await localStorage.setString(StorageKey.oldFcmToken, currentToken);
+        }
 
         // NAVIGATE
         if (context.mounted) {
@@ -152,10 +175,10 @@ class LoginCubit extends Cubit<LoginState> {
       final result = await utilsRepository.getAddressMaster();
 
       result.fold(
-            (failure) {
+        (failure) {
           debugPrint("Address preload failed");
         },
-            (data) {
+        (data) {
           debugPrint("Address cached successfully");
         },
       );
@@ -217,7 +240,34 @@ class LoginCubit extends Cubit<LoginState> {
         },
       );
     } catch (e) {
-      debugPrint("Jay Shree Ram!!!");
+      debugPrint(e.toString());
+    }
+  }
+
+  // REGISTER DEVICE TOKEN
+  Future<void> registerDeviceToken({
+    required BuildContext context,
+    required String oldToken,
+    required String newToken,
+  }) async {
+    try {
+      Map<String, dynamic> body = {
+        "OldDeviceToken": oldToken,
+        "LatestDeviceToken": newToken,
+      };
+
+      final result = await loginRepository.registerDeviceToken(body: body);
+
+      result.fold(
+        (failure) {
+          debugPrint(failure.message);
+        },
+        (message) async {
+          debugPrint(message);
+        },
+      );
+    } catch (e) {
+      debugPrint(e.toString());
     }
   }
 

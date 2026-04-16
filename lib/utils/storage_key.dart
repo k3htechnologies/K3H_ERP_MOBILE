@@ -20,7 +20,8 @@ class StorageKey {
   static const appVersion = "x.x.x";
 
 
-  static const fcmToken = "";
+  static const String fcmToken = "FCM_TOKEN";
+  static const String oldFcmToken = "OLD_FCM_TOKEN";
 
   static String addressMasterData = "ADDRESS_MASTER_DATA";
 }

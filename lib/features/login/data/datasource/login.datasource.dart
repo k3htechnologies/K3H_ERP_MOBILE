@@ -16,6 +16,10 @@ abstract interface class LoginDatasource {
   });
 
   Future<String> apicallToSetMPIN({required Map<String, dynamic> body});
+
+  Future<String> apicallRegisterDeviceToken({
+    required Map<String, dynamic> body,
+  });
 }
 
 class LoginDatasourceImpl implements LoginDatasource {
@@ -89,6 +93,24 @@ class LoginDatasourceImpl implements LoginDatasource {
 
       var networkResponse = await baseClient.postRequestWithAuthentication(
         setMpinUrl,
+        body,
+      );
+
+      return networkResponse["message"];
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<String> apicallRegisterDeviceToken({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      String registerDeviceToken = "DeviceToken/RegisterDeviceToken";
+
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        registerDeviceToken,
         body,
       );
 

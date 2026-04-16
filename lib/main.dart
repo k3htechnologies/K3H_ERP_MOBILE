@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'dart:io';
 import 'dart:ui';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
@@ -46,6 +48,7 @@ Future<void> requestPhonePermission() async {
       debugPrint("Phone permission denied");
     }
   }
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 }
 
 class MyHttpOverrides extends HttpOverrides {
@@ -118,25 +121,54 @@ Future initialSetup() async {
   GoRouter.optionURLReflectsImperativeAPIs = true;
 }
 
+@pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
 
-  await LocalStorageManager().init();
+  try {
+    LocationPermission permission = await Geolocator.checkPermission();
 
-  Geolocator.getPositionStream(
-    locationSettings: const LocationSettings(
-      accuracy: LocationAccuracy.bestForNavigation,
-      distanceFilter: 5,
-    ),
-  ).listen((position) async {
-    final storage = LocalStorageManager();
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      log("Location permission not granted");
+      return;
+    }
 
-    List points = jsonDecode(storage.getString("route_points") ?? "[]");
+    Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+        distanceFilter: 5,
+      ),
+    ).listen(
+          (position) async {
+        try {
+          final storage = LocalStorageManager();
 
-    points.add({"lat": position.latitude, "lng": position.longitude});
+          List points = jsonDecode(storage.getString("route_points") ?? "[]");
 
-    await storage.setString("route_points", jsonEncode(points));
-  });
+          points.add({
+            "lat": position.latitude,
+            "lng": position.longitude
+          });
+
+          await storage.setString("route_points", jsonEncode(points));
+        } catch (e) {
+          log("Storage error: $e");
+        }
+      },
+      onError: (error) {
+        log("Location stream error: $error");
+      },
+    );
+  } catch (e) {
+    log("onStart error: $e");
+  }
+}
+
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  log("Handling background message: ${message.data}");
 }
 
 class MyApp extends StatelessWidget {

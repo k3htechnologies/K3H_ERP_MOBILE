@@ -25,6 +25,8 @@ abstract interface class LoginRepository {
   });
 
   Future<Either<Failure, String>> setMpin({required Map<String, dynamic> body});
+
+  Future<Either<Failure, String>> registerDeviceToken({required Map<String, dynamic> body});
 }
 
 class LoginRepositoryImpl implements LoginRepository {
@@ -111,4 +113,17 @@ class LoginRepositoryImpl implements LoginRepository {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
     }
   }
+
+  @override
+  Future<Either<Failure, String>> registerDeviceToken({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await loginDatasource.apicallRegisterDeviceToken(body: body);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
 }

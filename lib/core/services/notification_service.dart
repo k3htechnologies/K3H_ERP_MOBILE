@@ -1,9 +1,15 @@
 import 'dart:developer'; // For logging
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
+
+
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -11,7 +17,8 @@ class NotificationService {
   NotificationService._internal();
 
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
-  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
 
   Future<void> setupFlutterNotifications() async {
     try {
@@ -21,8 +28,11 @@ class NotificationService {
         importance: Importance.max,
       );
 
-      final androidPlugin = _localNotifications
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      final androidPlugin =
+          _localNotifications
+              .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin
+              >();
 
       // Ensure the plugin is available before calling methods
       if (androidPlugin != null) {
@@ -60,7 +70,7 @@ class NotificationService {
 
       print("I m in");
 
-      // ✅ Small delay for iOS
+      //  Small delay for iOS
       if (Platform.isIOS) {
         await Future.delayed(const Duration(seconds: 2));
       }
@@ -73,16 +83,28 @@ class NotificationService {
         log("FCM error: $e");
       }
 
-      print("FCM TOKEN => $token");
+      debugPrint("FCM TOKEN => $token");
 
       if (token != null) {
-        await LocalStorageManager().setString(StorageKey.fcmToken, token);
+        final storage = LocalStorageManager();
+        await storage.setString(StorageKey.fcmToken, token);
       }
+
+      RemoteMessage? initialMessage = await _fcm.getInitialMessage();
+
+      if (initialMessage != null) {
+        log("App opened from terminated state");
+        _handleTap(initialMessage.data['route']);
+      }
+
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+        log("App opened from background");
+        _handleTap(message.data['route']);
+      });
 
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         _showLocalNotification(message);
       });
-
     } catch (e) {
       log("Error during FCM initialization: $e");
     }
@@ -90,42 +112,35 @@ class NotificationService {
 
   void _showLocalNotification(RemoteMessage message) {
     try {
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
+      final title = message.data['title'];
+      final body = message.data['body'];
 
-      if (notification != null) {
-        _localNotifications.show(
-          id: notification.hashCode,
-          title:notification.title,
-          body:notification.body,
-          notificationDetails:NotificationDetails(
-            android: AndroidNotificationDetails(
-              'high_importance_channel', // CHANNEL ID
-              'High Importance Notifications', // CHANNEL NAME
-              channelDescription: 'This channel is used for important notifications.',
-              importance: Importance.max,
-              priority: Priority.high,
-              icon: android?.smallIcon,
-            ),
-            iOS: const DarwinNotificationDetails(
-              presentAlert: true,
-              presentBadge: true,
-              presentSound: true,
-            ),
+      _localNotifications.show(
+        id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        title: title,
+        body: body,
+        notificationDetails: const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'high_importance_channel',
+            'High Importance Notifications',
+            channelDescription: 'This channel is used for important notifications.',
+            importance: Importance.max,
+            priority: Priority.high,
           ),
-          payload: message.data['route'],
-        );
-      }
+          iOS: DarwinNotificationDetails(),
+        ),
+        payload: message.data['route'],
+      );
     } catch (e) {
       log("Error showing local notification: $e");
     }
   }
+
   void _handleTap(String? payload) {
     try {
-      if (payload != null) {
-        log("Navigating to: $payload");
-        // Use your GoRouter or Navigator instance here
-      }
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        goRouter.push(AppRoutes.notificationScreenMobile);
+      });
     } catch (e) {
       log("Error handling notification tap: $e");
     }

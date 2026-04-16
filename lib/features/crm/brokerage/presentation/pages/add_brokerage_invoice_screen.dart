@@ -40,7 +40,7 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
   DateTime? dueDate;
 
   // DROPDOWN NOTIFIERS
-  late final ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier;
+  late ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier;
 
   // EDIT MODE
   bool get _isEditMode => widget.brokerageInvoiceModel != null;
