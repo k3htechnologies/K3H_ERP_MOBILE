@@ -189,6 +189,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
               valueListenable: _selectedPaymentTypeNotifier,
               builder: (context, selectedPaymentType, _) {
                 return CustomDropDownWidget(
+
                   title: "Payment Type",
                   isRequired: true,
                   initialValue: selectedPaymentType.first,

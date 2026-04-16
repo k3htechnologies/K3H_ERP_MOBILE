@@ -2,8 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
@@ -134,29 +135,32 @@ class LoginCubit extends Cubit<LoginState> {
           await fetchAndStoreMenu(context, user);
         }
 
-        unawaited(_loadAddressInBackground());
-
         // ` REGISTER DEVICE TOKEN
-        String currentToken =
-            localStorage.getString(StorageKey.fcmToken) ?? "";
+        final currentToken = localStorage.getString(StorageKey.fcmToken) ?? "";
 
-        if (currentToken.isEmpty) {
-          currentToken = await FirebaseMessaging.instance.getToken() ?? "";
-        }
-
-        final oldToken =
-            localStorage.getString(StorageKey.oldFcmToken) ?? "";
+        final oldToken = localStorage.getString(StorageKey.oldFcmToken) ?? "";
 
         if (currentToken.isNotEmpty && currentToken != oldToken) {
-          if(context.mounted) {
-            await registerDeviceToken(
-            context: context,
-            oldToken: oldToken,
-            newToken: currentToken,
-          );
+          if (context.mounted) {
+            registerDeviceToken(
+              context: context,
+              oldToken: oldToken,
+              newToken: currentToken,
+            );
           }
 
-          await localStorage.setString(StorageKey.oldFcmToken, currentToken);
+          localStorage.setString(StorageKey.oldFcmToken, currentToken);
+        }
+
+        unawaited(_loadAddressInBackground());
+
+        LocationPermission permission = await Geolocator.checkPermission();
+
+        if (permission == LocationPermission.denied ||
+            permission == LocationPermission.deniedForever) {
+          if (context.mounted) {
+            await showLocationDisclosure(context);
+          }
         }
 
         // NAVIGATE
@@ -164,6 +168,37 @@ class LoginCubit extends Cubit<LoginState> {
           goRouter.go(AppRoutes.dashboardScreen);
           showSuccessMessage(context, subTitle: "Login Successfully");
         }
+      },
+    );
+  }
+
+  Future<void> showLocationDisclosure(BuildContext context) async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text("Location Permission Required"),
+          content: const Text(
+            "This app collects location data to track your field activity "
+            "even when the app is closed or not in use. "
+            "This is required for attendance and route tracking.",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => goRouter.pop(context),
+              child: const Text("Deny"),
+            ),
+            TextButton(
+              onPressed: () async {
+                goRouter.pop(context);
+
+                await Geolocator.requestPermission();
+              },
+              child: const Text("Allow"),
+            ),
+          ],
+        );
       },
     );
   }
