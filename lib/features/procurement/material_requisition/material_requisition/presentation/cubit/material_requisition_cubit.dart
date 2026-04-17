@@ -19,6 +19,14 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
   // REPOSITORY
   final MaterialRequisitionRepository _materialRequisitionRepository =
       serviceLocator<MaterialRequisitionRepository>();
+  void searchMaterialRequisition(
+    BuildContext context,
+    String searchText,
+    int projectId,
+  ) {
+    emit(state.copyWith(searchText: searchText.trim()));
+    getMaterialRequisitionList(context, 1, projectId);
+  }
 
   Future getMaterialRequisitionList(
     BuildContext context,
@@ -33,11 +41,16 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
       emit(state.copyWith(isLoading: false));
       return;
     }
+
+    Map<String, dynamic> queryParams = {
+      "SystemGeneratedCode": state.searchText,
+    };
     var result = await _materialRequisitionRepository
         .getMaterialRequisitionList(
           pageNumber: pageNumber,
           pageSize: 10,
           projectId: projectId,
+          queryParams: queryParams,
         );
 
     result.fold(
@@ -55,6 +68,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
             materialRequisitionList: updatedList,
             isLoading: false,
             currentPage: pageNumber,
+            totalNumberOfRecord: response['totalNumberOfRecord'],
           ),
         );
       },
@@ -224,18 +238,15 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
 
   Future deleteMaterialRequisition({
     required BuildContext context,
-    required int materialRequisitionId,
-    required String uniqueKey,
-    required int projectId,
-    required int pageNumber,
-    required int pageSize,
+    required int index,
+    required MaterialRequisitionModel materialRequisitionModel,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var deleteResult = await _materialRequisitionRepository
         .deleteMaterialRequisition(
-          projectId: projectId,
-          materialRequisitionId: materialRequisitionId,
-          uniqueKey: uniqueKey,
+          projectId: materialRequisitionModel.projectId,
+          materialRequisitionId: materialRequisitionModel.materialRequisitionId,
+          uniqueKey: materialRequisitionModel.uniquekey,
         );
     goRouter.pop();
     deleteResult.fold(
@@ -244,8 +255,24 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        final updatedMaterialRequisitionList =
+            List<MaterialRequisitionModel>.from(state.materialRequisitionList);
+        updatedMaterialRequisitionList.removeAt(index);
+
+        emit(
+          state.copyWith(
+            materialRequisitionList: updatedMaterialRequisitionList,
+            isLoading: false,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
+        );
+
+        showSuccessMessage(context, subTitle: response['message']);
+
         showSuccessMessage(context);
-        getMaterialRequisitionList(context, pageNumber, projectId);
       },
     );
   }
@@ -263,11 +290,12 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
       queryParams:
           state.searchText != ""
               ? {
-                "ChannelPartnerName": state.searchText,
+                "SystemGeneratedCode": state.searchText,
                 "ExportType": exportType,
               }
               : {"ExportType": exportType},
     );
+    print("Export Type: ${exportType}");
     goRouter.pop();
     result.fold(
       (failure) {

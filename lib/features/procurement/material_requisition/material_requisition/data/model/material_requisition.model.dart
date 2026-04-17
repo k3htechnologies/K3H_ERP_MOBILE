@@ -24,7 +24,7 @@ class MaterialRequisitionModel {
   double paidAmount;
   double totalPoAmount;
   double totalInoviceAmount;
-  int totalInvoice;
+  double totalInvoice;
   String purchaseOrderURL;
   bool isApprovalVendorFinalization;
   bool isApprovalInvoice;
@@ -103,7 +103,7 @@ class MaterialRequisitionModel {
     paidAmount: parseValue<double>(json, "PaidAmount"),
     totalPoAmount: parseValue<double>(json, "TotalPoAmount"),
     totalInoviceAmount: parseValue<double>(json, "TotalInvoiceAmount"),
-    totalInvoice: parseValue<int>(json, "TotalInvoice"),
+    totalInvoice: parseValue<double>(json, "TotalInvoice"),
     purchaseOrderURL: parseValue<String>(json, "PurchaseOrderURL"),
     isApprovalVendorFinalization: parseValue<bool>(
       json,

@@ -153,6 +153,7 @@ class MaterialRequisitionDataSourceImpl
           pageSize: pageSize,
           pageNumber: pageNumber,
           projectId: projectId,
+          queryParams: queryParams,
         ),
       );
 

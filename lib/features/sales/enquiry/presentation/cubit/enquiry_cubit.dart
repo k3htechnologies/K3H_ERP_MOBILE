@@ -354,13 +354,12 @@ class EnquiryCubit extends Cubit<EnquiryState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) async {
-        // Update follow-up list
-        final updatedEnquiryUpList = List<EnquiryModel>.from(state.enquiryList);
-        updatedEnquiryUpList.removeAt(index);
+        final updatedEnquiryList = List<EnquiryModel>.from(state.enquiryList);
+        updatedEnquiryList.removeAt(index);
 
         emit(
           state.copyWith(
-            enquiryList: updatedEnquiryUpList,
+            enquiryList: updatedEnquiryList,
             isLoading: false,
             totalNumberOfRecord:
                 state.totalNumberOfRecord > 0

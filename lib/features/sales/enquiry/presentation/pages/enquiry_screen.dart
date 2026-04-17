@@ -105,7 +105,6 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
   void _showPopupToDeleteEnquiry({
     required int index,
     required EnquiryModel enquiryModel,
-
     required BuildContext context,
   }) async {
     var result = await DialogHelper.deleteDialog(
@@ -642,6 +641,30 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                       buildRowTitleValue(
                         title: "Enquiry Code  ",
                         value: enquiry.systemGeneratedCode,
+                        customValueWidget: Row(
+                          children: [
+                            Text(
+                              enquiry.systemGeneratedCode,
+                              style: AppTextStyle.ts14M(),
+                            ),
+                            horizontalSpacing(width: 2),
+                            CustomIconButton(
+                              onPressed: () async {
+                                copy(
+                                  context: context,
+                                  text: enquiry.systemGeneratedCode,
+                                );
+                              },
+                              backgroundColor: AppColor.white,
+
+                              icon: Icon(
+                                Icons.copy,
+                                size: 16,
+                                color: AppColor.primary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       buildRowTitleValue(
                         title: "Mobile Number",

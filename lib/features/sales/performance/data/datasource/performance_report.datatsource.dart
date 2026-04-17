@@ -44,7 +44,11 @@ class PerformanceReportDatasourceImpl extends PerformanceReportDatasource {
     }) {
       String url =
           "PerformanceReport/PullPerformanceReport?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&ReportType=$reportType";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      queryParams?.forEach((key, value) {
+        if (value != null && value.toString().trim().isNotEmpty) {
+          url += "&$key=$value";
+        }
+      });
       return url;
     }
 
@@ -95,7 +99,11 @@ class PerformanceReportDatasourceImpl extends PerformanceReportDatasource {
     }) {
       String url =
           "PerformanceReport/PullPerformanceReport?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&ReportType=$reportType";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      queryParams?.forEach((key, value) {
+        if (value != null && value.toString().trim().isNotEmpty) {
+          url += "&$key=$value";
+        }
+      });
       return url;
     }
 
@@ -144,7 +152,11 @@ class PerformanceReportDatasourceImpl extends PerformanceReportDatasource {
     String pullPerformanceReportExportUrl({Map<String, dynamic>? queryParams}) {
       String url =
           "PerformanceReport/PullPerformanceReport?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&ReportType=$reportType";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      queryParams?.forEach((key, value) {
+        if (value != null && value.toString().trim().isNotEmpty) {
+          url += "&$key=$value";
+        }
+      });
       return url;
     }
 

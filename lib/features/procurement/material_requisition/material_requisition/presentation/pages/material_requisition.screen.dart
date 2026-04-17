@@ -5,11 +5,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -87,6 +89,26 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
     super.dispose();
   }
 
+  void _showPopupToDeleteMaterialRequisition({
+    required int index,
+    required MaterialRequisitionModel materialRequisitionModel,
+    required BuildContext context,
+  }) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete this Material Requisition',
+      'Deleting this Material Requisition will permanently remove its contents.',
+    );
+
+    if (result && context.mounted) {
+      _materialRequisitionCubit.deleteMaterialRequisition(
+        index: index,
+        materialRequisitionModel: materialRequisitionModel,
+        context: context,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,7 +116,14 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
         screenTitle: "Material Requisition",
         authorization: _routeAuthorizationModel,
         textController: _searchC,
-        onSearchSubmit: (value) {},
+        searchHintText: "Search By Unique ID",
+        onSearchSubmit: (value) {
+          _materialRequisitionCubit.searchMaterialRequisition(
+            context,
+            value,
+            _project.projectId,
+          );
+        },
         onAddCallback: () {},
         onProjectChangeCallback: (value) {
           _project = value;
@@ -123,7 +152,11 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
       body: RefreshIndicator(
         onRefresh: () async {
           _searchC.clear();
-          // _materialRequisitionCubit.(context, "", _project.projectId);
+          _materialRequisitionCubit.searchMaterialRequisition(
+            context,
+            "",
+            _project.projectId,
+          );
         },
         child: BlocBuilder<MaterialRequisitionCubit, MaterialRequisitionState>(
           builder: (context, state) {
@@ -155,7 +188,7 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                       )
                       : const SizedBox.shrink();
                 }
-                var material = state.materialRequisitionList[index];
+                var materialRequisition = state.materialRequisitionList[index];
                 return Container(
                   margin: EdgeInsets.only(bottom: 10),
                   padding: EdgeInsets.all(12),
@@ -165,64 +198,102 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
                         children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () async {},
-                              child: Text(
-                                material.systemGeneratedCode,
-                                style: AppTextStyle.ts14M(
-                                  color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () async {},
+                                child: Text(
+                                  materialRequisition.systemGeneratedCode,
+                                  style: AppTextStyle.ts14M(
+                                    color: AppColor.primary,
+                                  ).copyWith(
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColor.primary,
+                                  ),
                                 ),
                               ),
-                            ),
+                              horizontalSpacing(width: 2),
+                              CustomIconButton(
+                                onPressed: () async {
+                                  copy(
+                                    context: context,
+                                    text:
+                                        materialRequisition.systemGeneratedCode,
+                                  );
+                                },
+                                backgroundColor: AppColor.white,
+
+                                icon: Icon(
+                                  Icons.copy,
+                                  size: 16,
+                                  color: AppColor.primary,
+                                ),
+                              ),
+                            ],
                           ),
 
-                          horizontalSpacing(),
                           if (_routeAuthorizationModel.isAction) ...[
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                copy(
-                                  context: context,
-                                  text: material.systemGeneratedCode,
-                                );
-                              },
+                            Row(
+                              spacing: 10,
+                              children: [
+                                CustomIconButton.edit(
+                                  isDisabled:
+                                      materialRequisition
+                                          .materialRequisitionStage ==
+                                      'Get Quotation',
+                                  onPressed: () {},
+                                ),
+                                CustomIconButton.delete(
+                                  isDisabled:
+                                      materialRequisition
+                                          .materialRequisitionStage ==
+                                      'Get Quotation',
+                                  onPressed: () {
+                                    _showPopupToDeleteMaterialRequisition(
+                                      context: context,
+                                      index: index,
+                                      materialRequisitionModel:
+                                          materialRequisition,
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
-                            horizontalSpacing(),
                           ],
-                          CustomIconButton.delete(onPressed: () {}),
                         ],
                       ),
                       buildRowTitleValue(
                         title: "Vendor's Name",
                         fixesWidth: 150,
-                        value: material.finalVendor,
+                        value: materialRequisition.finalVendor,
                       ),
                       buildRowTitleValue(
                         title: "Stage",
                         fixesWidth: 150,
-                        value: material.materialRequisitionStage,
+                        value: materialRequisition.materialRequisitionStage,
                       ),
                       buildRowTitleValue(
                         title: "Total PO Amount",
                         fixesWidth: 150,
-                        value: "₹ ${material.totalPoAmount}",
+                        value:
+                            "₹ ${addCommasToInteger(materialRequisition.totalPoAmount)}",
                       ),
                       buildRowTitleValue(
                         title: "Invoice Amount",
                         fixesWidth: 150,
-                        value: "₹ ${material.totalInvoice}",
+                        value:
+                            "₹ ${addCommasToInteger(materialRequisition.totalInvoice)}",
                       ),
 
                       buildRowTitleValue(
                         title: "Status",
                         fixesWidth: 150,
-                        value: material.materialRequisitionStatus,
+                        value: materialRequisition.materialRequisitionStatus,
                         customValueWidget: statusWidget(
-                          material.materialRequisitionStatus,
+                          materialRequisition.materialRequisitionStatus,
                         ),
                       ),
                     ],
@@ -247,47 +318,18 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
     final s = trimmed.toLowerCase();
 
     switch (s) {
-      case 'booking done':
+      case 'completed':
         return statusChip(
           status,
           AppColor.green20.withValues(alpha: 0.1),
           AppColor.green,
         );
 
-      case 'blocked':
-        return statusChip(status, AppColor.purple20, AppColor.purple);
-
-      case 'cancelled':
-        return statusChip(status, AppColor.black10, AppColor.darkGrey);
-
-      case 'negotiation':
-        return statusChip(status, AppColor.lightYellow, AppColor.brown);
-
-      case 'lost':
+      case 'closed':
         return statusChip(status, AppColor.lightRed, AppColor.red);
 
-      case 'retention':
+      case 'ongoing':
         return statusChip(status, AppColor.lightBlue2, AppColor.info);
-
-      case 're - visit scheduled':
-        return statusChip(status, AppColor.lightGreenBg, AppColor.darkGreen);
-
-      case 're - visit proposed':
-        return statusChip(status, AppColor.lightOrangenBg, AppColor.orange);
-
-      case 'site visit':
-        return statusChip(
-          status,
-          AppColor.lightRed,
-          AppColor.priorityHighColor,
-        );
-
-      case 'unit selection / blocked':
-        return statusChip(
-          status,
-          AppColor.lightRed,
-          AppColor.priorityHighColor,
-        );
 
       default:
         return statusChip(status, AppColor.lightGreyBackground, AppColor.black);

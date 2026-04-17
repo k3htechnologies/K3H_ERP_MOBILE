@@ -791,15 +791,10 @@ class ProfileCubit extends Cubit<ProfileState> {
           if (context.mounted) {
             showSuccessMessage(context, subTitle: message);
           }
-
-          Future.delayed(Duration(seconds: 1), () async {
-            await _localStorage.removeAll();
-            goRouter.replace(AppRoutes.splashScreen);
-          });
         },
       );
     } catch (e) {
-      debugPrint("Jay Shree Ram!!!");
+      debugPrint("MPIN Error: $e");
     }
   }
 
