@@ -333,7 +333,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                       }
                       return null;
                     },
-                    onValueClear: (){
+                    onValueClear: () {
                       stateId.value = null;
                       districtId.value = null;
                       cityId.value = null;
@@ -375,7 +375,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                           }
                           return null;
                         },
-                        onValueClear: (){
+                        onValueClear: () {
                           districtId.value = null;
                           cityId.value = null;
                           villageId.value = null;
@@ -419,7 +419,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                     }
                     return null;
                   },
-                  onValueClear: (){
+                  onValueClear: () {
                     cityId.value = null;
                     villageId.value = null;
                   },
@@ -458,7 +458,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                       }
                       return null;
                     },
-                    onValueClear: (){
+                    onValueClear: () {
                       villageId.value = null;
                     },
                   );

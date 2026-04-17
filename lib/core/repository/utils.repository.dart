@@ -347,7 +347,9 @@ class UtilsRepositoryImpl implements UtilsRepository {
   }
 
   @override
-  Future<Either<Failure, List<dynamic>>> getAddressMaster({bool forceRefresh = false}) async {
+  Future<Either<Failure, List<dynamic>>> getAddressMaster({
+    bool forceRefresh = false,
+  }) async {
     final storage = LocalStorageManager();
 
     if (!forceRefresh) {
@@ -368,5 +370,4 @@ class UtilsRepositoryImpl implements UtilsRepository {
 
     return right(data);
   }
-
 }

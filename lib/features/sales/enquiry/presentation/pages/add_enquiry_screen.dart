@@ -1698,9 +1698,11 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                                 .isNotEmpty;
                                       },
                                       validator: (val) {
-                                        if (_teamMemberNameC.text.isNotEmpty) {
+                                        if (_teamMemberNameC.text.isNotEmpty &&
+                                            _teamMemberMobileC.text.isEmpty) {
                                           return "Team member mobile number is required";
                                         }
+
                                         if (val != null &&
                                             val.isNotEmpty &&
                                             val.length != 10) {
@@ -2400,10 +2402,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
           startDate: DateTime.now(),
           initialDate: _nextFollowUpDate,
           setValue: (v) => _nextFollowUpDate = v,
-          validator: (val) {
-            if (val == null) return "Next Follow-Up Date is required";
-            return null;
-          },
         ),
     ]);
   }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -182,7 +183,14 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
 
                           horizontalSpacing(),
                           if (_routeAuthorizationModel.isAction) ...[
-                            CustomIconButton.edit(onPressed: () {}),
+                            CustomIconButton.edit(
+                              onPressed: () async {
+                                copy(
+                                  context: context,
+                                  text: material.systemGeneratedCode,
+                                );
+                              },
+                            ),
                             horizontalSpacing(),
                           ],
                           CustomIconButton.delete(onPressed: () {}),
