@@ -155,9 +155,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Future<bool> _ensureLocationPermission() async {
+  Future<bool> _ensureLocationPermission(BuildContext context) async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return false;
+
+    if (!serviceEnabled) {
+      showErrorMessage(
+        context,
+        "Location Disabled",
+        "Please turn on Location (GPS)",
+      );
+
+      await Geolocator.openLocationSettings(); // 🔥 OPEN SETTINGS
+      return false;
+    }
 
     LocationPermission permission = await Geolocator.checkPermission();
 
@@ -165,8 +175,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
       permission = await Geolocator.requestPermission();
     }
 
-    return permission == LocationPermission.always ||
-        permission == LocationPermission.whileInUse;
+    if (permission == LocationPermission.deniedForever) {
+      showErrorMessage(
+        context,
+        "Permission Required",
+        "Enable location permission from settings",
+      );
+
+      await Geolocator.openAppSettings();
+      return false;
+    }
+
+    return true;
   }
 
   double maxWidth = 0.0;
@@ -186,6 +206,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
 
       final address = await _getAddressFromGPS();
+
+      if (address == null) {
+        showErrorMessage(context, "Error", "Unable to fetch location");
+        return;
+      }
 
       await storage.setString(
         "route_points",
@@ -207,7 +232,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final result = await _dashboardCubit.addAttendance(
         context,
         attendanceId: attendanceIdToSend,
-        punchAddress: address!,
+        punchAddress: address,
         startLatitude: pos.latitude,
         startLongitude: pos.longitude,
         endLatitude: 0,
@@ -652,7 +677,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         return;
                                       }
                                       final hasPermission =
-                                          await _ensureLocationPermission();
+                                          await _ensureLocationPermission(
+                                            context,
+                                          );
                                       if (!hasPermission) {
                                         dragPositionNotifier.value = 0;
                                         return;
@@ -1431,7 +1458,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         title: upcomingLeaves.leaveTypeName,
                         value: "",
                         subtitle:
-                            "$formattedStart - $formattedEnd (${upcomingLeaves.noOfDays.toString()} days)",
+                            "$formattedStart - $formattedEnd (${upcomingLeaves.noOfDays} days)",
                         bgColor: Color(0xFFEFFAF3),
                         borderColor: Color(0xFFB7E4C7),
                       );

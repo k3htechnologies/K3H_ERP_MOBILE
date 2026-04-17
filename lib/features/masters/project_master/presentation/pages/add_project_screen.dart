@@ -256,9 +256,8 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
         orElse: () => subList.first,
       );
     } else {
-      projectSchemeNotifier.value = projectSchemeList.first;
-      selectedProjectSubScheme.value =
-          _currentSubSchemeList.isNotEmpty ? _currentSubSchemeList.first : null;
+      projectSchemeNotifier.value = null;
+      selectedProjectSubScheme.value = null;
     }
 
     projectPhotoImage.fileNameList =

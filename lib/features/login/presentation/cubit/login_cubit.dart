@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
@@ -158,9 +157,7 @@ class LoginCubit extends Cubit<LoginState> {
 
         if (permission == LocationPermission.denied ||
             permission == LocationPermission.deniedForever) {
-          if (context.mounted) {
-            await showLocationDisclosure(context);
-          }
+          await _handleLocationPermissionFlow(context);
         }
 
         // NAVIGATE
@@ -172,8 +169,36 @@ class LoginCubit extends Cubit<LoginState> {
     );
   }
 
-  Future<void> showLocationDisclosure(BuildContext context) async {
-    await showDialog(
+  Future<void> _handleLocationPermissionFlow(BuildContext context) async {
+    // STEP 1: Always show your custom disclosure FIRST
+    final shouldRequest = await showLocationDisclosure(context);
+
+    if (!shouldRequest) return;
+
+    // STEP 2: Then request permission
+    LocationPermission permission = await Geolocator.requestPermission();
+
+    if (permission == LocationPermission.denied) {
+      showErrorMessage(
+        context,
+        "Permission Denied",
+        "Location permission is required",
+      );
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      showErrorMessage(
+        context,
+        "Permission Required",
+        "Enable location permission from settings",
+      );
+
+      await Geolocator.openAppSettings();
+    }
+  }
+
+  Future<bool> showLocationDisclosure(BuildContext context) async {
+    final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (_) {
@@ -186,21 +211,19 @@ class LoginCubit extends Cubit<LoginState> {
           ),
           actions: [
             TextButton(
-              onPressed: () => goRouter.pop(context),
+              onPressed: () => Navigator.pop(context, false),
               child: const Text("Deny"),
             ),
             TextButton(
-              onPressed: () async {
-                goRouter.pop(context);
-
-                await Geolocator.requestPermission();
-              },
+              onPressed: () => Navigator.pop(context, true),
               child: const Text("Allow"),
             ),
           ],
         );
       },
     );
+
+    return result ?? false;
   }
 
   Future<void> _loadAddressInBackground() async {
