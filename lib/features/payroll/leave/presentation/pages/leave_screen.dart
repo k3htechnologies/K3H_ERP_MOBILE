@@ -548,38 +548,6 @@ class _LeaveScreenState extends State<LeaveScreen>
     );
   }
 
-  // HELPER METHOD TO GET STATUS CONFIG
-  StatusConfig _getStatusConfig(String status) {
-    switch (status.toLowerCase()) {
-      case "pending":
-        return StatusConfig(
-          label: "Pending",
-          textColor: AppColor.white,
-          backgroundColor: AppColor.darkBlue,
-        );
-
-      case "approved":
-        return StatusConfig(
-          label: "Approved",
-          textColor: AppColor.white,
-          backgroundColor: AppColor.green,
-        );
-
-      case "rejected":
-        return StatusConfig(
-          label: "Rejected",
-          textColor: AppColor.white,
-          backgroundColor: AppColor.error,
-        );
-
-      default:
-        return StatusConfig(
-          label: status,
-          textColor: AppColor.grey,
-          backgroundColor: AppColor.grey.withValues(alpha: 0.1),
-        );
-    }
-  }
 }
 
 // HELPER CLASS TO STORE STATUS CONFIG

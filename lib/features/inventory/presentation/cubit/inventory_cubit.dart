@@ -78,6 +78,10 @@ class InventoryCubit extends Cubit<InventoryState> {
     );
   }
 
+  void reset() {
+    emit(state.copyWith(isLoading: false));
+  }
+
   // GET ENTIRE INVENTORY
   Future<void> getInventory(BuildContext context, int projectId) async {
     if (_isApiCallInProgress) return;
@@ -85,13 +89,6 @@ class InventoryCubit extends Cubit<InventoryState> {
     _isApiCallInProgress = true;
 
     emit(state.copyWith(isLoading: true));
-    if (projectId == 0) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showErrorMessage(context, "Error", "Please select a project");
-      });
-      emit(state.copyWith(isLoading: false));
-      return;
-    }
     final result = await _inventoryRepository.getInventory(
       projectId: projectId,
     );

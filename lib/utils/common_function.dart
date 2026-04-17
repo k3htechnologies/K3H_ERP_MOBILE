@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/foundation.dart';
@@ -130,10 +131,7 @@ Future<void> updateRouteAuthorization(List<ModuleModel> moduleData) async {
 
   final defaultMap = Authorization.routeAuthorizationMap;
 
-  Authorization.routeAuthorizationMap = {
-    ...defaultMap,
-    ...updatedRouteMap,
-  };
+  Authorization.routeAuthorizationMap = {...defaultMap, ...updatedRouteMap};
 }
 
 Map<String, AuthorizationModel> _processRouteAuthorizationModules(
@@ -736,4 +734,11 @@ String formatDateTimeReadable(DateTime? date) {
   if (date == null) return "-";
 
   return DateFormat('dd MMMM yyyy h:mm a').format(date);
+}
+
+void copy({required BuildContext context, required String text}) async {
+  await Clipboard.setData(ClipboardData(text: text));
+  if (context.mounted) {
+    showSuccessMessage(context, subTitle: '$text is Copied');
+  }
 }

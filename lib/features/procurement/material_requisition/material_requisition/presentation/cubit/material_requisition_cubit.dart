@@ -54,6 +54,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
           state.copyWith(
             materialRequisitionList: updatedList,
             isLoading: false,
+            currentPage: pageNumber,
           ),
         );
       },
@@ -280,8 +281,8 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "Channel Partner ${DateTime.now()}.pdf"
-              : "Channel Partner ${DateTime.now()}.xlsx",
+              ? "Material Requisition ${DateTime.now()}.pdf"
+              : "Material Requisition ${DateTime.now()}.xlsx",
         );
       },
     );

@@ -56,7 +56,7 @@ class _AddBookingPaymentScheduleScreenState
     null,
   );
   late List<Map<String, dynamic>> stageList;
-  DateTime? date;
+  final ValueNotifier<DateTime?> _selectedDate = ValueNotifier(null);
 
   late TabController _tabController;
 
@@ -66,9 +66,18 @@ class _AddBookingPaymentScheduleScreenState
   void initState() {
     super.initState();
     _bookingCubit = context.read<BookingCubit>();
-    _fetchStages();
-    _tabController = TabController(length: 2, vsync: this);
     stageList = [];
+    if (_isEditMode) {
+      initEditMode();
+    } else {
+      _fetchStages();
+    }
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  void initEditMode() async {
+    await _fetchStages();
+
     _prefillData();
   }
 
@@ -81,11 +90,15 @@ class _AddBookingPaymentScheduleScreenState
     /// SELECT TAB
     if (data.type == "Date") {
       _tabController.index = 0;
-      date = data.date;
+      _selectedDate.value = data.date;
     } else {
       _tabController.index = 1;
 
-      _selectedStage.value = {"zAttributesId": 1, "DisplayName": data.name};
+      _selectedStage.value = stageList.firstWhere(
+        (item) =>
+            item['DisplayName'].toString().toLowerCase() ==
+            data.name.toLowerCase(),
+      );
 
       if (data.name == "Other") {
         _otherStageC.text = data.name;
@@ -144,7 +157,7 @@ class _AddBookingPaymentScheduleScreenState
       final alreadyExists = schedules.any(
         (e) =>
             e.type == "Date" &&
-            e.date == date! &&
+            e.date == _selectedDate.value &&
             schedules.indexOf(e) != widget.index,
       );
 
@@ -194,11 +207,11 @@ class _AddBookingPaymentScheduleScreenState
       type: isDateTab ? "Date" : "Stage",
       name:
           isDateTab
-              ? date!.toIso8601String()
+              ? _selectedDate.value!.toIso8601String()
               : (_selectedStage.value?["DisplayName"] == "Other"
                   ? _otherStageC.text.trim()
                   : _selectedStage.value?["DisplayName"] ?? "Stage"),
-      date: isDateTab ? date : null,
+      date: isDateTab ? _selectedDate.value : null,
       paymentSchedulePercentage: percentage,
       paymentCummulativePercentage: cumulativePercentage,
       paymentScheduleAmount: amount,
@@ -290,16 +303,21 @@ class _AddBookingPaymentScheduleScreenState
   Widget _dateTab() {
     return Column(
       children: [
-        CustomDatePicker(
-          title: "Date",
-          isRequired: true,
-          initialDate: date,
-          setValue: (value) => date = value,
-          validator: (value) {
-            if (value == null) {
-              return "Date is required";
-            }
-            return null;
+        ValueListenableBuilder(
+          valueListenable: _selectedDate,
+          builder: (context, value, child) {
+            return CustomDatePicker(
+              title: "Date",
+              isRequired: true,
+              initialDate: value,
+              setValue: (value) => _selectedDate.value = value,
+              validator: (value) {
+                if (value == null) {
+                  return "Date is required";
+                }
+                return null;
+              },
+            );
           },
         ),
         _percentageField(),
@@ -318,7 +336,7 @@ class _AddBookingPaymentScheduleScreenState
               title: "Stages",
               isRequired: true,
               hintText: "Select Stage",
-              initialValue: _selectedStage.value,
+              initialValue: value,
               dataList: stageList,
               onValueClear: () => _selectedStage.value = null,
               onSelected: (value) => _selectedStage.value = value,
@@ -409,7 +427,7 @@ class _AddBookingPaymentScheduleScreenState
                         if (index == 0) {
                           _selectedStage.value = {};
                         } else {
-                          date = null;
+                          _selectedDate.value = null;
                         }
                       },
                       tabs:
