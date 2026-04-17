@@ -320,16 +320,26 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                         ),
                         Row(
                           spacing: 10,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             buildColumnTitleValue(
                               title: "Sub Source",
                               value: enquiry.subSource,
                             ),
-                            buildColumnTitleValue(
-                              title: "Sub Sub Source",
-                              value: enquiry.subSubSource,
+                            Visibility(
+                              visible:
+                                  enquiry.subSource.toLowerCase() ==
+                                  "advertisement",
+                              child: buildColumnTitleValue(
+                                title: "Sub Sub Source",
+                                value: enquiry.subSubSource,
+                              ),
                             ),
+                            if (enquiry.subSource.toLowerCase() !=
+                                "advertisement")
+                              Spacer(),
                           ],
                         ),
                         Row(
