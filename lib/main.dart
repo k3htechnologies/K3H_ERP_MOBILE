@@ -14,10 +14,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
-import 'package:k3h_erp_app/core/services/notification_service.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
-import 'package:k3h_erp_app/firebase_options.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/theme/theme.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -62,6 +60,15 @@ class MyHttpOverrides extends HttpOverrides {
 
 Future initialSetup() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp();
+
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   // LOCAL STORAGE
   await LocalStorageManager().init();
   // DEPENDENCY INJECTION
@@ -69,23 +76,12 @@ Future initialSetup() async {
   HttpOverrides.global = MyHttpOverrides();
 
   SchedulerBinding.instance.addPostFrameCallback((_) {});
-  if (Platform.isAndroid) {
-    await Firebase.initializeApp();
-  } else {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  }
 
   // LOCK ORIENTATION
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  final notificationService = NotificationService();
-  await notificationService
-      .setupFlutterNotifications();
-  await notificationService.initNotifications();
   final info = await PackageInfo.fromPlatform();
   currentVersion = info.version;
   if (Platform.isAndroid) {
@@ -121,6 +117,14 @@ Future initialSetup() async {
   GoRouter.optionURLReflectsImperativeAPIs = true;
 }
 
+@pragma("vm:entry-point")
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  if (message.data['type'] == 'sync') {
+    print("Background sync running...");
+  }
+}
+
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
@@ -140,16 +144,13 @@ void onStart(ServiceInstance service) async {
         distanceFilter: 5,
       ),
     ).listen(
-          (position) async {
+      (position) async {
         try {
           final storage = LocalStorageManager();
 
           List points = jsonDecode(storage.getString("route_points") ?? "[]");
 
-          points.add({
-            "lat": position.latitude,
-            "lng": position.longitude
-          });
+          points.add({"lat": position.latitude, "lng": position.longitude});
 
           await storage.setString("route_points", jsonEncode(points));
         } catch (e) {

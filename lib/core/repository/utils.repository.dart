@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/utils.datasource.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
+import 'package:k3h_erp_app/widgets/address/address_widget.dart';
 
 abstract interface class UtilsRepository {
   Future<Either<Failure, Map<String, dynamic>>> getMenu({
@@ -83,7 +84,7 @@ abstract interface class UtilsRepository {
     required int subSubModulesMasterId,
   });
 
-  Future<Either<Failure, List<dynamic>>> getAddressMaster();
+  Future<Either<Failure, AddressParsedResult>> getAddressMaster();
 }
 
 class UtilsRepositoryImpl implements UtilsRepository {
@@ -347,26 +348,39 @@ class UtilsRepositoryImpl implements UtilsRepository {
   }
 
   @override
-  Future<Either<Failure, List<dynamic>>> getAddressMaster({bool forceRefresh = false}) async {
+  Future<Either<Failure, AddressParsedResult>> getAddressMaster({
+    bool forceRefresh = false,
+  }) async {
     final storage = LocalStorageManager();
 
-    if (!forceRefresh) {
-      final cachedData = storage.getRawString(StorageKey.addressMasterData);
-      if (cachedData != null && cachedData.isNotEmpty) {
-        // Use compute to decode large JSON in background
-        final decoded = await compute(jsonDecode, cachedData) as List<dynamic>;
-        return right(decoded);
+    try {
+      /// ---------------- CACHE ----------------
+      if (!forceRefresh) {
+        final cachedData = storage.getRawString(StorageKey.addressMasterData);
+
+        if (cachedData != null && cachedData.isNotEmpty) {
+          final parsed = await compute(processAddressData, cachedData);
+          return right(parsed);
+        }
       }
+
+      /// ---------------- API ----------------
+      final result =
+          await _utilsDatasource.pullCountryStateCityDistrictVillage();
+
+      final data = result["data"]["CountryStateCityDistrictVillageData"];
+
+      /// Encode in isolate
+      final encodedData = await compute(jsonEncode, data);
+
+      await storage.setRawString(StorageKey.addressMasterData, encodedData);
+
+      /// 🔥 FULL PROCESS IN ISOLATE
+      final parsed = await compute(processAddressData, encodedData);
+
+      return right(parsed);
+    } catch (e) {
+      return left(Failure(message: e.toString()));
     }
-
-    final result = await _utilsDatasource.pullCountryStateCityDistrictVillage();
-    final data = result["data"]["CountryStateCityDistrictVillageData"];
-
-    // Use compute to encode large JSON in background
-    final String encodedData = await compute(jsonEncode, data);
-    await storage.setRawString(StorageKey.addressMasterData, encodedData);
-
-    return right(data);
   }
-
 }

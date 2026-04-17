@@ -8,6 +8,7 @@ class StorageKey {
   static String userUniqueKey = "USER_UNIQUE_KEY";
   static String lastActiveRoute = "LAST_ACTIVE_ROUTE";
   static String menuDrawerScrollOffset = "MENU_DRAWER_SCROLL_OFFSET";
+  static String deviceToken = "DEVICE_TOKEN";
 
   /// App-initiated call logs (from CustomClickToContact). Not device call history.
   static String appInitiatedCallLogs = "APP_INITIATED_CALL_LOGS";
@@ -18,7 +19,6 @@ class StorageKey {
 
   /// App version
   static const appVersion = "x.x.x";
-
 
   static const String fcmToken = "FCM_TOKEN";
   static const String oldFcmToken = "OLD_FCM_TOKEN";

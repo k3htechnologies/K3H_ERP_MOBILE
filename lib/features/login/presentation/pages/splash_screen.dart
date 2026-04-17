@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
+import 'package:k3h_erp_app/core/services/notification_service.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -20,12 +21,13 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashMobileScreenState extends State<SplashScreen> {
+  late NotificationService notificationService;
   @override
   void initState() {
     super.initState();
-
+    notificationService = NotificationService();
+    handleNotification();
     Future.delayed(const Duration(seconds: 2), () async {
-
       final localStorage = LocalStorageManager();
 
       final token = localStorage.getString(StorageKey.authorizationToken);
@@ -78,6 +80,25 @@ class _SplashMobileScreenState extends State<SplashScreen> {
       } catch (e) {
         goRouter.goNamed(AppRoutes.login);
       }
+    });
+  }
+
+  Future handleNotification() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+
+      bool permissionGranted =
+          await notificationService.requestNotificationPermission();
+
+      if (!mounted || !permissionGranted) return;
+
+      await notificationService.getDeviceTokenForNotification();
+
+      if (!mounted) return;
+
+      notificationService.isDeviceTokenRefresh();
+
+      notificationService.firebaseNotificationInit();
     });
   }
 

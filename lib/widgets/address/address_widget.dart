@@ -1,25 +1,48 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/city.model.dart';
-import 'package:k3h_erp_app/utils/storage_key.dart';
+import 'package:k3h_erp_app/core/repository/utils.repository.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:collection/collection.dart';
 import 'package:shimmer/shimmer.dart';
 
+class AddressParsedResult {
+  final Map<int, Map<int, Map<int, List<CityModel>>>> addressTree;
+  final List<Map<String, dynamic>> stateList;
+
+  AddressParsedResult({required this.addressTree, required this.stateList});
+}
+
 ///  Background parse
-List<CityModel> _parseAddressData(String rawJson) {
+AddressParsedResult processAddressData(String rawJson) {
   final decoded = jsonDecode(rawJson);
 
-  ///  HANDLE BOTH CASES
-  if (decoded is Map<String, dynamic>) {
-    final list = decoded['CountryStateCityDistrictVillageData'];
-    return (list as List).map((e) => CityModel.fromJson(e)).toList();
+  final list =
+      decoded is Map<String, dynamic>
+          ? decoded['CountryStateCityDistrictVillageData']
+          : decoded;
+
+  final dataList = (list as List).map((e) => CityModel.fromJson(e)).toList();
+
+  final Map<int, Map<int, Map<int, List<CityModel>>>> tree = {};
+
+  for (var item in dataList) {
+    tree
+        .putIfAbsent(item.stateMasterId, () => {})
+        .putIfAbsent(item.districtMasterId, () => {})
+        .putIfAbsent(item.cityMasterId, () => [])
+        .add(item);
   }
 
-  return (decoded as List).map((e) => CityModel.fromJson(e)).toList();
+  final stateList =
+      tree.entries.map((e) {
+        final first = e.value.values.first.values.first.first;
+        return {"zAttributesId": e.key, "DisplayName": first.stateName};
+      }).toList();
+
+  return AddressParsedResult(addressTree: tree, stateList: stateList);
 }
 
 class AddressWidget extends StatefulWidget {
@@ -93,66 +116,54 @@ class _AddressWidgetState extends State<AddressWidget> {
 
   ///  LOAD WITH RETRY (IMPORTANT)
   Future<void> loadAddressFromCache() async {
-    final storage = LocalStorageManager();
+    final utilsRepository = serviceLocator<UtilsRepository>();
 
-    ///  Retry (wait for background API)
-    for (int i = 0; i < 10; i++) {
-      String? cachedData = storage.getRawString(StorageKey.addressMasterData);
+    final result = await utilsRepository.getAddressMaster();
 
-      if (cachedData != null && cachedData.isNotEmpty) {
-        await _processData(cachedData);
-        return;
-      }
+    result.fold(
+      (failure) {
+        debugPrint("Error: ${failure.message}");
+      },
+      (parsed) {
+        addressTree = parsed.addressTree;
 
-      await Future.delayed(const Duration(milliseconds: 300));
-    }
-
-    ///  Still not ready → keep shimmer
-    if (mounted) setState(() => isLoading = true);
+        setState(() {
+          stateList = parsed.stateList;
+          isLoading = false;
+        });
+        _applyPrefill();
+      },
+    );
   }
 
   ///  PROCESS DATA
-  Future<void> _processData(String cachedData) async {
-    try {
-      final List<CityModel> dataList = await compute(
-        _parseAddressData,
-        cachedData,
-      );
+  AddressParsedResult processAddressData(String rawJson) {
+    final decoded = jsonDecode(rawJson);
 
-      addressTree.clear();
+    final list =
+        decoded is Map<String, dynamic>
+            ? decoded['CountryStateCityDistrictVillageData']
+            : decoded;
 
-      for (var item in dataList) {
-        addressTree
-            .putIfAbsent(item.stateMasterId, () => {})
-            .putIfAbsent(item.districtMasterId, () => {})
-            .putIfAbsent(item.cityMasterId, () => [])
-            .add(item);
-      }
+    final dataList = (list as List).map((e) => CityModel.fromJson(e)).toList();
 
-      final tempStates =
-          addressTree.entries.map((e) {
-            final first = e.value.values.first.values.first.first;
-            return {"zAttributesId": e.key, "DisplayName": first.stateName};
-          }).toList();
+    final Map<int, Map<int, Map<int, List<CityModel>>>> tree = {};
 
-      if (mounted) {
-        setState(() {
-          stateList = tempStates;
-          isLoading = false;
-        });
-
-        _applyPrefill();
-      }
-    } catch (e) {
-      debugPrint("JSON Parse Error: $e");
-
-      /// RESET + SHOW SHIMMER
-      if (mounted) {
-        setState(() {
-          isLoading = true;
-        });
-      }
+    for (var item in dataList) {
+      tree
+          .putIfAbsent(item.stateMasterId, () => {})
+          .putIfAbsent(item.districtMasterId, () => {})
+          .putIfAbsent(item.cityMasterId, () => [])
+          .add(item);
     }
+
+    final stateList =
+        tree.entries.map((e) {
+          final first = e.value.values.first.values.first.first;
+          return {"zAttributesId": e.key, "DisplayName": first.stateName};
+        }).toList();
+
+    return AddressParsedResult(addressTree: tree, stateList: stateList);
   }
 
   /// ---------------- STATE ----------------
@@ -333,7 +344,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                       }
                       return null;
                     },
-                    onValueClear: (){
+                    onValueClear: () {
                       stateId.value = null;
                       districtId.value = null;
                       cityId.value = null;
@@ -375,7 +386,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                           }
                           return null;
                         },
-                        onValueClear: (){
+                        onValueClear: () {
                           districtId.value = null;
                           cityId.value = null;
                           villageId.value = null;
@@ -419,7 +430,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                     }
                     return null;
                   },
-                  onValueClear: (){
+                  onValueClear: () {
                     cityId.value = null;
                     villageId.value = null;
                   },
@@ -458,7 +469,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                       }
                       return null;
                     },
-                    onValueClear: (){
+                    onValueClear: () {
                       villageId.value = null;
                     },
                   );
