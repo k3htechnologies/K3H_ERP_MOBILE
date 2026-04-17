@@ -233,7 +233,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final result = await _dashboardCubit.addAttendance(
         context,
         attendanceId: attendanceIdToSend,
-        punchAddress: address!,
+        punchAddress: address,
         startLatitude: pos.latitude,
         startLongitude: pos.longitude,
         endLatitude: 0,

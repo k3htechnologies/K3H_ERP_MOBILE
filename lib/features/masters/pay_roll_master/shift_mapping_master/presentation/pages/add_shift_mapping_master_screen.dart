@@ -218,6 +218,7 @@ class _AddShiftMappingMasterScreenState
                   children: [
                     CustomMultipleSelectPopup(
                       title: 'Shift Name',
+                      hintText: 'Select Shift Name',
                       isRequired: true,
                       isMultiSelect: false,
                       initialValue: _selectedShift,
@@ -309,6 +310,7 @@ class _AddShiftMappingMasterScreenState
                                 children: [
                                   CustomMultipleSelectPopup(
                                     title: 'Employee',
+                                    hintText: 'Select Employee',
                                     isRequired: true,
                                     isMultiSelect: false,
                                     initialValue: selectedEmployee,
@@ -372,6 +374,7 @@ class _AddShiftMappingMasterScreenState
                                 children: [
                                   CustomMultipleSelectPopup(
                                     title: 'Department',
+                                    hintText: 'Select Department',
                                     isRequired: true,
                                     isMultiSelect: false,
                                     initialValue: selectedDepartment,

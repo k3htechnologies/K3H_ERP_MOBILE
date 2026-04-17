@@ -337,6 +337,7 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
                         CustomMultipleSelectPopup(
                           initialValue: selectedNameList,
                           title: "Name",
+                          hintText: "Select Name",
                           isRequired: true,
                           dataFetchCallBack: _fetchStaticDeductionNames,
                           isMultiSelect: false,
@@ -356,6 +357,7 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
                         CustomMultipleSelectPopup(
                           initialValue: selectedTypeList,
                           title: "Type",
+                          hintText: "Select Type",
                           isRequired: false,
                           dataFetchCallBack: _fetchStaticDeductionTypes,
                           isMultiSelect: false,
@@ -549,6 +551,7 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
 
                         CustomMultipleSelectPopup(
                           title: 'Branch',
+                          hintText: "Select Branch",
                           isMultiSelect: false,
                           initialValue: selectedBranch,
                           dataList: [],

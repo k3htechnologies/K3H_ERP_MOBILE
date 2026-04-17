@@ -15,7 +15,8 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddBrokerageInvoiceScreen extends StatefulWidget {
   final BrokerageInvoiceModel? brokerageInvoiceModel;
-  const AddBrokerageInvoiceScreen({super.key, this.brokerageInvoiceModel});
+  final int? index;
+  const AddBrokerageInvoiceScreen({super.key, this.brokerageInvoiceModel,this.index});
 
   @override
   State<AddBrokerageInvoiceScreen> createState() =>
@@ -26,6 +27,9 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
   // REPOSITORY
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
+
+  // FORM KEY
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // TEXT EDITING CONTROLLERS
   late TextEditingController _invoiceNumberC,
@@ -115,138 +119,145 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Text(
-              _isEditMode
-                  ? "Update Brokerage Invoice"
-                  : "Add Brokerage Invoice",
-              style: AppTextStyle.ts16SB(),
-            ),
-            verticalSpacing(),
-            CustomTextField(
-              title: "Invoice Number",
-              hint: "Enter Invoice Number",
-              isRequired: true,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return "Invoice Number is required";
-                }
-                return null;
-              },
-              textController: _invoiceNumberC,
-            ),
-            CustomDatePicker(
-              title: 'Invoice Date',
-              isRequired: true,
-              initialDate: invoiceDate,
-              setValue: (value) => invoiceDate = value,
-              validator: (value) {
-                if (value == null) {
-                  return 'Invoice Date is required';
-                }
-                return null;
-              },
-            ),
-            ValueListenableBuilder(
-              valueListenable: _selectedBankNotifier,
-              builder: (context, selectedBank, _) {
-                return CustomMultipleSelectPopup(
-                  title: 'Bank',
-                  hintText: "Select Bank",
-                  isRequired: true,
-                  isMultiSelect: false,
-                  initialValue: selectedBank,
-                  dataList: const [],
-                  onSelected: (value) {
-                    _selectedBankNotifier.value = value;
-                  },
-                  dataFetchCallBack: _fetchBanks,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Bank Name is required";
-                    }
-                    return null;
-                  },
-                  onClear: (){
-                    _selectedBankNotifier.value = [];
-                  },
-                );
-              },
-            ),
-            CustomTextField(
-              title: "Account Name",
-              hint: "Enter Account Name",
-              isRequired: true,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return "Account Name is required";
-                }
-                return null;
-              },
-              textController: _accountNameC,
-            ),
-            CustomTextField(
-              title: "Account Number",
-              hint: "Enter Account Number",
-              isRequired: true,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return "Account Number is required";
-                }
-                return null;
-              },
-              textController: _accountNumberC,
-            ),
-            CustomTextField(
-              title: "IFSC Code",
-              hint: "Enter IFSC Code",
-              isRequired: true,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return "IFSC Code is required";
-                }
-                return null;
-              },
-              textController: _ifscCodeC,
-            ),
-            CustomTextField(
-              title: "Invoice Amount",
-              hint: "Enter Invoice Amount",
-              isRequired: true,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return "Invoice Amount is required";
-                }
-                return null;
-              },
-              textController: _invoiceAmountC,
-            ),
-            CustomDatePicker(
-              title: 'Due Date',
-              isRequired: true,
-              initialDate: dueDate,
-              setValue: (value) => dueDate = value,
-              validator: (value) {
-                if (value == null) {
-                  return 'Due Date is required';
-                }
-                return null;
-              },
-            ),
-            CustomTextField(
-              title: "Remark",
-              hint: "Enter Remark",
-              isRequired: true,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return "Remark is required";
-                }
-                return null;
-              },
-              textController: _remarkC,
-            ),
-          ],
+        padding: EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _isEditMode
+                    ? "Update Brokerage Invoice"
+                    : "Add Brokerage Invoice",
+                style: AppTextStyle.ts16SB(),
+              ),
+              verticalSpacing(),
+              CustomTextField(
+                title: "Invoice Number",
+                hint: "Enter Invoice Number",
+                isRequired: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Invoice Number is required";
+                  }
+                  return null;
+                },
+                textController: _invoiceNumberC,
+              ),
+              CustomDatePicker(
+                title: 'Invoice Date',
+                isRequired: true,
+                initialDate: invoiceDate,
+                setValue: (value) => invoiceDate = value,
+                validator: (value) {
+                  if (value == null) {
+                    return 'Invoice Date is required';
+                  }
+                  return null;
+                },
+              ),
+              ValueListenableBuilder(
+                valueListenable: _selectedBankNotifier,
+                builder: (context, selectedBank, _) {
+                  return CustomMultipleSelectPopup(
+                    title: 'Bank',
+                    hintText: "Select Bank",
+                    isRequired: true,
+                    isMultiSelect: false,
+                    initialValue: selectedBank,
+                    dataList: const [],
+                    onSelected: (value) {
+                      _selectedBankNotifier.value = value;
+                    },
+                    dataFetchCallBack: _fetchBanks,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Bank Name is required";
+                      }
+                      return null;
+                    },
+                    onClear: (){
+                      _selectedBankNotifier.value = [];
+                    },
+                  );
+                },
+              ),
+              CustomTextField(
+                title: "Account Name",
+                hint: "Enter Account Name",
+                isRequired: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Account Name is required";
+                  }
+                  return null;
+                },
+                textController: _accountNameC,
+              ),
+              CustomTextField(
+                title: "Account Number",
+                hint: "Enter Account Number",
+                isRequired: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Account Number is required";
+                  }
+                  return null;
+                },
+                textController: _accountNumberC,
+              ),
+              CustomTextField(
+                title: "IFSC Code",
+                hint: "Enter IFSC Code",
+                isRequired: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "IFSC Code is required";
+                  }
+                  return null;
+                },
+                textController: _ifscCodeC,
+              ),
+              CustomTextField(
+                title: "Invoice Amount",
+                hint: "Enter Invoice Amount",
+                isRequired: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Invoice Amount is required";
+                  }
+                  return null;
+                },
+                textController: _invoiceAmountC,
+              ),
+              CustomDatePicker(
+                title: 'Due Date',
+                isRequired: true,
+                initialDate: dueDate,
+                setValue: (value) => dueDate = value,
+                validator: (value) {
+                  if (value == null) {
+                    return 'Due Date is required';
+                  }
+                  return null;
+                },
+              ),
+              CustomTextField(
+                title: "Remark",
+                hint: "Enter Remark",
+                minLines: 3,
+                maxLines: 3,
+                isRequired: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Remark is required";
+                  }
+                  return null;
+                },
+                textController: _remarkC,
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -260,8 +271,13 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
               size: 18,
               color: AppColor.white,
             ),
-            text: _isEditMode ? "Update Invoice" : "Add Invoice",
-            onPressed: () {},
+            text: _isEditMode ? "Update" : "Add",
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+
+              }
+
+            },
           ),
         ),
       ),

@@ -638,7 +638,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
               color: AppColor.white,
               size: 18,
             ),
-            text: _isEditMode ? 'Update Tenant' : 'Add Tenant',
+            text: _isEditMode ? 'Update' : 'Add',
             onPressed: _handleSubmit,
             backgroundColor: AppColor.primary,
           ),

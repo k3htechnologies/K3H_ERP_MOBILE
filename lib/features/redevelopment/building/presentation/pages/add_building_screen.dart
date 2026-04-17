@@ -647,7 +647,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            text: _isEditMode ? "Update Building" : "Add Building",
+            text: _isEditMode ? "Update" : "Add",
             leading: Icon(
               _isEditMode ? Icons.edit : Icons.add,
               size: 18,

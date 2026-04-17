@@ -348,6 +348,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                     ),
                     CustomMultipleSelectPopup(
                       title: 'Weekday Starts On',
+                      hintText: 'Select Weekday Starts On',
                       isRequired: true,
                       isMultiSelect: false,
                       initialValue: _selectWeekDayStartOn,
@@ -393,6 +394,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                     verticalSpacing(),
                     CustomMultipleSelectPopup(
                       title: 'Week Off 1',
+                      hintText: 'Select Week Off 1',
                       isRequired: true,
                       isMultiSelect: false,
                       initialValue: _selectWeekOff,
@@ -446,6 +448,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
 
                     CustomMultipleSelectPopup(
                       title: 'Week Off 2',
+                      hintText: 'Select Week Off 2',
                       isMultiSelect: false,
                       initialValue: _selectWeekOff2,
                       onSelected: (value) {
@@ -508,6 +511,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                           visible: showWeeklyOff2Type,
                           child: CustomMultipleSelectPopup(
                             title: 'Weekly Off2 Type',
+                            hintText: 'Select Weekly Off2 Type',
                             isRequired: _selectWeekOff2.isNotEmpty,
                             isMultiSelect: false,
                             initialValue: _selectWeeklyOff2Type,
@@ -549,6 +553,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
 
                     CustomMultipleSelectPopup(
                       title: 'Not Applicable For Months',
+                      hintText: 'Select Not Applicable For Months',
                       isMultiSelect: true,
                       initialValue: _selectNotApplicableForMonth,
                       onSelected: (value) {

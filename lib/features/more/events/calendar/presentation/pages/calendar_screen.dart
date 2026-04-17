@@ -1250,12 +1250,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 onPressed: () {
                   goRouter.pushNamed(AppRoutes.taskTransferHistory);
                 },
-                icon: Icon(Icons.history),
+                icon: Icon(Icons.history,size: 16,color: AppColor.primary,),
               ),
               horizontalSpacing(width: 4),
               CustomIconButton(
                 onPressed: () {},
-                icon: Icon(Icons.compare_arrows_outlined),
+                icon: Icon(Icons.compare_arrows_outlined,size: 16,color: AppColor.primary,),
               ),
             ],
           ),

@@ -266,7 +266,7 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
           verticalSpacing(),
           Row(
             children: [
-              buildColumnTitleValue(title: "Available Contract", value: "--"),
+              buildColumnTitleValue(title: "Available Contract", value: "-"),
             ],
           ),
         ],

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
@@ -158,7 +157,9 @@ class LoginCubit extends Cubit<LoginState> {
 
         if (permission == LocationPermission.denied ||
             permission == LocationPermission.deniedForever) {
-          await _handleLocationPermissionFlow(context);
+          if(context.mounted) {
+            await _handleLocationPermissionFlow(context);
+          }
         }
 
         // NAVIGATE
@@ -180,15 +181,19 @@ class LoginCubit extends Cubit<LoginState> {
     LocationPermission permission = await Geolocator.requestPermission();
 
     if (permission == LocationPermission.denied) {
-      showErrorMessage(context, "Permission Denied", "Location permission is required");
+      if(context.mounted) {
+        showErrorMessage(context, "Permission Denied", "Location permission is required");
+      }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      showErrorMessage(
+      if(context.mounted) {
+        showErrorMessage(
         context,
         "Permission Required",
         "Enable location permission from settings",
       );
+      }
 
       await Geolocator.openAppSettings();
     }

@@ -22,7 +22,11 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_chan
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
+import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.model.dart';
+import 'package:k3h_erp_app/features/crm/brokerage/data/model/paid_brokerage_booking.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/cubit/brokerage_cubit.dart';
+import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/add_brokerage_invoice_screen.dart';
+import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/add_brokerage_payment.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/brokerage_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/pages/pay_track_screen.dart';
@@ -4602,10 +4606,7 @@ final GoRouter goRouter = GoRouter(
         // CRM BROKERAGE
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider(
-              create: (_) => BrokerageCubit(),
-              child: child,
-            );
+            return BlocProvider(create: (_) => BrokerageCubit(), child: child);
           },
           routes: [
             GoRoute(
@@ -4613,6 +4614,62 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.brokerage,
               builder: (context, state) {
                 return const BrokerageScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addBrokerageInvoice,
+              path: AppRoutes.addBrokerageInvoice,
+              builder: (context, state) {
+                final queryParameterBrokerageInvoice =
+                    state.uri.queryParameters['brokerageInvoice'];
+
+                final BrokerageInvoiceModel? invoice =
+                    queryParameterBrokerageInvoice != null
+                        ? BrokerageInvoiceModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(
+                                queryParameterBrokerageInvoice,
+                              ),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return AddBrokerageInvoiceScreen(
+                  brokerageInvoiceModel: invoice,
+                  index: index,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addBrokeragePayment,
+              path: AppRoutes.addBrokeragePayment,
+              builder: (context, state) {
+                final queryParameterBrokeragePayment =
+                    state.uri.queryParameters['brokeragePayment'];
+
+                final PaidBrokerageBookingModel? invoice =
+                    queryParameterBrokeragePayment != null
+                        ? PaidBrokerageBookingModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(
+                                queryParameterBrokeragePayment,
+                              ),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return AddBrokeragePayment(
+                  paidBrokerageBookingModel: invoice,
+                  index: index,
+                );
               },
             ),
           ],

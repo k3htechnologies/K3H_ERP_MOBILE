@@ -21,6 +21,12 @@ class VendorCubit extends Cubit<VendorState> {
   CompanyMasterRepository companyMasterRepository =
       serviceLocator<CompanyMasterRepository>();
 
+  // <---- SEARCH VENDOR ---->
+  Future searchVendor(BuildContext context, String value) async {
+    emit(state.copyWith(searchText: value, vendorList: []));
+    await getVendors(context, 1);
+  }
+
   // <---- GET VENDORS LIST ---->
   Future getVendors(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
@@ -104,12 +110,6 @@ class VendorCubit extends Cubit<VendorState> {
         }
       },
     );
-  }
-
-  // <---- SEARCH VENDOR ---->
-  Future searchVendor(BuildContext context, String value) async {
-    emit(state.copyWith(searchText: value, vendorList: []));
-    await getVendors(context, 1);
   }
 
   void updateVendorInList(VendorModel updatedVendor, int index) {

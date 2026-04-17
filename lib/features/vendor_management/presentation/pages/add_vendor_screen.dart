@@ -111,7 +111,6 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     super.initState();
     _vendorAddCubit = context.read<VendorAddCubit>();
     initializeTextEditingControllers();
-    initializeDropdown();
     getMaterialList();
     if (_isEditMode) {
       prefillVendorDetails(widget.vendor!);
@@ -149,11 +148,6 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     gstC = TextEditingController();
     addressC = TextEditingController();
     searchC = TextEditingController();
-  }
-
-  // INITIALIZE DROPDOWN VARIABLES
-  void initializeDropdown() {
-    selectedCompanyType.value = companyTypeList[0];
   }
 
   // --------------------------- FETCHING METHODS --------------------------- //

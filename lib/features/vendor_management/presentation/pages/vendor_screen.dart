@@ -277,135 +277,141 @@ class _VendorScreenState extends State<VendorScreen> {
           _showBottomSheetToFilterVendorMaster(context);
         },
       ),
-      body: BlocBuilder<VendorCubit, VendorState>(
-        builder: (context, state) {
-          if (state.isLoading == true && state.vendorList.isEmpty) {
-            return loader();
-          }
-          if (state.vendorList.isEmpty) {
-            return Center(
-              child: noDataWidget(message: "No Vendors Data Found"),
-            );
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            itemCount: state.vendorList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.vendorList.length) {
-                return state.vendorList.length < state.totalNumberOfRecord
-                    ? Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var vendor = state.vendorList[index];
-              return Container(
-                decoration: commonCardDecoration(),
-                margin: EdgeInsets.only(bottom: 10),
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      spacing: 10,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () async {
-                              await goRouter.pushNamed(
-                                AppRoutes.viewVendorDetails,
-                                queryParameters: {
-                                  "vendor": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(vendor),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          await _vendorCubit.searchVendor(context, "");
+        },
+        child: BlocBuilder<VendorCubit, VendorState>(
+          builder: (context, state) {
+            if (state.isLoading == true && state.vendorList.isEmpty) {
+              return loader();
+            }
+            if (state.vendorList.isEmpty) {
+              return Center(
+                child: noDataWidget(message: "No Vendors Data Found"),
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              itemCount: state.vendorList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.vendorList.length) {
+                  return state.vendorList.length < state.totalNumberOfRecord
+                      ? Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var vendor = state.vendorList[index];
+                return Container(
+                  decoration: commonCardDecoration(),
+                  margin: EdgeInsets.only(bottom: 10),
+                  padding: EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        spacing: 10,
+                        children: [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () async {
+                                await goRouter.pushNamed(
+                                  AppRoutes.viewVendorDetails,
+                                  queryParameters: {
+                                    "vendor": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(vendor),
+                                      ),
                                     ),
-                                  ),
-                                  "index": "$index",
-                                },
-                              );
-                            },
-                            child: Text(
-                              vendor.vendorName,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ).copyWith(
-                                decoration: TextDecoration.underline,
-                                decorationColor: AppColor.primary,
+                                    "index": "$index",
+                                  },
+                                );
+                              },
+                              child: Text(
+                                vendor.vendorName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        if (_routeAuthorizationModel.isAction) ...[
-                          Row(
-                            spacing: 10,
-                            children: [
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addVendor,
-                                    queryParameters: {
-                                      "vendor": Uri.encodeQueryComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(vendor),
+                          if (_routeAuthorizationModel.isAction) ...[
+                            Row(
+                              spacing: 10,
+                              children: [
+                                CustomIconButton.edit(
+                                  onPressed: () async {
+                                    await goRouter.pushNamed(
+                                      AppRoutes.addVendor,
+                                      queryParameters: {
+                                        "vendor": Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(vendor),
+                                          ),
                                         ),
-                                      ),
-                                    },
-                                  );
-                                  if (context.mounted) {
-                                    _vendorCubit.getVendors(
-                                      context,
-                                      state.currentPage,
+                                      },
                                     );
-                                  }
-                                },
-                              ),
-                              CustomIconButton.delete(
-                                onPressed: () {
-                                  _showPopUpToDeleteVendor(
-                                    context,
-                                    vendor,
-                                    index,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
+                                    if (context.mounted) {
+                                      _vendorCubit.getVendors(
+                                        context,
+                                        state.currentPage,
+                                      );
+                                    }
+                                  },
+                                ),
+                                CustomIconButton.delete(
+                                  onPressed: () {
+                                    _showPopUpToDeleteVendor(
+                                      context,
+                                      vendor,
+                                      index,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
-                      ],
-                    ),
-                    buildRowTitleValue(
-                      title: "Company Name",
-                      value: vendor.companyName,
-                      singleLine: false,
-                    ),
-                    buildRowTitleValue(
-                      title: "Company Type",
-                      value: vendor.companyType,
-                      singleLine: false,
-                    ),
-                    buildRowTitleValue(
-                      title: "Mobile Number",
-                      value: vendor.mobileNumber,
-                      customValueWidget: CustomClickToContactText(
+                      ),
+                      buildRowTitleValue(
+                        title: "Company Name",
+                        value: vendor.companyName,
+                        singleLine: false,
+                      ),
+                      buildRowTitleValue(
+                        title: "Company Type",
+                        value: vendor.companyType,
+                        singleLine: false,
+                      ),
+                      buildRowTitleValue(
+                        title: "Mobile Number",
                         value: vendor.mobileNumber,
+                        customValueWidget: CustomClickToContactText(
+                          value: vendor.mobileNumber,
+                        ),
                       ),
-                    ),
-                    buildRowTitleValue(
-                      title: "Email ID",
-                      value: vendor.emailId,
-                      customValueWidget: CustomClickToContactText(
+                      buildRowTitleValue(
+                        title: "Email ID",
                         value: vendor.emailId,
-                        type: ContactType.email,
+                        customValueWidget: CustomClickToContactText(
+                          value: vendor.emailId,
+                          type: ContactType.email,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
