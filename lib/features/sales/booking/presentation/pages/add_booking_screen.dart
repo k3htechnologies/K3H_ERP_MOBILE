@@ -2066,7 +2066,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                verticalSpacing(height: 20),
+                verticalSpacing(),
                 _buildAgreementCard(),
                 verticalSpacing(),
                 ValueListenableBuilder<List<Map<String, dynamic>>>(

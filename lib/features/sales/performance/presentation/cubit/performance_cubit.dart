@@ -77,7 +77,6 @@ class PerformanceCubit extends Cubit<PerformanceState> {
 
   Map<String, DateTime> getAutoDateRange(String periodType) {
     final now = DateTime.now();
-
     switch (periodType) {
       case "WTD":
         final now = DateTime.now();
@@ -111,7 +110,7 @@ class PerformanceCubit extends Cubit<PerformanceState> {
       case "YTD":
         final start = DateTime(now.year, 1, 1);
 
-        final end = DateTime.now();
+        final end = DateTime(now.year, now.month, now.day);
 
         return {"from": start, "to": end};
 

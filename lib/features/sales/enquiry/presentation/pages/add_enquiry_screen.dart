@@ -2003,6 +2003,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
                                     return _fetchFlatsByProjectId(
                                       page,
+                                      value: value,
                                       projectId: projectId,
                                       inventoryFlatId: 0,
                                     );

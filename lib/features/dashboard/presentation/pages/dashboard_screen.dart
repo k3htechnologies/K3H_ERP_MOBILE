@@ -229,11 +229,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       totalDistance = 0.0;
       final int attendanceIdToSend = currentAttendanceId ?? 0;
 
-
       final result = await _dashboardCubit.addAttendance(
         context,
         attendanceId: attendanceIdToSend,
-        punchAddress: address!,
+        punchAddress: address,
         startLatitude: pos.latitude,
         startLongitude: pos.longitude,
         endLatitude: 0,
@@ -678,7 +677,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         return;
                                       }
                                       final hasPermission =
-                                          await _ensureLocationPermission(context);
+                                          await _ensureLocationPermission(
+                                            context,
+                                          );
                                       if (!hasPermission) {
                                         dragPositionNotifier.value = 0;
                                         return;
