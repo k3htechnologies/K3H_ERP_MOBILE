@@ -78,6 +78,10 @@ class InventoryCubit extends Cubit<InventoryState> {
     );
   }
 
+  void reset() {
+    emit(state.copyWith(isLoading: false));
+  }
+
   // GET ENTIRE INVENTORY
   Future<void> getInventory(BuildContext context, int projectId) async {
     if (_isApiCallInProgress) return;

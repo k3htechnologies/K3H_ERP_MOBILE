@@ -76,6 +76,7 @@ class _InventoryScreenState extends State<InventoryScreen>
       if (mounted) {
         if (_inventoryCubit.state.buildingList.isEmpty) {
           if (_project.projectId == 0) {
+            _inventoryCubit.reset();
             WidgetsBinding.instance.addPostFrameCallback((_) {
               showErrorMessage(context, "Error", "Please select a project");
             });

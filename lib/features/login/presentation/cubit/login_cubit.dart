@@ -180,7 +180,11 @@ class LoginCubit extends Cubit<LoginState> {
     LocationPermission permission = await Geolocator.requestPermission();
 
     if (permission == LocationPermission.denied) {
-      showErrorMessage(context, "Permission Denied", "Location permission is required");
+      showErrorMessage(
+        context,
+        "Permission Denied",
+        "Location permission is required",
+      );
     }
 
     if (permission == LocationPermission.deniedForever) {
@@ -203,8 +207,8 @@ class LoginCubit extends Cubit<LoginState> {
           title: const Text("Location Permission Required"),
           content: const Text(
             "This app collects location data to track your field activity "
-                "even when the app is closed or not in use. "
-                "This is required for attendance and route tracking.",
+            "even when the app is closed or not in use. "
+            "This is required for attendance and route tracking.",
           ),
           actions: [
             TextButton(
