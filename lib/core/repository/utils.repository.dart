@@ -375,6 +375,7 @@ class UtilsRepositoryImpl implements UtilsRepository {
 
       await storage.setRawString(StorageKey.addressMasterData, encodedData);
 
+      /// 🔥 FULL PROCESS IN ISOLATE
       final parsed = await compute(processAddressData, encodedData);
 
       return right(parsed);

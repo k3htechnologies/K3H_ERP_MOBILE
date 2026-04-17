@@ -326,12 +326,10 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                               title: "Sub Source",
                               value: enquiry.subSource,
                             ),
-                            if (enquiry.subSource.toLowerCase() ==
-                                'advertisement')
-                              buildColumnTitleValue(
-                                title: "Sub Sub Source",
-                                value: enquiry.subSubSource,
-                              ),
+                            buildColumnTitleValue(
+                              title: "Sub Sub Source",
+                              value: enquiry.subSubSource,
+                            ),
                           ],
                         ),
                         Row(

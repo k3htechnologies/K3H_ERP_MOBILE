@@ -2066,7 +2066,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                verticalSpacing(),
+                verticalSpacing(height: 20),
                 _buildAgreementCard(),
                 verticalSpacing(),
                 ValueListenableBuilder<List<Map<String, dynamic>>>(
@@ -2933,6 +2933,21 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
+                title: "Profile Photo",
+                value: applicant.photoURL.isEmpty ? "-" : applicant.photoURL,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.photoURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        context,
+                        applicant.photoURL.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.photoURL.isEmpty,
+                ),
+              ),
+              buildColumnTitleValue(
                 title: "Cancelled Cheque",
                 value:
                     applicant.cancelledChequeUrl.isEmpty
@@ -2950,6 +2965,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   isDisable: applicant.cancelledChequeUrl.isEmpty,
                 ),
               ),
+            ],
+          ),
+          Row(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               buildColumnTitleValue(
                 title: "POA (if NRI Execution)",
                 value: applicant.poaurl.isEmpty ? "-" : applicant.poaurl,
@@ -2965,12 +2986,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   isDisable: applicant.poaurl.isEmpty,
                 ),
               ),
-            ],
-          ),
-          Row(
-            spacing: 10,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
               buildColumnTitleValue(
                 title: "Income Docs (Form 16 / ITR)",
                 value:
@@ -2989,6 +3004,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   isDisable: applicant.incomeForm16Itrurl.isEmpty,
                 ),
               ),
+            ],
+          ),
+          Row(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               buildColumnTitleValue(
                 title: "NRE / NRO Bank Details",
                 value:
@@ -3007,12 +3028,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   isDisable: applicant.nreNroBankDetailsUrl.isEmpty,
                 ),
               ),
-            ],
-          ),
-          Row(
-            spacing: 10,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
               buildColumnTitleValue(
                 title: "Nominee Form",
                 value:
@@ -3031,6 +3046,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   isDisable: applicant.nomineeFormUrl.isEmpty,
                 ),
               ),
+            ],
+          ),
+          Row(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               buildColumnTitleValue(
                 title: "Statement of Source of Funds",
                 value:
@@ -3049,12 +3070,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   isDisable: applicant.statementOfSourceOfFundsURL.isEmpty,
                 ),
               ),
-            ],
-          ),
-          Row(
-            spacing: 10,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
               buildColumnTitleValue(
                 title: "Payment Proof",
                 value:
@@ -3071,21 +3086,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     }
                   },
                   isDisable: applicant.paymentProofURL.isEmpty,
-                ),
-              ),
-              buildColumnTitleValue(
-                title: "Profile Photo",
-                value: applicant.photoURL.isEmpty ? "-" : applicant.photoURL,
-                customValueWidget: CustomButton.documentOutline(
-                  onPressed: () {
-                    if (applicant.photoURL.isNotEmpty) {
-                      showFilePreviewDialog(
-                        context,
-                        applicant.photoURL.split(","),
-                      );
-                    }
-                  },
-                  isDisable: applicant.photoURL.isEmpty,
                 ),
               ),
             ],

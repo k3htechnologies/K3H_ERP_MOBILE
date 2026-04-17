@@ -1068,7 +1068,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   // FETCH FlATS BY PROjECT ID
   Future<Map<String, dynamic>> _fetchFlatsByProjectId(
     int pageNumber, {
-    String? value,
     required int projectId,
     required int? inventoryFlatId,
   }) async {
@@ -1076,10 +1075,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       pageNumber: pageNumber,
       pageSize: 15,
       projectId: projectId,
-      queryParams: {
-        if (value != null && value.isNotEmpty) "Flat": value,
-        "FlatStatus": "Booked,Alloted",
-      },
+      queryParams: {"FlatStatus": "Booked,Alloted"},
     );
     return result.fold(
       (failure) => {
@@ -1673,7 +1669,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                                 .isNotEmpty &&
                                             (val == null ||
                                                 val.trim().isEmpty)) {
-                                          return "Team member name is required";
+                                          return "Team Member name is required";
                                         }
                                         return null;
                                       },
@@ -1698,11 +1694,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                                 .isNotEmpty;
                                       },
                                       validator: (val) {
-                                        if (_teamMemberNameC.text.isNotEmpty &&
-                                            _teamMemberMobileC.text.isEmpty) {
-                                          return "Team member mobile number is required";
-                                        }
-
                                         if (val != null &&
                                             val.isNotEmpty &&
                                             val.length != 10) {
@@ -1913,7 +1904,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
                                     return _fetchFlatsByProjectId(
                                       page,
-                                      value: value,
                                       projectId: projectId,
                                       inventoryFlatId: 0,
                                     );
@@ -2005,7 +1995,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
                                     return _fetchFlatsByProjectId(
                                       page,
-                                      value: value,
                                       projectId: projectId,
                                       inventoryFlatId: 0,
                                     );
@@ -2402,6 +2391,10 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
           startDate: DateTime.now(),
           initialDate: _nextFollowUpDate,
           setValue: (v) => _nextFollowUpDate = v,
+          validator: (val) {
+            if (val == null) return "Next Follow-Up Date is required";
+            return null;
+          },
         ),
     ]);
   }

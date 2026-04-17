@@ -4,12 +4,10 @@ final class MaterialRequisitionState extends BaseState {
   final List<MaterialRequisitionModel> materialRequisitionList;
   final int totalNumberOfRecord;
   final String searchText;
-  final int currentPage;
   const MaterialRequisitionState({
     super.isLoading,
     required this.materialRequisitionList,
     required this.totalNumberOfRecord,
-    required this.currentPage,
     required this.searchText,
   });
 
@@ -18,7 +16,6 @@ final class MaterialRequisitionState extends BaseState {
       isLoading: false,
       materialRequisitionList: [],
       totalNumberOfRecord: 0,
-      currentPage: 1,
       searchText: "",
     );
   }
@@ -26,14 +23,12 @@ final class MaterialRequisitionState extends BaseState {
     bool? isLoading,
     List<MaterialRequisitionModel>? materialRequisitionList,
     int? totalNumberOfRecord,
-    int? currentPage,
     String? searchText,
   }) {
     return MaterialRequisitionState(
       isLoading: isLoading ?? this.isLoading,
       materialRequisitionList:
           materialRequisitionList ?? this.materialRequisitionList,
-      currentPage: currentPage ?? this.currentPage,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       searchText: searchText ?? this.searchText,
     );
@@ -44,7 +39,6 @@ final class MaterialRequisitionState extends BaseState {
     isLoading,
     materialRequisitionList,
     totalNumberOfRecord,
-    currentPage,
     searchText,
   ];
 }

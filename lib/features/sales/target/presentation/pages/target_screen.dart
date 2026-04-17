@@ -291,264 +291,255 @@ class _TargetScreenState extends State<TargetScreen>
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TargetCubit, TargetState>(
-      builder: (context, state) {
-        return Scaffold(
-          appBar: CustomAppBar(
-            screenTitle: "Sales Target",
-            authorization: _routeAuthorizationModel,
-            textController: _searchC,
-            searchHintText: "Search by Employee Name",
-            projectId: _project.projectId,
-            onSearchSubmit: (value) {
-              _targetCubit.searchSalesTarget(
-                context,
-                getProject().projectId,
-                _tabController.index,
-                value,
+    return Scaffold(
+      appBar: CustomAppBar(
+        screenTitle: "Sales Target",
+        authorization: _routeAuthorizationModel,
+        textController: _searchC,
+        searchHintText: "Search by Employee Name",
+        projectId: _project.projectId,
+        onSearchSubmit: (value) {
+          _targetCubit.searchSalesTarget(
+            context,
+            getProject().projectId,
+            _tabController.index,
+            value,
+          );
+        },
+        onProjectChangeCallback: (value) {
+          _project = value;
+          _monthNotifier.value = null;
+
+          _searchC.clear();
+
+          _startDateNotifier.value = null;
+          _endDateNotifier.value = null;
+
+          if (_tabController.index == 0) {
+            _targetCubit.getSalesTargetSourcingList(
+              context: context,
+              projectId: getProject().projectId,
+              pageNumber: 1,
+            );
+          } else {
+            _targetCubit.getSalesTargetClosingList(
+              context: context,
+              projectId: getProject().projectId,
+              pageNumber: 1,
+            );
+          }
+          setState(() {});
+        },
+        importTableName: "SALES TARGET CLOSING",
+        exportMonthYear: _getFormattedMonth(),
+        onImportResult: (action) {
+          if (action == "success") {
+            if (_tabController.index == 0) {
+              _targetCubit.getSalesTargetSourcingList(
+                context: context,
+                projectId: getProject().projectId,
+                pageNumber: 1,
               );
-            },
-            onProjectChangeCallback: (value) {
-              _project = value;
-              _monthNotifier.value = null;
-
-              _searchC.clear();
-
-              _startDateNotifier.value = null;
-              _endDateNotifier.value = null;
-
-              if (_tabController.index == 0) {
-                _targetCubit.getSalesTargetSourcingList(
-                  context: context,
-                  projectId: getProject().projectId,
-                  pageNumber: 1,
-                );
-              } else {
-                _targetCubit.getSalesTargetClosingList(
-                  context: context,
-                  projectId: getProject().projectId,
-                  pageNumber: 1,
-                );
-              }
-              setState(() {});
-            },
-            importTableName:
-                _tabController.index == 0
-                    ? "SALES TARGET SOURCING"
-                    : "SALES TARGET CLOSING",
-            exportMonthYear: _getFormattedMonth(),
-            onImportResult: (action) {
-              if (action == "success") {
-                if (_tabController.index == 0) {
-                  _targetCubit.getSalesTargetSourcingList(
-                    context: context,
-                    projectId: getProject().projectId,
-                    pageNumber: 1,
-                  );
-                  _tabController.animateTo(0);
-                } else {
-                  _targetCubit.getSalesTargetClosingList(
-                    context: context,
-                    projectId: getProject().projectId,
-                    pageNumber: 1,
-                  );
-                  _tabController.animateTo(1);
-                }
-              } else if (action == "download") {
-                if (_tabController.index == 0) {
-                  salesTargetSampleExcelImportSourcing(context);
-                } else {
-                  salesTargetSampleExcelImportClosing(context);
-                }
-              }
-            },
-            onExportCallback: (value) {
-              if (_tabController.index == 0) {
-                salesTargetSampleExcelImportSourcing(context);
-              } else {
-                salesTargetSampleExcelImportClosing(context);
-              }
-            },
+              _tabController.animateTo(0);
+            } else {
+              _targetCubit.getSalesTargetClosingList(
+                context: context,
+                projectId: getProject().projectId,
+                pageNumber: 1,
+              );
+              _tabController.animateTo(1);
+            }
+          } else if (action == "download") {
+            if (_tabController.index == 0) {
+              salesTargetSampleExcelImportSourcing(context);
+            } else {
+              salesTargetSampleExcelImportClosing(context);
+            }
+          }
+        },
+        onExportCallback: (value){
+          if (_tabController.index == 0) {
+            salesTargetSampleExcelImportSourcing(context);
+          } else {
+            salesTargetSampleExcelImportClosing(context);
+          }
+        },
+      ),
+      body: Column(
+        children: [
+          ChipStyleTabBar(
+            controller: _tabController,
+            tabs: ["Sourcing Target", "Closing Target"],
           ),
-          body: Column(
-            children: [
-              ChipStyleTabBar(
-                controller: _tabController,
-                tabs: ["Sourcing Target", "Closing Target"],
-              ),
 
-              verticalSpacing(),
+          verticalSpacing(),
 
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: ValueListenableBuilder<DateTime?>(
-                  valueListenable: _monthNotifier,
-                  builder: (context, value, _) {
-                    return CustomMonthYearPicker(
-                      key: ValueKey(value),
-                      title: "Select Month",
-                      initialDate: value,
-                      isRequired: true,
-                      setValue: (val) {
-                        _monthNotifier.value = val;
-                        setState(() {});
-                        _callMonthFilterAPI();
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: ValueListenableBuilder<DateTime?>(
+              valueListenable: _monthNotifier,
+              builder: (context, value, _) {
+                return CustomMonthYearPicker(
+                  key: ValueKey(value),
+                  title: "Select Month",
+                  initialDate: value,
+                  isRequired: true,
+                  setValue: (val) {
+                    _monthNotifier.value = val;
+                    setState(() {});
+                    _callMonthFilterAPI();
+                  },
+                );
+              },
+            ),
+          ),
+
+          Expanded(
+            child: TabBarView(
+              physics: NeverScrollableScrollPhysics(),
+              controller: _tabController,
+              children: [
+                // SOURCING TARGET TAB
+                BlocBuilder<TargetCubit, TargetState>(
+                  builder: (context, state) {
+                    if (state.isSourcingLoading &&
+                        state.salesTargetSourcing.isEmpty) {
+                      return Center(child: loader());
+                    }
+
+                    if (state.salesTargetSourcing.isEmpty) {
+                      return Center(
+                        child: noDataWidget(message: "No Data Found"),
+                      );
+                    }
+
+                    return ListView.builder(
+                      controller: _sourcingTargetScrollController,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      itemCount: state.salesTargetSourcing.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == state.salesTargetSourcing.length) {
+                          return state.salesTargetSourcing.length <
+                                  state.sourcingTotalNumberOfRecordSalesTarget
+                              ? const Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              )
+                              : const SizedBox.shrink();
+                        }
+                        var sourcing = state.salesTargetSourcing[index];
+                        return GestureDetector(
+                          onTap: () {
+                            goRouter.pushNamed(
+                              AppRoutes.viewTarget,
+                              queryParameters: {
+                                "sourcing": Uri.encodeQueryComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(sourcing.toJson()),
+                                  ),
+                                ),
+                              },
+                            );
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            margin: EdgeInsets.only(bottom: 10),
+                            decoration: commonCardDecoration(),
+                            child: Text(
+                              sourcing.employeeName,
+                              style: AppTextStyle.ts14M(
+                                color: AppColor.primary,
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColor.primary,
+                              ),
+                            ),
+                          ),
+                        );
                       },
                     );
                   },
                 ),
-              ),
-
-              Expanded(
-                child: TabBarView(
-                  physics: NeverScrollableScrollPhysics(),
-                  controller: _tabController,
-                  children: [
-                    // SOURCING TARGET TAB
-                    BlocBuilder<TargetCubit, TargetState>(
-                      builder: (context, state) {
-                        if (state.isSourcingLoading &&
-                            state.salesTargetSourcing.isEmpty) {
-                          return Center(child: loader());
-                        }
-
-                        if (state.salesTargetSourcing.isEmpty) {
-                          return Center(
-                            child: noDataWidget(message: "No Data Found"),
-                          );
-                        }
-
-                        return ListView.builder(
-                          controller: _sourcingTargetScrollController,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          itemCount: state.salesTargetSourcing.length + 1,
-                          itemBuilder: (context, index) {
-                            if (index == state.salesTargetSourcing.length) {
-                              return state.salesTargetSourcing.length <
-                                      state
-                                          .sourcingTotalNumberOfRecordSalesTarget
-                                  ? const Padding(
-                                    padding: EdgeInsets.all(16),
-                                    child: Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                  )
-                                  : const SizedBox.shrink();
-                            }
-                            var sourcing = state.salesTargetSourcing[index];
-                            return GestureDetector(
-                              onTap: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.viewTarget,
-                                  queryParameters: {
-                                    "sourcing": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(sourcing.toJson()),
-                                      ),
-                                    ),
-                                  },
-                                );
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 10,
+                // BOOKING TAB
+                BlocBuilder<TargetCubit, TargetState>(
+                  builder: (context, state) {
+                    if (state.isClosingLoading &&
+                        state.salesTargetClosing.isEmpty) {
+                      return Center(child: loader());
+                    }
+                    if (state.salesTargetClosing.isEmpty) {
+                      return Center(
+                        child: noDataWidget(message: "No Data found"),
+                      );
+                    }
+                    return ListView.builder(
+                      controller: _closingTargetScrollController,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      itemCount: state.salesTargetClosing.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == state.salesTargetClosing.length) {
+                          return state.salesTargetClosing.length <
+                                  state.closingTotalNumberOfRecordSalesTarget
+                              ? const Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
                                 ),
-                                margin: EdgeInsets.only(bottom: 10),
-                                decoration: commonCardDecoration(),
-                                child: Text(
-                                  sourcing.employeeName,
-                                  style: AppTextStyle.ts14M(
-                                    color: AppColor.primary,
-                                  ).copyWith(
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: AppColor.primary,
+                              )
+                              : const SizedBox.shrink();
+                        }
+                        var closing = state.salesTargetClosing[index];
+                        return GestureDetector(
+                          onTap: () {
+                            goRouter.pushNamed(
+                              AppRoutes.viewTarget,
+                              queryParameters: {
+                                "closing": Uri.encodeQueryComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(closing.toJson()),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                    // BOOKING TAB
-                    BlocBuilder<TargetCubit, TargetState>(
-                      builder: (context, state) {
-                        if (state.isClosingLoading &&
-                            state.salesTargetClosing.isEmpty) {
-                          return Center(child: loader());
-                        }
-                        if (state.salesTargetClosing.isEmpty) {
-                          return Center(
-                            child: noDataWidget(message: "No Data found"),
-                          );
-                        }
-                        return ListView.builder(
-                          controller: _closingTargetScrollController,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          itemCount: state.salesTargetClosing.length + 1,
-                          itemBuilder: (context, index) {
-                            if (index == state.salesTargetClosing.length) {
-                              return state.salesTargetClosing.length <
-                                      state
-                                          .closingTotalNumberOfRecordSalesTarget
-                                  ? const Padding(
-                                    padding: EdgeInsets.all(16),
-                                    child: Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                  )
-                                  : const SizedBox.shrink();
-                            }
-                            var closing = state.salesTargetClosing[index];
-                            return GestureDetector(
-                              onTap: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.viewTarget,
-                                  queryParameters: {
-                                    "closing": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(closing.toJson()),
-                                      ),
-                                    ),
-                                  },
-                                );
                               },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 10,
-                                ),
-                                margin: EdgeInsets.only(bottom: 10),
-                                decoration: commonCardDecoration(),
-                                child: Text(
-                                  closing.employeeName,
-                                  style: AppTextStyle.ts14M(
-                                    color: AppColor.primary,
-                                  ).copyWith(
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: AppColor.primary,
-                                  ),
-                                ),
-                              ),
                             );
                           },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            margin: EdgeInsets.only(bottom: 10),
+                            decoration: commonCardDecoration(),
+                            child: Text(
+                              closing.employeeName,
+                              style: AppTextStyle.ts14M(
+                                color: AppColor.primary,
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColor.primary,
+                              ),
+                            ),
+                          ),
                         );
                       },
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }

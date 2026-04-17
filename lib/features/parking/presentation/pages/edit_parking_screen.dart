@@ -131,12 +131,10 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
     _parkingDimensionsC.text = parking.parkingDimensions;
     isEvChargingAvailable.value = parking.isEVChargingAvailable;
 
-    if (parking.parkingCategory.isNotEmpty) {
-      selectedCategory.value = _parkingCategoryList.firstWhere(
-        (element) => element['DisplayName'] == parking.parkingCategory,
-        orElse: () => _parkingCategoryList.first,
-      );
-    }
+    selectedCategory.value = _parkingCategoryList.firstWhere(
+      (element) => element['DisplayName'] == parking.parkingCategory,
+      orElse: () => _parkingCategoryList.first,
+    );
 
     if (parking.parkingType.isNotEmpty) {
       final subList = _parkingList;
@@ -146,12 +144,10 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
       );
     }
 
-    if (parking.parkingSubType.isNotEmpty) {
-      selectedSizeType.value = _parkingSizeTypeList.firstWhere(
-        (element) => element['DisplayName'] == parking.parkingSubType,
-        orElse: () => _parkingSizeTypeList.first,
-      );
-    }
+    selectedSizeType.value = _parkingSizeTypeList.firstWhere(
+      (element) => element['DisplayName'] == parking.parkingSubType,
+      orElse: () => _parkingSizeTypeList.first,
+    );
 
     selectedStatus.value = _parkingStatusList.firstWhere(
       (element) => element['DisplayName'] == parking.parkingStatus,

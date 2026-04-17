@@ -317,95 +317,91 @@ class _PerformanceScreenState extends State<PerformanceScreen>
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: BlocBuilder<PerformanceCubit, PerformanceState>(
-        builder: (context, state) {
-          return Scaffold(
-            backgroundColor: AppColor.white,
-            appBar: CustomAppBar(
-              screenTitle: "Performance",
-              authorization: _routeAuthorizationModel,
-              textController: _searchC,
-              searchHintText: "Search by Name",
-              onSearchSubmit: (value) {
-                _performanceCubit.searchPerformanceReport(
-                  context,
-                  _project.projectId,
-                  _tabControllerSecond.index,
-                  value,
-                  _getReportType(),
-                  _getTillDateType(),
-                );
-              },
-              onProjectChangeCallback: (value) {
-                _project = value;
-                _callPerformanceApi();
-              },
-              onExportCallback: (value) {
-                if (_project.projectId == 0) {
-                  showErrorMessage(context, "Error", "Please Select a Project");
-                  return;
-                }
-                if ((_performanceCubit
+      child: Scaffold(
+        backgroundColor: AppColor.white,
+        appBar: CustomAppBar(
+          screenTitle: "Performance",
+          authorization: _routeAuthorizationModel,
+          textController: _searchC,
+          searchHintText: "Search by Name",
+          onSearchSubmit: (value) {
+            _performanceCubit.searchPerformanceReport(
+              context,
+              _project.projectId,
+              _tabControllerSecond.index,
+              value,
+              _getReportType(),
+              _getTillDateType(),
+            );
+          },
+          onProjectChangeCallback: (value) {
+            _project = value;
+            _callPerformanceApi();
+          },
+          onExportCallback: (value) {
+            if (_project.projectId == 0) {
+              showErrorMessage(context, "Error", "Please Select a Project");
+              return;
+            }
+            if ((_performanceCubit
                             .state
-                            .performanceReportSourcingModel
-                            .isEmpty &&
-                        _tabControllerSecond.index == 0) ||
-                    (_performanceCubit
+                            .sourcingTotalNumberOfRecordPerformanceReport ==
+                        0 &&
+                    _tabControllerSecond.index == 0) ||
+                (_performanceCubit
                             .state
-                            .performanceReportClosingModel
-                            .isEmpty &&
-                        _tabControllerSecond.index == 1)) {
-                  showErrorMessage(context, "Error", "Data Not Found");
-                  return;
-                }
-                _performanceCubit.exportExcelPdf(
-                  context,
-                  value,
-                  _getReportType(),
-                  _getTillDateType(),
-                  _project.projectId,
-                  _tabControllerSecond.index == 0
-                      ? _performanceCubit
-                          .state
-                          .sourcingTotalNumberOfRecordPerformanceReport
-                      : _performanceCubit
-                          .state
-                          .closingTotalNumberOfRecordPerformanceReport,
-                );
-              },
-              isFilterOn: true,
-              onFilterTap: () {
-                _showBottomSheetToFilter(context);
-              },
+                            .closingTotalNumberOfRecordPerformanceReport ==
+                        0 &&
+                    _tabControllerSecond.index == 1)) {
+              showErrorMessage(context, "Error", "Data Not Found");
+              return;
+            }
+            _performanceCubit.exportExcelPdf(
+              context,
+              value,
+              _getReportType(),
+              _getTillDateType(),
+              _project.projectId,
+              _tabControllerSecond.index == 0
+                  ? _performanceCubit
+                      .state
+                      .sourcingTotalNumberOfRecordPerformanceReport
+                  : _performanceCubit
+                      .state
+                      .closingTotalNumberOfRecordPerformanceReport,
+            );
+          },
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilter(context);
+          },
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ChipStyleTabBar(
+              controller: _tabControllerFirst,
+              tabs: ["WTD", "MTD", "YTD"],
             ),
-            body: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ChipStyleTabBar(
-                  controller: _tabControllerFirst,
-                  tabs: ["WTD", "MTD", "YTD"],
-                ),
-                verticalSpacing(),
-                ChipStyleTabBar(
-                  controller: _tabControllerSecond,
-                  tabs: ["Sourcing Target", "Closing Target"],
-                  isSecondaryStyle: true,
-                ),
-                verticalSpacing(),
-                Expanded(
-                  child: TabBarView(
-                    physics: NeverScrollableScrollPhysics(),
-                    controller: _tabControllerSecond,
-                    children: [
-                      _buildSourcingTargetView(),
-                      _buildClosingTargetView(),
-                    ],
-                  ),
-                ),
-              ],
+            verticalSpacing(),
+            ChipStyleTabBar(
+              controller: _tabControllerSecond,
+              tabs: ["Sourcing Target", "Closing Target"],
+              isSecondaryStyle: true,
             ),
-          );
-        },
+            verticalSpacing(),
+            Expanded(
+              child: TabBarView(
+                physics: NeverScrollableScrollPhysics(),
+                controller: _tabControllerSecond,
+                children: [
+                  _buildSourcingTargetView(),
+                  _buildClosingTargetView(),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

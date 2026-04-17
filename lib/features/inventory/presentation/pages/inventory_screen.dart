@@ -75,14 +75,7 @@ class _InventoryScreenState extends State<InventoryScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         if (_inventoryCubit.state.buildingList.isEmpty) {
-          if (_project.projectId == 0) {
-            _inventoryCubit.reset();
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              showErrorMessage(context, "Error", "Please select a project");
-            });
-          } else {
-            _inventoryCubit.getInventory(context, _project.projectId);
-          }
+          _inventoryCubit.getInventory(context, _project.projectId);
         } else {
           _initializeControllersIfNeeded(_inventoryCubit.state);
         }
@@ -900,11 +893,9 @@ class _InventoryScreenState extends State<InventoryScreen>
     //  VIEW → only booked & allotted AND permission
     final showView =
         (canView && (status == "booked" || status == "alloted")) ||
-        (!canAction &&
-            (status == "available" ||
-                status == "blocked" ||
-                status == "hold")) ||
-        (canAction && isApproved);
+            (!canAction &&
+                (status == "available" || status == "blocked" || status == "hold")) ||
+            (canAction && isApproved);
 
     //  EDIT → available, blocked, hold AND permission
     final showEdit =
@@ -913,7 +904,10 @@ class _InventoryScreenState extends State<InventoryScreen>
         (status == "available" || status == "blocked" || status == "hold");
 
     //  DELETE → only available AND permission
-    final showDelete = canAction && status == "available" && !isApproved;
+    final showDelete =
+        canAction &&
+            status == "available" &&
+            !isApproved;
 
     return Container(
       width: double.infinity,
@@ -1064,10 +1058,7 @@ class _InventoryScreenState extends State<InventoryScreen>
               },
               child: Text(
                 "Owner : ${flat.ownerName}",
-                style: AppTextStyle.ts14M(color: AppColor.primary).copyWith(
-                  decoration: TextDecoration.underline,
-                  decorationColor: AppColor.primary,
-                ),
+                style: AppTextStyle.ts14M(color: AppColor.primary).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
               ),
             ),
           ],
