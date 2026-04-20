@@ -1,3 +1,6 @@
+// ignore_for_file: unused_local_variable
+
+import 'dart:developer';
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
@@ -38,14 +41,12 @@ class NotificationService {
   Future<void> debugFCM() async {
     try {
       String? apns = await messaging.getAPNSToken();
-      print("APNS => $apns");
 
       await Future.delayed(const Duration(seconds: 3));
 
       String? token = await messaging.getToken();
-      print("FCM => $token");
     } catch (e) {
-      print("ERROR => $e");
+      log("ERROR => $e");
     }
   }
 

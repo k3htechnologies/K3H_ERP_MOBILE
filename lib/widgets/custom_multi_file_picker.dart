@@ -351,9 +351,11 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                                             CommonFileViewerMobile.show(
                                               context,
                                               urls: [fileName],
-                                              fileBytes: fileBytesList[index].isNotEmpty
-                                                  ? [fileBytesList[index]]
-                                                  : null,
+                                              fileBytes:
+                                                  fileBytesList[index]
+                                                          .isNotEmpty
+                                                      ? [fileBytesList[index]]
+                                                      : null,
                                             );
                                           },
                                           child: Icon(
@@ -539,14 +541,14 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
       fileNamesList = widget.initialFileList!;
 
       fileBytesList =
-      widget.initialFileBytes != null &&
-          widget.initialFileBytes!.length ==
-              widget.initialFileList!.length
-          ? widget.initialFileBytes!
-          : List.generate(
-        widget.initialFileList!.length,
-            (i) => Uint8List(0),
-      );
+          widget.initialFileBytes != null &&
+                  widget.initialFileBytes!.length ==
+                      widget.initialFileList!.length
+              ? widget.initialFileBytes!
+              : List.generate(
+                widget.initialFileList!.length,
+                (i) => Uint8List(0),
+              );
     }
   }
 

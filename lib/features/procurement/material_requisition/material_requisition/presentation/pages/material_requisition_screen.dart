@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -204,7 +205,27 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                           Row(
                             children: [
                               GestureDetector(
-                                onTap: () async {},
+                                onTap: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.viewMaterialRequisition,
+                                    queryParameters: {
+                                      "materialRequisitionId":
+                                          Uri.encodeQueryComponent(
+                                            EncryptionManager.encryptData(
+                                              materialRequisition
+                                                  .materialRequisitionId
+                                                  .toString(),
+                                            ),
+                                          ),
+                                      "projectId": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          materialRequisition.projectId
+                                              .toString(),
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                },
                                 child: Text(
                                   materialRequisition.systemGeneratedCode,
                                   style: AppTextStyle.ts14M(
@@ -241,9 +262,10 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                               children: [
                                 CustomIconButton.edit(
                                   isDisabled:
-                                      materialRequisition
-                                          .materialRequisitionStage ==
-                                      'Get Quotation',
+                                      (materialRequisition
+                                              .materialRequisitionStage
+                                              .toLowerCase() ==
+                                          'get quotation'),
                                   onPressed: () {},
                                 ),
                                 CustomIconButton.delete(
@@ -294,6 +316,32 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                         value: materialRequisition.materialRequisitionStatus,
                         customValueWidget: statusWidget(
                           materialRequisition.materialRequisitionStatus,
+                        ),
+                      ),
+                      buildRowTitleValue(
+                        title: "Purchase Order",
+                        fixesWidth: 150,
+                        value: materialRequisition.materialRequisitionStatus,
+                        customValueWidget: CustomIconButton(
+                          onPressed: () {
+                            if (materialRequisition
+                                .purchaseOrderURL
+                                .isNotEmpty) {
+                              showFilePreviewDialog(
+                                context,
+                                materialRequisition.purchaseOrderURL.split(","),
+                              );
+                            }
+                          },
+                          backgroundColor: AppColor.white,
+                          icon: Icon(
+                            Icons.remove_red_eye_outlined,
+                            size: 20,
+                            color:
+                                materialRequisition.purchaseOrderURL.isNotEmpty
+                                    ? AppColor.primary
+                                    : AppColor.grey,
+                          ),
                         ),
                       ),
                     ],

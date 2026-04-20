@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -511,6 +512,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     if (mounted) {
       FocusManager.instance.primaryFocus?.unfocus();
     }
+
     final result = await Navigator.push<Map<String, dynamic>?>(
       context,
       MaterialPageRoute(
@@ -531,11 +533,17 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     final currentApplicants = List<BookingApplicantData>.from(
       _applicants.value,
     );
+
     final existingApplicantIndex = currentApplicants.indexWhere(
       (e) => _isApplicantType(e.applicantType),
     );
+
+    int getTotalBytes(List<Uint8List> list) =>
+        list.fold(0, (sum, item) => sum + item.length);
+
     final bool isUpdatingExisting =
         updatedIndex != null && updatedIndex < currentApplicants.length;
+
     if (_isApplicantType(updatedApplicant.applicantType) &&
         existingApplicantIndex != -1 &&
         (!isUpdatingExisting || existingApplicantIndex != updatedIndex) &&
@@ -548,13 +556,51 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       return;
     }
 
+    // ✅ FIX: preserve old file bytes before replacing
+    BookingApplicantData finalApplicant = updatedApplicant;
+
     if (isUpdatingExisting) {
-      final int targetIndex = updatedIndex;
-      currentApplicants[targetIndex] = updatedApplicant;
-    } else {
-      currentApplicants.add(updatedApplicant);
+      final old = currentApplicants[updatedIndex];
+
+      finalApplicant
+        ..profilePhotoImage.fileBytesList = old.profilePhotoImage.fileBytesList
+        ..aadhaarImage.fileBytesList = old.aadhaarImage.fileBytesList
+        ..panImage.fileBytesList = old.panImage.fileBytesList
+        ..passportImage.fileBytesList = old.passportImage.fileBytesList
+        ..drivingLicenseImage.fileBytesList =
+            old.drivingLicenseImage.fileBytesList
+        ..votingIdImage.fileBytesList = old.votingIdImage.fileBytesList
+        ..gstImage.fileBytesList = old.gstImage.fileBytesList
+        ..cancelledChequeImage.fileBytesList =
+            old.cancelledChequeImage.fileBytesList
+        ..poaImage.fileBytesList = old.poaImage.fileBytesList
+        ..incomeForm16ItrImage.fileBytesList =
+            old.incomeForm16ItrImage.fileBytesList
+        ..nreNroBankDetailsImage.fileBytesList =
+            old.nreNroBankDetailsImage.fileBytesList
+        ..nomineeFormImage.fileBytesList = old.nomineeFormImage.fileBytesList
+        ..statementOfSourceOfFundImage.fileBytesList =
+            old.statementOfSourceOfFundImage.fileBytesList
+        ..paymentProofImage.fileBytesList = old.paymentProofImage.fileBytesList;
     }
+
+    if (isUpdatingExisting) {
+      currentApplicants[updatedIndex] = finalApplicant;
+    } else {
+      currentApplicants.add(finalApplicant);
+    }
+
     _applicants.value = currentApplicants;
+
+    for (var v in _applicants.value) {
+      log(
+        "A Profile Bytes size: ${getTotalBytes(v.profilePhotoImage.fileBytesList)}",
+      );
+      log(
+        "A Aadhaar Bytes size: ${getTotalBytes(v.aadhaarImage.fileBytesList)}",
+      );
+      log("A PAN Bytes size: ${getTotalBytes(v.panImage.fileBytesList)}");
+    }
   }
 
   // OPEN PAYMENT SCHEDULE FORM

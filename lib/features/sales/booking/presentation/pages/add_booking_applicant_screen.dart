@@ -192,7 +192,6 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
         target.fileBytesList = [];
       } else {
         target.fileNameList = url.split(",");
-        target.fileBytesList = [];
       }
     }
 
@@ -434,6 +433,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     filePickType: FilePickType.image,
                     isRequired: true,
                     initialFileList: profilePhotoFile.fileNameList,
+                    initialFileBytes: profilePhotoFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       profilePhotoFile.fileNameList = fileNameList;
                       profilePhotoFile.fileBytesList = bytesList;
@@ -478,6 +478,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     filePickType: FilePickType.kycDocument,
                     isRequired: true,
                     initialFileList: aadhaarFile.fileNameList,
+                    initialFileBytes: aadhaarFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       aadhaarFile.fileNameList = fileNameList;
                       aadhaarFile.fileBytesList = bytesList;
@@ -520,6 +521,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     isRequired: true,
                     filePickType: FilePickType.kycDocument,
                     initialFileList: panFile.fileNameList,
+                    initialFileBytes: panFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       panFile.fileNameList = fileNameList;
                       panFile.fileBytesList = bytesList;
@@ -573,6 +575,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     title: "Passport Document",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: passportFile.fileNameList,
+                    initialFileBytes: passportFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       passportFile.fileNameList = fileNameList;
                       passportFile.fileBytesList = bytesList;
@@ -624,6 +627,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                   CustomMultiFilePicker(
                     title: "Driving License Document",
                     filePickType: FilePickType.kycDocument,
+                    initialFileBytes: drivingLicenseFile.fileBytesList,
                     initialFileList: drivingLicenseFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       drivingLicenseFile.fileNameList = fileNameList;
@@ -675,6 +679,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                   CustomMultiFilePicker(
                     title: "Voting ID Document",
                     filePickType: FilePickType.kycDocument,
+                    initialFileBytes: votingIdFile.fileBytesList,
                     initialFileList: votingIdFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       votingIdFile.fileNameList = fileNameList;
@@ -727,6 +732,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     title: "GST Certificate",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: gstFile.fileNameList,
+                    initialFileBytes: gstFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       gstFile.fileNameList = fileNameList;
                       gstFile.fileBytesList = bytesList;
@@ -753,6 +759,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     title: "Cancelled Cheque",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: cancelledChequeFile.fileNameList,
+                    initialFileBytes: cancelledChequeFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       cancelledChequeFile.fileNameList = fileNameList;
                       cancelledChequeFile.fileBytesList = bytesList;
@@ -771,6 +778,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     title: "POA (if NRI Execution)",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: poaFile.fileNameList,
+                    initialFileBytes: poaFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       poaFile.fileNameList = fileNameList;
                       poaFile.fileBytesList = bytesList;
@@ -789,6 +797,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     title: "Income Docs (Form 16 / ITR)",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: incomeForm16ItrFile.fileNameList,
+                    initialFileBytes: incomeForm16ItrFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       incomeForm16ItrFile.fileNameList = fileNameList;
                       incomeForm16ItrFile.fileBytesList = bytesList;
@@ -807,6 +816,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     title: "NRE / NRO Bank Details",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: nreNroBankDetailsFile.fileNameList,
+                    initialFileBytes: nreNroBankDetailsFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       nreNroBankDetailsFile.fileNameList = fileNameList;
                       nreNroBankDetailsFile.fileBytesList = bytesList;
@@ -825,6 +835,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     title: "Nominee Form",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: nomineeFormFile.fileNameList,
+                    initialFileBytes: nomineeFormFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       nomineeFormFile.fileNameList = fileNameList;
                       nomineeFormFile.fileBytesList = bytesList;
@@ -843,6 +854,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     title: "Statement of Source of Funds",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: statementOfSourceOfFundFile.fileNameList,
+                    initialFileBytes: statementOfSourceOfFundFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       statementOfSourceOfFundFile.fileNameList = fileNameList;
                       statementOfSourceOfFundFile.fileBytesList = bytesList;
@@ -861,6 +873,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     title: "Payment Proof",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: paymentProofURLFundFile.fileNameList,
+                    initialFileBytes: paymentProofURLFundFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       paymentProofURLFundFile.fileNameList = fileNameList;
                       paymentProofURLFundFile.fileBytesList = bytesList;

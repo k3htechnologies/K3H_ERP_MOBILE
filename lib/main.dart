@@ -120,9 +120,7 @@ Future initialSetup() async {
 @pragma("vm:entry-point")
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  if (message.data['type'] == 'sync') {
-    print("Background sync running...");
-  }
+  if (message.data['type'] == 'sync') {}
 }
 
 @pragma('vm:entry-point')

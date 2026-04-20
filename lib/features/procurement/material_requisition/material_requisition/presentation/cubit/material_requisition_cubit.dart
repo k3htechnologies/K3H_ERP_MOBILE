@@ -295,7 +295,6 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
               }
               : {"ExportType": exportType},
     );
-    print("Export Type: ${exportType}");
     goRouter.pop();
     result.fold(
       (failure) {

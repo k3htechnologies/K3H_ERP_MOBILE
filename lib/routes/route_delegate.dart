@@ -176,7 +176,8 @@ import 'package:k3h_erp_app/features/payroll/resignation/data/model/resignation.
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/cubit/resignation_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/pages/add_resignation_screen.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/pages/resignation_screen.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition.screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition_view_screen.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:k3h_erp_app/features/profile/presentation/pages/profile_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/dashboard_screen.dart';
@@ -4560,11 +4561,11 @@ final GoRouter goRouter = GoRouter(
 
         // MATERIAL REQUISITION
         ShellRoute(
-          navigatorKey: shellNavigatorKey,
+          // navigatorKey: shellNavigatorKey,
           builder: (context, state, child) {
             return BlocProvider(
               create: (context) => MaterialRequisitionCubit(),
-              child: MaterialRequisitonScreen(),
+              child: child,
             );
           },
           routes: [
@@ -4573,12 +4574,41 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.materialRequisition,
               builder: (context, state) => MaterialRequisitonScreen(),
             ),
-            // GoRoute(
-            //   path: AppRoutes.materialRequisitionDetails,
-            //   name: AppRoutes.materialRequisitionDetails,
-            //   builder:
-            //       (context, state) => MaterialRequisitionGetQuotationScreen(),
-            // ),
+            GoRoute(
+              name: AppRoutes.viewMaterialRequisition,
+              path: AppRoutes.viewMaterialRequisition,
+              builder: (context, state) {
+                final queryParameterMaterialRequisitionId =
+                    state.uri.queryParameters['materialRequisitionId'];
+                final queryParameterProjectId =
+                    state.uri.queryParameters['projectId'];
+
+                final materialRequisitionId =
+                    queryParameterMaterialRequisitionId != null &&
+                            queryParameterMaterialRequisitionId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(
+                              queryParameterMaterialRequisitionId,
+                            ),
+                          ),
+                        )
+                        : 0;
+                final projectId =
+                    queryParameterProjectId != null &&
+                            queryParameterProjectId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterProjectId),
+                          ),
+                        )
+                        : 0;
+                return MaterialRequisitionViewScreen(
+                  materialRequisitionId: materialRequisitionId,
+                  projectId: projectId,
+                );
+              },
+            ),
           ],
         ),
         // CRM Pay Track
@@ -4602,10 +4632,7 @@ final GoRouter goRouter = GoRouter(
         // CRM BROKERAGE
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider(
-              create: (_) => BrokerageCubit(),
-              child: child,
-            );
+            return BlocProvider(create: (_) => BrokerageCubit(), child: child);
           },
           routes: [
             GoRoute(

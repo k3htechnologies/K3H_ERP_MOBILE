@@ -78,7 +78,7 @@ class AppRoutes {
 
   // PROCUREMENT
   static String materialRequisition = "/materialRequisition";
-  static String materialRequisitionDetails = "/requisitionDetails";
+  static String viewMaterialRequisition = "/viewMaterialRequisition";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// INVENTORY
