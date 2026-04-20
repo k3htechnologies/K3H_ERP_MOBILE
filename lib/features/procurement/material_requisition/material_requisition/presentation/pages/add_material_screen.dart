@@ -1,0 +1,286 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/repository/utils.repository.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/procurement/data/model/sub_material.model.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
+class AddMaterialScreen extends StatefulWidget {
+  final MaterialRequisitionModel? materialRequisitionModel;
+  final int index;
+
+  const AddMaterialScreen({
+    super.key,
+    required this.materialRequisitionModel,
+    required this.index,
+  });
+
+  @override
+  State<AddMaterialScreen> createState() => _AddMaterialScreenState();
+}
+
+class _AddMaterialScreenState extends State<AddMaterialScreen> {
+  late ProjectModel _project;
+  final ValueNotifier<List<SubMaterialModel>> rawMaterialList = ValueNotifier(
+    [],
+  );
+  final ValueNotifier<Map<String, dynamic>?> _selectedMaterial = ValueNotifier(
+    null,
+  );
+  final ValueNotifier<Map<String, dynamic>?> _selectedSubMaterial =
+      ValueNotifier(null);
+  final ValueNotifier<DateTime?> _requiredDate = ValueNotifier(null);
+
+  //EDIT MODE
+  bool get _isEditMode => widget.materialRequisitionModel != null;
+
+  late TextEditingController _uomC, _quantityC, _remarkC;
+  @override
+  void initState() {
+    super.initState();
+    _project = getProject();
+    getMaterialSubMaterialUOMMaster();
+    initializeTextEditingController();
+  }
+
+  final UtilsRepository utilsRepository = serviceLocator<UtilsRepository>();
+
+  void initializeTextEditingController() {
+    _uomC = TextEditingController();
+    _quantityC = TextEditingController();
+    _remarkC = TextEditingController();
+  }
+
+  // <---- DROPDOWN FUNCTIONS ---->
+  Future<void> getMaterialSubMaterialUOMMaster() async {
+    var result = await utilsRepository
+        .getMaterialMasterSubMaterialMasterUOMMaster(
+          projectId: _project.projectId,
+        );
+
+    return await result.fold(
+      (failure) async {
+        showErrorMessage(context, 'Error', failure.message);
+        rawMaterialList.value = [];
+      },
+      (response) async {
+        final data = response["MaterialMasterSubMaterialMasterData"];
+
+        if (data == null) {
+          rawMaterialList.value = [];
+        }
+
+        final parsedList = await compute(
+          (m) =>
+              (m as List<dynamic>)
+                  .map((e) => SubMaterialModel.fromJson(e))
+                  .toList(),
+          data,
+        );
+
+        rawMaterialList.value = List<SubMaterialModel>.from(parsedList);
+      },
+    );
+  }
+
+  List<Map<String, dynamic>> get materialList {
+    return rawMaterialList.value.map((e) {
+      return {
+        "zAttributesId": e.materialMasterId,
+        "DisplayName": e.materialName,
+      };
+    }).toList();
+  }
+
+  List<Map<String, dynamic>> get subMaterialList {
+    final selectedId = _selectedMaterial.value?['zAttributesId'];
+
+    if (selectedId == null) return [];
+
+    return rawMaterialList.value
+        .where((e) => e.materialMasterId == selectedId)
+        .map((e) {
+          return {
+            "zAttributesId": e.subMaterialMasterId,
+            "DisplayName": e.subMaterialName,
+          };
+        })
+        .toList();
+  }
+
+  void updateUOM() {
+    final selectedId = _selectedSubMaterial.value?['zAttributesId'];
+    if (selectedId == null) return;
+    final selectedItem = rawMaterialList.value.firstWhere(
+      (e) => e.subMaterialMasterId == selectedId,
+    );
+
+    _uomC.text = selectedItem.uomCode;
+  }
+
+  void _submit() {
+    final model = MaterialRequisitionDetailModel(
+      materialRequisitionDetailId: 0,
+      uniquekey: '',
+      materialMasterId: _selectedMaterial.value?['zAttributesId'] ?? -1,
+      materialCode: '',
+      materialName: _selectedMaterial.value?['DisplayName'] ?? '',
+      subMaterialName: _selectedSubMaterial.value?['DisplayName'] ?? '',
+      subMaterialMasterId: _selectedSubMaterial.value?['zAttributesId'] ?? -1,
+      materialQuantity: double.tryParse(_quantityC.text) ?? 0,
+      uomMasterId: 0,
+      uomCode: _uomC.text,
+      uom: _uomC.text,
+      requiredDate: _requiredDate.value ?? DateTime.now(),
+      materialReceivedQuantityTillDate: 0,
+      createdById: 0,
+      createdBy: '',
+      createdDate: DateTime.now(),
+      modifiedById: 0,
+      modifiedBy: '',
+    );
+    Navigator.pop(context, model);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: "Material Requisition",
+        authorization: AuthorizationModel(),
+      ),
+      body: ValueListenableBuilder(
+        valueListenable: rawMaterialList,
+        builder: (context, value, child) {
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+            child: Container(
+              decoration: commonCardDecoration(),
+              padding: EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _isEditMode ? "Update GRN Material" : "Add GRN Material",
+                    style: AppTextStyle.ts14M(color: AppColor.grey),
+                  ),
+                  verticalSpacing(),
+                  ValueListenableBuilder(
+                    valueListenable: _selectedMaterial,
+                    builder: (context, value, child) {
+                      return CustomDropDownWidget(
+                        title: "Material",
+                        isRequired: true,
+                        hintText: "Select Material",
+                        initialValue: value,
+                        dataList: materialList,
+                        onValueClear: () {
+                          _selectedMaterial.value = null;
+                          _selectedSubMaterial.value = null;
+                          _uomC.clear();
+                        },
+                        onSelected: (value) {
+                          _selectedMaterial.value = value;
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Material is required";
+                          }
+                          return null;
+                        },
+                      );
+                    },
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: _selectedMaterial,
+                    builder: (context, value, child) {
+                      return ValueListenableBuilder(
+                        valueListenable: _selectedSubMaterial,
+                        builder: (context, value, child) {
+                          return CustomDropDownWidget(
+                            title: "Sub Material",
+                            isRequired: true,
+                            hintText: "Select Sub Material",
+                            initialValue: value,
+                            dataList: subMaterialList,
+                            onValueClear: () {
+                              _selectedSubMaterial.value = null;
+                              _uomC.clear();
+                            },
+                            onSelected: (value) {
+                              _selectedSubMaterial.value = value;
+                              updateUOM();
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Material is required";
+                              }
+                              return null;
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
+
+                  CustomTextField(
+                    title: "UOM",
+                    readOnly: true,
+                    textController: _uomC,
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: _requiredDate,
+                    builder: (context, value, child) {
+                      return CustomDatePicker(
+                        title: "Date",
+                        initialDate: value,
+                        setValue: (value) {
+                          _requiredDate.value = value;
+                        },
+                      );
+                    },
+                  ),
+                  CustomTextField(
+                    title: "Quantity",
+                    hint: "Enter Received Quantity",
+                    textController: _quantityC,
+                  ),
+                  CustomTextField(
+                    title: "Remark",
+                    hint: "Enter Remark",
+                    textController: _remarkC,
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          height: 40,
+          margin: EdgeInsets.only(bottom: 10),
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: CustomButton(
+            leading: Icon(Icons.add, size: 18, color: AppColor.white),
+            text: _isEditMode ? "Update" : "Add",
+            onPressed: _submit,
+          ),
+        ),
+      ),
+    );
+  }
+}

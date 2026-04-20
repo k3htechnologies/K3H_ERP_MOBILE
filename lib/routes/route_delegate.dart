@@ -137,6 +137,7 @@ import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/present
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/add_terms_and_conditions_screen.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/terms_and_conditions_screen.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/terms_and_conditions_view_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/features/menu/presentation/pages/menu_screen.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/data/models/calendar_event.dart';
@@ -176,6 +177,8 @@ import 'package:k3h_erp_app/features/payroll/resignation/data/model/resignation.
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/cubit/resignation_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/pages/add_resignation_screen.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/pages/resignation_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/add_material_requisition_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/add_material_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition_view_screen.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
@@ -4568,12 +4571,70 @@ final GoRouter goRouter = GoRouter(
               child: child,
             );
           },
+
           routes: [
             GoRoute(
               path: AppRoutes.materialRequisition,
               name: AppRoutes.materialRequisition,
               builder: (context, state) => MaterialRequisitonScreen(),
             ),
+            GoRoute(
+              name: AppRoutes.addMaterialRequisition,
+              path: AppRoutes.addMaterialRequisition,
+              builder: (context, state) {
+                final queryParameterMaterialRequisition =
+                    state.uri.queryParameters['materialRequisition'];
+
+                final MaterialRequisitionModel? materialRequisition =
+                    queryParameterMaterialRequisition != null
+                        ? MaterialRequisitionModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(
+                                queryParameterMaterialRequisition,
+                              ),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return AddMaterialRequisitionScreen(
+                  materialRequisitionModel: materialRequisition,
+                  index: index,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addMaterial,
+              path: AppRoutes.addMaterial,
+              builder: (context, state) {
+                final queryParameterMaterialRequisition =
+                    state.uri.queryParameters['materialRequisition'];
+
+                final MaterialRequisitionModel? materialRequisition =
+                    queryParameterMaterialRequisition != null
+                        ? MaterialRequisitionModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(
+                                queryParameterMaterialRequisition,
+                              ),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return AddMaterialScreen(
+                  materialRequisitionModel: materialRequisition,
+                  index: index,
+                );
+              },
+            ),
+
             GoRoute(
               name: AppRoutes.viewMaterialRequisition,
               path: AppRoutes.viewMaterialRequisition,

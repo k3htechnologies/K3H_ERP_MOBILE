@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -125,7 +126,9 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
             _project.projectId,
           );
         },
-        onAddCallback: () {},
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addMaterialRequisition);
+        },
         onProjectChangeCallback: (value) {
           _project = value;
           _materialRequisitionCubit.getMaterialRequisitionList(
@@ -266,7 +269,22 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                                               .materialRequisitionStage
                                               .toLowerCase() ==
                                           'get quotation'),
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    await goRouter.pushNamed(
+                                      AppRoutes.addMaterialRequisition,
+                                      queryParameters: {
+                                        "materialRequisition":
+                                            Uri.encodeQueryComponent(
+                                              EncryptionManager.encryptData(
+                                                jsonEncode(
+                                                  materialRequisition.toJson(),
+                                                ),
+                                              ),
+                                            ),
+                                        'index': index.toString(),
+                                      },
+                                    );
+                                  },
                                 ),
                                 CustomIconButton.delete(
                                   isDisabled:
