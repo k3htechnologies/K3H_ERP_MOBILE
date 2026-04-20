@@ -37,10 +37,20 @@ AddressParsedResult processAddressData(String rawJson) {
   }
 
   final stateList =
-      tree.entries.map((e) {
-        final first = e.value.values.first.values.first.first;
-        return {"zAttributesId": e.key, "DisplayName": first.stateName};
-      }).toList();
+      tree.entries
+          .map((e) {
+            if (e.value.isEmpty ||
+                e.value.values.first.isEmpty ||
+                e.value.values.first.values.first.isEmpty) {
+              return null;
+            }
+
+            final first = e.value.values.first.values.first.first;
+
+            return {"zAttributesId": e.key, "DisplayName": first.stateName};
+          })
+          .whereType<Map<String, dynamic>>()
+          .toList();
 
   return AddressParsedResult(addressTree: tree, stateList: stateList);
 }
@@ -145,7 +155,11 @@ class _AddressWidgetState extends State<AddressWidget> {
             ? decoded['CountryStateCityDistrictVillageData']
             : decoded;
 
-    final dataList = (list as List).map((e) => CityModel.fromJson(e)).toList();
+    if (list == null || list is! List) {
+      return AddressParsedResult(addressTree: {}, stateList: []);
+    }
+
+    final dataList = list.map((e) => CityModel.fromJson(e)).toList();
 
     final Map<int, Map<int, Map<int, List<CityModel>>>> tree = {};
 
@@ -158,10 +172,23 @@ class _AddressWidgetState extends State<AddressWidget> {
     }
 
     final stateList =
-        tree.entries.map((e) {
-          final first = e.value.values.first.values.first.first;
-          return {"zAttributesId": e.key, "DisplayName": first.stateName};
-        }).toList();
+        tree.entries
+            .map((e) {
+              final districtMap = e.value;
+              if (districtMap.isEmpty) return null;
+
+              final cityMap = districtMap.values.first;
+              if (cityMap.isEmpty) return null;
+
+              final list = cityMap.values.first;
+              if (list.isEmpty) return null;
+
+              final first = list.first;
+
+              return {"zAttributesId": e.key, "DisplayName": first.stateName};
+            })
+            .whereType<Map<String, dynamic>>()
+            .toList();
 
     return AddressParsedResult(addressTree: tree, stateList: stateList);
   }
@@ -189,8 +216,9 @@ class _AddressWidgetState extends State<AddressWidget> {
 
   /// ---------------- DISTRICT ----------------
   void handleDistrictChange(int districtIdF) {
-    final cities = addressTree[stateId.value]?[districtIdF];
+    if (stateId.value == null) return;
 
+    final cities = addressTree[stateId.value]?[districtIdF];
     if (cities == null) {
       cityList.value = [];
       villageList.value = [];

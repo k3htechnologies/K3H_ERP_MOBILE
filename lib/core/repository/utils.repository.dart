@@ -359,7 +359,7 @@ class UtilsRepositoryImpl implements UtilsRepository {
         final cachedData = storage.getRawString(StorageKey.addressMasterData);
 
         if (cachedData != null && cachedData.isNotEmpty) {
-          final parsed = await compute(processAddressData, cachedData);
+          final parsed = processAddressData(cachedData);
           return right(parsed);
         }
       }
@@ -371,7 +371,7 @@ class UtilsRepositoryImpl implements UtilsRepository {
       final data = result["data"]["CountryStateCityDistrictVillageData"];
 
       /// Encode in isolate
-      final encodedData = await compute(jsonEncode, data);
+      final encodedData = jsonEncode(data);
 
       await storage.setRawString(StorageKey.addressMasterData, encodedData);
 
