@@ -6,9 +6,15 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presen
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/cubit/invoice_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/cubit/purchase_order_cubit.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class MaterialRequisitionViewScreen extends StatefulWidget {
   final int materialRequisitionId;
@@ -81,6 +87,7 @@ class _MaterialRequisitionViewScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColor.greyBackground,
       appBar: CustomAppBarWithBackButton(
         screenTitle: "Material Requisition",
         authorization: AuthorizationModel(),
@@ -99,19 +106,23 @@ class _MaterialRequisitionViewScreenState
               'Invoice',
             ],
           ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              physics: NeverScrollableScrollPhysics(),
-              children: [
-                _buildOverviewTab(),
-                _buildOverviewTab(),
-                _buildOverviewTab(),
-                _buildOverviewTab(),
-                _buildOverviewTab(),
-                _buildOverviewTab(),
-              ],
-            ),
+          BlocBuilder<MaterialRequisitionCubit, MaterialRequisitionState>(
+            builder: (context, state) {
+              return Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  physics: NeverScrollableScrollPhysics(),
+                  children: [
+                    _buildOverviewTab(),
+                    _buildOverviewTab(),
+                    _buildOverviewTab(),
+                    _buildOverviewTab(),
+                    _buildOverviewTab(),
+                    _buildOverviewTab(),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -119,6 +130,66 @@ class _MaterialRequisitionViewScreenState
   }
 
   Widget _buildOverviewTab() {
-    return Container();
+    if (_materialRequisitionCubit.state.isLoading ?? true) {
+      return Center(child: CircularProgressIndicator());
+    }
+    final materialRequisition = materialRequisitionOverview.value;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+
+      child: Column(
+        spacing: 10,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          verticalSpacing(height: 5),
+          Text(
+            materialRequisition!.systemGeneratedCode,
+            style: AppTextStyle.ts16SB(color: AppColor.primary),
+          ),
+          Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(10),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Basic Details",
+                  style: AppTextStyle.ts16SB(color: AppColor.black),
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Stage",
+                      value: materialRequisition.materialRequisitionStage,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Document Type",
+                      value: materialRequisition.materialRequisitionStage,
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Status",
+                      value: materialRequisition.materialRequisitionStatus,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Attachment",
+                      value: materialRequisition.attachmentsURL.toString(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

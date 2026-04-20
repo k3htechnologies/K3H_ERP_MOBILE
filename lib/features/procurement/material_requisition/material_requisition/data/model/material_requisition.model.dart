@@ -6,7 +6,7 @@ class MaterialRequisitionModel {
   String systemGeneratedCode;
   int projectId;
   String projectName;
-  List<String> attachmentsURL;
+  String attachmentsURL;
   String remarks;
   int clientRegistrationId;
   String materialRequisitionStage;
@@ -73,10 +73,7 @@ class MaterialRequisitionModel {
     systemGeneratedCode: parseValue<String>(json, "SystemGeneratedCode"),
     projectId: parseValue<int>(json, "ProjectId"),
     projectName: parseValue<String>(json, "ProjectName"),
-    attachmentsURL:
-        json["AttachmentsURL"].isNotEmpty
-            ? json["AttachmentsURL"].split(',')
-            : <String>[],
+    attachmentsURL: json["AttachmentsURL"],
     remarks: parseValue<String>(json, "Remarks"),
     clientRegistrationId: parseValue<int>(json, "ClientRegistrationId"),
     materialRequisitionStage: parseValue<String>(
@@ -128,7 +125,7 @@ class MaterialRequisitionModel {
     "SystemGeneratedCode": systemGeneratedCode,
     "ProjectId": projectId,
     "ProjectName": projectName,
-    "AttachmentsURL": attachmentsURL.join(','),
+    "AttachmentsURL": attachmentsURL,
     "Remarks": remarks,
     "ClientRegistrationId": clientRegistrationId,
     "MaterialRequisitionStage": materialRequisitionStage,
