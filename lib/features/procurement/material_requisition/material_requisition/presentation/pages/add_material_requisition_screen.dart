@@ -88,21 +88,7 @@ class _AddMaterialRequisitionScreenState
                       CustomButton(
                         text: "Add Material",
                         onPressed: () async {
-                          await goRouter.pushNamed(
-                            AppRoutes.addMaterial,
-                            // queryParameters: {
-                            //   if (widget.materialRequisitionModel != null)
-                            //     "materialRequisition": Uri.encodeQueryComponent(
-                            //       EncryptionManager.encryptData(
-                            //         jsonEncode(
-                            //           widget.materialRequisitionModel!.materialRequisitionDetailData.toJson(),
-                            //         ),
-                            //       ),
-                            //     ),
-                            //   if (widget.materialRequisitionModel != null)
-                            //     'index': widget.index.toString(),
-                            // },
-                          );
+                          await goRouter.pushNamed(AppRoutes.addMaterial);
                         },
                       ),
                     ],
