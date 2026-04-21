@@ -19,12 +19,12 @@ import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddMaterialScreen extends StatefulWidget {
-  final MaterialRequisitionModel? materialRequisitionModel;
-  final int index;
+  final MaterialRequisitionDetailModel? materialDetails;
+  final int? index;
 
   const AddMaterialScreen({
     super.key,
-    required this.materialRequisitionModel,
+    required this.materialDetails,
     required this.index,
   });
 
@@ -45,7 +45,7 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
   final ValueNotifier<DateTime?> _requiredDate = ValueNotifier(null);
 
   //EDIT MODE
-  bool get _isEditMode => widget.materialRequisitionModel != null;
+  bool get _isEditMode => widget.materialDetails != null;
 
   late TextEditingController _uomC, _quantityC, _remarkC;
   @override

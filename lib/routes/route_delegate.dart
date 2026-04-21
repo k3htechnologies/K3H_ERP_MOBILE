@@ -4610,16 +4610,16 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addMaterial,
               path: AppRoutes.addMaterial,
               builder: (context, state) {
-                final queryParameterMaterialRequisition =
+                final queryParameterMaterialDetails =
                     state.uri.queryParameters['materialRequisition'];
 
-                final MaterialRequisitionModel? materialRequisition =
-                    queryParameterMaterialRequisition != null
-                        ? MaterialRequisitionModel.fromJson(
+                final MaterialRequisitionDetailModel? materialDetails =
+                    queryParameterMaterialDetails != null
+                        ? MaterialRequisitionDetailModel.fromJson(
                           jsonDecode(
                             EncryptionManager.decryptData(
                               Uri.decodeComponent(
-                                queryParameterMaterialRequisition,
+                                queryParameterMaterialDetails,
                               ),
                             ),
                           ),
@@ -4629,7 +4629,7 @@ final GoRouter goRouter = GoRouter(
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
                 return AddMaterialScreen(
-                  materialRequisitionModel: materialRequisition,
+                  materialDetails: materialDetails,
                   index: index,
                 );
               },

@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -41,6 +42,8 @@ class _AddMaterialRequisitionScreenState
     fileNameList: [],
     deletedFileList: "",
   );
+  //EDIT MODE
+  bool get _isEditMode => widget.materialRequisitionModel != null;
 
   void _save() {}
 
@@ -60,43 +63,63 @@ class _AddMaterialRequisitionScreenState
       body: Padding(
         padding: EdgeInsets.all(16.w),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              _isEditMode
+                  ? "Update Material Requisition"
+                  : "Add Material Requisition",
+              style: AppTextStyle.ts14M(),
+            ),
+            verticalSpacing(),
             Container(
               padding: EdgeInsets.all(12.w),
               decoration: commonCardDecoration(),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Material Details",
-                    style: AppTextStyle.ts14M(color: AppColor.black),
-                  ),
-                  CustomButton(
-                    text: "Add Material",
-                    onPressed: () async {
-                      await goRouter.pushNamed(
-                        AppRoutes.addMaterial,
-                        queryParameters: {
-                          if (widget.materialRequisitionModel != null)
-                            "materialRequisition": Uri.encodeQueryComponent(
-                              EncryptionManager.encryptData(
-                                jsonEncode(
-                                  widget.materialRequisitionModel!.toJson(),
-                                ),
-                              ),
-                            ),
-                          if (widget.materialRequisitionModel != null)
-                            'index': widget.index.toString(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Material Details",
+                        style: AppTextStyle.ts14M(color: AppColor.black),
+                      ),
+                      CustomButton(
+                        text: "Add Material",
+                        onPressed: () async {
+                          await goRouter.pushNamed(
+                            AppRoutes.addMaterial,
+                            // queryParameters: {
+                            //   if (widget.materialRequisitionModel != null)
+                            //     "materialRequisition": Uri.encodeQueryComponent(
+                            //       EncryptionManager.encryptData(
+                            //         jsonEncode(
+                            //           widget.materialRequisitionModel!.materialRequisitionDetailData.toJson(),
+                            //         ),
+                            //       ),
+                            //     ),
+                            //   if (widget.materialRequisitionModel != null)
+                            //     'index': widget.index.toString(),
+                            // },
+                          );
                         },
-                      );
-                    },
+                      ),
+                    ],
+                  ),
+                  infoCard(
+                    bgColor: AppColor.white,
+                    borderColor: AppColor.primary,
+                    [
+                      {"title": "Hi", "value": "1232"},
+                      {"title": "Hi", "value": "1232"},
+                    ],
                   ),
                 ],
               ),
             ),
 
             verticalSpacing(),
-
             Container(
               padding: EdgeInsets.all(12.w),
               decoration: commonCardDecoration(),
@@ -110,9 +133,8 @@ class _AddMaterialRequisitionScreenState
 
                   verticalSpacing(),
 
-                  /// Upload Field
                   CustomMultiFilePicker(
-                    title: "Upload Challan",
+                    title: "Document",
                     isRequired: true,
                     filePickType: FilePickType.both,
                     initialFileList: selectedDocuments.fileNameList,

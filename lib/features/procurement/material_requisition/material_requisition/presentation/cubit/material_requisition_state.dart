@@ -2,6 +2,7 @@ part of 'material_requisition_cubit.dart';
 
 final class MaterialRequisitionState extends BaseState {
   final List<MaterialRequisitionModel> materialRequisitionList;
+
   final int totalNumberOfRecord;
   final String searchText;
   final int currentPage;

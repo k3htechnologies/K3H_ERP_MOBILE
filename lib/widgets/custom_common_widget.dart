@@ -232,16 +232,21 @@ Widget showSiteSelectedWidget() {
 }
 
 // INFO HELPER CARD
-Widget infoCard(List<Map<String, dynamic>> items, {String? title}) {
+Widget infoCard(
+  List<Map<String, dynamic>> items, {
+  String? title,
+  Color? bgColor,
+  Color? borderColor,
+}) {
   return Container(
     width: double.infinity,
     padding: const EdgeInsets.all(16),
     margin: const EdgeInsets.symmetric(vertical: 8),
     decoration: BoxDecoration(
-      color: AppColor.lightBlue.withValues(alpha: 0.6),
+      color: bgColor ?? AppColor.lightBlue.withValues(alpha: 0.6),
       borderRadius: BorderRadius.circular(8),
       border: Border.all(
-        color: AppColor.primary.withValues(alpha: 0.6),
+        color: borderColor ?? AppColor.primary.withValues(alpha: 0.6),
         width: .5,
       ),
     ),
