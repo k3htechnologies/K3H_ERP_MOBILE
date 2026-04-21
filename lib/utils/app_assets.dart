@@ -107,6 +107,9 @@ class AppAssets {
   static const String wingsIcon = "$svgPath/wingsIcon.svg";
   static const String groundIcon = "$svgPath/groundIcon.svg";
 
+  // PURCHASE
+  static const String compareVendorIcon = "$svgPath/compareVendor.svg";
+
   // COMMON
   static const String backIcon = "$svgPath/backButtonIcon.svg";
 
