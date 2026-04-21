@@ -22,14 +22,14 @@ class SalesDashboardCubit extends Cubit<SalesDashboardState> {
   }
 
   // <---- GET Dashboard LIST ---->
-  Future getSalesDashboardList(BuildContext context, int projectId) async {
+  Future getSalesDashboardList(BuildContext context, int? projectId) async {
     emit(state.copyWith(isLoading: true));
-    if (projectId == 0) {
-      emit(state.copyWith(isLoading: false));
-      return;
-    }
+
+    final int finalProjectId =
+        (projectId == null || projectId == 0) ? 0 : projectId;
+
     var result = await _salesDashboardRepository.getSalesDashboardList(
-      projectId: projectId,
+      projectId: finalProjectId,
     );
 
     result.fold(

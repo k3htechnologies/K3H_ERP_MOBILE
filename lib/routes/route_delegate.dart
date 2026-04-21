@@ -137,6 +137,8 @@ import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/present
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/add_terms_and_conditions_screen.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/terms_and_conditions_screen.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/terms_and_conditions_view_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/features/menu/presentation/pages/menu_screen.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/data/models/calendar_event.dart';
@@ -4563,8 +4565,11 @@ final GoRouter goRouter = GoRouter(
         ShellRoute(
           // navigatorKey: shellNavigatorKey,
           builder: (context, state, child) {
-            return BlocProvider(
-              create: (context) => MaterialRequisitionCubit(),
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (context) => MaterialRequisitionCubit()),
+                BlocProvider(create: (context) => FinalizeVendorCubit()),
+              ],
               child: child,
             );
           },
@@ -4608,6 +4613,11 @@ final GoRouter goRouter = GoRouter(
                   projectId: projectId,
                 );
               },
+            ),
+            GoRoute(
+              path: AppRoutes.finalizeVendor,
+              name: AppRoutes.finalizeVendor,
+              builder: (context, state) => FinalizeVendorScreen(),
             ),
           ],
         ),
