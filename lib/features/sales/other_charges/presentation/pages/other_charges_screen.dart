@@ -235,7 +235,7 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
                     ),
                     buildRowTitleValue(
                       title: "Value",
-                      value: "₹ ${otherCharges.value}",
+                      value: "₹ ${otherCharges.value.displayFormatedAmount()}",
                       fixesWidth: 180
                     ),
                     buildRowTitleValue(
@@ -250,12 +250,12 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
                     ),
                     buildRowTitleValue(
                       title: "GST Value",
-                      value: "₹ ${otherCharges.gstValue}",
+                      value: "₹ ${otherCharges.gstValue.displayFormatedAmount()}",
                         fixesWidth: 180
                     ),
                     buildRowTitleValue(
                       title: "Value + GST Value (₹)",
-                      value: "₹ ${otherCharges.value + otherCharges.gstValue}",
+                      value: "₹ ${(otherCharges.value + otherCharges.gstValue).displayFormatedAmount()}",
                         fixesWidth: 180
                     ),
                     buildRowTitleValue(

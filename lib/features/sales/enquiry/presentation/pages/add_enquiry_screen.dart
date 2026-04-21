@@ -36,7 +36,6 @@ import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 class AddEnquiryScreen extends StatefulWidget {
   final EnquiryModel? enquiryModel;
@@ -74,9 +73,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   DateTime? _enquiryDate;
   DateTime? _nextFollowUpDate;
 
-  final List<int> budgetOptions = [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25];
-  // BUDGET INITIAL VALUE
-  late ValueNotifier<int> _budgetValueNotifier;
   // VALUE NOTIFIERS FOR REACTIVE STATE
   final ValueNotifier<Map<String, dynamic>?> _selectedAccommodationNotifier =
       ValueNotifier(null);
@@ -113,6 +109,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   // DROPDOWN VARIABLES
   final ValueNotifier<Map<String, dynamic>?> _selectedOccupationType =
       ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedBudgetInCr =
+      ValueNotifier(null);
   final ValueNotifier<Map<String, dynamic>?> _selectedPossessionType =
       ValueNotifier(null);
   final ValueNotifier<Map<String, dynamic>?> _selectedTimeline = ValueNotifier(
@@ -139,7 +137,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       _ageC,
       _locationC,
       _areaPrefC,
-      _budgetC,
       // NRI Fields
       _countryOfResidenceC,
       _cityOfResidenceC,
@@ -180,17 +177,52 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     {'zAttributesId': 7, 'DisplayName': '6 BHK'},
     {'zAttributesId': 8, 'DisplayName': '7 BHK'},
     {'zAttributesId': 9, 'DisplayName': '8 BHK'},
-    {'zAttributesId': 10, 'DisplayName': '1 + 1 JODI'},
-    {'zAttributesId': 11, 'DisplayName': '2 + 1 JODI'},
-    {'zAttributesId': 12, 'DisplayName': '2 + 2 JODI'},
-    {'zAttributesId': 13, 'DisplayName': '2 + 3 JODI'},
-    {'zAttributesId': 14, 'DisplayName': 'PENTHOUSE'},
+    {'zAttributesId': 10, 'DisplayName': '9 BHK'},
+    {'zAttributesId': 11, 'DisplayName': '10 BHK'},
+    {'zAttributesId': 12, 'DisplayName': '1 + 1 JODI'},
+    {'zAttributesId': 13, 'DisplayName': '2 + 1 JODI'},
+    {'zAttributesId': 14, 'DisplayName': '2 + 2 JODI'},
+    {'zAttributesId': 15, 'DisplayName': '2 + 3 JODI'},
+    {'zAttributesId': 16, 'DisplayName': 'Duplex'},
+    {'zAttributesId': 17, 'DisplayName': 'PENTHOUSE'},
   ];
 
   final List<Map<String, dynamic>> floorBrand = [
     {'zAttributesId': 1, 'DisplayName': 'Higher'},
     {'zAttributesId': 2, 'DisplayName': 'Middle'},
     {'zAttributesId': 3, 'DisplayName': 'Lower'},
+  ];
+
+  final List<Map<String, dynamic>> budgetInCrList = [
+    {'zAttributesId': 1, 'DisplayName': '<1'},
+    {'zAttributesId': 2, 'DisplayName': '1.5'},
+    {'zAttributesId': 3, 'DisplayName': '2'},
+    {'zAttributesId': 4, 'DisplayName': '2.5'},
+    {'zAttributesId': 5, 'DisplayName': '3'},
+    {'zAttributesId': 6, 'DisplayName': '3.5'},
+    {'zAttributesId': 7, 'DisplayName': '4'},
+    {'zAttributesId': 8, 'DisplayName': '4.5'},
+    {'zAttributesId': 9, 'DisplayName': '5'},
+    {'zAttributesId': 10, 'DisplayName': '5.5'},
+    {'zAttributesId': 11, 'DisplayName': '6'},
+    {'zAttributesId': 12, 'DisplayName': '6.5'},
+    {'zAttributesId': 13, 'DisplayName': '7'},
+    {'zAttributesId': 14, 'DisplayName': '7.5'},
+    {'zAttributesId': 15, 'DisplayName': '8'},
+    {'zAttributesId': 16, 'DisplayName': '8.5'},
+    {'zAttributesId': 17, 'DisplayName': '9'},
+    {'zAttributesId': 18, 'DisplayName': '9.5'},
+    {'zAttributesId': 19, 'DisplayName': '10'},
+    {'zAttributesId': 20, 'DisplayName': '10.5'},
+    {'zAttributesId': 21, 'DisplayName': '11'},
+    {'zAttributesId': 22, 'DisplayName': '11.5'},
+    {'zAttributesId': 23, 'DisplayName': '12'},
+    {'zAttributesId': 24, 'DisplayName': '12.5'},
+    {'zAttributesId': 25, 'DisplayName': '15'},
+    {'zAttributesId': 26, 'DisplayName': '15.5'},
+    {'zAttributesId': 27, 'DisplayName': '20'},
+    {'zAttributesId': 28, 'DisplayName': '20.5'},
+    {'zAttributesId': 29, 'DisplayName': '25+'},
   ];
 
   final List<Map<String, dynamic>> possessionType = [
@@ -309,7 +341,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _loginCubit = context.read<LoginCubit>();
     _initControllers();
     _enquiryCubit.clearChannelPartner();
-    _budgetValueNotifier = ValueNotifier<int>(1);
     _selectedEmployeeNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     _selectedProjectNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     _selectedFlatNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
@@ -321,7 +352,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     } else {
       _timeInC = DateTime.now().toIso8601String().split("T")[1].split(".")[0];
       _enquiryDate = DateTime.now();
-      _budgetC.text = "<1";
     }
   }
 
@@ -334,10 +364,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _ageC.dispose();
     _locationC.dispose();
     _areaPrefC.dispose();
-    _budgetC.dispose();
     _countryOfResidenceC.dispose();
     _cityOfResidenceC.dispose();
-    _budgetValueNotifier.dispose();
+    _selectedBudgetInCr.dispose();
     // CHANNEL PARTNER CONTROLLERS
     _channelPartnerMobileC.dispose();
     _teamMemberNameC.dispose();
@@ -372,7 +401,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _ageC = TextEditingController();
     _locationC = TextEditingController();
     _areaPrefC = TextEditingController();
-    _budgetC = TextEditingController();
     _countryOfResidenceC = TextEditingController();
     _cityOfResidenceC = TextEditingController();
     _channelPartnerMobileC = TextEditingController();
@@ -451,7 +479,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _locationC.text = model.currentLocation;
     _areaPrefC.text =
         model.areaPreferred == 0 ? "" : model.areaPreferred.toStringAsFixed(0);
-    _budgetC.text = model.budget;
     _remarkC.text = model.remark;
 
     // SOURCE BASED TEXT FIELDS
@@ -721,13 +748,19 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       ];
     }
 
-    // BUDGET SLIDER
     if (model.budget.isNotEmpty) {
-      final cleaned = model.budget.replaceAll("+", "").replaceAll(">", "");
-      final value = int.tryParse(cleaned);
-      if (value != null && budgetOptions.contains(value)) {
-        _budgetValueNotifier.value = value;
-      }
+      final raw = model.budget.trim();
+
+      final match = budgetInCrList.firstWhere(
+        (e) => e["DisplayName"].toString() == raw,
+        orElse:
+            () => budgetInCrList.firstWhere(
+              (e) => e["DisplayName"] == "<1",
+              orElse: () => budgetInCrList.first,
+            ),
+      );
+
+      _selectedBudgetInCr.value = match;
     }
   }
 
@@ -752,7 +785,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       bool isSourceCompleted =
           getDisplayOrEmpty(_selectedSourceNotifier.value).isNotEmpty;
       bool isPropertyCompleted =
-          _budgetC.text.isNotEmpty &&
+          (_selectedBudgetInCr.value != null &&
+              _selectedBudgetInCr.value!.isNotEmpty) &&
           getDisplayOrEmpty(_selectedRequirementNotifier.value).isNotEmpty &&
           getDisplayOrEmpty(_selectedPossessionType.value).isNotEmpty &&
           getDisplayOrEmpty(_selectedRequirementNotifier.value).isNotEmpty &&
@@ -805,7 +839,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       selectedCount++;
     }
     if (_locationC.text.trim().isNotEmpty) selectedCount++;
-    if (_budgetC.text.trim().isNotEmpty) selectedCount++;
+    if ((_selectedBudgetInCr.value?["DisplayName"] ?? "").isNotEmpty) {
+      selectedCount++;
+    }
 
     final timeline = getDisplayOrEmpty(_selectedTimeline.value);
     String customerClassification;
@@ -885,7 +921,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       "PossessionType": getDisplayOrEmpty(_selectedPossessionType.value),
       "AreaPreferred": double.tryParse(_areaPrefC.text.trim()) ?? 0,
       "DesiredFloorBand": getDisplayOrEmpty(_selectedFloorBand.value),
-      "Budget": _budgetC.text.trim(),
+      "Budget": _selectedBudgetInCr.value?["DisplayName"] ?? "",
       "Requirement": getDisplayOrEmpty(_selectedRequirementNotifier.value),
       "RequirementType": requirementTypeValue,
       "CustomerClassification": customerClassification,
@@ -2107,53 +2143,15 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   // PROPERTY PREFERENCE
   Widget _propertyPrefCard() {
     return _card("Property Preferences", [
-      Text("Budget (In Cr)", style: AppTextStyle.ts14R()),
-
-      SizedBox(
-        width: double.infinity,
-        child: ValueListenableBuilder<int>(
-          valueListenable: _budgetValueNotifier,
-          builder: (context, selectedValue, child) {
-            return SfSlider(
-              min: 0,
-              max: (budgetOptions.length - 1).toDouble(),
-              value: budgetOptions.indexOf(selectedValue).toDouble(),
-              interval: 1,
-              showTicks: false,
-              showLabels: true,
-              enableTooltip: false,
-              activeColor: AppColor.primary,
-              inactiveColor: AppColor.primary.withValues(alpha: 0.25),
-              minorTicksPerInterval: 0,
-
-              labelFormatterCallback: (actualValue, formattedText) {
-                int index = actualValue.round();
-                int val = budgetOptions[index];
-
-                return val == 1
-                    ? "<1"
-                    : val == 25
-                    ? "25+"
-                    : "$val";
-              },
-
-              onChanged: (dynamic value) {
-                int index = value.round();
-                int val = budgetOptions[index];
-
-                _budgetValueNotifier.value = val;
-                _budgetC.text =
-                    val == 1
-                        ? "<1"
-                        : val == 25
-                        ? "25+"
-                        : val.toString();
-              },
-            );
-          },
-        ),
+      CustomDropDownWidget(
+        title: "Budget (In Cr)",
+        hintText: "Select Budget(In Cr)",
+        initialValue: _selectedBudgetInCr.value,
+        dataList: budgetInCrList,
+        onSelected: (value) {
+          _selectedBudgetInCr.value = value;
+        },
       ),
-      verticalSpacing(height: 20),
       ValueListenableBuilder(
         valueListenable: _selectedPossessionType,
         builder: (context, value, child) {
@@ -2199,7 +2197,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   _selectedCommercialLeasingNotifier.value = null;
                 },
               ),
-              const SizedBox(height: 8),
               if (dependentList.isNotEmpty)
                 CustomDropDownWidget(
                   key: ValueKey(selectedRequirement?["DisplayName"]),
@@ -2264,8 +2261,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         valueListenable: _selectedTimeline,
         builder: (context, value, child) {
           return CustomDropDownWidget(
-            title: "Timeline",
-            hintText: "Select Timeline",
+            title: "Timeline of Purchase",
+            hintText: "Select Timeline of Purchase",
             initialValue: _selectedTimeline.value,
             dataList: timelineTypeList,
             onSelected: (v) => _selectedTimeline.value = v,
@@ -2394,15 +2391,11 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       if (user.designation.toLowerCase() != 'GRE'.toLowerCase())
         CustomDatePicker(
           title: "Next Follow-Up Date",
-          isRequired: true,
           readOnly: _isEditMode,
           startDate: DateTime.now(),
           initialDate: _nextFollowUpDate,
           setValue: (v) => _nextFollowUpDate = v,
-          validator: (val) {
-            if (val == null) return "Next Follow-Up Date is required";
-            return null;
-          },
+
         ),
     ]);
   }

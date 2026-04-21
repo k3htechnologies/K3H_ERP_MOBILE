@@ -513,8 +513,7 @@ class _AddInventorySpecificationScreenState
                       textController: _flatC,
                       maxLines: 1,
                       inputFormatterList: [
-                        LengthLimitingTextInputFormatter(4),
-                        FilteringTextInputFormatter.digitsOnly,
+                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9, ]')),
                       ],
                       validator: (string) {
                         if (string == null) {

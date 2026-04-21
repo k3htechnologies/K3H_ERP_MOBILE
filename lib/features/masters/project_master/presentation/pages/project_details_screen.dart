@@ -296,37 +296,42 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                             ),
                           );
                         }
-                        return Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            // IMAGE
-                            ImageFiltered(
-                              imageFilter: ImageFilter.blur(
-                                sigmaX: 0.8,
-                                sigmaY: 0.2,
-                              ),
-                              child: NetworkImageWidget(
-                                imageUrl: projectImages[index],
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: double.infinity,
-                              ),
-                            ),
-
-                            Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    AppColor.grey10.withValues(alpha: 0.2),
-                                    AppColor.grey30.withValues(alpha: 0.4),
-                                    AppColor.black.withValues(alpha: 0.6),
-                                  ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
+                        return GestureDetector(
+                          onTap: (){
+                            showFilePreviewDialog(context, [projectImages[index]]);
+                          },
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              // IMAGE
+                              ImageFiltered(
+                                imageFilter: ImageFilter.blur(
+                                  sigmaX: 0.8,
+                                  sigmaY: 0.2,
+                                ),
+                                child: NetworkImageWidget(
+                                  imageUrl: projectImages[index],
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
                                 ),
                               ),
-                            ),
-                          ],
+
+                              Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      AppColor.grey10.withValues(alpha: 0.2),
+                                      AppColor.grey30.withValues(alpha: 0.4),
+                                      AppColor.black.withValues(alpha: 0.6),
+                                    ],
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         );
                       },
                     );
@@ -1104,7 +1109,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
               ),
             ),
             state.companyByProject.isEmpty
-                ? Expanded(child: noDataWidget(message: "No Company's Found"))
+                ? Expanded(child: Center(child: noDataWidget(message: "No Company's Found")))
                 : Expanded(
                   child: ListView.builder(
                     controller: companyScrollController,

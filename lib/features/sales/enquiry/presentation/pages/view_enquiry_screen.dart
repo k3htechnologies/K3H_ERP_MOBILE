@@ -753,7 +753,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                   : "-",
                         ),
                         buildColumnTitleValue(
-                          title: "Timeline",
+                          title: "Timeline of Purchase",
                           value:
                               enquiry.timeline.isNotEmpty
                                   ? enquiry.timeline

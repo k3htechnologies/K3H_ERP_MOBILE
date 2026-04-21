@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
@@ -186,12 +187,21 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                       hint: "Enter remark",
                       isRequired: true,
                       textController: _remarkC,
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(500),
+                      ],
                       minLines: 3,
                       maxLines: 3,
                       validator: (value) {
-                        if (value!.isEmpty) {
+                        final text = value?.trim() ?? "";
+
+                        if (text.isEmpty) {
                           return "Please enter remark";
                         }
+                        if (text.length < 25) {
+                          return "Remark must be at least 25 characters";
+                        }
+
                         return null;
                       },
                     ),
@@ -298,8 +308,14 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                       minLines: 3,
                       maxLines: 3,
                       validator: (value) {
-                        if (value!.isEmpty) {
+                        final text = value?.trim() ?? "";
+
+                        if (text.isEmpty) {
                           return "Please enter remark";
+                        }
+
+                        if (text.length < 25) {
+                          return "Remark must be at least 25 characters";
                         }
                         return null;
                       },
