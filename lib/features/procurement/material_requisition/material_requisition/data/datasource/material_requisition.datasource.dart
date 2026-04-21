@@ -97,6 +97,7 @@ class MaterialRequisitionDataSourceImpl
           ),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        'message': networkResponse['message'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {

@@ -250,7 +250,7 @@ bool isValidMobileNumber(String value) {
   return regex.hasMatch(value);
 }
 
-// DATE FORMATTERS
+// DATE FORMATTERS (MOSTLY USED)
 String formatDateTimeAsDDMMMYYYY(DateTime d, {String? separator}) {
   return DateFormat(
     'dd${separator ?? '-'}MMM${separator ?? '-'}yyyy',
@@ -695,7 +695,7 @@ Future<bool> importExcel(
   }
 }
 
-String addCommasToInteger(double value) {
+String addCommasToInteger(double value, {bool withoutSign = false}) {
   String integerPart = value.toStringAsFixed(2);
   // This function formats the integer part in Indian style, e.g., 14,34,000
   if (integerPart.length <= 6) {
@@ -715,7 +715,10 @@ String addCommasToInteger(double value) {
   );
 
   // Combine the grouped part and the last three digits
-  return '$groupedDigits,$lastThreeDigits';
+  if (withoutSign) {
+    return '$groupedDigits,$lastThreeDigits';
+  }
+  return '₹ $groupedDigits,$lastThreeDigits';
 }
 
 String getInitials(String name) {

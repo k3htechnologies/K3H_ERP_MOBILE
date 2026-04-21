@@ -4616,7 +4616,7 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addMaterial,
               builder: (context, state) {
                 final queryParameterMaterialDetails =
-                    state.uri.queryParameters['materialRequisition'];
+                    state.uri.queryParameters['material'];
 
                 final MaterialRequisitionDetailModel? materialDetails =
                     queryParameterMaterialDetails != null

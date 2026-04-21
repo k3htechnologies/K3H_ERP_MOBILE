@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -235,12 +236,13 @@ Widget showSiteSelectedWidget() {
 Widget infoCard(
   List<Map<String, dynamic>> items, {
   String? title,
+  Widget? titleWidget,
   Color? bgColor,
   Color? borderColor,
 }) {
   return Container(
     width: double.infinity,
-    padding: const EdgeInsets.all(16),
+    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
     margin: const EdgeInsets.symmetric(vertical: 8),
     decoration: BoxDecoration(
       color: bgColor ?? AppColor.lightBlue.withValues(alpha: 0.6),
@@ -257,6 +259,7 @@ Widget infoCard(
           Text(title, style: AppTextStyle.ts16SB()),
           verticalSpacing(),
         ],
+        if (titleWidget != null) ...[titleWidget, verticalSpacing()],
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: List.generate((items.length / 2).ceil(), (index) {
@@ -267,13 +270,13 @@ Widget infoCard(
               padding: const EdgeInsets.only(bottom: 12),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 10,
                 children: [
                   buildColumnTitleValue(
                     title: first["title"] ?? "",
                     value: first["widget"] != null ? "" : first["value"] ?? "",
                     customValueWidget: first["widget"],
                   ),
-                  const SizedBox(width: 20),
 
                   second != null
                       ? buildColumnTitleValue(

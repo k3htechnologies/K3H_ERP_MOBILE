@@ -127,6 +127,7 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
           );
         },
         onAddCallback: () async {
+          await _materialRequisitionCubit.clearMaterialList();
           await goRouter.pushNamed(AppRoutes.addMaterialRequisition);
         },
         onProjectChangeCallback: (value) {
@@ -270,6 +271,8 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                                               .toLowerCase() ==
                                           'get quotation'),
                                   onPressed: () async {
+                                    await _materialRequisitionCubit
+                                        .clearMaterialList();
                                     await goRouter.pushNamed(
                                       AppRoutes.addMaterialRequisition,
                                       queryParameters: {
@@ -318,14 +321,16 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                       buildRowTitleValue(
                         title: "Total PO Amount",
                         fixesWidth: 150,
-                        value:
-                            "₹ ${addCommasToInteger(materialRequisition.totalPoAmount)}",
+                        value: addCommasToInteger(
+                          materialRequisition.totalPoAmount,
+                        ),
                       ),
                       buildRowTitleValue(
                         title: "Invoice Amount",
                         fixesWidth: 150,
-                        value:
-                            "₹ ${addCommasToInteger(materialRequisition.totalInvoice)}",
+                        value: addCommasToInteger(
+                          materialRequisition.totalInvoice,
+                        ),
                       ),
 
                       buildRowTitleValue(

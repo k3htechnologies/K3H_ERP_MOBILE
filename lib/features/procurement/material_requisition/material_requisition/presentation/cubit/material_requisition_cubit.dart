@@ -161,13 +161,8 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
       },
       (response) {
         getMaterialRequisitionList(context, 1, projectId);
-        //close verification popup
         goRouter.pop();
-        showSuccessMessage(
-          context,
-          subTitle: 'Channel Partner Added Successfully',
-        );
-        goRouter.pop();
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -313,5 +308,21 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
         );
       },
     );
+  }
+
+  void updateMaterialList(List<MaterialRequisitionDetailModel> materialList) {
+    emit(state.copyWith(materialList: materialList));
+  }
+
+  void addMaterial(MaterialRequisitionDetailModel material) {
+    List<MaterialRequisitionDetailModel> existingMaterialList = List.from(
+      state.materialList,
+    );
+    existingMaterialList.add(material);
+    emit(state.copyWith(materialList: existingMaterialList));
+  }
+
+  Future<void> clearMaterialList() async {
+    emit(state.copyWith(materialList: []));
   }
 }
