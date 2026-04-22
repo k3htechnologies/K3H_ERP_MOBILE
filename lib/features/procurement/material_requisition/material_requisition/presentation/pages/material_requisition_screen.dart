@@ -268,7 +268,7 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                                   isDisabled:
                                       (materialRequisition
                                               .materialRequisitionStage
-                                              .toLowerCase() ==
+                                              .toLowerCase() !=
                                           'get quotation'),
                                   onPressed: () async {
                                     await _materialRequisitionCubit
@@ -291,9 +291,10 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                                 ),
                                 CustomIconButton.delete(
                                   isDisabled:
-                                      materialRequisition
-                                          .materialRequisitionStage ==
-                                      'Get Quotation',
+                                      (materialRequisition
+                                              .materialRequisitionStage
+                                              .toLowerCase() !=
+                                          'get quotation'),
                                   onPressed: () {
                                     _showPopupToDeleteMaterialRequisition(
                                       context: context,
@@ -330,6 +331,7 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                         fixesWidth: 150,
                         value: addCommasToInteger(
                           materialRequisition.totalInvoice,
+                          
                         ),
                       ),
 

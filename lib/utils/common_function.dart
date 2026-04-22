@@ -699,7 +699,7 @@ String addCommasToInteger(double value, {bool withoutSign = false}) {
   String integerPart = value.toStringAsFixed(2);
   // This function formats the integer part in Indian style, e.g., 14,34,000
   if (integerPart.length <= 6) {
-    return integerPart; // No commas needed for values with 3 digits or fewer
+    return withoutSign ? integerPart : '₹ $integerPart';
   }
 
   // First part (last 3 digits, no commas needed)

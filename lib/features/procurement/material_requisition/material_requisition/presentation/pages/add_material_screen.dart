@@ -56,6 +56,8 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
   bool get _isEditMode => widget.materialDetails != null;
 
   late TextEditingController _uomC, _quantityC, _remarkC;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
@@ -78,9 +80,8 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
   }
 
   void _prefill() {
-    if (!_isEditMode) {
-      return;
-    }
+    if (!_isEditMode) return;
+
     _selectedMaterial.value = {
       "DisplayName": widget.materialDetails!.materialName,
       "zAttributesId": widget.materialDetails!.materialMasterId,
@@ -92,6 +93,7 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
     _uomC.text = widget.materialDetails!.uomCode;
     _requiredDate.value = widget.materialDetails!.requiredDate;
     _quantityC.text = widget.materialDetails!.materialQuantity.toString();
+    _remarkC.text = widget.materialDetails!.remarks;
   }
 
   // <---- DROPDOWN FUNCTIONS ---->
@@ -176,15 +178,16 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
   }
 
   void _submit() {
+    if (!_formKey.currentState!.validate()) return;
     final selectedId = _selectedSubMaterial.value?['zAttributesId'];
     final selectedItem = rawMaterialList.value.firstWhere(
       (e) => e.subMaterialMasterId == selectedId,
     );
     final material = MaterialRequisitionDetailModel(
-      materialRequisitionDetailId: 0,
-      uniquekey: '',
+      materialRequisitionDetailId:
+          _isEditMode ? widget.materialDetails!.materialRequisitionDetailId : 0,
+      uniquekey: _isEditMode ? widget.materialDetails!.uniquekey : '',
       materialMasterId: _selectedMaterial.value?['zAttributesId'] ?? -1,
-      materialCode: '',
       materialName: _selectedMaterial.value?['DisplayName'] ?? '',
       subMaterialName: _selectedSubMaterial.value?['DisplayName'] ?? '',
       subMaterialMasterId: _selectedSubMaterial.value?['zAttributesId'] ?? -1,
@@ -193,15 +196,32 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
       uomCode: _uomC.text,
       uom: _uomC.text,
       requiredDate: _requiredDate.value ?? DateTime.now(),
-      materialReceivedQuantityTillDate: 0,
-      createdById: 0,
-      createdBy: '',
-      createdDate: DateTime.now(),
-      modifiedById: 0,
-      modifiedBy: '',
+      remarks: _remarkC.text.trim(),
+      materialReceivedQuantityTillDate:
+          _isEditMode
+              ? widget.materialDetails!.materialReceivedQuantityTillDate
+              : 0,
+      createdById: _isEditMode ? widget.materialDetails!.createdById : 0,
+      createdBy: _isEditMode ? widget.materialDetails!.createdBy : '',
+      createdDate:
+          _isEditMode ? widget.materialDetails!.createdDate : DateTime.now(),
+      modifiedById: _isEditMode ? widget.materialDetails!.modifiedById : 0,
+      modifiedBy: _isEditMode ? widget.materialDetails!.modifiedBy : "",
     );
-    _materialRequisitionCubit.addMaterial(material);
+    if (_isEditMode) {
+      _materialRequisitionCubit.updateMaterialList(material, widget.index);
+    } else {
+      _materialRequisitionCubit.addMaterial(material);
+    }
     goRouter.pop();
+  }
+
+  @override
+  void dispose() {
+    _uomC.dispose();
+    _quantityC.dispose();
+    _remarkC.dispose();
+    super.dispose();
   }
 
   @override
@@ -216,114 +236,133 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
         builder: (context, value, child) {
           return SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-            child: Column(
-              children: [
-                Container(
-                  decoration: commonCardDecoration(),
-                  padding: EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _isEditMode
-                            ? "Update GRN Material"
-                            : "Add GRN Material",
-                        style: AppTextStyle.ts14M(color: AppColor.grey),
-                      ),
-                      verticalSpacing(),
-                      ValueListenableBuilder(
-                        valueListenable: _selectedMaterial,
-                        builder: (context, value, child) {
-                          return CustomDropDownWidget(
-                            title: "Material",
-                            isRequired: true,
-                            hintText: "Select Material",
-                            initialValue: value,
-                            dataList: materialList,
-                            onValueClear: () {
-                              _selectedMaterial.value = null;
-                              _selectedSubMaterial.value = null;
-                              _uomC.clear();
-                            },
-                            onSelected: (value) {
-                              _selectedMaterial.value = value;
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Material is required";
-                              }
-                              return null;
-                            },
-                          );
-                        },
-                      ),
-                      ValueListenableBuilder(
-                        valueListenable: _selectedMaterial,
-                        builder: (context, value, child) {
-                          return ValueListenableBuilder(
-                            valueListenable: _selectedSubMaterial,
-                            builder: (context, value, child) {
-                              return CustomDropDownWidget(
-                                title: "Sub Material",
-                                isRequired: true,
-                                hintText: "Select Sub Material",
-                                initialValue: value,
-                                dataList: subMaterialList,
-                                onValueClear: () {
-                                  _selectedSubMaterial.value = null;
-                                  _uomC.clear();
-                                },
-                                onSelected: (value) {
-                                  _selectedSubMaterial.value = value;
-                                  updateUOM();
-                                },
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return "Material is required";
-                                  }
-                                  return null;
-                                },
-                              );
-                            },
-                          );
-                        },
-                      ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  Container(
+                    decoration: commonCardDecoration(),
+                    padding: EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _isEditMode ? "Update Material" : "Add Material",
+                          style: AppTextStyle.ts14M(color: AppColor.grey),
+                        ),
+                        verticalSpacing(),
+                        ValueListenableBuilder(
+                          valueListenable: _selectedMaterial,
+                          builder: (context, value, child) {
+                            return CustomDropDownWidget(
+                              title: "Material",
+                              isRequired: true,
+                              hintText: "Select Material",
+                              initialValue: value,
+                              dataList: materialList,
+                              onValueClear: () {
+                                _selectedMaterial.value = null;
+                                _selectedSubMaterial.value = null;
+                                _uomC.clear();
+                              },
+                              onSelected: (value) {
+                                _selectedMaterial.value = value;
+                                _selectedSubMaterial.value = null;
+                                _uomC.clear();
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Material is required";
+                                }
+                                return null;
+                              },
+                            );
+                          },
+                        ),
+                        ValueListenableBuilder(
+                          valueListenable: _selectedMaterial,
+                          builder: (context, value, child) {
+                            return ValueListenableBuilder(
+                              valueListenable: _selectedSubMaterial,
+                              builder: (context, value, child) {
+                                return CustomDropDownWidget(
+                                  title: "Sub Material",
+                                  isRequired: true,
+                                  hintText: "Select Sub Material",
+                                  initialValue: value,
+                                  dataList: subMaterialList,
+                                  onValueClear: () {
+                                    _selectedSubMaterial.value = null;
+                                    _uomC.clear();
+                                  },
+                                  onSelected: (value) {
+                                    _selectedSubMaterial.value = value;
+                                    updateUOM();
+                                  },
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return "Sub material is required";
+                                    }
+                                    return null;
+                                  },
+                                );
+                              },
+                            );
+                          },
+                        ),
 
-                      CustomTextField(
-                        title: "UOM",
-                        readOnly: true,
-                        textController: _uomC,
-                      ),
-                      ValueListenableBuilder(
-                        valueListenable: _requiredDate,
-                        builder: (context, value, child) {
-                          return CustomDatePicker(
-                            title: "Date",
-                            initialDate: value,
-                            setValue: (value) {
-                              _requiredDate.value = value;
-                            },
-                          );
-                        },
-                      ),
-                      CustomTextField(
-                        title: "Quantity",
-                        hint: "Enter Received Quantity",
-                        inputFormatterList: InputValidator.digit(5),
-                        keyboardType: TextInputType.number,
-                        textController: _quantityC,
-                      ),
-                      CustomTextField(
-                        title: "Remark",
-                        hint: "Enter Remark",
-                        inputFormatterList: InputValidator.digit(5),
-                        keyboardType: TextInputType.number,
-                        textController: _remarkC,
-                      ),
-                    ],
+                        CustomTextField(
+                          title: "UOM",
+                          isRequired: true,
+                          readOnly: true,
+                          textController: _uomC,
+                        ),
+                        ValueListenableBuilder(
+                          valueListenable: _requiredDate,
+                          builder: (context, value, child) {
+                            return CustomDatePicker(
+                              title: "Required Date",
+                              initialDate: value,
+                              isRequired: true,
+                              startDate: DateTime.now(),
+                              setValue: (value) {
+                                _requiredDate.value = value;
+                              },
+                              validator: (value) {
+                                if (value == null) {
+                                  return 'Date is required';
+                                }
+                                return null;
+                              },
+                            );
+                          },
+                        ),
+                        CustomTextField(
+                          title: "Quantity",
+                          hint: "Enter Received Quantity",
+                          isRequired: true,
+                          inputFormatterList: InputValidator.percentage(),
+                          keyboardType: TextInputType.numberWithOptions(),
+                          textController: _quantityC,
+                          validator: (value) {
+                            if (value == null || value == "") {
+                              return "Quantity is required";
+                            }
+                            return null;
+                          },
+                        ),
+                        CustomTextField(
+                          title: "Remark",
+                          hint: "Enter Remark",
+                          maxLines: 3,
+                          minLines: 3,
+                          textController: _remarkC,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },

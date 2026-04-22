@@ -158,7 +158,6 @@ class MaterialRequisitionDetailModel {
   int materialRequisitionDetailId;
   String uniquekey;
   int materialMasterId;
-  String materialCode;
   String materialName;
   String subMaterialName;
   int subMaterialMasterId;
@@ -168,6 +167,7 @@ class MaterialRequisitionDetailModel {
   String uom;
   DateTime requiredDate;
   double materialReceivedQuantityTillDate;
+  String remarks;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -180,7 +180,6 @@ class MaterialRequisitionDetailModel {
     required this.materialRequisitionDetailId,
     required this.uniquekey,
     required this.materialMasterId,
-    required this.materialCode,
     required this.materialName,
     required this.subMaterialName,
     required this.subMaterialMasterId,
@@ -190,6 +189,7 @@ class MaterialRequisitionDetailModel {
     required this.uom,
     required this.requiredDate,
     required this.materialReceivedQuantityTillDate,
+    required this.remarks,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -199,28 +199,6 @@ class MaterialRequisitionDetailModel {
     this.isChecked = false,
   });
 
-  static MaterialRequisitionDetailModel initial() =>
-      MaterialRequisitionDetailModel(
-        materialRequisitionDetailId: 0,
-        uniquekey: '',
-        materialMasterId: -1,
-        materialCode: '',
-        materialName: '',
-        subMaterialName: '',
-        subMaterialMasterId: -1,
-        materialQuantity: 0.0,
-        uomMasterId: -1,
-        uomCode: '',
-        uom: '',
-        requiredDate: DateTime.now(),
-        materialReceivedQuantityTillDate: 0.0,
-        createdById: 0,
-        createdBy: '',
-        createdDate: DateTime.now(),
-        modifiedById: 0,
-        modifiedBy: '',
-      );
-
   factory MaterialRequisitionDetailModel.fromJson(Map<String, dynamic> json) =>
       MaterialRequisitionDetailModel(
         materialRequisitionDetailId: parseValue<int>(
@@ -229,7 +207,6 @@ class MaterialRequisitionDetailModel {
         ),
         uniquekey: parseValue<String>(json, "Uniquekey"),
         materialMasterId: parseValue<int>(json, "MaterialMasterId"),
-        materialCode: parseValue<String>(json, "MaterialCode"),
         materialName: parseValue<String>(json, "MaterialName"),
         subMaterialName: parseValue<String>(json, "SubMaterialName"),
         subMaterialMasterId: parseValue<int>(json, "SubMaterialMasterId"),
@@ -237,6 +214,7 @@ class MaterialRequisitionDetailModel {
         uomMasterId: parseValue<int>(json, "UomMasterId"),
         uomCode: parseValue<String>(json, "UomCode"),
         uom: parseValue<String>(json, "Uom"),
+        remarks: parseValue<String>(json, "Remarks"),
         requiredDate: parseValue<DateTime>(json, "RequiredDate"),
         materialReceivedQuantityTillDate: parseValue<double>(
           json,
@@ -258,7 +236,6 @@ class MaterialRequisitionDetailModel {
     "MaterialRequisitionDetailId": materialRequisitionDetailId,
     "Uniquekey": uniquekey,
     "MaterialMasterId": materialMasterId,
-    "MaterialCode": materialCode,
     "MaterialName": materialName,
     "SubMaterialName": subMaterialName,
     "SubMaterialMasterId": subMaterialMasterId,
@@ -277,31 +254,11 @@ class MaterialRequisitionDetailModel {
     "IsChecked": isChecked,
   };
 
-  /// ✅ Deep clone (useful for editing dialogs)
-  factory MaterialRequisitionDetailModel.fromModel(
-    MaterialRequisitionDetailModel other,
-  ) {
-    return MaterialRequisitionDetailModel(
-      materialRequisitionDetailId: other.materialRequisitionDetailId,
-      uniquekey: other.uniquekey,
-      materialMasterId: other.materialMasterId,
-      materialCode: other.materialCode,
-      materialName: other.materialName,
-      subMaterialName: other.subMaterialName,
-      subMaterialMasterId: other.subMaterialMasterId,
-      materialQuantity: other.materialQuantity,
-      uomMasterId: other.uomMasterId,
-      uomCode: other.uomCode,
-      uom: other.uom,
-      requiredDate: other.requiredDate,
-      materialReceivedQuantityTillDate: other.materialReceivedQuantityTillDate,
-      createdById: other.createdById,
-      createdBy: other.createdBy,
-      createdDate: other.createdDate,
-      modifiedById: other.modifiedById,
-      modifiedBy: other.modifiedBy,
-      modifiedDate: other.modifiedDate,
-      isChecked: other.isChecked,
-    );
-  }
+  Map<String, dynamic> toJsonPayload() => {
+    'MaterialRequisitionDetailId': materialRequisitionDetailId,
+    'SubMaterialMasterId': subMaterialMasterId,
+    'MaterialQuantity': materialQuantity,
+    'UomMasterId': uomMasterId,
+    'RequiredDate': formatDateTimeForApi(requiredDate),
+  };
 }

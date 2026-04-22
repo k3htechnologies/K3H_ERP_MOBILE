@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
@@ -126,17 +127,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
       "Remarks": remarks,
       "RemoveAttachmentsURL": attachments.deletedFileList,
       "MaterialRequisitionDetailJSON": jsonEncode(
-        materialRequisitionDetailJSON
-            .map(
-              (e) => {
-                'MaterialRequisitionDetailId': e.materialRequisitionDetailId,
-                'SubMaterialMasterId': e.subMaterialMasterId,
-                'MaterialQuantity': e.materialQuantity,
-                'UomMasterId': e.uomMasterId,
-                'RequiredDate': formatDateTimeForApi(e.requiredDate),
-              },
-            )
-            .toList(),
+        materialRequisitionDetailJSON.map((e) => e.toJsonPayload()).toList(),
       ),
     };
 
@@ -185,17 +176,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
       "Uniquekey": uniqueKey,
       "RemoveAttachmentsURL": attachments.deletedFileList,
       "MaterialRequisitionDetailJSON": jsonEncode(
-        materialRequisitionDetailJSON
-            .map(
-              (e) => {
-                'MaterialRequisitionDetailId': e.materialRequisitionDetailId,
-                'SubMaterialMasterId': e.subMaterialMasterId,
-                'MaterialQuantity': e.materialQuantity,
-                'UomMasterId': e.uomMasterId,
-                'RequiredDate': formatDateTimeForApi(e.requiredDate),
-              },
-            )
-            .toList(),
+        materialRequisitionDetailJSON.map((e) => e.toJsonPayload()).toList(),
       ),
     };
     List<Map<String, dynamic>> fileList = [];
@@ -220,12 +201,23 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        getMaterialRequisitionList(context, 1, projectId);
-        goRouter.pop();
-        showSuccessMessage(
-          context,
-          subTitle: 'Channel Partner Added Successfully',
-        );
+        final updatedMaterialRequistion =
+            response['data'][0] as MaterialRequisitionModel;
+
+        if (state.materialRequisitionList.isNotEmpty &&
+            index < state.materialRequisitionList.length) {
+          final updatedList = List<MaterialRequisitionModel>.from(
+            state.materialRequisitionList,
+          );
+          updatedList[index] = updatedMaterialRequistion;
+          emit(
+            state.copyWith(
+              materialRequisitionList: updatedList,
+              isLoading: false,
+            ),
+          );
+        }
+        showSuccessMessage(context, subTitle: response['message']);
         goRouter.pop();
       },
     );
@@ -266,8 +258,6 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
         );
 
         showSuccessMessage(context, subTitle: response['message']);
-
-        showSuccessMessage(context);
       },
     );
   }
@@ -310,7 +300,9 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
     );
   }
 
-  void updateMaterialList(List<MaterialRequisitionDetailModel> materialList) {
+  void initializeMaterialList(
+    List<MaterialRequisitionDetailModel> materialList,
+  ) {
     emit(state.copyWith(materialList: materialList));
   }
 
@@ -324,5 +316,21 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
 
   Future<void> clearMaterialList() async {
     emit(state.copyWith(materialList: []));
+  }
+
+  void updateMaterialList(MaterialRequisitionDetailModel material, index) {
+    List<MaterialRequisitionDetailModel> existingMaterialList = List.from(
+      state.materialList,
+    );
+    existingMaterialList[index] = material;
+    emit(state.copyWith(materialList: existingMaterialList));
+  }
+
+  void deleteMaterial(index) {
+    List<MaterialRequisitionDetailModel> existingMaterialList = List.from(
+      state.materialList,
+    );
+    existingMaterialList.removeAt(index);
+    emit(state.copyWith(materialList: existingMaterialList));
   }
 }
