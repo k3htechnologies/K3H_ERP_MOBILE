@@ -341,7 +341,7 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
                           title: "Quantity",
                           hint: "Enter Received Quantity",
                           isRequired: true,
-                          inputFormatterList: InputValidator.percentage(),
+                          inputFormatterList: InputValidator.decimal(2),
                           keyboardType: TextInputType.numberWithOptions(),
                           textController: _quantityC,
                           validator: (value) {

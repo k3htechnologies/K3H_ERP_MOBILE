@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -16,6 +17,7 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/custom_file_preview_dialogue_content.dart';
 import 'package:k3h_erp_app/widgets/custom_snack_bar.dart';
 import 'package:open_filex/open_filex.dart';
@@ -744,4 +746,11 @@ void copy({required BuildContext context, required String text}) async {
   if (context.mounted) {
     showSuccessMessage(context, subTitle: '$text is Copied');
   }
+}
+
+UserModel getCurrentUser() {
+  var userJson = jsonDecode(
+    LocalStorageManager().getString(StorageKey.currentUser) ?? "",
+  );
+  return UserModel.fromJson(userJson);
 }

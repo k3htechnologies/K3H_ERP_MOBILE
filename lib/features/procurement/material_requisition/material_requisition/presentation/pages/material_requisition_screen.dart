@@ -227,6 +227,11 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                                               .toString(),
                                         ),
                                       ),
+                                      "uniquekey": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          materialRequisition.uniquekey,
+                                        ),
+                                      ),
                                     },
                                   );
                                 },
@@ -331,7 +336,6 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                         fixesWidth: 150,
                         value: addCommasToInteger(
                           materialRequisition.totalInvoice,
-                          
                         ),
                       ),
 

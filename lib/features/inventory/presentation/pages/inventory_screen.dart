@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
@@ -47,6 +48,7 @@ class _InventoryScreenState extends State<InventoryScreen>
 
   // CURRENT PROJECT
   late ProjectModel _project;
+  late UserModel user;
 
   // TEXT EDIT CONTROLLER
   late TextEditingController _searchC;
@@ -67,11 +69,11 @@ class _InventoryScreenState extends State<InventoryScreen>
         Authorization.routeAuthorizationMap[AppRoutes.inventory]!;
     _routeAuthorizationModelBooking =
         Authorization.routeAuthorizationMap[AppRoutes.booking]!;
-
+    user = getCurrentUser();
     _initControllers();
     _inventoryCubit = context.read<InventoryCubit>();
     _loginCubit = context.read<LoginCubit>();
-
+    print("user.department: ${user.department}");
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         if (_inventoryCubit.state.buildingList.isEmpty) {
@@ -909,7 +911,8 @@ class _InventoryScreenState extends State<InventoryScreen>
     //  EDIT → available, blocked, hold AND permission
     final showEdit =
         canAction &&
-        !isApproved &&
+        (!isApproved ||
+            (isApproved && user.department.toLowerCase() == 'sales')) &&
         (status == "available" || status == "blocked" || status == "hold");
 
     //  DELETE → only available AND permission
@@ -1006,6 +1009,9 @@ class _InventoryScreenState extends State<InventoryScreen>
                             "floorModel": Uri.encodeQueryComponent(
                               EncryptionManager.encryptData(jsonEncode(floor)),
                             ),
+                            "approval": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(approvalStatus),
+                            ),
                           },
                         );
 
@@ -1075,7 +1081,8 @@ class _InventoryScreenState extends State<InventoryScreen>
               flat.reraCarpetAreaSqFt != 0 &&
               flat.flatType != "" &&
               approvalStatus.toLowerCase() == "approved" &&
-              _routeAuthorizationModelBooking.isAction) ...[
+              _routeAuthorizationModelBooking.isAction &&
+              user.department.toLowerCase() == 'sales') ...[
             verticalSpacing(),
             CustomButton(
               text: "Book",

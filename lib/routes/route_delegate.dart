@@ -2831,6 +2831,8 @@ final GoRouter goRouter = GoRouter(
                     state.uri.queryParameters['flatModel'];
                 final queryParameterFloorModel =
                     state.uri.queryParameters['floorModel'];
+                final queryParameterApproval =
+                    state.uri.queryParameters['approval'];
 
                 FlatModel? flat;
                 FloorModel? floor;
@@ -2852,9 +2854,17 @@ final GoRouter goRouter = GoRouter(
                   );
                   floor = FloorModel.fromJson(floorJson);
                 }
+                final approval =
+                    queryParameterApproval != null
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeQueryComponent(queryParameterApproval),
+                        )
+                        : null;
+
                 return AddInventorySpecificationScreen(
                   flatModel: flat,
                   floorModel: floor,
+                  approval: approval,
                 );
               },
             ),
@@ -4570,8 +4580,8 @@ final GoRouter goRouter = GoRouter(
           builder: (context, state, child) {
             return MultiBlocProvider(
               providers: [
-                BlocProvider(create: (context) => MaterialRequisitionCubit()),
                 BlocProvider(create: (context) => FinalizeVendorCubit()),
+                BlocProvider(create: (context) => MaterialRequisitionCubit()),
               ],
               child: child,
             );
@@ -4648,6 +4658,8 @@ final GoRouter goRouter = GoRouter(
                     state.uri.queryParameters['materialRequisitionId'];
                 final queryParameterProjectId =
                     state.uri.queryParameters['projectId'];
+                final queryParameterUniquekey =
+                    state.uri.queryParameters['uniquekey'];
 
                 final materialRequisitionId =
                     queryParameterMaterialRequisitionId != null &&
@@ -4669,9 +4681,17 @@ final GoRouter goRouter = GoRouter(
                           ),
                         )
                         : 0;
+                final uniquekey =
+                    queryParameterUniquekey != null &&
+                            queryParameterUniquekey.isNotEmpty
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterUniquekey),
+                        )
+                        : "";
                 return MaterialRequisitionViewScreen(
                   materialRequisitionId: materialRequisitionId,
                   projectId: projectId,
+                  uniquekey: uniquekey,
                 );
               },
             ),

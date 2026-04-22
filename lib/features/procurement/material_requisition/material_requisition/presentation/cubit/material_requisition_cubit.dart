@@ -1,11 +1,12 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor.model.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/repository/finalize_vendor.repository.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/repository/material_requisition.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -20,6 +21,9 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
   // REPOSITORY
   final MaterialRequisitionRepository _materialRequisitionRepository =
       serviceLocator<MaterialRequisitionRepository>();
+  FinalizeVendorRepository finalizeVendorRepository =
+      serviceLocator<FinalizeVendorRepository>();
+
   void searchMaterialRequisition(
     BuildContext context,
     String searchText,
@@ -109,6 +113,37 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
 
         emit(state.copyWith(isLoading: false));
         return materialRequisitionDetails;
+      },
+    );
+  }
+
+  Future<List<RequisitionVendorModel>> getVendorForEnquiryList(
+    BuildContext context,
+    int projectId,
+    int materialRequisitionId,
+    String uniquekey,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    var result = await finalizeVendorRepository.getSelectedVendor(
+      projectId: projectId,
+      materialRequisitionId: materialRequisitionId,
+      uniquekey: uniquekey,
+    );
+
+    return result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+        return [];
+      },
+      (response) {
+        showSuccessMessage(context);
+        final List<RequisitionVendorModel> requisitionVendorList =
+            response['data'] as List<RequisitionVendorModel>;
+
+        emit(state.copyWith(isLoading: false));
+        return requisitionVendorList.isNotEmpty ? requisitionVendorList : [];
       },
     );
   }

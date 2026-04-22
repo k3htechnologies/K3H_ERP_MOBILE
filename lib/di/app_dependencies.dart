@@ -222,11 +222,11 @@ void initDependencies() {
   // PERFORMANCE REPORT DEPENDENCIES
   registerPerformanceReportDependencies(serviceLocator);
   // PROCUREMENT
+  registerMaterialRequisitionFinalizeVendorDependencies(serviceLocator);
   registerMaterialRequisitionDependencies(serviceLocator);
   //CRM
   // CRM PAY TRACK
   registerCRMPayTrackDependencies(serviceLocator);
-  registerMaterialRequisitionFinalizeVendorDependencies(serviceLocator);
   registerMaterialRequisitionPurchaseOrderDependencies(serviceLocator);
   registerMaterialRequisitionGRNDependencies(serviceLocator);
   registerMaterialRequisitionInvoiceDependencies(serviceLocator);

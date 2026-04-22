@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
@@ -28,10 +29,12 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 class AddInventorySpecificationScreen extends StatefulWidget {
   final FloorModel? floorModel;
   final FlatModel? flatModel;
+  final String? approval;
   const AddInventorySpecificationScreen({
     super.key,
     this.floorModel,
     this.flatModel,
+    this.approval,
   });
 
   @override
@@ -130,6 +133,8 @@ class _AddInventorySpecificationScreenState
   ValueNotifier<List<FlatSpecificationModel>> flatSpecificationList =
       ValueNotifier([]);
 
+  ValueNotifier<bool> readOnly = ValueNotifier(false);
+  late UserModel user;
   @override
   void initState() {
     super.initState();
@@ -137,6 +142,7 @@ class _AddInventorySpecificationScreenState
     _routeAuthorizationModel = AuthorizationModel();
     _inventoryCubit = context.read<InventoryCubit>();
     _initControllers();
+    user = getCurrentUser();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.flatModel != null) {
         _prefillFlat(widget.flatModel!);
@@ -168,6 +174,9 @@ class _AddInventorySpecificationScreenState
 
   // PREFILL FLAT DATA
   void _prefillFlat(FlatModel flat) {
+    readOnly.value =
+        user.department.toLowerCase() == 'sales' &&
+        (widget.approval ?? "").toLowerCase() == 'approved';
     // Handle flat number - might be empty when adding
     if (flat.flat.isNotEmpty) {
       _flatC.text = flat.flat.split('-').last.trimLeft();
@@ -506,21 +515,27 @@ class _AddInventorySpecificationScreenState
                   children: [
                     if (widget.flatModel != null || widget.floorModel != null)
                       _buildBuildingInfoCard(),
-                    CustomTextField(
-                      title: 'Unit',
-                      hint: 'Enter Unit',
-                      isRequired: true,
-                      textController: _flatC,
-                      maxLines: 1,
-                      inputFormatterList: [
-                        LengthLimitingTextInputFormatter(4),
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
-                      validator: (string) {
-                        if (string == null) {
-                          return 'Unit is required';
-                        }
-                        return null;
+                    ValueListenableBuilder(
+                      valueListenable: readOnly,
+                      builder: (context, value, child) {
+                        return CustomTextField(
+                          title: 'Unit',
+                          hint: 'Enter Unit',
+                          readOnly: value,
+                          isRequired: true,
+                          textController: _flatC,
+                          maxLines: 1,
+                          inputFormatterList: [
+                            LengthLimitingTextInputFormatter(4),
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          validator: (string) {
+                            if (string == null) {
+                              return 'Unit is required';
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
                     ValueListenableBuilder(
@@ -532,6 +547,7 @@ class _AddInventorySpecificationScreenState
                           ),
                           title: 'Unit Type',
                           hintText: "Select Unit Type",
+                          isDisabled: readOnly.value,
                           isRequired: true,
                           dataList: flatTypeList,
                           initialValue: typeValue,
@@ -566,6 +582,7 @@ class _AddInventorySpecificationScreenState
                                   'config_residential_${configValue?['zAttributesId']}',
                                 ),
                                 title: 'Unit Configuration',
+                                isDisabled: readOnly.value,
                                 hintText: 'Select Unit Configuration',
                                 isRequired: true,
                                 dataList: residentialFlatList,
@@ -593,6 +610,7 @@ class _AddInventorySpecificationScreenState
                                 title: 'Unit Configuration',
                                 hintText: 'Select Unit Configuration',
                                 isRequired: true,
+                                isDisabled: readOnly.value,
                                 dataList: commercialFlatList,
                                 initialValue: configValue,
                                 onSelected: (value) {
@@ -664,6 +682,7 @@ class _AddInventorySpecificationScreenState
                             'facing_${facingValue?['zAttributesId']}',
                           ),
                           title: 'Facing',
+                          isDisabled: readOnly.value,
                           hintText: 'Select Facing',
                           isRequired: true,
                           dataList: flatFacingList,
@@ -724,11 +743,19 @@ class _AddInventorySpecificationScreenState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('Unit Layout Form', style: AppTextStyle.ts16SB()),
-                        CustomButton(
-                          text: 'Add Unit Specification',
-                          backgroundColor: AppColor.primary,
-                          onPressed: () {
-                            _navigateToAddUnitSpecification();
+                        ValueListenableBuilder(
+                          valueListenable: readOnly,
+                          builder: (context, value, child) {
+                            return Visibility(
+                              visible: !value,
+                              child: CustomButton(
+                                text: 'Add Unit Specification',
+                                backgroundColor: AppColor.primary,
+                                onPressed: () {
+                                  _navigateToAddUnitSpecification();
+                                },
+                              ),
+                            );
                           },
                         ),
                       ],
@@ -791,41 +818,43 @@ class _AddInventorySpecificationScreenState
                                                       style:
                                                           AppTextStyle.ts14M(),
                                                     ),
-                                                    Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        CustomIconButton(
-                                                          onPressed: () {
-                                                            _navigateToAddUnitSpecification(
-                                                              unitSpec: spec,
-                                                              index: index,
-                                                            );
-                                                          },
-                                                          icon:
-                                                              SvgPicture.asset(
-                                                                AppAssets
-                                                                    .editIcon,
-                                                                height: 18,
-                                                                width: 18,
-                                                              ),
-                                                        ),
-                                                        horizontalSpacing(),
-                                                        CustomIconButton(
-                                                          onPressed: () {
-                                                            _showPopupToDeleteUnitSpecification(
-                                                              index,
-                                                            );
-                                                          },
-                                                          icon:
-                                                              SvgPicture.asset(
-                                                                AppAssets
-                                                                    .deleteIcon,
-                                                                height: 18,
-                                                                width: 18,
-                                                              ),
-                                                        ),
-                                                      ],
+                                                    Visibility(
+                                                      visible: !readOnly.value,
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          CustomIconButton(
+                                                            onPressed: () {
+                                                              _navigateToAddUnitSpecification(
+                                                                unitSpec: spec,
+                                                                index: index,
+                                                              );
+                                                            },
+                                                            icon:
+                                                                SvgPicture.asset(
+                                                                  AppAssets
+                                                                      .editIcon,
+                                                                  height: 18,
+                                                                  width: 18,
+                                                                ),
+                                                          ),
+                                                          horizontalSpacing(),
+                                                          CustomIconButton(
+                                                            onPressed: () {
+                                                              _showPopupToDeleteUnitSpecification(
+                                                                index,
+                                                              );
+                                                            },
+                                                            icon: SvgPicture.asset(
+                                                              AppAssets
+                                                                  .deleteIcon,
+                                                              height: 18,
+                                                              width: 18,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ],
                                                 ),

@@ -1,9 +1,6 @@
 // SAME IMPORTS (unchanged)
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/modules_workflow_approval.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
@@ -24,7 +21,6 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
-import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -314,7 +310,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _selectedProjectNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     _selectedFlatNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     _flatDetailsNotifier = ValueNotifier(null);
-    getCurrentUser();
+    user = getCurrentUser();
     _project = getProject();
     if (_isEditMode) {
       _populateForm(widget.enquiryModel!);
@@ -380,13 +376,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _teamMemberMobileC = TextEditingController();
     _remarkC = TextEditingController();
     otpController = TextEditingController();
-  }
-
-  Future getCurrentUser() async {
-    var userJson = jsonDecode(
-      LocalStorageManager().getString(StorageKey.currentUser) ?? "",
-    );
-    user = UserModel.fromJson(userJson);
   }
 
   Future<void> _fetchFlatDetailsById(int flatId, int projectId) async {

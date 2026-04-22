@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
@@ -23,11 +24,13 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class MaterialRequisitionViewScreen extends StatefulWidget {
   final int materialRequisitionId;
   final int projectId;
+  final String uniquekey;
 
   const MaterialRequisitionViewScreen({
     super.key,
     required this.materialRequisitionId,
     required this.projectId,
+    required this.uniquekey,
   });
 
   @override
@@ -47,6 +50,9 @@ class _MaterialRequisitionViewScreenState
   late PurchaseOrderCubit _purchaseOrderCubit;
   final ValueNotifier<MaterialRequisitionModel?> materialRequisitionOverview =
       ValueNotifier(null);
+  final ValueNotifier<List<RequisitionVendorModel>> vendorList = ValueNotifier(
+    [],
+  );
 
   final ValueNotifier<List<dynamic>> selectedVendorList = ValueNotifier([]);
   final Set<int> selectedVendorIndex = {};
@@ -69,7 +75,15 @@ class _MaterialRequisitionViewScreenState
           widget.projectId,
           widget.materialRequisitionId,
         );
-
+    if (context.mounted) {
+      vendorList.value = await _materialRequisitionCubit
+          .getVendorForEnquiryList(
+            context,
+            widget.projectId,
+            widget.materialRequisitionId,
+            widget.uniquekey,
+          );
+    }
     if (materialRequisitionOverview.value?.uniquekey != null &&
         materialRequisitionOverview.value!.uniquekey.isNotEmpty) {
       final vendors = await _finalizeVendorCubit.getSelectedVenodeForCompare(
@@ -129,6 +143,11 @@ class _MaterialRequisitionViewScreenState
     _tabController.dispose();
   }
 
+  double get totalQuantity => materialRequisitionOverview
+      .value!
+      .materialRequisitionDetailData
+      .fold(0.0, (p, e) => p + e.materialQuantity);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -179,6 +198,7 @@ class _MaterialRequisitionViewScreenState
       return Center(child: CircularProgressIndicator());
     }
     final materialRequisition = materialRequisitionOverview.value;
+    final materialList = materialRequisition?.materialRequisitionDetailData;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
 
@@ -240,6 +260,83 @@ class _MaterialRequisitionViewScreenState
                       ),
                     ),
                   ],
+                ),
+              ],
+            ),
+          ),
+
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: commonCardDecoration(),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Material Details",
+                  style: AppTextStyle.ts16SB(color: AppColor.black),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5.r),
+                    color: AppColor.grey10,
+                  ),
+                  padding: EdgeInsets.all(10),
+                  child: Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Total Material",
+                        value:
+                            materialRequisition
+                                .materialRequisitionDetailData
+                                .length
+                                .toString(),
+                      ),
+                      buildColumnTitleValue(
+                        title: "Total Quantity",
+                        value: totalQuantity.toString(),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 200,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+
+                    itemCount: materialList!.length,
+                    itemBuilder: (context, index) {
+                      final material = materialList[index];
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildRowTitleValue(
+                            title: "Material Name",
+                            value: material.materialName,
+                          ),
+                          buildRowTitleValue(
+                            title: "Sub-Material",
+                            value: material.subMaterialName,
+                          ),
+                          buildRowTitleValue(
+                            title: "Quantity",
+                            value: addCommasToInteger(
+                              material.materialQuantity,
+                              withoutSign: true,
+                            ),
+                          ),
+                          buildRowTitleValue(
+                            title: "Remark",
+                            value: material.remarks,
+                          ),
+                          if (index < (materialList.length - 1))
+                            Divider(color: AppColor.grey, thickness: .3),
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
