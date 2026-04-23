@@ -73,7 +73,6 @@ class _InventoryScreenState extends State<InventoryScreen>
     _initControllers();
     _inventoryCubit = context.read<InventoryCubit>();
     _loginCubit = context.read<LoginCubit>();
-    print("user.department: ${user.department}");
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         if (_inventoryCubit.state.buildingList.isEmpty) {
