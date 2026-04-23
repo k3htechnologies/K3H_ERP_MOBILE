@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
+import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -891,31 +892,26 @@ class _InventoryScreenState extends State<InventoryScreen>
     if (!canView && !canAction) {
       return const SizedBox.shrink();
     }
-
     final status = flat.flatStatus.toLowerCase();
 
     final isApproved =
         approvalStatus.toLowerCase() == "approved" ||
         approvalStatus.toLowerCase() == "partial approved";
 
-    //  VIEW → only booked & allotted AND permission
-    final showView =
-        (canView && (status == "booked" || status == "alloted")) ||
-        (!canAction &&
-            (status == "available" ||
-                status == "blocked" ||
-                status == "hold")) ||
-        (canAction && isApproved);
+    final showView = (status == "booked" || status == "alloted");
 
-    //  EDIT → available, blocked, hold AND permission
     final showEdit =
-        canAction &&
-        (!isApproved ||
-            (isApproved &&  user.department.toLowerCase() == 'sales')) &&
+        (canAction || _routeAuthorizationModelBooking.isAction) &&
         (status == "available" || status == "blocked" || status == "hold");
 
-    //  DELETE → only available AND permission
     final showDelete = canAction && status == "available" && !isApproved;
+
+    final showBookBtn =
+        status == "available" &&
+        approvalStatus.toLowerCase() == "approved" &&
+        flat.flatType != "" &&
+        flat.reraCarpetAreaSqFt > 0 &&
+        (canAction || _routeAuthorizationModelBooking.isAction);
 
     return Container(
       width: double.infinity,
@@ -980,11 +976,26 @@ class _InventoryScreenState extends State<InventoryScreen>
                   if (showView)
                     GestureDetector(
                       onTap: () {
+                        // goRouter.pushNamed(
+                        //   AppRoutes.viewUnitSpecification,
+                        //   queryParameters: {
+                        //     "flatModel": Uri.encodeQueryComponent(
+                        //       EncryptionManager.encryptData(jsonEncode(flat)),
+                        //     ),
+                        //   },
+                        // );
+
                         goRouter.pushNamed(
-                          AppRoutes.viewUnitSpecification,
+                          AppRoutes.addInventorySpecification,
                           queryParameters: {
                             "flatModel": Uri.encodeQueryComponent(
                               EncryptionManager.encryptData(jsonEncode(flat)),
+                            ),
+                            "floorModel": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(jsonEncode(floor)),
+                            ),
+                            "approval": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(approvalStatus),
                             ),
                           },
                         );
@@ -996,7 +1007,6 @@ class _InventoryScreenState extends State<InventoryScreen>
                     ),
 
                   if (showEdit) ...[
-                    const SizedBox(width: 15),
                     GestureDetector(
                       onTap: () async {
                         await goRouter.pushNamed(
@@ -1076,11 +1086,7 @@ class _InventoryScreenState extends State<InventoryScreen>
               ),
             ),
           ],
-          if (flat.flatStatus.toLowerCase() == "available" &&
-              flat.reraCarpetAreaSqFt != 0 &&
-              flat.flatType != "" &&
-              approvalStatus.toLowerCase() == "approved" &&
-              _routeAuthorizationModelBooking.isAction) ...[
+          if (showBookBtn) ...[
             verticalSpacing(),
             CustomButton(
               text: "Book",

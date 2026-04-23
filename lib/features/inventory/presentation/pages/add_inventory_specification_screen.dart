@@ -49,6 +49,7 @@ class _AddInventorySpecificationScreenState
 
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
+  late AuthorizationModel _routeAuthorizationModelBooking;
 
   // CURRENT PROJECT
   late ProjectModel _project;
@@ -133,14 +134,26 @@ class _AddInventorySpecificationScreenState
   ValueNotifier<List<FlatSpecificationModel>> flatSpecificationList =
       ValueNotifier([]);
 
-  ValueNotifier<bool> readOnly = ValueNotifier(false);
   late UserModel user;
+
+  ValueNotifier<bool> isFlatLocked = ValueNotifier(false);
+  ValueNotifier<bool> isApproved = ValueNotifier(false);
+  ValueNotifier<bool> canFullEdit = ValueNotifier(false);
+  ValueNotifier<bool> canStatusEditOnly = ValueNotifier(false);
+  ValueNotifier<bool> isChange = ValueNotifier(false);
+  ValueNotifier<bool> disabled = ValueNotifier(false);
+  ValueNotifier<bool> statusDisabled = ValueNotifier(false);
+
   @override
   void initState() {
     super.initState();
     _project = getProject();
-    _routeAuthorizationModel = AuthorizationModel();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.inventory]!;
+    _routeAuthorizationModelBooking =
+        Authorization.routeAuthorizationMap[AppRoutes.booking]!;
     _inventoryCubit = context.read<InventoryCubit>();
+    _initAccess();
     _initControllers();
     user = getCurrentUser();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -162,6 +175,33 @@ class _AddInventorySpecificationScreenState
     flatSpecificationList.dispose();
   }
 
+  void _initAccess() {
+    isFlatLocked.value = [
+      "Alloted",
+      "Booked",
+    ].contains(widget.flatModel?.flatStatus);
+
+    isApproved.value =
+        widget.approval?.toUpperCase().contains("APPROVED") ?? false;
+
+    canFullEdit.value =
+        _routeAuthorizationModel.isAction &&
+        !isFlatLocked.value &&
+        !isApproved.value;
+
+    canStatusEditOnly.value =
+        _routeAuthorizationModelBooking.isAction &&
+        isApproved.value &&
+        !isFlatLocked.value;
+
+    isChange.value = canFullEdit.value;
+
+    disabled.value = !canFullEdit.value;
+
+    statusDisabled.value =
+        (canFullEdit.value) ? false : !canStatusEditOnly.value;
+  }
+
   // INITIALIZE CONTROLLERS
   void _initControllers() {
     _flatC = TextEditingController();
@@ -174,9 +214,6 @@ class _AddInventorySpecificationScreenState
 
   // PREFILL FLAT DATA
   void _prefillFlat(FlatModel flat) {
-    readOnly.value =
-        user.department.toLowerCase() == 'sales' &&
-        (widget.approval ?? "").toLowerCase() == 'approved';
     // Handle flat number - might be empty when adding
     if (flat.flat.isNotEmpty) {
       _flatC.text = flat.flat.split('-').last.trimLeft();
@@ -499,7 +536,7 @@ class _AddInventorySpecificationScreenState
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: "Inventory Specification Form",
-        authorization: _routeAuthorizationModel,
+        authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
@@ -516,7 +553,7 @@ class _AddInventorySpecificationScreenState
                     if (widget.flatModel != null || widget.floorModel != null)
                       _buildBuildingInfoCard(),
                     ValueListenableBuilder(
-                      valueListenable: readOnly,
+                      valueListenable: disabled,
                       builder: (context, value, child) {
                         return CustomTextField(
                           title: 'Unit',
@@ -526,8 +563,9 @@ class _AddInventorySpecificationScreenState
                           textController: _flatC,
                           maxLines: 1,
                           inputFormatterList: [
-                            LengthLimitingTextInputFormatter(4),
-                            FilteringTextInputFormatter.digitsOnly,
+                            FilteringTextInputFormatter.allow(
+                              RegExp(r'[0-9,]'),
+                            ),
                           ],
                           validator: (string) {
                             if (string == null) {
@@ -547,7 +585,7 @@ class _AddInventorySpecificationScreenState
                           ),
                           title: 'Unit Type',
                           hintText: "Select Unit Type",
-                          isDisabled: readOnly.value,
+                          isDisabled: disabled.value,
                           isRequired: true,
                           dataList: flatTypeList,
                           initialValue: typeValue,
@@ -582,7 +620,7 @@ class _AddInventorySpecificationScreenState
                                   'config_residential_${configValue?['zAttributesId']}',
                                 ),
                                 title: 'Unit Configuration',
-                                isDisabled: readOnly.value,
+                                isDisabled: disabled.value,
                                 hintText: 'Select Unit Configuration',
                                 isRequired: true,
                                 dataList: residentialFlatList,
@@ -610,7 +648,7 @@ class _AddInventorySpecificationScreenState
                                 title: 'Unit Configuration',
                                 hintText: 'Select Unit Configuration',
                                 isRequired: true,
-                                isDisabled: readOnly.value,
+                                isDisabled: disabled.value,
                                 dataList: commercialFlatList,
                                 initialValue: configValue,
                                 onSelected: (value) {
@@ -682,7 +720,7 @@ class _AddInventorySpecificationScreenState
                             'facing_${facingValue?['zAttributesId']}',
                           ),
                           title: 'Facing',
-                          isDisabled: readOnly.value,
+                          isDisabled: disabled.value,
                           hintText: 'Select Facing',
                           isRequired: true,
                           dataList: flatFacingList,
@@ -710,6 +748,7 @@ class _AddInventorySpecificationScreenState
                             'status_${statusValue?['zAttributesId'] ?? ""}',
                           ),
                           title: 'Status',
+                          isDisabled: statusDisabled.value,
                           hintText: 'Select Status',
                           isRequired: true,
                           dataList: flatStatusList,
@@ -744,10 +783,10 @@ class _AddInventorySpecificationScreenState
                       children: [
                         Text('Unit Layout Form', style: AppTextStyle.ts16SB()),
                         ValueListenableBuilder(
-                          valueListenable: readOnly,
+                          valueListenable: canFullEdit,
                           builder: (context, value, child) {
                             return Visibility(
-                              visible: !value,
+                              visible: (value && !isApproved.value),
                               child: CustomButton(
                                 text: 'Add Unit Specification',
                                 backgroundColor: AppColor.primary,
@@ -819,7 +858,10 @@ class _AddInventorySpecificationScreenState
                                                           AppTextStyle.ts14M(),
                                                     ),
                                                     Visibility(
-                                                      visible: !readOnly.value,
+                                                      visible:
+                                                          (canFullEdit.value &&
+                                                              !isApproved
+                                                                  .value),
                                                       child: Row(
                                                         mainAxisSize:
                                                             MainAxisSize.min,
@@ -919,19 +961,32 @@ class _AddInventorySpecificationScreenState
           ),
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          height: 70,
-          padding: EdgeInsets.all(16),
-          child: CustomButton(
-            text:
-                (widget.flatModel != null &&
-                        widget.flatModel!.inventoryFlatId > 0)
-                    ? "Update Specification"
-                    : "Save Specification",
-            onPressed: _handleSubmit,
-          ),
-        ),
+      bottomNavigationBar: ValueListenableBuilder(
+        valueListenable: canStatusEditOnly,
+        builder: (context, value, child) {
+          return ValueListenableBuilder(
+            valueListenable: canFullEdit,
+            builder: (context, value, child) {
+              if (!canFullEdit.value && !canStatusEditOnly.value) {
+                return SizedBox.shrink();
+              }
+              return SafeArea(
+                child: Container(
+                  height: 70,
+                  padding: EdgeInsets.all(16),
+                  child: CustomButton(
+                    text:
+                        (widget.flatModel != null &&
+                                widget.flatModel!.inventoryFlatId > 0)
+                            ? "Update Specification"
+                            : "Save Specification",
+                    onPressed: _handleSubmit,
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
