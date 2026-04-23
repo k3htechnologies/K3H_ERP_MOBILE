@@ -17,7 +17,8 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddBrokeragePayment extends StatefulWidget {
   final PaidBrokerageBookingModel? paidBrokerageBookingModel;
-  const AddBrokeragePayment({super.key, this.paidBrokerageBookingModel});
+  final int? index;
+  const AddBrokeragePayment({super.key, this.paidBrokerageBookingModel,this.index});
 
   @override
   State<AddBrokeragePayment> createState() => _AddBrokeragePaymentState();
@@ -27,6 +28,9 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
   // REPOSITORY
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
+
+  // FORM KEY
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // TEXT EDITING CONTROLLERS
   late TextEditingController _amountC, _tdsAmountC, _transactionNumberC;
@@ -135,133 +139,155 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Text(
-              _isEditMode ? "Update Payment" : "Add Payment",
-              style: AppTextStyle.ts16SB(),
-            ),
-            verticalSpacing(),
-            ValueListenableBuilder(
-              valueListenable: _selectedPaymentModeNotifier,
-              builder: (context, selectedPaymentMode, _) {
-                return CustomDropDownWidget(
-                  title: "Payment Mode",
-                  isRequired: true,
-                  initialValue: selectedPaymentMode.first,
-                  dataList: _paymentModeList,
-                  onSelected: (value) {
-                    _selectedPaymentModeNotifier.value = [value];
-                  },
-                  onValueClear: () {
-                    _selectedPaymentModeNotifier.value = [];
-                  },
-                );
-              },
-            ),
-            ValueListenableBuilder(
-              valueListenable: _selectedBankNotifier,
-              builder: (context, selectedBank, _) {
-                return CustomMultipleSelectPopup(
-                  title: 'Bank',
-                  hintText: "Select Bank",
-                  isRequired: true,
-                  isMultiSelect: false,
-                  initialValue: selectedBank,
-                  dataList: const [],
-                  onSelected: (value) {
-                    _selectedBankNotifier.value = value;
-                  },
-                  dataFetchCallBack: _fetchBanks,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Bank Name is required";
-                    }
-                    return null;
-                  },
-                  onClear: () {
-                    _selectedBankNotifier.value = [];
-                  },
-                );
-              },
-            ),
-            ValueListenableBuilder(
-              valueListenable: _selectedPaymentTypeNotifier,
-              builder: (context, selectedPaymentType, _) {
-                return CustomDropDownWidget(
-
-                  title: "Payment Type",
-                  isRequired: true,
-                  initialValue: selectedPaymentType.first,
-                  dataList: _paymentTypeList,
-                  onSelected: (value) {
-                    _selectedPaymentTypeNotifier.value = [value];
-                  },
-                  onValueClear: () {
-                    _selectedPaymentTypeNotifier.value = [];
-                  },
-                );
-              },
-            ),
-            CustomTextField(
-              textController: _amountC,
-              isRequired: true,
-              title: "Amount",
-              hint: "Enter Amount",
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return "Amount is required";
-                }
-                return null;
-              },
-            ),
-            CustomTextField(
-              textController: _tdsAmountC,
-              isRequired: true,
-              title: "TDS Amount",
-              hint: "Enter TDS Amount",
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return "TDS Amount is required";
-                }
-                return null;
-              },
-            ),
-            CustomTextField(
-              textController: _transactionNumberC,
-              isRequired: true,
-              title: "Transaction/Cheque Number",
-              hint: "Enter Transaction/Cheque Number",
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return "Transaction/Cheque Number is required";
-                }
-                return null;
-              },
-            ),
-            CustomMultiFilePicker(
-              title: 'Transaction/Cheque Receipt',
-              filePickType: FilePickType.both,
-              maxFiles: 1,
-              isRequired: true,
-              initialFileList: selectedTransactionOrChequeFile.fileNameList,
-              onFilePickedCallback: (bytesList, fileNameList) {
-                selectedTransactionOrChequeFile.fileNameList = fileNameList;
-                selectedTransactionOrChequeFile.fileBytesList = bytesList;
-              },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return "Transaction/Cheque Receipt is required";
-                }
-                return null;
-              },
-              onFileDeleteCallback: (fileBytesList, fileNameList, deletedFile) {
-                selectedTransactionOrChequeFile.fileNameList = fileNameList;
-                selectedTransactionOrChequeFile.fileBytesList = fileBytesList;
-                selectedTransactionOrChequeFile.deletedFileList = deletedFile;
-              },
-            ),
-          ],
+        padding: EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _isEditMode ? "Update Payment" : "Add Payment",
+                style: AppTextStyle.ts16SB(),
+              ),
+              verticalSpacing(),
+              ValueListenableBuilder(
+                valueListenable: _selectedPaymentModeNotifier,
+                builder: (context, selectedPaymentMode, _) {
+                  return CustomDropDownWidget(
+                    title: "Payment Mode",
+                    hintText: "Select Payment Mode",
+                    isRequired: true,
+                    initialValue: selectedPaymentMode.isNotEmpty
+                        ? selectedPaymentMode.first
+                        : null,
+                    dataList: _paymentModeList,
+                    onSelected: (value) {
+                      _selectedPaymentModeNotifier.value = [value];
+                    },
+                    validator: (value){
+                      if (value == null || value.isEmpty) {
+                        return "Payment Mode is required";
+                      }
+                      return null;
+                    },
+                    onValueClear: () {
+                      _selectedPaymentModeNotifier.value = [];
+                    },
+                  );
+                },
+              ),
+              ValueListenableBuilder(
+                valueListenable: _selectedBankNotifier,
+                builder: (context, selectedBank, _) {
+                  return CustomMultipleSelectPopup(
+                    title: 'Bank',
+                    hintText: "Select Bank",
+                    isRequired: true,
+                    isMultiSelect: false,
+                    initialValue: selectedBank,
+                    dataList: const [],
+                    onSelected: (value) {
+                      _selectedBankNotifier.value = value;
+                    },
+                    dataFetchCallBack: _fetchBanks,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Bank Name is required";
+                      }
+                      return null;
+                    },
+                    onClear: () {
+                      _selectedBankNotifier.value = [];
+                    },
+                  );
+                },
+              ),
+              ValueListenableBuilder(
+                valueListenable: _selectedPaymentTypeNotifier,
+                builder: (context, selectedPaymentType, _) {
+                  return CustomDropDownWidget(
+                    title: "Payment Type",
+                    hintText: "Select Payment Type",
+                    isRequired: true,
+                    initialValue: selectedPaymentType.isNotEmpty
+                        ? selectedPaymentType.first
+                        : null,
+                    dataList: _paymentTypeList,
+                    onSelected: (value) {
+                      _selectedPaymentTypeNotifier.value = [value];
+                    },
+                    validator: (value){
+                      if (value == null || value.isEmpty) {
+                        return "Payment Type is required";
+                      }
+                      return null;
+                    },
+                    onValueClear: () {
+                      _selectedPaymentTypeNotifier.value = [];
+                    },
+                  );
+                },
+              ),
+              CustomTextField(
+                textController: _amountC,
+                isRequired: true,
+                title: "Amount",
+                hint: "Enter Amount",
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Amount is required";
+                  }
+                  return null;
+                },
+              ),
+              CustomTextField(
+                textController: _tdsAmountC,
+                isRequired: true,
+                title: "TDS Amount",
+                hint: "Enter TDS Amount",
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "TDS Amount is required";
+                  }
+                  return null;
+                },
+              ),
+              CustomTextField(
+                textController: _transactionNumberC,
+                isRequired: true,
+                title: "Transaction/Cheque Number",
+                hint: "Enter Transaction/Cheque Number",
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Transaction/Cheque Number is required";
+                  }
+                  return null;
+                },
+              ),
+              CustomMultiFilePicker(
+                title: 'Transaction/Cheque Receipt',
+                filePickType: FilePickType.both,
+                maxFiles: 1,
+                isRequired: true,
+                initialFileList: selectedTransactionOrChequeFile.fileNameList,
+                onFilePickedCallback: (bytesList, fileNameList) {
+                  selectedTransactionOrChequeFile.fileNameList = fileNameList;
+                  selectedTransactionOrChequeFile.fileBytesList = bytesList;
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Transaction/Cheque Receipt is required";
+                  }
+                  return null;
+                },
+                onFileDeleteCallback: (fileBytesList, fileNameList, deletedFile) {
+                  selectedTransactionOrChequeFile.fileNameList = fileNameList;
+                  selectedTransactionOrChequeFile.fileBytesList = fileBytesList;
+                  selectedTransactionOrChequeFile.deletedFileList = deletedFile;
+                },
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -276,7 +302,11 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
               color: AppColor.white,
             ),
             text: _isEditMode ? "Update" : "Add",
-            onPressed: () {},
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+
+              }
+            },
           ),
         ),
       ),

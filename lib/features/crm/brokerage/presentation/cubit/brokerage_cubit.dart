@@ -418,7 +418,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       "AmountPaid": amountPaid,
       "TDSAmount": tDSAmount,
       "TransactionNumber": transactionNumber,
-      "RemoveUploadInvoiceURL": transactionReceiptFiles.deletedFileList,
+      "RemoveTransactionReceiptURL": transactionReceiptFiles.deletedFileList,
     };
 
     List<Map<String, dynamic>> fileList = [];

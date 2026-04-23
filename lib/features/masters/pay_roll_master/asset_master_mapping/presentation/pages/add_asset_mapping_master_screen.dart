@@ -342,6 +342,7 @@ class _AddAssetMappingMasterScreenState
                           children: [
                             CustomMultipleSelectPopup(
                               title: 'Asset',
+                              hintText: "Select Asset",
                               isReadOnly: _isEditMode
                                   ? !(widget.assetMapping?.isEditAllowedForAssetAndEmployee ?? false)
                                   : false,
@@ -451,6 +452,7 @@ class _AddAssetMappingMasterScreenState
                           children: [
                             CustomMultipleSelectPopup(
                               title: 'Employee',
+                              hintText: "Select Employee",
                               isReadOnly: _isEditMode
                                   ? !(widget.assetMapping?.isEditAllowedForAssetAndEmployee ?? false)
                                   : false,

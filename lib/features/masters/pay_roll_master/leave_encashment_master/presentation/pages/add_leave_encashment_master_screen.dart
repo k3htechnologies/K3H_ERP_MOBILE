@@ -194,6 +194,7 @@ class _AddLeaveEncashmentMasterScreenState
                   children: [
                     CustomMultipleSelectPopup(
                       title: 'Earning Name',
+                      hintText: "Select Earning Name",
                       isMultiSelect: true,
                       initialValue: _selectedEarning,
                       dataList: earningList,

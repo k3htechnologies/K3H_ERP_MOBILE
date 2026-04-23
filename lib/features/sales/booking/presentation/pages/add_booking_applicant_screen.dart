@@ -425,8 +425,18 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                   CustomTextField(
                     title: 'Email Id',
                     hint: "Enter Email Id",
+                    isRequired: true,
                     textController: _emailC,
                     inputFormatterList: InputValidator.emailInputFormatters(),
+                    validator: (value){
+                      if (value == null || value.trim().isEmpty) {
+                        return "Email Id is required";
+                      }
+                      if (!InputValidator.isValidEmail(value)) {
+                        return "Invalid Email Id";
+                      }
+                      return null;
+                    },
                   ),
                   CustomMultiFilePicker(
                     title: "Profile Photo",

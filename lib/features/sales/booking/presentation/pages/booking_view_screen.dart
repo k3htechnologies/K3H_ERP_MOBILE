@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
@@ -1098,12 +1099,12 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Agreement Value (₹) With TDS",
-                      value: "₹ ${bookingModel!.agreementValue}",
+                      value: "₹ ${bookingModel!.agreementValue.displayFormatedAmount()}",
                     ),
                     buildColumnTitleValue(
                       title: "Agreement Value (₹) Without TDS",
                       value:
-                          "₹ ${(bookingModel!.agreementValue - bookingModel!.agreementValueTDS)}",
+                          "₹ ${(bookingModel!.agreementValue - bookingModel!.agreementValueTDS).displayFormatedAmount()}",
                     ),
                   ],
                 ),
@@ -1113,7 +1114,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "TDS (₹)",
-                      value: "₹ ${bookingModel!.agreementValueTDS}",
+                      value: "₹ ${bookingModel!.agreementValueTDS.displayFormatedAmount()}",
                     ),
                     buildColumnTitleValue(
                       title: "GST (%)",
@@ -1127,7 +1128,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "GST (₹)",
-                      value: "₹ ${bookingModel!.agreementValueGSTAmount}",
+                      value: "₹ ${bookingModel!.agreementValueGSTAmount.displayFormatedAmount()}",
                     ),
                     buildColumnTitleValue(
                       title: "Stamp Duty (%)",
@@ -1141,11 +1142,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Stamp Duty (₹)",
-                      value: "₹ ${bookingModel!.stampDutyAmount}",
+                      value: "₹ ${bookingModel!.stampDutyAmount.displayFormatedAmount()}",
                     ),
                     buildColumnTitleValue(
                       title: "Registration Fees (₹)",
-                      value: "₹ ${bookingModel!.registrationFees}",
+                      value: "₹ ${bookingModel!.registrationFees.displayFormatedAmount()}",
                     ),
                   ],
                 ),
@@ -1155,7 +1156,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Booking Amount (₹)",
-                      value: "₹ ${bookingModel!.bookingAmount}",
+                      value: "₹ ${bookingModel!.bookingAmount.displayFormatedAmount()}",
                     ),
                   ],
                 ),
@@ -1170,7 +1171,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       ),
                       buildColumnTitleValue(
                         title: "Loyalty Amount (₹)",
-                        value: "₹ ${bookingModel!.loyaltyAmount}",
+                        value: "₹ ${bookingModel!.loyaltyAmount.displayFormatedAmount()}",
                       ),
                     ],
                   ),
@@ -1185,7 +1186,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       ),
                       buildColumnTitleValue(
                         title: "Brokerage Amount (₹)",
-                        value: "₹ ${bookingModel!.brokerageAmount}",
+                        value: "₹ ${bookingModel!.brokerageAmount.displayFormatedAmount()}",
                       ),
                     ],
                   ),
@@ -1200,7 +1201,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       ),
                       buildColumnTitleValue(
                         title: "Employee Reference Amount (₹)",
-                        value: "₹ ${bookingModel!.employeeReferenceAmount}",
+                        value: "₹ ${bookingModel!.employeeReferenceAmount.displayFormatedAmount()}",
                       ),
                     ],
                   ),
@@ -1303,7 +1304,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                       children: [
                                         buildColumnTitleValue(
                                           title: "Value (In ₹)",
-                                          value: "${extraCharge.value}",
+                                          value: "₹ ${extraCharge.value.displayFormatedAmount()}",
                                         ),
                                         buildColumnTitleValue(
                                           title: "GST (%)",
@@ -1317,7 +1318,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                       children: [
                                         buildColumnTitleValue(
                                           title: "GST Value (₹)",
-                                          value: "₹ ${extraCharge.gstValue}",
+                                          value: "₹ ${extraCharge.gstValue.displayFormatedAmount()}",
                                         ),
                                       ],
                                     ),
@@ -1404,7 +1405,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 ),
                                 buildColumnTitleValue(
                                   title: "Amount (₹)",
-                                  value: "₹ ${payment.paymentScheduleAmount}",
+                                  value: "₹ ${payment.paymentScheduleAmount.displayFormatedAmount()}",
                                 ),
                               ],
                             ),
@@ -1415,7 +1416,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 buildColumnTitleValue(
                                   title: "GST Amount (₹)",
                                   value:
-                                      "₹ ${payment.paymentScheduleGSTAmount}",
+                                      "₹ ${payment.paymentScheduleGSTAmount.displayFormatedAmount()}",
                                 ),
                                 buildColumnTitleValue(
                                   title: "TDS Amount (₹)",
@@ -2054,7 +2055,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 children: [
                   buildColumnTitleValue(
                     title: "Value (In ₹)",
-                    value: "${extraCharge.value}",
+                    value: "₹ ${extraCharge.value.displayFormatedAmount()}",
                   ),
                   buildColumnTitleValue(
                     title: "GST (%)",
@@ -2066,7 +2067,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 children: [
                   buildColumnTitleValue(
                     title: "GST Value (₹)",
-                    value: "₹ ${extraCharge.gstValue}",
+                    value: "₹ ${extraCharge.gstValue.displayFormatedAmount()}",
                   ),
                 ],
               ),
@@ -2125,7 +2126,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   ),
                   buildColumnTitleValue(
                     title: "Amount (₹)",
-                    value: "₹ ${payment.paymentScheduleAmount}",
+                    value: "₹ ${payment.paymentScheduleAmount.displayFormatedAmount()}",
                   ),
                 ],
               ),
@@ -2135,15 +2136,14 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 children: [
                   buildColumnTitleValue(
                     title: "GST Amount (₹)",
-                    value: "₹ ${payment.paymentScheduleGSTAmount}",
+                    value: "₹ ${payment.paymentScheduleGSTAmount.displayFormatedAmount()}",
                   ),
                   buildColumnTitleValue(
                     title: "TDS Amount (₹)",
-                    value: "₹ ${payment.paymentScheduleTDSAmount}",
+                    value: "₹ ${payment.paymentScheduleTDSAmount.displayFormatedAmount()}",
                   ),
                 ],
               ),
-              Row(children: []),
             ],
           ),
         );
@@ -2296,7 +2296,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Booking Amount",
-                      value: "₹ ${bookingModel!.bookingAmount}",
+                      value: "₹ ${bookingModel!.bookingAmount.displayFormatedAmount()}",
                     ),
                   ],
                 ),

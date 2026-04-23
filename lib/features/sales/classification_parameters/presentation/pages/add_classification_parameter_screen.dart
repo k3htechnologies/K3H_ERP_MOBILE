@@ -15,7 +15,6 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 class AddClassificationParameterScreen extends StatefulWidget {
   final ClassificationParameterModel? classificationParamterModel;
@@ -42,9 +41,6 @@ class _AddClassificationParameterScreenState
   // FORM KEY
   final GlobalKey<FormState> _classificationParameterAddUpdateKey =
       GlobalKey<FormState>();
-  final List<int> budgetOptions = [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25];
-  // BUDGET INITIAL VALUE
-  late ValueNotifier<int> _budgetValueNotifier;
   final ValueNotifier<Map<String, dynamic>?> _selectedRequirementNotifier =
       ValueNotifier(null);
   final ValueNotifier<Map<String, dynamic>?> _selectedResidentialTypeNotifier =
@@ -53,8 +49,8 @@ class _AddClassificationParameterScreenState
       ValueNotifier(null);
   final ValueNotifier<Map<String, dynamic>?>
   _selectedCommercialLeasingNotifier = ValueNotifier(null);
-
-  late TextEditingController _budgetC;
+  final ValueNotifier<Map<String, dynamic>?> _selectedBudgetInCr =
+  ValueNotifier(null);
 
   List<Map<String, dynamic>> _selectedLocations = [];
 
@@ -78,12 +74,16 @@ class _AddClassificationParameterScreenState
     {'zAttributesId': 7, 'DisplayName': '6 BHK'},
     {'zAttributesId': 8, 'DisplayName': '7 BHK'},
     {'zAttributesId': 9, 'DisplayName': '8 BHK'},
-    {'zAttributesId': 10, 'DisplayName': '1 + 1 JODI'},
-    {'zAttributesId': 11, 'DisplayName': '2 + 1 JODI'},
-    {'zAttributesId': 12, 'DisplayName': '2 + 2 JODI'},
-    {'zAttributesId': 13, 'DisplayName': '2 + 3 JODI'},
-    {'zAttributesId': 14, 'DisplayName': 'PENTHOUSE'},
+    {'zAttributesId': 10, 'DisplayName': '9 BHK'},
+    {'zAttributesId': 11, 'DisplayName': '10 BHK'},
+    {'zAttributesId': 12, 'DisplayName': '1 + 1 JODI'},
+    {'zAttributesId': 13, 'DisplayName': '2 + 1 JODI'},
+    {'zAttributesId': 14, 'DisplayName': '2 + 2 JODI'},
+    {'zAttributesId': 15, 'DisplayName': '2 + 3 JODI'},
+    {'zAttributesId': 16, 'DisplayName': 'Duplex'},
+    {'zAttributesId': 17, 'DisplayName': 'PENTHOUSE'},
   ];
+
   final List<Map<String, dynamic>> requirementType = [
     {'zAttributesId': 1, 'DisplayName': 'Commercial'},
     {'zAttributesId': 2, 'DisplayName': 'Commercial Leasing'},
@@ -102,27 +102,53 @@ class _AddClassificationParameterScreenState
       .toSet()
       .join(",");
 
+  final List<Map<String, dynamic>> budgetInCrList = [
+    {'zAttributesId': 1, 'DisplayName': '<1'},
+    {'zAttributesId': 2, 'DisplayName': '1.5'},
+    {'zAttributesId': 3, 'DisplayName': '2'},
+    {'zAttributesId': 4, 'DisplayName': '2.5'},
+    {'zAttributesId': 5, 'DisplayName': '3'},
+    {'zAttributesId': 6, 'DisplayName': '3.5'},
+    {'zAttributesId': 7, 'DisplayName': '4'},
+    {'zAttributesId': 8, 'DisplayName': '4.5'},
+    {'zAttributesId': 9, 'DisplayName': '5'},
+    {'zAttributesId': 10, 'DisplayName': '5.5'},
+    {'zAttributesId': 11, 'DisplayName': '6'},
+    {'zAttributesId': 12, 'DisplayName': '6.5'},
+    {'zAttributesId': 13, 'DisplayName': '7'},
+    {'zAttributesId': 14, 'DisplayName': '7.5'},
+    {'zAttributesId': 15, 'DisplayName': '8'},
+    {'zAttributesId': 16, 'DisplayName': '8.5'},
+    {'zAttributesId': 17, 'DisplayName': '9'},
+    {'zAttributesId': 18, 'DisplayName': '9.5'},
+    {'zAttributesId': 19, 'DisplayName': '10'},
+    {'zAttributesId': 20, 'DisplayName': '10.5'},
+    {'zAttributesId': 21, 'DisplayName': '11'},
+    {'zAttributesId': 22, 'DisplayName': '11.5'},
+    {'zAttributesId': 23, 'DisplayName': '12'},
+    {'zAttributesId': 24, 'DisplayName': '12.5'},
+    {'zAttributesId': 25, 'DisplayName': '15'},
+    {'zAttributesId': 26, 'DisplayName': '15.5'},
+    {'zAttributesId': 27, 'DisplayName': '20'},
+    {'zAttributesId': 28, 'DisplayName': '20.5'},
+    {'zAttributesId': 29, 'DisplayName': '25+'},
+  ];
+
   @override
   void initState() {
     super.initState();
     _classificationParametersCubit =
         context.read<ClassificationParametersCubit>();
-    _budgetValueNotifier = ValueNotifier<int>(1);
-    _budgetC = TextEditingController();
     // SET PROJECT ID
     projectId = getProject();
     if (_isEditMode) {
       _populateForm(widget.classificationParamterModel!);
-    } else {
-      _budgetC.text = ">1";
     }
   }
 
   @override
   void dispose() {
-    // TEXT CONTROLLERS
-    _budgetC.dispose();
-    _budgetValueNotifier.dispose();
+    _selectedBudgetInCr.dispose();
 
     // VALUE NOTIFIERS
     _selectedRequirementNotifier.dispose();
@@ -137,9 +163,6 @@ class _AddClassificationParameterScreenState
 
   // PREFILL
   void _populateForm(ClassificationParameterModel model) async {
-    // TEXT CONTROLLER
-    _budgetC.text = model.minBudget;
-
     // HELPER: Find item in list by DisplayName
     Map<String, dynamic> findItem(
       List<Map<String, dynamic>> list,
@@ -218,13 +241,20 @@ class _AddClassificationParameterScreenState
       });
     }
 
-    // BUDGET SLIDER
+    // BUDGET
     if (model.minBudget.isNotEmpty) {
-      final cleaned = model.minBudget.replaceAll("+", "").replaceAll(">", "");
-      final value = int.tryParse(cleaned);
-      if (value != null && budgetOptions.contains(value)) {
-        _budgetValueNotifier.value = value;
-      }
+      final raw = model.minBudget.trim();
+
+      final match = budgetInCrList.firstWhere(
+            (e) => e["DisplayName"].toString() == raw,
+        orElse:
+            () => budgetInCrList.firstWhere(
+              (e) => e["DisplayName"] == "<1",
+          orElse: () => budgetInCrList.first,
+        ),
+      );
+
+      _selectedBudgetInCr.value = match;
     }
   }
 
@@ -266,7 +296,7 @@ class _AddClassificationParameterScreenState
         if (_isEditMode)
           "Uniquekey": widget.classificationParamterModel!.uniquekey,
         "ProjectId": projectId.projectId,
-        "MinBudget": _budgetC.text.trim(),
+        "MinBudget": _selectedBudgetInCr.value?["DisplayName"]??"",
         "PossessionType": getDisplayOrEmpty(_selectedPossessionNotifier.value),
         "Requirement": getDisplayOrEmpty(_selectedRequirementNotifier.value),
         "RequirementType": requirementTypeValue,
@@ -309,58 +339,15 @@ class _AddClassificationParameterScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Budget (In Cr)", style: AppTextStyle.ts14R()),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ValueListenableBuilder<int>(
-                        valueListenable: _budgetValueNotifier,
-                        builder: (context, selectedValue, child) {
-                          return SfSlider(
-                            min: 0,
-                            max: (budgetOptions.length - 1).toDouble(),
-                            value:
-                                budgetOptions.indexOf(selectedValue).toDouble(),
-                            interval: 1,
-                            showTicks: false,
-                            showLabels: true,
-                            enableTooltip: false,
-                            activeColor: AppColor.primary,
-                            inactiveColor: AppColor.primary.withValues(
-                              alpha: 0.25,
-                            ),
-                            minorTicksPerInterval: 0,
-
-                            labelFormatterCallback: (
-                              actualValue,
-                              formattedText,
-                            ) {
-                              int index = actualValue.round();
-                              int val = budgetOptions[index];
-
-                              return val == 1
-                                  ? ">1"
-                                  : val == 25
-                                  ? "25+"
-                                  : "$val";
-                            },
-
-                            onChanged: (dynamic value) {
-                              int index = value.round();
-                              int val = budgetOptions[index];
-
-                              _budgetValueNotifier.value = val;
-                              _budgetC.text =
-                                  val == 1
-                                      ? ">1"
-                                      : val == 25
-                                      ? "25+"
-                                      : val.toString();
-                            },
-                          );
-                        },
-                      ),
+                    CustomDropDownWidget(
+                      title: "Budget (In Cr)",
+                      hintText: "Select Budget(In Cr)",
+                      initialValue: _selectedBudgetInCr.value,
+                      dataList: budgetInCrList,
+                      onSelected: (value) {
+                        _selectedBudgetInCr.value = value;
+                      },
                     ),
-                    verticalSpacing(height: 20),
                     ValueListenableBuilder<Map<String, dynamic>?>(
                       valueListenable: _selectedPossessionNotifier,
                       builder: (context, value, _) {
@@ -426,7 +413,7 @@ class _AddClassificationParameterScreenState
                                 _selectedCommercialLeasingNotifier.value = null;
                               },
                             ),
-                            const SizedBox(height: 8),
+                            verticalSpacing(),
                             if (dependentList.isNotEmpty)
                               ValueListenableBuilder<Map<String, dynamic>?>(
                                 valueListenable: _getDependentNotifier(
@@ -487,15 +474,15 @@ class _AddClassificationParameterScreenState
                       builder: (context, value, _) {
                         return CustomDropDownWidget(
                           isRequired: true,
-                          title: "Timeline",
-                          hintText: "Select Timeline",
+                          title: "Timeline of Purchase",
+                          hintText: "Select Timeline of Purchase",
                           initialValue: value,
                           dataList: timelineTypeList,
                           onSelected: (v) => _selectedTimelineNotifier.value = v,
                           onValueClear: () => _selectedTimelineNotifier.value = null,
                           validator: (value) {
                             if (value == null) {
-                              return 'Timeline is required';
+                              return 'Timeline of Purchase is required';
                             }
                             return null;
                           },

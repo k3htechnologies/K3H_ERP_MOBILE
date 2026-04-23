@@ -267,6 +267,7 @@ class _AddBranchAssociationMasterScreenState
                       builder: (context, selectedBranch, _) {
                         return CustomMultipleSelectPopup(
                           title: 'Branch',
+                          hintText: "Select Branch",
                           isRequired: true,
                           isMultiSelect: false,
                           initialValue: selectedBranch,
@@ -293,6 +294,7 @@ class _AddBranchAssociationMasterScreenState
                           children: [
                             CustomMultipleSelectPopup(
                               title: 'Employee',
+                              hintText: "Select Employee",
                               isRequired: true,
                               isMultiSelect: false,
                               initialValue: selectedEmployee,

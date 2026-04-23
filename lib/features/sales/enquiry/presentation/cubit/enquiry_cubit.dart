@@ -177,7 +177,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     final result = await _channelPartnerRepository.getChannelPartnerList(
       pageNumber: pageNumber,
       pageSize: 10,
-      queryParams: {"MobileNumber": value ?? "", "SortBy": "MobileNumber ASC"},
+      queryParams: {"MobileNumber": value ?? "", "SortBy": "MobileNumber ASC","IsCheckPermission": false},
     );
 
     return result.fold((failure) => [], (response) {

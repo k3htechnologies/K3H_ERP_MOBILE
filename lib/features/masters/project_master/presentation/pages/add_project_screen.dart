@@ -41,6 +41,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
 
   // DROPDOWN VALUES
   Map<String, dynamic>? selectedBusinessCategory;
+  Map<String, dynamic>? selectedCategory;
   ValueNotifier<Map<String, dynamic>?> selectedProjectSubScheme = ValueNotifier(
     null,
   );
@@ -117,6 +118,12 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     {"zAttributesId": 1, "DisplayName": "Commercial"},
     {"zAttributesId": 2, "DisplayName": "Mixed Use"},
     {"zAttributesId": 3, "DisplayName": "Residential"},
+  ];
+
+  // CATEGORY
+  List<Map<String, dynamic>> categoryList = [
+    {"zAttributesId": 1, "DisplayName": "Direct"},
+    {"zAttributesId": 2, "DisplayName": "Tender"},
   ];
 
   // STATIC LISTS
@@ -313,6 +320,14 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     reraCertificateDate = widget.project!.reraCertificateDate;
     reraCompletionDate = widget.project!.reraComplitionDate;
 
+    if (widget.project!.category.isNotEmpty) {
+      selectedCategory = categoryList.firstWhere(
+        (category) =>
+            category["DisplayName"].toLowerCase() ==
+            widget.project!.category.toLowerCase(),
+      );
+    }
+
     if (widget.project!.bussinessCategory.isNotEmpty) {
       selectedBusinessCategory = businessCategoryList.firstWhere(
         (businessCategory) =>
@@ -369,6 +384,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             ctsNumber:
                 isRedevelopmentNotifier.value == false ? _ctsNumberC.text : "",
             projectPhotoMap: projectPhotoImage,
+            category: selectedCategory?["DisplayName"] ?? "",
             businessCategory: selectedBusinessCategory?["DisplayName"] ?? "",
             fileNumber: _fileNumberC.text,
             liasoningArchitectName: _liasoningNameC.text,
@@ -447,6 +463,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             ctsNumber:
                 isRedevelopmentNotifier.value == false ? _ctsNumberC.text : "",
             projectPhotoMap: projectPhotoImage,
+            category: selectedCategory?["DisplayName"] ?? "",
             businessCategory: selectedBusinessCategory?["DisplayName"] ?? "-",
             fileNumber: _fileNumberC.text,
             liasoningArchitectName: _liasoningNameC.text,
@@ -638,6 +655,19 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                             return "Project Photo is required";
                           }
                           return null;
+                        },
+                      ),
+
+                      CustomDropDownWidget(
+                        title: 'Category',
+                        hintText: "Select Category",
+                        initialValue: selectedCategory,
+                        dataList: categoryList,
+                        onSelected: (value) {
+                          selectedCategory = value;
+                        },
+                        onValueClear: () {
+                          selectedCategory = null;
                         },
                       ),
 

@@ -91,7 +91,7 @@ class _ChannelPartnerDashboardScreenState
                   _buildTotalCasesWidget(
                     context,
                     bgColor: AppColor.white,
-                    title: "Active Channel Partner",
+                    title: "Booking Active CP",
                     titleColor: AppColor.black.withValues(alpha: 0.5),
                     value: table0?.activeChannelPartner ?? 0,
                     valueColor: AppColor.black,
@@ -100,7 +100,7 @@ class _ChannelPartnerDashboardScreenState
                   _buildTotalCasesWidget(
                     context,
                     bgColor: AppColor.white,
-                    title: "New Added Channel Partner",
+                    title: "CP Onboard",
                     titleColor: AppColor.black.withValues(alpha: 0.5),
                     value: table0?.thisMonthAddedChannelPartner ?? 0,
                     valueColor: AppColor.black,
@@ -306,7 +306,7 @@ class _ChannelPartnerDashboardScreenState
                 children: [
                   Expanded(
                     child: Text(
-                      "City Wise Distribution",
+                      "Micromarket",
                       style: AppTextStyle.ts14SB(color: AppColor.black),
                     ),
                   ),

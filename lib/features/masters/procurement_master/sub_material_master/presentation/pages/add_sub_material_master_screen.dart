@@ -232,6 +232,7 @@ class _AddSubMaterialMasterScreenState
                     ),
                     CustomMultipleSelectPopup(
                       title: "Material",
+                      hintText: "Select Material",
                       isRequired: true,
                       isMultiSelect: false,
                       dataFetchCallBack: _fetchMaterialList,
@@ -250,6 +251,7 @@ class _AddSubMaterialMasterScreenState
                     ),
                     CustomMultipleSelectPopup(
                       title: "UOM",
+                      hintText: "Select UOM",
                       isRequired: true,
                       isMultiSelect: false,
                       dataFetchCallBack: _fetchUOMList,

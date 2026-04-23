@@ -14,6 +14,7 @@ class ProjectModel {
   String employeeId;
   int numberOfEmployee;
   bool isRedevelopment;
+  String category;
   String bussinessCategory;
   String fileNumber;
   String liasoningArchitectName;
@@ -85,6 +86,7 @@ class ProjectModel {
     required this.employeeId,
     required this.numberOfEmployee,
     required this.isRedevelopment,
+    required this.category,
     required this.bussinessCategory,
     required this.fileNumber,
     required this.liasoningArchitectName,
@@ -157,6 +159,7 @@ class ProjectModel {
     employeeId: parseValue<String>(json, "EmployeeId"),
     numberOfEmployee: parseValue<int>(json, "NumberOfEmployee"),
     isRedevelopment: parseValue<bool>(json, "IsRedevelopment"),
+    category: parseValue<String>(json, "Category"),
     bussinessCategory: parseValue<String>(json, "BussinessCategory"),
     fileNumber: parseValue<String>(json, "FileNumber"),
     liasoningArchitectName: parseValue<String>(json, "LiasoningArchitectName"),
@@ -286,6 +289,7 @@ class ProjectModel {
     "EmployeeId": employeeId,
     "NumberOfEmployee": numberOfEmployee,
     "IsRedevelopment": isRedevelopment,
+    "Category": category,
     "BussinessCategory": bussinessCategory,
     "FileNumber": fileNumber,
     "LiasoningArchitectName": liasoningArchitectName,

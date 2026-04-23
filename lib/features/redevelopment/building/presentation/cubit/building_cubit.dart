@@ -211,8 +211,8 @@ class BuildingCubit extends Cubit<BuildingState> {
           state.copyWith(
             isLoading: isParentRequest ? false : state.isLoading,
             buildingDocumentList: newList,
-            currentPage: pageNumber,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
+            currentPageDocument: pageNumber,
+            totalNumberOfRecordDocument: response['totalNumberOfRecord'],
           ),
         );
       },

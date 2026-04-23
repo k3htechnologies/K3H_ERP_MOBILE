@@ -5,7 +5,9 @@ class BuildingState extends BaseState {
   final BuildingDetailsModel? buildingDetails;
   final List<BuildingDocumentModel> buildingDocumentList;
   final int totalNumberOfRecord;
+  final int totalNumberOfRecordDocument;
   final int currentPage;
+  final int currentPageDocument;
   final int currentTabIndex;
   final String searchText;
   final String currentSortColumn;
@@ -19,7 +21,9 @@ class BuildingState extends BaseState {
     this.buildingDetails,
     required this.buildingDocumentList,
     required this.totalNumberOfRecord,
+    required this.totalNumberOfRecordDocument,
     required this.currentPage,
+    required this.currentPageDocument,
     required this.currentTabIndex,
     required this.searchText,
     required this.currentSortColumn,
@@ -32,7 +36,9 @@ class BuildingState extends BaseState {
     buildingDetails: null,
     buildingDocumentList: [],
     totalNumberOfRecord: 0,
+    totalNumberOfRecordDocument: 0,
     currentPage: 1,
+    currentPageDocument: 1,
     currentTabIndex: 0,
     searchText: "",
     isLoading: true,
@@ -48,7 +54,9 @@ class BuildingState extends BaseState {
     BuildingDetailsModel? buildingDetails,
     List<BuildingDocumentModel>? buildingDocumentList,
     int? totalNumberOfRecord,
+    int? totalNumberOfRecordDocument,
     int? currentPage,
+    int? currentPageDocument,
     int? currentTabIndex,
     String? searchText,
     String? currentSortColumn,
@@ -62,7 +70,9 @@ class BuildingState extends BaseState {
       buildingDetails: buildingDetails ?? this.buildingDetails,
       buildingDocumentList: buildingDocumentList ?? this.buildingDocumentList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
+      totalNumberOfRecordDocument: totalNumberOfRecordDocument ?? this.totalNumberOfRecordDocument,
       currentPage: currentPage ?? this.currentPage,
+      currentPageDocument: currentPageDocument ?? this.currentPageDocument,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
       searchText: searchText ?? this.searchText,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
@@ -78,7 +88,9 @@ class BuildingState extends BaseState {
     buildingDetails,
     buildingDocumentList,
     totalNumberOfRecord,
+    totalNumberOfRecordDocument,
     currentPage,
+    currentPageDocument,
     currentTabIndex,
     searchText,
     currentSortColumn,

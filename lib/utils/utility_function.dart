@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
@@ -32,6 +33,7 @@ ProjectModel getProject() {
         modifiedById: 0,
         modifiedBy: "",
         modifiedDate: DateTime.now(),
+        category: '',
         bussinessCategory: '',
         fileNumber: '',
         liasoningArchitectName: '',
@@ -96,6 +98,7 @@ ProjectModel getProject() {
       modifiedById: 0,
       modifiedBy: "",
       modifiedDate: DateTime.now(),
+      category: '',
       bussinessCategory: '',
       fileNumber: '',
       liasoningArchitectName: '',
@@ -140,4 +143,11 @@ ProjectModel getProject() {
       projectWithBankDetailsData: [],
     );
   }
+}
+
+extension NumberFormatting on num {
+  String displayFormatedAmount() {
+    return NumberFormat('#,##0.00').format(this);
+  }
+
 }

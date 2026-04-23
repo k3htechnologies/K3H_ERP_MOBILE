@@ -30,6 +30,10 @@ class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
   // CUBIT
   late ApprovedBankFolderCubit _approvedBankCubit;
 
+  // AUTHORIZATION MODEL
+  late AuthorizationModel _routeAuthorizationModel;
+
+
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC;
 
@@ -40,6 +44,8 @@ class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
   void initState() {
     super.initState();
     _approvedBankCubit = BlocProvider.of<ApprovedBankFolderCubit>(context);
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.approvedBank]!;
     _project = getProject();
     _searchC = TextEditingController();
     _approvedBankCubit.getApprovedBankFolderList(
@@ -171,7 +177,9 @@ class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
                               ),
                             ),
                           ),
+                          if(_routeAuthorizationModel.isAction)
                           CustomIconButton.delete(
+                            isDisabled: state.approvedBankFolderList[index].numberOfApprovedBankFile>0,
                             onPressed: () {
                               _showPopupToDeleteApprovedBankFile(
                                 context,
@@ -199,6 +207,7 @@ class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
                               ),
                             ],
                           ),
+                          if(_routeAuthorizationModel.isExport)
                           CustomIconButton(
                             onPressed: () {},
                             icon: Icon(

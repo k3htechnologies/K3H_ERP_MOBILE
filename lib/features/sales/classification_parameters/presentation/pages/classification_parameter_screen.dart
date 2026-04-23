@@ -297,7 +297,7 @@ class _ClassificationParameterScreenState
                             singleLine: false,
                           ),
                           buildRowTitleValue(
-                            title: "Timeline",
+                            title: "Timeline of Purchase",
                             value: classificationParameter.timeLine,
                             singleLine: false,
                           ),

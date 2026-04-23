@@ -324,10 +324,12 @@ class _SourcingScreenState extends State<SourcingScreen> {
                     buildRowTitleValue(
                       title: "Company Name",
                       value: channelPartner.companyName,
+                      singleLine: false
                     ),
                     buildRowTitleValue(
                       title: "RERA Number",
                       value: channelPartner.reraNumber,
+                      singleLine: false,
                     ),
                     buildRowTitleValue(
                       title: "Office Address",

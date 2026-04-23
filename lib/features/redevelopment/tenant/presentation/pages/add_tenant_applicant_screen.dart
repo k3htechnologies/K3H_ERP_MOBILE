@@ -673,6 +673,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     builder: (context, innerState) {
                       return CustomMultipleSelectPopup(
                         title: 'Bank',
+                        hintText: "Select Bank",
                         isRequired: true,
                         isMultiSelect: false,
                         initialValue: _selectedBank,
@@ -746,7 +747,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
               color: AppColor.white,
             ),
             text:
-                _isEditingApplicantType ? "Update Applicant" : "Add Applicant",
+                _isEditingApplicantType ? "Update" : "Add",
             onPressed: _save,
           ),
         ),

@@ -162,6 +162,8 @@ class AppRoutes {
 
   /// BROKERAGE
   static String brokerage = "/brokerage";
+  static String addBrokerageInvoice = "/addBrokerageInvoice";
+  static String addBrokeragePayment = "/addBrokeragePayment";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// PAYROLL MASTER
