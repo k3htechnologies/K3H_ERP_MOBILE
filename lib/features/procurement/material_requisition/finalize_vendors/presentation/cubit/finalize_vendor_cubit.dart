@@ -28,11 +28,12 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
   ) async {
     emit(state.copyWith(isLoading: true));
 
-    var result = await finalizeVendorRepository.getSelectedVendor(
-      projectId: projectId,
-      materialRequisitionId: requisition.materialRequisitionId,
-      uniquekey: requisition.uniquekey,
-    );
+    var result = await finalizeVendorRepository
+        .getAllAvailableVendorForRequisition(
+          projectId: projectId,
+          materialRequisitionId: requisition.materialRequisitionId,
+          uniquekey: requisition.uniquekey,
+        );
 
     result.fold(
       (failure) {
@@ -40,6 +41,14 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        emit(
+          state.copyWith(
+            isLoading: false,
+            vendorSelectionForEnquiryList:
+                response['data'] as List<RequisitionVendorModel>,
+          ),
+        );
+
         showSuccessMessage(context);
       },
     );
@@ -223,7 +232,7 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
     );
   }
 
-  Future getSelectedVenodeForCompare(
+  Future<List<FinalizeVendorForComparisonModel>> getSelectedVenodeForCompare(
     BuildContext context,
     int projectId,
     int materialRequisitionId,
@@ -245,16 +254,25 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
         return [];
       },
       (response) {
+        final rawList = response['data'];
+
+        if (rawList == null || rawList is! List) {
+          return [];
+        }
+
         final list =
-            (response['data'] as List)
+            rawList
                 .map((e) => FinalizeVendorForComparisonModel.fromJson(e))
                 .toList();
+
         emit(
           state.copyWith(
             vendorFinalisationForComparison: list,
             isLoading: false,
           ),
         );
+
+        return list;
       },
     );
   }
