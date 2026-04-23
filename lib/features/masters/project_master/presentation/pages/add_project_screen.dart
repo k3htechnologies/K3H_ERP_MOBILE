@@ -155,11 +155,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     {"zAttributesId": 2, "DisplayName": "33 (11)"},
   ];
 
-  final List<Map<String, dynamic>> categoryList = [
-    {"zAttributesId": 1, "DisplayName": "Direct"},
-    {"zAttributesId": 2, "DisplayName": "Tender"},
-  ];
-
   List<Map<String, dynamic>> get _currentSubSchemeList {
     if (projectSchemeNotifier.value == null) return [{}];
     final id = projectSchemeNotifier.value!["zAttributesId"] as int?;
@@ -393,10 +388,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             designingArchitectMobileNumber: _designingMobileNumberC.text,
             rccMobileNumber: _rccConsultantgNameC.text,
             rccArchitectName: _rccConsultantMobileNumberC.text,
-            category:
-                selectedCategoryType.value != null
-                    ? selectedCategoryType.value!["DisplayName"].toString()
-                    : "",
             tenderAmount:
                 _tenderAmountC.text.trim().isNotEmpty
                     ? _tenderAmountC.text
@@ -472,10 +463,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             designingArchitectMobileNumber: _designingMobileNumberC.text,
             rccArchitectName: _rccConsultantgNameC.text,
             rccMobileNumber: _rccConsultantMobileNumberC.text,
-            category:
-                selectedCategoryType.value != null
-                    ? selectedCategoryType.value!["DisplayName"].toString()
-                    : "",
             tenderAmount:
                 _tenderAmountC.text.trim().isNotEmpty
                     ? _tenderAmountC.text

@@ -23,7 +23,6 @@ class ProjectModel {
   String designingArchitectMobileNumber;
   String rccConsultantName;
   String rccConsultantMobileNumber;
-  String category;
   double tenderAmount;
   double tenderEmdAmount;
   DateTime? tenderPurchaseStartDate;
@@ -95,7 +94,6 @@ class ProjectModel {
     required this.designingArchitectMobileNumber,
     required this.rccConsultantName,
     required this.rccConsultantMobileNumber,
-    required this.category,
     required this.tenderAmount,
     required this.tenderEmdAmount,
     this.tenderPurchaseStartDate,
@@ -177,7 +175,6 @@ class ProjectModel {
       json,
       "RCCConsultantMobileNumber",
     ),
-    category: parseValue<String>(json, "Category"),
     tenderAmount: parseValue<double>(json, "TenderAmount"),
     tenderEmdAmount: parseValue<double>(json, "TenderEMDAmount"),
     tenderPurchaseStartDate:
@@ -298,7 +295,6 @@ class ProjectModel {
     "DesigningArchitectMobileNumber": designingArchitectMobileNumber,
     "RCCConsultantName": rccConsultantName,
     "RCCConsultantMobileNumber": rccConsultantMobileNumber,
-    "Category": category,
     "TenderAmount": tenderAmount,
     "TenderEMDAmount": tenderEmdAmount,
     "TenderPurchaseStartDate": tenderPurchaseStartDate?.toIso8601String(),

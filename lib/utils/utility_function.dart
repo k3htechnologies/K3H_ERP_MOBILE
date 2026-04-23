@@ -42,7 +42,6 @@ ProjectModel getProject() {
         designingArchitectMobileNumber: '',
         rccConsultantName: '',
         rccConsultantMobileNumber: '',
-        category: '',
         tenderAmount: 0,
         tenderEmdAmount: 0,
         tenderPurchaseStartDate: DateTime.now(),
@@ -107,7 +106,6 @@ ProjectModel getProject() {
       designingArchitectMobileNumber: '',
       rccConsultantName: '',
       rccConsultantMobileNumber: '',
-      category: '',
       tenderAmount: 0,
       tenderEmdAmount: 0,
       tenderPurchaseStartDate: DateTime.now(),
@@ -149,5 +147,4 @@ extension NumberFormatting on num {
   String displayFormatedAmount() {
     return NumberFormat('#,##0.00').format(this);
   }
-
 }
