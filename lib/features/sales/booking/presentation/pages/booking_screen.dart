@@ -632,10 +632,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
                               _routhAuthorizationModel.isAction &&
                                       (booking.approvalStatus.toLowerCase() ==
-                                              'pending' ||
-                                          booking.approvalStatus
-                                                  .toLowerCase() ==
-                                              'refund')
+                                          'pending')
                                   ? Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
@@ -685,7 +682,8 @@ class _BookingScreenState extends State<BookingScreen> {
                           ),
                           buildRowTitleValue(
                             title: "Agreement Value (₹)",
-                            value: "₹ ${booking.agreementValue.displayFormatedAmount()}",
+                            value:
+                                "₹ ${booking.agreementValue.displayFormatedAmount()}",
                             fixesWidth: 170,
                           ),
                           buildRowTitleValue(

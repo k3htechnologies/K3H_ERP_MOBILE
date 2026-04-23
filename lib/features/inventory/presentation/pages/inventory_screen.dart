@@ -909,8 +909,9 @@ class _InventoryScreenState extends State<InventoryScreen>
 
     //  EDIT → available, blocked, hold AND permission
     final showEdit =
+        canAction &&
         (!isApproved ||
-            (isApproved && user.department.toLowerCase() == 'sales')) &&
+            (isApproved &&  user.department.toLowerCase() == 'sales')) &&
         (status == "available" || status == "blocked" || status == "hold");
 
     //  DELETE → only available AND permission
