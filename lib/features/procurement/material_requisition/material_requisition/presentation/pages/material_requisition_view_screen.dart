@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_v
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor.screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor_get_quotation.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/cubit/invoice_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
@@ -174,25 +175,33 @@ class _MaterialRequisitionViewScreenState
                     children: [
                       _buildOverviewTab(),
                       _buildOverviewTab(),
-                      FinalizeVendorScreen(
-                        systemGeneratedCode:
+                      FinalizeVendorGetQuotationScreen(
+                        vendor:
                             materialRequisitionOverview
                                 .value
                                 ?.systemGeneratedCode
                                 .toString() ??
                             "",
-                        onVendorTap: (vendor) {
-                          setState(() {
-                            selectedVendor = vendor;
-                          });
-                        },
-                        onBack: () {
-                          setState(() {
-                            selectedVendor = null;
-                          });
-                        },
-                        selectedVendor: selectedVendor,
                       ),
+                      // FinalizeVendorScreen(
+                      //   systemGeneratedCode:
+                      //       materialRequisitionOverview
+                      //           .value
+                      //           ?.systemGeneratedCode
+                      //           .toString() ??
+                      //       "",
+                      //   onVendorTap: (vendor) {
+                      //     setState(() {
+                      //       selectedVendor = vendor;
+                      //     });
+                      //   },
+                      //   onBack: () {
+                      //     setState(() {
+                      //       selectedVendor = null;
+                      //     });
+                      //   },
+                      //   selectedVendor: selectedVendor,
+                      // ),
                       _buildOverviewTab(),
                       _buildOverviewTab(),
                       _buildOverviewTab(),

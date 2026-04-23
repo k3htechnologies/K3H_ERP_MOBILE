@@ -143,6 +143,7 @@ import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/present
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/terms_and_conditions_view_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor_edit.screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor_get_quotation.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor.screen.dart';
@@ -4718,6 +4719,26 @@ final GoRouter goRouter = GoRouter(
                         : "";
                 return FinalizeVendorScreen(
                   systemGeneratedCode: materialRequisitionSystemGeneratedCode,
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.finalizeVendorGetQuotation,
+              name: AppRoutes.finalizeVendorGetQuotation,
+              builder: (context, state) {
+                final queryParameterSystemGeneratedCode =
+                    state.uri.queryParameters['systemGeneratedCode'];
+                final materialRequisitionSystemGeneratedCode =
+                    queryParameterSystemGeneratedCode != null &&
+                            queryParameterSystemGeneratedCode.isNotEmpty
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeComponent(
+                            queryParameterSystemGeneratedCode,
+                          ),
+                        )
+                        : "";
+                return FinalizeVendorGetQuotationScreen(
+                  vendor: materialRequisitionSystemGeneratedCode,
                 );
               },
             ),

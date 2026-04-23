@@ -1,6 +1,7 @@
 part of 'finalize_vendor_cubit.dart';
 
 final class FinalizeVendorState extends BaseState {
+  final List<RequisitionVendorModel> selctedVendorList;
   final List<RequisitionVendorModel> vendorSelectionForEnquiryList;
   final List<FinalizeVendorForComparisonModel> vendorFinalisationForComparison;
   final int totalNumberOfRecord;
@@ -9,6 +10,7 @@ final class FinalizeVendorState extends BaseState {
 
   const FinalizeVendorState({
     super.isLoading,
+    required this.selctedVendorList,
     required this.vendorSelectionForEnquiryList,
     required this.vendorFinalisationForComparison,
     required this.totalNumberOfRecord,
@@ -18,25 +20,26 @@ final class FinalizeVendorState extends BaseState {
   factory FinalizeVendorState.initial() {
     return const FinalizeVendorState(
       isLoading: false,
+      selctedVendorList: [],
       vendorSelectionForEnquiryList: [],
       vendorFinalisationForComparison: [],
       totalNumberOfRecord: 0,
       searchText: "",
       allAvailableVendorList: [],
-      
     );
   }
   FinalizeVendorState copyWith({
     bool? isLoading,
+    List<RequisitionVendorModel>? selctedVendorList,
     List<RequisitionVendorModel>? vendorSelectionForEnquiryList,
     List<FinalizeVendorForComparisonModel>? vendorFinalisationForComparison,
     int? totalNumberOfRecord,
     String? searchText,
     List<RequisitionVendorModel>? allAvailableVendorList,
-    
   }) {
     return FinalizeVendorState(
       isLoading: isLoading ?? this.isLoading,
+      selctedVendorList: selctedVendorList ?? this.selctedVendorList,
       vendorSelectionForEnquiryList:
           vendorSelectionForEnquiryList ?? this.vendorSelectionForEnquiryList,
       vendorFinalisationForComparison:
@@ -52,6 +55,7 @@ final class FinalizeVendorState extends BaseState {
   @override
   List<Object?> get props => [
     isLoading,
+    selctedVendorList,
     vendorSelectionForEnquiryList,
     vendorFinalisationForComparison,
     totalNumberOfRecord,

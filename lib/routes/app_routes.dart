@@ -65,6 +65,7 @@ class AppRoutes {
   static String materialMaster = "/materialMaster";
   static String addMaterialMaster = "/addMaterialMaster";
   static String viewMaterialMaster = "/viewMaterialMaster";
+  static String finalizeVendorGetQuotation = "/finalizeVendorGetQuotation";
   static String finalizeVendor = "/finalizeVendor";
   static String finalizeEditVendor = "/finalizeEditVendor";
 
