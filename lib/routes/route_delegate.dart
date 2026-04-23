@@ -4737,8 +4737,45 @@ final GoRouter goRouter = GoRouter(
                           ),
                         )
                         : "";
+                final queryParameterMaterialRequisitionId =
+                    state.uri.queryParameters['materialRequisitionId'];
+                final queryParameterProjectId =
+                    state.uri.queryParameters['projectId'];
+                final queryParameterUniquekey =
+                    state.uri.queryParameters['uniquekey'];
+
+                final materialRequisitionId =
+                    queryParameterMaterialRequisitionId != null &&
+                            queryParameterMaterialRequisitionId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(
+                              queryParameterMaterialRequisitionId,
+                            ),
+                          ),
+                        )
+                        : 0;
+                final projectId =
+                    queryParameterProjectId != null &&
+                            queryParameterProjectId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterProjectId),
+                          ),
+                        )
+                        : 0;
+                final uniquekey =
+                    queryParameterUniquekey != null &&
+                            queryParameterUniquekey.isNotEmpty
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterUniquekey),
+                        )
+                        : "";
                 return FinalizeVendorGetQuotationScreen(
-                  vendor: materialRequisitionSystemGeneratedCode,
+                  systemgeneratedCode: materialRequisitionSystemGeneratedCode,
+                  materialRequisitionId: materialRequisitionId,
+                  projectId: projectId,
+                  uniquekey: uniquekey,
                 );
               },
             ),

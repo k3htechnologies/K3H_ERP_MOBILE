@@ -5,7 +5,6 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor_get_quotation.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/cubit/invoice_cubit.dart';
@@ -113,11 +112,11 @@ class _MaterialRequisitionViewScreenState
           );
           break;
         case 2:
-          _finalizeVendorCubit.getSelectedVenodeForCompare(
+          _finalizeVendorCubit.getVendorForEnquiryList(
             context,
             widget.projectId,
             widget.materialRequisitionId,
-            materialRequisitionOverview.value?.uniquekey ?? "",
+            widget.uniquekey,
           );
           break;
       }
@@ -176,32 +175,15 @@ class _MaterialRequisitionViewScreenState
                       _buildOverviewTab(),
                       _buildOverviewTab(),
                       FinalizeVendorGetQuotationScreen(
-                        vendor:
+                        systemgeneratedCode:
                             materialRequisitionOverview
                                 .value
-                                ?.systemGeneratedCode
-                                .toString() ??
+                                ?.systemGeneratedCode ??
                             "",
+                        projectId: widget.projectId,
+                        materialRequisitionId: widget.materialRequisitionId,
+                        uniquekey: widget.uniquekey,
                       ),
-                      // FinalizeVendorScreen(
-                      //   systemGeneratedCode:
-                      //       materialRequisitionOverview
-                      //           .value
-                      //           ?.systemGeneratedCode
-                      //           .toString() ??
-                      //       "",
-                      //   onVendorTap: (vendor) {
-                      //     setState(() {
-                      //       selectedVendor = vendor;
-                      //     });
-                      //   },
-                      //   onBack: () {
-                      //     setState(() {
-                      //       selectedVendor = null;
-                      //     });
-                      //   },
-                      //   selectedVendor: selectedVendor,
-                      // ),
                       _buildOverviewTab(),
                       _buildOverviewTab(),
                       _buildOverviewTab(),

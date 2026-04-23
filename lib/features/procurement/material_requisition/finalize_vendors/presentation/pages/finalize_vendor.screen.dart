@@ -5,14 +5,12 @@ import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor_edit.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -88,12 +86,6 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
           return Center(child: CircularProgressIndicator());
         }
         final vendorForFinalize = state.vendorFinalisationForComparison;
-        if (widget.selectedVendor != null) {
-          return FinalizeVendorEditScreen(
-            vendor: widget.selectedVendor!,
-            onBack: widget.onBack!,
-          );
-        }
         return ValueListenableBuilder(
           valueListenable: selectedVendorList,
           builder: (context, value, child) {
@@ -112,51 +104,32 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                           style: AppTextStyle.ts16M(color: AppColor.primary),
                         ),
                       ),
-                      if (!isQuotationFetched)
-                        CustomButton(
-                          onPressed: () async {
-                            await _finalizeVendorCubit.getVendorForEnquiryList(
-                              context,
-                              _selectedProject.projectId,
-                              materialRequisitionOverview.value!,
-                            );
-                            await initOverview();
-                            setState(() {
-                              isQuotationFetched = true;
-                            });
-                          },
-                          text: "Get Quotation",
-                          backgroundColor: AppColor.green,
-                        )
-                      else
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              margin: EdgeInsets.only(bottom: 12),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 20.0,
-                                vertical: 6.0,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(6.0),
-                                color: AppColor.green.withValues(alpha: 0.14),
-                              ),
-                              child: Text(
-                                "Finalize Vendor",
-                                style: AppTextStyle.ts14M(
-                                  color: AppColor.green,
-                                ),
-                              ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(bottom: 12),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20.0,
+                              vertical: 6.0,
                             ),
-                            horizontalSpacing(width: 8.h),
-                            SvgPicture.asset(
-                              AppAssets.compareVendorIcon,
-                              height: 24.h,
-                              width: 24.w,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(6.0),
+                              color: AppColor.green.withValues(alpha: 0.14),
                             ),
-                          ],
-                        ),
+                            child: Text(
+                              "Finalize Vendor",
+                              style: AppTextStyle.ts14M(color: AppColor.green),
+                            ),
+                          ),
+                          horizontalSpacing(width: 8.h),
+                          SvgPicture.asset(
+                            AppAssets.compareVendorIcon,
+                            height: 24.h,
+                            width: 24.w,
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                   verticalSpacing(height: 10.h),

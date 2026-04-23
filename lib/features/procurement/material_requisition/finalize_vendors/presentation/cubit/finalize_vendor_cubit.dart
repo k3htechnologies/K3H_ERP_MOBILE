@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_v
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/repository/finalize_vendor.repository.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -24,15 +25,16 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
   Future getVendorForEnquiryList(
     BuildContext context,
     int projectId,
-    MaterialRequisitionModel requisition,
+    int materialRequisitionId,
+    String uniquekey,
   ) async {
     emit(state.copyWith(isLoading: true));
 
     var result = await finalizeVendorRepository
         .getAllAvailableVendorForRequisition(
           projectId: projectId,
-          materialRequisitionId: requisition.materialRequisitionId,
-          uniquekey: requisition.uniquekey,
+          materialRequisitionId: materialRequisitionId,
+          uniquekey: uniquekey,
         );
 
     result.fold(
@@ -48,8 +50,6 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
                 response['data'] as List<RequisitionVendorModel>,
           ),
         );
-
-        showSuccessMessage(context);
       },
     );
   }
@@ -83,17 +83,14 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
     required BuildContext context,
     required int projectId,
     required MaterialRequisitionModel materialRequisition,
+    required List<int> vendorIds,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> body = {
       'ProjectId': projectId,
       'MaterialRequisitionId': materialRequisition.materialRequisitionId,
       'Uniquekey': materialRequisition.uniquekey,
-      'VendorId': state.allAvailableVendorList
-          .where((e) => e.isSelected)
-          .map((e) => e.vendorId)
-          .toList()
-          .join(','),
+      'VendorId': vendorIds.join(','),
     };
     var addResult = await finalizeVendorRepository.addVendorForEnquiry(
       body: body,
@@ -105,7 +102,15 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
         return;
       },
       (response) async {
-        goRouter.pop(true);
+        final result = goRouter.push(
+          AppRoutes.finalizeVendor,
+          extra: {
+            "projectId": projectId,
+            "materialRequisitionId": materialRequisition.materialRequisitionId,
+            "uniquekey": materialRequisition.uniquekey,
+          },
+        );
+
         showSuccessMessage(context);
       },
     );
@@ -174,7 +179,12 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
           ),
         );
         showSuccessMessage(context);
-        getVendorForEnquiryList(context, projectId, materialRequisition);
+        getVendorForEnquiryList(
+          context,
+          projectId,
+          materialRequisition.materialRequisitionId,
+          materialRequisition.uniquekey,
+        );
       },
     );
   }
