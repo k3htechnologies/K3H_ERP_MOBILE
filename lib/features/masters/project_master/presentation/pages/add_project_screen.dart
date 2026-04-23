@@ -506,7 +506,10 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                 selectedProjectSubScheme.value != null
                     ? selectedProjectSubScheme.value!["DisplayName"].toString()
                     : "",
-            projectAreaInSqmt: _projectAreaSqMtC.text,
+            projectAreaInSqmt:
+                _projectAreaSqMtC.text.trim().isNotEmpty
+                    ? _projectAreaSqMtC.text
+                    : "0.0",
             apfNumber: _apfNumberC.text,
             reraNumber: _reraNumberC.text,
             reraCertificateDate: reraCertificateDate?.toIso8601String() ?? "",

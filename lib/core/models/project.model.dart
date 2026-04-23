@@ -14,7 +14,6 @@ class ProjectModel {
   String employeeId;
   int numberOfEmployee;
   bool isRedevelopment;
-  String category;
   String bussinessCategory;
   String fileNumber;
   String liasoningArchitectName;
@@ -23,6 +22,7 @@ class ProjectModel {
   String designingArchitectMobileNumber;
   String rccConsultantName;
   String rccConsultantMobileNumber;
+  String category;
   double tenderAmount;
   double tenderEmdAmount;
   DateTime? tenderPurchaseStartDate;
@@ -85,7 +85,6 @@ class ProjectModel {
     required this.employeeId,
     required this.numberOfEmployee,
     required this.isRedevelopment,
-    required this.category,
     required this.bussinessCategory,
     required this.fileNumber,
     required this.liasoningArchitectName,
@@ -94,6 +93,7 @@ class ProjectModel {
     required this.designingArchitectMobileNumber,
     required this.rccConsultantName,
     required this.rccConsultantMobileNumber,
+    required this.category,
     required this.tenderAmount,
     required this.tenderEmdAmount,
     this.tenderPurchaseStartDate,
@@ -157,7 +157,6 @@ class ProjectModel {
     employeeId: parseValue<String>(json, "EmployeeId"),
     numberOfEmployee: parseValue<int>(json, "NumberOfEmployee"),
     isRedevelopment: parseValue<bool>(json, "IsRedevelopment"),
-    category: parseValue<String>(json, "Category"),
     bussinessCategory: parseValue<String>(json, "BussinessCategory"),
     fileNumber: parseValue<String>(json, "FileNumber"),
     liasoningArchitectName: parseValue<String>(json, "LiasoningArchitectName"),
@@ -175,6 +174,7 @@ class ProjectModel {
       json,
       "RCCConsultantMobileNumber",
     ),
+    category: parseValue<String>(json, "Category"),
     tenderAmount: parseValue<double>(json, "TenderAmount"),
     tenderEmdAmount: parseValue<double>(json, "TenderEMDAmount"),
     tenderPurchaseStartDate:
@@ -286,7 +286,6 @@ class ProjectModel {
     "EmployeeId": employeeId,
     "NumberOfEmployee": numberOfEmployee,
     "IsRedevelopment": isRedevelopment,
-    "Category": category,
     "BussinessCategory": bussinessCategory,
     "FileNumber": fileNumber,
     "LiasoningArchitectName": liasoningArchitectName,
@@ -295,6 +294,7 @@ class ProjectModel {
     "DesigningArchitectMobileNumber": designingArchitectMobileNumber,
     "RCCConsultantName": rccConsultantName,
     "RCCConsultantMobileNumber": rccConsultantMobileNumber,
+    "Category": category,
     "TenderAmount": tenderAmount,
     "TenderEMDAmount": tenderEmdAmount,
     "TenderPurchaseStartDate": tenderPurchaseStartDate?.toIso8601String(),
