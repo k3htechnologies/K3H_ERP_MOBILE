@@ -64,10 +64,13 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        List<MaterialRequisitionModel> updatedList = List.from(
-          state.materialRequisitionList,
-        );
-        updatedList = response['data'] as List<MaterialRequisitionModel>;
+        final List<MaterialRequisitionModel> newData =
+            List<MaterialRequisitionModel>.from(response['data'] ?? []);
+        final List<MaterialRequisitionModel> updatedList =
+            pageNumber == 1
+                ? newData
+                : [...state.materialRequisitionList, ...newData];
+
         emit(
           state.copyWith(
             materialRequisitionList: updatedList,
@@ -138,7 +141,6 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
         return null;
       },
       (response) {
-        showSuccessMessage(context);
         final List<RequisitionVendorModel> requisitionVendorList =
             response['data'] as List<RequisitionVendorModel>;
 

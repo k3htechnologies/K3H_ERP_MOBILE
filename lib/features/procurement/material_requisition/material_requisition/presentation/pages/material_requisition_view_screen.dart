@@ -49,7 +49,9 @@ class _MaterialRequisitionViewScreenState
   late PurchaseOrderCubit _purchaseOrderCubit;
   final ValueNotifier<MaterialRequisitionModel?> materialRequisitionOverview =
       ValueNotifier(null);
-  final ValueNotifier<RequisitionVendorModel?> vendorList = ValueNotifier(null);
+  final ValueNotifier<RequisitionVendorModel?> finalizedVendor = ValueNotifier(
+    null,
+  );
 
   final ValueNotifier<List<dynamic>> selectedVendorList = ValueNotifier([]);
   final Set<int> selectedVendorIndex = {};
@@ -74,12 +76,13 @@ class _MaterialRequisitionViewScreenState
           widget.materialRequisitionId,
         );
     if (mounted) {
-      vendorList.value = await _materialRequisitionCubit.getFinalizedVendor(
-        context,
-        widget.projectId,
-        widget.materialRequisitionId,
-        widget.uniquekey,
-      );
+      finalizedVendor.value = await _materialRequisitionCubit
+          .getFinalizedVendor(
+            context,
+            widget.projectId,
+            widget.materialRequisitionId,
+            widget.uniquekey,
+          );
     }
     // if (materialRequisitionOverview.value?.uniquekey != null &&
     //     materialRequisitionOverview.value!.uniquekey.isNotEmpty) {
@@ -272,68 +275,69 @@ class _MaterialRequisitionViewScreenState
               ],
             ),
           ),
-          Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 10,
-              children: [
-                Text(
-                  "Vendor And Amount Details",
-                  style: AppTextStyle.ts16SB(color: AppColor.black),
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Vendor Name",
-                      value: "dsmkld",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Vendor Company",
-                      value: "ABC",
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Basic Amount",
-                      value: addCommasToInteger(1000),
-                    ),
-                    buildColumnTitleValue(
-                      title: "Total Tax",
-                      value: addCommasToInteger(1000.50),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Grand Total",
-                      value: addCommasToInteger(1000),
-                    ),
-                    buildColumnTitleValue(
-                      title: "Est. Delivery",
-                      value: "12 Days",
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Paid Amount",
-                      value: addCommasToInteger(1000),
-                    ),
-                    buildColumnTitleValue(
-                      title: "Pending Amount",
-                      value: addCommasToInteger(1000.50),
-                    ),
-                  ],
-                ),
-              ],
+          if (finalizedVendor.value != null)
+            Container(
+              decoration: commonCardDecoration(),
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 10,
+                children: [
+                  Text(
+                    "Vendor And Amount Details",
+                    style: AppTextStyle.ts16SB(color: AppColor.black),
+                  ),
+                  Row(
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Vendor Name",
+                        value: finalizedVendor.value!.vendorName,
+                      ),
+                      buildColumnTitleValue(
+                        title: "Vendor Company",
+                        value: finalizedVendor.value!.companyName,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Basic Amount",
+                        value: addCommasToInteger(1000),
+                      ),
+                      buildColumnTitleValue(
+                        title: "Total Tax",
+                        value: addCommasToInteger(1000.50),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Grand Total",
+                        value: addCommasToInteger(1000),
+                      ),
+                      buildColumnTitleValue(
+                        title: "Est. Delivery",
+                        value: "12 Days",
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Paid Amount",
+                        value: addCommasToInteger(1000),
+                      ),
+                      buildColumnTitleValue(
+                        title: "Pending Amount",
+                        value: addCommasToInteger(1000.50),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
           Container(
             padding: EdgeInsets.all(16),
             decoration: commonCardDecoration(),

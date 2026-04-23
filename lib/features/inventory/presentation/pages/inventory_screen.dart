@@ -1079,8 +1079,7 @@ class _InventoryScreenState extends State<InventoryScreen>
               flat.reraCarpetAreaSqFt != 0 &&
               flat.flatType != "" &&
               approvalStatus.toLowerCase() == "approved" &&
-              _routeAuthorizationModelBooking.isAction &&
-              user.department.toLowerCase() == 'sales') ...[
+              _routeAuthorizationModelBooking.isAction) ...[
             verticalSpacing(),
             CustomButton(
               text: "Book",
