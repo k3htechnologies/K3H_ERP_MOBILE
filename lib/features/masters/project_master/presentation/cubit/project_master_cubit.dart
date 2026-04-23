@@ -227,8 +227,21 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required String ctsNumber,
     required String businessCategory,
     required String fileNumber,
-    required String architectName,
-    required String architectMobileNumber,
+    required String liasoningArchitectName,
+    required String liasoningArchitectMobileNumber,
+    required String designingArchitectName,
+    required String designingArchitectMobileNumber,
+    required String rccArchitectName,
+    required String rccMobileNumber,
+    required String category,
+    required String tenderAmount,
+    required String tenderEMDAmount,
+    required String tenderPurchaseStartDate,
+    required String tenderPurchaseEndDate,
+    required String tenderChequeNumber,
+    required String tenderSubmissionDate,
+    required String tenderIssueDate,
+    required String tenderPayorderRemark,
     required bool isRedevelopment,
     required String districtMasterId,
     required String stateMasterId,
@@ -238,7 +251,9 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required String projectScope,
     required String projectEstimateCost,
     required String projectAreaInSqft,
+    required String apfNumber,
     required String onGoingBudgetCost,
+    required String projectAreaInSqmt,
     required String surveyDate,
     required String expectedStartDate,
     required String executionStartDate,
@@ -252,6 +267,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required String projectSubScheme,
     required String googleLocation,
     required MultiFilePickerModel projectPhotoMap,
+    required MultiFilePickerModel tenderChequeNumberURL,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
@@ -260,8 +276,21 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       "CTSNumber": ctsNumber,
       "BussinessCategory": businessCategory,
       "FileNumber": fileNumber,
-      "ArchitectName": architectName,
-      "ArchitectMobileNumber": architectMobileNumber,
+      "LiasoningArchitectName": liasoningArchitectName,
+      "LiasoningArchitectMobileNumber": liasoningArchitectMobileNumber,
+      "DesigningArchitectName": designingArchitectName,
+      "DesigningArchitectMobileNumber": designingArchitectMobileNumber,
+      "RCCConsultantName": rccArchitectName,
+      "RCCConsultantMobileNumber": rccMobileNumber,
+      "Category": category,
+      "TenderAmount": tenderAmount,
+      "TenderEMDAmount": tenderEMDAmount,
+      "TenderPurchaseStartDate": tenderPurchaseStartDate,
+      "TenderPurchaseEndDate": tenderPurchaseEndDate,
+      "TenderChequeNumber": tenderChequeNumber,
+      "TenderSubmissionDate": tenderPurchaseStartDate,
+      "TenderIssueDate": tenderIssueDate,
+      "TenderPayorderRemark": tenderPayorderRemark,
       "IsRedevelopment": isRedevelopment ? '1' : '0',
       "CountryMasterId": "1",
       "DistrictMasterId": districtMasterId,
@@ -273,12 +302,14 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       "ProjectEstimateCost": projectEstimateCost,
       "ProjectAreaInSqft": projectAreaInSqft,
       "OnGoingBudgetCost": onGoingBudgetCost,
+      "ProjectAreaInSqmt": projectAreaInSqmt,
       "SurveyDate": surveyDate,
       "ExpectedStartDate": expectedStartDate,
       "ExecutionStartDate": executionStartDate,
       "SiteContactMobileNumber": siteContactMobileNumber,
       "SiteContactName": siteContactName,
       "ProjectStatus": projectStatus,
+      "APFNumber": apfNumber,
       "RERANumber": reraNumber,
       "RERACertificateDate": reraCertificateDate,
       "RERAComplitionDate": reraComplitionDate,
@@ -298,7 +329,16 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         "fileName": projectPhotoMap.fileNameList[i],
       });
     }
-
+    for (int i = 0; i < tenderChequeNumberURL.fileBytesList.length; i++) {
+      if (tenderChequeNumberURL.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "TenderChequeNumberURL",
+        "value": tenderChequeNumberURL.fileBytesList[i],
+        "fileName": tenderChequeNumberURL.fileNameList[i],
+      });
+    }
     var addResult = await _projectMasterRepository.addUpateProject(
       body: requestBody,
       fileList: fileList,
@@ -327,8 +367,21 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required String ctsNumber,
     required String businessCategory,
     required String fileNumber,
-    required String architectName,
-    required String architectMobileNumber,
+    required String liasoningArchitectName,
+    required String liasoningArchitectMobileNumber,
+    required String designingArchitectName,
+    required String designingArchitectMobileNumber,
+    required String rccArchitectName,
+    required String rccMobileNumber,
+    required String category,
+    required String tenderAmount,
+    required String tenderEMDAmount,
+    required String tenderPurchaseStartDate,
+    required String tenderPurchaseEndDate,
+    required String tenderChequeNumber,
+    required String tenderSubmissionDate,
+    required String tenderIssueDate,
+    required String tenderPayorderRemark,
     required bool isRedevelopment,
     required String districtMasterId,
     required String stateMasterId,
@@ -338,6 +391,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required String projectScope,
     required String projectEstimateCost,
     required String projectAreaInSqft,
+    required String projectAreaInSqmt,
     required String onGoingBudgetCost,
     required String surveyDate,
     required String expectedStartDate,
@@ -345,6 +399,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required String siteContactMobileNumber,
     required String siteContactName,
     required String projectStatus,
+    required String apfNumber,
     required String reraNumber,
     required String reraCertificateDate,
     required String reraComplitionDate,
@@ -352,6 +407,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required String projectSubScheme,
     required String googleLocation,
     required MultiFilePickerModel projectPhotoMap,
+    required MultiFilePickerModel tenderChequeNumberURL,
     required int index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -363,8 +419,21 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       "CTSNumber": ctsNumber,
       "BussinessCategory": businessCategory,
       "FileNumber": fileNumber,
-      "ArchitectName": architectName,
-      "ArchitectMobileNumber": architectMobileNumber,
+      "LiasoningArchitectName": liasoningArchitectName,
+      "LiasoningArchitectMobileNumber": liasoningArchitectMobileNumber,
+      "DesigningArchitectName": designingArchitectName,
+      "DesigningArchitectMobileNumber": designingArchitectMobileNumber,
+      "RCCConsultantName": rccArchitectName,
+      "RCCConsultantMobileNumber": rccMobileNumber,
+      "Category": category,
+      "TenderAmount": tenderAmount,
+      "TenderEMDAmount": tenderEMDAmount,
+      "TenderPurchaseStartDate": tenderPurchaseStartDate,
+      "TenderPurchaseEndDate": tenderPurchaseEndDate,
+      "TenderChequeNumber": tenderChequeNumber,
+      "TenderSubmissionDate": tenderPurchaseStartDate,
+      "TenderIssueDate": tenderIssueDate,
+      "TenderPayorderRemark": tenderPayorderRemark,
       "CountryMasterId": "1",
       "IsRedevelopment": isRedevelopment ? '1' : '0',
       "DistrictMasterId": districtMasterId,
@@ -375,6 +444,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       "ProjectScope": projectScope,
       "ProjectEstimateCost": projectEstimateCost,
       "ProjectAreaInSqft": projectAreaInSqft,
+      "ProjectAreaInSqmt": projectAreaInSqmt,
       "OnGoingBudgetCost": onGoingBudgetCost,
       "SurveyDate": surveyDate,
       "ExpectedStartDate": expectedStartDate,
@@ -385,11 +455,15 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       "RERANumber": reraNumber,
       "RERACertificateDate": reraCertificateDate,
       "RERAComplitionDate": reraComplitionDate,
+      "APFNumber": apfNumber,
       "ProjectScheme": projectScheme,
       "ProjectSubScheme": projectSubScheme,
       "GoogleLocation": googleLocation,
       "RemoveProjectPhotoURL": projectPhotoMap.deletedFileList,
+      "RemoveTenderChequeNumberURL": tenderChequeNumberURL.deletedFileList,
     };
+
+    log("the payload is: $requestBody");
     List<Map<String, dynamic>> fileList = [];
 
     for (int i = 0; i < projectPhotoMap.fileBytesList.length; i++) {
@@ -400,6 +474,16 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         "key": "ProjectPhotoURL",
         "value": projectPhotoMap.fileBytesList[i],
         "fileName": projectPhotoMap.fileNameList[i],
+      });
+    }
+    for (int i = 0; i < tenderChequeNumberURL.fileBytesList.length; i++) {
+      if (tenderChequeNumberURL.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "TenderChequeNumberURL",
+        "value": tenderChequeNumberURL.fileBytesList[i],
+        "fileName": tenderChequeNumberURL.fileNameList[i],
       });
     }
     var addResult = await _projectMasterRepository.addUpateProject(

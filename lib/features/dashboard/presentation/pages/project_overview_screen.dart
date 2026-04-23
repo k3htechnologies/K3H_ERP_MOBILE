@@ -153,11 +153,11 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Architect Name",
-                      value: widget.project.architectName,
+                      value: widget.project.liasoningArchitectName,
                     ),
                     buildColumnTitleValue(
                       title: "Architect Mobile Number",
-                      value: widget.project.architectMobileNumber,
+                      value: widget.project. liasoningArchitectMobileNumber,
                     ),
                   ],
                 ),

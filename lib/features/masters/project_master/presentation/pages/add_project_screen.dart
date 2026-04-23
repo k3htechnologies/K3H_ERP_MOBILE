@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -67,23 +69,44 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       _projectScopeC,
       _ctsNumberC,
       _fileNumberC,
-      _architectNameC,
-      _architectMobileNumberC,
+      _tenderAmountC,
+      _tendorEMDAmountC,
+      _chequeNumberC,
+      _payOrderTrackC,
+      _liasoningNameC,
+      _liasoningMobileNumberC,
+      _designingNameC,
+      _designingMobileNumberC,
+      _rccConsultantgNameC,
+      _rccConsultantMobileNumberC,
       _projectSubSchemeC,
       _pinCodeC,
       _projectEstimateCostC,
       _onGoingBudgetCostC,
       _projectAreaSqftC,
+      _projectAreaSqMtC,
       _googleLocationC,
       _reraNumberC,
+      _apfNumberC,
       _siteContactNameC,
       _siteContactMobileNumberC;
 
+  DateTime? purchaseStartDate;
+  DateTime? purchaseEndDate;
+  DateTime? submissionDate;
+  DateTime? issueDate;
+
   // CHECKBOX FOR REDEVELOPMENT
   final ValueNotifier<bool> isRedevelopmentNotifier = ValueNotifier(false);
+  late ValueNotifier<Map<String, dynamic>?> selectedCategoryType;
 
   // ProjectPhotoURL IMAGE SELECTION
   MultiFilePickerModel projectPhotoImage = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel chequePhotoFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
     deletedFileList: "",
@@ -125,6 +148,11 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     {"zAttributesId": 2, "DisplayName": "33 (11)"},
   ];
 
+  final List<Map<String, dynamic>> categoryList = [
+    {"zAttributesId": 1, "DisplayName": "Direct"},
+    {"zAttributesId": 2, "DisplayName": "Tender"},
+  ];
+
   List<Map<String, dynamic>> get _currentSubSchemeList {
     if (projectSchemeNotifier.value == null) return [{}];
     final id = projectSchemeNotifier.value!["zAttributesId"] as int?;
@@ -157,9 +185,11 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     super.initState();
     _projectMasterCubit = context.read<ProjectMasterCubit>();
     _selectedProjectStatusNotifier = ValueNotifier(null);
+    selectedCategoryType = ValueNotifier(null);
     _initializeTextEditingController();
     if (_isEditMode) {
       _prefillDialogueToAddUpdateProjectMaster(widget.project!);
+      log("the project details are: ${widget.project!.toJson()}");
     }
   }
 
@@ -171,13 +201,12 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _projectScopeC.dispose();
     _ctsNumberC.dispose();
     _fileNumberC.dispose();
-    _architectNameC.dispose();
-    _architectMobileNumberC.dispose();
     _projectSubSchemeC.dispose();
     _pinCodeC.dispose();
     _projectEstimateCostC.dispose();
     _onGoingBudgetCostC.dispose();
     _projectAreaSqftC.dispose();
+    _projectAreaSqMtC.dispose();
     _googleLocationC.dispose();
     _reraNumberC.dispose();
     _siteContactNameC.dispose();
@@ -185,6 +214,18 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     isRedevelopmentNotifier.dispose();
     projectSchemeNotifier.dispose();
     _selectedProjectStatusNotifier.dispose();
+    selectedCategoryType.dispose();
+    _tenderAmountC.dispose();
+    _tendorEMDAmountC.dispose();
+    _chequeNumberC.dispose();
+    _payOrderTrackC.dispose();
+    _liasoningNameC.dispose();
+    _liasoningMobileNumberC.dispose();
+    _designingNameC.dispose();
+    _designingMobileNumberC.dispose();
+    _rccConsultantgNameC.dispose();
+    _rccConsultantMobileNumberC.dispose();
+    _apfNumberC.dispose();
   }
 
   // INITIALIZE TEXT EDITING CONTROLLER
@@ -194,17 +235,27 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _projectScopeC = TextEditingController();
     _ctsNumberC = TextEditingController();
     _fileNumberC = TextEditingController();
-    _architectNameC = TextEditingController();
-    _architectMobileNumberC = TextEditingController();
     _projectSubSchemeC = TextEditingController();
     _pinCodeC = TextEditingController();
     _projectEstimateCostC = TextEditingController();
     _onGoingBudgetCostC = TextEditingController();
     _projectAreaSqftC = TextEditingController();
+    _projectAreaSqMtC = TextEditingController();
     _googleLocationC = TextEditingController();
     _reraNumberC = TextEditingController();
     _siteContactNameC = TextEditingController();
     _siteContactMobileNumberC = TextEditingController();
+    _tenderAmountC = TextEditingController();
+    _tendorEMDAmountC = TextEditingController();
+    _chequeNumberC = TextEditingController();
+    _payOrderTrackC = TextEditingController();
+    _liasoningNameC = TextEditingController();
+    _liasoningMobileNumberC = TextEditingController();
+    _designingNameC = TextEditingController();
+    _designingMobileNumberC = TextEditingController();
+    _rccConsultantgNameC = TextEditingController();
+    _rccConsultantMobileNumberC = TextEditingController();
+    _apfNumberC = TextEditingController();
   }
 
   // PREFILL DIALOGUE TO ADD/UPDATE PROJECT MASTER
@@ -213,8 +264,36 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _projectLocationC.text = widget.project!.projectLocation;
     _ctsNumberC.text = widget.project!.ctsNumber;
     _fileNumberC.text = widget.project!.fileNumber;
-    _architectNameC.text = widget.project!.architectName;
-    _architectMobileNumberC.text = widget.project!.architectMobileNumber;
+    _liasoningNameC.text = widget.project!.liasoningArchitectName;
+    _liasoningMobileNumberC.text =
+        widget.project!.liasoningArchitectMobileNumber;
+    _designingNameC.text = widget.project!.designingArchitectName;
+    _designingMobileNumberC.text =
+        widget.project!.designingArchitectMobileNumber;
+    _rccConsultantgNameC.text = widget.project!.rccConsultantName;
+    _rccConsultantMobileNumberC.text =
+        widget.project!.rccConsultantMobileNumber;
+    selectedCategoryType.value = categoryList.firstWhere(
+      (item) => item["DisplayName"] == widget.project!.category,
+      orElse: () => categoryList.first,
+    );
+    final isTender = selectedCategoryType.value?["zAttributesId"] == 2;
+    if (isTender) {
+      _tenderAmountC.text = widget.project!.tenderAmount.toString();
+      _tendorEMDAmountC.text = widget.project!.tenderEmdAmount.toString();
+      purchaseStartDate = widget.project!.tenderPurchaseStartDate;
+      purchaseEndDate = widget.project!.tenderPurchaseEndDate;
+      _chequeNumberC.text = widget.project!.tenderChequeNumber ?? "";
+      chequePhotoFile.fileNameList =
+          widget.project!.tenderChequeNumberUrl!
+              .split(",")
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .toList();
+      submissionDate = widget.project!.tenderSubmissionDate;
+      issueDate = widget.project!.tenderIssueDate;
+      _payOrderTrackC.text = widget.project!.tenderPayorderRemark ?? "";
+    }
     _projectScopeC.text = widget.project!.projectScope;
 
     _pinCodeC.text = widget.project!.zipCode;
@@ -222,6 +301,8 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _projectEstimateCostC.text = widget.project!.projectEstimateCost.toString();
     _onGoingBudgetCostC.text = widget.project!.onGoingBudgetCost.toString();
     _projectAreaSqftC.text = widget.project!.projectAreaInSqft.toString();
+    _projectAreaSqMtC.text = widget.project!.projectAreaInSqmt.toString();
+    _apfNumberC.text = widget.project!.apfNumber ?? "";
     _reraNumberC.text = widget.project!.reraNumber;
     _siteContactNameC.text = widget.project!.siteContactName;
     _siteContactMobileNumberC.text = widget.project!.siteContactMobileNumber;
@@ -290,8 +371,31 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             projectPhotoMap: projectPhotoImage,
             businessCategory: selectedBusinessCategory?["DisplayName"] ?? "",
             fileNumber: _fileNumberC.text,
-            architectName: _architectNameC.text,
-            architectMobileNumber: _architectMobileNumberC.text,
+            liasoningArchitectName: _liasoningNameC.text,
+            liasoningArchitectMobileNumber: _liasoningMobileNumberC.text,
+            designingArchitectName: _designingNameC.text,
+            designingArchitectMobileNumber: _designingMobileNumberC.text,
+            rccMobileNumber: _rccConsultantgNameC.text,
+            rccArchitectName: _rccConsultantMobileNumberC.text,
+            category:
+                selectedCategoryType.value != null
+                    ? selectedCategoryType.value!["DisplayName"].toString()
+                    : "",
+            tenderAmount:
+                _tenderAmountC.text.trim().isNotEmpty
+                    ? _tenderAmountC.text
+                    : "0.0",
+            tenderEMDAmount:
+                _tendorEMDAmountC.text.trim().isNotEmpty
+                    ? _tendorEMDAmountC.text
+                    : "0.0",
+            tenderPurchaseStartDate: purchaseStartDate?.toIso8601String() ?? '',
+            tenderPurchaseEndDate: purchaseEndDate?.toIso8601String() ?? "",
+            tenderChequeNumber: _chequeNumberC.text,
+            tenderChequeNumberURL: chequePhotoFile,
+            tenderSubmissionDate: submissionDate?.toIso8601String() ?? "",
+            tenderIssueDate: issueDate?.toIso8601String() ?? "",
+            tenderPayorderRemark: _payOrderTrackC.text,
             isRedevelopment: isRedevelopmentNotifier.value,
             districtMasterId: _districtMasterId.toString(),
             stateMasterId: _stateMasterId.toString(),
@@ -309,6 +413,10 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                 _projectAreaSqftC.text.trim().isNotEmpty
                     ? _projectAreaSqftC.text
                     : "0.0",
+            projectAreaInSqmt:
+                _projectAreaSqMtC.text.trim().isNotEmpty
+                    ? _projectAreaSqMtC.text
+                    : "0.0",
             projectEstimateCost:
                 _projectEstimateCostC.text.trim().isNotEmpty
                     ? _projectEstimateCostC.text
@@ -324,6 +432,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                 selectedProjectSubScheme.value != null
                     ? selectedProjectSubScheme.value!["DisplayName"].toString()
                     : "",
+            apfNumber: _apfNumberC.text,
             reraNumber: _reraNumberC.text,
             reraCertificateDate: reraCertificateDate?.toIso8601String() ?? "",
             reraComplitionDate: reraCompletionDate?.toIso8601String() ?? "",
@@ -340,8 +449,31 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             projectPhotoMap: projectPhotoImage,
             businessCategory: selectedBusinessCategory?["DisplayName"] ?? "-",
             fileNumber: _fileNumberC.text,
-            architectName: _architectNameC.text,
-            architectMobileNumber: _architectMobileNumberC.text,
+            liasoningArchitectName: _liasoningNameC.text,
+            liasoningArchitectMobileNumber: _liasoningMobileNumberC.text,
+            designingArchitectName: _designingNameC.text,
+            designingArchitectMobileNumber: _designingMobileNumberC.text,
+            rccArchitectName: _rccConsultantgNameC.text,
+            rccMobileNumber: _rccConsultantMobileNumberC.text,
+            category:
+                selectedCategoryType.value != null
+                    ? selectedCategoryType.value!["DisplayName"].toString()
+                    : "",
+            tenderAmount:
+                _tenderAmountC.text.trim().isNotEmpty
+                    ? _tenderAmountC.text
+                    : "0.0",
+            tenderEMDAmount:
+                _tendorEMDAmountC.text.trim().isNotEmpty
+                    ? _tendorEMDAmountC.text
+                    : "0.0",
+            tenderPurchaseStartDate: purchaseStartDate?.toIso8601String() ?? '',
+            tenderPurchaseEndDate: purchaseEndDate?.toIso8601String() ?? "",
+            tenderChequeNumber: _chequeNumberC.text,
+            tenderChequeNumberURL: chequePhotoFile,
+            tenderSubmissionDate: submissionDate?.toIso8601String() ?? "",
+            tenderIssueDate: issueDate?.toIso8601String() ?? "",
+            tenderPayorderRemark: _payOrderTrackC.text,
             isRedevelopment: isRedevelopmentNotifier.value,
             districtMasterId: _districtMasterId.toString(),
             stateMasterId: _stateMasterId.toString(),
@@ -374,6 +506,8 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                 selectedProjectSubScheme.value != null
                     ? selectedProjectSubScheme.value!["DisplayName"].toString()
                     : "",
+            projectAreaInSqmt: _projectAreaSqMtC.text,
+            apfNumber: _apfNumberC.text,
             reraNumber: _reraNumberC.text,
             reraCertificateDate: reraCertificateDate?.toIso8601String() ?? "",
             reraComplitionDate: reraCompletionDate?.toIso8601String() ?? "",
@@ -414,7 +548,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     children: [
                       Text(
                         "Basic Details",
-                        style: AppTextStyle.ts16SB(color: AppColor.grey),
+                        style: AppTextStyle.ts14M(
+                          color: AppColor.black.withValues(alpha: 0.5),
+                        ),
                       ),
                       verticalSpacing(),
                       ValueListenableBuilder<bool>(
@@ -525,18 +661,273 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                           LengthLimitingTextInputFormatter(100),
                         ],
                       ),
+                    ],
+                  ),
+                ),
+                // PROJECT CATEGORY
+                Container(
+                  padding: EdgeInsets.all(12.0),
+                  margin: EdgeInsets.only(bottom: 10.0),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Project Category",
+                        style: AppTextStyle.ts14M(
+                          color: AppColor.black.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      verticalSpacing(),
+                      ValueListenableBuilder(
+                        valueListenable: selectedCategoryType,
+                        builder: (context, value, child) {
+                          return CustomDropDownWidget(
+                            title: 'Category',
+                            hintText: "Select Category",
+                            isRequired: true,
+                            initialValue: value,
+                            dataList: categoryList,
+                            onSelected: (val) {
+                              if (selectedCategoryType
+                                      .value?['zAttributesId'] !=
+                                  val['zAttributesId']) {
+                                selectedCategoryType.value = val;
+
+                                final isDirect =
+                                    val["DisplayName"]
+                                        ?.toString()
+                                        .toLowerCase() ==
+                                    "direct";
+
+                                if (isDirect) {
+                                  _tenderAmountC.clear();
+                                  _tendorEMDAmountC.clear();
+                                  purchaseStartDate = null;
+                                  purchaseEndDate = null;
+                                  _chequeNumberC.clear();
+                                  chequePhotoFile = MultiFilePickerModel(
+                                    fileBytesList: [],
+                                    fileNameList: [],
+                                    deletedFileList: "",
+                                  );
+                                  _payOrderTrackC.clear();
+                                  submissionDate = null;
+                                  issueDate = null;
+                                }
+                              }
+                            },
+                            validator: (value) {
+                              if (value == null) {
+                                return "Category is required";
+                              }
+                              return null;
+                            },
+                          );
+                        },
+                      ),
+                      ValueListenableBuilder(
+                        valueListenable: selectedCategoryType,
+                        builder: (context, value, child) {
+                          final isTender =
+                              value?["DisplayName"]?.toString().toLowerCase() ==
+                              "tender";
+
+                          if (!isTender) return SizedBox.shrink();
+
+                          return Column(
+                            children: [
+                              CustomTextField(
+                                title: 'Tender Amount (₹)',
+                                textController: _tenderAmountC,
+                                hint: "Enter Tender Amount",
+                                inputFormatterList: InputValidator.decimal(2),
+                              ),
+                              CustomTextField(
+                                title: 'Tender EMD Amount (₹)',
+                                textController: _tendorEMDAmountC,
+                                hint: "Enter Tender EMD Amount",
+                                inputFormatterList: InputValidator.decimal(2),
+                              ),
+                              CustomDatePicker(
+                                title: "Purchase Start Date",
+                                initialDate: purchaseStartDate,
+                                startDate: DateTime.now(),
+                                setValue: (value) => purchaseStartDate = value,
+                              ),
+                              CustomDatePicker(
+                                title: "Purchase End Date",
+                                initialDate: purchaseEndDate,
+                                startDate: DateTime.now(),
+                                setValue: (value) => purchaseEndDate = value,
+                              ),
+                              CustomTextField(
+                                title: 'Cheque Number',
+                                textController: _chequeNumberC,
+                                hint: "Enter Cheque Number",
+                              ),
+                              CustomMultiFilePicker(
+                                title: "Cheque Photo",
+                                filePickType: FilePickType.image,
+                                initialFileList: chequePhotoFile.fileNameList,
+                                initialFileBytes: chequePhotoFile.fileBytesList,
+                                onFilePickedCallback: (
+                                  bytesList,
+                                  fileNameList,
+                                ) {
+                                  chequePhotoFile.fileNameList = fileNameList;
+                                  chequePhotoFile.fileBytesList = bytesList;
+                                },
+                                onFileDeleteCallback: (
+                                  fileBytesList,
+                                  fileNameList,
+                                  deleted,
+                                ) {
+                                  chequePhotoFile.fileBytesList = fileBytesList;
+                                  chequePhotoFile.fileNameList = fileNameList;
+                                  chequePhotoFile.deletedFileList = deleted;
+                                },
+                              ),
+                              CustomDatePicker(
+                                title: "Submission Date",
+                                initialDate: submissionDate,
+                                startDate: DateTime.now(),
+                                setValue: (value) => submissionDate = value,
+                              ),
+                              CustomDatePicker(
+                                title: "Issue Date",
+                                initialDate: issueDate,
+                                startDate: DateTime.now(),
+                                setValue: (value) => issueDate = value,
+                              ),
+                              CustomTextField(
+                                title: 'Payorder Remark',
+                                textController: _payOrderTrackC,
+                                hint: "Enter Payorder Remark",
+                                minLines: 3,
+                                maxLines: 10,
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                // LIASONING ARCHITECT
+                Container(
+                  decoration: commonCardDecoration(),
+                  padding: EdgeInsets.all(12),
+                  margin: EdgeInsets.only(bottom: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Liasoning Architect",
+                        style: AppTextStyle.ts14M(
+                          color: AppColor.black.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      verticalSpacing(),
                       CustomTextField(
-                        title: 'Architect Name',
-                        textController: _architectNameC,
-                        hint: "Enter Architect Name",
-                        inputFormatterList: [
-                          LengthLimitingTextInputFormatter(100),
-                        ],
+                        title: 'Name',
+                        textController: _liasoningNameC,
+                        hint: "Enter Name",
                       ),
                       CustomTextField(
-                        title: 'Architect Mobile Number',
-                        textController: _architectMobileNumberC,
-                        hint: "Enter Architect Mobile Number",
+                        title: 'Mobile Number',
+                        textController: _liasoningMobileNumberC,
+                        hint: "Enter Mobile Number",
+                        prefixWidget: IntrinsicHeight(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(width: 10),
+                              Text("+91"),
+                              VerticalDivider(
+                                color: AppColor.black,
+                                thickness: 0.5,
+                                width: 15,
+                                indent: 5,
+                                endIndent: 5,
+                              ),
+                            ],
+                          ),
+                        ),
+                        inputFormatterList: InputValidator.digit(10),
+                      ),
+                    ],
+                  ),
+                ),
+                // DESIGNING ARCHITECT
+                Container(
+                  decoration: commonCardDecoration(),
+                  padding: EdgeInsets.all(12),
+                  margin: EdgeInsets.only(bottom: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Designing Architect",
+                        style: AppTextStyle.ts14M(
+                          color: AppColor.black.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      verticalSpacing(),
+                      CustomTextField(
+                        title: 'Name',
+                        textController: _designingNameC,
+                        hint: "Enter Name",
+                      ),
+                      CustomTextField(
+                        title: 'Mobile Number',
+                        textController: _designingMobileNumberC,
+                        hint: "Enter Mobile Number",
+                        prefixWidget: IntrinsicHeight(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(width: 10),
+                              Text("+91"),
+                              VerticalDivider(
+                                color: AppColor.black,
+                                thickness: 0.5,
+                                width: 15,
+                                indent: 5,
+                                endIndent: 5,
+                              ),
+                            ],
+                          ),
+                        ),
+                        inputFormatterList: InputValidator.digit(10),
+                      ),
+                    ],
+                  ),
+                ),
+                // RCC CONSULTANT
+                Container(
+                  decoration: commonCardDecoration(),
+                  padding: EdgeInsets.all(12),
+                  margin: EdgeInsets.only(bottom: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "RCC Consultant",
+                        style: AppTextStyle.ts14M(
+                          color: AppColor.black.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      verticalSpacing(),
+                      CustomTextField(
+                        title: 'Name',
+                        textController: _rccConsultantgNameC,
+                        hint: "Enter Name",
+                      ),
+                      CustomTextField(
+                        title: 'Mobile Number',
+                        textController: _rccConsultantMobileNumberC,
+                        hint: "Enter Mobile Number",
                         prefixWidget: IntrinsicHeight(
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -568,7 +959,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     children: [
                       Text(
                         "Location Details",
-                        style: AppTextStyle.ts16SB(color: AppColor.grey),
+                        style: AppTextStyle.ts14M(
+                          color: AppColor.black.withValues(alpha: 0.5),
+                        ),
                       ),
                       verticalSpacing(),
                       CustomTextField(
@@ -662,7 +1055,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     children: [
                       Text(
                         "Scheme & Scope Details",
-                        style: AppTextStyle.ts16SB(color: AppColor.grey),
+                        style: AppTextStyle.ts14M(
+                          color: AppColor.black.withValues(alpha: 0.5),
+                        ),
                       ),
                       verticalSpacing(),
                       CustomTextField(
@@ -726,9 +1121,18 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     children: [
                       Text(
                         "Project Documentation",
-                        style: AppTextStyle.ts16SB(color: AppColor.grey),
+                        style: AppTextStyle.ts14M(
+                          color: AppColor.black.withValues(alpha: 0.5),
+                        ),
                       ),
                       verticalSpacing(),
+                      CustomTextField(
+                        title: 'APF Number',
+                        hint: "Enter APF Number",
+                        textController: _apfNumberC,
+                        inputFormatterList:
+                            InputValidator.reraInputFormatters(),
+                      ),
                       CustomTextField(
                         title: 'RERA Number',
                         hint: "Enter RERA Number",
@@ -770,7 +1174,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     children: [
                       Text(
                         "Project Financials",
-                        style: AppTextStyle.ts16SB(color: AppColor.grey),
+                        style: AppTextStyle.ts14M(
+                          color: AppColor.black.withValues(alpha: 0.5),
+                        ),
                       ),
                       verticalSpacing(),
                       CustomTextField(
@@ -821,6 +1227,12 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         textController: _projectAreaSqftC,
                         inputFormatterList: InputValidator.decimal(2),
                       ),
+                      CustomTextField(
+                        title: 'Project Area in (SqMt)',
+                        hint: "Enter Project Area in (SqMt)",
+                        textController: _projectAreaSqMtC,
+                        inputFormatterList: InputValidator.decimal(2),
+                      ),
                     ],
                   ),
                 ),
@@ -833,7 +1245,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     children: [
                       Text(
                         "Timeline",
-                        style: AppTextStyle.ts16SB(color: AppColor.grey),
+                        style: AppTextStyle.ts14M(
+                          color: AppColor.black.withValues(alpha: 0.5),
+                        ),
                       ),
                       verticalSpacing(),
                       CustomDatePicker(
@@ -869,7 +1283,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     children: [
                       Text(
                         "Contact Information",
-                        style: AppTextStyle.ts16SB(color: AppColor.grey),
+                        style: AppTextStyle.ts14M(
+                          color: AppColor.black.withValues(alpha: 0.5),
+                        ),
                       ),
                       verticalSpacing(),
                       CustomTextField(

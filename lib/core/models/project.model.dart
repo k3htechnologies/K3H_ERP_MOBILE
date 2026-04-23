@@ -16,8 +16,22 @@ class ProjectModel {
   bool isRedevelopment;
   String bussinessCategory;
   String fileNumber;
-  String architectName;
-  String architectMobileNumber;
+  String liasoningArchitectName;
+  String liasoningArchitectMobileNumber;
+  String designingArchitectName;
+  String designingArchitectMobileNumber;
+  String rccConsultantName;
+  String rccConsultantMobileNumber;
+  String category;
+  double tenderAmount;
+  double tenderEmdAmount;
+  DateTime? tenderPurchaseStartDate;
+  DateTime? tenderPurchaseEndDate;
+  String? tenderChequeNumber;
+  String? tenderChequeNumberUrl;
+  DateTime? tenderSubmissionDate;
+  DateTime? tenderIssueDate;
+  String? tenderPayorderRemark;
   String projectShortName;
   int countryMasterId;
   String countryName;
@@ -33,6 +47,7 @@ class ProjectModel {
   String projectScope;
   double projectEstimateCost;
   String projectAreaInSqft;
+  String? projectAreaInSqmt;
   String onGoingBudgetCost;
   DateTime? surveyDate;
   DateTime? expectedStartDate;
@@ -40,6 +55,7 @@ class ProjectModel {
   String siteContactMobileNumber;
   String siteContactName;
   String projectStatus;
+  String? apfNumber;
   String reraNumber;
   DateTime? reraCertificateDate;
   DateTime? reraComplitionDate;
@@ -71,8 +87,22 @@ class ProjectModel {
     required this.isRedevelopment,
     required this.bussinessCategory,
     required this.fileNumber,
-    required this.architectName,
-    required this.architectMobileNumber,
+    required this.liasoningArchitectName,
+    required this.liasoningArchitectMobileNumber,
+    required this.designingArchitectName,
+    required this.designingArchitectMobileNumber,
+    required this.rccConsultantName,
+    required this.rccConsultantMobileNumber,
+    required this.category,
+    required this.tenderAmount,
+    required this.tenderEmdAmount,
+    this.tenderPurchaseStartDate,
+    this.tenderPurchaseEndDate,
+    this.tenderChequeNumber,
+    this.tenderChequeNumberUrl,
+    this.tenderSubmissionDate,
+    this.tenderIssueDate,
+    this.tenderPayorderRemark,
     required this.projectShortName,
     required this.countryMasterId,
     required this.countryName,
@@ -88,6 +118,7 @@ class ProjectModel {
     required this.projectScope,
     required this.projectEstimateCost,
     required this.projectAreaInSqft,
+    this.projectAreaInSqmt,
     required this.onGoingBudgetCost,
     this.surveyDate,
     this.expectedStartDate,
@@ -95,6 +126,7 @@ class ProjectModel {
     required this.siteContactMobileNumber,
     required this.siteContactName,
     required this.projectStatus,
+    this.apfNumber,
     required this.reraNumber,
     this.reraCertificateDate,
     this.reraComplitionDate,
@@ -127,8 +159,43 @@ class ProjectModel {
     isRedevelopment: parseValue<bool>(json, "IsRedevelopment"),
     bussinessCategory: parseValue<String>(json, "BussinessCategory"),
     fileNumber: parseValue<String>(json, "FileNumber"),
-    architectName: parseValue<String>(json, "ArchitectName"),
-    architectMobileNumber: parseValue<String>(json, "ArchitectMobileNumber"),
+    liasoningArchitectName: parseValue<String>(json, "LiasoningArchitectName"),
+    liasoningArchitectMobileNumber: parseValue<String>(
+      json,
+      "LiasoningArchitectMobileNumber",
+    ),
+    designingArchitectName: parseValue<String>(json, "DesigningArchitectName"),
+    designingArchitectMobileNumber: parseValue<String>(
+      json,
+      "DesigningArchitectMobileNumber",
+    ),
+    rccConsultantName: parseValue<String>(json, "RCCConsultantName"),
+    rccConsultantMobileNumber: parseValue<String>(
+      json,
+      "RCCConsultantMobileNumber",
+    ),
+    category: parseValue<String>(json, "Category"),
+    tenderAmount: parseValue<double>(json, "TenderAmount"),
+    tenderEmdAmount: parseValue<double>(json, "TenderEMDAmount"),
+    tenderPurchaseStartDate:
+        json["TenderPurchaseStartDate"] != null
+            ? DateTime.parse(json["TenderPurchaseStartDate"])
+            : null,
+    tenderPurchaseEndDate:
+        json["TenderPurchaseEndDate"] != null
+            ? DateTime.parse(json["TenderPurchaseEndDate"])
+            : null,
+    tenderChequeNumber: parseValue<String>(json, "TenderChequeNumber"),
+    tenderChequeNumberUrl: parseValue<String>(json, "TenderChequeNumberURL"),
+    tenderSubmissionDate:
+        json["TenderSubmissionDate"] != null
+            ? DateTime.parse(json["TenderSubmissionDate"])
+            : null,
+    tenderIssueDate:
+        json["TenderIssueDate"] != null
+            ? DateTime.parse(json["TenderIssueDate"])
+            : null,
+    tenderPayorderRemark: parseValue<String>(json, "TenderPayorderRemark"),
     projectShortName: parseValue<String>(json, "ProjectShortName"),
     countryMasterId: parseValue<int>(json, "CountryMasterId"),
     countryName: parseValue<String>(json, "CountryName"),
@@ -144,32 +211,34 @@ class ProjectModel {
     projectScope: parseValue<String>(json, "ProjectScope"),
     projectEstimateCost: parseValue<double>(json, "ProjectEstimateCost"),
     projectAreaInSqft: parseValue<String>(json, "ProjectAreaInSqft"),
+    projectAreaInSqmt: parseValue<String>(json, "ProjectAreaInSqmt"),
     onGoingBudgetCost: parseValue<String>(json, "OnGoingBudgetCost"),
     surveyDate:
-    json["SurveyDate"] != null ? DateTime.parse(json["SurveyDate"]) : null,
+        json["SurveyDate"] != null ? DateTime.parse(json["SurveyDate"]) : null,
     expectedStartDate:
-    json["ExpectedStartDate"] != null
-        ? DateTime.parse(json["ExpectedStartDate"])
-        : null,
+        json["ExpectedStartDate"] != null
+            ? DateTime.parse(json["ExpectedStartDate"])
+            : null,
     executionStartDate:
-    json["ExecutionStartDate"] != null
-        ? DateTime.parse(json["ExecutionStartDate"])
-        : null,
+        json["ExecutionStartDate"] != null
+            ? DateTime.parse(json["ExecutionStartDate"])
+            : null,
     siteContactMobileNumber: parseValue<String>(
       json,
       "SiteContactMobileNumber",
     ),
     siteContactName: parseValue<String>(json, "SiteContactName"),
     projectStatus: parseValue<String>(json, "ProjectStatus"),
+    apfNumber: parseValue<String>(json, "APFNumber"),
     reraNumber: parseValue<String>(json, "RERANumber"),
     reraCertificateDate:
-    json["RERACertificateDate"] != null
-        ? DateTime.parse(json["RERACertificateDate"])
-        : null,
+        json["RERACertificateDate"] != null
+            ? DateTime.parse(json["RERACertificateDate"])
+            : null,
     reraComplitionDate:
-    json["RERAComplitionDate"] != null
-        ? DateTime.parse(json["RERAComplitionDate"])
-        : null,
+        json["RERAComplitionDate"] != null
+            ? DateTime.parse(json["RERAComplitionDate"])
+            : null,
     projectScheme: parseValue<String>(json, "ProjectScheme"),
     projectSubScheme: parseValue<String>(json, "ProjectSubScheme"),
     googleLocation: parseValue<String>(json, "GoogleLocation"),
@@ -181,29 +250,29 @@ class ProjectModel {
     modifiedById: parseValue<int>(json, "ModifiedById"),
     modifiedBy: parseValue<String>(json, "ModifiedBy"),
     modifiedDate:
-    json["ModifiedDate"] != null
-        ? DateTime.parse(json["ModifiedDate"])
-        : null,
+        json["ModifiedDate"] != null
+            ? DateTime.parse(json["ModifiedDate"])
+            : null,
     companyData:
-    json["CompanyData"] != null
-        ? (json["CompanyData"] as List<dynamic>)
-        .map((e) => CompanyModel.fromJson(e as Map<String, dynamic>))
-        .toList()
-        : null,
+        json["CompanyData"] != null
+            ? (json["CompanyData"] as List<dynamic>)
+                .map((e) => CompanyModel.fromJson(e as Map<String, dynamic>))
+                .toList()
+            : null,
     projectWithBankDetailsData:
-    json["ProjectWithBankDetailsData"] != null
-        ? (json["ProjectWithBankDetailsData"] as List<dynamic>)
-        .map(
-          (e) => BankDetailsModel.fromJson(e as Map<String, dynamic>),
-    )
-        .toList()
-        : null,
+        json["ProjectWithBankDetailsData"] != null
+            ? (json["ProjectWithBankDetailsData"] as List<dynamic>)
+                .map(
+                  (e) => BankDetailsModel.fromJson(e as Map<String, dynamic>),
+                )
+                .toList()
+            : null,
     employeeData:
-    json["EmployeeData"] != null
-        ? (json["EmployeeData"] as List<dynamic>)
-        .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
-        .toList()
-        : null,
+        json["EmployeeData"] != null
+            ? (json["EmployeeData"] as List<dynamic>)
+                .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
+                .toList()
+            : null,
   );
 
   Map<String, dynamic> toJson() => {
@@ -219,8 +288,22 @@ class ProjectModel {
     "IsRedevelopment": isRedevelopment,
     "BussinessCategory": bussinessCategory,
     "FileNumber": fileNumber,
-    "ArchitectName": architectName,
-    "ArchitectMobileNumber": architectMobileNumber,
+    "LiasoningArchitectName": liasoningArchitectName,
+    "LiasoningArchitectMobileNumber": liasoningArchitectMobileNumber,
+    "DesigningArchitectName": designingArchitectName,
+    "DesigningArchitectMobileNumber": designingArchitectMobileNumber,
+    "RCCConsultantName": rccConsultantName,
+    "RCCConsultantMobileNumber": rccConsultantMobileNumber,
+    "Category": category,
+    "TenderAmount": tenderAmount,
+    "TenderEMDAmount": tenderEmdAmount,
+    "TenderPurchaseStartDate": tenderPurchaseStartDate?.toIso8601String(),
+    "TenderPurchaseEndDate": tenderPurchaseEndDate?.toIso8601String(),
+    "TenderChequeNumber": tenderChequeNumber,
+    "TenderChequeNumberURL": tenderChequeNumberUrl,
+    "TenderSubmissionDate": tenderSubmissionDate?.toIso8601String(),
+    "TenderIssueDate": tenderIssueDate?.toIso8601String(),
+    "TenderPayorderRemark": tenderPayorderRemark,
     "ProjectShortName": projectShortName,
     "CountryMasterId": countryMasterId,
     "CountryName": countryName,
@@ -236,6 +319,7 @@ class ProjectModel {
     "ProjectScope": projectScope,
     "ProjectEstimateCost": projectEstimateCost,
     "ProjectAreaInSqft": projectAreaInSqft,
+    "ProjectAreaInSqmt": projectAreaInSqmt,
     "OnGoingBudgetCost": onGoingBudgetCost,
     "SurveyDate": surveyDate?.toIso8601String(),
     "ExpectedStartDate": expectedStartDate?.toIso8601String(),
@@ -243,6 +327,7 @@ class ProjectModel {
     "SiteContactMobileNumber": siteContactMobileNumber,
     "SiteContactName": siteContactName,
     "ProjectStatus": projectStatus,
+    "APFNumber": apfNumber,
     "RERANumber": reraNumber,
     "RERACertificateDate": reraCertificateDate?.toIso8601String(),
     "RERAComplitionDate": reraComplitionDate?.toIso8601String(),
@@ -259,7 +344,7 @@ class ProjectModel {
     "ModifiedDate": modifiedDate?.toIso8601String(),
     "CompanyData": companyData?.map((e) => e.toJson()).toList(),
     "ProjectWithBankDetailsData":
-    projectWithBankDetailsData?.map((e) => e.toJson()).toList(),
+        projectWithBankDetailsData?.map((e) => e.toJson()).toList(),
     "EmployeeData": employeeData?.map((e) => e.toJson()).toList(),
   };
 }

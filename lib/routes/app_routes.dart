@@ -66,6 +66,7 @@ class AppRoutes {
   static String addMaterialMaster = "/addMaterialMaster";
   static String viewMaterialMaster = "/viewMaterialMaster";
   static String finalizeVendor = "/finalizeVendor";
+  static String finalizeEditVendor = "/finalizeEditVendor";
 
   // UOM MASTER
   static String uomMaster = "/uomMaster";

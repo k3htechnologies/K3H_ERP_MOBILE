@@ -225,9 +225,9 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 "Company",
                 "Approval",
               ],
-              onTabChanged: (_){
+              onTabChanged: (_) {
                 _searchEmployeeC.clear();
-            }
+              },
             ),
             Expanded(
               child: TabBarView(
@@ -428,11 +428,11 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Architect Name",
-                      value: widget.project.architectName,
+                      value: widget.project.designingArchitectName,
                     ),
                     buildColumnTitleValue(
                       title: "Architect Mobile Number",
-                      value: widget.project.architectMobileNumber,
+                      value: widget.project.designingArchitectMobileNumber,
                     ),
                   ],
                 ),
@@ -1185,7 +1185,9 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                           ? Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              Flexible(child: Text(company.panNumber)),
+                                              Flexible(
+                                                child: Text(company.panNumber),
+                                              ),
                                               horizontalSpacing(),
                                               CustomIconButton(
                                                 onPressed: () {
@@ -1214,32 +1216,34 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                       company.gstNumber.isNotEmpty
                                           ? company.gstNumber
                                           : "-",
-                                  customValueWidget:  company.gstNumber.isNotEmpty
-                                      ? Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Flexible(child: Text(company.gstNumber)),
-                                      horizontalSpacing(),
-                                      CustomIconButton(
-                                        onPressed: () {
-                                          showFilePreviewDialog(
-                                            context,
-                                            company.gstCertificateURL.split(
-                                              ",",
-                                            ),
-                                          );
-                                        },
-                                        icon: Icon(
-                                          Icons.remove_red_eye_outlined,
-                                          size: 16,
-                                          color: AppColor.primary,
-                                        ),
-                                        backgroundColor:
-                                        AppColor.lightBlue,
-                                      ),
-                                    ],
-                                  )
-                                      : Text("-"),
+                                  customValueWidget:
+                                      company.gstNumber.isNotEmpty
+                                          ? Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Flexible(
+                                                child: Text(company.gstNumber),
+                                              ),
+                                              horizontalSpacing(),
+                                              CustomIconButton(
+                                                onPressed: () {
+                                                  showFilePreviewDialog(
+                                                    context,
+                                                    company.gstCertificateURL
+                                                        .split(","),
+                                                  );
+                                                },
+                                                icon: Icon(
+                                                  Icons.remove_red_eye_outlined,
+                                                  size: 16,
+                                                  color: AppColor.primary,
+                                                ),
+                                                backgroundColor:
+                                                    AppColor.lightBlue,
+                                              ),
+                                            ],
+                                          )
+                                          : Text("-"),
                                 ),
                               ],
                             ),
@@ -1251,62 +1255,64 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                 buildColumnTitleValue(
                                   title: "CIN Number",
                                   value: company.cinNumber,
-                                  customValueWidget:  company.cinNumber.isNotEmpty
-                                      ? Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Flexible(child: Text(company.cinNumber)),
-                                      horizontalSpacing(),
-                                      CustomIconButton(
-                                        onPressed: () {
-                                          showFilePreviewDialog(
-                                            context,
-                                            company.cinURL.split(
-                                              ",",
-                                            ),
-                                          );
-                                        },
-                                        icon: Icon(
-                                          Icons.remove_red_eye_outlined,
-                                          size: 16,
-                                          color: AppColor.primary,
-                                        ),
-                                        backgroundColor:
-                                        AppColor.lightBlue,
-                                      ),
-                                    ],
-                                  )
-                                      : Text("-"),
+                                  customValueWidget:
+                                      company.cinNumber.isNotEmpty
+                                          ? Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Flexible(
+                                                child: Text(company.cinNumber),
+                                              ),
+                                              horizontalSpacing(),
+                                              CustomIconButton(
+                                                onPressed: () {
+                                                  showFilePreviewDialog(
+                                                    context,
+                                                    company.cinURL.split(","),
+                                                  );
+                                                },
+                                                icon: Icon(
+                                                  Icons.remove_red_eye_outlined,
+                                                  size: 16,
+                                                  color: AppColor.primary,
+                                                ),
+                                                backgroundColor:
+                                                    AppColor.lightBlue,
+                                              ),
+                                            ],
+                                          )
+                                          : Text("-"),
                                 ),
                                 buildColumnTitleValue(
                                   title: "TAN Number",
                                   value: company.tanNumber,
-                                  customValueWidget:  company.tanNumber.isNotEmpty
-                                      ? Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Flexible(child: Text(company.tanNumber)),
-                                      horizontalSpacing(),
-                                      CustomIconButton(
-                                        onPressed: () {
-                                          showFilePreviewDialog(
-                                            context,
-                                            company.tanURL.split(
-                                              ",",
-                                            ),
-                                          );
-                                        },
-                                        icon: Icon(
-                                          Icons.remove_red_eye_outlined,
-                                          size: 16,
-                                          color: AppColor.primary,
-                                        ),
-                                        backgroundColor:
-                                        AppColor.lightBlue,
-                                      ),
-                                    ],
-                                  )
-                                      : Text("-"),
+                                  customValueWidget:
+                                      company.tanNumber.isNotEmpty
+                                          ? Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Flexible(
+                                                child: Text(company.tanNumber),
+                                              ),
+                                              horizontalSpacing(),
+                                              CustomIconButton(
+                                                onPressed: () {
+                                                  showFilePreviewDialog(
+                                                    context,
+                                                    company.tanURL.split(","),
+                                                  );
+                                                },
+                                                icon: Icon(
+                                                  Icons.remove_red_eye_outlined,
+                                                  size: 16,
+                                                  color: AppColor.primary,
+                                                ),
+                                                backgroundColor:
+                                                    AppColor.lightBlue,
+                                              ),
+                                            ],
+                                          )
+                                          : Text("-"),
                                 ),
                               ],
                             ),
