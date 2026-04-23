@@ -42,6 +42,8 @@ class ChannelPartnerModel {
   final int brokeragePercentage;
   final double brokerageAmount;
   final double paidBrokerageAmount;
+  final String websiteURL;
+  final DateTime? dob;
 
   ChannelPartnerModel({
     required this.channelPartnerId,
@@ -85,6 +87,8 @@ class ChannelPartnerModel {
     required this.brokeragePercentage,
     required this.brokerageAmount,
     required this.paidBrokerageAmount,
+    required this.dob,
+    required this.websiteURL,
   });
 
   factory ChannelPartnerModel.fromJson(Map<String, dynamic> json) =>
@@ -128,15 +132,20 @@ class ChannelPartnerModel {
         modifiedById: parseValue<int>(json, "ModifiedById"),
         modifiedBy: parseValue<String>(json, "ModifiedBy"),
         modifiedDate:
-        json["ModifiedDate"] == null
-            ? null
-            : parseValue<DateTime>(json, "ModifiedDate"),
+            json["ModifiedDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "ModifiedDate"),
         noOfEnquiry: parseValue<int>(json, "NoOfEnquiry"),
         noOfBooking: parseValue<int>(json, "NoOfBooking"),
         brokeragePercentage: parseValue<int>(json, "BrokeragePercentage"),
         brokerageAmount: parseValue<double>(json, "BrokerageAmount").toDouble(),
         paidBrokerageAmount:
             parseValue<double>(json, "PaidBrokerageAmount").toDouble(),
+        dob:
+            json["DateOfBirth"] == null
+                ? null
+                : parseValue<DateTime>(json, "DateOfBirth"),
+        websiteURL: parseValue<String>(json, "WebsiteURL"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -181,6 +190,8 @@ class ChannelPartnerModel {
     "BrokeragePercentage": brokeragePercentage,
     "BrokerageAmount": brokerageAmount,
     "PaidBrokerageAmount": paidBrokerageAmount,
+    "DateOfBirth": dob?.toIso8601String(),
+    "WebsiteURL": websiteURL,
   };
 }
 

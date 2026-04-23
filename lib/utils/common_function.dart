@@ -698,29 +698,40 @@ Future<bool> importExcel(
 }
 
 String addCommasToInteger(double value, {bool withoutSign = false}) {
-  String integerPart = value.toStringAsFixed(2);
-  // This function formats the integer part in Indian style, e.g., 14,34,000
-  if (integerPart.length <= 6) {
-    return withoutSign ? integerPart : '₹ $integerPart';
+  // Check if decimal part is non-zero
+  bool hasDecimal = value % 1 != 0;
+
+  // Format number string
+  String numberStr =
+      hasDecimal ? value.toStringAsFixed(2) : value.toInt().toString();
+
+  // Split integer and decimal parts
+  List<String> parts = numberStr.split('.');
+  String integerPart = parts[0];
+  String decimalPart = parts.length > 1 ? '.${parts[1]}' : '';
+
+  // If small number
+  if (integerPart.length <= 3) {
+    String result = integerPart + (hasDecimal ? decimalPart : '');
+    return withoutSign ? result : '₹ $result';
   }
 
-  // First part (last 3 digits, no commas needed)
-  String lastThreeDigits = integerPart.substring(integerPart.length - 6);
+  // Last 3 digits
+  String lastThreeDigits = integerPart.substring(integerPart.length - 3);
 
-  // Remaining part (grouping in pairs of 2 digits)
-  String remainingDigits = integerPart.substring(0, integerPart.length - 6);
+  // Remaining digits
+  String remainingDigits = integerPart.substring(0, integerPart.length - 3);
 
-  // Group the remaining part in pairs and add commas
+  // Indian grouping (2 digits)
   String groupedDigits = remainingDigits.replaceAllMapped(
     RegExp(r'(\d)(?=(\d{2})+(?!\d))'),
     (match) => '${match[1]},',
   );
 
-  // Combine the grouped part and the last three digits
-  if (withoutSign) {
-    return '$groupedDigits,$lastThreeDigits';
-  }
-  return '₹ $groupedDigits,$lastThreeDigits';
+  String result =
+      '$groupedDigits,$lastThreeDigits${hasDecimal ? decimalPart : ''}';
+
+  return withoutSign ? result : '₹ $result';
 }
 
 String getInitials(String name) {

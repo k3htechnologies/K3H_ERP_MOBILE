@@ -50,9 +50,7 @@ class _MaterialRequisitionViewScreenState
   late PurchaseOrderCubit _purchaseOrderCubit;
   final ValueNotifier<MaterialRequisitionModel?> materialRequisitionOverview =
       ValueNotifier(null);
-  final ValueNotifier<List<RequisitionVendorModel>> vendorList = ValueNotifier(
-    [],
-  );
+  final ValueNotifier<RequisitionVendorModel?> vendorList = ValueNotifier(null);
 
   final ValueNotifier<List<dynamic>> selectedVendorList = ValueNotifier([]);
   final Set<int> selectedVendorIndex = {};
@@ -75,28 +73,27 @@ class _MaterialRequisitionViewScreenState
           widget.projectId,
           widget.materialRequisitionId,
         );
-    if (context.mounted) {
-      vendorList.value = await _materialRequisitionCubit
-          .getVendorForEnquiryList(
-            context,
-            widget.projectId,
-            widget.materialRequisitionId,
-            widget.uniquekey,
-          );
-    }
-    if (materialRequisitionOverview.value?.uniquekey != null &&
-        materialRequisitionOverview.value!.uniquekey.isNotEmpty) {
-      final vendors = await _finalizeVendorCubit.getSelectedVenodeForCompare(
+    if (mounted) {
+      vendorList.value = await _materialRequisitionCubit.getFinalizedVendor(
         context,
         widget.projectId,
         widget.materialRequisitionId,
-        materialRequisitionOverview.value!.uniquekey,
+        widget.uniquekey,
       );
-
-      selectedVendorList.value = vendors;
-    } else {
-      selectedVendorList.value = [];
     }
+    // if (materialRequisitionOverview.value?.uniquekey != null &&
+    //     materialRequisitionOverview.value!.uniquekey.isNotEmpty) {
+    //   final vendors = await _finalizeVendorCubit.getSelectedVenodeForCompare(
+    //     context,
+    //     widget.projectId,
+    //     widget.materialRequisitionId,
+    //     materialRequisitionOverview.value!.uniquekey,
+    //   );
+
+    //   selectedVendorList.value = vendors;
+    // } else {
+    //   selectedVendorList.value = [];
+    // }
   }
 
   void _toggleVendorSelection(int index) {
@@ -199,9 +196,8 @@ class _MaterialRequisitionViewScreenState
     }
     final materialRequisition = materialRequisitionOverview.value;
     final materialList = materialRequisition?.materialRequisitionDetailData;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
       child: Column(
         spacing: 10,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,7 +209,7 @@ class _MaterialRequisitionViewScreenState
           ),
           Container(
             decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.all(16),
             child: Column(
               spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,7 +219,6 @@ class _MaterialRequisitionViewScreenState
                   style: AppTextStyle.ts16SB(color: AppColor.black),
                 ),
                 Row(
-                  spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
@@ -237,7 +232,6 @@ class _MaterialRequisitionViewScreenState
                   ],
                 ),
                 Row(
-                  spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
@@ -264,9 +258,70 @@ class _MaterialRequisitionViewScreenState
               ],
             ),
           ),
-
           Container(
-            padding: EdgeInsets.all(10),
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 10,
+              children: [
+                Text(
+                  "Vendor And Amount Details",
+                  style: AppTextStyle.ts16SB(color: AppColor.black),
+                ),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Vendor Name",
+                      value: "dsmkld",
+                    ),
+                    buildColumnTitleValue(
+                      title: "Vendor Company",
+                      value: "ABC",
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Basic Amount",
+                      value: addCommasToInteger(1000),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Total Tax",
+                      value: addCommasToInteger(1000.50),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Grand Total",
+                      value: addCommasToInteger(1000),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Est. Delivery",
+                      value: "12 Days",
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Paid Amount",
+                      value: addCommasToInteger(1000),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Pending Amount",
+                      value: addCommasToInteger(1000.50),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.all(16),
             decoration: commonCardDecoration(),
             child: Column(
               spacing: 10,
@@ -283,7 +338,6 @@ class _MaterialRequisitionViewScreenState
                   ),
                   padding: EdgeInsets.all(10),
                   child: Row(
-                    spacing: 10,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       buildColumnTitleValue(

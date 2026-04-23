@@ -117,7 +117,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
     );
   }
 
-  Future<List<RequisitionVendorModel>> getVendorForEnquiryList(
+  Future<RequisitionVendorModel?> getFinalizedVendor(
     BuildContext context,
     int projectId,
     int materialRequisitionId,
@@ -125,7 +125,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
   ) async {
     emit(state.copyWith(isLoading: true));
 
-    var result = await finalizeVendorRepository.getSelectedVendor(
+    var result = await finalizeVendorRepository.getFinalizedVendor(
       projectId: projectId,
       materialRequisitionId: materialRequisitionId,
       uniquekey: uniquekey,
@@ -135,7 +135,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
-        return [];
+        return null;
       },
       (response) {
         showSuccessMessage(context);
@@ -143,7 +143,9 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
             response['data'] as List<RequisitionVendorModel>;
 
         emit(state.copyWith(isLoading: false));
-        return requisitionVendorList.isNotEmpty ? requisitionVendorList : [];
+        return requisitionVendorList.isNotEmpty
+            ? requisitionVendorList.first
+            : null;
       },
     );
   }

@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/address/address_widget.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_verification_dialog.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
@@ -63,7 +64,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
       _gstNumberC,
       _officeAddressC,
       _filterLocalityC,
-      _otpController;
+      _otpController,
+      _websiteC;
 
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -141,6 +143,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   ValueNotifier<Map<String, dynamic>?> selectedCityVN = ValueNotifier(null);
   ValueNotifier<Map<String, dynamic>?> selectedVillageVN = ValueNotifier(null);
 
+  DateTime? _dob;
+
   @override
   void initState() {
     super.initState();
@@ -194,6 +198,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _officeAddressC.dispose();
     _filterLocalityC.dispose();
     _otpController.dispose();
+    _websiteC.dispose();
 
     // VALUE NOTIFIERS
     selectedCompanyType.dispose();
@@ -224,6 +229,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _officeAddressC = TextEditingController();
     _filterLocalityC = TextEditingController();
     _otpController = TextEditingController();
+    _websiteC = TextEditingController();
   }
 
   // FETCH COMPANY LIST FOR EXISTING COMPANY FLOW
@@ -344,7 +350,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _reraNumberC.text = channelPartnerMasterModel.reraNumber;
     _gstNumberC.text = channelPartnerMasterModel.gstNumber;
     _officeAddressC.text = channelPartnerMasterModel.officeAddress;
-
+    _websiteC.text = channelPartnerMasterModel.websiteURL;
+    _dob = channelPartnerMasterModel.dob;
     hasReraNumber.value = channelPartnerMasterModel.reraNumber.isNotEmpty;
 
     if (channelPartnerMasterModel.companyName.isNotEmpty) {
@@ -527,6 +534,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         firmsType: firmsTypeValue,
         type: selectedType.value?["DisplayName"] ?? "",
         designation: selectedDesignation.value?["DisplayName"] ?? "",
+        dob: _dob?.toIso8601String() ?? "",
+        websiteURL: _websiteC.text.trim(),
         otp: _otpController.text.trim(),
       );
     } else {
@@ -556,6 +565,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         designation: selectedDesignation.value?["DisplayName"] ?? "",
         otp: _otpController.text.trim(),
         gstCertificateURL: selectedGSTCertificateForPopUpFile.value,
+        dob: _dob?.toIso8601String() ?? "",
+        websiteURL: _websiteC.text.trim(),
       );
     }
   }
@@ -622,6 +633,19 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         if (value == null || value.trim().isEmpty) {
                           return "Full Name is required";
                         }
+                        return null;
+                      },
+                    ),
+                    CustomDatePicker(
+                      title: 'DOB',
+                      initialDate: _dob,
+                      setValue: (value) => _dob = value,
+                      validator: (value) {
+                        if (value != null &&
+                            !InputValidator.isValidAge(value)) {
+                          return 'Age should be greater than or equal to 18.';
+                        }
+
                         return null;
                       },
                     ),
@@ -903,6 +927,18 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         );
                       },
                     ),
+                    CustomTextField(
+                      title: 'Website URL',
+                      hint: "Enter Website URL",
+                      textController: _websiteC,
+                      validator: (value) {
+                        if ((value != null && value.trim().isNotEmpty) &&
+                            !InputValidator.isValidURL(value)) {
+                          return "Enter a valid Website URL";
+                        }
+                        return null;
+                      },
+                    ),
                     ValueListenableBuilder(
                       valueListenable: selectedCompanyType,
                       builder: (context, value, child) {
@@ -930,24 +966,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                                   }
                                                 }
                                                 : null,
-                                        // onChanged:
-                                        //     isCompanyPrefilled.value ||
-                                        //             (hasRera &&
-                                        //                 selectedDesignation
-                                        //                         .value !=
-                                        //                     null &&
-                                        //                 selectedDesignation
-                                        //                         .value!["zAttributesId"] !=
-                                        //                     3)
-                                        //         ? null
-                                        //         : (value) {
-                                        //           hasReraNumber.value =
-                                        //               value ?? false;
-
-                                        //           if (!hasReraNumber.value) {
-                                        //             _reraNumberC.clear();
-                                        //           }
-                                        //         },
                                       ),
                                     ),
                                     horizontalSpacing(width: 2),

@@ -256,6 +256,14 @@ class InputValidator {
     return tanRegex.hasMatch(input);
   }
 
+  static bool isValidURL(String input) {
+    final urlRegex = RegExp(
+      r'^(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/.*)?$',
+      caseSensitive: false,
+    );
+    return urlRegex.hasMatch(input);
+  }
+
   static List<TextInputFormatter> tanInputFormatters() {
     return [
       LengthLimitingTextInputFormatter(10),

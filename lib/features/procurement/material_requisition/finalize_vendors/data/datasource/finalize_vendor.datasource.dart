@@ -12,6 +12,11 @@ abstract interface class FinalizeVendorDatasource {
     required int materialRequisitionId,
     required String uniquekey,
   });
+  Future<Map<String, dynamic>> apiCallPullFinalizedVendor({
+    required int projectId,
+    required int materialRequisitionId,
+    required String uniquekey,
+  });
   Future<Map<String, dynamic>> apiCallAddVendorForEnquiry({
     required Map<String, dynamic> body,
   });
@@ -69,6 +74,31 @@ class FinalizeVendorDatasourceImpl implements FinalizeVendorDatasource {
     try {
       String selectedVendorForEnquiryUrl =
           'MaterialRequisitionForEnquiry/PullSelectedVendorForEnquiry?MaterialRequisitionId=$materialRequisitionId&Uniquekey=$uniquekey&ProjectId=$projectId';
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        selectedVendorForEnquiryUrl,
+      );
+      return {
+        'data': List<RequisitionVendorModel>.from(
+          networkResponse["data"].map(
+            (e) => RequisitionVendorModel.fromJson(e),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallPullFinalizedVendor({
+    required int projectId,
+    required int materialRequisitionId,
+    required String uniquekey,
+  }) async {
+    try {
+      String selectedVendorForEnquiryUrl =
+          'MaterialRequisitionForEnquiry/PullFinalizedVendor?MaterialRequisitionId=$materialRequisitionId&Uniquekey=$uniquekey&ProjectId=$projectId';
       var networkResponse = await baseClient.getRequestWithAuthentication(
         selectedVendorForEnquiryUrl,
       );
