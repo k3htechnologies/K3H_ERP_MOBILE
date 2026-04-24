@@ -610,6 +610,13 @@ class _ParkingScreenState extends State<ParkingScreen>
       default:
         statusColor = AppColor.grey;
     }
+    final status = parking.parkingStatus.toLowerCase();
+    final showView = (status == "booked" || status == "alloted");
+    final canAction = _routeAuthorizationModel.isAction;
+
+    final showEdit =
+        canAction &&
+        (status == "available" || status == "blocked" || status == "hold");
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -647,6 +654,7 @@ class _ParkingScreenState extends State<ParkingScreen>
           ),
           verticalSpacing(height: 8),
           Row(
+            spacing: 10,
             children: [
               Expanded(
                 child: Container(
@@ -666,25 +674,50 @@ class _ParkingScreenState extends State<ParkingScreen>
                   ),
                 ),
               ),
-              if (parking.approvalStatus != "Approved") ...[
-                horizontalSpacing(),
-                IconButton(
-                  onPressed: () async {
-                    await goRouter.pushNamed(
-                      AppRoutes.editParking,
-                      queryParameters: {
-                        'parking': Uri.encodeComponent(
-                          EncryptionManager.encryptData(
-                            jsonEncode(parking.toJson()),
-                          ),
+              if (parking.approvalStatus != "Approved")
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (showView)
+                      GestureDetector(
+                        onTap: () async {
+                          await goRouter.pushNamed(
+                            AppRoutes.editParking,
+                            queryParameters: {
+                              'parking': Uri.encodeComponent(
+                                EncryptionManager.encryptData(
+                                  jsonEncode(parking.toJson()),
+                                ),
+                              ),
+                              'index': index.toString(),
+                            },
+                          );
+                        },
+                        child: const Icon(
+                          Icons.remove_red_eye_outlined,
+                          size: 18,
                         ),
-                        'index': index.toString(),
-                      },
-                    );
-                  },
-                  icon: Icon(Icons.edit, size: 20),
+                      ),
+
+                    if (showEdit)
+                      GestureDetector(
+                        onTap: () async {
+                          await goRouter.pushNamed(
+                            AppRoutes.editParking,
+                            queryParameters: {
+                              'parking': Uri.encodeComponent(
+                                EncryptionManager.encryptData(
+                                  jsonEncode(parking.toJson()),
+                                ),
+                              ),
+                              'index': index.toString(),
+                            },
+                          );
+                        },
+                        child: const Icon(Icons.edit, size: 18),
+                      ),
+                  ],
                 ),
-              ],
             ],
           ),
           if (parking.ownerName.isNotEmpty) ...[

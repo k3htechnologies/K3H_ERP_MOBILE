@@ -117,6 +117,12 @@ class _AddInventorySpecificationScreenState
     {'zAttributesId': 2, 'DisplayName': 'Blocked'},
     {'zAttributesId': 3, 'DisplayName': 'Hold'},
   ];
+  List<Map<String, dynamic>> flatStatusListWithAlloted = [
+    {'zAttributesId': 1, 'DisplayName': 'Available'},
+    {'zAttributesId': 2, 'DisplayName': 'Blocked'},
+    {'zAttributesId': 3, 'DisplayName': 'Hold'},
+    {'zAttributesId': 4, 'DisplayName': 'Alloted'},
+  ];
 
   // STATIC LISTS FOR FLAT FACING
   List<Map<String, dynamic>> flatFacingList = [
@@ -233,10 +239,16 @@ class _AddInventorySpecificationScreenState
     }
 
     // Handle flat status - only set if not empty (for editing)
-    if (flat.flatStatus.isNotEmpty) {
+    if (flat.flatStatus.isNotEmpty &&
+        flat.flatStatus.toLowerCase() != 'alloted') {
       selectedFlatStatus.value = flatStatusList.firstWhere(
         (e) => e['DisplayName'].toLowerCase() == flat.flatStatus.toLowerCase(),
         orElse: () => flatStatusList.first,
+      );
+    } else {
+      selectedFlatStatus.value = flatStatusListWithAlloted.firstWhere(
+        (e) => e['DisplayName'].toLowerCase() == flat.flatStatus.toLowerCase(),
+        orElse: () => flatStatusListWithAlloted.first,
       );
     }
 
@@ -751,7 +763,11 @@ class _AddInventorySpecificationScreenState
                           isDisabled: statusDisabled.value,
                           hintText: 'Select Status',
                           isRequired: true,
-                          dataList: flatStatusList,
+                          dataList:
+                              widget.flatModel?.flatStatus.toLowerCase() ==
+                                      'alloted'
+                                  ? flatStatusListWithAlloted
+                                  : flatStatusList,
                           initialValue: statusValue,
                           onSelected: (value) {
                             selectedFlatStatus.value = value;

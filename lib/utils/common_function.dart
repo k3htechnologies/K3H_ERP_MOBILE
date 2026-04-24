@@ -204,6 +204,7 @@ Future<void> logOutUser(BuildContext context) async {
 
     Future.delayed(Duration(seconds: 1), () async {
       await LocalStorageManager().removeAll();
+      await Authorization.reset();
 
       if (context.mounted) {
         goRouter.go(AppRoutes.splashScreen);

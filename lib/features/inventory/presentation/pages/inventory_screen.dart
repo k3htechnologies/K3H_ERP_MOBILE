@@ -976,15 +976,6 @@ class _InventoryScreenState extends State<InventoryScreen>
                   if (showView)
                     GestureDetector(
                       onTap: () {
-                        // goRouter.pushNamed(
-                        //   AppRoutes.viewUnitSpecification,
-                        //   queryParameters: {
-                        //     "flatModel": Uri.encodeQueryComponent(
-                        //       EncryptionManager.encryptData(jsonEncode(flat)),
-                        //     ),
-                        //   },
-                        // );
-
                         goRouter.pushNamed(
                           AppRoutes.addInventorySpecification,
                           queryParameters: {

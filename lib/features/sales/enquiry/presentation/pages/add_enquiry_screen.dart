@@ -179,7 +179,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     {'zAttributesId': 13, 'DisplayName': '2 + 1 JODI'},
     {'zAttributesId': 14, 'DisplayName': '2 + 2 JODI'},
     {'zAttributesId': 15, 'DisplayName': '2 + 3 JODI'},
-    {'zAttributesId': 16, 'DisplayName': 'Duplex'},
+    {'zAttributesId': 16, 'DisplayName': 'DUPLEX'},
     {'zAttributesId': 17, 'DisplayName': 'PENTHOUSE'},
   ];
 

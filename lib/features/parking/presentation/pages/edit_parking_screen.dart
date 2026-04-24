@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/parking/presentation/cubit/parking_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -81,6 +82,8 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
 
   // SELECTION VARIABLES
   ValueNotifier<bool> isEvChargingAvailable = ValueNotifier(false);
+  // AUTHORIZATION
+  late AuthorizationModel _routeAuthorizationModel;
 
   @override
   void initState() {
@@ -88,6 +91,9 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
     _initializeTextEditingControllers();
     _parkingCubit = context.read<ParkingCubit>();
     project = getProject();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.parking]!;
+
     _parkingTypeList = ValueNotifier(_parkingSizeTypeList);
     _initializeDropdownVariables();
     _prefillParking(widget.parking);
@@ -347,6 +353,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                 CustomTextField(
                   title: 'Parking Number',
                   hint: 'Enter Parking Number',
+                  readOnly: !_routeAuthorizationModel.isAction,
                   isRequired: true,
                   textController: _parkingNumberC,
                   inputFormatterList: [LengthLimitingTextInputFormatter(50)],
@@ -367,6 +374,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                       title: 'Parking Category',
                       hintText: 'Select Parking Category',
                       isRequired: true,
+                      isDisabled: !_routeAuthorizationModel.isAction,
                       initialValue: categoryValue,
                       dataList: _parkingCategoryList,
                       validator: (value) {
@@ -396,8 +404,10 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                       hintText: "Select Parking Type",
                       initialValue: typeValue,
                       dataList: _parkingList,
+                      isDisabled: !_routeAuthorizationModel.isAction,
+
                       validator: (value) {
-                        if (value == null || value['zAttributesId'] == -1) {
+                        if (value == null) {
                           return 'Parking Type is required';
                         }
                         return null;
@@ -419,6 +429,8 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                         'subtype_${subTypeValue?['zAttributesId']}',
                       ),
                       title: 'Parking Size Type',
+                      isDisabled: !_routeAuthorizationModel.isAction,
+
                       hintText: 'Select Parking Size Type',
                       isRequired: true,
                       initialValue: subTypeValue,
@@ -442,6 +454,8 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                   title: 'Parking Dimensions',
                   hint: 'Enter Parking Dimensions',
                   isRequired: true,
+                  readOnly: !_routeAuthorizationModel.isAction,
+
                   textController: _parkingDimensionsC,
                   inputFormatterList: [LengthLimitingTextInputFormatter(50)],
                   validator: (string) {
@@ -459,6 +473,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                       title: 'Parking Status',
                       hintText: 'Select Parking Status',
                       isRequired: true,
+                      isDisabled: !_routeAuthorizationModel.isAction,
                       initialValue: statusValue,
                       dataList: _parkingStatusList,
                       validator: (value) {
@@ -487,6 +502,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                           children: [
                             Radio<bool>(
                               value: true,
+                              enabled: _routeAuthorizationModel.isAction,
                               groupValue: isEvChargingAvailable.value,
                               activeColor: AppColor.primary,
                               onChanged: (value) {
@@ -501,6 +517,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                           children: [
                             Radio<bool>(
                               value: false,
+                              enabled: _routeAuthorizationModel.isAction,
                               groupValue: isEvChargingAvailable.value,
                               activeColor: AppColor.info,
                               onChanged: (value) {
@@ -520,17 +537,20 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          height: 70,
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: CustomButton(
-            leading: Icon(Icons.edit, size: 16, color: AppColor.white),
-            text: "Update",
-            onPressed: _handleUpdateParking,
-          ),
-        ),
-      ),
+      bottomNavigationBar:
+          _routeAuthorizationModel.isAction
+              ? SafeArea(
+                child: Container(
+                  height: 70,
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: CustomButton(
+                    leading: Icon(Icons.edit, size: 16, color: AppColor.white),
+                    text: "Update",
+                    onPressed: _handleUpdateParking,
+                  ),
+                ),
+              )
+              : null,
     );
   }
 

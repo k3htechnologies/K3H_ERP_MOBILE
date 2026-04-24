@@ -73,7 +73,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     {'zAttributesId': 4, 'DisplayName': '4 BHK'},
     {'zAttributesId': 5, 'DisplayName': '5 BHK'},
     {'zAttributesId': 6, 'DisplayName': '1 Rk'},
-    {'zAttributesId': 7, 'DisplayName': 'Duplex'},
+    {'zAttributesId': 7, 'DisplayName': 'DUPLEX'},
   ];
 
   // STATIC FLAT FACING LIST

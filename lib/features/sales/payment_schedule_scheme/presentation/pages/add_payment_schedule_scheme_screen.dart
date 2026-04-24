@@ -146,7 +146,9 @@ class _AddPaymentScheduleSchemeScreenState
                       },
                       validator:
                           (value) =>
-                              value == null ? "Building is required" : null,
+                              selectedBuildingMap == null
+                                  ? "Building is required"
+                                  : null,
                       onValueClear: () {
                         _selectedBuildingId = null;
                         _selectedWingId = null;
@@ -170,7 +172,10 @@ class _AddPaymentScheduleSchemeScreenState
                         });
                       },
                       validator:
-                          (value) => value == null ? "Wing is required" : null,
+                          (value) =>
+                              selectedWingMap == null
+                                  ? "Wing is required"
+                                  : null,
                       onValueClear: () {
                         _selectedWingId = null;
                       },

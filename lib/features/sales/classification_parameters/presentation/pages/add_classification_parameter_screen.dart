@@ -50,12 +50,14 @@ class _AddClassificationParameterScreenState
   final ValueNotifier<Map<String, dynamic>?>
   _selectedCommercialLeasingNotifier = ValueNotifier(null);
   final ValueNotifier<Map<String, dynamic>?> _selectedBudgetInCr =
-  ValueNotifier(null);
+      ValueNotifier(null);
 
   List<Map<String, dynamic>> _selectedLocations = [];
 
-  final ValueNotifier<Map<String, dynamic>?> _selectedPossessionNotifier = ValueNotifier(null);
-  final ValueNotifier<Map<String, dynamic>?> _selectedTimelineNotifier = ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedPossessionNotifier =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedTimelineNotifier =
+      ValueNotifier(null);
   // STATIC LISTS
   final List<Map<String, dynamic>> possessionType = [
     {'zAttributesId': 1, 'DisplayName': 'RTMI'},
@@ -80,7 +82,7 @@ class _AddClassificationParameterScreenState
     {'zAttributesId': 13, 'DisplayName': '2 + 1 JODI'},
     {'zAttributesId': 14, 'DisplayName': '2 + 2 JODI'},
     {'zAttributesId': 15, 'DisplayName': '2 + 3 JODI'},
-    {'zAttributesId': 16, 'DisplayName': 'Duplex'},
+    {'zAttributesId': 16, 'DisplayName': 'DUPLEX'},
     {'zAttributesId': 17, 'DisplayName': 'PENTHOUSE'},
   ];
 
@@ -184,8 +186,14 @@ class _AddClassificationParameterScreenState
     );
 
     // DROPDOWNS - PLAIN VARIABLES
-    _selectedPossessionNotifier.value = findItem(possessionType, model.possessionType);
-    _selectedTimelineNotifier.value = findItem(timelineTypeList, model.timeLine);
+    _selectedPossessionNotifier.value = findItem(
+      possessionType,
+      model.possessionType,
+    );
+    _selectedTimelineNotifier.value = findItem(
+      timelineTypeList,
+      model.timeLine,
+    );
 
     // DEPENDENT REQUIREMENT TYPE DROPDOWNS
     final reqDisplay = model.requirement;
@@ -246,12 +254,12 @@ class _AddClassificationParameterScreenState
       final raw = model.minBudget.trim();
 
       final match = budgetInCrList.firstWhere(
-            (e) => e["DisplayName"].toString() == raw,
+        (e) => e["DisplayName"].toString() == raw,
         orElse:
             () => budgetInCrList.firstWhere(
               (e) => e["DisplayName"] == "<1",
-          orElse: () => budgetInCrList.first,
-        ),
+              orElse: () => budgetInCrList.first,
+            ),
       );
 
       _selectedBudgetInCr.value = match;
@@ -296,7 +304,7 @@ class _AddClassificationParameterScreenState
         if (_isEditMode)
           "Uniquekey": widget.classificationParamterModel!.uniquekey,
         "ProjectId": projectId.projectId,
-        "MinBudget": _selectedBudgetInCr.value?["DisplayName"]??"",
+        "MinBudget": _selectedBudgetInCr.value?["DisplayName"] ?? "",
         "PossessionType": getDisplayOrEmpty(_selectedPossessionNotifier.value),
         "Requirement": getDisplayOrEmpty(_selectedRequirementNotifier.value),
         "RequirementType": requirementTypeValue,
@@ -357,8 +365,10 @@ class _AddClassificationParameterScreenState
                           hintText: "Select Possession Type",
                           initialValue: value,
                           dataList: possessionType,
-                          onSelected: (v) => _selectedPossessionNotifier.value = v,
-                          onValueClear: () => _selectedPossessionNotifier.value = null,
+                          onSelected:
+                              (v) => _selectedPossessionNotifier.value = v,
+                          onValueClear:
+                              () => _selectedPossessionNotifier.value = null,
                           validator: (value) {
                             if (value == null) {
                               return 'Possession Type is required';
@@ -389,8 +399,7 @@ class _AddClassificationParameterScreenState
                               isRequired: true,
                               title: "Requirement",
                               hintText: "Select Requirement",
-                              initialValue:
-                                  selectedRequirement,
+                              initialValue: selectedRequirement,
                               dataList: requirementType,
                               onSelected: (v) {
                                 _selectedRequirementNotifier.value = v;
@@ -400,7 +409,7 @@ class _AddClassificationParameterScreenState
                                 _selectedCommercialLeasingNotifier.value = null;
                               },
                               validator: (value) {
-                                if (value == null ) {
+                                if (value == null) {
                                   return 'Requirement is required';
                                 }
                                 return null;
@@ -422,15 +431,18 @@ class _AddClassificationParameterScreenState
                                 builder: (context, selectedValue, _) {
                                   return CustomDropDownWidget(
                                     isRequired: true,
-                                    title: "${selectedRequirement?["DisplayName"]} Type",
-                                    hintText: "Select ${selectedRequirement?["DisplayName"]} Type",
+                                    title:
+                                        "${selectedRequirement?["DisplayName"]} Type",
+                                    hintText:
+                                        "Select ${selectedRequirement?["DisplayName"]} Type",
                                     initialValue: selectedValue,
                                     dataList: dependentList,
 
                                     onSelected: (v) {
                                       _getDependentNotifier(
-                                        selectedRequirement?["DisplayName"],
-                                      ).value = v;
+                                            selectedRequirement?["DisplayName"],
+                                          ).value =
+                                          v;
                                     },
 
                                     validator: (value) {
@@ -442,8 +454,9 @@ class _AddClassificationParameterScreenState
 
                                     onValueClear: () {
                                       _getDependentNotifier(
-                                        selectedRequirement?["DisplayName"],
-                                      ).value = null;
+                                            selectedRequirement?["DisplayName"],
+                                          ).value =
+                                          null;
                                     },
                                   );
                                 },
@@ -478,8 +491,10 @@ class _AddClassificationParameterScreenState
                           hintText: "Select Timeline of Purchase",
                           initialValue: value,
                           dataList: timelineTypeList,
-                          onSelected: (v) => _selectedTimelineNotifier.value = v,
-                          onValueClear: () => _selectedTimelineNotifier.value = null,
+                          onSelected:
+                              (v) => _selectedTimelineNotifier.value = v,
+                          onValueClear:
+                              () => _selectedTimelineNotifier.value = null,
                           validator: (value) {
                             if (value == null) {
                               return 'Timeline of Purchase is required';

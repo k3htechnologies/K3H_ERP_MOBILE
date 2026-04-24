@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChannelPartnerViewScreen extends StatefulWidget {
   final ChannelPartnerModel channelPartnerModel;
@@ -220,6 +221,22 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                                   value: widget.channelPartnerModel.name,
                                 ),
                                 buildColumnTitleValue(
+                                  title: "DOB",
+                                  value:
+                                      widget.channelPartnerModel.dob != null
+                                          ? formatDateTimeAsDDMMMYYYY(
+                                            widget.channelPartnerModel.dob!,
+                                          )
+                                          : "-",
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(),
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
                                   title: "Mobile No.",
                                   value:
                                       widget.channelPartnerModel.mobileNumber,
@@ -229,13 +246,6 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                                     type: ContactType.phone,
                                   ),
                                 ),
-                              ],
-                            ),
-                            verticalSpacing(),
-                            Row(
-                              spacing: 10,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
                                 buildColumnTitleValue(
                                   title: "E-Mail ID",
                                   value: widget.channelPartnerModel.emailId,
@@ -244,10 +254,6 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                                     type: ContactType.email,
                                   ),
                                 ),
-                                buildColumnTitleValue(
-                                  title: "Company Name",
-                                  value: widget.channelPartnerModel.companyName,
-                                ),
                               ],
                             ),
                             verticalSpacing(),
@@ -255,6 +261,10 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                               spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                buildColumnTitleValue(
+                                  title: "Company Name",
+                                  value: widget.channelPartnerModel.companyName,
+                                ),
                                 buildColumnTitleValue(
                                   title: "Alternate Contact No.",
                                   value:
@@ -268,10 +278,6 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                                             .alternativeMobileNumber,
                                   ),
                                 ),
-                                buildColumnTitleValue(
-                                  title: "Speciality",
-                                  value: widget.channelPartnerModel.speciality,
-                                ),
                               ],
                             ),
                             verticalSpacing(),
@@ -280,12 +286,12 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
-                                  title: "Firm Type",
-                                  value: widget.channelPartnerModel.firmsType,
+                                  title: "Speciality",
+                                  value: widget.channelPartnerModel.speciality,
                                 ),
                                 buildColumnTitleValue(
-                                  title: "Type",
-                                  value: widget.channelPartnerModel.type,
+                                  title: "Firm Type",
+                                  value: widget.channelPartnerModel.firmsType,
                                 ),
                               ],
                             ),
@@ -295,9 +301,59 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
+                                  title: "Type",
+                                  value: widget.channelPartnerModel.type,
+                                ),
+                                buildColumnTitleValue(
                                   title: "Designation",
                                   value: widget.channelPartnerModel.designation,
                                 ),
+                              ],
+                            ),
+                            verticalSpacing(),
+                            Row(
+                              spacing: 10,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Website URL",
+                                  value: widget.channelPartnerModel.websiteURL,
+                                  customValueWidget: GestureDetector(
+                                    onTap: () async {
+                                      final url =
+                                          widget.channelPartnerModel.websiteURL;
+
+                                      if (url.isNotEmpty) {
+                                        final Uri uri = Uri.parse(url);
+
+                                        if (await canLaunchUrl(uri)) {
+                                          await launchUrl(
+                                            uri,
+                                            mode:
+                                                LaunchMode.externalApplication,
+                                          );
+                                        }
+                                      }
+                                    },
+                                    child: Text(
+                                      widget
+                                              .channelPartnerModel
+                                              .websiteURL
+                                              .isEmpty
+                                          ? "-"
+                                          : widget
+                                              .channelPartnerModel
+                                              .websiteURL,
+                                      style: AppTextStyle.ts14M(
+                                        color: AppColor.primary,
+                                      ).copyWith(
+                                        decoration: TextDecoration.underline,
+                                        decorationColor: AppColor.primary,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Spacer(),
                               ],
                             ),
                           ],
