@@ -612,14 +612,15 @@ class DialogHelper {
                     if (icon != null) ...[icon, horizontalSpacing()],
                     if (title != null)
                       Expanded(child: Text(title, style: AppTextStyle.ts14M())),
-                    IconButton(
-                      onPressed: () {
+                    GestureDetector(
+                      onTap: () {
                         goRouter.pop();
                       },
-                      icon: Icon(Icons.close, size: 18),
+                      child: Icon(Icons.close, size: 18),
                     ),
                   ],
                 ),
+                verticalSpacing(),
 
                 // CONTENT
                 childContent,
@@ -850,10 +851,13 @@ class DialogHelper {
                                       children: [
                                         bulletRichText([
                                           const TextSpan(text: "If "),
-                                          TextSpan(text: "Yes", style: AppTextStyle.ts14SB()),
+                                          TextSpan(
+                                            text: "Yes",
+                                            style: AppTextStyle.ts14SB(),
+                                          ),
                                           const TextSpan(
                                             text:
-                                            " is selected, existing records will be kept and new data will be merged.",
+                                                " is selected, existing records will be kept and new data will be merged.",
                                           ),
                                         ]),
 
@@ -861,51 +865,58 @@ class DialogHelper {
                                           const TextSpan(text: "If "),
                                           TextSpan(
                                             text: "No",
-                                            style: AppTextStyle.ts14R(color: AppColor.error),
+                                            style: AppTextStyle.ts14R(
+                                              color: AppColor.error,
+                                            ),
                                           ),
                                           const TextSpan(
                                             text:
-                                            " is selected, all existing records will be permanently deleted before uploading new data.",
-                                          ),
-                                        ]),
-
-                                        bulletRichText([
-                                          const TextSpan(
-                                            text: "Only .xlsx, .xls, or .csv files are allowed.",
-                                          ),
-                                        ]),
-
-                                        bulletRichText([
-                                          const TextSpan(text: "Do "),
-                                          TextSpan(
-                                            text: "not change the column header names",
-                                            style: AppTextStyle.ts14SB(),
-                                          ),
-                                          const TextSpan(
-                                            text: " in the downloaded sample Excel file.",
-                                          ),
-                                        ]),
-
-                                        bulletRichText([
-                                          const TextSpan(text: "Do "),
-                                          TextSpan(
-                                            text: "not modify, remove, or add extra columns.",
-                                            style: AppTextStyle.ts14SB(),
-                                          ),
-                                        ]),
-
-                                        bulletRichText([
-                                          const TextSpan(text: "Do "),
-                                          TextSpan(
-                                            text: "not write data outside the provided column boundaries.",
-                                            style: AppTextStyle.ts14SB(),
+                                                " is selected, all existing records will be permanently deleted before uploading new data.",
                                           ),
                                         ]),
 
                                         bulletRichText([
                                           const TextSpan(
                                             text:
-                                            "Blank rows or completely empty columns should not be added.",
+                                                "Only .xlsx, .xls, or .csv files are allowed.",
+                                          ),
+                                        ]),
+
+                                        bulletRichText([
+                                          const TextSpan(text: "Do "),
+                                          TextSpan(
+                                            text:
+                                                "not change the column header names",
+                                            style: AppTextStyle.ts14SB(),
+                                          ),
+                                          const TextSpan(
+                                            text:
+                                                " in the downloaded sample Excel file.",
+                                          ),
+                                        ]),
+
+                                        bulletRichText([
+                                          const TextSpan(text: "Do "),
+                                          TextSpan(
+                                            text:
+                                                "not modify, remove, or add extra columns.",
+                                            style: AppTextStyle.ts14SB(),
+                                          ),
+                                        ]),
+
+                                        bulletRichText([
+                                          const TextSpan(text: "Do "),
+                                          TextSpan(
+                                            text:
+                                                "not write data outside the provided column boundaries.",
+                                            style: AppTextStyle.ts14SB(),
+                                          ),
+                                        ]),
+
+                                        bulletRichText([
+                                          const TextSpan(
+                                            text:
+                                                "Blank rows or completely empty columns should not be added.",
                                           ),
                                         ]),
                                       ],

@@ -399,6 +399,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                   valueListenable: selectedType,
                   builder: (context, typeValue, child) {
                     return CustomDropDownWidget(
+                      key: ValueKey('subtype_${typeValue?['zAttributesId']}'),
                       title: 'Parking Type',
                       isRequired: true,
                       hintText: "Select Parking Type",
@@ -407,7 +408,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                       isDisabled: !_routeAuthorizationModel.isAction,
 
                       validator: (value) {
-                        if (value == null) {
+                        if (typeValue == null) {
                           return 'Parking Type is required';
                         }
                         return null;
@@ -573,8 +574,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
       return;
     }
 
-    if (selectedType.value == null ||
-        selectedType.value!['zAttributesId'] == -1) {
+    if (selectedType.value == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please select Parking Type'),

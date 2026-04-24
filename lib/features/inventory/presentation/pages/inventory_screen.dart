@@ -911,7 +911,7 @@ class _InventoryScreenState extends State<InventoryScreen>
         approvalStatus.toLowerCase() == "approved" &&
         flat.flatType != "" &&
         flat.reraCarpetAreaSqFt > 0 &&
-        (canAction || _routeAuthorizationModelBooking.isAction);
+        _routeAuthorizationModelBooking.isAction;
 
     return Container(
       width: double.infinity,

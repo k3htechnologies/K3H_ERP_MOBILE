@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
@@ -371,5 +372,117 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
     );
     existingMaterialList.removeAt(index);
     emit(state.copyWith(materialList: existingMaterialList));
+  }
+
+  Future copyMaterialRequisition({
+    required BuildContext context,
+    required int materialRequisitionId,
+    required String uniqueKey,
+    required int projectId,
+    required String remarks,
+    required List<MaterialRequisitionDetailModel> materialRequisitionDetailJSON,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, String> requestBody = {
+      "MaterialRequisitionId": materialRequisitionId.toString(),
+      "ProjectId": projectId.toString(),
+      "Remarks": remarks,
+      "Uniquekey": uniqueKey,
+      "IsCopy": "1",
+      "IsSplit": "0",
+      // NEED TO BE COMPLETED
+      "MaterialRequisitionDetailJSON": jsonEncode(
+        materialRequisitionDetailJSON
+            .map(
+              (e) => {
+                'MaterialRequisitionDetailId': e.materialRequisitionDetailId,
+                'SubMaterialMasterId': e.subMaterialMasterId,
+                'MaterialQuantity': e.materialQuantity,
+                'UomMasterId': e.uomMasterId,
+                'RequiredDate': e.requiredDate.toIso8601String(),
+              },
+            )
+            .toList(),
+      ),
+    };
+
+    var updateResult = await _materialRequisitionRepository
+        .addUpdateMaterialRequisition(body: requestBody, fileList: []);
+    goRouter.pop();
+    updateResult.fold(
+      (failure) async {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(context, subTitle: response['message']);
+        getMaterialRequisitionList(context, 1, projectId);
+      },
+    );
+  }
+
+  Future splitMaterialRequisition({
+    required BuildContext context,
+    required int materialRequisitionId,
+    required String uniqueKey,
+    required int projectId,
+    required String remarks,
+    required Set<int> selectedIds,
+    required List<MaterialRequisitionDetailModel> materialRequisitionDetailJSON,
+  }) async {
+    if (selectedIds.isEmpty) {
+      showErrorMessage(
+        context,
+        "Validation",
+        "Please select at least one item",
+      );
+      return;
+    }
+
+    DialogHelper.showProcessingOverlay(context);
+
+    final selectedList =
+        materialRequisitionDetailJSON
+            .where((e) => selectedIds.contains(e.materialRequisitionDetailId))
+            .map(
+              (e) => {
+                'MaterialRequisitionDetailId': e.materialRequisitionDetailId,
+                'SubMaterialMasterId': e.subMaterialMasterId,
+                'MaterialQuantity': e.materialQuantity,
+                'UomMasterId': e.uomMasterId,
+                'RequiredDate': e.requiredDate.toIso8601String(),
+              },
+            )
+            .toList();
+
+    final selectedMaterials = jsonEncode(selectedList);
+
+    final Map<String, String> requestBody = {
+      "MaterialRequisitionId": materialRequisitionId.toString(),
+      "ProjectId": projectId.toString(),
+      "Remarks": remarks,
+      "Uniquekey": uniqueKey,
+      "IsSplit": "1",
+      "IsCopy": "0",
+      "MaterialRequisitionDetailJSON": selectedMaterials,
+    };
+
+    final result = await _materialRequisitionRepository
+        .addUpdateMaterialRequisition(body: requestBody, fileList: []);
+
+    // close loader
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        goRouter.pop();
+      },
+      (response) {
+        goRouter.pop();
+        goRouter.pop();
+        showSuccessMessage(context, subTitle: response['message']);
+        getMaterialRequisitionList(context, 1, projectId);
+      },
+    );
   }
 }

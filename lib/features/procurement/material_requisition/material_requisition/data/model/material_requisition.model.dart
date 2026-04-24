@@ -174,7 +174,6 @@ class MaterialRequisitionDetailModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
-  bool isChecked;
 
   MaterialRequisitionDetailModel({
     required this.materialRequisitionDetailId,
@@ -196,7 +195,6 @@ class MaterialRequisitionDetailModel {
     required this.modifiedById,
     required this.modifiedBy,
     this.modifiedDate,
-    this.isChecked = false,
   });
 
   factory MaterialRequisitionDetailModel.fromJson(Map<String, dynamic> json) =>
@@ -229,7 +227,6 @@ class MaterialRequisitionDetailModel {
             json["ModifiedDate"] == null
                 ? null
                 : parseValue<DateTime>(json, "ModifiedDate"),
-        isChecked: json["IsChecked"] ?? false,
       );
 
   Map<String, dynamic> toJson() => {
@@ -251,7 +248,6 @@ class MaterialRequisitionDetailModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
-    "IsChecked": isChecked,
   };
 
   Map<String, dynamic> toJsonPayload() => {

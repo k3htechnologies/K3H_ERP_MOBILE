@@ -206,64 +206,43 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
                         children: [
-                          Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.viewMaterialRequisition,
-                                    queryParameters: {
-                                      "materialRequisitionId":
-                                          Uri.encodeQueryComponent(
-                                            EncryptionManager.encryptData(
-                                              materialRequisition
-                                                  .materialRequisitionId
-                                                  .toString(),
-                                            ),
-                                          ),
-                                      "projectId": Uri.encodeQueryComponent(
+                          GestureDetector(
+                            onTap: () async {
+                              await goRouter.pushNamed(
+                                AppRoutes.viewMaterialRequisition,
+                                queryParameters: {
+                                  "materialRequisitionId":
+                                      Uri.encodeQueryComponent(
                                         EncryptionManager.encryptData(
-                                          materialRequisition.projectId
+                                          materialRequisition
+                                              .materialRequisitionId
                                               .toString(),
                                         ),
                                       ),
-                                      "uniquekey": Uri.encodeQueryComponent(
-                                        EncryptionManager.encryptData(
-                                          materialRequisition.uniquekey,
-                                        ),
-                                      ),
-                                    },
-                                  );
-                                },
-                                child: Text(
-                                  materialRequisition.systemGeneratedCode,
-                                  style: AppTextStyle.ts14M(
-                                    color: AppColor.primary,
-                                  ).copyWith(
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: AppColor.primary,
+                                  "projectId": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      materialRequisition.projectId.toString(),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              horizontalSpacing(width: 2),
-                              CustomIconButton(
-                                onPressed: () async {
-                                  copy(
-                                    context: context,
-                                    text:
-                                        materialRequisition.systemGeneratedCode,
-                                  );
+                                  "uniquekey": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      materialRequisition.uniquekey,
+                                    ),
+                                  ),
                                 },
-                                backgroundColor: AppColor.white,
-
-                                icon: Icon(
-                                  Icons.copy,
-                                  size: 16,
-                                  color: AppColor.primary,
-                                ),
+                              );
+                            },
+                            child: Text(
+                              materialRequisition.systemGeneratedCode,
+                              style: AppTextStyle.ts14M(
+                                color: AppColor.primary,
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColor.primary,
                               ),
-                            ],
+                            ),
                           ),
+                          horizontalSpacing(width: 2),
 
                           if (_routeAuthorizationModel.isAction) ...[
                             Row(
@@ -308,6 +287,39 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                                           materialRequisition,
                                     );
                                   },
+                                ),
+                                CustomIconButton(
+                                  onPressed: () async {
+                                    if (materialRequisition.isCopy) {
+                                      await _materialRequisitionCubit
+                                          .copyMaterialRequisition(
+                                            context: context,
+                                            materialRequisitionId:
+                                                materialRequisition
+                                                    .materialRequisitionId,
+                                            uniqueKey:
+                                                materialRequisition.uniquekey,
+                                            projectId:
+                                                materialRequisition.projectId,
+                                            remarks:
+                                                materialRequisition.remarks,
+                                            materialRequisitionDetailJSON:
+                                                materialRequisition
+                                                    .materialRequisitionDetailData,
+                                          );
+                                    }
+                                  },
+                                  backgroundColor: AppColor.white,
+
+                                  icon: Icon(
+                                    Icons.copy,
+
+                                    size: 16,
+                                    color:
+                                        materialRequisition.isCopy
+                                            ? AppColor.primary
+                                            : AppColor.grey,
+                                  ),
                                 ),
                               ],
                             ),
