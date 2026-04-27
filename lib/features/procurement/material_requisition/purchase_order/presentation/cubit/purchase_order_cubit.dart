@@ -126,6 +126,7 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
+        goRouter.pop();
         emit(state.copyWith(purchaseOrderList: response['data']));
       },
     );

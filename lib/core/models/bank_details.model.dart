@@ -12,6 +12,7 @@ class BankDetailsModel {
   String branch;
   String ifscCode;
   String acType;
+  String natureOfAccount;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -31,6 +32,7 @@ class BankDetailsModel {
     required this.branch,
     required this.ifscCode,
     required this.acType,
+    required this.natureOfAccount,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -41,22 +43,30 @@ class BankDetailsModel {
 
   factory BankDetailsModel.fromJson(Map<String, dynamic> json) =>
       BankDetailsModel(
-        projectWithBankDetailsId: parseValue<int>(json, "ProjectWithBankDetailsId"),
+        projectWithBankDetailsId: parseValue<int>(
+          json,
+          "ProjectWithBankDetailsId",
+        ),
         uniquekey: parseValue<String>(json, "Uniquekey"),
         projectId: parseValue<int>(json, "ProjectId"),
         projectName: parseValue<String>(json, "ProjectName"),
-        beneficiaryAccountHolderName: parseValue<String>(json, "BeneficiaryAccountHolderName"),
+        beneficiaryAccountHolderName: parseValue<String>(
+          json,
+          "BeneficiaryAccountHolderName",
+        ),
         bankListMasterId: parseValue<int>(json, "BankListMasterId"),
         bankName: parseValue<String>(json, "BankName"),
         accountNumber: parseValue<String>(json, "AccountNumber"),
         branch: parseValue<String>(json, "Branch"),
         ifscCode: parseValue<String>(json, "IFSCCode"),
         acType: parseValue<String>(json, "AcType"),
+        natureOfAccount: parseValue<String>(json, "NatureOfAccount"),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
-        createdDate: json["CreatedDate"] != null
-            ? DateTime.parse(json["CreatedDate"])
-            : DateTime.now(),
+        createdDate:
+            json["CreatedDate"] != null
+                ? DateTime.parse(json["CreatedDate"])
+                : DateTime.now(),
         modifiedById: parseValue<int>(json, "ModifiedById"),
         modifiedBy: parseValue<String>(json, "ModifiedBy"),
         modifiedDate: json["ModifiedDate"],
@@ -71,6 +81,7 @@ class BankDetailsModel {
     "BankListMasterId": bankListMasterId,
     "BankName": bankName,
     "AccountNumber": accountNumber,
+    "NatureOfAccount": natureOfAccount,
     "Branch": branch,
     "IFSCCode": ifscCode,
     "AcType": acType,

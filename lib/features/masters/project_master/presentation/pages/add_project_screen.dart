@@ -766,6 +766,15 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                 title: 'Cheque Number',
                                 textController: _chequeNumberC,
                                 hint: "Enter Cheque Number",
+                                validator: (value) {
+                                  final hasFile =
+                                      chequePhotoFile.fileNameList.isNotEmpty;
+                                  if (hasFile &&
+                                      (value == null || value.isEmpty)) {
+                                    return "Cheque Number is required";
+                                  }
+                                  return null;
+                                },
                               ),
                               CustomMultiFilePicker(
                                 title: "Cheque Photo",
@@ -787,6 +796,15 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                   chequePhotoFile.fileBytesList = fileBytesList;
                                   chequePhotoFile.fileNameList = fileNameList;
                                   chequePhotoFile.deletedFileList = deleted;
+                                },
+                                validator: (value) {
+                                  final hasChequeNumber =
+                                      _chequeNumberC.text.trim().isNotEmpty;
+                                  if (hasChequeNumber &&
+                                      (value == null || value.isEmpty)) {
+                                    return "Cheque Photo is required";
+                                  }
+                                  return null;
                                 },
                               ),
                               CustomDatePicker(

@@ -144,6 +144,8 @@ import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/present
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor_edit.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor_get_quotation.screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/cubit/invoice_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor.screen.dart';
@@ -190,6 +192,8 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/material_r
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/add_material_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition_view_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/cubit/purchase_order_cubit.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/pages/generate_purchase_order.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:k3h_erp_app/features/profile/presentation/pages/profile_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/dashboard_screen.dart';
@@ -4588,6 +4592,9 @@ final GoRouter goRouter = GoRouter(
             return MultiBlocProvider(
               providers: [
                 BlocProvider(create: (context) => FinalizeVendorCubit()),
+                BlocProvider(create: (context) => PurchaseOrderCubit()),
+                BlocProvider(create: (context) => GrnCubit()),
+                BlocProvider(create: (context) => InvoiceCubit()),
                 BlocProvider(create: (context) => MaterialRequisitionCubit()),
               ],
               child: child,
@@ -4787,6 +4794,52 @@ final GoRouter goRouter = GoRouter(
                 return FinalizeVendorEditScreen(
                   vendor: vendor,
                   onBack: () => goRouter.pop(),
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.generatePurchaseOrder,
+              path: AppRoutes.generatePurchaseOrder,
+              builder: (context, state) {
+                final queryParameterMaterialRequisitionId =
+                    state.uri.queryParameters['materialRequisitionId'];
+                final queryParameterProjectId =
+                    state.uri.queryParameters['projectId'];
+                final queryParameterUniquekey =
+                    state.uri.queryParameters['uniquekey'];
+
+                final materialRequisitionId =
+                    queryParameterMaterialRequisitionId != null &&
+                            queryParameterMaterialRequisitionId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(
+                              queryParameterMaterialRequisitionId,
+                            ),
+                          ),
+                        )
+                        : 0;
+                final projectId =
+                    queryParameterProjectId != null &&
+                            queryParameterProjectId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterProjectId),
+                          ),
+                        )
+                        : 0;
+                final uniquekey =
+                    queryParameterUniquekey != null &&
+                            queryParameterUniquekey.isNotEmpty
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterUniquekey),
+                        )
+                        : "";
+
+                return GeneratePurchaseOrderScreen(
+                  materialRequisitionId: materialRequisitionId,
+                  projectId: projectId,
+                  uniquekey: uniquekey,
                 );
               },
             ),

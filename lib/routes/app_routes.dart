@@ -68,6 +68,7 @@ class AppRoutes {
   static String finalizeVendorGetQuotation = "/finalizeVendorGetQuotation";
   static String finalizeVendor = "/finalizeVendor";
   static String finalizeEditVendor = "/finalizeEditVendor";
+  static String generatePurchaseOrder = "/generatePurchaseOrder";
 
   // UOM MASTER
   static String uomMaster = "/uomMaster";

@@ -428,7 +428,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     isRequired: true,
                     textController: _emailC,
                     inputFormatterList: InputValidator.emailInputFormatters(),
-                    validator: (value){
+                    validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return "Email Id is required";
                       }

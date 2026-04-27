@@ -297,8 +297,10 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                           );
                         }
                         return GestureDetector(
-                          onTap: (){
-                            showFilePreviewDialog(context, [projectImages[index]]);
+                          onTap: () {
+                            showFilePreviewDialog(context, [
+                              projectImages[index],
+                            ]);
                           },
                           child: Stack(
                             fit: StackFit.expand,
@@ -1109,7 +1111,11 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
               ),
             ),
             state.companyByProject.isEmpty
-                ? Expanded(child: Center(child: noDataWidget(message: "No Company's Found")))
+                ? Expanded(
+                  child: Center(
+                    child: noDataWidget(message: "No Company's Found"),
+                  ),
+                )
                 : Expanded(
                   child: ListView.builder(
                     controller: companyScrollController,

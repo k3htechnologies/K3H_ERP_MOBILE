@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/features/masters/project_master/presentation/cubit/p
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
@@ -49,16 +50,9 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
   ValueNotifier<Map<String, dynamic>?> selectedAccountType = ValueNotifier(
     null,
   );
-
-  // ACCOUNT TYPE LIST
-  final List<Map<String, dynamic>> accountTypeList = [
-    {"zAttributesId": 1, "DisplayName": "Current"},
-    {"zAttributesId": 2, "DisplayName": "DEMAT"},
-    {"zAttributesId": 3, "DisplayName": "Fixed"},
-    {"zAttributesId": 4, "DisplayName": "Salary"},
-    {"zAttributesId": 5, "DisplayName": "Saving"},
-  ];
-
+  ValueNotifier<Map<String, dynamic>?> selectedNatureOfAccount = ValueNotifier(
+    null,
+  );
   @override
   void initState() {
     super.initState();
@@ -126,6 +120,12 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
     } else {
       _selectedBankNotifier.value.isNotEmpty;
     }
+    selectedNatureOfAccount.value = natureOfAccountList.firstWhere(
+      (nature) =>
+          nature['DisplayName'] == widget.bankDetailsModel?.natureOfAccount ??
+          natureOfAccountList[0]['DisplayName'],
+      orElse: () => natureOfAccountList[0],
+    );
   }
 
   // HANDLE SUBMIT
@@ -157,6 +157,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
       "AccountNumber": _accountNumberC.text.trim(),
       "Branch": _branchC.text.trim(),
       "IFSCCode": _ifscCodeC.text.trim(),
+      "NatureOfAccount": selectedNatureOfAccount.value!['DisplayName'],
       "AcType": selectedAccountType.value!['DisplayName'],
     };
 
@@ -281,6 +282,31 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                       );
                     },
                   ),
+                  ValueListenableBuilder(
+                    valueListenable: selectedNatureOfAccount,
+                    builder: (context, selectedAccountT, child) {
+                      return CustomDropDownWidget(
+                        title: "Nature of Account",
+                        hintText: "Select Nature of Account",
+                        isRequired: true,
+                        initialValue: selectedAccountT,
+                        dataList: natureOfAccountList,
+                        onSelected: (value) {
+                          selectedNatureOfAccount.value = value;
+                        },
+                        validator: (value) {
+                          if (value == null || value['zAttributesId'] == -1) {
+                            return 'Nature of Account is required';
+                          }
+                          return null;
+                        },
+                        onValueClear: () {
+                          selectedNatureOfAccount.value = null;
+                        },
+                      );
+                    },
+                  ),
+
                   CustomTextField(
                     title: "Account Number",
                     textController: _accountNumberC,

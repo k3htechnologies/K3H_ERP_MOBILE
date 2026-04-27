@@ -12,7 +12,7 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/pr
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/cubit/purchase_order_cubit.dart';
-import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/pages/purchase_order.screen.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -69,6 +69,7 @@ class _MaterialRequisitionViewScreenState
     _tabController.addListener(_handleTabChange);
     _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
     _finalizeVendorCubit = context.read<FinalizeVendorCubit>();
+    _purchaseOrderCubit = context.read<PurchaseOrderCubit>();
     initOverview();
   }
 
@@ -113,6 +114,15 @@ class _MaterialRequisitionViewScreenState
             widget.projectId,
             widget.materialRequisitionId,
             widget.uniquekey,
+          );
+          break;
+
+        case 3:
+          _purchaseOrderCubit.getPurchaseOrder(
+            context: context,
+            projectId: widget.projectId,
+            materialRequisitionId: widget.materialRequisitionId,
+            uniqueKey: widget.uniquekey,
           );
           break;
       }
@@ -180,7 +190,11 @@ class _MaterialRequisitionViewScreenState
                         materialRequisitionId: widget.materialRequisitionId,
                         uniquekey: widget.uniquekey,
                       ),
-                      _buildOverviewTab(),
+                      PurchaseOrderScreen(
+                        projectId: widget.projectId,
+                        materialRequisitionId: widget.materialRequisitionId,
+                        uniquekey: widget.uniquekey,
+                      ),
                       _buildOverviewTab(),
                       _buildOverviewTab(),
                     ],
@@ -388,7 +402,10 @@ class _MaterialRequisitionViewScreenState
                           ),
                           buildRowTitleValue(
                             title: "Remark",
-                            value: material.remarks,
+                            value:
+                                material.remarks.isEmpty
+                                    ? "-"
+                                    : material.remarks,
                           ),
                           if (index < (materialList.length - 1))
                             Divider(color: AppColor.grey, thickness: .3),
@@ -412,7 +429,9 @@ class _MaterialRequisitionViewScreenState
                   style: AppTextStyle.ts16SB(color: AppColor.black),
                 ),
                 Text(
-                  materialRequisition.remarks,
+                  materialRequisition.remarks.isEmpty
+                      ? "-"
+                      : materialRequisition.remarks,
                   style: AppTextStyle.ts14M(color: AppColor.black),
                 ),
               ],
@@ -619,7 +638,8 @@ class _MaterialRequisitionViewScreenState
                                             materialRequisitionId: 0,
                                             uniqueKey: widget.uniquekey,
                                             projectId: widget.projectId,
-                                            remarks: "",
+                                            remarks:
+                                                materialRequisition.remarks,
                                             selectedIds:
                                                 selectedIdsForSplit.value,
                                             materialRequisitionDetailJSON:
@@ -734,7 +754,10 @@ class _MaterialRequisitionViewScreenState
                                 ),
                                 buildRowTitleValue(
                                   title: "Remark",
-                                  value: material.remarks,
+                                  value:
+                                      material.remarks.isEmpty
+                                          ? "-"
+                                          : material.remarks,
                                 ),
                                 if (index < (materialList.length - 1))
                                   Divider(color: AppColor.grey, thickness: .3),
