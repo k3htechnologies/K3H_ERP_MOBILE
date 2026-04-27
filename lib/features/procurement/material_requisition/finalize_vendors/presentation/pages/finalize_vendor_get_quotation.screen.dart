@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/material_r
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class FinalizeVendorGetQuotationScreen extends StatefulWidget {
@@ -133,38 +134,13 @@ class _FinalizeVendorGetQuotationScreenState
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Text(
-                      widget.systemgeneratedCode,
-                      style: AppTextStyle.ts16M(color: AppColor.primary),
-                    ),
+                  Text(
+                    widget.systemgeneratedCode,
+                    style: AppTextStyle.ts16M(color: AppColor.primary),
                   ),
-                  horizontalSpacing(width: 10.h),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: _onGetQuotationTap,
-                        child: Container(
-                          margin: EdgeInsets.only(bottom: 12),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20.0,
-                            vertical: 6.0,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(6.0),
-                            color: AppColor.green,
-                          ),
-                          child: Text(
-                            "Get Quotation",
-                            style: AppTextStyle.ts14M(color: AppColor.white),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  horizontalSpacing(width: 10.w),
+                  CustomButton(text: "Save", onPressed: _onGetQuotationTap),
                 ],
               ),
               Expanded(

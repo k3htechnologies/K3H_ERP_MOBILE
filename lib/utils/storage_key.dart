@@ -4,6 +4,7 @@ class StorageKey {
   static String selectedProject = "SELECTED_PROJECT";
   static String menu = "MENU";
   static String moduleAction = "MODULE_ACTION";
+  static String showRegisterButton = "showRegisterButton";
   static String projectList = "PROJECT_LIST";
   static String userUniqueKey = "USER_UNIQUE_KEY";
   static String lastActiveRoute = "LAST_ACTIVE_ROUTE";

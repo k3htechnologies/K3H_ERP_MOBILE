@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
+import 'package:k3h_erp_app/features/register/presentation/cubit/register_cubit.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/theme/theme.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -175,6 +176,7 @@ class MyApp extends StatelessWidget {
       providers: [
         // LOGIN CUBIT
         BlocProvider(create: (context) => LoginCubit()),
+        BlocProvider(create: (context) => RegisterCubit()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(375, 812),

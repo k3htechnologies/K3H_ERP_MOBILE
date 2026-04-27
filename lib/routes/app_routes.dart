@@ -2,6 +2,7 @@ class AppRoutes {
   static String testScreen = "/testScreen";
   static String splashScreen = "/splash";
   static String notAuthorized = "/notAuthorized";
+  static String register = "/register";
   static String login = "/login";
   // static String projectList = "/projectList";
   static String approvalLogHistory = "/approvalLogHistory";

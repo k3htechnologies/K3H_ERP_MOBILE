@@ -9,7 +9,6 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_v
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/repository/finalize_vendor.repository.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
-import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -102,16 +101,15 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
         return;
       },
       (response) async {
-        final result = goRouter.push(
-          AppRoutes.finalizeVendor,
-          extra: {
-            "projectId": projectId,
-            "materialRequisitionId": materialRequisition.materialRequisitionId,
-            "uniquekey": materialRequisition.uniquekey,
-          },
-        );
-
         showSuccessMessage(context);
+
+        await getSelectedVenodeForCompare(
+          context,
+          projectId,
+          materialRequisition.materialRequisitionId,
+          materialRequisition.uniquekey,
+        );
+        emit(state.copyWith(viewType: FinalizeVendorViewType.finalizedList));
       },
     );
   }
@@ -285,5 +283,15 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
         return list;
       },
     );
+  }
+
+  // FinalizeVendorForComparisonModel selectedVendor;
+  // void selectVendor(FinalizeVendorForComparisonModel vendor) {
+  //   selectedVendor = vendor;
+  //   emit(state.copyWith(viewType: FinalizeVendorViewType.editVendor));
+  // }
+
+  void changeView(FinalizeVendorViewType viewType) {
+    emit(state.copyWith(viewType: viewType));
   }
 }

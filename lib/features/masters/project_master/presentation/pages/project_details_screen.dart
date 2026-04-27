@@ -297,8 +297,10 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                           );
                         }
                         return GestureDetector(
-                          onTap: (){
-                            showFilePreviewDialog(context, [projectImages[index]]);
+                          onTap: () {
+                            showFilePreviewDialog(context, [
+                              projectImages[index],
+                            ]);
                           },
                           child: Stack(
                             fit: StackFit.expand,
@@ -432,21 +434,86 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "Architect Name",
-                      value: widget.project.designingArchitectName,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Architect Mobile Number",
-                      value: widget.project.designingArchitectMobileNumber,
+                      title: "File Number",
+                      value: widget.project.fileNumber,
                     ),
                   ],
                 ),
+              ],
+            ),
+          ),
+          // PROJECT DETAILS
+          _projectCategorySection(),
+          // LIOSONING ARCHITECT DETAILS
+          Container(
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 10),
+            decoration: commonCardDecoration(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Details", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "File Number",
-                      value: widget.project.fileNumber,
+                      title: "Name",
+                      value:
+                          widget.project.liasoningArchitectName.isEmpty
+                              ? "-"
+                              : widget.project.liasoningArchitectName,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Mobile Number",
+                      value:
+                          widget.project.liasoningArchitectMobileNumber.isEmpty
+                              ? "-"
+                              : widget.project.liasoningArchitectMobileNumber,
+                    ),
+                  ],
+                ),
+                verticalSpacing(),
+                Text(
+                  "Designing Architect Details",
+                  style: AppTextStyle.ts16SB(),
+                ),
+                verticalSpacing(),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Name",
+                      value:
+                          widget.project.designingArchitectName.isEmpty
+                              ? "-"
+                              : widget.project.designingArchitectName,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Mobile Number",
+                      value:
+                          widget.project.designingArchitectMobileNumber.isEmpty
+                              ? "-"
+                              : widget.project.designingArchitectMobileNumber,
+                    ),
+                  ],
+                ),
+                verticalSpacing(),
+                Text("RCC Consultant", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Name",
+                      value:
+                          widget.project.rccConsultantName.isEmpty
+                              ? "-"
+                              : widget.project.rccConsultantName,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Mobile Number",
+                      value:
+                          widget.project.rccConsultantMobileNumber.isEmpty
+                              ? "-"
+                              : widget.project.rccConsultantMobileNumber,
                     ),
                   ],
                 ),
@@ -784,6 +851,100 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     );
   }
 
+  Widget _projectCategorySection() {
+    final isTender = widget.project.category.toLowerCase() == "tender";
+
+    return Container(
+      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 10),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Project Category", style: AppTextStyle.ts16SB()),
+          verticalSpacing(),
+
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Category",
+                value: widget.project.category,
+              ),
+              horizontalSpacing(),
+              if (isTender) ...[
+                buildColumnTitleValue(
+                  title: "Amount",
+                  value: "₹${widget.project.tenderAmount}",
+                ),
+                horizontalSpacing(),
+                buildColumnTitleValue(
+                  title: "EMD Amount",
+                  value: "₹${widget.project.tenderEmdAmount}",
+                ),
+              ],
+            ],
+          ),
+          verticalSpacing(),
+          if (isTender) ...[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                buildColumnTitleValue(
+                  title: "Purchase Start Date",
+                  value: dateFormatterDDMMYYYYDAY(
+                    widget.project.tenderPurchaseStartDate!,
+                  ),
+                ),
+                horizontalSpacing(),
+                buildColumnTitleValue(
+                  title: "Purchase End Date",
+                  value: dateFormatterDDMMYYYYDAY(
+                    widget.project.tenderPurchaseEndDate!,
+                  ),
+                ),
+                horizontalSpacing(),
+                buildColumnTitleValue(
+                  title: "Cheque Number",
+                  value: widget.project.tenderChequeNumber ?? "-",
+                ),
+              ],
+            ),
+            verticalSpacing(),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                buildColumnTitleValue(
+                  title: "Submission Date",
+                  value: dateFormatterDDMMYYYYDAY(
+                    widget.project.tenderSubmissionDate!,
+                  ),
+                ),
+                horizontalSpacing(),
+                buildColumnTitleValue(
+                  title: "Issue Date",
+                  value: dateFormatterDDMMYYYYDAY(
+                    widget.project.tenderIssueDate!,
+                  ),
+                ),
+              ],
+            ),
+            verticalSpacing(),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                buildColumnTitleValue(
+                  title: "Payorder Remark",
+                  value: widget.project.tenderPayorderRemark ?? "-",
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   // EMPLOYEE
   Widget _employeeSection() {
     return Column(
@@ -1109,7 +1270,11 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
               ),
             ),
             state.companyByProject.isEmpty
-                ? Expanded(child: Center(child: noDataWidget(message: "No Company's Found")))
+                ? Expanded(
+                  child: Center(
+                    child: noDataWidget(message: "No Company's Found"),
+                  ),
+                )
                 : Expanded(
                   child: ListView.builder(
                     controller: companyScrollController,

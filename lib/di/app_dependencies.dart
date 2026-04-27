@@ -25,6 +25,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/project_document/approval_do
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/rera_document/rera_document_category.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/rera_document_category/rera_document_category.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/redevelopment/dashboard/redevelopment_dashboard.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/register/register.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/booking/booking.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/classification_parameters/classification_parameters.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/enquiry/enquiry.dependencies.dart';
@@ -123,6 +124,8 @@ void initDependencies() {
   registerUOMMasterDependencies(serviceLocator);
   // LOGIN
   registerLoginDependencies(serviceLocator);
+  // REGISTER
+  registerDependencies(serviceLocator);
   // PROFILE DEPENDENCIES
   registerProfileDependencies(serviceLocator);
   // VENDOR MANAGEMENT DEPENDENCIES

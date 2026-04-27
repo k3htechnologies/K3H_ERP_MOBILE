@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:k3h_erp_app/main.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 
@@ -8,7 +9,7 @@ class CustomSnackBar {
     required String title,
     bool isError = false,
   }) {
-    final overlay = Overlay.of(context, rootOverlay: true);
+    final overlay = navigatorKey.currentState!.overlay!;
 
     late OverlayEntry overlayEntry;
 
