@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/sales/performance/presentation/cubit/performance_cubit.dart';
+import 'package:k3h_erp_app/features/sales/performance/presentation_without_access/cubit/performance_without_access_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -29,7 +29,7 @@ class _PerformanceWithoutAccessScreenState
     extends State<PerformanceWithoutAccessScreen>
     with TickerProviderStateMixin {
   // CUBIT
-  late PerformanceCubit _performanceCubit;
+  late PerformanceCubitWithoutAccess _performanceCubit;
 
   // PROJECT
   late ProjectModel _project;
@@ -48,7 +48,7 @@ class _PerformanceWithoutAccessScreenState
   void initState() {
     super.initState();
 
-    _performanceCubit = context.read<PerformanceCubit>();
+    _performanceCubit = context.read<PerformanceCubitWithoutAccess>();
     _project = getProject();
 
     // _tabControllerFirst = TabController(length: 3, vsync: this);
@@ -175,7 +175,7 @@ class _PerformanceWithoutAccessScreenState
 
   // BUILD SOURCING TARGET VIEW
   Widget _buildSourcingTargetView() {
-    return BlocBuilder<PerformanceCubit, PerformanceState>(
+    return BlocBuilder<PerformanceCubitWithoutAccess, PerformanceState>(
       builder: (context, state) {
         if (state.isLoading! && state.performanceReportSourcingModel.isEmpty) {
           return Center(child: loader());
@@ -264,7 +264,7 @@ class _PerformanceWithoutAccessScreenState
 
   // BUILD CLOSING TARGET VIEW
   Widget _buildClosingTargetView() {
-    return BlocBuilder<PerformanceCubit, PerformanceState>(
+    return BlocBuilder<PerformanceCubitWithoutAccess, PerformanceState>(
       builder: (context, state) {
         if (state.isLoading! && state.performanceReportClosingModel.isEmpty) {
           return Center(child: loader());

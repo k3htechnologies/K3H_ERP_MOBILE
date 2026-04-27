@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
@@ -16,12 +17,17 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
   PurchaseOrderRepository purchaseOrderRepository =
       serviceLocator<PurchaseOrderRepository>();
 
+  Future resetState() async {
+    emit(PurchaseOrderState.initial());
+  }
+
   Future getPurchaseOrder({
     required BuildContext context,
     required int projectId,
     required int materialRequisitionId,
     required String uniqueKey,
   }) async {
+    emit(state.copyWith(isLoading: true));
     var result = await purchaseOrderRepository.getPurchaseOrder(
       projectId: projectId,
       materialRequisitionId: materialRequisitionId,
@@ -34,7 +40,10 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        showSuccessMessage(context);
+        final List<PurchaseOrderModel> newData = List<PurchaseOrderModel>.from(
+          response['data'] ?? [],
+        );
+        emit(state.copyWith(purchaseOrderList: newData, isLoading: false));
       },
     );
   }
@@ -43,17 +52,16 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
     required BuildContext context,
     required int projectId,
     required int materialRequisitionId,
-    required MultiFilePickerModel purchaseOrder,
+    required PlatformFile purchaseOrder,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     List<Map<String, dynamic>> fileList = [];
-    for (int i = 0; i < purchaseOrder.fileNameList.length; i++) {
-      fileList.add({
-        "key": "PurchaseOrderURL",
-        "value": purchaseOrder.fileBytesList[i],
-        "fileName": purchaseOrder.fileNameList[i],
-      });
-    }
+    fileList.add({
+      "key": "PurchaseOrderURL",
+      "value": purchaseOrder.bytes,
+      "fileName": purchaseOrder.name,
+    });
+
     goRouter.pop();
     var result = await purchaseOrderRepository.addUpdatePurchaseOrder(
       body: {
@@ -67,9 +75,11 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
         emit(state.copyWith(errorMessage: failure.message));
         showErrorMessage(context, "error", failure.message);
       },
-      (success) {
-        emit(state.copyWith(purchaseOrderList: success['data']));
-        showSuccessMessage(context);
+      (response) {
+        final List<PurchaseOrderModel> newData = List<PurchaseOrderModel>.from(
+          response['data'] ?? [],
+        );
+        emit(state.copyWith(purchaseOrderList: newData));
       },
     );
   }
@@ -97,7 +107,7 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
       },
       (success) {
         emit(state.copyWith(isLoading: false, purchaseOrderList: []));
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: success['message']);
       },
     );
   }

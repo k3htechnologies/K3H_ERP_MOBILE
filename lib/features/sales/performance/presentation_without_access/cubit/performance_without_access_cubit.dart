@@ -10,8 +10,8 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 
 part 'performance_without_access_state.dart';
 
-class PerformanceCubit extends Cubit<PerformanceState> {
-  PerformanceCubit() : super(PerformanceState.initial());
+class PerformanceCubitWithoutAccess extends Cubit<PerformanceState> {
+  PerformanceCubitWithoutAccess() : super(PerformanceState.initial());
   // REPOSITORY
   final PerformanceReportRepository _performanceReportRepository =
       serviceLocator<PerformanceReportRepository>();
@@ -104,6 +104,7 @@ class PerformanceCubit extends Cubit<PerformanceState> {
     Map<String, dynamic> queryParams = {
       "PeriodType": periodType,
       "EmployeeName": value ?? "",
+      "isMobile": true,
     };
     DateTime? fromDate;
     DateTime? toDate;
@@ -164,6 +165,7 @@ class PerformanceCubit extends Cubit<PerformanceState> {
     Map<String, dynamic> queryParams = {
       "PeriodType": periodType,
       "EmployeeName": value ?? "",
+      "isMobile": true,
     };
     DateTime? fromDate;
     DateTime? toDate;

@@ -74,6 +74,7 @@ class _MaterialRequisitionViewScreenState
   }
 
   void initOverview() async {
+    _purchaseOrderCubit.resetState();
     materialRequisitionOverview.value = await _materialRequisitionCubit
         .getMaterialRequisitionDetailsById(
           context,
@@ -209,7 +210,8 @@ class _MaterialRequisitionViewScreenState
   }
 
   Widget _buildOverviewTab() {
-    if (_materialRequisitionCubit.state.isLoading ?? true) {
+    if ((_materialRequisitionCubit.state.isLoading ?? true) ||
+        materialRequisitionOverview.value == null) {
       return Center(child: CircularProgressIndicator());
     }
     final materialRequisition = materialRequisitionOverview.value;
@@ -449,7 +451,8 @@ class _MaterialRequisitionViewScreenState
   }
 
   Widget _buildDetailsTab() {
-    if (_materialRequisitionCubit.state.isLoading ?? true) {
+    if ((_materialRequisitionCubit.state.isLoading ?? true) ||
+        materialRequisitionOverview.value == null) {
       return Center(child: CircularProgressIndicator());
     }
     final materialRequisition = materialRequisitionOverview.value;
