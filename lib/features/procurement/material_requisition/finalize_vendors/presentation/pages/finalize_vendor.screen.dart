@@ -89,25 +89,55 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
         return ValueListenableBuilder(
           valueListenable: selectedVendorList,
           builder: (context, value, child) {
-            return Container(
-              padding: EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
+            return SafeArea(
+              child: Container(
+                padding: EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
                           widget.systemGeneratedCode,
                           style: AppTextStyle.ts16M(color: AppColor.primary),
                         ),
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
+                      ],
+                    ),
+                    verticalSpacing(height: 10.h),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              _finalizeVendorCubit.changeView(
+                                FinalizeVendorViewType.getQuotation,
+                              );
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(bottom: 12),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20.0,
+                                vertical: 6.0,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(6.0),
+                                color: AppColor.green,
+                              ),
+                              child: Text(
+                                "Get Quotation",
+                                style: AppTextStyle.ts12M(
+                                  color: AppColor.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        horizontalSpacing(width: 8.h),
+                        Expanded(
+                          child: Container(
                             margin: EdgeInsets.only(bottom: 12),
                             padding: EdgeInsets.symmetric(
                               horizontal: 20.0,
@@ -119,147 +149,150 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                             ),
                             child: Text(
                               "Finalize Vendor",
-                              style: AppTextStyle.ts14M(color: AppColor.green),
+                              style: AppTextStyle.ts12M(color: AppColor.green),
                             ),
                           ),
-                          horizontalSpacing(width: 8.h),
-                          SvgPicture.asset(
-                            AppAssets.compareVendorIcon,
-                            height: 24.h,
-                            width: 24.w,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  verticalSpacing(height: 10.h),
-                  ListView.builder(
-                    itemCount: vendorForFinalize.length,
-                    shrinkWrap: true,
-                    physics: AlwaysScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      final vendor = vendorForFinalize[index];
-                      final vedorQuotationOfSelecetdVendor =
-                          vendor
-                                  .materialRequisitionQuotationTermsData
-                                  .isNotEmpty
-                              ? vendor
-                                  .materialRequisitionQuotationTermsData
-                                  .first
-                              : null;
-                      return Container(
-                        margin: EdgeInsets.only(bottom: 12),
-                        padding: EdgeInsets.all(16),
-                        decoration: commonCardDecoration(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            /// HEADER
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        _toggleVendorSelection(index);
-                                      },
-                                      child: Container(
-                                        width: 22,
-                                        height: 22,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            6,
-                                          ),
-                                          border: Border.all(
+                        ),
+                        horizontalSpacing(width: 8.h),
+                        SvgPicture.asset(
+                          AppAssets.compareVendorIcon,
+                          height: 24.h,
+                          width: 24.w,
+                        ),
+                      ],
+                    ),
+
+                    verticalSpacing(height: 10.h),
+                    ListView.builder(
+                      itemCount: vendorForFinalize.length,
+                      shrinkWrap: true,
+                      physics: AlwaysScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        final vendor = vendorForFinalize[index];
+                        final vedorQuotationOfSelecetdVendor =
+                            vendor
+                                    .materialRequisitionQuotationTermsData
+                                    .isNotEmpty
+                                ? vendor
+                                    .materialRequisitionQuotationTermsData
+                                    .first
+                                : null;
+                        return Container(
+                          margin: EdgeInsets.only(bottom: 12),
+                          padding: EdgeInsets.all(16),
+                          decoration: commonCardDecoration(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              /// HEADER
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          _toggleVendorSelection(index);
+                                        },
+                                        child: Container(
+                                          width: 22,
+                                          height: 22,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
+                                            border: Border.all(
+                                              color:
+                                                  _isSelected(index)
+                                                      ? AppColor.primary
+                                                      : AppColor.primary
+                                                          .withValues(
+                                                            alpha: 0.4,
+                                                          ),
+                                              width: 2,
+                                            ),
                                             color:
                                                 _isSelected(index)
                                                     ? AppColor.primary
-                                                    : AppColor.primary
-                                                        .withValues(alpha: 0.4),
-                                            width: 2,
+                                                        .withValues(alpha: 0.2)
+                                                    : Colors.transparent,
                                           ),
-                                          color:
+                                          child:
                                               _isSelected(index)
-                                                  ? AppColor.primary.withValues(
-                                                    alpha: 0.2,
+                                                  ? Icon(
+                                                    Icons.check,
+                                                    size: 14,
+                                                    color: AppColor.primary,
                                                   )
-                                                  : Colors.transparent,
-                                        ),
-                                        child:
-                                            _isSelected(index)
-                                                ? Icon(
-                                                  Icons.check,
-                                                  size: 14,
-                                                  color: AppColor.primary,
-                                                )
-                                                : null,
-                                      ),
-                                    ),
-                                    horizontalSpacing(width: 10.w),
-                                    GestureDetector(
-                                      onTap: () {
-                                        widget.onVendorTap?.call(vendor);
-                                      },
-                                      child: Text(
-                                        vendor.vendorName,
-                                        style: AppTextStyle.ts16M(
-                                          color: AppColor.primary,
+                                                  : null,
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                CustomIconButton(
-                                  onPressed: () async {
-                                    copy(
-                                      context: context,
-                                      text: widget.systemGeneratedCode,
-                                    );
-                                  },
-                                  backgroundColor: AppColor.white,
-
-                                  icon: Icon(
-                                    Icons.copy,
-                                    size: 16,
-                                    color: AppColor.primary,
+                                      horizontalSpacing(width: 10.w),
+                                      GestureDetector(
+                                        onTap: () {
+                                          widget.onVendorTap?.call(vendor);
+                                        },
+                                        child: Text(
+                                          vendor.vendorName,
+                                          style: AppTextStyle.ts16M(
+                                            color: AppColor.primary,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
-                            ),
+                                  CustomIconButton(
+                                    onPressed: () async {
+                                      copy(
+                                        context: context,
+                                        text: widget.systemGeneratedCode,
+                                      );
+                                    },
+                                    backgroundColor: AppColor.white,
 
-                            verticalSpacing(height: 12),
+                                    icon: Icon(
+                                      Icons.copy,
+                                      size: 16,
+                                      color: AppColor.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
 
-                            /// DETAILS
-                            _buildRow("Company Name", vendor.companyName),
-                            _buildRow(
-                              "Base Amount",
-                              "₹${vedorQuotationOfSelecetdVendor?.total.toInt() ?? 0}",
-                            ),
+                              verticalSpacing(height: 12),
 
-                            _buildRow(
-                              "Total Tax",
-                              "₹${_calculateTax(vendor)}",
-                              valueColor: Colors.orange,
-                            ),
+                              /// DETAILS
+                              _buildRow("Company Name", vendor.companyName),
+                              _buildRow(
+                                "Base Amount",
+                                "₹${vedorQuotationOfSelecetdVendor?.total.toInt() ?? 0}",
+                              ),
 
-                            _buildRow(
-                              "Grand Total",
-                              "₹${_calculateGrandTotal(vendor)}",
-                              valueColor: AppColor.primary,
-                            ),
+                              _buildRow(
+                                "Total Tax",
+                                "₹${_calculateTax(vendor)}",
+                                valueColor: Colors.orange,
+                              ),
 
-                            _buildRow(
-                              "Est. Delivery",
-                              "${vedorQuotationOfSelecetdVendor?.expectedDeliveryInDays ?? 0} Days",
-                              valueColor: Colors.green,
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                              _buildRow(
+                                "Grand Total",
+                                "₹${_calculateGrandTotal(vendor)}",
+                                valueColor: AppColor.primary,
+                              ),
+
+                              _buildRow(
+                                "Est. Delivery",
+                                "${vedorQuotationOfSelecetdVendor?.expectedDeliveryInDays ?? 0} Days",
+                                valueColor: Colors.green,
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             );
           },

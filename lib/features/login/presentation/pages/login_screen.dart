@@ -1,9 +1,11 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
@@ -51,19 +53,16 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: LayoutBuilder(
-        builder: (context,constraints) {
+        builder: (context, constraints) {
           return SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: constraints.maxHeight,
-              ),
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: Center(
                 child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 15),
@@ -113,7 +112,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     previous.isSendOtp != current.isSendOtp,
                             listener: (context, state) {
                               if (state.isSendOtp) {
-                                WidgetsBinding.instance.addPostFrameCallback((_) {
+                                WidgetsBinding.instance.addPostFrameCallback((
+                                  _,
+                                ) {
                                   if (mounted) {
                                     _otpFocus.requestFocus();
                                   }
@@ -158,7 +159,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                         if (value == null ||
                                             value.trim().isEmpty) {
                                           return "Mobile number is required";
-                                        } else if (!isValidMobileNumber(value)) {
+                                        } else if (!isValidMobileNumber(
+                                          value,
+                                        )) {
                                           return "Mobile number is invalid";
                                         }
                                         return null;
@@ -179,9 +182,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                       CustomTextField(
                                         focusNode: _otpFocus,
                                         readOnly: !state.isSendOtp,
-                                        inputFormatterList: InputValidator.digit(
-                                          4,
-                                        ),
+                                        inputFormatterList:
+                                            InputValidator.digit(4),
                                         keyboardType: TextInputType.number,
                                         title:
                                             state.message
@@ -249,11 +251,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                             : "Log In",
                                     // isDisable: state.isSendOtp,
                                     elevation: 0,
-                                    padding: EdgeInsets.symmetric(horizontal: 40.0),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 40.0,
+                                    ),
                                     onPressed: () {
-                                      if (_loginFormKey.currentState!.validate()) {
+                                      if (_loginFormKey.currentState!
+                                          .validate()) {
                                         if (!state.isSendOtp) {
-                                          final mobileNumber = _mobileNumberC.text;
+                                          final mobileNumber =
+                                              _mobileNumberC.text;
                                           if (_loginFormKey.currentState!
                                               .validate()) {
                                             _loginCubit.sendOTP(
@@ -289,25 +295,25 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                       state.canResend
                                           ? GestureDetector(
-                                        onTap: () {
-                                          _loginCubit.sendOTP(
-                                            context,
-                                            _mobileNumberC.text,
-                                          );
-                                        },
-                                        child: Text(
-                                          "Resend",
-                                          style: AppTextStyle.ts14B(
-                                            color: AppColor.primary,
-                                          ),
-                                        ),
-                                      )
+                                            onTap: () {
+                                              _loginCubit.sendOTP(
+                                                context,
+                                                _mobileNumberC.text,
+                                              );
+                                            },
+                                            child: Text(
+                                              "Resend",
+                                              style: AppTextStyle.ts14B(
+                                                color: AppColor.primary,
+                                              ),
+                                            ),
+                                          )
                                           : Text(
-                                        "Resend in ${state.resendSeconds}s",
-                                        style: AppTextStyle.ts14R(
-                                          color: AppColor.primary,
-                                        ),
-                                      ),
+                                            "Resend in ${state.resendSeconds}s",
+                                            style: AppTextStyle.ts14R(
+                                              color: AppColor.primary,
+                                            ),
+                                          ),
                                     ],
                                   ),
                                 ),
@@ -316,13 +322,52 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
                       ),
+                      verticalSpacing(height: 10.h),
+                      Center(
+                        child: RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "------------ ",
+                                style: AppTextStyle.ts14R(
+                                  color: AppColor.primary,
+                                ),
+                              ),
+                              TextSpan(
+                                text: "or",
+                                style: AppTextStyle.ts14R(
+                                  color: AppColor.primary,
+                                ),
+                              ),
+                              TextSpan(
+                                text: " ------------ ",
+                                style: AppTextStyle.ts14R(
+                                  color: AppColor.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      verticalSpacing(height: 10.h),
+                      GestureDetector(
+                        onTap: () {
+                          goRouter.goNamed(AppRoutes.register);
+                        },
+                        child: Center(
+                          child: Text(
+                            "Create an account",
+                            style: AppTextStyle.ts14B(color: AppColor.primary),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
           );
-        }
+        },
       ),
     );
   }

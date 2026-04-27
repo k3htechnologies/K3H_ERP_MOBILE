@@ -1,6 +1,9 @@
 part of 'finalize_vendor_cubit.dart';
 
+enum FinalizeVendorViewType { getQuotation, finalizedList, editVendor }
+
 final class FinalizeVendorState extends BaseState {
+  final FinalizeVendorViewType viewType;
   final List<RequisitionVendorModel> selctedVendorList;
   final List<RequisitionVendorModel> vendorSelectionForEnquiryList;
   final List<FinalizeVendorForComparisonModel> vendorFinalisationForComparison;
@@ -10,6 +13,7 @@ final class FinalizeVendorState extends BaseState {
 
   const FinalizeVendorState({
     super.isLoading,
+    required this.viewType,
     required this.selctedVendorList,
     required this.vendorSelectionForEnquiryList,
     required this.vendorFinalisationForComparison,
@@ -20,6 +24,7 @@ final class FinalizeVendorState extends BaseState {
   factory FinalizeVendorState.initial() {
     return const FinalizeVendorState(
       isLoading: false,
+      viewType: FinalizeVendorViewType.finalizedList,
       selctedVendorList: [],
       vendorSelectionForEnquiryList: [],
       vendorFinalisationForComparison: [],
@@ -30,6 +35,7 @@ final class FinalizeVendorState extends BaseState {
   }
   FinalizeVendorState copyWith({
     bool? isLoading,
+    FinalizeVendorViewType? viewType,
     List<RequisitionVendorModel>? selctedVendorList,
     List<RequisitionVendorModel>? vendorSelectionForEnquiryList,
     List<FinalizeVendorForComparisonModel>? vendorFinalisationForComparison,
@@ -39,6 +45,7 @@ final class FinalizeVendorState extends BaseState {
   }) {
     return FinalizeVendorState(
       isLoading: isLoading ?? this.isLoading,
+      viewType: viewType ?? this.viewType,
       selctedVendorList: selctedVendorList ?? this.selctedVendorList,
       vendorSelectionForEnquiryList:
           vendorSelectionForEnquiryList ?? this.vendorSelectionForEnquiryList,
@@ -55,6 +62,7 @@ final class FinalizeVendorState extends BaseState {
   @override
   List<Object?> get props => [
     isLoading,
+    viewType,
     selctedVendorList,
     vendorSelectionForEnquiryList,
     vendorFinalisationForComparison,

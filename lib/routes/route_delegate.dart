@@ -47,6 +47,7 @@ import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/add_lit
 import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/add_litigation_screen.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/litigation_screen.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/litigation_view_screen.dart';
+import 'package:k3h_erp_app/features/register/presentation/pages/register_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/add_designation_screen.dart';
@@ -141,7 +142,6 @@ import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/present
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/add_terms_and_conditions_screen.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/terms_and_conditions_screen.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/terms_and_conditions_view_screen.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor_edit.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor_get_quotation.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
@@ -356,7 +356,8 @@ import '../features/sales/payment_schedule/data/model/payment_schedule.model.dar
 String? authenticateAndAuthorizeRoute(GoRouterState state) {
   // SPLASH || LOGIN
   if (state.uri.path == AppRoutes.splashScreen ||
-      state.uri.path == AppRoutes.login
+      state.uri.path == AppRoutes.login ||
+      state.uri.path == AppRoutes.register
   // state.uri.path == AppRoutes.projectList
   ) {
     return null;
@@ -442,6 +443,14 @@ final GoRouter goRouter = GoRouter(
       name: AppRoutes.notAuthorized,
       builder: (context, state) {
         return const NotAuthorizedScreen();
+      },
+    ),
+    // REGISTER
+    GoRoute(
+      path: AppRoutes.register,
+      name: AppRoutes.register,
+      builder: (context, state) {
+        return const RegisterScreen();
       },
     ),
     // LOGIN
@@ -4790,10 +4799,19 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.finalizeEditVendor,
               name: AppRoutes.finalizeEditVendor,
               builder: (context, state) {
-                final vendor = state.extra as FinalizeVendorForComparisonModel;
+                final queryParameterSystemGeneratedCode =
+                    state.uri.queryParameters['systemGeneratedCode'];
+                final materialRequisitionSystemGeneratedCode =
+                    queryParameterSystemGeneratedCode != null &&
+                            queryParameterSystemGeneratedCode.isNotEmpty
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeComponent(
+                            queryParameterSystemGeneratedCode,
+                          ),
+                        )
+                        : "";
                 return FinalizeVendorEditScreen(
-                  vendor: vendor,
-                  onBack: () => goRouter.pop(),
+                  systemgeneratedCode: materialRequisitionSystemGeneratedCode,
                 );
               },
             ),
