@@ -12,6 +12,7 @@ import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -269,110 +270,133 @@ class _BookingViewScreenState extends State<BookingViewScreen>
           BlocBuilder<BookingCubit, BookingState>(
             builder: (context, state) {
               if (state.enquiryList.isEmpty) {
-                return SizedBox();
+                return const SizedBox();
               }
 
               final enquiry = state.enquiryList.first;
 
-              return Container(
-                decoration: BoxDecoration(
-                  color: AppColor.lightBlue.withValues(alpha: .5),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColor.primary, width: .3),
-                ),
-                margin: EdgeInsets.only(bottom: 10),
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Enquiry Details", style: AppTextStyle.ts16SB()),
-                    verticalSpacing(),
-                    Column(
-                      spacing: 10,
-                      children: [
-                        Row(
-                          spacing: 10,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            buildColumnTitleValue(
-                              title: "Unique Code",
-                              value: enquiry.systemGeneratedCode,
-                            ),
-                            buildColumnTitleValue(
-                              title: "Name",
-                              value: enquiry.name,
-                            ),
-                          ],
-                        ),
-                        Row(
-                          spacing: 10,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            buildColumnTitleValue(
-                              title: "Mobile No",
-                              value: enquiry.mobileNumber,
-                            ),
-                            buildColumnTitleValue(
-                              title: "Source",
-                              value: enquiry.source,
-                            ),
-                          ],
-                        ),
-                        Row(
-                          spacing: 10,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            buildColumnTitleValue(
-                              title: "Sub Source",
-                              value: enquiry.subSource,
-                            ),
-                            Visibility(
-                              visible:
-                                  enquiry.subSource.toLowerCase() ==
-                                  "advertisement",
-                              child: buildColumnTitleValue(
-                                title: "Sub Sub Source",
-                                value: enquiry.subSubSource,
-                              ),
-                            ),
-                            if (enquiry.subSource.toLowerCase() !=
-                                "advertisement")
-                              Spacer(),
-                          ],
-                        ),
-                        Row(
-                          spacing: 10,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            buildColumnTitleValue(
-                              title: "Sales Advisor",
-                              value: enquiry.salesAdvisor,
-                            ),
-                            buildColumnTitleValue(
-                              title: "Sourcing Manager",
-                              value: enquiry.sourcingManager,
-                            ),
-                          ],
-                        ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            buildColumnTitleValue(
-                              title: "Current Location",
-                              value: enquiry.currentLocation,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
+              final bool isChannelPartner = enquiry.source == "Channel Partner";
+              final bool isDirectWalking = enquiry.source == "Direct Walking";
+              final bool isAdvertisement = enquiry.subSource == "Advertisement";
+              final bool isEmployeeReference =
+                  enquiry.subSource == "Employee Reference";
+              final bool isLoyalty = enquiry.subSource == "Loyalty";
+              final bool isReference = enquiry.subSource == "Reference";
+
+              final List<Map<String, dynamic>> items = [];
+
+              /// BASIC INFO
+              items.addAll([
+                {"title": "Unique Code", "value": enquiry.systemGeneratedCode},
+                {"title": "Name", "value": enquiry.name},
+                {"title": "Mobile No.", "value": enquiry.mobileNumber},
+                {"title": "Source", "value": enquiry.source},
+              ]);
+
+              /// SUB SOURCE
+              items.add({"title": "Sub Source", "value": enquiry.subSource});
+
+              if (isDirectWalking && isAdvertisement) {
+                items.add({
+                  "title": "Sub Sub Source",
+                  "value": enquiry.subSubSource,
+                });
+              }
+
+              /// CHANNEL PARTNER
+              if (isChannelPartner) {
+                items.addAll([
+                  {"title": "CP Name", "value": enquiry.channelPartnerName},
+                  {
+                    "title": "CP Mobile No.",
+                    "value": enquiry.channelPartnerMobileNumber,
+                  },
+                  {
+                    "title": "CP Designation",
+                    "value": enquiry.channelPartnerDesignation,
+                  },
+                  {
+                    "title": "CP Company Name",
+                    "value": enquiry.channelPartnerCompany,
+                  },
+                  {
+                    "title": "CP Firm Type",
+                    "value": enquiry.channelPartnerFirmsType,
+                  },
+                  {"title": "CP Type", "value": enquiry.channelPartnerType},
+                  if (enquiry.channelPartnerTeamMemberName.isNotEmpty)
+                    {
+                      "title": "CP Team Member Name",
+                      "value": enquiry.channelPartnerTeamMemberName,
+                    },
+                  if (enquiry.channelPartnerTeamMemberMobileNumber.isNotEmpty)
+                    {
+                      "title": "CP Team Member Mobile",
+                      "value": enquiry.channelPartnerTeamMemberMobileNumber,
+                      "customValueWidget": CustomClickToContactText(
+                        value: enquiry.channelPartnerTeamMemberMobileNumber,
+                        type: ContactType.phone,
+                      ),
+                    },
+                ]);
+              }
+
+              /// EMPLOYEE REFERENCE
+              if (isDirectWalking && isEmployeeReference) {
+                items.addAll([
+                  {
+                    "title": "Employee Ref Name",
+                    "value": enquiry.employeeReferenceName,
+                  },
+                  {
+                    "title": "Employee Ref Mobile",
+                    "value": enquiry.employeeReferenceMobileNumber,
+                  },
+                ]);
+              }
+
+              /// LOYALTY
+              if (isDirectWalking && isLoyalty) {
+                items.addAll([
+                  {
+                    "title": "Project",
+                    "value": enquiry.loyaltyExistingProjectName,
+                  },
+                  {
+                    "title": "Unit No",
+                    "value": enquiry.loyaltyExistingUnitNumber,
+                  },
+                  {
+                    "title": "Owner",
+                    "value": enquiry.loyaltyExistingUnitOwnerName,
+                  },
+                ]);
+              }
+
+              /// REFERENCE
+              if (isDirectWalking && isReference) {
+                items.addAll([
+                  {"title": "Project", "value": enquiry.referralProjectName},
+                  {"title": "Unit No", "value": enquiry.referralUnitNumber},
+                  {"title": "Owner", "value": enquiry.referralUnitOwnerName},
+                ]);
+              }
+
+              /// SALES
+              items.addAll([
+                {"title": "Sales Advisor", "value": enquiry.salesAdvisor},
+                {"title": "Sourcing Manager", "value": enquiry.sourcingManager},
+              ]);
+
+              /// LOCATION
+              items.add({
+                "title": "Current Location",
+                "value": enquiry.currentLocation,
+              });
+
+              return infoCard(items, title: "Enquiry Details");
             },
-          ),
-          // APPLICANT SECTION
+          ), // APPLICANT SECTION
           Container(
             height: 450,
             margin: EdgeInsets.only(bottom: 10),
@@ -1099,7 +1123,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Agreement Value (₹) With TDS",
-                      value: "₹ ${bookingModel!.agreementValue.displayFormatedAmount()}",
+                      value:
+                          "₹ ${bookingModel!.agreementValue.displayFormatedAmount()}",
                     ),
                     buildColumnTitleValue(
                       title: "Agreement Value (₹) Without TDS",
@@ -1114,7 +1139,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "TDS (₹)",
-                      value: "₹ ${bookingModel!.agreementValueTDS.displayFormatedAmount()}",
+                      value:
+                          "₹ ${bookingModel!.agreementValueTDS.displayFormatedAmount()}",
                     ),
                     buildColumnTitleValue(
                       title: "GST (%)",
@@ -1128,7 +1154,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "GST (₹)",
-                      value: "₹ ${bookingModel!.agreementValueGSTAmount.displayFormatedAmount()}",
+                      value:
+                          "₹ ${bookingModel!.agreementValueGSTAmount.displayFormatedAmount()}",
                     ),
                     buildColumnTitleValue(
                       title: "Stamp Duty (%)",
@@ -1142,11 +1169,13 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Stamp Duty (₹)",
-                      value: "₹ ${bookingModel!.stampDutyAmount.displayFormatedAmount()}",
+                      value:
+                          "₹ ${bookingModel!.stampDutyAmount.displayFormatedAmount()}",
                     ),
                     buildColumnTitleValue(
                       title: "Registration Fees (₹)",
-                      value: "₹ ${bookingModel!.registrationFees.displayFormatedAmount()}",
+                      value:
+                          "₹ ${bookingModel!.registrationFees.displayFormatedAmount()}",
                     ),
                   ],
                 ),
@@ -1156,7 +1185,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Booking Amount (₹)",
-                      value: "₹ ${bookingModel!.bookingAmount.displayFormatedAmount()}",
+                      value:
+                          "₹ ${bookingModel!.bookingAmount.displayFormatedAmount()}",
                     ),
                   ],
                 ),
@@ -1171,7 +1201,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       ),
                       buildColumnTitleValue(
                         title: "Loyalty Amount (₹)",
-                        value: "₹ ${bookingModel!.loyaltyAmount.displayFormatedAmount()}",
+                        value:
+                            "₹ ${bookingModel!.loyaltyAmount.displayFormatedAmount()}",
                       ),
                     ],
                   ),
@@ -1186,7 +1217,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       ),
                       buildColumnTitleValue(
                         title: "Brokerage Amount (₹)",
-                        value: "₹ ${bookingModel!.brokerageAmount.displayFormatedAmount()}",
+                        value:
+                            "₹ ${bookingModel!.brokerageAmount.displayFormatedAmount()}",
                       ),
                     ],
                   ),
@@ -1201,7 +1233,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       ),
                       buildColumnTitleValue(
                         title: "Employee Reference Amount (₹)",
-                        value: "₹ ${bookingModel!.employeeReferenceAmount.displayFormatedAmount()}",
+                        value:
+                            "₹ ${bookingModel!.employeeReferenceAmount.displayFormatedAmount()}",
                       ),
                     ],
                   ),
@@ -1304,7 +1337,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                       children: [
                                         buildColumnTitleValue(
                                           title: "Value (In ₹)",
-                                          value: "₹ ${extraCharge.value.displayFormatedAmount()}",
+                                          value:
+                                              "₹ ${extraCharge.value.displayFormatedAmount()}",
                                         ),
                                         buildColumnTitleValue(
                                           title: "GST (%)",
@@ -1318,7 +1352,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                       children: [
                                         buildColumnTitleValue(
                                           title: "GST Value (₹)",
-                                          value: "₹ ${extraCharge.gstValue.displayFormatedAmount()}",
+                                          value:
+                                              "₹ ${extraCharge.gstValue.displayFormatedAmount()}",
                                         ),
                                       ],
                                     ),
@@ -1405,7 +1440,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 ),
                                 buildColumnTitleValue(
                                   title: "Amount (₹)",
-                                  value: "₹ ${payment.paymentScheduleAmount.displayFormatedAmount()}",
+                                  value:
+                                      "₹ ${payment.paymentScheduleAmount.displayFormatedAmount()}",
                                 ),
                               ],
                             ),
@@ -2126,7 +2162,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   ),
                   buildColumnTitleValue(
                     title: "Amount (₹)",
-                    value: "₹ ${payment.paymentScheduleAmount.displayFormatedAmount()}",
+                    value:
+                        "₹ ${payment.paymentScheduleAmount.displayFormatedAmount()}",
                   ),
                 ],
               ),
@@ -2136,11 +2173,13 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 children: [
                   buildColumnTitleValue(
                     title: "GST Amount (₹)",
-                    value: "₹ ${payment.paymentScheduleGSTAmount.displayFormatedAmount()}",
+                    value:
+                        "₹ ${payment.paymentScheduleGSTAmount.displayFormatedAmount()}",
                   ),
                   buildColumnTitleValue(
                     title: "TDS Amount (₹)",
-                    value: "₹ ${payment.paymentScheduleTDSAmount.displayFormatedAmount()}",
+                    value:
+                        "₹ ${payment.paymentScheduleTDSAmount.displayFormatedAmount()}",
                   ),
                 ],
               ),
@@ -2296,7 +2335,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Booking Amount",
-                      value: "₹ ${bookingModel!.bookingAmount.displayFormatedAmount()}",
+                      value:
+                          "₹ ${bookingModel!.bookingAmount.displayFormatedAmount()}",
                     ),
                   ],
                 ),

@@ -755,13 +755,11 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                               CustomDatePicker(
                                 title: "Purchase Start Date",
                                 initialDate: purchaseStartDate,
-                                startDate: DateTime.now(),
                                 setValue: (value) => purchaseStartDate = value,
                               ),
                               CustomDatePicker(
                                 title: "Purchase End Date",
                                 initialDate: purchaseEndDate,
-                                startDate: DateTime.now(),
                                 setValue: (value) => purchaseEndDate = value,
                               ),
                               CustomTextField(
@@ -822,6 +820,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                   decoration: commonCardDecoration(),
                   padding: EdgeInsets.all(12),
                   margin: EdgeInsets.only(bottom: 10),
+
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -840,6 +839,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       CustomTextField(
                         title: 'Mobile Number',
                         textController: _liasoningMobileNumberC,
+                        keyboardType: TextInputType.number,
                         hint: "Enter Mobile Number",
                         prefixWidget: IntrinsicHeight(
                           child: Row(
@@ -886,6 +886,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         title: 'Mobile Number',
                         textController: _designingMobileNumberC,
                         hint: "Enter Mobile Number",
+                        keyboardType: TextInputType.number,
                         prefixWidget: IntrinsicHeight(
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -931,6 +932,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         title: 'Mobile Number',
                         textController: _rccConsultantMobileNumberC,
                         hint: "Enter Mobile Number",
+                        keyboardType: TextInputType.number,
                         prefixWidget: IntrinsicHeight(
                           child: Row(
                             mainAxisSize: MainAxisSize.min,

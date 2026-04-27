@@ -131,6 +131,8 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     required int selectedDistrictId,
     required int selectedCityId,
     required int selectedVillageId,
+    required int primaryProjectPortfolioId,
+    required String secondaryProjectPortfolioId,
     required String reraNumber,
     required String otp,
     required String websiteURL,
@@ -161,6 +163,8 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       "RERANumber": reraNumber,
       "WebsiteURL": websiteURL,
       "DateOfBirth": dob,
+      "PrimaryProjectPortfolioId": primaryProjectPortfolioId.toString(),
+      "SecondaryProjectPortfolioId": secondaryProjectPortfolioId,
       "OTP": otp,
     };
 
@@ -253,6 +257,9 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     required MultiFilePickerModel gstCertificateDocuments,
     required String otp,
     required String websiteURL,
+    required int? primaryProjectPortfolioId,
+    required String secondaryProjectPortfolioId,
+
     required String dob,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -281,6 +288,8 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       "OTP": otp,
       "WebsiteURL": websiteURL,
       "DateOfBirth": dob,
+      "PrimaryProjectPortfolioId": primaryProjectPortfolioId.toString(),
+      "SecondaryProjectPortfolioId": secondaryProjectPortfolioId,
       "RemovePanCardURL": panCardDocuments.deletedFileList,
       "RemoveAadharCardURL": aadhaarCardDocuments.deletedFileList,
       "RemoveGSTCertificateURL": gstCertificateDocuments.deletedFileList,

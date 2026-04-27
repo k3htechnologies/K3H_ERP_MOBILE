@@ -93,7 +93,7 @@ class Table1 {
   final String mobileNumber;
   final String enquiryFollowUpDays;
   final String finalStage;
-  final DateTime nextFollowUpDate;
+  final DateTime? nextFollowUpDate;
   final String salesAdvisor;
   final String sourcingManager;
   final DateTime createdDate;
@@ -120,7 +120,10 @@ class Table1 {
     mobileNumber: parseValue<String>(json, "MobileNumber"),
     enquiryFollowUpDays: parseValue<String>(json, "EnquiryFollowUpDays"),
     finalStage: parseValue<String>(json, "FinalStage"),
-    nextFollowUpDate: parseValue<DateTime>(json, "NextFollowUpDate"),
+    nextFollowUpDate:
+        (json["NextFollowUpDate"].isEmpty ?? false)
+            ? null
+            : parseValue<DateTime>(json, "NextFollowUpDate"),
     salesAdvisor: parseValue<String>(json, "SalesAdvisor"),
     sourcingManager: parseValue<String>(json, "SourcingManager"),
     createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -134,7 +137,7 @@ class Table1 {
     "MobileNumber": mobileNumber,
     "EnquiryFollowUpDays": enquiryFollowUpDays,
     "FinalStage": finalStage,
-    "NextFollowUpDate": nextFollowUpDate.toIso8601String(),
+    "NextFollowUpDate": nextFollowUpDate?.toIso8601String(),
     "SalesAdvisor": salesAdvisor,
     "SourcingManager": sourcingManager,
     "CreatedDate": createdDate.toIso8601String(),
@@ -202,7 +205,10 @@ class Table2 {
     performanceWalkinsByCp: parseValue<double>(json, "PerformanceWalkinsByCP"),
     walkinsDirect: parseValue<int>(json, "WalkinsDirect"),
     actualWalkinsDirect: parseValue<int>(json, "ActualWalkinsDirect"),
-    performanceWalkinsDirect: parseValue<double>(json, "PerformanceWalkinsDirect"),
+    performanceWalkinsDirect: parseValue<double>(
+      json,
+      "PerformanceWalkinsDirect",
+    ),
     freshVisits: parseValue<int>(json, "FreshVisits"),
     actualFreshVisits: parseValue<int>(json, "ActualFreshVisits"),
     performanceFreshVisits: parseValue<double>(json, "PerformanceFreshVisits"),
@@ -214,7 +220,10 @@ class Table2 {
     performanceBookingByCp: parseValue<int>(json, "PerformanceBookingByCP"),
     bookingDirect: parseValue<int>(json, "BookingDirect"),
     actualBookingDirect: parseValue<int>(json, "ActualBookingDirect"),
-    performanceBookingDirect: parseValue<double>(json, "PerformanceBookingDirect"),
+    performanceBookingDirect: parseValue<double>(
+      json,
+      "PerformanceBookingDirect",
+    ),
     totalRecords: parseValue<int>(json, "TotalRecords"),
     message: parseValue<String>(json, "Message"),
   );

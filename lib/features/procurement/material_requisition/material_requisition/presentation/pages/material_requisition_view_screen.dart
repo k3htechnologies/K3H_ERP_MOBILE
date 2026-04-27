@@ -142,7 +142,6 @@ class _MaterialRequisitionViewScreenState
         }
       },
       child: Scaffold(
-        backgroundColor: AppColor.greyBackground,
         appBar: CustomAppBarWithBackButton(
           screenTitle: "Material Requisition",
           authorization: AuthorizationModel(),

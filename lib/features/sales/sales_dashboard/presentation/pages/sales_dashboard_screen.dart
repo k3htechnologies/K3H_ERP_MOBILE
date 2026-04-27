@@ -550,9 +550,11 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                                 Expanded(
                                   child: _infoColumn(
                                     "Next FollowUp Date",
-                                    formatDateTimeAsDDMMMYYYY(
-                                      activeFollowUps.nextFollowUpDate,
-                                    ),
+                                    activeFollowUps.nextFollowUpDate == null
+                                        ? '-'
+                                        : formatDateTimeAsDDMMMYYYY(
+                                          activeFollowUps.nextFollowUpDate!,
+                                        ),
                                   ),
                                 ),
                               ],

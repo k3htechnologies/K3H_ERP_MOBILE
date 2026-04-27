@@ -117,11 +117,12 @@ class _AddInventorySpecificationScreenState
     {'zAttributesId': 2, 'DisplayName': 'Blocked'},
     {'zAttributesId': 3, 'DisplayName': 'Hold'},
   ];
-  List<Map<String, dynamic>> flatStatusListWithAlloted = [
+  List<Map<String, dynamic>> flatStatusListWithOtherOptions = [
     {'zAttributesId': 1, 'DisplayName': 'Available'},
     {'zAttributesId': 2, 'DisplayName': 'Blocked'},
     {'zAttributesId': 3, 'DisplayName': 'Hold'},
     {'zAttributesId': 4, 'DisplayName': 'Alloted'},
+    {'zAttributesId': 5, 'DisplayName': 'Booked'},
   ];
 
   // STATIC LISTS FOR FLAT FACING
@@ -218,6 +219,14 @@ class _AddInventorySpecificationScreenState
     selectedFlatFacing = ValueNotifier<Map<String, dynamic>?>(null);
   }
 
+  List<Map<String, dynamic>> get currentStatus => switch (widget
+      .flatModel
+      ?.flatStatus
+      .toLowerCase()) {
+    "alloted" || "booked" => flatStatusListWithOtherOptions,
+    _ => flatStatusList,
+  };
+
   // PREFILL FLAT DATA
   void _prefillFlat(FlatModel flat) {
     // Handle flat number - might be empty when adding
@@ -238,18 +247,21 @@ class _AddInventorySpecificationScreenState
       );
     }
 
-    // Handle flat status - only set if not empty (for editing)
-    if (flat.flatStatus.isNotEmpty &&
-        flat.flatStatus.toLowerCase() != 'alloted') {
-      selectedFlatStatus.value = flatStatusList.firstWhere(
-        (e) => e['DisplayName'].toLowerCase() == flat.flatStatus.toLowerCase(),
-        orElse: () => flatStatusList.first,
-      );
-    } else {
-      selectedFlatStatus.value = flatStatusListWithAlloted.firstWhere(
-        (e) => e['DisplayName'].toLowerCase() == flat.flatStatus.toLowerCase(),
-        orElse: () => flatStatusListWithAlloted.first,
-      );
+    switch (flat.flatStatus.toLowerCase()) {
+      case 'alloted':
+      case 'booked':
+        selectedFlatStatus.value = flatStatusListWithOtherOptions.firstWhere(
+          (e) =>
+              e['DisplayName'].toLowerCase() == flat.flatStatus.toLowerCase(),
+          orElse: () => flatStatusListWithOtherOptions.first,
+        );
+        break;
+      default:
+        selectedFlatStatus.value = flatStatusList.firstWhere(
+          (e) =>
+              e['DisplayName'].toLowerCase() == flat.flatStatus.toLowerCase(),
+          orElse: () => flatStatusList.first,
+        );
     }
 
     // Handle flat facing - only set if not empty (for editing)
@@ -763,11 +775,7 @@ class _AddInventorySpecificationScreenState
                           isDisabled: statusDisabled.value,
                           hintText: 'Select Status',
                           isRequired: true,
-                          dataList:
-                              widget.flatModel?.flatStatus.toLowerCase() ==
-                                      'alloted'
-                                  ? flatStatusListWithAlloted
-                                  : flatStatusList,
+                          dataList: currentStatus,
                           initialValue: statusValue,
                           onSelected: (value) {
                             selectedFlatStatus.value = value;

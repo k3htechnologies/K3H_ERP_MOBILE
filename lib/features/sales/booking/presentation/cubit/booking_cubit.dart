@@ -1272,7 +1272,11 @@ class BookingCubit extends Cubit<BookingState> {
     goRouter.pop();
     result.fold(
       (failure) {
-        showErrorMessage(context, 'Error', failure.message);
+        showErrorMessage(
+          context,
+          'Error',
+          "An error occurred while processing your request.",
+        );
       },
       (response) {
         if (isSendEmail) {

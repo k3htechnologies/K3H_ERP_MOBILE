@@ -44,6 +44,10 @@ class ChannelPartnerModel {
   final double paidBrokerageAmount;
   final String websiteURL;
   final DateTime? dob;
+  final int primaryProjectPortfolioId;
+  final String PrimaryProjectPortfolio;
+  final String secondaryProjectPortfolioId;
+  final String SecondaryProjectPortfolio;
 
   ChannelPartnerModel({
     required this.channelPartnerId,
@@ -89,6 +93,10 @@ class ChannelPartnerModel {
     required this.paidBrokerageAmount,
     required this.dob,
     required this.websiteURL,
+    required this.primaryProjectPortfolioId,
+    required this.PrimaryProjectPortfolio,
+    required this.secondaryProjectPortfolioId,
+    required this.SecondaryProjectPortfolio,
   });
 
   factory ChannelPartnerModel.fromJson(Map<String, dynamic> json) =>
@@ -146,6 +154,22 @@ class ChannelPartnerModel {
                 ? null
                 : parseValue<DateTime>(json, "DateOfBirth"),
         websiteURL: parseValue<String>(json, "WebsiteURL"),
+        primaryProjectPortfolioId: parseValue<int>(
+          json,
+          "PrimaryProjectPortfolioId",
+        ),
+        PrimaryProjectPortfolio: parseValue<String>(
+          json,
+          "PrimaryProjectPortfolio",
+        ),
+        secondaryProjectPortfolioId: parseValue<String>(
+          json,
+          "SecondaryProjectPortfolioId",
+        ),
+        SecondaryProjectPortfolio: parseValue<String>(
+          json,
+          "SecondaryProjectPortfolio",
+        ),
       );
 
   Map<String, dynamic> toJson() => {
@@ -192,6 +216,10 @@ class ChannelPartnerModel {
     "PaidBrokerageAmount": paidBrokerageAmount,
     "DateOfBirth": dob?.toIso8601String(),
     "WebsiteURL": websiteURL,
+    "PrimaryProjectPortfolioId": primaryProjectPortfolioId,
+    "PrimaryProjectPortfolio": PrimaryProjectPortfolio,
+    "SecondaryProjectPortfolioId": secondaryProjectPortfolioId,
+    "SecondaryProjectPortfolio": SecondaryProjectPortfolio,
   };
 }
 

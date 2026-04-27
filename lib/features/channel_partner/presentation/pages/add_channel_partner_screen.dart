@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/repository/channel_partner.repository.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -48,9 +50,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   bool get _isEditMode => widget.channelPartnerModel != null;
 
   // REPOSITORY
-
   final ChannelPartnerRepository _channelPartnerRepository =
       serviceLocator<ChannelPartnerRepository>();
+  final ProjectMasterRepository _projectMasterRepository =
+      serviceLocator<ProjectMasterRepository>();
 
   // TEXT EDITING CONTROLLER
   late TextEditingController _nameC,
@@ -76,6 +79,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   late ValueNotifier<bool> aadhaarTrigger;
   late ValueNotifier<bool> panTrigger;
   late ValueNotifier<bool> gstTrigger;
+  final ValueNotifier<List<Map<String, dynamic>>>
+  _selectedPrimaryProjectNotifier = ValueNotifier([]);
+  final ValueNotifier<List<Map<String, dynamic>>>
+  _selectedSecondaryProjectNotifier = ValueNotifier([]);
 
   // STATIC LIST
   List<Map<String, dynamic>> designationList = [
@@ -433,6 +440,71 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
       "DisplayName": channelPartnerMasterModel.villageName,
       "zAttributesId": channelPartnerMasterModel.villageMasterId,
     };
+
+    if (channelPartnerMasterModel.primaryProjectPortfolioId != 0) {
+      _selectedPrimaryProjectNotifier.value = [
+        {
+          "zAttributesId": channelPartnerMasterModel.primaryProjectPortfolioId,
+          "DisplayName": channelPartnerMasterModel.PrimaryProjectPortfolio,
+        },
+      ];
+    }
+    if (channelPartnerMasterModel.secondaryProjectPortfolioId.isNotEmpty) {
+      _selectedSecondaryProjectNotifier.value =
+          channelPartnerMasterModel.secondaryProjectPortfolioId
+              .split(",")
+              .asMap()
+              .entries
+              .map((entry) {
+                final index = entry.key;
+                final projectId = entry.value;
+                final projectName =
+                    channelPartnerMasterModel.SecondaryProjectPortfolio.split(
+                      ",",
+                    )[index];
+                return {
+                  "zAttributesId": int.tryParse(projectId) ?? 0,
+                  "DisplayName": projectName,
+                };
+              })
+              .toList();
+    }
+  }
+
+  //  FETCH PROJECTS
+  Future<Map<String, dynamic>> _fetchProjects(
+    int pageNumber, {
+    String? value,
+  }) async {
+    final result = await _projectMasterRepository.getProjectList(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      queryParams:
+          value != null && value.isNotEmpty
+              ? {"ProjectName": value, "isCheckPermission": false}
+              : {"isCheckPermission": false},
+    );
+
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final project = response['data'] as List<ProjectModel>;
+
+        return {
+          "itemList":
+              project.map((pr) {
+                return {
+                  "zAttributesId": pr.projectId,
+                  "DisplayName": pr.projectName,
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
+        };
+      },
+    );
   }
 
   // SUBMIT FORM BY OTP VARIFICATION
@@ -536,6 +608,14 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         designation: selectedDesignation.value?["DisplayName"] ?? "",
         dob: _dob?.toIso8601String() ?? "",
         websiteURL: _websiteC.text.trim(),
+        primaryProjectPortfolioId:
+            _selectedPrimaryProjectNotifier.value.isNotEmpty
+                ? _selectedPrimaryProjectNotifier.value.first["zAttributesId"]
+                : null,
+        secondaryProjectPortfolioId:
+            _selectedSecondaryProjectNotifier.value.isNotEmpty
+                ? getSecondaryProjectIds()
+                : "",
         otp: _otpController.text.trim(),
       );
     } else {
@@ -567,8 +647,25 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         gstCertificateURL: selectedGSTCertificateForPopUpFile.value,
         dob: _dob?.toIso8601String() ?? "",
         websiteURL: _websiteC.text.trim(),
+        primaryProjectPortfolioId:
+            _selectedPrimaryProjectNotifier.value.isNotEmpty
+                ? _selectedPrimaryProjectNotifier.value.first["zAttributesId"]
+                : null,
+        secondaryProjectPortfolioId:
+            _selectedSecondaryProjectNotifier.value.isNotEmpty
+                ? getSecondaryProjectIds()
+                : "",
       );
     }
+  }
+
+  String getSecondaryProjectIds() {
+    if (_selectedSecondaryProjectNotifier.value.isEmpty) {
+      return "";
+    }
+    return _selectedSecondaryProjectNotifier.value
+        .map((e) => e["zAttributesId"].toString())
+        .join(",");
   }
 
   // RESET FIELDS RELATED TO COMPANY SELECTION
@@ -1356,6 +1453,54 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                           return "Office Address is required";
                         }
                         return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              verticalSpacing(),
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Primary & Secondary Project Portfolio Details",
+                      style: AppTextStyle.ts16SB(),
+                    ),
+                    verticalSpacing(),
+
+                    ValueListenableBuilder(
+                      valueListenable: _selectedPrimaryProjectNotifier,
+                      builder: (context, value, child) {
+                        return CustomMultipleSelectPopup(
+                          title: 'Primary Project',
+                          isMultiSelect: false,
+                          hintText: "Select Primary Project",
+                          initialValue: value,
+                          dataList: const [],
+                          onSelected: (value) {
+                            _selectedPrimaryProjectNotifier.value = value;
+                          },
+                          dataFetchCallBack: _fetchProjects,
+                        );
+                      },
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: _selectedSecondaryProjectNotifier,
+                      builder: (context, value, child) {
+                        return CustomMultipleSelectPopup(
+                          title: 'Secondary Project',
+                          isMultiSelect: true,
+                          hintText: "Select Secondary Project",
+                          initialValue: value,
+                          dataList: const [],
+                          onSelected: (value) {
+                            _selectedSecondaryProjectNotifier.value = value;
+                          },
+                          dataFetchCallBack: _fetchProjects,
+                        );
                       },
                     ),
                   ],
