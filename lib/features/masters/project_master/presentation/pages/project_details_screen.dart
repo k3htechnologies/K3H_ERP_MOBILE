@@ -452,7 +452,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Details", style: AppTextStyle.ts16SB()),
+                Text("Liasoning Architect", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
                 Row(
                   children: [
@@ -473,10 +473,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   ],
                 ),
                 verticalSpacing(),
-                Text(
-                  "Designing Architect Details",
-                  style: AppTextStyle.ts16SB(),
-                ),
+                Text("Designing Architect", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
                 Row(
                   children: [
@@ -736,6 +733,10 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                       title: "Project Area (Sq.ft)",
                       value: widget.project.projectAreaInSqft.toString(),
                     ),
+                    buildColumnTitleValue(
+                      title: "Project Area (Sq.mt)",
+                      value: widget.project.projectAreaInSqmt.toString(),
+                    ),
                   ],
                 ),
               ],
@@ -875,12 +876,12 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
               if (isTender) ...[
                 buildColumnTitleValue(
                   title: "Amount",
-                  value: "₹${widget.project.tenderAmount}",
+                  value: addCommasToInteger(widget.project.tenderAmount),
                 ),
                 horizontalSpacing(),
                 buildColumnTitleValue(
                   title: "EMD Amount",
-                  value: "₹${widget.project.tenderEmdAmount}",
+                  value: addCommasToInteger(widget.project.tenderEmdAmount),
                 ),
               ],
             ],

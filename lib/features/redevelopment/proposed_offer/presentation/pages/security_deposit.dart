@@ -452,7 +452,9 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                                           ),
                                           _buildSecurityInfoRow(
                                             "Amount",
-                                            "₹${securityDeposit.amount.toStringAsFixed(2)}",
+                                            addCommasToInteger(
+                                              securityDeposit.amount,
+                                            ),
                                           ),
                                         ],
                                       ),

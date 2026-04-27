@@ -1123,13 +1123,14 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Agreement Value (₹) With TDS",
-                      value:
-                          "₹ ${bookingModel!.agreementValue.displayFormatedAmount()}",
+                      value: addCommasToInteger(bookingModel!.agreementValue),
                     ),
                     buildColumnTitleValue(
                       title: "Agreement Value (₹) Without TDS",
-                      value:
-                          "₹ ${(bookingModel!.agreementValue - bookingModel!.agreementValueTDS).displayFormatedAmount()}",
+                      value: addCommasToInteger(
+                        bookingModel!.agreementValue -
+                            bookingModel!.agreementValueTDS,
+                      ),
                     ),
                   ],
                 ),
@@ -1139,8 +1140,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "TDS (₹)",
-                      value:
-                          "₹ ${bookingModel!.agreementValueTDS.displayFormatedAmount()}",
+                      value: addCommasToInteger(
+                        bookingModel!.agreementValueTDS,
+                      ),
                     ),
                     buildColumnTitleValue(
                       title: "GST (%)",
@@ -1154,8 +1156,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "GST (₹)",
-                      value:
-                          "₹ ${bookingModel!.agreementValueGSTAmount.displayFormatedAmount()}",
+                      value: addCommasToInteger(
+                        bookingModel!.agreementValueGSTAmount,
+                      ),
                     ),
                     buildColumnTitleValue(
                       title: "Stamp Duty (%)",
@@ -1169,13 +1172,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Stamp Duty (₹)",
-                      value:
-                          "₹ ${bookingModel!.stampDutyAmount.displayFormatedAmount()}",
+                      value: addCommasToInteger(bookingModel!.stampDutyAmount),
                     ),
                     buildColumnTitleValue(
                       title: "Registration Fees (₹)",
-                      value:
-                          "₹ ${bookingModel!.registrationFees.displayFormatedAmount()}",
+                      value: addCommasToInteger(bookingModel!.registrationFees),
                     ),
                   ],
                 ),
@@ -1185,8 +1186,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Booking Amount (₹)",
-                      value:
-                          "₹ ${bookingModel!.bookingAmount.displayFormatedAmount()}",
+                      value: addCommasToInteger(bookingModel!.bookingAmount),
                     ),
                   ],
                 ),
@@ -1201,8 +1201,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       ),
                       buildColumnTitleValue(
                         title: "Loyalty Amount (₹)",
-                        value:
-                            "₹ ${bookingModel!.loyaltyAmount.displayFormatedAmount()}",
+                        value: addCommasToInteger(bookingModel!.loyaltyAmount),
                       ),
                     ],
                   ),
@@ -1217,8 +1216,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       ),
                       buildColumnTitleValue(
                         title: "Brokerage Amount (₹)",
-                        value:
-                            "₹ ${bookingModel!.brokerageAmount.displayFormatedAmount()}",
+                        value: addCommasToInteger(
+                          bookingModel!.brokerageAmount,
+                        ),
                       ),
                     ],
                   ),
@@ -1233,8 +1233,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       ),
                       buildColumnTitleValue(
                         title: "Employee Reference Amount (₹)",
-                        value:
-                            "₹ ${bookingModel!.employeeReferenceAmount.displayFormatedAmount()}",
+                        value: addCommasToInteger(
+                          bookingModel!.employeeReferenceAmount,
+                        ),
                       ),
                     ],
                   ),
@@ -1337,8 +1338,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                       children: [
                                         buildColumnTitleValue(
                                           title: "Value (In ₹)",
-                                          value:
-                                              "₹ ${extraCharge.value.displayFormatedAmount()}",
+                                          value: addCommasToInteger(
+                                            extraCharge.value,
+                                          ),
                                         ),
                                         buildColumnTitleValue(
                                           title: "GST (%)",
@@ -1352,8 +1354,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                       children: [
                                         buildColumnTitleValue(
                                           title: "GST Value (₹)",
-                                          value:
-                                              "₹ ${extraCharge.gstValue.displayFormatedAmount()}",
+                                          value: addCommasToInteger(
+                                            extraCharge.gstValue,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -1440,8 +1443,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 ),
                                 buildColumnTitleValue(
                                   title: "Amount (₹)",
-                                  value:
-                                      "₹ ${payment.paymentScheduleAmount.displayFormatedAmount()}",
+                                  value: addCommasToInteger(
+                                    payment.paymentScheduleAmount,
+                                  ),
                                 ),
                               ],
                             ),
@@ -1451,13 +1455,15 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                               children: [
                                 buildColumnTitleValue(
                                   title: "GST Amount (₹)",
-                                  value:
-                                      "₹ ${payment.paymentScheduleGSTAmount.displayFormatedAmount()}",
+                                  value: addCommasToInteger(
+                                    payment.paymentScheduleGSTAmount,
+                                  ),
                                 ),
                                 buildColumnTitleValue(
                                   title: "TDS Amount (₹)",
-                                  value:
-                                      "₹ ${payment.paymentScheduleTDSAmount}",
+                                  value: addCommasToInteger(
+                                    payment.paymentScheduleTDSAmount,
+                                  ),
                                 ),
                               ],
                             ),
@@ -2091,7 +2097,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 children: [
                   buildColumnTitleValue(
                     title: "Value (In ₹)",
-                    value: "₹ ${extraCharge.value.displayFormatedAmount()}",
+                    value: addCommasToInteger(extraCharge.value),
                   ),
                   buildColumnTitleValue(
                     title: "GST (%)",
@@ -2103,7 +2109,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 children: [
                   buildColumnTitleValue(
                     title: "GST Value (₹)",
-                    value: "₹ ${extraCharge.gstValue.displayFormatedAmount()}",
+                    value: addCommasToInteger(extraCharge.gstValue),
                   ),
                 ],
               ),
@@ -2162,8 +2168,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   ),
                   buildColumnTitleValue(
                     title: "Amount (₹)",
-                    value:
-                        "₹ ${payment.paymentScheduleAmount.displayFormatedAmount()}",
+                    value: addCommasToInteger(payment.paymentScheduleAmount),
                   ),
                 ],
               ),
@@ -2173,13 +2178,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 children: [
                   buildColumnTitleValue(
                     title: "GST Amount (₹)",
-                    value:
-                        "₹ ${payment.paymentScheduleGSTAmount.displayFormatedAmount()}",
+                    value: addCommasToInteger(payment.paymentScheduleGSTAmount),
                   ),
                   buildColumnTitleValue(
                     title: "TDS Amount (₹)",
-                    value:
-                        "₹ ${payment.paymentScheduleTDSAmount.displayFormatedAmount()}",
+                    value: addCommasToInteger(payment.paymentScheduleTDSAmount),
                   ),
                 ],
               ),
@@ -2335,8 +2338,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Booking Amount",
-                      value:
-                          "₹ ${bookingModel!.bookingAmount.displayFormatedAmount()}",
+                      value: addCommasToInteger(bookingModel!.bookingAmount),
                     ),
                   ],
                 ),

@@ -142,9 +142,3 @@ ProjectModel getProject() {
     );
   }
 }
-
-extension NumberFormatting on num {
-  String displayFormatedAmount() {
-    return NumberFormat('#,##0.00').format(this);
-  }
-}

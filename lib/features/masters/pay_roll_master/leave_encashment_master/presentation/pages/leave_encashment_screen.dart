@@ -116,7 +116,7 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
         },
         textController: _searchC,
         searchHintText: "Search by Earning Name",
-        onSearchSubmit: (value){
+        onSearchSubmit: (value) {
           _leaveEncashmentMasterCubit.searchLeaveEnhancement(context, value);
         },
       ),
@@ -141,7 +141,9 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
                         SizedBox(
                           height: getActualHeight(context) * .7,
                           child: Center(
-                            child: noDataWidget(message: "No Leave Encashment Found"),
+                            child: noDataWidget(
+                              message: "No Leave Encashment Found",
+                            ),
                           ),
                         ),
                       ],
@@ -182,7 +184,7 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
                                     leaveEncashment.earningMasterName,
                                     style: AppTextStyle.ts14M(
                                       color: AppColor.primary,
-                                    )
+                                    ),
                                   ),
                                 ),
                                 horizontalSpacing(),
@@ -220,11 +222,15 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
                             verticalSpacing(height: 10),
                             buildRowTitleValue(
                               title: "Minimum Salary",
-                              value: "₹ ${leaveEncashment.minSalary}",
+                              value: addCommasToInteger(
+                                leaveEncashment.minSalary,
+                              ),
                             ),
                             buildRowTitleValue(
                               title: "Maximum Salary",
-                              value: "₹ ${leaveEncashment.maxSalary}",
+                              value: addCommasToInteger(
+                                leaveEncashment.maxSalary,
+                              ),
                             ),
                             buildRowTitleValue(
                               title: "Encashment Rate",
@@ -246,7 +252,9 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
                               title: "Modified Date",
                               value:
                                   leaveEncashment.modifiedDate != null
-                                      ? formatDate(leaveEncashment.modifiedDate!)
+                                      ? formatDate(
+                                        leaveEncashment.modifiedDate!,
+                                      )
                                       : "",
                             ),
                           ],

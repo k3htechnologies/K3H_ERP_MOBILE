@@ -673,7 +673,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
 
                                       _buildShiftingInfoRow(
                                         "Amount",
-                                        "₹${shifting.amount.toStringAsFixed(2)}",
+                                        addCommasToInteger(shifting.amount),
                                       ),
                                     ],
                                   ),

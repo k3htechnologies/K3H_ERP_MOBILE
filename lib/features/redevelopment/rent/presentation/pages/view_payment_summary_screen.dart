@@ -128,7 +128,7 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
               Column(
                 children: [
                   Text(
-                    '₹ ${item.payAmount.toStringAsFixed(2)}',
+                    addCommasToInteger(item.payAmount),
                     style: AppTextStyle.ts18M(color: AppColor.slightDarkBlue),
                   ),
                   Text(

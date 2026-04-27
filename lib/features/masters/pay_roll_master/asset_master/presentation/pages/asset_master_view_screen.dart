@@ -175,7 +175,7 @@ class _AssetMasterViewScreenState extends State<AssetMasterViewScreen>
                     ),
                     buildColumnTitleValue(
                       title: "Asset Cost",
-                      value: "₹ ${widget.assetMaster.assetCost}",
+                      value: addCommasToInteger(widget.assetMaster.assetCost),
                     ),
                   ],
                 ),
@@ -325,13 +325,15 @@ class _AssetMasterViewScreenState extends State<AssetMasterViewScreen>
                     children: [
                       buildColumnTitleValue(
                         title: "Duration From",
-                        value:
-                            formatDateTimeAsDDMMMYYYY(assetMapping.assignedDate),
+                        value: formatDateTimeAsDDMMMYYYY(
+                          assetMapping.assignedDate,
+                        ),
                       ),
                       buildColumnTitleValue(
                         title: "Duration to",
-                        value:
-                            formatDateTimeAsDDMMMYYYY(assetMapping.returnDate!),
+                        value: formatDateTimeAsDDMMMYYYY(
+                          assetMapping.returnDate!,
+                        ),
                       ),
                     ],
                   ),
