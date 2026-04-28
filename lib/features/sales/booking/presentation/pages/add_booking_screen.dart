@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
@@ -504,6 +505,24 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _registrationFeesC.text = fees.toStringAsFixed(2);
   }
 
+  // FOR MERGING FILES IN APPLICANT FORM
+  MultiFilePickerModel mergeFile(
+    MultiFilePickerModel updated,
+    MultiFilePickerModel old,
+  ) {
+    return MultiFilePickerModel(
+      fileBytesList:
+          updated.fileBytesList.isNotEmpty
+              ? updated.fileBytesList
+              : old.fileBytesList,
+      fileNameList:
+          updated.fileNameList.isNotEmpty
+              ? updated.fileNameList
+              : old.fileNameList,
+      deletedFileList: updated.deletedFileList,
+    );
+  }
+
   // OPEN APPLICANT FORM
   Future<void> _openApplicantForm({
     BookingApplicantData? applicant,
@@ -534,54 +553,83 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       _applicants.value,
     );
 
-    final existingApplicantIndex = currentApplicants.indexWhere(
-      (e) => _isApplicantType(e.applicantType),
-    );
-
-    int getTotalBytes(List<Uint8List> list) =>
-        list.fold(0, (sum, item) => sum + item.length);
-
     final bool isUpdatingExisting =
         updatedIndex != null && updatedIndex < currentApplicants.length;
 
-    if (_isApplicantType(updatedApplicant.applicantType) &&
-        existingApplicantIndex != -1 &&
-        (!isUpdatingExisting || existingApplicantIndex != updatedIndex) &&
-        mounted) {
-      await showErrorMessage(
-        context,
-        'Error',
-        'Only one Applicant type is allowed.',
-      );
-      return;
-    }
-
-    // ✅ FIX: preserve old file bytes before replacing
     BookingApplicantData finalApplicant = updatedApplicant;
 
     if (isUpdatingExisting) {
       final old = currentApplicants[updatedIndex];
 
-      finalApplicant
-        ..profilePhotoImage.fileBytesList = old.profilePhotoImage.fileBytesList
-        ..aadhaarImage.fileBytesList = old.aadhaarImage.fileBytesList
-        ..panImage.fileBytesList = old.panImage.fileBytesList
-        ..passportImage.fileBytesList = old.passportImage.fileBytesList
-        ..drivingLicenseImage.fileBytesList =
-            old.drivingLicenseImage.fileBytesList
-        ..votingIdImage.fileBytesList = old.votingIdImage.fileBytesList
-        ..gstImage.fileBytesList = old.gstImage.fileBytesList
-        ..cancelledChequeImage.fileBytesList =
-            old.cancelledChequeImage.fileBytesList
-        ..poaImage.fileBytesList = old.poaImage.fileBytesList
-        ..incomeForm16ItrImage.fileBytesList =
-            old.incomeForm16ItrImage.fileBytesList
-        ..nreNroBankDetailsImage.fileBytesList =
-            old.nreNroBankDetailsImage.fileBytesList
-        ..nomineeFormImage.fileBytesList = old.nomineeFormImage.fileBytesList
-        ..statementOfSourceOfFundImage.fileBytesList =
-            old.statementOfSourceOfFundImage.fileBytesList
-        ..paymentProofImage.fileBytesList = old.paymentProofImage.fileBytesList;
+      finalApplicant.profilePhotoImage = mergeFile(
+        updatedApplicant.profilePhotoImage,
+        old.profilePhotoImage,
+      );
+
+      finalApplicant.aadhaarImage = mergeFile(
+        updatedApplicant.aadhaarImage,
+        old.aadhaarImage,
+      );
+
+      finalApplicant.panImage = mergeFile(
+        updatedApplicant.panImage,
+        old.panImage,
+      );
+
+      finalApplicant.passportImage = mergeFile(
+        updatedApplicant.passportImage,
+        old.passportImage,
+      );
+
+      finalApplicant.drivingLicenseImage = mergeFile(
+        updatedApplicant.drivingLicenseImage,
+        old.drivingLicenseImage,
+      );
+
+      finalApplicant.votingIdImage = mergeFile(
+        updatedApplicant.votingIdImage,
+        old.votingIdImage,
+      );
+
+      finalApplicant.gstImage = mergeFile(
+        updatedApplicant.gstImage,
+        old.gstImage,
+      );
+
+      finalApplicant.cancelledChequeImage = mergeFile(
+        updatedApplicant.cancelledChequeImage,
+        old.cancelledChequeImage,
+      );
+
+      finalApplicant.poaImage = mergeFile(
+        updatedApplicant.poaImage,
+        old.poaImage,
+      );
+
+      finalApplicant.incomeForm16ItrImage = mergeFile(
+        updatedApplicant.incomeForm16ItrImage,
+        old.incomeForm16ItrImage,
+      );
+
+      finalApplicant.nreNroBankDetailsImage = mergeFile(
+        updatedApplicant.nreNroBankDetailsImage,
+        old.nreNroBankDetailsImage,
+      );
+
+      finalApplicant.nomineeFormImage = mergeFile(
+        updatedApplicant.nomineeFormImage,
+        old.nomineeFormImage,
+      );
+
+      finalApplicant.statementOfSourceOfFundImage = mergeFile(
+        updatedApplicant.statementOfSourceOfFundImage,
+        old.statementOfSourceOfFundImage,
+      );
+
+      finalApplicant.paymentProofImage = mergeFile(
+        updatedApplicant.paymentProofImage,
+        old.paymentProofImage,
+      );
     }
 
     if (isUpdatingExisting) {
@@ -591,16 +639,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     }
 
     _applicants.value = currentApplicants;
-
-    for (var v in _applicants.value) {
-      log(
-        "A Profile Bytes size: ${getTotalBytes(v.profilePhotoImage.fileBytesList)}",
-      );
-      log(
-        "A Aadhaar Bytes size: ${getTotalBytes(v.aadhaarImage.fileBytesList)}",
-      );
-      log("A PAN Bytes size: ${getTotalBytes(v.panImage.fileBytesList)}");
-    }
   }
 
   // OPEN PAYMENT SCHEDULE FORM
@@ -2955,7 +2993,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 value: applicant.gstNumber.isEmpty ? "-" : applicant.gstNumber,
               ),
               buildColumnTitleValue(
-                title: "GST",
+                title: "GST Certificate",
                 value:
                     applicant.gstNumberURL.isEmpty
                         ? "-"

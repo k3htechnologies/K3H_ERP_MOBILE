@@ -304,13 +304,6 @@ class _InventoryScreenState extends State<InventoryScreen>
             inventoryFlatFloorBasementPodiumWingId:
                 selectedWing.inventoryFlatFloorBasementPodiumWingId,
           );
-          log("the project id is: ${_project.projectId}");
-          log(
-            "the inventory Building Id is: ${selectedBuilding.inventoryBuildingId}",
-          );
-          log(
-            "the inventory Flat Floor Basement Podium Wing Id is: ${selectedWing.inventoryFlatFloorBasementPodiumWingId}",
-          );
         },
         onProjectChangeCallback: (value) {
           _project = value;

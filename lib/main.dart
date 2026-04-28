@@ -164,7 +164,6 @@ void onStart(ServiceInstance service) async {
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  log("Handling background message: ${message.data}");
 }
 
 class MyApp extends StatelessWidget {
