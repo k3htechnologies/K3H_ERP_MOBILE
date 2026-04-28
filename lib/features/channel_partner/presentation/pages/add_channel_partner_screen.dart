@@ -445,7 +445,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
       _selectedPrimaryProjectNotifier.value = [
         {
           "zAttributesId": channelPartnerMasterModel.primaryProjectPortfolioId,
-          "DisplayName": channelPartnerMasterModel.PrimaryProjectPortfolio,
+          "DisplayName": channelPartnerMasterModel.primaryProjectPortfolio,
         },
       ];
     }
@@ -459,7 +459,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                 final index = entry.key;
                 final projectId = entry.value;
                 final projectName =
-                    channelPartnerMasterModel.SecondaryProjectPortfolio.split(
+                    channelPartnerMasterModel.secondaryProjectPortfolio.split(
                       ",",
                     )[index];
                 return {

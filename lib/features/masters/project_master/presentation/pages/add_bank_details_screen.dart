@@ -122,8 +122,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
     }
     selectedNatureOfAccount.value = natureOfAccountList.firstWhere(
       (nature) =>
-          nature['DisplayName'] == widget.bankDetailsModel?.natureOfAccount ??
-          natureOfAccountList[0]['DisplayName'],
+          nature['DisplayName'] == widget.bankDetailsModel?.natureOfAccount,
       orElse: () => natureOfAccountList[0],
     );
   }

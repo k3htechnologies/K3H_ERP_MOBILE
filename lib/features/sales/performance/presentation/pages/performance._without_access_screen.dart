@@ -3,15 +3,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
-import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/sales/performance/presentation_without_access/cubit/performance_without_access_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/cubit/sales_dashboard_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
@@ -29,50 +27,30 @@ class _PerformanceWithoutAccessScreenState
     extends State<PerformanceWithoutAccessScreen>
     with TickerProviderStateMixin {
   // CUBIT
-  late PerformanceCubitWithoutAccess _performanceCubit;
-
-  // PROJECT
-  late ProjectModel _project;
+  late SalesDashboardCubit _salesDashboardCubit;
 
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC;
-  // SCROLL CONTROLLERS
-  late ScrollController _sourcingTargetScrollController;
-  late ScrollController _closingTargetScrollController;
 
   // TAB CONTROLLERS
-  // late TabController _tabControllerFirst;
-  late TabController _tabControllerSecond;
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _salesDashboardCubit = context.read<SalesDashboardCubit>();
 
-    _performanceCubit = context.read<PerformanceCubitWithoutAccess>();
-    _project = getProject();
+    _tabController = TabController(length: 2, vsync: this);
 
-    // _tabControllerFirst = TabController(length: 3, vsync: this);
-    _tabControllerSecond = TabController(length: 2, vsync: this);
-
-    // _tabControllerFirst.addListener(_handleTabChangeFirst);
-    _tabControllerSecond.addListener(_handleTabChangeSecond);
+    _tabController.addListener(_handleTabChangeSecond);
 
     _initializeTextEditingController();
-
-    _sourcingTargetScrollController = ScrollController();
-    _closingTargetScrollController = ScrollController();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _callPerformanceApi();
-    });
   }
 
   @override
   void dispose() {
-    // _tabControllerFirst.dispose();
-    _tabControllerSecond.dispose();
-    _sourcingTargetScrollController.dispose();
-    _closingTargetScrollController.dispose();
+    _tabController.dispose();
+    _searchC.dispose();
     super.dispose();
   }
 
@@ -82,44 +60,13 @@ class _PerformanceWithoutAccessScreenState
   }
 
   void _handleTabChangeSecond() {
-    if (!_tabControllerSecond.indexIsChanging) {
+    if (!_tabController.indexIsChanging) {
       _searchC.clear();
-      _performanceCubit.resetSearch();
-      _callPerformanceApi();
-    }
-  }
-
-  String _getReportType() {
-    return _tabControllerSecond.index == 0 ? "Sourcing" : "Closing";
-  }
-
-  void _callPerformanceApi() {
-    final tillDateType = "MTD";
-    final reportType = _getReportType();
-
-    if (_tabControllerSecond.index == 0) {
-      _performanceCubit.getPerformanceSourcingReportList(
-        context: context,
-        projectId: _project.projectId,
-        pageNumber: 1,
-        reportType: reportType,
-        periodType: tillDateType,
-      );
-    } else {
-      _performanceCubit.getPerformanceClosingReportList(
-        context: context,
-        projectId: _project.projectId,
-        pageNumber: 1,
-        reportType: reportType,
-        periodType: tillDateType,
-      );
     }
   }
 
   Future<void> _onRefresh() async {
     _searchC.clear();
-    _performanceCubit.resetSearch();
-    _callPerformanceApi();
   }
 
   @override
@@ -138,14 +85,7 @@ class _PerformanceWithoutAccessScreenState
               child: SearchWidget(
                 hintText: "Search by Name",
                 onSubmit: (value) {
-                  _performanceCubit.searchPerformanceReport(
-                    context,
-                    _project.projectId,
-                    _tabControllerSecond.index,
-                    value,
-                    _getReportType(),
-                    "MTD",
-                  );
+                  _salesDashboardCubit.localSearch(value, _tabController.index);
                 },
                 textController: _searchC,
               ),
@@ -153,14 +93,14 @@ class _PerformanceWithoutAccessScreenState
 
             verticalSpacing(),
             ChipStyleTabBar(
-              controller: _tabControllerSecond,
+              controller: _tabController,
               tabs: ["Sourcing Target", "Closing Target"],
             ),
             verticalSpacing(),
             Expanded(
               child: TabBarView(
                 physics: NeverScrollableScrollPhysics(),
-                controller: _tabControllerSecond,
+                controller: _tabController,
                 children: [
                   _buildSourcingTargetView(),
                   _buildClosingTargetView(),
@@ -175,34 +115,28 @@ class _PerformanceWithoutAccessScreenState
 
   // BUILD SOURCING TARGET VIEW
   Widget _buildSourcingTargetView() {
-    return BlocBuilder<PerformanceCubitWithoutAccess, PerformanceState>(
+    return BlocBuilder<SalesDashboardCubit, SalesDashboardState>(
       builder: (context, state) {
-        if (state.isLoading! && state.performanceReportSourcingModel.isEmpty) {
+        if (state.isLoading ?? true) {
           return Center(child: loader());
         }
 
         return RefreshIndicator(
           onRefresh: _onRefresh,
           child:
-              state.performanceReportSourcingModel.isEmpty
-                  ? ListView(
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.3,
-                      ),
-                      Center(
-                        child: noDataWidget(
-                          message: "No Performance Report Data Found",
-                        ),
-                      ),
-                    ],
+              state.salesDashboardListForFilter.first.table3.isEmpty
+                  ? Center(
+                    child: noDataWidget(
+                      message: "No Performance Report Data Found",
+                    ),
                   )
                   : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: state.performanceReportSourcingModel.length,
+                    itemCount:
+                        state.salesDashboardListForFilter.first.table3.length,
                     itemBuilder: (_, index) {
                       final sourcingTarget =
-                          state.performanceReportSourcingModel[index];
+                          state.salesDashboardListForFilter.first.table3[index];
 
                       return GestureDetector(
                         onTap: () {
@@ -264,34 +198,28 @@ class _PerformanceWithoutAccessScreenState
 
   // BUILD CLOSING TARGET VIEW
   Widget _buildClosingTargetView() {
-    return BlocBuilder<PerformanceCubitWithoutAccess, PerformanceState>(
+    return BlocBuilder<SalesDashboardCubit, SalesDashboardState>(
       builder: (context, state) {
-        if (state.isLoading! && state.performanceReportClosingModel.isEmpty) {
+        if (state.isLoading ?? true) {
           return Center(child: loader());
         }
 
         return RefreshIndicator(
           onRefresh: _onRefresh,
           child:
-              state.performanceReportClosingModel.isEmpty
-                  ? ListView(
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.3,
-                      ),
-                      Center(
-                        child: noDataWidget(
-                          message: "No Performance Report Data Found",
-                        ),
-                      ),
-                    ],
+              state.salesDashboardListForFilter.first.table2.isEmpty
+                  ? Center(
+                    child: noDataWidget(
+                      message: "No Performance Report Data Found",
+                    ),
                   )
                   : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: state.performanceReportClosingModel.length,
+                    itemCount:
+                        state.salesDashboardListForFilter.first.table2.length,
                     itemBuilder: (_, index) {
                       final closingTarget =
-                          state.performanceReportClosingModel[index];
+                          state.salesDashboardListForFilter.first.table2[index];
 
                       return GestureDetector(
                         onTap: () {

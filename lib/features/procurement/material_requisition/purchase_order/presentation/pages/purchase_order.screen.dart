@@ -43,10 +43,8 @@ class _PurchaseOrderScreenState extends State<PurchaseOrderScreen> {
     );
     if (result != null) {
       PlatformFile file = result.files.first;
-      print('Selected file: ${file.name}, path: ${file.path}');
       return file;
     } else {
-      print('File picking cancelled');
       return null;
     }
   }
@@ -120,7 +118,7 @@ class _PurchaseOrderScreenState extends State<PurchaseOrderScreen> {
                         text: "Upload PO",
                         onPressed: () {
                           _pickFile().then((file) {
-                            if (file != null) {
+                            if (file != null && context.mounted) {
                               _purchaseOrderCubit.addPurchaseOrder(
                                 context: context,
                                 projectId: widget.projectId,

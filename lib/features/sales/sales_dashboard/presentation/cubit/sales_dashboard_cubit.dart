@@ -1,3 +1,4 @@
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
@@ -44,6 +45,7 @@ class SalesDashboardCubit extends Cubit<SalesDashboardState> {
           state.copyWith(
             salesData: model,
             salesDashboardList: model != null ? [model] : [],
+            salesDashboardListForFilter: model != null ? [model] : [],
             isLoading: false,
           ),
         );
@@ -76,5 +78,54 @@ class SalesDashboardCubit extends Cubit<SalesDashboardState> {
         getSalesDashboardList(context, projectId);
       },
     );
+  }
+
+  Future localSearch(String query, int index) async {
+    emit(state.copyWith(isLoading: true));
+    if (index == 0) {
+      List<Table3> filteredSourcingList =
+          state.salesDashboardList.first.table3
+              .where(
+                (item) => item.employeeName.toLowerCase().contains(
+                  query.toLowerCase(),
+                ),
+              )
+              .toList();
+      List<SalesDashboardModel> updatedList =
+          state.salesDashboardList.map((model) {
+            if (model.table3.isNotEmpty) {
+              return model.copyWith(table3: filteredSourcingList);
+            }
+            return model;
+          }).toList();
+      emit(
+        state.copyWith(
+          salesDashboardListForFilter: updatedList,
+          isLoading: false,
+        ),
+      );
+    } else if (index == 1) {
+      List<Table2> filteredClosingList =
+          state.salesDashboardList.first.table2
+              .where(
+                (item) => item.employeeName.toLowerCase().contains(
+                  query.toLowerCase(),
+                ),
+              )
+              .toList();
+      List<SalesDashboardModel> updatedList =
+          state.salesDashboardList.map((model) {
+            if (model.table2.isNotEmpty) {
+              return model.copyWith(table2: filteredClosingList);
+            }
+            return model;
+          }).toList();
+      emit(
+        state.copyWith(
+          salesDashboardListForFilter: updatedList,
+          isLoading: false,
+        ),
+      );
+    }
   }
 }

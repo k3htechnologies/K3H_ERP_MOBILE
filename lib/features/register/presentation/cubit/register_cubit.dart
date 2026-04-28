@@ -56,7 +56,9 @@ class RegisterCubit extends Cubit<RegisterState> {
       );
     } catch (e) {
       goRouter.pop();
-      showErrorMessage(context, "Error", e.toString());
+      if (context.mounted) {
+        showErrorMessage(context, "Error", e.toString());
+      }
       emit(state.copyWith(isLoading: false));
     }
   }

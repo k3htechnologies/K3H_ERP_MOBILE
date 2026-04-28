@@ -381,7 +381,7 @@ class _MaterialRequisitionViewScreenState
                   child: ListView.builder(
                     shrinkWrap: true,
 
-                    itemCount: materialList!.length,
+                    itemCount: materialList.length,
                     itemBuilder: (context, index) {
                       final material = materialList[index];
                       return Column(
@@ -691,7 +691,7 @@ class _MaterialRequisitionViewScreenState
                   height: materialList!.length == 1 ? 150 : 340,
                   child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: materialList!.length,
+                    itemCount: materialList.length,
                     itemBuilder: (context, index) {
                       final material = materialList[index];
                       return Row(
