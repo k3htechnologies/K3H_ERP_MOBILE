@@ -591,6 +591,7 @@ class DialogHelper {
     Widget? icon,
     Widget? bottomSection, // optional
     bool barrierDismissible = true,
+    void Function()? onDismiss,
   }) {
     return showDialog(
       context: context,
@@ -615,6 +616,7 @@ class DialogHelper {
                     GestureDetector(
                       onTap: () {
                         goRouter.pop();
+                        onDismiss?.call();
                       },
                       child: Icon(Icons.close, size: 18),
                     ),

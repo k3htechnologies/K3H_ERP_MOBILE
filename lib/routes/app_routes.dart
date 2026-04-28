@@ -123,6 +123,7 @@ class AppRoutes {
   static String channelPartner = "/channelPartner";
   static String addChannelPartner = "/addChannelPartner";
   static String channelPartnerView = "/channelPartnerView";
+  static String cpUniverse = "/cpUniverse";
 
   // SALES OTHER CHARGES
   static String otherCharges = "/otherCharges";

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bloc/bloc.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -53,15 +55,16 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
     required int materialRequisitionId,
     required PlatformFile purchaseOrder,
   }) async {
-    DialogHelper.showProcessingOverlay(context);
+    print(
+      "Adding purchase order for projectId: $projectId, materialRequisitionId: $materialRequisitionId, fileName: ${purchaseOrder.name},filebytes: ${purchaseOrder.bytes != null ? purchaseOrder.bytes!.length : 'null'} bytes",
+    );
     List<Map<String, dynamic>> fileList = [];
     fileList.add({
       "key": "PurchaseOrderURL",
       "value": purchaseOrder.bytes,
       "fileName": purchaseOrder.name,
     });
-
-    goRouter.pop();
+    print("File list prepared: ${fileList.length} file(s) ready for upload.");
     var result = await purchaseOrderRepository.addUpdatePurchaseOrder(
       body: {
         "ProjectId": projectId.toString(),

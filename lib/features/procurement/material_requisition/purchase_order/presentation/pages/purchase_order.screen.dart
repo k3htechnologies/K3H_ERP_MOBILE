@@ -41,12 +41,13 @@ class _PurchaseOrderScreenState extends State<PurchaseOrderScreen> {
   Future<PlatformFile?> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
+      withData: true,
       allowedExtensions: ['pdf'],
     );
     if (result != null) {
       PlatformFile file = result.files.first;
       log(
-        "Selected file: ${file.name}, size: ${file.size} bytes, path: ${file.path}",
+        "Selected file: ${file.name}, bytes: ${file.bytes?.length ?? 0} bytes, path: ${file.path}",
       );
       return file;
     } else {
@@ -86,97 +87,99 @@ class _PurchaseOrderScreenState extends State<PurchaseOrderScreen> {
           if (state.isLoading ?? false) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (state.purchaseOrderList.isEmpty) {
+          if (state.purchaseOrderList.isNotEmpty) {
             return Column(
               children: [
+                Expanded(
+                  child: SfPdfViewer.network(
+                    state.purchaseOrderList.first.purchaseOrderUrl,
+                  ),
+                ),
                 Row(
-                  spacing: 10,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: CustomButton(
-                        text: "Generate PO",
-                        onPressed: () {
-                          goRouter.pushNamed(
-                            AppRoutes.generatePurchaseOrder,
-                            queryParameters: {
-                              "materialRequisitionId": Uri.encodeQueryComponent(
-                                EncryptionManager.encryptData(
-                                  widget.materialRequisitionId.toString(),
-                                ),
-                              ),
-                              "projectId": Uri.encodeQueryComponent(
-                                EncryptionManager.encryptData(
-                                  widget.projectId.toString(),
-                                ),
-                              ),
-                              "uniquekey": Uri.encodeQueryComponent(
-                                EncryptionManager.encryptData(widget.uniquekey),
-                              ),
-                            },
-                          );
-                        },
-                      ),
+                    Text(
+                      "Created On: ${formatDateTimeAsDDMMMYYYY(state.purchaseOrderList.first.createdDate)}",
                     ),
-                    Expanded(
-                      child: CustomButton(
-                        text: "Upload PO",
-                        onPressed: () {
-                          _pickFile().then((file) {
-                            if (file != null && context.mounted) {
-                              _purchaseOrderCubit.addPurchaseOrder(
-                                context: context,
-                                projectId: widget.projectId,
-                                materialRequisitionId:
-                                    widget.materialRequisitionId,
-                                purchaseOrder: file,
-                              );
-                            }
-                          });
-                        },
-                      ),
+                    CustomButton(
+                      text: "Delete",
+                      backgroundColor: AppColor.error,
+                      onPressed: () {
+                        _showPopupToDeletePurchaseOrder(
+                          context: context,
+                          materialRequisitionPOId:
+                              state
+                                  .purchaseOrderList
+                                  .first
+                                  .materialRequisitionPurchaseOrderId,
+                          materialRequisitionId: widget.materialRequisitionId,
+                          projectId: widget.projectId,
+                          uniqueKey: state.purchaseOrderList.first.uniquekey,
+                        );
+                      },
                     ),
                   ],
-                ),
-                Expanded(
-                  child: Center(
-                    child: noDataWidget(message: "No PO Generated Yet"),
-                  ),
                 ),
               ],
             );
           }
+
           return Column(
             children: [
-              Expanded(
-                child: SfPdfViewer.network(
-                  state.purchaseOrderList.first.purchaseOrderUrl,
-                ),
-              ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                spacing: 10,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Text(
-                    "Created On: ${formatDateTimeAsDDMMMYYYY(state.purchaseOrderList.first.createdDate)}",
+                  Expanded(
+                    child: CustomButton(
+                      text: "Generate PO",
+                      onPressed: () {
+                        goRouter.pushNamed(
+                          AppRoutes.generatePurchaseOrder,
+                          queryParameters: {
+                            "materialRequisitionId": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(
+                                widget.materialRequisitionId.toString(),
+                              ),
+                            ),
+                            "projectId": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(
+                                widget.projectId.toString(),
+                              ),
+                            ),
+                            "uniquekey": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(widget.uniquekey),
+                            ),
+                          },
+                        );
+                      },
+                    ),
                   ),
-                  CustomButton(
-                    text: "Delete",
-                    backgroundColor: AppColor.error,
-                    onPressed: () {
-                      _showPopupToDeletePurchaseOrder(
-                        context: context,
-                        materialRequisitionPOId:
-                            state
-                                .purchaseOrderList
-                                .first
-                                .materialRequisitionPurchaseOrderId,
-                        materialRequisitionId: widget.materialRequisitionId,
-                        projectId: widget.projectId,
-                        uniqueKey: state.purchaseOrderList.first.uniquekey,
-                      );
-                    },
+                  Expanded(
+                    child: CustomButton(
+                      text: "Upload PO",
+                      onPressed: () {
+                        _pickFile().then((file) {
+                          if (file != null && context.mounted) {
+                            print("File path: ${file.path}");
+                            _purchaseOrderCubit.addPurchaseOrder(
+                              context: context,
+                              projectId: widget.projectId,
+                              materialRequisitionId:
+                                  widget.materialRequisitionId,
+                              purchaseOrder: file,
+                            );
+                          }
+                        });
+                      },
+                    ),
                   ),
                 ],
+              ),
+              Expanded(
+                child: Center(
+                  child: noDataWidget(message: "No PO Generated Yet"),
+                ),
               ),
             ],
           );
