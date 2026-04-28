@@ -1,7 +1,7 @@
 final List<Map<String, dynamic>> accountTypeList = [
   {"zAttributesId": 1, "DisplayName": "Current"},
-  {"zAttributesId": 2, "DisplayName": "DEMAT"},
-  {"zAttributesId": 3, "DisplayName": "Fixed"},
+  {"zAttributesId": 2, "DisplayName": "Overdraft"},
+  {"zAttributesId": 3, "DisplayName": "RERA Escrow Current Account"},
   {"zAttributesId": 4, "DisplayName": "Salary"},
   {"zAttributesId": 5, "DisplayName": "Saving"},
 ];

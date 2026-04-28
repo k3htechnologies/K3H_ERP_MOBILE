@@ -895,7 +895,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   title: "Purchase Start Date",
                   value:
                       widget.project.tenderPurchaseStartDate != null
-                          ? dateFormatterDDMMYYYYDAY(
+                          ? formatDateTimeAsDDMMMYYYY(
                             widget.project.tenderPurchaseStartDate!,
                           )
                           : "-",
@@ -910,7 +910,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   title: "Purchase End Date",
                   value:
                       widget.project.tenderPurchaseEndDate != null
-                          ? dateFormatterDDMMYYYYDAY(
+                          ? formatDateTimeAsDDMMMYYYY(
                             widget.project.tenderPurchaseEndDate!,
                           )
                           : "-",
@@ -958,7 +958,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   title: "Submission Date",
                   value:
                       widget.project.tenderSubmissionDate != null
-                          ? dateFormatterDDMMYYYYDAY(
+                          ? formatDateTimeAsDDMMMYYYY(
                             widget.project.tenderSubmissionDate!,
                           )
                           : "-",
@@ -967,7 +967,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   title: "Issue Date",
                   value:
                       widget.project.tenderIssueDate != null
-                          ? dateFormatterDDMMYYYYDAY(
+                          ? formatDateTimeAsDDMMMYYYY(
                             widget.project.tenderIssueDate!,
                           )
                           : "-",

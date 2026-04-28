@@ -128,13 +128,14 @@ class _AddInventorySpecificationScreenState
   // STATIC LISTS FOR FLAT FACING
   List<Map<String, dynamic>> flatFacingList = [
     {'zAttributesId': 1, 'DisplayName': 'EAST'},
-    {'zAttributesId': 2, 'DisplayName': 'FRONT'},
-    {'zAttributesId': 3, 'DisplayName': 'GARDEN'},
-    {'zAttributesId': 4, 'DisplayName': 'NORTH'},
-    {'zAttributesId': 5, 'DisplayName': 'PARK'},
-    {'zAttributesId': 6, 'DisplayName': 'ROAD'},
-    {'zAttributesId': 7, 'DisplayName': 'SOUTH'},
-    {'zAttributesId': 8, 'DisplayName': 'WEST'},
+    {'zAttributesId': 2, 'DisplayName': 'BACK'},
+    {'zAttributesId': 3, 'DisplayName': 'FRONT'},
+    {'zAttributesId': 4, 'DisplayName': 'GARDEN'},
+    {'zAttributesId': 5, 'DisplayName': 'NORTH'},
+    {'zAttributesId': 6, 'DisplayName': 'PARK'},
+    {'zAttributesId': 7, 'DisplayName': 'ROAD'},
+    {'zAttributesId': 8, 'DisplayName': 'SOUTH'},
+    {'zAttributesId': 9, 'DisplayName': 'WEST'},
   ];
 
   // FLAT SPECIFICATION VARIABLE

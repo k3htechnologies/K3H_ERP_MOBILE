@@ -305,7 +305,9 @@ class _MaterialRequisitionViewScreenState
                     children: [
                       buildColumnTitleValue(
                         title: "Basic Amount",
-                        value: addCommasToInteger(1000),
+                        value: addCommasToInteger(
+                          finalizedVendor.value!.totalPoAmount ?? 0,
+                        ),
                       ),
                       buildColumnTitleValue(
                         title: "Total Tax",

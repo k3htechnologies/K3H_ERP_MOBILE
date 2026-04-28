@@ -41,6 +41,10 @@ class FinalizeVendorForComparisonModel {
   final String magicLinkUrl;
   final String systemGeneratedCode;
   final String projectName;
+  final double? paidAmount;
+  final double? totalPoAmount;
+  final double? totalInvoiceAmount;
+  final double? totalInvoice;
 
   FinalizeVendorForComparisonModel({
     required this.vendorId,
@@ -82,6 +86,10 @@ class FinalizeVendorForComparisonModel {
     required this.magicLinkUrl,
     required this.systemGeneratedCode,
     required this.projectName,
+    required this.paidAmount,
+    required this.totalPoAmount,
+    required this.totalInvoiceAmount,
+    required this.totalInvoice,
   });
 
   factory FinalizeVendorForComparisonModel.fromJson(
@@ -138,6 +146,10 @@ class FinalizeVendorForComparisonModel {
     magicLinkUrl: json["MagicLinkURL"],
     systemGeneratedCode: json["SystemGeneratedCode"],
     projectName: json["ProjectName"],
+    paidAmount: json["PaidAmount"],
+    totalPoAmount: json["TotalPoAmount"],
+    totalInvoiceAmount: json["TotalInvoiceAmount"],
+    totalInvoice: json["TotalInvoice"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -186,6 +198,10 @@ class FinalizeVendorForComparisonModel {
     "MagicLinkURL": magicLinkUrl,
     "SystemGeneratedCode": systemGeneratedCode,
     "ProjectName": projectName,
+    "PaidAmount": paidAmount,
+    "TotalPoAmount": totalPoAmount,
+    "TotalInvoiceAmount": totalInvoiceAmount,
+    "TotalInvoice": totalInvoice,
   };
 }
 
