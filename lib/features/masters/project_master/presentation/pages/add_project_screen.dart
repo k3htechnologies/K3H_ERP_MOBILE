@@ -189,7 +189,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _initializeTextEditingController();
     if (_isEditMode) {
       _prefillDialogueToAddUpdateProjectMaster(widget.project!);
-      log("the project details are: ${widget.project!.toJson()}");
     }
   }
 

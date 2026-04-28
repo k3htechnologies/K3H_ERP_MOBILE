@@ -46,9 +46,6 @@ class _PurchaseOrderScreenState extends State<PurchaseOrderScreen> {
     );
     if (result != null) {
       PlatformFile file = result.files.first;
-      log(
-        "Selected file: ${file.name}, bytes: ${file.bytes?.length ?? 0} bytes, path: ${file.path}",
-      );
       return file;
     } else {
       return null;
