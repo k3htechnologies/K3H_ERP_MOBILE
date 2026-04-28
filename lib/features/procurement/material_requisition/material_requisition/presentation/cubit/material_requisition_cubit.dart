@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor.model.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/repository/finalize_vendor.repository.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/repository/material_requisition.repository.dart';
@@ -120,7 +121,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
     );
   }
 
-  Future<RequisitionVendorModel?> getFinalizedVendor(
+  Future<FinalizeVendorForComparisonModel?> getFinalizedVendor(
     BuildContext context,
     int projectId,
     int materialRequisitionId,
@@ -128,7 +129,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
   ) async {
     emit(state.copyWith(isLoading: true));
 
-    var result = await finalizeVendorRepository.getFinalizedVendor(
+    var result = await finalizeVendorRepository.getSelectedVendorForCompare(
       projectId: projectId,
       materialRequisitionId: materialRequisitionId,
       uniquekey: uniquekey,
@@ -141,12 +142,16 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
         return null;
       },
       (response) {
-        final List<RequisitionVendorModel> requisitionVendorList =
-            response['data'] as List<RequisitionVendorModel>;
+        final List<FinalizeVendorForComparisonModel> requisitionVendorList =
+            response['data'] as List<FinalizeVendorForComparisonModel>;
+        final finalizedVendorList =
+            requisitionVendorList
+                .where((vendor) => vendor.isFinalized == true)
+                .toList();
 
         emit(state.copyWith(isLoading: false));
-        return requisitionVendorList.isNotEmpty
-            ? requisitionVendorList.first
+        return finalizedVendorList.isNotEmpty
+            ? finalizedVendorList.first
             : null;
       },
     );

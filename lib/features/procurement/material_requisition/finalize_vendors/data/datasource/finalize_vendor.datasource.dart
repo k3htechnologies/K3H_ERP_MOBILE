@@ -1,4 +1,5 @@
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor.model.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 
 abstract interface class FinalizeVendorDatasource {
@@ -216,7 +217,11 @@ class FinalizeVendorDatasourceImpl implements FinalizeVendorDatasource {
         ),
       );
       return {
-        'data': networkResponse["data"],
+        'data': List<FinalizeVendorForComparisonModel>.from(
+          networkResponse["data"]
+              .map((e) => FinalizeVendorForComparisonModel.fromJson(e))
+              .toList(),
+        ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

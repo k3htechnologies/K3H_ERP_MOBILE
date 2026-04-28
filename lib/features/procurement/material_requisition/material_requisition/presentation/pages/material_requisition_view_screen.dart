@@ -52,9 +52,8 @@ class _MaterialRequisitionViewScreenState
   late PurchaseOrderCubit _purchaseOrderCubit;
   final ValueNotifier<MaterialRequisitionModel?> materialRequisitionOverview =
       ValueNotifier(null);
-  final ValueNotifier<RequisitionVendorModel?> finalizedVendor = ValueNotifier(
-    null,
-  );
+  final ValueNotifier<FinalizeVendorForComparisonModel?> finalizedVendor =
+      ValueNotifier(null);
 
   final ValueNotifier<List<dynamic>> selectedVendorList = ValueNotifier([]);
   final Set<int> selectedVendorIndex = {};
