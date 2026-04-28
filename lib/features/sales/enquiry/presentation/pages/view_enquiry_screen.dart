@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/static_data.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -60,36 +61,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
   final TextEditingController _remarkC = TextEditingController();
 
   // STATIC DROPDOWNS
-  final List<Map<String, dynamic>> _statusList = [
-    {'zAttributesId': 1, 'DisplayName': 'Site Visit'},
-    {'zAttributesId': 2, 'DisplayName': 'Re - Visit Proposed'},
-    {'zAttributesId': 3, 'DisplayName': 'Re - Visit Scheduled'},
-    {'zAttributesId': 4, 'DisplayName': 'Negotiation'},
-    {'zAttributesId': 5, 'DisplayName': 'Unit Selection / Blocked'},
-    {'zAttributesId': 6, 'DisplayName': 'Booking Done'},
-    {'zAttributesId': 7, 'DisplayName': 'Blocked'},
-    {'zAttributesId': 8, 'DisplayName': 'Cancelled'},
-    {'zAttributesId': 9, 'DisplayName': 'Retention'},
-    {'zAttributesId': 10, 'DisplayName': 'Lost'},
-  ];
-
-  final List<Map<String, dynamic>> _lostReasonList = [
-    {'DisplayName': 'Purchased with competition'},
-    {'DisplayName': 'Purchased somewhere else'},
-    {'DisplayName': 'Not connected calls >7'},
-    {'DisplayName': 'Low Budget'},
-    {'DisplayName': 'Ready Possession'},
-    {'DisplayName': 'Location'},
-    {'DisplayName': 'Product Issue'},
-    {'DisplayName': 'Pricing Issue'},
-    {'DisplayName': 'Payment Issue'},
-    {'DisplayName': 'Loan Issue'},
-    {'DisplayName': 'Inventory Issue'},
-    {'DisplayName': 'General Enquiry'},
-    {'DisplayName': 'Wrong Number'},
-    {'DisplayName': 'Dropped The Idea Of Buying'},
-    {'DisplayName': 'Booked Somewhere Else'},
-  ]; // VARIABLE GET FILLED WHEN TEAM MEMBER ID IS THERE
   final closedStatuses = ['booking done', 'cancelled', 'lost'];
 
   @override
@@ -1281,14 +1252,14 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
   }) async {
     // ===================== PREFILL FOR EDIT =====================
     if (followUpModel != null) {
-      _selectedStatus.value = _statusList.firstWhere(
+      _selectedStatus.value = stageTypeList.firstWhere(
         (e) => e['DisplayName'] == followUpModel.status,
         orElse: () => {},
       );
 
       _selectedLostReason.value =
           (followUpModel.lostReason.isEmpty)
-              ? _lostReasonList.firstWhere(
+              ? lostReasonList.firstWhere(
                 (e) => e['DisplayName'] == followUpModel.lostReason,
                 orElse: () => {},
               )
@@ -1344,7 +1315,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                     title: "Lost Reason",
                     hintText: "Select Lost Reason",
                     isRequired: true,
-                    dataList: _lostReasonList,
+                    dataList: lostReasonList,
                     initialValue: _selectedLostReason.value,
                     onSelected:
                         (val) => innerBottomsheetState(
@@ -1371,7 +1342,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                     title: "Status",
                     isRequired: true,
                     hintText: "Select Status",
-                    dataList: _statusList,
+                    dataList: stageTypeList,
                     initialValue: _selectedStatus.value,
                     onSelected:
                         (val) => innerBottomsheetState(() {
