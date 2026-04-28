@@ -810,13 +810,11 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                               CustomDatePicker(
                                 title: "Submission Date",
                                 initialDate: submissionDate,
-                                startDate: DateTime.now(),
                                 setValue: (value) => submissionDate = value,
                               ),
                               CustomDatePicker(
                                 title: "Issue Date",
                                 initialDate: issueDate,
-                                startDate: DateTime.now(),
                                 setValue: (value) => issueDate = value,
                               ),
                               CustomTextField(

@@ -48,6 +48,7 @@ class ChannelPartnerModel {
   final String primaryProjectPortfolio;
   final String secondaryProjectPortfolioId;
   final String secondaryProjectPortfolio;
+  final String micromarketProximity;
 
   ChannelPartnerModel({
     required this.channelPartnerId,
@@ -97,6 +98,7 @@ class ChannelPartnerModel {
     required this.primaryProjectPortfolio,
     required this.secondaryProjectPortfolioId,
     required this.secondaryProjectPortfolio,
+    required this.micromarketProximity,
   });
 
   factory ChannelPartnerModel.fromJson(Map<String, dynamic> json) =>
@@ -170,6 +172,7 @@ class ChannelPartnerModel {
           json,
           "SecondaryProjectPortfolio",
         ),
+        micromarketProximity: parseValue<String>(json, "MicromarketProximity"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -220,6 +223,7 @@ class ChannelPartnerModel {
     "PrimaryProjectPortfolio": primaryProjectPortfolio,
     "SecondaryProjectPortfolioId": secondaryProjectPortfolioId,
     "SecondaryProjectPortfolio": secondaryProjectPortfolio,
+    "MicromarketProximity": micromarketProximity,
   };
 }
 

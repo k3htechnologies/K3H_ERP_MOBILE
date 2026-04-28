@@ -1366,6 +1366,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                       "title": "Referral Unit No",
                                       "value": enquiry.referralUnitNumber,
                                     },
+                                    {
+                                      "title": "Referral Unit Owner",
+                                      "value": enquiry.referralUnitOwnerName,
+                                    },
                                   ]),
 
                                 if (enquiry.subSource == "Employee Reference")
@@ -1392,6 +1396,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                       "title": "Existing Unit No",
                                       "value":
                                           enquiry.loyaltyExistingUnitNumber,
+                                    },
+                                    {
+                                      "title": "Existing Unit Owner",
+                                      "value":
+                                          enquiry.loyaltyExistingUnitOwnerName,
                                     },
                                   ]),
                                 if (enquiry.source == "Channel Partner")

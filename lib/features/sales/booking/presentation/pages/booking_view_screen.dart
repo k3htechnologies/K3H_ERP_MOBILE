@@ -302,85 +302,6 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 });
               }
 
-              /// CHANNEL PARTNER
-              if (isChannelPartner) {
-                items.addAll([
-                  {"title": "CP Name", "value": enquiry.channelPartnerName},
-                  {
-                    "title": "CP Mobile No.",
-                    "value": enquiry.channelPartnerMobileNumber,
-                  },
-                  {
-                    "title": "CP Designation",
-                    "value": enquiry.channelPartnerDesignation,
-                  },
-                  {
-                    "title": "CP Company Name",
-                    "value": enquiry.channelPartnerCompany,
-                  },
-                  {
-                    "title": "CP Firm Type",
-                    "value": enquiry.channelPartnerFirmsType,
-                  },
-                  {"title": "CP Type", "value": enquiry.channelPartnerType},
-                  if (enquiry.channelPartnerTeamMemberName.isNotEmpty)
-                    {
-                      "title": "CP Team Member Name",
-                      "value": enquiry.channelPartnerTeamMemberName,
-                    },
-                  if (enquiry.channelPartnerTeamMemberMobileNumber.isNotEmpty)
-                    {
-                      "title": "CP Team Member Mobile",
-                      "value": enquiry.channelPartnerTeamMemberMobileNumber,
-                      "customValueWidget": CustomClickToContactText(
-                        value: enquiry.channelPartnerTeamMemberMobileNumber,
-                        type: ContactType.phone,
-                      ),
-                    },
-                ]);
-              }
-
-              /// EMPLOYEE REFERENCE
-              if (isDirectWalking && isEmployeeReference) {
-                items.addAll([
-                  {
-                    "title": "Employee Ref Name",
-                    "value": enquiry.employeeReferenceName,
-                  },
-                  {
-                    "title": "Employee Ref Mobile",
-                    "value": enquiry.employeeReferenceMobileNumber,
-                  },
-                ]);
-              }
-
-              /// LOYALTY
-              if (isDirectWalking && isLoyalty) {
-                items.addAll([
-                  {
-                    "title": "Project",
-                    "value": enquiry.loyaltyExistingProjectName,
-                  },
-                  {
-                    "title": "Unit No",
-                    "value": enquiry.loyaltyExistingUnitNumber,
-                  },
-                  {
-                    "title": "Owner",
-                    "value": enquiry.loyaltyExistingUnitOwnerName,
-                  },
-                ]);
-              }
-
-              /// REFERENCE
-              if (isDirectWalking && isReference) {
-                items.addAll([
-                  {"title": "Project", "value": enquiry.referralProjectName},
-                  {"title": "Unit No", "value": enquiry.referralUnitNumber},
-                  {"title": "Owner", "value": enquiry.referralUnitOwnerName},
-                ]);
-              }
-
               /// SALES
               items.addAll([
                 {"title": "Sales Advisor", "value": enquiry.salesAdvisor},
@@ -393,7 +314,82 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 "value": enquiry.currentLocation,
               });
 
-              return infoCard(items, title: "Enquiry Details");
+              return Column(
+                children: [
+                  infoCard(items, title: "Enquiry Details"),
+                  Column(
+                    children: [
+                      if (isReference)
+                        infoCard([
+                          {
+                            "title": "Referral Name",
+                            "value": enquiry.referralName,
+                          },
+                          {
+                            "title": "Referral Project",
+                            "value": enquiry.referralProjectName,
+                          },
+                          {
+                            "title": "Referral Unit No",
+                            "value": enquiry.referralUnitNumber,
+                          },
+                          {
+                            "title": "Referral Unit Owner",
+                            "value": enquiry.referralUnitOwnerName,
+                          },
+                        ]),
+
+                      if (isEmployeeReference)
+                        infoCard([
+                          {
+                            "title": "Employee Name",
+                            "value": enquiry.employeeReferenceName,
+                          },
+                          {
+                            "title": "Employee Mobile",
+                            "value": enquiry.employeeReferenceMobileNumber,
+                          },
+                        ]),
+
+                      if (isLoyalty)
+                        infoCard([
+                          {
+                            "title": "Existing Project",
+                            "value": enquiry.loyaltyExistingProjectName,
+                          },
+                          {
+                            "title": "Existing Unit No",
+                            "value": enquiry.loyaltyExistingUnitNumber,
+                          },
+                          {
+                            "title": "Existing Unit Owner",
+                            "value": enquiry.loyaltyExistingUnitOwnerName,
+                          },
+                        ]),
+                      if (isChannelPartner)
+                        infoCard([
+                          {
+                            "title": "Channel Partner",
+                            "value": enquiry.channelPartnerName,
+                          },
+                          {
+                            "title": "CP Mobile",
+                            "value": enquiry.channelPartnerMobileNumber,
+                          },
+                          {
+                            "title": "CP Team Member",
+                            "value": enquiry.channelPartnerTeamMemberName,
+                          },
+                          {
+                            "title": "CP Team Mobile",
+                            "value":
+                                enquiry.channelPartnerTeamMemberMobileNumber,
+                          },
+                        ]),
+                    ],
+                  ),
+                ],
+              );
             },
           ), // APPLICANT SECTION
           Container(

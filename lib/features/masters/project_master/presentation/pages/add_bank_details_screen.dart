@@ -117,14 +117,16 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
       } else {
         selectedAccountType.value = accountTypeList[0]; // Select
       }
+      if (widget.bankDetailsModel?.natureOfAccount != "") {
+        selectedNatureOfAccount.value = natureOfAccountList.firstWhere(
+          (nature) =>
+              nature['DisplayName'] == widget.bankDetailsModel?.natureOfAccount,
+          orElse: () => natureOfAccountList[0],
+        );
+      }
     } else {
       _selectedBankNotifier.value.isNotEmpty;
     }
-    selectedNatureOfAccount.value = natureOfAccountList.firstWhere(
-      (nature) =>
-          nature['DisplayName'] == widget.bankDetailsModel?.natureOfAccount,
-      orElse: () => natureOfAccountList[0],
-    );
   }
 
   // HANDLE SUBMIT

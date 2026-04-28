@@ -611,7 +611,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         primaryProjectPortfolioId:
             _selectedPrimaryProjectNotifier.value.isNotEmpty
                 ? _selectedPrimaryProjectNotifier.value.first["zAttributesId"]
-                : null,
+                : 0,
         secondaryProjectPortfolioId:
             _selectedSecondaryProjectNotifier.value.isNotEmpty
                 ? getSecondaryProjectIds()
@@ -650,7 +650,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         primaryProjectPortfolioId:
             _selectedPrimaryProjectNotifier.value.isNotEmpty
                 ? _selectedPrimaryProjectNotifier.value.first["zAttributesId"]
-                : null,
+                : 0,
         secondaryProjectPortfolioId:
             _selectedSecondaryProjectNotifier.value.isNotEmpty
                 ? getSecondaryProjectIds()

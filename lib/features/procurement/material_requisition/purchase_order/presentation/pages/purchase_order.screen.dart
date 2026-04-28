@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,6 +45,9 @@ class _PurchaseOrderScreenState extends State<PurchaseOrderScreen> {
     );
     if (result != null) {
       PlatformFile file = result.files.first;
+      log(
+        "Selected file: ${file.name}, size: ${file.size} bytes, path: ${file.path}",
+      );
       return file;
     } else {
       return null;

@@ -860,10 +860,10 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
       margin: EdgeInsets.only(bottom: 10),
       decoration: commonCardDecoration(),
       child: Column(
+        spacing: 10,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text("Project Category", style: AppTextStyle.ts16SB()),
-          verticalSpacing(),
 
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -872,65 +872,109 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 title: "Category",
                 value: widget.project.category,
               ),
-              horizontalSpacing(),
+
               if (isTender) ...[
+                horizontalSpacing(),
                 buildColumnTitleValue(
                   title: "Amount",
                   value: addCommasToInteger(widget.project.tenderAmount),
                 ),
-                horizontalSpacing(),
-                buildColumnTitleValue(
-                  title: "EMD Amount",
-                  value: addCommasToInteger(widget.project.tenderEmdAmount),
-                ),
               ],
             ],
           ),
-          verticalSpacing(),
+
           if (isTender) ...[
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 buildColumnTitleValue(
+                  title: "EMD Amount",
+                  value: addCommasToInteger(widget.project.tenderEmdAmount),
+                ),
+                buildColumnTitleValue(
                   title: "Purchase Start Date",
-                  value: dateFormatterDDMMYYYYDAY(
-                    widget.project.tenderPurchaseStartDate!,
-                  ),
-                ),
-                horizontalSpacing(),
-                buildColumnTitleValue(
-                  title: "Purchase End Date",
-                  value: dateFormatterDDMMYYYYDAY(
-                    widget.project.tenderPurchaseEndDate!,
-                  ),
-                ),
-                horizontalSpacing(),
-                buildColumnTitleValue(
-                  title: "Cheque Number",
-                  value: widget.project.tenderChequeNumber ?? "-",
+                  value:
+                      widget.project.tenderPurchaseStartDate != null
+                          ? dateFormatterDDMMYYYYDAY(
+                            widget.project.tenderPurchaseStartDate!,
+                          )
+                          : "-",
                 ),
               ],
             ),
-            verticalSpacing(),
+
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                buildColumnTitleValue(
+                  title: "Purchase End Date",
+                  value:
+                      widget.project.tenderPurchaseEndDate != null
+                          ? dateFormatterDDMMYYYYDAY(
+                            widget.project.tenderPurchaseEndDate!,
+                          )
+                          : "-",
+                ),
+                buildColumnTitleValue(
+                  title: "Cheque Number",
+                  value: widget.project.tenderChequeNumber ?? "-",
+                  customValueWidget:
+                      (widget.project.tenderChequeNumber == null ||
+                              widget.project.tenderChequeNumber!.isEmpty)
+                          ? null
+                          : Row(
+                            children: [
+                              Text(
+                                widget.project.tenderChequeNumber ?? "-",
+                                style: AppTextStyle.ts14M(),
+                              ),
+
+                              CustomIconButton(
+                                onPressed: () {
+                                  showFilePreviewDialog(
+                                    context,
+                                    widget.project.tenderChequeNumberUrl!.split(
+                                      ",",
+                                    ),
+                                  );
+                                },
+                                icon: Icon(
+                                  Icons.remove_red_eye_outlined,
+                                  size: 16,
+                                  color: AppColor.primary,
+                                ),
+                                backgroundColor: AppColor.white,
+                              ),
+                            ],
+                          ),
+                ),
+              ],
+            ),
+
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 buildColumnTitleValue(
                   title: "Submission Date",
-                  value: dateFormatterDDMMYYYYDAY(
-                    widget.project.tenderSubmissionDate!,
-                  ),
+                  value:
+                      widget.project.tenderSubmissionDate != null
+                          ? dateFormatterDDMMYYYYDAY(
+                            widget.project.tenderSubmissionDate!,
+                          )
+                          : "-",
                 ),
-                horizontalSpacing(),
                 buildColumnTitleValue(
                   title: "Issue Date",
-                  value: dateFormatterDDMMYYYYDAY(
-                    widget.project.tenderIssueDate!,
-                  ),
+                  value:
+                      widget.project.tenderIssueDate != null
+                          ? dateFormatterDDMMYYYYDAY(
+                            widget.project.tenderIssueDate!,
+                          )
+                          : "-",
                 ),
               ],
             ),
-            verticalSpacing(),
+
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1878,6 +1922,10 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                             buildColumnTitleValue(
                               title: "Account Type",
                               value: bank.acType,
+                            ),
+                            buildColumnTitleValue(
+                              title: "Nature Of Account",
+                              value: bank.natureOfAccount,
                             ),
                           ],
                         ),
