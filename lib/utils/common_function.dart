@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -765,4 +766,37 @@ UserModel getCurrentUser() {
     LocalStorageManager().getString(StorageKey.currentUser) ?? "",
   );
   return UserModel.fromJson(userJson);
+}
+
+double computeAmountItem(MaterialRequisitionQuotationDatum e) {
+  if (e.amount > 0) return e.amount;
+  return e.materialQuantity * e.materialPerUnit;
+}
+
+double computeTaxPercentItem(MaterialRequisitionQuotationDatum e) {
+  return e.cgst + e.sgst + e.ugst + e.tgst;
+}
+
+double computeTaxAmountItem(MaterialRequisitionQuotationDatum e) {
+  return computeAmountItem(e) * computeTaxPercentItem(e) / 100;
+}
+
+double computeGrandTotalItem(MaterialRequisitionQuotationDatum e) {
+  return computeAmountItem(e) + computeTaxAmountItem(e);
+}
+
+double computeBaseTotalFromItems(
+  List<MaterialRequisitionQuotationDatum> items,
+) {
+  return items.fold(0.0, (sum, e) => sum + computeAmountItem(e));
+}
+
+double computeTaxTotalFromItems(List<MaterialRequisitionQuotationDatum> items) {
+  return items.fold(0.0, (sum, e) => sum + computeTaxAmountItem(e));
+}
+
+double computeGrandTotalFromItems(
+  List<MaterialRequisitionQuotationDatum> items,
+) {
+  return items.fold(0.0, (sum, e) => sum + computeGrandTotalItem(e));
 }

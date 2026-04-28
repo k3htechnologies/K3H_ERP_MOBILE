@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_v
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor_mainscreen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/data/model/invoice.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/cubit/invoice_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
@@ -55,10 +56,10 @@ class _MaterialRequisitionViewScreenState
   final ValueNotifier<FinalizeVendorForComparisonModel?> finalizedVendor =
       ValueNotifier(null);
 
-  final ValueNotifier<List<dynamic>> selectedVendorList = ValueNotifier([]);
   final Set<int> selectedVendorIndex = {};
   FinalizeVendorForComparisonModel? selectedVendor;
   ValueNotifier<Set<int>> selectedIdsForSplit = ValueNotifier(<int>{});
+  ValueNotifier<List<InvoiceModel>> invoiceList = ValueNotifier([]);
   ValueNotifier<bool> isSplit = ValueNotifier(false);
 
   @override
@@ -90,6 +91,12 @@ class _MaterialRequisitionViewScreenState
             widget.uniquekey,
           );
     }
+    invoiceList.value = await _materialRequisitionCubit.getInvoiceForOverview(
+      context: context,
+      projectId: widget.projectId,
+      materialRequisitionId: widget.materialRequisitionId,
+      uniqueKey: widget.uniquekey,
+    );
   }
 
   // HANDLE TAB CHANGE
@@ -277,71 +284,86 @@ class _MaterialRequisitionViewScreenState
               ],
             ),
           ),
-          if (finalizedVendor.value != null)
-            Container(
-              decoration: commonCardDecoration(),
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 10,
-                children: [
-                  Text(
-                    "Vendor And Amount Details",
-                    style: AppTextStyle.ts16SB(color: AppColor.black),
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Vendor Name",
-                        value: finalizedVendor.value!.vendorName,
-                      ),
-                      buildColumnTitleValue(
-                        title: "Vendor Company",
-                        value: finalizedVendor.value!.companyName,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Basic Amount",
-                        value: addCommasToInteger(
-                          finalizedVendor.value!.totalPoAmount ?? 0,
+          ValueListenableBuilder(
+            valueListenable: finalizedVendor,
+            builder: (context, value, child) {
+              if (value == null) return SizedBox.shrink();
+              final vendor = finalizedVendor.value!;
+
+              final items =
+                  vendor.materialRequisitionQuotationTermsData
+                      .expand((t) => t.materialRequisitionQuotationData)
+                      .toList();
+              final baseTotal = computeBaseTotalFromItems(items);
+              final taxTotal = computeTaxTotalFromItems(items);
+              final grandTotal = computeGrandTotalFromItems(items);
+
+              final paidAmount = vendor.paidAmount ?? 0;
+              final pendingAmount = grandTotal - paidAmount;
+              return Container(
+                decoration: commonCardDecoration(),
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 10,
+                  children: [
+                    Text(
+                      "Vendor And Amount Details",
+                      style: AppTextStyle.ts16SB(color: AppColor.black),
+                    ),
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Vendor Name",
+                          value: finalizedVendor.value!.vendorName,
                         ),
-                      ),
-                      buildColumnTitleValue(
-                        title: "Total Tax",
-                        value: addCommasToInteger(1000.50),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Grand Total",
-                        value: addCommasToInteger(1000),
-                      ),
-                      buildColumnTitleValue(
-                        title: "Est. Delivery",
-                        value: "12 Days",
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Paid Amount",
-                        value: addCommasToInteger(1000),
-                      ),
-                      buildColumnTitleValue(
-                        title: "Pending Amount",
-                        value: addCommasToInteger(1000.50),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+                        buildColumnTitleValue(
+                          title: "Vendor Company",
+                          value: finalizedVendor.value!.companyName,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Basic Amount",
+                          value: addCommasToInteger(baseTotal),
+                        ),
+                        buildColumnTitleValue(
+                          title: "Total Tax",
+                          value: addCommasToInteger(taxTotal),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Grand Total",
+                          value: addCommasToInteger(grandTotal),
+                        ),
+                        buildColumnTitleValue(
+                          title: "Est. Delivery",
+                          value: "12 Days",
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Paid Amount",
+                          value: addCommasToInteger(paidAmount),
+                        ),
+                        buildColumnTitleValue(
+                          title: "Pending Amount",
+                          value: addCommasToInteger(pendingAmount),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
           Container(
             padding: EdgeInsets.all(16),
             decoration: commonCardDecoration(),
@@ -420,6 +442,59 @@ class _MaterialRequisitionViewScreenState
               ],
             ),
           ),
+          ValueListenableBuilder(
+            valueListenable: invoiceList,
+            builder: (context, value, child) {
+              if (value.isEmpty) return SizedBox.shrink();
+              return Container(
+                decoration: commonCardDecoration(),
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 10,
+                  children: [
+                    Text(
+                      "Invoice Details",
+                      style: AppTextStyle.ts16SB(color: AppColor.black),
+                    ),
+                    SizedBox(
+                      height: invoiceList.value.length == 1 ? 160.h : 340.h,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: invoiceList.value.length,
+                        itemBuilder: (context, index) {
+                          final invoice = invoiceList.value[index];
+                          return infoCard(
+                            bgColor: AppColor.white,
+                            borderColor: AppColor.primary,
+                            [
+                              {
+                                "title": "Invoice No.",
+                                "value": invoice.invoiceNumber,
+                              },
+                              {
+                                "title": "Invoice Amount",
+                                "value": addCommasToInteger(
+                                  invoice.invoiceAmount,
+                                ),
+                              },
+                              {
+                                "title": "Due Date",
+                                "value": formatDateTimeAsDDMMMYYYY(
+                                  invoice.invoiceDueDate,
+                                ),
+                              },
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+
           Container(
             padding: EdgeInsets.all(16),
             decoration: commonCardDecoration(),
@@ -520,69 +595,76 @@ class _MaterialRequisitionViewScreenState
               ],
             ),
           ),
-          if (finalizedVendor.value != null)
-            Container(
-              decoration: commonCardDecoration(),
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 10,
-                children: [
-                  Text(
-                    "Vendor And Amount Details",
-                    style: AppTextStyle.ts16SB(color: AppColor.black),
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Vendor Name",
-                        value: finalizedVendor.value!.vendorName,
-                      ),
-                      buildColumnTitleValue(
-                        title: "Vendor Company",
-                        value: finalizedVendor.value!.companyName,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Basic Amount",
-                        value: addCommasToInteger(1000),
-                      ),
-                      buildColumnTitleValue(
-                        title: "Total Tax",
-                        value: addCommasToInteger(1000.50),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Grand Total",
-                        value: addCommasToInteger(1000),
-                      ),
-                      buildColumnTitleValue(
-                        title: "Est. Delivery",
-                        value: "12 Days",
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Paid Amount",
-                        value: addCommasToInteger(1000),
-                      ),
-                      buildColumnTitleValue(
-                        title: "Pending Amount",
-                        value: addCommasToInteger(1000.50),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+          ValueListenableBuilder(
+            valueListenable: finalizedVendor,
+            builder: (context, value, child) {
+              if (value == null) return SizedBox.shrink();
+              return Container(
+                decoration: commonCardDecoration(),
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 10,
+                  children: [
+                    Text(
+                      "Vendor And Amount Details",
+                      style: AppTextStyle.ts16SB(color: AppColor.black),
+                    ),
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Vendor Name",
+                          value: finalizedVendor.value!.vendorName,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Vendor Company",
+                          value: finalizedVendor.value!.companyName,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Basic Amount",
+                          value: addCommasToInteger(
+                            finalizedVendor.value!.totalPoAmount ?? 0,
+                          ),
+                        ),
+                        buildColumnTitleValue(
+                          title: "Total Tax",
+                          value: addCommasToInteger(1000.50),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Grand Total",
+                          value: addCommasToInteger(1000),
+                        ),
+                        buildColumnTitleValue(
+                          title: "Est. Delivery",
+                          value: "12 Days",
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Paid Amount",
+                          value: addCommasToInteger(1000),
+                        ),
+                        buildColumnTitleValue(
+                          title: "Pending Amount",
+                          value: addCommasToInteger(1000.50),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
           Container(
             padding: EdgeInsets.all(16),
             decoration: commonCardDecoration(),
@@ -776,6 +858,59 @@ class _MaterialRequisitionViewScreenState
               ],
             ),
           ),
+          ValueListenableBuilder(
+            valueListenable: invoiceList,
+            builder: (context, value, child) {
+              if (value.isEmpty) return SizedBox.shrink();
+              return Container(
+                decoration: commonCardDecoration(),
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 10,
+                  children: [
+                    Text(
+                      "Invoice Details",
+                      style: AppTextStyle.ts16SB(color: AppColor.black),
+                    ),
+                    SizedBox(
+                      height: invoiceList.value.length == 1 ? 160.h : 340.h,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: invoiceList.value.length,
+                        itemBuilder: (context, index) {
+                          final invoice = invoiceList.value[index];
+                          return infoCard(
+                            bgColor: AppColor.white,
+                            borderColor: AppColor.primary,
+                            [
+                              {
+                                "title": "Invoice No.",
+                                "value": invoice.invoiceNumber,
+                              },
+                              {
+                                "title": "Invoice Amount",
+                                "value": addCommasToInteger(
+                                  invoice.invoiceAmount,
+                                ),
+                              },
+                              {
+                                "title": "Due Date",
+                                "value": formatDateTimeAsDDMMMYYYY(
+                                  invoice.invoiceDueDate,
+                                ),
+                              },
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+
           Container(
             padding: EdgeInsets.all(16),
             decoration: commonCardDecoration(),

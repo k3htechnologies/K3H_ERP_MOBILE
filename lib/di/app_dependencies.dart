@@ -226,13 +226,14 @@ void initDependencies() {
   registerPerformanceReportDependencies(serviceLocator);
   // PROCUREMENT
   registerMaterialRequisitionFinalizeVendorDependencies(serviceLocator);
+  registerMaterialRequisitionInvoiceDependencies(serviceLocator);
   registerMaterialRequisitionDependencies(serviceLocator);
+
   //CRM
   // CRM PAY TRACK
   registerCRMPayTrackDependencies(serviceLocator);
   registerMaterialRequisitionPurchaseOrderDependencies(serviceLocator);
   registerMaterialRequisitionGRNDependencies(serviceLocator);
-  registerMaterialRequisitionInvoiceDependencies(serviceLocator);
   // CRM BROKERAGE
   registerBrokerageDependencies(serviceLocator);
 }
