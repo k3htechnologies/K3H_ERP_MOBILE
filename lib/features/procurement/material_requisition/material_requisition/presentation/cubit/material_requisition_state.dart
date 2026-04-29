@@ -3,10 +3,12 @@ part of 'material_requisition_cubit.dart';
 final class MaterialRequisitionState extends BaseState {
   final List<MaterialRequisitionModel> materialRequisitionList;
   final List<MaterialRequisitionDetailModel> materialList;
-
   final int totalNumberOfRecord;
   final String searchText;
   final int currentPage;
+  final MaterialRequisitionModel? materialRequisitionOverview;
+  final FinalizeVendorForComparisonModel? finalizedVendor;
+
   const MaterialRequisitionState({
     super.isLoading,
     required this.materialRequisitionList,
@@ -14,6 +16,8 @@ final class MaterialRequisitionState extends BaseState {
     required this.currentPage,
     required this.searchText,
     required this.materialList,
+    required this.materialRequisitionOverview,
+    required this.finalizedVendor,
   });
 
   factory MaterialRequisitionState.initial() {
@@ -24,6 +28,8 @@ final class MaterialRequisitionState extends BaseState {
       totalNumberOfRecord: 0,
       currentPage: 1,
       searchText: "",
+      materialRequisitionOverview: null,
+      finalizedVendor: null,
     );
   }
   MaterialRequisitionState copyWith({
@@ -33,6 +39,8 @@ final class MaterialRequisitionState extends BaseState {
     int? totalNumberOfRecord,
     int? currentPage,
     String? searchText,
+    MaterialRequisitionModel? materialRequisitionOverview,
+    FinalizeVendorForComparisonModel? finalizedVendor,
   }) {
     return MaterialRequisitionState(
       isLoading: isLoading ?? this.isLoading,
@@ -42,6 +50,9 @@ final class MaterialRequisitionState extends BaseState {
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       searchText: searchText ?? this.searchText,
       materialList: materialList ?? this.materialList,
+      materialRequisitionOverview:
+          materialRequisitionOverview ?? this.materialRequisitionOverview,
+      finalizedVendor: finalizedVendor ?? this.finalizedVendor,
     );
   }
 
@@ -53,5 +64,7 @@ final class MaterialRequisitionState extends BaseState {
     totalNumberOfRecord,
     currentPage,
     searchText,
+    materialRequisitionOverview,
+    finalizedVendor,
   ];
 }

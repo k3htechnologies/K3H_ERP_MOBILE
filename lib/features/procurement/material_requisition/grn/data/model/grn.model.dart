@@ -93,6 +93,7 @@ class MaterialRequisitionDetailGrnDatum {
   String uom;
   DateTime requiredDate;
   double totalReceivedMaterialQuantity;
+  String qualityAnalysisRemarks;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -112,6 +113,7 @@ class MaterialRequisitionDetailGrnDatum {
     required this.uom,
     required this.requiredDate,
     required this.totalReceivedMaterialQuantity,
+    required this.qualityAnalysisRemarks,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -134,6 +136,7 @@ class MaterialRequisitionDetailGrnDatum {
     uom: json["Uom"],
     requiredDate: DateTime.parse(json["RequiredDate"]),
     totalReceivedMaterialQuantity: json["TotalReceivedMaterialQuantity"],
+    qualityAnalysisRemarks: json["QualityAnalysisRemarks"],
     createdById: json["CreatedById"],
     createdBy: json["CreatedBy"],
     createdDate: DateTime.parse(json["CreatedDate"]),
@@ -154,6 +157,7 @@ class MaterialRequisitionDetailGrnDatum {
     "Uom": uom,
     "RequiredDate": requiredDate.toIso8601String(),
     "TotalReceivedMaterialQuantity": totalReceivedMaterialQuantity,
+    "QualityAnalysisRemarks": qualityAnalysisRemarks,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

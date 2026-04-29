@@ -28,6 +28,10 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
   final InvoiceRepository invoiceRepository =
       serviceLocator<InvoiceRepository>();
 
+  Future resetOverview() async {
+    emit(state.copyWith(materialRequisitionOverview: null));
+  }
+
   void searchMaterialRequisition(
     BuildContext context,
     String searchText,
@@ -88,7 +92,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
   }
 
   //  Needed for Overview
-  Future<MaterialRequisitionModel?> getMaterialRequisitionDetailsById(
+  Future<void> getMaterialRequisitionDetailsById(
     BuildContext context,
     int pageNumber,
     int projectId,
@@ -104,11 +108,10 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
           queryParams: {"MaterialRequisitionId": materialRequisitionId},
         );
 
-    return result.fold(
+    result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
-        return null;
       },
       (response) {
         final List<MaterialRequisitionModel> materialRequisitionList =
@@ -118,13 +121,17 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
                 ? materialRequisitionList.first
                 : null;
 
-        emit(state.copyWith(isLoading: false));
-        return materialRequisitionDetails;
+        emit(
+          state.copyWith(
+            isLoading: false,
+            materialRequisitionOverview: materialRequisitionDetails,
+          ),
+        );
       },
     );
   }
 
-  Future<FinalizeVendorForComparisonModel?> getFinalizedVendor(
+  Future<void> getFinalizedVendor(
     BuildContext context,
     int projectId,
     int materialRequisitionId,
@@ -138,11 +145,10 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
       uniquekey: uniquekey,
     );
 
-    return result.fold(
+    result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
-        return null;
       },
       (response) {
         final List<FinalizeVendorForComparisonModel> requisitionVendorList =
@@ -152,10 +158,15 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
                 .where((vendor) => vendor.isFinalized == true)
                 .toList();
 
-        emit(state.copyWith(isLoading: false));
-        return finalizedVendorList.isNotEmpty
-            ? finalizedVendorList.first
-            : null;
+        emit(
+          state.copyWith(
+            isLoading: false,
+            finalizedVendor:
+                finalizedVendorList.isNotEmpty
+                    ? finalizedVendorList.first
+                    : null,
+          ),
+        );
       },
     );
   }

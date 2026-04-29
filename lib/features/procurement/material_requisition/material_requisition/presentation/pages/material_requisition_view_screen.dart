@@ -7,10 +7,9 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_v
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor_mainscreen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/grn.screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/grn_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/data/model/invoice.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/cubit/invoice_cubit.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/cubit/purchase_order_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/pages/purchase_order.screen.dart';
@@ -51,10 +50,6 @@ class _MaterialRequisitionViewScreenState
   late GrnCubit _grnCubit;
   late InvoiceCubit _invoiceCubit;
   late PurchaseOrderCubit _purchaseOrderCubit;
-  final ValueNotifier<MaterialRequisitionModel?> materialRequisitionOverview =
-      ValueNotifier(null);
-  final ValueNotifier<FinalizeVendorForComparisonModel?> finalizedVendor =
-      ValueNotifier(null);
 
   final Set<int> selectedVendorIndex = {};
   FinalizeVendorForComparisonModel? selectedVendor;
@@ -77,21 +72,20 @@ class _MaterialRequisitionViewScreenState
 
   void initOverview() async {
     _purchaseOrderCubit.resetState();
-    materialRequisitionOverview.value = await _materialRequisitionCubit
-        .getMaterialRequisitionDetailsById(
-          context,
-          1,
-          widget.projectId,
-          widget.materialRequisitionId,
-        );
+    _grnCubit.resetState();
+    await _materialRequisitionCubit.getMaterialRequisitionDetailsById(
+      context,
+      1,
+      widget.projectId,
+      widget.materialRequisitionId,
+    );
     if (mounted) {
-      finalizedVendor.value = await _materialRequisitionCubit
-          .getFinalizedVendor(
-            context,
-            widget.projectId,
-            widget.materialRequisitionId,
-            widget.uniquekey,
-          );
+      await _materialRequisitionCubit.getFinalizedVendor(
+        context,
+        widget.projectId,
+        widget.materialRequisitionId,
+        widget.uniquekey,
+      );
       invoiceList.value = await _materialRequisitionCubit.getInvoiceForOverview(
         context: context,
         projectId: widget.projectId,
@@ -107,15 +101,6 @@ class _MaterialRequisitionViewScreenState
       switch (_tabController.index) {
         case 0:
           initOverview();
-          break;
-        case 1:
-          materialRequisitionOverview.value = await _materialRequisitionCubit
-              .getMaterialRequisitionDetailsById(
-                context,
-                1,
-                widget.projectId,
-                widget.materialRequisitionId,
-              );
           break;
         case 2:
           _finalizeVendorCubit.getVendorForEnquiryList(
@@ -152,8 +137,9 @@ class _MaterialRequisitionViewScreenState
     _tabController.dispose();
   }
 
-  double get totalQuantity => materialRequisitionOverview
-      .value!
+  double get totalQuantity => _materialRequisitionCubit
+      .state
+      .materialRequisitionOverview!
       .materialRequisitionDetailData
       .fold(0.0, (p, e) => p + e.materialQuantity);
 
@@ -195,31 +181,21 @@ class _MaterialRequisitionViewScreenState
                     physics: NeverScrollableScrollPhysics(),
 
                     children: [
-                      _buildOverviewTab(),
-                      _buildDetailsTab(),
+                      _buildOverviewTab(state),
+                      _buildDetailsTab(state),
                       FinalizeVendorMainscreen(
                         systemgeneratedCode:
-                            materialRequisitionOverview
-                                .value
+                            state
+                                .materialRequisitionOverview
                                 ?.systemGeneratedCode ??
                             "",
                         projectId: widget.projectId,
                         materialRequisitionId: widget.materialRequisitionId,
                         uniquekey: widget.uniquekey,
                       ),
-                      PurchaseOrderScreen(
-                        projectId: widget.projectId,
-                        materialRequisitionId: widget.materialRequisitionId,
-                        uniquekey: widget.uniquekey,
-                      ),
-                      GRNScreen(
-                        systemGeneratedCode:
-                            materialRequisitionOverview
-                                .value
-                                ?.systemGeneratedCode ??
-                            "",
-                      ),
-                      _buildOverviewTab(),
+                      PurchaseOrderScreen(),
+                      GRNScreen(),
+                      _buildOverviewTab(state),
                     ],
                   ),
                 );
@@ -231,12 +207,12 @@ class _MaterialRequisitionViewScreenState
     );
   }
 
-  Widget _buildOverviewTab() {
+  Widget _buildOverviewTab(MaterialRequisitionState state) {
     if ((_materialRequisitionCubit.state.isLoading ?? true) ||
-        materialRequisitionOverview.value == null) {
+        state.materialRequisitionOverview == null) {
       return Center(child: CircularProgressIndicator());
     }
-    final materialRequisition = materialRequisitionOverview.value;
+    final materialRequisition = state.materialRequisitionOverview;
     final materialList = materialRequisition?.materialRequisitionDetailData;
     return SingleChildScrollView(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
@@ -300,11 +276,10 @@ class _MaterialRequisitionViewScreenState
               ],
             ),
           ),
-          ValueListenableBuilder(
-            valueListenable: finalizedVendor,
-            builder: (context, value, child) {
-              if (value == null) return SizedBox.shrink();
-              final vendor = finalizedVendor.value!;
+          BlocBuilder<MaterialRequisitionCubit, MaterialRequisitionState>(
+            builder: (context, state) {
+              if (state.finalizedVendor == null) return SizedBox.shrink();
+              final vendor = state.finalizedVendor!;
 
               return Container(
                 decoration: commonCardDecoration(),
@@ -321,11 +296,11 @@ class _MaterialRequisitionViewScreenState
                       children: [
                         buildColumnTitleValue(
                           title: "Vendor Name",
-                          value: finalizedVendor.value!.vendorName,
+                          value: vendor.vendorName,
                         ),
                         buildColumnTitleValue(
                           title: "Vendor Company",
-                          value: finalizedVendor.value!.companyName,
+                          value: vendor.companyName,
                         ),
                       ],
                     ),
@@ -538,12 +513,12 @@ class _MaterialRequisitionViewScreenState
     );
   }
 
-  Widget _buildDetailsTab() {
+  Widget _buildDetailsTab(MaterialRequisitionState state) {
     if ((_materialRequisitionCubit.state.isLoading ?? true) ||
-        materialRequisitionOverview.value == null) {
+        state.materialRequisitionOverview == null) {
       return Center(child: CircularProgressIndicator());
     }
-    final materialRequisition = materialRequisitionOverview.value;
+    final materialRequisition = state.materialRequisitionOverview;
     final materialList = materialRequisition?.materialRequisitionDetailData;
     return SingleChildScrollView(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),

@@ -2,6 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/cubit/purchase_order_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -13,15 +14,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class PurchaseOrderScreen extends StatefulWidget {
-  final int projectId;
-  final int materialRequisitionId;
-  final String uniquekey;
-  const PurchaseOrderScreen({
-    super.key,
-    required this.projectId,
-    required this.materialRequisitionId,
-    required this.uniquekey,
-  });
+  const PurchaseOrderScreen({super.key});
 
   @override
   State<PurchaseOrderScreen> createState() => _PurchaseOrderScreenState();
@@ -29,9 +22,12 @@ class PurchaseOrderScreen extends StatefulWidget {
 
 class _PurchaseOrderScreenState extends State<PurchaseOrderScreen> {
   late PurchaseOrderCubit _purchaseOrderCubit;
+  late MaterialRequisitionCubit _materialRequisitionCubit;
+
   @override
   void initState() {
     _purchaseOrderCubit = context.read<PurchaseOrderCubit>();
+    _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
 
     super.initState();
   }
@@ -66,8 +62,16 @@ class _PurchaseOrderScreenState extends State<PurchaseOrderScreen> {
       _purchaseOrderCubit.deletePurchaseOrder(
         context: context,
         materialRequisitionPOId: materialRequisitionPOId,
-        materialRequisitionId: widget.materialRequisitionId,
-        projectId: widget.projectId,
+        materialRequisitionId:
+            _materialRequisitionCubit
+                .state
+                .materialRequisitionOverview!
+                .materialRequisitionId,
+        projectId:
+            _materialRequisitionCubit
+                .state
+                .materialRequisitionOverview!
+                .projectId,
         uniqueKey: uniqueKey,
       );
     }
@@ -107,8 +111,16 @@ class _PurchaseOrderScreenState extends State<PurchaseOrderScreen> {
                                   .purchaseOrderList
                                   .first
                                   .materialRequisitionPurchaseOrderId,
-                          materialRequisitionId: widget.materialRequisitionId,
-                          projectId: widget.projectId,
+                          materialRequisitionId:
+                              _materialRequisitionCubit
+                                  .state
+                                  .materialRequisitionOverview!
+                                  .materialRequisitionId,
+                          projectId:
+                              _materialRequisitionCubit
+                                  .state
+                                  .materialRequisitionOverview!
+                                  .projectId,
                           uniqueKey: state.purchaseOrderList.first.uniquekey,
                         );
                       },
@@ -134,16 +146,29 @@ class _PurchaseOrderScreenState extends State<PurchaseOrderScreen> {
                           queryParameters: {
                             "materialRequisitionId": Uri.encodeQueryComponent(
                               EncryptionManager.encryptData(
-                                widget.materialRequisitionId.toString(),
+                                _materialRequisitionCubit
+                                    .state
+                                    .materialRequisitionOverview!
+                                    .materialRequisitionId
+                                    .toString(),
                               ),
                             ),
                             "projectId": Uri.encodeQueryComponent(
                               EncryptionManager.encryptData(
-                                widget.projectId.toString(),
+                                _materialRequisitionCubit
+                                    .state
+                                    .materialRequisitionOverview!
+                                    .projectId
+                                    .toString(),
                               ),
                             ),
                             "uniquekey": Uri.encodeQueryComponent(
-                              EncryptionManager.encryptData(widget.uniquekey),
+                              EncryptionManager.encryptData(
+                                _materialRequisitionCubit
+                                    .state
+                                    .materialRequisitionOverview!
+                                    .uniquekey,
+                              ),
                             ),
                           },
                         );
@@ -158,9 +183,16 @@ class _PurchaseOrderScreenState extends State<PurchaseOrderScreen> {
                           if (file != null && context.mounted) {
                             _purchaseOrderCubit.addPurchaseOrder(
                               context: context,
-                              projectId: widget.projectId,
+                              projectId:
+                                  _materialRequisitionCubit
+                                      .state
+                                      .materialRequisitionOverview!
+                                      .projectId,
                               materialRequisitionId:
-                                  widget.materialRequisitionId,
+                                  _materialRequisitionCubit
+                                      .state
+                                      .materialRequisitionOverview!
+                                      .materialRequisitionId,
                               purchaseOrder: file,
                             );
                           }

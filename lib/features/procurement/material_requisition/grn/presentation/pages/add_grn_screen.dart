@@ -6,8 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/model/grn.model.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -22,28 +22,25 @@ import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class AddMaterialRequisitionScreen extends StatefulWidget {
-  final MaterialRequisitionModel? materialRequisitionModel;
+import '../../../material_requisition/presentation/cubit/material_requisition_cubit.dart';
+
+class AddGrnScreen extends StatefulWidget {
+  final GRNModel? grnModel;
   final int? index;
 
-  const AddMaterialRequisitionScreen({
-    super.key,
-    required this.materialRequisitionModel,
-    required this.index,
-  });
+  const AddGrnScreen({super.key, required this.grnModel, required this.index});
 
   @override
-  State<AddMaterialRequisitionScreen> createState() =>
-      _AddMaterialRequisitionScreenState();
+  State<AddGrnScreen> createState() => _AddGrnScreenState();
 }
 
-class _AddMaterialRequisitionScreenState
-    extends State<AddMaterialRequisitionScreen> {
+class _AddGrnScreenState extends State<AddGrnScreen> {
   // CUBIT
+  late GrnCubit _grnCubit;
   late MaterialRequisitionCubit _materialRequisitionCubit;
-  late TextEditingController _remarkC;
+  late TextEditingController _challanNumberC, _vehicleNumberC, _remarkC;
   //EDIT MODE
-  bool get _isEditMode => widget.materialRequisitionModel != null;
+  bool get _isEditMode => widget.grnModel != null;
 
   MultiFilePickerModel selectedDocuments = MultiFilePickerModel(
     fileBytesList: [],
@@ -55,7 +52,10 @@ class _AddMaterialRequisitionScreenState
   @override
   void initState() {
     super.initState();
+    _grnCubit = context.read<GrnCubit>();
     _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
+    _challanNumberC = TextEditingController();
+    _vehicleNumberC = TextEditingController();
     _remarkC = TextEditingController();
     _prefill();
   }
@@ -63,57 +63,64 @@ class _AddMaterialRequisitionScreenState
   void _prefill() {
     if (!_isEditMode) return;
     selectedDocuments.fileNameList =
-        widget.materialRequisitionModel!.attachmentsURL.isNotEmpty
-            ? widget.materialRequisitionModel!.attachmentsURL.split(',')
+        widget.grnModel!.uploadChallanUrl.isNotEmpty
+            ? widget.grnModel!.uploadChallanUrl.split(',')
             : [];
-    _materialRequisitionCubit.initializeMaterialList(
-      widget.materialRequisitionModel!.materialRequisitionDetailData,
+    _grnCubit.initializeMaterialList(
+      widget.grnModel!.materialRequisitionDetailGrnData,
     );
-    _remarkC.text = widget.materialRequisitionModel!.remarks;
+    _remarkC.text = widget.grnModel!.remarks;
   }
 
   void _save() {
     if (!_formKey.currentState!.validate() &&
-        _materialRequisitionCubit.state.materialList.isEmpty) {
+        _grnCubit.state.materialList.isEmpty) {
       showErrorMessage(context, 'Error', "At least one material is required");
 
       return;
     }
-    if (_materialRequisitionCubit.state.materialList.isEmpty) {
+    if (_grnCubit.state.materialList.isEmpty) {
       showErrorMessage(context, 'Error', "At least one material is required");
 
       return;
     }
 
     if (_isEditMode) {
-      _materialRequisitionCubit.updateMaterialRequisition(
-        materialRequisitionId:
-            widget.materialRequisitionModel!.materialRequisitionId,
-        uniqueKey: widget.materialRequisitionModel!.uniquekey,
-        index: widget.index!,
-        attachments: selectedDocuments,
+      //Todo: Update Functionality
+      _grnCubit.updateGRN(
         context: context,
-        materialRequisitionDetailJSON:
-            _materialRequisitionCubit.state.materialList,
         projectId:
             _materialRequisitionCubit
                 .state
                 .materialRequisitionOverview!
                 .projectId,
-        remarks: _remarkC.text.trim(),
+        materialRequisitionId: widget.grnModel!.materialRequisitionId,
+        materialRequisitionGRNId: widget.grnModel!.materialRequisitionGrnId,
+        materialRequisitionDetailGRNJSON: _grnCubit.state.materialList,
+        challanNumber: _challanNumberC.text.trim(),
+        vehicleNumber: _vehicleNumberC.text.trim(),
+        remark: _remarkC.text.trim(),
+        challan: selectedDocuments,
+        materialRequisitonUniqueKey: widget.grnModel!.uniquekey,
+        index: widget.index!,
+        uniquekey: widget.grnModel!.uniquekey,
       );
     } else {
-      _materialRequisitionCubit.addMaterialRequisition(
-        attachments: selectedDocuments,
+      //Todo: Save Functionality
+      _grnCubit.addGRN(
         context: context,
-        materialRequisitionDetailJSON:
-            _materialRequisitionCubit.state.materialList,
         projectId:
             _materialRequisitionCubit
                 .state
                 .materialRequisitionOverview!
                 .projectId,
-        remarks: _remarkC.text.trim(),
+        materialRequisitionId: widget.grnModel!.materialRequisitionId,
+        materialRequisitionDetailGRNJSON: _grnCubit.state.materialList,
+        challanNumber: _challanNumberC.text.trim(),
+        vehicleNumber: _vehicleNumberC.text.trim(),
+        remark: _remarkC.text.trim(),
+        challan: selectedDocuments,
+        materialRequisitonUniqueKey: widget.grnModel!.uniquekey,
       );
     }
   }
@@ -128,7 +135,7 @@ class _AddMaterialRequisitionScreenState
       'Deleting this material will permanently remove its contents.',
     );
     if (result && context.mounted) {
-      _materialRequisitionCubit.deleteMaterial(index);
+      _grnCubit.deleteMaterial(index);
     }
   }
 
@@ -142,7 +149,7 @@ class _AddMaterialRequisitionScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Material Requisition",
+        screenTitle: "Goods Receipt Note",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
@@ -153,13 +160,11 @@ class _AddMaterialRequisitionScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                _isEditMode
-                    ? "Update Material Requisition"
-                    : "Add Material Requisition",
+                _isEditMode ? "Update GRN Details" : "Add GRN Details",
                 style: AppTextStyle.ts14M(),
               ),
               verticalSpacing(),
-              BlocBuilder<MaterialRequisitionCubit, MaterialRequisitionState>(
+              BlocBuilder<GrnCubit, GrnState>(
                 builder: (context, state) {
                   return Container(
                     padding: EdgeInsets.all(12.w),
@@ -177,7 +182,9 @@ class _AddMaterialRequisitionScreenState
                             CustomButton(
                               text: "Add Material",
                               onPressed: () async {
-                                await goRouter.pushNamed(AppRoutes.addMaterial);
+                                await goRouter.pushNamed(
+                                  AppRoutes.addGrnMaterial,
+                                );
                               },
                             ),
                           ],
@@ -209,7 +216,7 @@ class _AddMaterialRequisitionScreenState
                                           CustomIconButton.edit(
                                             onPressed: () async {
                                               goRouter.pushNamed(
-                                                AppRoutes.addMaterial,
+                                                AppRoutes.addGrnMaterial,
                                                 queryParameters: {
                                                   "material":
                                                       Uri.encodeQueryComponent(
@@ -257,7 +264,7 @@ class _AddMaterialRequisitionScreenState
                                     },
                                     {
                                       "title": "Remark",
-                                      "value": material.remarks,
+                                      "value": material.qualityAnalysisRemarks,
                                     },
                                   ],
                                 );
@@ -280,11 +287,21 @@ class _AddMaterialRequisitionScreenState
                       "Document Details",
                       style: AppTextStyle.ts14M(color: AppColor.black),
                     ),
-
                     verticalSpacing(),
 
+                    CustomTextField(
+                      title: "Challan Number",
+                      hint: "Enter Challan Number",
+                      textController: _challanNumberC,
+                    ),
+                    CustomTextField(
+                      title: "Vehicle Number",
+                      hint: "Enter Vehicle Number",
+                      textController: _vehicleNumberC,
+                    ),
+
                     CustomMultiFilePicker(
-                      title: "Document",
+                      title: "Challan",
                       isRequired: true,
                       filePickType: FilePickType.both,
                       initialFileList: selectedDocuments.fileNameList,
@@ -310,8 +327,6 @@ class _AddMaterialRequisitionScreenState
                         return null;
                       },
                     ),
-
-                    verticalSpacing(),
 
                     /// Remark
                     CustomTextField(

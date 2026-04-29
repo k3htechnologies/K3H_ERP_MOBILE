@@ -2,20 +2,28 @@ part of 'grn_cubit.dart';
 
 final class GrnState extends BaseState {
   final List<GRNModel> allGRNList;
-  const GrnState({super.isLoading, required this.allGRNList});
+  final List<MaterialRequisitionDetailGrnDatum> materialList;
 
-  factory GrnState.initial() => GrnState(allGRNList: []);
+  const GrnState({
+    super.isLoading,
+    required this.allGRNList,
+    required this.materialList,
+  });
+
+  factory GrnState.initial() => GrnState(allGRNList: [], materialList: []);
   GrnState copyWith({
     List<GRNModel>? allGRNList,
+    List<MaterialRequisitionDetailGrnDatum>? materialList,
     bool? isLoading,
     String? errorMessage,
   }) {
     return GrnState(
       allGRNList: allGRNList ?? this.allGRNList,
+      materialList: materialList ?? this.materialList,
       isLoading: isLoading ?? this.isLoading,
     );
   }
 
   @override
-  List<Object?> get props => [isLoading, allGRNList];
+  List<Object?> get props => [isLoading, allGRNList, materialList];
 }

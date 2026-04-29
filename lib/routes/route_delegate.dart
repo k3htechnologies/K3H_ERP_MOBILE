@@ -48,6 +48,9 @@ import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/add_lit
 import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/add_litigation_screen.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/litigation_screen.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/litigation_view_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/model/grn.model.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/add_grn_material_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/add_grn_screen.dart';
 import 'package:k3h_erp_app/features/register/presentation/pages/register_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
@@ -4868,6 +4871,62 @@ final GoRouter goRouter = GoRouter(
                   uniquekey: uniquekey,
                 );
               },
+            ),
+
+            GoRoute(
+              name: AppRoutes.addGrn,
+              path: AppRoutes.addGrn,
+              builder: (context, state) {
+                final queryParameterGrn = state.uri.queryParameters['grn'];
+
+                final GRNModel? grn =
+                    queryParameterGrn != null
+                        ? GRNModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterGrn),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return AddGrnScreen(grnModel: grn, index: index);
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.addGrnMaterial,
+                  path: AppRoutes.addGrnMaterial,
+                  builder: (context, state) {
+                    final queryParameterMaterialDetails =
+                        state.uri.queryParameters['material'];
+
+                    final MaterialRequisitionDetailGrnDatum? materialDetails =
+                        queryParameterMaterialDetails != null
+                            ? MaterialRequisitionDetailGrnDatum.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterMaterialDetails,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddGrnMaterialScreen(
+                      materialDetails: materialDetails,
+                      index: index,
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),
