@@ -332,9 +332,10 @@ class _MaterialRequisitionViewScreenState
                         ),
                         buildColumnTitleValue(
                           title: "Est. Delivery",
-                          value: vendor.estimatedDeliveryDays > 0
-                              ? "${vendor.estimatedDeliveryDays} days"
-                              : "-",
+                          value:
+                              vendor.avgDeliveryDays > 0
+                                  ? "${vendor.avgDeliveryDays} days"
+                                  : "-",
                         ),
                       ],
                     ),
