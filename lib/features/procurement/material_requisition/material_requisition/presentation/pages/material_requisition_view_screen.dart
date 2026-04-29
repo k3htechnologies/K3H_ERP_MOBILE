@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_v
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor_mainscreen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/grn.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/data/model/invoice.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/cubit/invoice_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
@@ -69,6 +70,8 @@ class _MaterialRequisitionViewScreenState
     _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
     _finalizeVendorCubit = context.read<FinalizeVendorCubit>();
     _purchaseOrderCubit = context.read<PurchaseOrderCubit>();
+    _grnCubit = context.read<GrnCubit>();
+    _invoiceCubit = context.read<InvoiceCubit>();
     initOverview();
   }
 
@@ -125,6 +128,14 @@ class _MaterialRequisitionViewScreenState
 
         case 3:
           _purchaseOrderCubit.getPurchaseOrder(
+            context: context,
+            projectId: widget.projectId,
+            materialRequisitionId: widget.materialRequisitionId,
+            uniqueKey: widget.uniquekey,
+          );
+          break;
+        case 4:
+          _grnCubit.getAllGRNList(
             context: context,
             projectId: widget.projectId,
             materialRequisitionId: widget.materialRequisitionId,
@@ -201,7 +212,13 @@ class _MaterialRequisitionViewScreenState
                         materialRequisitionId: widget.materialRequisitionId,
                         uniquekey: widget.uniquekey,
                       ),
-                      _buildOverviewTab(),
+                      GRNScreen(
+                        systemGeneratedCode:
+                            materialRequisitionOverview
+                                .value
+                                ?.systemGeneratedCode ??
+                            "",
+                      ),
                       _buildOverviewTab(),
                     ],
                   ),

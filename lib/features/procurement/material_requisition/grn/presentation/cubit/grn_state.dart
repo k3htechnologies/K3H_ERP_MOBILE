@@ -17,5 +17,5 @@ final class GrnState extends BaseState {
   }
 
   @override
-  List<Object?> get props => [isLoading];
+  List<Object?> get props => [isLoading, allGRNList];
 }

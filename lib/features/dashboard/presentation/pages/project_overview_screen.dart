@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
@@ -120,27 +121,42 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
 
   // BUILD OVERVIEW
   Widget _buildOverView() {
+    final isTender = widget.project.category.toLowerCase() == "tender";
+
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Column(
         children: [
           // BASIC DETAILS
           Container(
+            padding: EdgeInsets.all(16),
             margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(10),
             decoration: commonCardDecoration(),
             child: Column(
-              spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Basic Project Details", style: AppTextStyle.ts16M()),
+                Text("Basic Project Details", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
                 Row(
-                  spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
                       title: "Redevelopment",
                       value: widget.project.isRedevelopment ? "Yes" : "No",
+                    ),
+                    buildColumnTitleValue(
+                      title: "Project Name",
+                      value: widget.project.projectName,
+                    ),
+                  ],
+                ),
+                verticalSpacing(),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "CTS Number",
+                      value: widget.project.ctsNumber,
                     ),
                     buildColumnTitleValue(
                       title: "Business Category",
@@ -152,25 +168,216 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "Architect Name",
-                      value: widget.project.liasoningArchitectName,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Architect Mobile Number",
-                      value: widget.project. liasoningArchitectMobileNumber,
+                      title: "File Number",
+                      value: widget.project.fileNumber,
                     ),
                   ],
                 ),
+              ],
+            ),
+          ),
+          // PROJECT DETAILS
+          Container(
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 10),
+            decoration: commonCardDecoration(),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Project Category", style: AppTextStyle.ts16SB()),
+
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "File Number",
-                      value: widget.project.fileNumber,
+                      title: "Category",
+                      value: widget.project.category,
+                    ),
+
+                    if (isTender) ...[
+                      horizontalSpacing(),
+                      buildColumnTitleValue(
+                        title: "Amount",
+                        value: addCommasToInteger(widget.project.tenderAmount),
+                      ),
+                    ],
+                  ],
+                ),
+
+                if (isTender) ...[
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "EMD Amount",
+                        value: addCommasToInteger(
+                          widget.project.tenderEmdAmount,
+                        ),
+                      ),
+                      buildColumnTitleValue(
+                        title: "Purchase Start Date",
+                        value:
+                            widget.project.tenderPurchaseStartDate != null
+                                ? formatDateTimeAsDDMMMYYYY(
+                                  widget.project.tenderPurchaseStartDate!,
+                                )
+                                : "-",
+                      ),
+                    ],
+                  ),
+
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Purchase End Date",
+                        value:
+                            widget.project.tenderPurchaseEndDate != null
+                                ? formatDateTimeAsDDMMMYYYY(
+                                  widget.project.tenderPurchaseEndDate!,
+                                )
+                                : "-",
+                      ),
+                      buildColumnTitleValue(
+                        title: "Cheque Number",
+                        value: widget.project.tenderChequeNumber ?? "-",
+                        customValueWidget:
+                            (widget.project.tenderChequeNumber == null ||
+                                    widget.project.tenderChequeNumber!.isEmpty)
+                                ? null
+                                : Row(
+                                  children: [
+                                    Text(
+                                      widget.project.tenderChequeNumber ?? "-",
+                                      style: AppTextStyle.ts14M(),
+                                    ),
+
+                                    CustomIconButton(
+                                      onPressed: () {
+                                        showFilePreviewDialog(
+                                          context,
+                                          widget.project.tenderChequeNumberUrl!
+                                              .split(","),
+                                        );
+                                      },
+                                      icon: Icon(
+                                        Icons.remove_red_eye_outlined,
+                                        size: 16,
+                                        color: AppColor.primary,
+                                      ),
+                                      backgroundColor: AppColor.white,
+                                    ),
+                                  ],
+                                ),
+                      ),
+                    ],
+                  ),
+
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Submission Date",
+                        value:
+                            widget.project.tenderSubmissionDate != null
+                                ? formatDateTimeAsDDMMMYYYY(
+                                  widget.project.tenderSubmissionDate!,
+                                )
+                                : "-",
+                      ),
+                      buildColumnTitleValue(
+                        title: "Issue Date",
+                        value:
+                            widget.project.tenderIssueDate != null
+                                ? formatDateTimeAsDDMMMYYYY(
+                                  widget.project.tenderIssueDate!,
+                                )
+                                : "-",
+                      ),
+                    ],
+                  ),
+
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Payorder Remark",
+                        value: widget.project.tenderPayorderRemark ?? "-",
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+          // LIOSONING ARCHITECT DETAILS
+          Container(
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 10),
+            decoration: commonCardDecoration(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Liasoning Architect", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Name",
+                      value:
+                          widget.project.liasoningArchitectName.isEmpty
+                              ? "-"
+                              : widget.project.liasoningArchitectName,
                     ),
                     buildColumnTitleValue(
-                      title: "CTS Number",
-                      value: widget.project.ctsNumber,
+                      title: "Mobile Number",
+                      value:
+                          widget.project.liasoningArchitectMobileNumber.isEmpty
+                              ? "-"
+                              : widget.project.liasoningArchitectMobileNumber,
+                    ),
+                  ],
+                ),
+                verticalSpacing(),
+                Text("Designing Architect", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Name",
+                      value:
+                          widget.project.designingArchitectName.isEmpty
+                              ? "-"
+                              : widget.project.designingArchitectName,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Mobile Number",
+                      value:
+                          widget.project.designingArchitectMobileNumber.isEmpty
+                              ? "-"
+                              : widget.project.designingArchitectMobileNumber,
+                    ),
+                  ],
+                ),
+                verticalSpacing(),
+                Text("RCC Consultant", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Name",
+                      value:
+                          widget.project.rccConsultantName.isEmpty
+                              ? "-"
+                              : widget.project.rccConsultantName,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Mobile Number",
+                      value:
+                          widget.project.rccConsultantMobileNumber.isEmpty
+                              ? "-"
+                              : widget.project.rccConsultantMobileNumber,
                     ),
                   ],
                 ),
@@ -179,16 +386,15 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
           ),
           // LOCATION DETAILS
           Container(
+            padding: EdgeInsets.all(16),
             margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(10),
             decoration: commonCardDecoration(),
             child: Column(
-              spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Location Details", style: AppTextStyle.ts16M()),
+                Text("Location Details", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
                 Row(
-                  spacing: 10,
                   children: [
                     buildColumnTitleValue(
                       title: "Project Location",
@@ -196,15 +402,12 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                     ),
                   ],
                 ),
+                verticalSpacing(),
                 Row(
-                  spacing: 10,
                   children: [
                     buildColumnTitleValue(
                       title: "Google Location",
                       value: widget.project.googleLocation,
-                      valueTextStyle: AppTextStyle.ts14M(
-                        color: AppColor.primary,
-                      ),
                       customValueWidget: GestureDetector(
                         onTap: () async {
                           final url = widget.project.googleLocation;
@@ -235,8 +438,8 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                     ),
                   ],
                 ),
+                verticalSpacing(),
                 Row(
-                  spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
@@ -249,8 +452,8 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                     ),
                   ],
                 ),
+                verticalSpacing(),
                 Row(
-                  spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
@@ -263,6 +466,7 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                     ),
                   ],
                 ),
+                verticalSpacing(),
                 Row(
                   children: [
                     buildColumnTitleValue(
@@ -278,16 +482,16 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
               ],
             ),
           ),
-          // SCHEMA AND SCOPE DETAILS
+          // PROJECT SCOPE
           Container(
+            padding: EdgeInsets.all(16),
             margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(10),
             decoration: commonCardDecoration(),
             child: Column(
-              spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Scheme & Scope Details", style: AppTextStyle.ts16M()),
+                Text("Scheme & Scope Details", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
                 Row(
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -302,6 +506,7 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                     ),
                   ],
                 ),
+                verticalSpacing(),
                 Row(
                   children: [
                     buildColumnTitleValue(
@@ -315,21 +520,24 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
           ),
           // PROJECT DOCUMENT
           Container(
+            padding: EdgeInsets.all(16),
             margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(10),
             decoration: commonCardDecoration(),
             child: Column(
-              spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Project Documentation", style: AppTextStyle.ts16M()),
+                Text("Project Documentation", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
                 Row(
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
                       title: "RERA Number",
-                      value: widget.project.reraNumber,
+                      value:
+                          widget.project.reraNumber.isNotEmpty
+                              ? widget.project.reraNumber
+                              : "-",
                     ),
                     buildColumnTitleValue(
                       title: "RERA Certificate Date",
@@ -342,7 +550,9 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                     ),
                   ],
                 ),
+                verticalSpacing(),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
                       title: "RERA Completion Date",
@@ -358,16 +568,57 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
               ],
             ),
           ),
-          // PROJECT TIME LINE
+          // PROJECT FINANCIALS
           Container(
+            padding: EdgeInsets.all(16),
             margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(10),
             decoration: commonCardDecoration(),
             child: Column(
-              spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Project Timeline", style: AppTextStyle.ts16M()),
+                Text("Project Financials", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Project Estimate Cost",
+                      value: widget.project.projectEstimateCost.toString(),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Ongoing Budget Cost",
+                      value: widget.project.onGoingBudgetCost.toString(),
+                    ),
+                  ],
+                ),
+                verticalSpacing(),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Project Area (Sq.ft)",
+                      value: widget.project.projectAreaInSqft.toString(),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Project Area (Sq.mt)",
+                      value: widget.project.projectAreaInSqmt.toString(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // PROJECT TIMELINE
+          Container(
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 10),
+            decoration: commonCardDecoration(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Project Timeline", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
                 Row(
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -392,7 +643,9 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                     ),
                   ],
                 ),
+                verticalSpacing(),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
                       title: "Execution Start Date",
@@ -410,32 +663,40 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
           ),
           // CONTACT INFORMATION
           Container(
+            padding: EdgeInsets.all(16),
             margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(10),
             decoration: commonCardDecoration(),
             child: Column(
-              spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Contact Information", style: AppTextStyle.ts16M()),
+                Text("Contact Information", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
                 Row(
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
                       title: "Site Contact Name",
-                      value: widget.project.siteContactName,
+                      value:
+                          widget.project.siteContactName.isNotEmpty
+                              ? widget.project.siteContactName
+                              : "-",
                     ),
                     buildColumnTitleValue(
                       title: "Site Contact Mobile Number",
-                      value: widget.project.siteContactMobileNumber,
+                      value:
+                          widget.project.siteContactMobileNumber.isNotEmpty
+                              ? widget.project.siteContactMobileNumber
+                              : "-",
                       customValueWidget: CustomClickToContactText(
                         value: widget.project.siteContactMobileNumber,
                       ),
                     ),
                   ],
                 ),
+                verticalSpacing(),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
                       title: "Project Status",

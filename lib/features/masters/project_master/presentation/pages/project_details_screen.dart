@@ -250,6 +250,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
 
   // OVERVIEW
   Widget _overviewSection() {
+    final isTender = widget.project.category.toLowerCase() == "tender";
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Column(
@@ -443,7 +444,140 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
             ),
           ),
           // PROJECT DETAILS
-          _projectCategorySection(),
+          Container(
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 10),
+            decoration: commonCardDecoration(),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Project Category", style: AppTextStyle.ts16SB()),
+
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Category",
+                      value: widget.project.category,
+                    ),
+
+                    if (isTender) ...[
+                      horizontalSpacing(),
+                      buildColumnTitleValue(
+                        title: "Amount",
+                        value: addCommasToInteger(widget.project.tenderAmount),
+                      ),
+                    ],
+                  ],
+                ),
+
+                if (isTender) ...[
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "EMD Amount",
+                        value: addCommasToInteger(
+                          widget.project.tenderEmdAmount,
+                        ),
+                      ),
+                      buildColumnTitleValue(
+                        title: "Purchase Start Date",
+                        value:
+                            widget.project.tenderPurchaseStartDate != null
+                                ? formatDateTimeAsDDMMMYYYY(
+                                  widget.project.tenderPurchaseStartDate!,
+                                )
+                                : "-",
+                      ),
+                    ],
+                  ),
+
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Purchase End Date",
+                        value:
+                            widget.project.tenderPurchaseEndDate != null
+                                ? formatDateTimeAsDDMMMYYYY(
+                                  widget.project.tenderPurchaseEndDate!,
+                                )
+                                : "-",
+                      ),
+                      buildColumnTitleValue(
+                        title: "Cheque Number",
+                        value: widget.project.tenderChequeNumber ?? "-",
+                        customValueWidget:
+                            (widget.project.tenderChequeNumber == null ||
+                                    widget.project.tenderChequeNumber!.isEmpty)
+                                ? null
+                                : Row(
+                                  children: [
+                                    Text(
+                                      widget.project.tenderChequeNumber ?? "-",
+                                      style: AppTextStyle.ts14M(),
+                                    ),
+
+                                    CustomIconButton(
+                                      onPressed: () {
+                                        showFilePreviewDialog(
+                                          context,
+                                          widget.project.tenderChequeNumberUrl!
+                                              .split(","),
+                                        );
+                                      },
+                                      icon: Icon(
+                                        Icons.remove_red_eye_outlined,
+                                        size: 16,
+                                        color: AppColor.primary,
+                                      ),
+                                      backgroundColor: AppColor.white,
+                                    ),
+                                  ],
+                                ),
+                      ),
+                    ],
+                  ),
+
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Submission Date",
+                        value:
+                            widget.project.tenderSubmissionDate != null
+                                ? formatDateTimeAsDDMMMYYYY(
+                                  widget.project.tenderSubmissionDate!,
+                                )
+                                : "-",
+                      ),
+                      buildColumnTitleValue(
+                        title: "Issue Date",
+                        value:
+                            widget.project.tenderIssueDate != null
+                                ? formatDateTimeAsDDMMMYYYY(
+                                  widget.project.tenderIssueDate!,
+                                )
+                                : "-",
+                      ),
+                    ],
+                  ),
+
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Payorder Remark",
+                        value: widget.project.tenderPayorderRemark ?? "-",
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
           // LIOSONING ARCHITECT DETAILS
           Container(
             padding: EdgeInsets.all(16),
@@ -847,144 +981,6 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
             modifiedBy: widget.project.modifiedBy,
             modifiedDate: widget.project.modifiedDate,
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _projectCategorySection() {
-    final isTender = widget.project.category.toLowerCase() == "tender";
-
-    return Container(
-      padding: EdgeInsets.all(16),
-      margin: EdgeInsets.only(bottom: 10),
-      decoration: commonCardDecoration(),
-      child: Column(
-        spacing: 10,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Project Category", style: AppTextStyle.ts16SB()),
-
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildColumnTitleValue(
-                title: "Category",
-                value: widget.project.category,
-              ),
-
-              if (isTender) ...[
-                horizontalSpacing(),
-                buildColumnTitleValue(
-                  title: "Amount",
-                  value: addCommasToInteger(widget.project.tenderAmount),
-                ),
-              ],
-            ],
-          ),
-
-          if (isTender) ...[
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                buildColumnTitleValue(
-                  title: "EMD Amount",
-                  value: addCommasToInteger(widget.project.tenderEmdAmount),
-                ),
-                buildColumnTitleValue(
-                  title: "Purchase Start Date",
-                  value:
-                      widget.project.tenderPurchaseStartDate != null
-                          ? formatDateTimeAsDDMMMYYYY(
-                            widget.project.tenderPurchaseStartDate!,
-                          )
-                          : "-",
-                ),
-              ],
-            ),
-
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                buildColumnTitleValue(
-                  title: "Purchase End Date",
-                  value:
-                      widget.project.tenderPurchaseEndDate != null
-                          ? formatDateTimeAsDDMMMYYYY(
-                            widget.project.tenderPurchaseEndDate!,
-                          )
-                          : "-",
-                ),
-                buildColumnTitleValue(
-                  title: "Cheque Number",
-                  value: widget.project.tenderChequeNumber ?? "-",
-                  customValueWidget:
-                      (widget.project.tenderChequeNumber == null ||
-                              widget.project.tenderChequeNumber!.isEmpty)
-                          ? null
-                          : Row(
-                            children: [
-                              Text(
-                                widget.project.tenderChequeNumber ?? "-",
-                                style: AppTextStyle.ts14M(),
-                              ),
-
-                              CustomIconButton(
-                                onPressed: () {
-                                  showFilePreviewDialog(
-                                    context,
-                                    widget.project.tenderChequeNumberUrl!.split(
-                                      ",",
-                                    ),
-                                  );
-                                },
-                                icon: Icon(
-                                  Icons.remove_red_eye_outlined,
-                                  size: 16,
-                                  color: AppColor.primary,
-                                ),
-                                backgroundColor: AppColor.white,
-                              ),
-                            ],
-                          ),
-                ),
-              ],
-            ),
-
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                buildColumnTitleValue(
-                  title: "Submission Date",
-                  value:
-                      widget.project.tenderSubmissionDate != null
-                          ? formatDateTimeAsDDMMMYYYY(
-                            widget.project.tenderSubmissionDate!,
-                          )
-                          : "-",
-                ),
-                buildColumnTitleValue(
-                  title: "Issue Date",
-                  value:
-                      widget.project.tenderIssueDate != null
-                          ? formatDateTimeAsDDMMMYYYY(
-                            widget.project.tenderIssueDate!,
-                          )
-                          : "-",
-                ),
-              ],
-            ),
-
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                buildColumnTitleValue(
-                  title: "Payorder Remark",
-                  value: widget.project.tenderPayorderRemark ?? "-",
-                ),
-              ],
-            ),
-          ],
         ],
       ),
     );
