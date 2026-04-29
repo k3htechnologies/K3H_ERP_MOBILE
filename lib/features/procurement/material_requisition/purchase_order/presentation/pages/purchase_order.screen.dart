@@ -156,7 +156,6 @@ class _PurchaseOrderScreenState extends State<PurchaseOrderScreen> {
                       onPressed: () {
                         _pickFile().then((file) {
                           if (file != null && context.mounted) {
-                            print("File path: ${file.path}");
                             _purchaseOrderCubit.addPurchaseOrder(
                               context: context,
                               projectId: widget.projectId,

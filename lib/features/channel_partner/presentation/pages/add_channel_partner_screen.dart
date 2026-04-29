@@ -725,7 +725,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                       isRequired: true,
                       hint: "Enter Full Name",
                       textController: _nameC,
-                      inputFormatterList: InputValidator.textOnly(50),
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(50),
+                      ],
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return "Full Name is required";

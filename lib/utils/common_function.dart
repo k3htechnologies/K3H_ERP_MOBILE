@@ -768,35 +768,32 @@ UserModel getCurrentUser() {
   return UserModel.fromJson(userJson);
 }
 
-double computeAmountItem(MaterialRequisitionQuotationDatum e) {
-  if (e.amount > 0) return e.amount;
-  return e.materialQuantity * e.materialPerUnit;
+extension MaterialItemExtension on MaterialRequisitionQuotationDatum {
+  double get amountValue {
+    if (amount > 0) return amount;
+    return materialQuantity * materialPerUnit;
+  }
+
+  double get taxPercent => cgst + sgst + ugst + tgst;
+
+  double get taxAmount => amountValue * taxPercent / 100;
+
+  double get grandTotal => amountValue + taxAmount;
 }
 
-double computeTaxPercentItem(MaterialRequisitionQuotationDatum e) {
-  return e.cgst + e.sgst + e.ugst + e.tgst;
-}
+extension FinalizeVendorExtension on FinalizeVendorForComparisonModel {
+  List<MaterialRequisitionQuotationDatum> get allItems =>
+      materialRequisitionQuotationTermsData
+          .expand((t) => t.materialRequisitionQuotationData)
+          .toList();
 
-double computeTaxAmountItem(MaterialRequisitionQuotationDatum e) {
-  return computeAmountItem(e) * computeTaxPercentItem(e) / 100;
-}
+  double get baseTotal => allItems.fold(0.0, (sum, e) => sum + e.amountValue);
 
-double computeGrandTotalItem(MaterialRequisitionQuotationDatum e) {
-  return computeAmountItem(e) + computeTaxAmountItem(e);
-}
+  double get taxTotal => allItems.fold(0.0, (sum, e) => sum + e.taxAmount);
 
-double computeBaseTotalFromItems(
-  List<MaterialRequisitionQuotationDatum> items,
-) {
-  return items.fold(0.0, (sum, e) => sum + computeAmountItem(e));
-}
+  double get grandTotal => allItems.fold(0.0, (sum, e) => sum + e.grandTotal);
 
-double computeTaxTotalFromItems(List<MaterialRequisitionQuotationDatum> items) {
-  return items.fold(0.0, (sum, e) => sum + computeTaxAmountItem(e));
-}
+  double get paid => paidAmount ?? 0;
 
-double computeGrandTotalFromItems(
-  List<MaterialRequisitionQuotationDatum> items,
-) {
-  return items.fold(0.0, (sum, e) => sum + computeGrandTotalItem(e));
+  double get pendingAmount => grandTotal - paid;
 }

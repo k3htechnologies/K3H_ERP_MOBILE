@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -322,45 +324,49 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
                       ),
-                      verticalSpacing(height: 10.h),
-                      Center(
-                        child: RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: "------------ ",
-                                style: AppTextStyle.ts14R(
-                                  color: AppColor.primary,
+                      if (Platform.isIOS) ...[
+                        verticalSpacing(height: 10.h),
+                        Center(
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "------------ ",
+                                  style: AppTextStyle.ts14R(
+                                    color: AppColor.primary,
+                                  ),
                                 ),
-                              ),
-                              TextSpan(
-                                text: "or",
-                                style: AppTextStyle.ts14R(
-                                  color: AppColor.primary,
+                                TextSpan(
+                                  text: "or",
+                                  style: AppTextStyle.ts14R(
+                                    color: AppColor.primary,
+                                  ),
                                 ),
-                              ),
-                              TextSpan(
-                                text: " ------------ ",
-                                style: AppTextStyle.ts14R(
-                                  color: AppColor.primary,
+                                TextSpan(
+                                  text: " ------------ ",
+                                  style: AppTextStyle.ts14R(
+                                    color: AppColor.primary,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      verticalSpacing(height: 10.h),
-                      GestureDetector(
-                        onTap: () {
-                          goRouter.goNamed(AppRoutes.register);
-                        },
-                        child: Center(
-                          child: Text(
-                            "Create an account",
-                            style: AppTextStyle.ts14B(color: AppColor.primary),
+                        verticalSpacing(height: 10.h),
+                        GestureDetector(
+                          onTap: () {
+                            goRouter.goNamed(AppRoutes.register);
+                          },
+                          child: Center(
+                            child: Text(
+                              "Create an account",
+                              style: AppTextStyle.ts14B(
+                                color: AppColor.primary,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
