@@ -330,3 +330,18 @@ List<Map<String, dynamic>> flatFacingList = [
   {'zAttributesId': 8, 'DisplayName': 'SOUTH'},
   {'zAttributesId': 9, 'DisplayName': 'WEST'},
 ];
+
+// Legal
+// Litigation
+final List<Map<String, dynamic>> caseTypeList = [
+  {"zAttributesId": 1, "DisplayName": "Criminal"},
+  {"zAttributesId": 2, "DisplayName": "Civil"},
+];
+
+final List<Map<String, dynamic>> courtTypeList = [
+  {"zAttributesId": 1, "DisplayName": "Civil Court"},
+  {"zAttributesId": 2, "DisplayName": "District Court"},
+  {"zAttributesId": 3, "DisplayName": "High Court"},
+  {"zAttributesId": 4, "DisplayName": "Session Court"},
+  {"zAttributesId": 4, "DisplayName": "Supreme Court"},
+];
