@@ -30,7 +30,7 @@ class _GRNScreenState extends State<GRNScreen> {
   late AuthorizationModel _routeAuthorizationModel;
   late TextEditingController _searchC;
   late MaterialRequisitionCubit _materialRequisitionCubit;
-  @override
+
   @override
   void initState() {
     super.initState();
