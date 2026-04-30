@@ -360,7 +360,7 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                       },
                       validator: (fileList) {
                         if (fileList == null || fileList.isEmpty) {
-                          return "Document is required";
+                          return "Challan Document is required";
                         }
                         return null;
                       },
