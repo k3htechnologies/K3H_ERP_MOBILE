@@ -207,9 +207,12 @@ class _ChannelPartnerDashboardScreenState
           (sum, item) => sum + item.totalCount,
         );
 
-        final maxValue = table3!
-            .map((e) => e.totalChannelPartner)
-            .reduce((a, b) => a > b ? a : b);
+        final maxValue =
+            (table3 == null || table3.isEmpty)
+                ? 0
+                : table3
+                    .map((e) => e.totalChannelPartner)
+                    .reduce((a, b) => a > b ? a : b);
 
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
@@ -314,71 +317,73 @@ class _ChannelPartnerDashboardScreenState
               ),
               verticalSpacing(),
 
-              ...table3.map((item) {
-                final widthFactor =
-                    maxValue == 0 ? 0.0 : item.totalChannelPartner / maxValue;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 14),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 90,
-                        child: Text(
-                          item.name,
-                          style: AppTextStyle.ts14M(
-                            color: AppColor.black.withValues(alpha: 0.5),
+              if (table3 != null) ...[
+                ...table3.map((item) {
+                  final widthFactor =
+                      maxValue == 0 ? 0.0 : item.totalChannelPartner / maxValue;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 14),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 90,
+                          child: Text(
+                            item.name,
+                            style: AppTextStyle.ts14M(
+                              color: AppColor.black.withValues(alpha: 0.5),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            final barWidth =
-                                constraints.maxWidth *
-                                widthFactor.clamp(0.0, 1.0);
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              final barWidth =
+                                  constraints.maxWidth *
+                                  widthFactor.clamp(0.0, 1.0);
 
-                            return Stack(
-                              children: [
-                                Container(
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: AppColor.primary.withValues(
-                                      alpha: 0.1,
+                              return Stack(
+                                children: [
+                                  Container(
+                                    height: 36,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: AppColor.primary.withValues(
+                                        alpha: 0.1,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                AnimatedContainer(
-                                  duration: const Duration(milliseconds: 500),
-                                  width: barWidth,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: AppColor.primary.withValues(
-                                      alpha: 0.35,
+                                  AnimatedContainer(
+                                    duration: const Duration(milliseconds: 500),
+                                    width: barWidth,
+                                    height: 36,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: AppColor.primary.withValues(
+                                        alpha: 0.35,
+                                      ),
+                                    ),
+                                    alignment: Alignment.centerRight,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                    child: Text(
+                                      item.totalChannelPartner.toString(),
+                                      style: AppTextStyle.ts16SB(
+                                        color: AppColor.primary,
+                                      ),
                                     ),
                                   ),
-                                  alignment: Alignment.centerRight,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                  ),
-                                  child: Text(
-                                    item.totalChannelPartner.toString(),
-                                    style: AppTextStyle.ts16SB(
-                                      color: AppColor.primary,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
+                                ],
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
+                      ],
+                    ),
+                  );
+                }),
+              ],
             ],
           ),
         );
