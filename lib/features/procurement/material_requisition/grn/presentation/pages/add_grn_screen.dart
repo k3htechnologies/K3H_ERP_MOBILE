@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -306,13 +307,35 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                     CustomTextField(
                       title: "Challan Number",
                       hint: "Enter Challan Number",
+                      isRequired: true,
                       textController: _challanNumberC,
-                      inputFormatterList: [],
+                      inputFormatterList:
+                          InputValidator.challanInputFormatters(),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Challan Number is required";
+                        }
+
+                        if (value.isNotEmpty) {
+                          if (!InputValidator.isValidChallan(value)) {
+                            return "Challan Number is invalid";
+                          }
+                        }
+                        return null;
+                      },
                     ),
                     CustomTextField(
                       title: "Vehicle Number",
                       hint: "Enter Vehicle Number",
                       textController: _vehicleNumberC,
+                      isRequired: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Vehicle Number is required";
+                        }
+
+                        return null;
+                      },
                     ),
 
                     CustomMultiFilePicker(
@@ -347,9 +370,17 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                     CustomTextField(
                       title: "Remark",
                       hint: "Enter Remark",
+                      isRequired: true,
                       textController: _remarkC,
                       maxLines: 3,
                       minLines: 3,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Remark is required";
+                        }
+
+                        return null;
+                      },
                     ),
                   ],
                 ),

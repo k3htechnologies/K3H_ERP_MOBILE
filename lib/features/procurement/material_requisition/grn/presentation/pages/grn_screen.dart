@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/model/grn.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -13,7 +12,6 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -41,31 +39,6 @@ class _GRNScreenState extends State<GRNScreen> {
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.materialRequisition]!;
     _searchC = TextEditingController();
-  }
-
-  void _showPopupToDeleteGRN({
-    required int index,
-    required GRNModel grnModel,
-    required BuildContext context,
-  }) async {
-    var result = await DialogHelper.deleteDialog(
-      context,
-      'You are about to delete this Material Requisition',
-      'Deleting this Material Requisition will permanently remove its contents.',
-    );
-
-    if (result && context.mounted) {
-      _grnCubit.deleteGRN(
-        index: index,
-        grnModel: grnModel,
-        context: context,
-        projectId:
-            _materialRequisitionCubit
-                .state
-                .materialRequisitionOverview!
-                .projectId,
-      );
-    }
   }
 
   @override
@@ -173,15 +146,6 @@ class _GRNScreenState extends State<GRNScreen> {
                                               ),
                                           'index': index.toString(),
                                         },
-                                      );
-                                    },
-                                  ),
-                                  CustomIconButton.delete(
-                                    onPressed: () {
-                                      _showPopupToDeleteGRN(
-                                        context: context,
-                                        grnModel: grn,
-                                        index: index,
                                       );
                                     },
                                   ),

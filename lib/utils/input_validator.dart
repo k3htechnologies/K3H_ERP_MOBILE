@@ -244,6 +244,21 @@ class InputValidator {
     ];
   }
 
+  static List<TextInputFormatter> challanInputFormatters() {
+    return [
+      LengthLimitingTextInputFormatter(15),
+      FilteringTextInputFormatter.allow(
+        RegExp(r'[a-zA-Z0-9]'),
+      ), // allow both cases
+      UpperCaseTextFormatter(),
+    ];
+  }
+
+  static bool isValidChallan(String input) {
+    final cinRegex = RegExp(r'^[A-Z]{2}[A-Z0-9]{12}[A-Z0-9]{1}$');
+    return cinRegex.hasMatch(input);
+  }
+
   static bool isValidCIN(String input) {
     final cinRegex = RegExp(
       r'^[LU]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$',
