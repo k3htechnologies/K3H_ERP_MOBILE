@@ -193,7 +193,11 @@ class _MaterialRequisitionViewScreenState
                         materialRequisitionId: widget.materialRequisitionId,
                         uniquekey: widget.uniquekey,
                       ),
-                      PurchaseOrderScreen(),
+                      PurchaseOrderScreen(
+                        projectId: widget.projectId,
+                        materialRequisitionId: widget.materialRequisitionId,
+                        uniquekey: widget.uniquekey,
+                      ),
                       GRNScreen(),
                       _buildOverviewTab(state),
                     ],

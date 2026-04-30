@@ -57,7 +57,7 @@ class GrnCubit extends Cubit<GrnState> {
       "ProjectId": projectId.toString(),
       "MaterialRequisitionId": materialRequisitionId.toString(),
       "MaterialRequisitionDetailGRNJSON": jsonEncode(
-        materialRequisitionDetailGRNJSON.map((e) => e.toJson()).toList(),
+        materialRequisitionDetailGRNJSON.map((e) => e.toJsonPayload()).toList(),
       ),
       "ChallanNumber": challanNumber,
       "VehicleNumber": vehicleNumber,
@@ -117,7 +117,7 @@ class GrnCubit extends Cubit<GrnState> {
       "ProjectId": projectId.toString(),
       "MaterialRequisitionId": materialRequisitionId.toString(),
       "MaterialRequisitionDetailGRNJSON": jsonEncode(
-        materialRequisitionDetailGRNJSON.map((e) => e.toJson()).toList(),
+        materialRequisitionDetailGRNJSON.map((e) => e.toJsonPayload()).toList(),
       ),
       "ChallanNumber": challanNumber,
       "VehicleNumber": vehicleNumber,

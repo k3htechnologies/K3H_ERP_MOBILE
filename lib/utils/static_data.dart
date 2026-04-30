@@ -225,3 +225,35 @@ final List<Map<String, dynamic>> lostReasonList = [
   {'DisplayName': 'Dropped The Idea Of Buying'},
   {'DisplayName': 'Booked Somewhere Else'},
 ];
+
+// CHANNEL PARTNER
+List<Map<String, dynamic>> designationList = [
+  {"zAttributesId": 1, "DisplayName": "Business Head"},
+  {"zAttributesId": 2, "DisplayName": "Cluster Head"},
+  {"zAttributesId": 3, "DisplayName": "Owner"},
+  {"zAttributesId": 4, "DisplayName": "Partner"},
+  {"zAttributesId": 5, "DisplayName": "Team Member"},
+];
+final List<Map<String, dynamic>> specialityList = [
+  {"zAttributesId": 1, "DisplayName": "Commercial Sale"},
+  {"zAttributesId": 2, "DisplayName": "Commercial Leasing"},
+  {"zAttributesId": 3, "DisplayName": "Residential Sale"},
+  {"zAttributesId": 4, "DisplayName": "Commercial + Residential Sale"},
+];
+
+final List<Map<String, dynamic>> companyTypeList = [
+  {"zAttributesId": 1, "DisplayName": "New Company"},
+  {"zAttributesId": 2, "DisplayName": "Existing Company"},
+];
+
+final List<Map<String, dynamic>> firmsType = [
+  {"zAttributesId": 1, "DisplayName": "LLP"},
+  {"zAttributesId": 2, "DisplayName": "Private Limited Company"},
+  {"zAttributesId": 3, "DisplayName": "Proprietorship"},
+];
+
+final List<Map<String, dynamic>> type = [
+  {"zAttributesId": 1, "DisplayName": "International Channel Partner (IPC)"},
+  {"zAttributesId": 2, "DisplayName": "Institutional Channel Partner (ICP)"},
+  {"zAttributesId": 3, "DisplayName": "Retail Channel Partner (RCP)"},
+];

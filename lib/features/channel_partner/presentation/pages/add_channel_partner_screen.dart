@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static_data.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/address/address_widget.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -84,15 +85,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   final ValueNotifier<List<Map<String, dynamic>>>
   _selectedSecondaryProjectNotifier = ValueNotifier([]);
 
-  // STATIC LIST
-  List<Map<String, dynamic>> designationList = [
-    {"zAttributesId": 1, "DisplayName": "Business Head"},
-    {"zAttributesId": 2, "DisplayName": "Cluster Head"},
-    {"zAttributesId": 3, "DisplayName": "Owner"},
-    {"zAttributesId": 4, "DisplayName": "Partner"},
-    {"zAttributesId": 5, "DisplayName": "Team Member"},
-  ];
-
   // FILE VARIABLES
   MultiFilePickerModel selectedPANForPopUpFile = MultiFilePickerModel(
     fileBytesList: [],
@@ -108,31 +100,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
   ValueNotifier<bool> isCompanyPrefilled = ValueNotifier(false);
   bool get isNewCompany => selectedCompanyType.value?['zAttributesId'] == 1;
-
-  // DROPDOWN VARIABLES
-  final List<Map<String, dynamic>> specialityList = [
-    {"zAttributesId": 1, "DisplayName": "Commercial Sale"},
-    {"zAttributesId": 2, "DisplayName": "Commercial Leasing"},
-    {"zAttributesId": 3, "DisplayName": "Residential Sale"},
-    {"zAttributesId": 4, "DisplayName": "Commercial + Residential Sale"},
-  ];
-
-  final List<Map<String, dynamic>> companyTypeList = [
-    {"zAttributesId": 1, "DisplayName": "New Company"},
-    {"zAttributesId": 2, "DisplayName": "Existing Company"},
-  ];
-
-  final List<Map<String, dynamic>> firmsType = [
-    {"zAttributesId": 1, "DisplayName": "LLP"},
-    {"zAttributesId": 2, "DisplayName": "Private Limited Company"},
-    {"zAttributesId": 3, "DisplayName": "Proprietorship"},
-  ];
-
-  final List<Map<String, dynamic>> type = [
-    {"zAttributesId": 1, "DisplayName": "International Channel Partner (IPC)"},
-    {"zAttributesId": 2, "DisplayName": "Institutional Channel Partner (ICP)"},
-    {"zAttributesId": 3, "DisplayName": "Retail Channel Partner (RCP)"},
-  ];
 
   // SELECTION VARIABLE
 

@@ -7,8 +7,10 @@ import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/procurement/data/model/sub_material.model.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/model/grn.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -42,9 +44,8 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
   late GrnCubit _grnCubit;
 
   late ProjectModel _project;
-  final ValueNotifier<List<SubMaterialModel>> rawMaterialList = ValueNotifier(
-    [],
-  );
+  final ValueNotifier<List<MaterialRequisitionQuotationDatum>> rawMaterialList =
+      ValueNotifier([]);
   final ValueNotifier<Map<String, dynamic>?> _selectedMaterial = ValueNotifier(
     null,
   );
@@ -55,7 +56,12 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
   //EDIT MODE
   bool get _isEditMode => widget.materialDetails != null;
 
-  late TextEditingController _uomC, _quantityC, _remarkC;
+  late MaterialRequisitionCubit _materialRequisitionCubit;
+
+  late TextEditingController _uomC,
+      _totalQuantityC,
+      _remarkC,
+      _receivedQuantity;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
@@ -64,19 +70,24 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
     _project = getProject();
     initializeTextEditingController();
     _grnCubit = context.read<GrnCubit>();
-
+    _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
     _prefill();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      getMaterialSubMaterialUOMMaster();
-    });
+    rawMaterialList.value =
+        _materialRequisitionCubit
+            .state
+            .finalizedVendor!
+            .materialRequisitionQuotationTermsData
+            .first
+            .materialRequisitionQuotationData;
   }
 
   final UtilsRepository utilsRepository = serviceLocator<UtilsRepository>();
 
   void initializeTextEditingController() {
     _uomC = TextEditingController();
-    _quantityC = TextEditingController();
+    _totalQuantityC = TextEditingController();
     _remarkC = TextEditingController();
+    _receivedQuantity = TextEditingController();
   }
 
   void _prefill() {
@@ -94,59 +105,22 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
     );
     _uomC.text = widget.materialDetails!.uomCode;
     _requiredDate.value = widget.materialDetails!.requiredDate;
-    _quantityC.text = widget.materialDetails!.materialQuantity.toString();
-    _remarkC.text = widget.materialDetails!.qualityAnalysisRemarks;
-  }
-
-  // <---- DROPDOWN FUNCTIONS ---->
-  Future<void> getMaterialSubMaterialUOMMaster() async {
-    DialogHelper.showProcessingOverlay(context);
-    var result = await utilsRepository
-        .getMaterialMasterSubMaterialMasterUOMMaster(
-          projectId: _project.projectId,
-        );
-
-    try {
-      return await result.fold(
-        (failure) async {
-          showErrorMessage(context, 'Error', failure.message);
-          rawMaterialList.value = [];
-        },
-        (response) async {
-          final data = response["MaterialMasterSubMaterialMasterData"];
-
-          if (data == null) {
-            rawMaterialList.value = [];
-          }
-
-          final parsedList = await compute(
-            (m) =>
-                (m as List<dynamic>)
-                    .map((e) => SubMaterialModel.fromJson(e))
-                    .toList(),
-            data,
-          );
-
-          rawMaterialList.value = List<SubMaterialModel>.from(parsedList);
-        },
-      );
-    } finally {
-      if (mounted) {
-        goRouter.pop();
-      }
-    }
+    _totalQuantityC.text = widget.materialDetails!.materialQuantity.toString();
+    _remarkC.text = widget.materialDetails!.qualityAnalysisRemarks ?? "";
   }
 
   List<Map<String, dynamic>> get materialList {
-    final seen = <dynamic>{};
+    final seen = <int>{};
 
     return rawMaterialList.value
-        .where((e) {
-          return seen.add(e.materialMasterId);
-        })
+        .where(
+          (e) =>
+              (seen.add(e.materialRequisitionDetailId) &&
+                  e.materialRequisitionDetailId != 0),
+        )
         .map((e) {
           return {
-            "zAttributesId": e.materialMasterId,
+            "zAttributesId": e.materialRequisitionDetailId,
             "DisplayName": e.materialName,
           };
         })
@@ -159,10 +133,10 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
     if (selectedId == null) return [];
 
     return rawMaterialList.value
-        .where((e) => e.materialMasterId == selectedId)
+        .where((e) => e.materialRequisitionDetailId == selectedId)
         .map((e) {
           return {
-            "zAttributesId": e.subMaterialMasterId,
+            "zAttributesId": e.materialRequisitionDetailId,
             "DisplayName": e.subMaterialName,
           };
         })
@@ -172,22 +146,23 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
   void updateUOM() {
     final selectedId = _selectedSubMaterial.value?['zAttributesId'];
     if (selectedId == null) return;
-    final selectedItem = rawMaterialList.value.firstWhere(
-      (e) => e.subMaterialMasterId == selectedId,
+
+    final selectedItem = rawMaterialList.value.where(
+      (e) => e.materialRequisitionDetailId == selectedId,
     );
 
-    _uomC.text = selectedItem.uomCode;
+    _uomC.text = selectedItem.first.uom;
+    _totalQuantityC.text = addCommasToInteger(
+      selectedItem.first.materialQuantity,
+      withoutSign: true,
+    );
   }
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    final selectedId = _selectedSubMaterial.value?['zAttributesId'];
-    final selectedItem = rawMaterialList.value.firstWhere(
-      (e) => e.subMaterialMasterId == selectedId,
-    );
+
     final material = MaterialRequisitionDetailGrnDatum(
-      materialRequisitionDetailId:
-          _isEditMode ? widget.materialDetails!.materialRequisitionDetailId : 0,
+      materialRequisitionDetailId: _selectedMaterial.value?['zAttributesId'],
       uniquekey: _isEditMode ? widget.materialDetails!.uniquekey : '',
       materialRequisitionGrnId:
           _isEditMode ? widget.materialDetails!.materialRequisitionGrnId : 0,
@@ -197,7 +172,7 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
               : 0,
       materialName: _selectedMaterial.value?['DisplayName'] ?? '',
       subMaterialName: _selectedSubMaterial.value?['DisplayName'] ?? '',
-      materialQuantity: double.tryParse(_quantityC.text) ?? 0,
+      materialQuantity: double.tryParse(_totalQuantityC.text) ?? 0,
       uomCode: _uomC.text,
       uom: _uomC.text,
       requiredDate: _requiredDate.value ?? DateTime.now(),
@@ -209,7 +184,7 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
       modifiedById: _isEditMode ? widget.materialDetails!.modifiedById : 0,
       modifiedBy: _isEditMode ? widget.materialDetails!.modifiedBy : "",
       modifiedDate: _isEditMode ? widget.materialDetails!.modifiedDate : null,
-      totalReceivedMaterialQuantity: 0,
+      totalReceivedMaterialQuantity: double.parse(_receivedQuantity.text) ?? 0,
     );
     if (_isEditMode) {
       _grnCubit.updateMaterialList(material, widget.index);
@@ -222,7 +197,8 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
   @override
   void dispose() {
     _uomC.dispose();
-    _quantityC.dispose();
+    _totalQuantityC.dispose();
+    _receivedQuantity.dispose();
     _remarkC.dispose();
     super.dispose();
   }
@@ -322,40 +298,28 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
                           readOnly: true,
                           textController: _uomC,
                         ),
-                        ValueListenableBuilder(
-                          valueListenable: _requiredDate,
-                          builder: (context, value, child) {
-                            return CustomDatePicker(
-                              title: "Required Date",
-                              initialDate: value,
-                              isRequired: true,
-                              startDate: DateTime.now(),
-                              setValue: (value) {
-                                _requiredDate.value = value;
-                              },
-                              validator: (value) {
-                                if (value == null) {
-                                  return 'Date is required';
-                                }
-                                return null;
-                              },
-                            );
-                          },
+
+                        CustomTextField(
+                          title: "Total Quantity",
+                          isRequired: true,
+                          readOnly: true,
+                          textController: _totalQuantityC,
                         ),
                         CustomTextField(
-                          title: "Quantity",
+                          title: "Received Quantity",
                           hint: "Enter Received Quantity",
                           isRequired: true,
                           inputFormatterList: InputValidator.decimal(2),
                           keyboardType: TextInputType.numberWithOptions(),
-                          textController: _quantityC,
+                          textController: _receivedQuantity,
                           validator: (value) {
                             if (value == null || value == "") {
-                              return "Quantity is required";
+                              return "Received Quantity is required";
                             }
                             return null;
                           },
                         ),
+
                         CustomTextField(
                           title: "Remark",
                           hint: "Enter Remark",

@@ -50,7 +50,8 @@ class _GRNScreenState extends State<GRNScreen> {
               BlocBuilder<MaterialRequisitionCubit, MaterialRequisitionState>(
                 builder: (context, state) {
                   return Text(
-                    state.materialRequisitionOverview?.uniquekey ?? "",
+                    state.materialRequisitionOverview?.systemGeneratedCode ??
+                        "",
                     style: AppTextStyle.ts16SB(color: AppColor.primary),
                   );
                 },

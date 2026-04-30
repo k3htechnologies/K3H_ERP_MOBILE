@@ -93,7 +93,7 @@ class MaterialRequisitionDetailGrnDatum {
   String uom;
   DateTime requiredDate;
   double totalReceivedMaterialQuantity;
-  String qualityAnalysisRemarks;
+  String? qualityAnalysisRemarks;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -164,5 +164,11 @@ class MaterialRequisitionDetailGrnDatum {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate,
+  };
+
+  Map<String, dynamic> toJsonPayload() => {
+    "MaterialRequisitionDetailGRNId": materialRequisitionDetailGrnId,
+    "MaterialRequisitionDetailId": materialRequisitionDetailId,
+    "TotalReceivedMaterialQuantity": totalReceivedMaterialQuantity,
   };
 }
