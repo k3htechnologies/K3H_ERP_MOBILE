@@ -70,15 +70,13 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
       widget.grnModel!.materialRequisitionDetailGrnData,
     );
     _remarkC.text = widget.grnModel!.remarks;
+    _challanNumberC.text = widget.grnModel!.challanNumber;
+    _vehicleNumberC.text = widget.grnModel!.vehicleNumber;
   }
 
   void _save() {
-    if (!_formKey.currentState!.validate() &&
-        _grnCubit.state.materialList.isEmpty) {
-      showErrorMessage(context, 'Error', "At least one material is required");
+    if (!_formKey.currentState!.validate()) return;
 
-      return;
-    }
     if (_grnCubit.state.materialList.isEmpty) {
       showErrorMessage(context, 'Error', "At least one material is required");
 
@@ -86,7 +84,6 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
     }
 
     if (_isEditMode) {
-      //Todo: Update Functionality
       _grnCubit.updateGRN(
         context: context,
         projectId:
@@ -94,19 +91,26 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                 .state
                 .materialRequisitionOverview!
                 .projectId,
-        materialRequisitionId: widget.grnModel!.materialRequisitionId,
+        materialRequisitionId:
+            _materialRequisitionCubit
+                .state
+                .materialRequisitionOverview!
+                .materialRequisitionId,
         materialRequisitionGRNId: widget.grnModel!.materialRequisitionGrnId,
         materialRequisitionDetailGRNJSON: _grnCubit.state.materialList,
         challanNumber: _challanNumberC.text.trim(),
         vehicleNumber: _vehicleNumberC.text.trim(),
         remark: _remarkC.text.trim(),
         challan: selectedDocuments,
-        materialRequisitonUniqueKey: widget.grnModel!.uniquekey,
+        materialRequisitonUniqueKey:
+            _materialRequisitionCubit
+                .state
+                .materialRequisitionOverview!
+                .uniquekey,
         index: widget.index!,
         uniquekey: widget.grnModel!.uniquekey,
       );
     } else {
-      //Todo: Save Functionality
       _grnCubit.addGRN(
         context: context,
         projectId:
@@ -114,13 +118,21 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                 .state
                 .materialRequisitionOverview!
                 .projectId,
-        materialRequisitionId: widget.grnModel!.materialRequisitionId,
+        materialRequisitionId:
+            _materialRequisitionCubit
+                .state
+                .materialRequisitionOverview!
+                .materialRequisitionId,
         materialRequisitionDetailGRNJSON: _grnCubit.state.materialList,
         challanNumber: _challanNumberC.text.trim(),
         vehicleNumber: _vehicleNumberC.text.trim(),
         remark: _remarkC.text.trim(),
         challan: selectedDocuments,
-        materialRequisitonUniqueKey: widget.grnModel!.uniquekey,
+        materialRequisitonUniqueKey:
+            _materialRequisitionCubit
+                .state
+                .materialRequisitionOverview!
+                .uniquekey,
       );
     }
   }
@@ -232,6 +244,7 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                                             },
                                           ),
                                           CustomIconButton.delete(
+                                            isDisabled: _isEditMode,
                                             onPressed: () {
                                               _showPopupToDeleteMaterial(
                                                 context,
@@ -250,20 +263,21 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                                     },
                                     {"title": "UOM", "value": material.uomCode},
                                     {
-                                      "title": "Quantity",
+                                      "title": "Total Quantity",
                                       "value": addCommasToInteger(
                                         material.materialQuantity,
                                         withoutSign: true,
                                       ),
                                     },
                                     {
-                                      "title": "Required Date",
-                                      "value": formatDateTimeAsDDMMMYYYY(
-                                        material.requiredDate,
+                                      "title": "Received Quantity",
+                                      "value": addCommasToInteger(
+                                        material.totalReceivedMaterialQuantity,
+                                        withoutSign: true,
                                       ),
                                     },
                                     {
-                                      "title": "Remark",
+                                      "title": "Quality Analyst Remark",
                                       "value": material.qualityAnalysisRemarks,
                                     },
                                   ],
@@ -293,6 +307,7 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                       title: "Challan Number",
                       hint: "Enter Challan Number",
                       textController: _challanNumberC,
+                      inputFormatterList: [],
                     ),
                     CustomTextField(
                       title: "Vehicle Number",

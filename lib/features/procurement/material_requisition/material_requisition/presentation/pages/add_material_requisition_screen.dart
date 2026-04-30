@@ -73,12 +73,8 @@ class _AddMaterialRequisitionScreenState
   }
 
   void _save() {
-    if (!_formKey.currentState!.validate() &&
-        _materialRequisitionCubit.state.materialList.isEmpty) {
-      showErrorMessage(context, 'Error', "At least one material is required");
+    if (!_formKey.currentState!.validate()) return;
 
-      return;
-    }
     if (_materialRequisitionCubit.state.materialList.isEmpty) {
       showErrorMessage(context, 'Error', "At least one material is required");
 

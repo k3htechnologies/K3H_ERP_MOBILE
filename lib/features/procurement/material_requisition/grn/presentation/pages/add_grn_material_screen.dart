@@ -71,7 +71,6 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
     initializeTextEditingController();
     _grnCubit = context.read<GrnCubit>();
     _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
-    _prefill();
     rawMaterialList.value =
         _materialRequisitionCubit
             .state
@@ -79,6 +78,7 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
             .materialRequisitionQuotationTermsData
             .first
             .materialRequisitionQuotationData;
+    _prefill();
   }
 
   final UtilsRepository utilsRepository = serviceLocator<UtilsRepository>();
@@ -93,19 +93,27 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
   void _prefill() {
     if (!_isEditMode) return;
 
-    _selectedMaterial.value = materialList.firstWhere(
-      (element) =>
-          element['DisplayName'] == widget.materialDetails!.materialName,
-      orElse: () => {},
-    );
-    _selectedSubMaterial.value = subMaterialList.firstWhere(
-      (element) =>
-          element['DisplayName'] == widget.materialDetails!.subMaterialName,
-      orElse: () => {},
-    );
+    _selectedMaterial.value =
+        materialList
+            .where(
+              (element) =>
+                  element['DisplayName'] ==
+                  widget.materialDetails!.materialName,
+            )
+            .first;
+    _selectedSubMaterial.value =
+        subMaterialList
+            .where(
+              (element) =>
+                  element['DisplayName'] ==
+                  widget.materialDetails!.subMaterialName,
+            )
+            .first;
     _uomC.text = widget.materialDetails!.uomCode;
     _requiredDate.value = widget.materialDetails!.requiredDate;
     _totalQuantityC.text = widget.materialDetails!.materialQuantity.toString();
+    _receivedQuantity.text =
+        widget.materialDetails!.totalReceivedMaterialQuantity.toString();
     _remarkC.text = widget.materialDetails!.qualityAnalysisRemarks ?? "";
   }
 
@@ -240,6 +248,7 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
                               isRequired: true,
                               hintText: "Select Material",
                               initialValue: value,
+                              isDisabled: _isEditMode,
                               dataList: materialList,
                               onValueClear: () {
                                 _selectedMaterial.value = null;
@@ -252,7 +261,8 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
                                 _uomC.clear();
                               },
                               validator: (value) {
-                                if (value == null || value.isEmpty) {
+                                if ((value == null || value.isEmpty) &&
+                                    _selectedMaterial.value == null) {
                                   return "Material is required";
                                 }
                                 return null;
@@ -272,6 +282,7 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
                                   hintText: "Select Sub Material",
                                   initialValue: value,
                                   dataList: subMaterialList,
+                                  isDisabled: _isEditMode,
                                   onValueClear: () {
                                     _selectedSubMaterial.value = null;
                                     _uomC.clear();
@@ -281,7 +292,8 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
                                     updateUOM();
                                   },
                                   validator: (value) {
-                                    if (value == null || value.isEmpty) {
+                                    if ((value == null || value.isEmpty) &&
+                                        _selectedSubMaterial.value == null) {
                                       return "Sub material is required";
                                     }
                                     return null;
@@ -310,11 +322,16 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
                           hint: "Enter Received Quantity",
                           isRequired: true,
                           inputFormatterList: InputValidator.decimal(2),
+
                           keyboardType: TextInputType.numberWithOptions(),
                           textController: _receivedQuantity,
                           validator: (value) {
                             if (value == null || value == "") {
                               return "Received Quantity is required";
+                            }
+                            if (double.parse(value) >
+                                double.parse(_totalQuantityC.text)) {
+                              return "Received quantity cannot be greater than total quantity";
                             }
                             return null;
                           },

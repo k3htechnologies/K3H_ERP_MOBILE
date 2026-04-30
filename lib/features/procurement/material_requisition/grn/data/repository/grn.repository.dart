@@ -20,6 +20,7 @@ abstract interface class GrnRepository {
     required int materialRequisitionGRNId,
     required String uniqueKey,
     required int materialRequisitionId,
+    required int projectId,
   });
 
   Future<Either<Failure, Map<String, dynamic>>> getGRNSummary({
@@ -75,12 +76,14 @@ class GrnRepositoryImpl implements GrnRepository {
     required int materialRequisitionGRNId,
     required String uniqueKey,
     required int materialRequisitionId,
+    required int projectId,
   }) async {
     try {
       var result = await grnDatasource.apiCallToDeleteGRN(
         materialRequisitionGRNId: materialRequisitionGRNId,
         uniqueKey: uniqueKey,
         materialRequisitionId: materialRequisitionId,
+        projectId: projectId,
       );
 
       return right(result);

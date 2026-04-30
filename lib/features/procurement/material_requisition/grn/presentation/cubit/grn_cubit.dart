@@ -18,6 +18,21 @@ class GrnCubit extends Cubit<GrnState> {
   GrnCubit() : super(GrnState.initial());
   GrnRepository grnRepository = serviceLocator<GrnRepository>();
 
+  void searchGrn(String query) {
+    List<GRNModel> filteredGRN =
+        state.allGRNList
+            .where(
+              (e) =>
+                  e.challanNumber.toLowerCase().contains(query.toLowerCase()),
+            )
+            .toList();
+    emit(
+      state.copyWith(
+        filteredGRNList: query.isNotEmpty ? filteredGRN : state.allGRNList,
+      ),
+    );
+  }
+
   Future getAllGRNList({
     required BuildContext context,
     required int materialRequisitionId,
@@ -35,7 +50,13 @@ class GrnCubit extends Cubit<GrnState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) {
-        emit(state.copyWith(allGRNList: success['data'], isLoading: false));
+        emit(
+          state.copyWith(
+            allGRNList: success['data'],
+            filteredGRNList: success['data'],
+            isLoading: false,
+          ),
+        );
       },
     );
   }
@@ -151,7 +172,7 @@ class GrnCubit extends Cubit<GrnState> {
         if (state.allGRNList.isNotEmpty && index < state.allGRNList.length) {
           final updatedList = List<GRNModel>.from(state.allGRNList);
           updatedList[index] = updatedMaterialRequistion;
-          emit(state.copyWith(allGRNList: updatedList, isLoading: false));
+          emit(state.copyWith(filteredGRNList: updatedList, isLoading: false));
         }
         showSuccessMessage(context, subTitle: response['message']);
         goRouter.pop();
@@ -161,15 +182,16 @@ class GrnCubit extends Cubit<GrnState> {
 
   Future deleteGRN({
     required BuildContext context,
-    required int materialRequisitionGRNId,
-    required String uniqueKey,
-    required int materialRequisitionId,
+    required GRNModel grnModel,
+    required int projectId,
+    required int index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await grnRepository.deleteGRN(
-      materialRequisitionGRNId: materialRequisitionGRNId,
-      uniqueKey: uniqueKey,
-      materialRequisitionId: materialRequisitionId,
+      materialRequisitionGRNId: grnModel.materialRequisitionGrnId,
+      uniqueKey: grnModel.uniquekey,
+      materialRequisitionId: grnModel.materialRequisitionId,
+      projectId: projectId,
     );
     goRouter.pop();
     result.fold(

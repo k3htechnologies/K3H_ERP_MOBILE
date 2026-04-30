@@ -4877,7 +4877,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addGrn,
               path: AppRoutes.addGrn,
               builder: (context, state) {
-                final queryParameterGrn = state.uri.queryParameters['grn'];
+                final queryParameterGrn =
+                    state.uri.queryParameters['grnMaterial'];
 
                 final GRNModel? grn =
                     queryParameterGrn != null

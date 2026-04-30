@@ -14,7 +14,7 @@ class GRNModel {
   DateTime createdDate;
   int modifiedById;
   String modifiedBy;
-  dynamic modifiedDate;
+  DateTime? modifiedDate;
   List<MaterialRequisitionDetailGrnDatum> materialRequisitionDetailGrnData;
 
   GRNModel({
@@ -49,7 +49,10 @@ class GRNModel {
     createdDate: parseValue<DateTime>(json, "CreatedDate"),
     modifiedById: parseValue<int>(json, "ModifiedById"),
     modifiedBy: parseValue<String>(json, "ModifiedBy"),
-    modifiedDate: parseValue<DateTime>(json, "ModifiedDate"),
+    modifiedDate:
+        json["ModifiedDate"] == null
+            ? null
+            : DateTime.parse(json["ModifiedDate"]),
     materialRequisitionDetailGrnData:
         json["MaterialRequisitionDetailGRNData"] == null
             ? []
@@ -74,7 +77,7 @@ class GRNModel {
     "CreatedDate": createdDate.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
-    "ModifiedDate": modifiedDate,
+    "ModifiedDate": modifiedDate?.toIso8601String(),
     "MaterialRequisitionDetailGRNData": List<dynamic>.from(
       materialRequisitionDetailGrnData.map((x) => x.toJson()),
     ),
@@ -99,7 +102,7 @@ class MaterialRequisitionDetailGrnDatum {
   DateTime createdDate;
   int modifiedById;
   String modifiedBy;
-  dynamic modifiedDate;
+  DateTime? modifiedDate;
 
   MaterialRequisitionDetailGrnDatum({
     required this.materialRequisitionDetailGrnId,
@@ -142,7 +145,10 @@ class MaterialRequisitionDetailGrnDatum {
     createdDate: DateTime.parse(json["CreatedDate"]),
     modifiedById: json["ModifiedById"],
     modifiedBy: json["ModifiedBy"],
-    modifiedDate: json["ModifiedDate"],
+    modifiedDate:
+        json["ModifiedDate"] == null
+            ? null
+            : DateTime.parse(json["ModifiedDate"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -163,7 +169,7 @@ class MaterialRequisitionDetailGrnDatum {
     "CreatedDate": createdDate.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
-    "ModifiedDate": modifiedDate,
+    "ModifiedDate": modifiedDate?.toIso8601String(),
   };
 
   Map<String, dynamic> toJsonPayload() => {
