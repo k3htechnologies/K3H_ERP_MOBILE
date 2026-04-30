@@ -257,3 +257,76 @@ final List<Map<String, dynamic>> type = [
   {"zAttributesId": 2, "DisplayName": "Institutional Channel Partner (ICP)"},
   {"zAttributesId": 3, "DisplayName": "Retail Channel Partner (RCP)"},
 ];
+
+// INVENTORY
+// STATIC LISTS
+List<Map<String, dynamic>> flatTypeList = [
+  {'zAttributesId': 1, 'DisplayName': 'BMC'},
+  {'zAttributesId': 2, 'DisplayName': 'Commercial'},
+  {'zAttributesId': 3, 'DisplayName': 'eDeck'},
+  {'zAttributesId': 4, 'DisplayName': 'Fitness Center'},
+  {'zAttributesId': 5, 'DisplayName': 'Gym'},
+  {'zAttributesId': 6, 'DisplayName': 'MHADA'},
+  {'zAttributesId': 7, 'DisplayName': 'Multi Purpose Room'},
+  {'zAttributesId': 8, 'DisplayName': 'Land Lord'},
+  {'zAttributesId': 9, 'DisplayName': 'Lien'},
+  {'zAttributesId': 10, 'DisplayName': 'Part Terrace'},
+  {'zAttributesId': 11, 'DisplayName': 'Refuge'},
+  {'zAttributesId': 12, 'DisplayName': 'Religious Structure'},
+  {'zAttributesId': 13, 'DisplayName': 'Residential'},
+  {'zAttributesId': 14, 'DisplayName': 'Society Office'},
+  {'zAttributesId': 15, 'DisplayName': 'SRA'},
+  {'zAttributesId': 16, 'DisplayName': 'Upashray'},
+  {'zAttributesId': 17, 'DisplayName': 'Void'},
+];
+
+// STATIC LISTS FOR FLAT CONFIGURATION
+List<Map<String, dynamic>> residentialFlatList = [
+  {'zAttributesId': 1, 'DisplayName': '1 RK'},
+  {'zAttributesId': 2, 'DisplayName': '1 BHK'},
+  {'zAttributesId': 3, 'DisplayName': '2 BHK'},
+  {'zAttributesId': 4, 'DisplayName': '3 BHK'},
+  {'zAttributesId': 5, 'DisplayName': '4 BHK'},
+  {'zAttributesId': 6, 'DisplayName': '5 BHK'},
+  {'zAttributesId': 7, 'DisplayName': '6 BHK'},
+  {'zAttributesId': 8, 'DisplayName': '7 BHK'},
+  {'zAttributesId': 9, 'DisplayName': '8 BHK'},
+  {'zAttributesId': 10, 'DisplayName': '1 + 1 JODI'},
+  {'zAttributesId': 11, 'DisplayName': '2 + 1 JODI'},
+  {'zAttributesId': 12, 'DisplayName': '2 + 2 JODI'},
+  {'zAttributesId': 13, 'DisplayName': '2 + 3 JODI'},
+  {'zAttributesId': 14, 'DisplayName': 'PENTHOUSE'},
+];
+
+// STATIC LISTS FOR FLAT CONFIGURATION
+List<Map<String, dynamic>> commercialFlatList = [
+  {'zAttributesId': 1, 'DisplayName': 'OFFICE'},
+  {'zAttributesId': 2, 'DisplayName': 'SHOP'},
+];
+
+// STATIC LISTS FOR FLAT STATUS
+List<Map<String, dynamic>> flatStatusList = [
+  {'zAttributesId': 1, 'DisplayName': 'Available'},
+  {'zAttributesId': 2, 'DisplayName': 'Blocked'},
+  {'zAttributesId': 3, 'DisplayName': 'Hold'},
+];
+List<Map<String, dynamic>> flatStatusListWithOtherOptions = [
+  {'zAttributesId': 1, 'DisplayName': 'Available'},
+  {'zAttributesId': 2, 'DisplayName': 'Blocked'},
+  {'zAttributesId': 3, 'DisplayName': 'Hold'},
+  {'zAttributesId': 4, 'DisplayName': 'Alloted'},
+  {'zAttributesId': 5, 'DisplayName': 'Booked'},
+];
+
+// STATIC LISTS FOR FLAT FACING
+List<Map<String, dynamic>> flatFacingList = [
+  {'zAttributesId': 1, 'DisplayName': 'EAST'},
+  {'zAttributesId': 2, 'DisplayName': 'BACK'},
+  {'zAttributesId': 3, 'DisplayName': 'FRONT'},
+  {'zAttributesId': 4, 'DisplayName': 'GARDEN'},
+  {'zAttributesId': 5, 'DisplayName': 'NORTH'},
+  {'zAttributesId': 6, 'DisplayName': 'PARK'},
+  {'zAttributesId': 7, 'DisplayName': 'ROAD'},
+  {'zAttributesId': 8, 'DisplayName': 'SOUTH'},
+  {'zAttributesId': 9, 'DisplayName': 'WEST'},
+];
