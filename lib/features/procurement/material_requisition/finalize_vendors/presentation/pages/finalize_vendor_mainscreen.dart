@@ -58,11 +58,19 @@ class _FinalizeVendorMainscreenState extends State<FinalizeVendorMainscreen> {
           case FinalizeVendorViewType.finalizedList:
             return FinalizeVendorScreen(
               systemGeneratedCode: widget.systemgeneratedCode,
+              materialRequisitionId: widget.materialRequisitionId,
+              projectId: widget.projectId,
+              uniquekey: widget.uniquekey,
             );
 
           case FinalizeVendorViewType.editVendor:
             return FinalizeVendorEditScreen(
               systemgeneratedCode: widget.systemgeneratedCode,
+              vendor: state.selectedVendor,
+              materials: state.materials,
+              projectId: widget.projectId,
+              uniquekey: widget.uniquekey,
+              materialRequisitionId: widget.materialRequisitionId,
             );
         }
       },

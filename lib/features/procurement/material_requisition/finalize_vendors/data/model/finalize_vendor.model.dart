@@ -207,18 +207,18 @@ class MaterialRequisitionQuotationTerms {
 }
 
 class MaterialRequisitionQuotation {
-  final int materialRequisitionQuotationId;
-  final String uniquekey;
-  final int materialRequisitionQuotationTermsId;
-  final int materialRequisitionDetailId;
-  final String materialCode;
-  final String materialName;
-  final String subMaterialName;
-  final String uomCode;
-  final String uom;
+  int materialRequisitionQuotationId;
+  String uniquekey;
+  int materialRequisitionQuotationTermsId;
+  int materialRequisitionDetailId;
+  String materialCode;
+  String materialName;
+  String subMaterialName;
+  String uomCode;
+  String uom;
   double materialQuantity;
   double materialPerUnit;
-  final String logistics;
+  String logistics;
   double amount;
   double cgst;
   double sgst;

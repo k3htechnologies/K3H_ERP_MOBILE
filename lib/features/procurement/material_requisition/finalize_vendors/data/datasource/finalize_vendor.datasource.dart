@@ -1,5 +1,6 @@
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
+import 'package:k3h_erp_app/service/exceptions.dart';
 
 abstract interface class FinalizeVendorDatasource {
   Future<Map<String, dynamic>> apicallPullVendorForEnquiry({
@@ -33,6 +34,12 @@ abstract interface class FinalizeVendorDatasource {
     required int projectId,
     required int materialRequisitionId,
     required String uniquekey,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Map<String, dynamic>> apicallPullFinalizeVendorForExport({
+    required int projectId,
+    required int materialRequisitionId,
+    required String uniqueKey,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -220,6 +227,49 @@ class FinalizeVendorDatasourceImpl implements FinalizeVendorDatasource {
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullFinalizeVendorForExport({
+    required int projectId,
+    required int materialRequisitionId,
+    required String uniqueKey,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullChannelPartnerExportUrl({
+      required int projectId,
+      required int materialRequisitionId,
+      required String uniqueKey,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "MaterialRequisitionForEnquiry/PullSelectedVendorForEnquiry?MaterialRequisitionId=$materialRequisitionId&Uniquekey=$uniqueKey&ProjectId=$projectId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullChannelPartnerExportUrl(
+          projectId: projectId,
+          materialRequisitionId: materialRequisitionId,
+          uniqueKey: uniqueKey,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullFinalizeVendorForExport(
+          projectId: projectId,
+          materialRequisitionId: materialRequisitionId,
+          uniqueKey: uniqueKey,
+        );
+      }
       rethrow;
     }
   }

@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -117,7 +116,8 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
   int isOnlyOneVendorSelected() {
     bool isSelectedFound = false;
     int id = -1;
-    for (var item in state.vendorSelectionForEnquiryList) {
+
+    for (var item in state.vendorFinalisationForComparison) {
       if (item.isSelected) {
         if (!isSelectedFound) {
           isSelectedFound = true;
@@ -187,6 +187,61 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
     );
   }
 
+  void toggleVendorSelection(int vendorId) {
+    final updatedList =
+        state.vendorFinalisationForComparison
+            .map(
+              (e) => FinalizeVendorForComparisonModel(
+                vendorId: e.vendorId,
+                uniquekey: e.uniquekey,
+                companyName: e.companyName,
+                companyType: e.companyType,
+                vendorName: e.vendorName,
+                mobileNumber: e.mobileNumber,
+                emailId: e.emailId,
+                aadharCardNumber: e.aadharCardNumber,
+                aadharCardUrl: e.aadharCardUrl,
+                panCardNumber: e.panCardNumber,
+                panCardUrl: e.panCardUrl,
+                gstNumber: e.gstNumber,
+                gstCertificateUrl: e.gstCertificateUrl,
+                address: e.address,
+                countryMasterId: e.countryMasterId,
+                countryName: e.countryName,
+                stateMasterId: e.stateMasterId,
+                stateName: e.stateName,
+                districtMasterId: e.districtMasterId,
+                districtName: e.districtName,
+                cityMasterId: e.cityMasterId,
+                cityName: e.cityName,
+                availableMaterialList: e.availableMaterialList,
+                availableContractList: e.availableContractList,
+                createdById: e.createdById,
+                createdBy: e.createdBy,
+                createdDate: e.createdDate,
+                modifiedById: e.modifiedById,
+                modifiedBy: e.modifiedBy,
+                modifiedDate: e.modifiedDate,
+                isApproval: e.isApproval,
+                isFinalized: e.isFinalized,
+                vendorFinalizationApproval: e.vendorFinalizationApproval,
+
+                isSelected: e.vendorId == vendorId ? !e.isSelected : false,
+
+                materialRequisitionQuotationTermsData:
+                    e.materialRequisitionQuotationTermsData,
+                subMaterialMasterData: e.subMaterialMasterData,
+                contractTypeMasterData: e.contractTypeMasterData,
+                magicLinkUrl: e.magicLinkUrl,
+                systemGeneratedCode: e.systemGeneratedCode,
+                projectName: e.projectName,
+              ),
+            )
+            .toList();
+
+    emit(state.copyWith(vendorFinalisationForComparison: updatedList));
+  }
+
   Future updateVendorQuotation(
     BuildContext context,
     int projectId,
@@ -194,7 +249,25 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
     int index,
   ) async {
     DialogHelper.showProcessingOverlay(context);
-    Map<String, dynamic> body = {
+    final payloadList =
+        terms.materialRequisitionQuotationData
+            .map(
+              (e) => {
+                'MaterialRequisitionQuotationId':
+                    e.materialRequisitionQuotationId,
+                'MaterialRequisitionDetailId': e.materialRequisitionDetailId,
+                'Logistics': e.logistics,
+                'Amount': e.amount,
+                'CGST': e.cgst,
+                'SGST': e.sgst,
+                'UGST': e.ugst,
+                'TGST': e.tgst,
+              },
+            )
+            .toList();
+
+    final encodedJson = jsonEncode(payloadList);
+    Map<String, dynamic> requestBody = {
       "ProjectId": projectId,
       "MaterialRequisitionQuotationTermsId":
           terms.materialRequisitionQuotationTermsId,
@@ -204,38 +277,37 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
       "ExpectedDeliveryInDays": terms.expectedDeliveryInDays,
       "ExpectedPaymentInDays": terms.expectedPaymentInDays,
       "Total": terms.total,
-      "MaterialRequisitionQuotationJSON": await compute(
-        (v) => jsonEncode(
-          terms.materialRequisitionQuotationData
-              .map(
-                (e) => {
-                  'MaterialRequisitionQuotationId':
-                      e.materialRequisitionQuotationId,
-                  'MaterialRequisitionDetailId': e.materialRequisitionDetailId,
-                  'Logistics': e.logistics,
-                  'Amount': e.amount,
-                  'CGST': e.cgst,
-                  'SGST': e.sgst,
-                  'UGST': e.ugst,
-                  'TGST': e.tgst,
-                },
-              )
-              .toList(),
-        ),
-        '',
-      ),
+      "MaterialRequisitionQuotationJSON": encodedJson,
     };
+
     var addResult = await finalizeVendorRepository
-        .addToUpdateMaterialRequisitionQuotation(body: body);
+        .addToUpdateMaterialRequisitionQuotation(body: requestBody);
     goRouter.pop();
     addResult.fold(
       (failure) {
         showErrorMessage(context, 'Error', failure.message);
         return;
       },
-      (response) {
+      (response) async {
         emit(state.copyWith(isLoading: true));
+        final updatedList = List<RequisitionVendorModel>.from(
+          state.selctedVendorList,
+        );
+        final dataList =
+            response['data'] as List<MaterialRequisitionQuotationTerms>;
+
+        if (dataList.isNotEmpty && index < updatedList.length) {
+          final termsData = dataList.first;
+
+          updatedList[index].materialRequisitionQuotationTermsData = termsData;
+        }
+        emit(state.copyWith(isLoading: false, selctedVendorList: updatedList));
         showSuccessMessage(context);
+        if (context.mounted) {
+          Future.delayed(Duration(milliseconds: 300), () {
+            Navigator.pop(context);
+          });
+        }
       },
     );
   }
@@ -285,13 +357,37 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
     );
   }
 
-  // FinalizeVendorForComparisonModel selectedVendor;
-  // void selectVendor(FinalizeVendorForComparisonModel vendor) {
-  //   selectedVendor = vendor;
-  //   emit(state.copyWith(viewType: FinalizeVendorViewType.editVendor));
-  // }
-
-  void changeView(FinalizeVendorViewType viewType) {
-    emit(state.copyWith(viewType: viewType));
+  Future compareVendor(
+    BuildContext context,
+    String exportType,
+    int projectId,
+    int materialRequisitionId,
+    String uniqueKey,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await finalizeVendorRepository.compareFinalizedVendor(
+      projectId: projectId,
+      materialRequisitionId: materialRequisitionId,
+      uniqueKey: uniqueKey,
+      queryParams: {"ExportType": "VENDOR COMPARISON CHART"},
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "Finalize Vendor ${DateTime.now()}.pdf"
+              : "Finalize Vendor ${DateTime.now()}.xlsx",
+        );
+      },
+    );
   }
 }

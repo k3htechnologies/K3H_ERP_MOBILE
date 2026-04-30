@@ -3,13 +3,16 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -120,44 +123,69 @@ class _FinalizeVendorGetQuotationScreenState
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<FinalizeVendorCubit, FinalizeVendorState>(
-      builder: (context, state) {
-        if (state.isLoading ?? true) {
-          return Center(child: CircularProgressIndicator());
-        }
-        final getQuotation = state.vendorSelectionForEnquiryList;
-        return Container(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 10.h,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return SafeArea(
+      child: Scaffold(
+        appBar: CustomAppBarWithBackButton(
+          screenTitle: "Get Quotation",
+          authorization: AuthorizationModel(),
+        ),
+        body: BlocBuilder<FinalizeVendorCubit, FinalizeVendorState>(
+          builder: (context, state) {
+            if (state.isLoading ?? true) {
+              return Center(child: CircularProgressIndicator());
+            }
+            final getQuotation = state.vendorSelectionForEnquiryList;
+            return Container(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 10.h,
                 children: [
                   Text(
                     widget.systemgeneratedCode,
                     style: AppTextStyle.ts16M(color: AppColor.primary),
                   ),
                   horizontalSpacing(width: 10.w),
-                  CustomButton(text: "Save", onPressed: _onGetQuotationTap),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: getQuotation.length,
+                      shrinkWrap: true,
+                      physics: AlwaysScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        final listOfVendorForQuotation = getQuotation[index];
+                        return _buildVendorDetails(
+                          index,
+                          listOfVendorForQuotation,
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: getQuotation.length,
-                  shrinkWrap: true,
-                  physics: AlwaysScrollableScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    final listOfVendorForQuotation = getQuotation[index];
-                    return _buildVendorDetails(index, listOfVendorForQuotation);
+            );
+          },
+        ),
+
+        bottomNavigationBar: SafeArea(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Container(
+                height: 70,
+                color: Colors.transparent,
+                padding: const EdgeInsets.all(16),
+                child: CustomButton(
+                  text: "Save",
+                  onPressed: () {
+                    goRouter.pop();
+                    _onGetQuotationTap();
                   },
                 ),
               ),
             ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 

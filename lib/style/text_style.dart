@@ -112,6 +112,11 @@ class AppTextStyle {
   );
 
   // BOLD
+  static TextStyle ts12B({Color? color}) => TextStyle(
+    fontFamily: "bold",
+    fontSize: 12.sp,
+    color: color ?? AppColor.black,
+  );
   static TextStyle ts14B({Color? color}) => TextStyle(
     fontFamily: "bold",
     fontSize: 14.sp,

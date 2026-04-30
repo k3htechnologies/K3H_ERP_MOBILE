@@ -47,6 +47,7 @@ import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/add_lit
 import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/add_litigation_screen.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/litigation_screen.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/litigation_view_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/register/presentation/pages/register_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
@@ -4722,6 +4723,40 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.finalizeVendor,
               name: AppRoutes.finalizeVendor,
               builder: (context, state) {
+                final queryParameterMaterialRequisitionId =
+                    state.uri.queryParameters['materialRequisitionId'];
+                final queryParameterProjectId =
+                    state.uri.queryParameters['projectId'];
+                final queryParameterUniquekey =
+                    state.uri.queryParameters['uniquekey'];
+
+                final materialRequisitionId =
+                    queryParameterMaterialRequisitionId != null &&
+                            queryParameterMaterialRequisitionId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(
+                              queryParameterMaterialRequisitionId,
+                            ),
+                          ),
+                        )
+                        : 0;
+                final projectId =
+                    queryParameterProjectId != null &&
+                            queryParameterProjectId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterProjectId),
+                          ),
+                        )
+                        : 0;
+                final uniquekey =
+                    queryParameterUniquekey != null &&
+                            queryParameterUniquekey.isNotEmpty
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterUniquekey),
+                        )
+                        : "";
                 final queryParameterSystemGeneratedCode =
                     state.uri.queryParameters['systemGeneratedCode'];
                 final materialRequisitionSystemGeneratedCode =
@@ -4734,6 +4769,9 @@ final GoRouter goRouter = GoRouter(
                         )
                         : "";
                 return FinalizeVendorScreen(
+                  materialRequisitionId: materialRequisitionId,
+                  projectId: projectId,
+                  uniquekey: uniquekey,
                   systemGeneratedCode: materialRequisitionSystemGeneratedCode,
                 );
               },
@@ -4799,19 +4837,24 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.finalizeEditVendor,
               name: AppRoutes.finalizeEditVendor,
               builder: (context, state) {
-                final queryParameterSystemGeneratedCode =
-                    state.uri.queryParameters['systemGeneratedCode'];
-                final materialRequisitionSystemGeneratedCode =
-                    queryParameterSystemGeneratedCode != null &&
-                            queryParameterSystemGeneratedCode.isNotEmpty
-                        ? EncryptionManager.decryptData(
-                          Uri.decodeComponent(
-                            queryParameterSystemGeneratedCode,
-                          ),
-                        )
-                        : "";
+                final extra = state.extra as Map<String, dynamic>?;
+                final vendor =
+                    extra?['vendor'] as FinalizeVendorForComparisonModel?;
+                final materials =
+                    extra?['materials']
+                        as List<MaterialRequisitionDetailModel>?;
+                final systemGeneratedCode = extra?['systemGeneratedCode'] ?? "";
+                final projectId = extra?['projectId'] ?? 0;
+                final materialRequisitionId =
+                    extra?['materialRequisitionId'] ?? 0;
+                final uniquekey = extra?['uniquekey'] ?? "";
                 return FinalizeVendorEditScreen(
-                  systemgeneratedCode: materialRequisitionSystemGeneratedCode,
+                  systemgeneratedCode: systemGeneratedCode,
+                  vendor: vendor,
+                  materials: materials,
+                  projectId: projectId,
+                  uniquekey: uniquekey,
+                  materialRequisitionId: materialRequisitionId,
                 );
               },
             ),

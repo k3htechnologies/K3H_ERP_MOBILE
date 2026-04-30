@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
@@ -16,14 +21,16 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class FinalizeVendorScreen extends StatefulWidget {
   final String systemGeneratedCode;
-  final Function(FinalizeVendorForComparisonModel)? onVendorTap;
-  final VoidCallback? onBack;
+  final int projectId;
+  final int materialRequisitionId;
+  final String uniquekey;
   final FinalizeVendorForComparisonModel? selectedVendor;
   const FinalizeVendorScreen({
     super.key,
     required this.systemGeneratedCode,
-    this.onVendorTap,
-    this.onBack,
+    required this.materialRequisitionId,
+    required this.projectId,
+    required this.uniquekey,
     this.selectedVendor,
   });
 
@@ -37,7 +44,6 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
   late ProjectModel _selectedProject;
 
   final ValueNotifier<List<dynamic>> selectedVendorList = ValueNotifier([]);
-  final Set<int> selectedVendorIndex = {};
   final ValueNotifier<MaterialRequisitionModel?> materialRequisitionOverview =
       ValueNotifier(null);
   bool isQuotationFetched = false;
@@ -46,6 +52,7 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
     super.initState();
     _finalizeVendorCubit = context.read<FinalizeVendorCubit>();
     _selectedProject = getProject();
+    _loadMaterialData();
   }
 
   Future<void> initOverview() async {
@@ -57,25 +64,68 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
         materialRequisitionOverview.value?.materialRequisitionId ?? 0,
         materialRequisitionOverview.value?.uniquekey ?? "",
       );
+      final finalVendorId = materialRequisitionOverview.value?.finalVendor;
 
+      for (var v in vendors) {
+        v.isSelected = v.vendorId.toString() == finalVendorId;
+      }
       selectedVendorList.value = vendors;
     } else {
       selectedVendorList.value = [];
     }
   }
 
-  void _toggleVendorSelection(int index) {
-    setState(() {
-      if (selectedVendorIndex.contains(index)) {
-        selectedVendorIndex.remove(index);
-      } else {
-        selectedVendorIndex.add(index);
-      }
-    });
+  Future<void> _loadMaterialData() async {
+    final materialCubit = context.read<MaterialRequisitionCubit>();
+
+    final data = await materialCubit.getMaterialRequisitionDetailsById(
+      context,
+      1,
+      widget.projectId,
+      widget.materialRequisitionId,
+    );
+
+    materialRequisitionOverview.value = data;
+    await initOverview();
   }
 
-  bool _isSelected(int index) {
-    return selectedVendorIndex.contains(index);
+  void _onFinalizeVendorTap() async {
+    await _finalizeVendorCubit.addFinalizedVendor(
+      context: context,
+      projectId: _selectedProject.projectId,
+      materialRequisition: MaterialRequisitionModel(
+        materialRequisitionId: widget.materialRequisitionId,
+        uniquekey: widget.uniquekey,
+        systemGeneratedCode: widget.systemGeneratedCode,
+        projectId: widget.projectId,
+        projectName: '',
+        attachmentsURL: '',
+        remarks: '',
+        clientRegistrationId: 0,
+        materialRequisitionStage: '',
+        materialRequisitionStatus: '',
+        finalVendor: '',
+        isSplit: false,
+        isCopy: false,
+        isRequisitionAction: false,
+        createdById: 0,
+        createdBy: '',
+        createdDate: DateTime.now(),
+        modifiedById: 0,
+        modifiedBy: '',
+        modifiedDate: DateTime.now(),
+        paidAmount: 0,
+        totalPoAmount: 0,
+        totalInoviceAmount: 0,
+        totalInvoice: 0,
+        purchaseOrderURL: '',
+        isApprovalVendorFinalization: false,
+        isApprovalInvoice: false,
+        vendorFinalizationApprovalStatus: '',
+        invoiceApprovalStatus: '',
+        materialRequisitionDetailData: [],
+      ),
+    );
   }
 
   @override
@@ -87,8 +137,8 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
         }
         final vendorForFinalize = state.vendorFinalisationForComparison;
         return ValueListenableBuilder(
-          valueListenable: selectedVendorList,
-          builder: (context, value, child) {
+          valueListenable: materialRequisitionOverview,
+          builder: (context, overview, child) {
             return SafeArea(
               child: Container(
                 padding: EdgeInsets.all(20.0),
@@ -112,8 +162,36 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                         Expanded(
                           child: GestureDetector(
                             onTap: () {
-                              _finalizeVendorCubit.changeView(
-                                FinalizeVendorViewType.getQuotation,
+                              final systemGeneratedCode = Uri.encodeComponent(
+                                EncryptionManager.encryptData(
+                                  widget.systemGeneratedCode,
+                                ),
+                              );
+                              final materialRequisitionId = Uri.encodeComponent(
+                                EncryptionManager.encryptData(
+                                  widget.materialRequisitionId.toString(),
+                                ),
+                              );
+                              final projectID = Uri.encodeComponent(
+                                EncryptionManager.encryptData(
+                                  widget.projectId.toString(),
+                                ),
+                              );
+                              final uniquekey = Uri.encodeComponent(
+                                EncryptionManager.encryptData(
+                                  widget.uniquekey.toString(),
+                                ),
+                              );
+
+                              goRouter.pushNamed(
+                                AppRoutes.finalizeVendorGetQuotation,
+                                queryParameters: {
+                                  'systemGeneratedCode': systemGeneratedCode,
+                                  'materialRequisitionId':
+                                      materialRequisitionId,
+                                  'projectId': projectID,
+                                  'uniquekey': uniquekey,
+                                },
                               );
                             },
                             child: Container(
@@ -137,27 +215,43 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                         ),
                         horizontalSpacing(width: 8.h),
                         Expanded(
-                          child: Container(
-                            margin: EdgeInsets.only(bottom: 12),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20.0,
-                              vertical: 6.0,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(6.0),
-                              color: AppColor.green.withValues(alpha: 0.14),
-                            ),
-                            child: Text(
-                              "Finalize Vendor",
-                              style: AppTextStyle.ts12M(color: AppColor.green),
+                          child: GestureDetector(
+                            onTap: _onFinalizeVendorTap,
+                            child: Container(
+                              margin: EdgeInsets.only(bottom: 12),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20.0,
+                                vertical: 6.0,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(6.0),
+                                color: AppColor.green.withValues(alpha: 0.14),
+                              ),
+                              child: Text(
+                                "Finalize Vendor",
+                                style: AppTextStyle.ts12M(
+                                  color: AppColor.green,
+                                ),
+                              ),
                             ),
                           ),
                         ),
                         horizontalSpacing(width: 8.h),
-                        SvgPicture.asset(
-                          AppAssets.compareVendorIcon,
-                          height: 24.h,
-                          width: 24.w,
+                        GestureDetector(
+                          onTap: () {
+                            _finalizeVendorCubit.compareVendor(
+                              context,
+                              "exportType",
+                              _selectedProject.projectId,
+                              widget.materialRequisitionId,
+                              widget.uniquekey,
+                            );
+                          },
+                          child: SvgPicture.asset(
+                            AppAssets.compareVendorIcon,
+                            height: 24.h,
+                            width: 24.w,
+                          ),
                         ),
                       ],
                     ),
@@ -177,6 +271,10 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                                     .materialRequisitionQuotationTermsData
                                     .first
                                 : null;
+                        final isFinalized =
+                            overview?.finalVendor.trim().toLowerCase() ==
+                            vendor.vendorName.trim().toLowerCase();
+
                         return Container(
                           margin: EdgeInsets.only(bottom: 12),
                           padding: EdgeInsets.all(16),
@@ -184,54 +282,63 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              /// HEADER
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Row(
                                     children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          _toggleVendorSelection(index);
+                                      CustomCheckBox(
+                                        isSelected:
+                                            isFinalized || vendor.isSelected,
+                                        onChanged: (value) {
+                                          if (isFinalized) return;
+                                          _finalizeVendorCubit
+                                              .toggleVendorSelection(
+                                                vendor.vendorId,
+                                              );
                                         },
-                                        child: Container(
-                                          width: 22,
-                                          height: 22,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              6,
-                                            ),
-                                            border: Border.all(
-                                              color:
-                                                  _isSelected(index)
-                                                      ? AppColor.primary
-                                                      : AppColor.primary
-                                                          .withValues(
-                                                            alpha: 0.4,
-                                                          ),
-                                              width: 2,
-                                            ),
-                                            color:
-                                                _isSelected(index)
-                                                    ? AppColor.primary
-                                                        .withValues(alpha: 0.2)
-                                                    : Colors.transparent,
-                                          ),
-                                          child:
-                                              _isSelected(index)
-                                                  ? Icon(
-                                                    Icons.check,
-                                                    size: 14,
-                                                    color: AppColor.primary,
-                                                  )
-                                                  : null,
-                                        ),
                                       ),
                                       horizontalSpacing(width: 10.w),
                                       GestureDetector(
-                                        onTap: () {
-                                          widget.onVendorTap?.call(vendor);
+                                        onTap: () async {
+                                          final materials =
+                                              materialRequisitionOverview
+                                                  .value
+                                                  ?.materialRequisitionDetailData ??
+                                              [];
+
+                                          final updatedVendors =
+                                              await _finalizeVendorCubit
+                                                  .getSelectedVenodeForCompare(
+                                                    context,
+                                                    _selectedProject.projectId,
+                                                    widget
+                                                        .materialRequisitionId,
+                                                    widget.uniquekey,
+                                                  );
+
+                                          final selectedVendor = updatedVendors
+                                              .firstWhere(
+                                                (v) =>
+                                                    v.vendorId ==
+                                                    vendor.vendorId,
+                                                orElse: () => vendor,
+                                              );
+
+                                          await goRouter.pushNamed(
+                                            AppRoutes.finalizeEditVendor,
+                                            extra: {
+                                              "vendor": selectedVendor,
+                                              "materials": materials,
+                                              "systemGeneratedCode":
+                                                  widget.systemGeneratedCode,
+                                              "projectId": widget.projectId,
+                                              "materialRequisitionId":
+                                                  widget.materialRequisitionId,
+                                              "uniquekey": widget.uniquekey,
+                                            },
+                                          );
                                         },
                                         child: Text(
                                           vendor.vendorName,
@@ -259,16 +366,12 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                                   ),
                                 ],
                               ),
-
                               verticalSpacing(height: 12),
-
-                              /// DETAILS
                               _buildRow("Company Name", vendor.companyName),
                               _buildRow(
                                 "Base Amount",
                                 "₹${vedorQuotationOfSelecetdVendor?.total.toInt() ?? 0}",
                               ),
-
                               _buildRow(
                                 "Total Tax",
                                 "₹${_calculateTax(vendor)}",
@@ -338,7 +441,7 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
     if (terms.isEmpty) return 0;
 
     final total = terms.first.total;
-    final base = total - 4000; // 🔥 Replace with actual logic if API gives tax
+    final base = total - 4000;
 
     return (total - base).toInt();
   }

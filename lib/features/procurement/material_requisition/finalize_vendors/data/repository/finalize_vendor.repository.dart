@@ -38,6 +38,12 @@ abstract interface class FinalizeVendorRepository {
     required String uniquekey,
     Map<String, dynamic> queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>> compareFinalizedVendor({
+    required int projectId,
+    required int materialRequisitionId,
+    required String uniqueKey,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class FinalizeVendorRepositoryImpl implements FinalizeVendorRepository {
@@ -156,6 +162,26 @@ class FinalizeVendorRepositoryImpl implements FinalizeVendorRepository {
             materialRequisitionId: materialRequisitionId,
             uniquekey: uniquekey,
             queryParams: queryParams,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> compareFinalizedVendor({
+    required int projectId,
+    required int materialRequisitionId,
+    required String uniqueKey,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await finalizeVendorDatasource
+          .apicallPullFinalizeVendorForExport(
+            projectId: projectId,
+            materialRequisitionId: materialRequisitionId,
+            uniqueKey: uniqueKey,
           );
       return right(result);
     } catch (error) {

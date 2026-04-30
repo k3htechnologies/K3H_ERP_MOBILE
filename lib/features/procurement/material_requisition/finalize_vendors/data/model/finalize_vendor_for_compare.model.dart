@@ -1,46 +1,48 @@
 import 'package:k3h_erp_app/utils/common_function.dart';
 
 class FinalizeVendorForComparisonModel {
-  final int vendorId;
-  final String uniquekey;
-  final String companyName;
-  final String companyType;
-  final String vendorName;
-  final String mobileNumber;
-  final String emailId;
-  final String aadharCardNumber;
-  final String aadharCardUrl;
-  final String panCardNumber;
-  final String panCardUrl;
-  final String gstNumber;
-  final String gstCertificateUrl;
-  final String address;
-  final int countryMasterId;
-  final String countryName;
-  final int stateMasterId;
-  final String stateName;
-  final int districtMasterId;
-  final String districtName;
-  final int cityMasterId;
-  final String cityName;
-  final String availableMaterialList;
-  final String availableContractList;
-  final int createdById;
-  final String createdBy;
-  final DateTime? createdDate;
-  final int modifiedById;
-  final String modifiedBy;
-  final DateTime? modifiedDate;
-  final bool isApproval;
-  final bool isFinalized;
-  final String vendorFinalizationApproval;
-  final List<MaterialRequisitionQuotationTermsDatum>
+  int vendorId;
+  String uniquekey;
+  String companyName;
+  String companyType;
+  String vendorName;
+  String mobileNumber;
+  String emailId;
+  String aadharCardNumber;
+  String aadharCardUrl;
+  String panCardNumber;
+  String panCardUrl;
+  String gstNumber;
+  String gstCertificateUrl;
+  String address;
+  int countryMasterId;
+  String countryName;
+  int stateMasterId;
+  String stateName;
+  int districtMasterId;
+  String districtName;
+  int cityMasterId;
+  String cityName;
+  String availableMaterialList;
+  String availableContractList;
+  int createdById;
+  String createdBy;
+  DateTime? createdDate;
+  int modifiedById;
+  String modifiedBy;
+  DateTime? modifiedDate;
+  bool isApproval;
+  bool isFinalized;
+  String vendorFinalizationApproval;
+  List<MaterialRequisitionQuotationTermsDatum>
   materialRequisitionQuotationTermsData;
-  final List<dynamic> subMaterialMasterData;
-  final List<dynamic> contractTypeMasterData;
-  final String magicLinkUrl;
-  final String systemGeneratedCode;
-  final String projectName;
+  List<dynamic> subMaterialMasterData;
+  List<dynamic> contractTypeMasterData;
+  String magicLinkUrl;
+  String systemGeneratedCode;
+  String projectName;
+  // IT IS USED IN ENQUIRY REQUISITION SCREEN
+  bool isSelected = false;
 
   FinalizeVendorForComparisonModel({
     required this.vendorId,
@@ -82,6 +84,7 @@ class FinalizeVendorForComparisonModel {
     required this.magicLinkUrl,
     required this.systemGeneratedCode,
     required this.projectName,
+    this.isSelected = false,
   });
 
   factory FinalizeVendorForComparisonModel.fromJson(
@@ -191,14 +194,13 @@ class FinalizeVendorForComparisonModel {
 
 class MaterialRequisitionQuotationTermsDatum {
   final int materialRequisitionQuotationTermsId;
-  final String uniquekey;
-  final int materialRequisitionId;
-  final int vendorId;
-  final double expectedDeliveryInDays;
-  final double expectedPaymentInDays;
-  final double total;
-  final List<MaterialRequisitionQuotationDatum>
-  materialRequisitionQuotationData;
+  String uniquekey;
+  int materialRequisitionId;
+  int vendorId;
+  int expectedDeliveryInDays;
+  int expectedPaymentInDays;
+  double total;
+  List<MaterialRequisitionQuotationDatum> materialRequisitionQuotationData;
   final String systemGeneratedCode;
   final String projectName;
   final String companyName;
@@ -233,10 +235,8 @@ class MaterialRequisitionQuotationTermsDatum {
     uniquekey: parseValue<String>(json, "Uniquekey"),
     materialRequisitionId: parseValue<int>(json, "MaterialRequisitionId"),
     vendorId: parseValue<int>(json, "VendorId"),
-    expectedDeliveryInDays:
-        parseValue<double>(json, "ExpectedDeliveryInDays").toDouble(),
-    expectedPaymentInDays:
-        parseValue<double>(json, "ExpectedPaymentInDays").toDouble(),
+    expectedDeliveryInDays: parseValue<int>(json, "ExpectedDeliveryInDays"),
+    expectedPaymentInDays: parseValue<int>(json, "ExpectedPaymentInDays"),
     total: parseValue<double>(json, "Total").toDouble(),
     materialRequisitionQuotationData:
         List<MaterialRequisitionQuotationDatum>.from(
@@ -273,23 +273,23 @@ class MaterialRequisitionQuotationTermsDatum {
 }
 
 class MaterialRequisitionQuotationDatum {
-  final int materialRequisitionQuotationId;
-  final String uniquekey;
-  final int materialRequisitionQuotationTermsId;
-  final int materialRequisitionDetailId;
-  final String materialCode;
-  final String materialName;
-  final String subMaterialName;
-  final String uomCode;
-  final String uom;
-  final double materialQuantity;
-  final double materialPerUnit;
-  final String logistics;
-  final double amount;
-  final double cgst;
-  final double sgst;
+  int materialRequisitionQuotationId;
+  String uniquekey;
+  int materialRequisitionQuotationTermsId;
+  int materialRequisitionDetailId;
+  String materialCode;
+  String materialName;
+  String subMaterialName;
+  String uomCode;
+  String uom;
+  double materialQuantity;
+  double materialPerUnit;
+  String logistics;
+  double amount;
+  double cgst;
+  double sgst;
   final double ugst;
-  final double tgst;
+  double tgst;
 
   MaterialRequisitionQuotationDatum({
     required this.materialRequisitionQuotationId,
