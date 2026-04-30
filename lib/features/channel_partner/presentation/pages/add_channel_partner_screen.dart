@@ -273,9 +273,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
           isCompanyPrefilled.value = true;
 
-          selectedFirmsType.value = firmsType.firstWhere(
+          selectedFirmsType.value = firmTypeList.firstWhere(
             (e) => e['DisplayName'] == data.firmsType,
-            orElse: () => firmsType[0],
+            orElse: () => firmTypeList[0],
           );
           selectedGSTCertificateForPopUpFile.value = MultiFilePickerModel(
             fileBytesList: [],
@@ -341,7 +341,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
       _companyNameC.text = channelPartnerMasterModel.companyName;
 
-      selectedFirmsType.value = firmsType.firstWhere(
+      selectedFirmsType.value = firmTypeList.firstWhere(
         (e) => e['DisplayName'] == channelPartnerMasterModel.firmsType,
       );
     } else {
@@ -363,9 +363,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
       orElse: () => specialityList.first,
     );
 
-    selectedFirmsType.value = firmsType.firstWhere(
+    selectedFirmsType.value = firmTypeList.firstWhere(
       (e) => e['DisplayName'] == channelPartnerMasterModel.firmsType,
-      orElse: () => firmsType.first,
+      orElse: () => firmTypeList.first,
     );
 
     selectedType.value = type.firstWhere(
@@ -899,7 +899,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                     title: "Firms Type",
                                     isRequired: true,
                                     hintText: "Select Firms Type",
-                                    dataList: firmsType,
+                                    dataList: firmTypeList,
                                     initialValue: firmsValue,
                                     onSelected: (value) {
                                       selectedFirmsType.value = value;

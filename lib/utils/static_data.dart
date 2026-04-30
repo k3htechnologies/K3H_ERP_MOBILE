@@ -246,7 +246,7 @@ final List<Map<String, dynamic>> companyTypeList = [
   {"zAttributesId": 2, "DisplayName": "Existing Company"},
 ];
 
-final List<Map<String, dynamic>> firmsType = [
+final List<Map<String, dynamic>> firmTypeList = [
   {"zAttributesId": 1, "DisplayName": "LLP"},
   {"zAttributesId": 2, "DisplayName": "Private Limited Company"},
   {"zAttributesId": 3, "DisplayName": "Proprietorship"},
@@ -344,4 +344,10 @@ final List<Map<String, dynamic>> courtTypeList = [
   {"zAttributesId": 3, "DisplayName": "High Court"},
   {"zAttributesId": 4, "DisplayName": "Session Court"},
   {"zAttributesId": 4, "DisplayName": "Supreme Court"},
+];
+//  Company Master
+final List<Map<String, dynamic>> genderList = const [
+  {"zAttributesId": 1, "DisplayName": "Male"},
+  {"zAttributesId": 2, "DisplayName": "Female"},
+  {"zAttributesId": 3, "DisplayName": "Other"},
 ];

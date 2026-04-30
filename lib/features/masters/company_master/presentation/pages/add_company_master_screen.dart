@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/utils/static_data.dart';
 import 'package:k3h_erp_app/widgets/address/address_widget.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -59,13 +60,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
 
   // INITIAL STATE FIRMS TYPE
   late final ValueNotifier<Map<String, dynamic>?> _selectedFirmsTypeNotifier;
-
-  // COMPANY TYPE LIST
-  List<Map<String, dynamic>> firmTypeList = [
-    {"zAttributesId": 1, "DisplayName": "LLP"},
-    {"zAttributesId": 2, "DisplayName": "Private Limited Company"},
-    {"zAttributesId": 3, "DisplayName": "Proprietorship"},
-  ];
 
   // FORM KEYS (one per section)
   final _formKeys = [
@@ -225,12 +219,12 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       (_) => Uint8List(0),
     );
     selectedTANFile.fileNameList =
-    company?.tanURL == null || company?.tanURL == ""
-        ? []
-        : company!.tanURL.split(",");
+        company?.tanURL == null || company?.tanURL == ""
+            ? []
+            : company!.tanURL.split(",");
     selectedTANFile.fileBytesList = List.generate(
       selectedTANFile.fileNameList.length,
-          (_) => Uint8List(0),
+      (_) => Uint8List(0),
     );
 
     selectedPANCardFile.fileNameList =
@@ -316,19 +310,16 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
 
   // <---- DELETE COMPANY PARTNER ---->
   Future<void> _showPopupToDeleteCompanyPartner(
-      BuildContext context,
-      int index,
-      ) async {
+    BuildContext context,
+    int index,
+  ) async {
     var result = await DialogHelper.deleteDialog(
       context,
       'You are about to delete a company partner ?',
       'Deleting this company partner will permanently remove all associated data.',
     );
     if (result && context.mounted) {
-      _companyMasterAddCubit.deleteCompanyPartnerData(
-        context,
-        index,
-      );
+      _companyMasterAddCubit.deleteCompanyPartnerData(context, index);
     }
   }
 
@@ -977,7 +968,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                   CustomIconButton.delete(
                     onPressed: () {
                       if (index != null) {
-                       _showPopupToDeleteCompanyPartner(context, index);
+                        _showPopupToDeleteCompanyPartner(context, index);
                       }
                     },
                   ),
@@ -1025,7 +1016,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-horizontalSpacing(width: 8),
+                      horizontalSpacing(width: 8),
                       CustomIconButton(
                         onPressed: () {
                           final panFile = companyPartnerModel.panCardFile;
@@ -1090,14 +1081,17 @@ horizontalSpacing(width: 8),
 
                       CustomIconButton(
                         onPressed: () {
-                          final aadhaarFile = companyPartnerModel.aadharCardFile;
+                          final aadhaarFile =
+                              companyPartnerModel.aadharCardFile;
 
                           List<String> urls = [];
 
                           if (aadhaarFile != null &&
                               aadhaarFile.fileNameList.isNotEmpty) {
                             urls = aadhaarFile.fileNameList;
-                          } else if (companyPartnerModel.aadharCardURL.isNotEmpty) {
+                          } else if (companyPartnerModel
+                              .aadharCardURL
+                              .isNotEmpty) {
                             urls = companyPartnerModel.aadharCardURL.split(",");
                           }
                           List<Uint8List>? bytes;
@@ -1106,8 +1100,9 @@ horizontalSpacing(width: 8),
                               aadhaarFile.fileBytesList.isNotEmpty) {
                             bytes = aadhaarFile.fileBytesList;
                           }
-                          if (urls.isEmpty && (bytes == null || bytes.isEmpty)) {
-                            showErrorMessage(context, "","No file available");
+                          if (urls.isEmpty &&
+                              (bytes == null || bytes.isEmpty)) {
+                            showErrorMessage(context, "", "No file available");
                             return;
                           }
                           CommonFileViewerMobile.show(
