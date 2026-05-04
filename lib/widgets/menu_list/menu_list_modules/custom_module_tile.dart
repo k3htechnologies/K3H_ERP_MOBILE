@@ -48,8 +48,7 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
     "assets/sideDrawer/crmModule.svg": AppAssets.dashboardFilledIcon,
     "assets/sideDrawer/settingsModule.svg":
         AppAssets.settingDashboardFilledIcon,
-    "assets/sideDrawer/payRollModule.svg":
-    AppAssets.payRollDashboardFilledIcon,
+    "assets/sideDrawer/payRollModule.svg": AppAssets.payRollDashboardFilledIcon,
   };
   // Helper method to get the correct icon path
   String _getIconPath(String iconPath) {
@@ -107,7 +106,6 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
                 initiallyExpanded: widget.isExpanded,
                 childrenPadding: const EdgeInsets.only(left: 15.0),
 
-                // ✅ keep these
                 shape: const Border(),
                 collapsedShape: const Border(),
 

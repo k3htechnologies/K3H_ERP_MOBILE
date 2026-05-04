@@ -70,7 +70,7 @@ Widget _buildNavItem({
             Positioned(
               bottom: 8,
               child: Opacity(
-                opacity: isActive ? 0 : 1, // 👈 hide, don’t remove
+                opacity: isActive ? 0 : 1,
                 child: Text(
                   label,
                   style: AppTextStyle.ts12R(
@@ -84,7 +84,7 @@ Widget _buildNavItem({
             Transform.translate(
               offset:
                   isActive
-                      ? const Offset(0, -12) // 👈 lift ALL items
+                      ? const Offset(0, -12)
                       : Offset.zero,
               child: Container(
                 padding: const EdgeInsets.all(10),

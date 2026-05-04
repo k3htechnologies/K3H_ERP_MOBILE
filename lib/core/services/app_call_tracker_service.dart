@@ -149,7 +149,6 @@ class AppCallTrackerService {
 }
 */
 
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -232,59 +231,60 @@ class AppCallTrackerService {
     try {
       _subscription = CallStateListener.callStateStream
           .handleError((error, stackTrace) {
-        if (kDebugMode) {
-          debugPrint('CallStateListener error: $error');
-        }
-      }).listen((String state) {
-        debugPrint('Call state => $state');
-        debugPrint('Pending => $_pendingCallNumber');
-        debugPrint('Current => $_currentCallNumber');
-
-        switch (state) {
-          case 'OFFHOOK':
-            if (_pendingCallNumber != null) {
-              _currentCallNumber = _pendingCallNumber;
-              _pendingCallNumber = null;
-              _callStartTime = DateTime.now();
-              debugPrint(
-                'Call started for $_currentCallNumber at $_callStartTime',
-              );
+            if (kDebugMode) {
+              debugPrint('CallStateListener error: $error');
             }
-            break;
+          })
+          .listen((String state) {
+            debugPrint('Call state => $state');
+            debugPrint('Pending => $_pendingCallNumber');
+            debugPrint('Current => $_currentCallNumber');
 
-          case 'IDLE':
-            if (_callStartTime != null && _currentCallNumber != null) {
-              final endedAt = DateTime.now();
-              final durationSeconds =
-                  endedAt.difference(_callStartTime!).inSeconds;
+            switch (state) {
+              case 'OFFHOOK':
+                if (_pendingCallNumber != null) {
+                  _currentCallNumber = _pendingCallNumber;
+                  _pendingCallNumber = null;
+                  _callStartTime = DateTime.now();
+                  debugPrint(
+                    'Call started for $_currentCallNumber at $_callStartTime',
+                  );
+                }
+                break;
 
-              final entry = AppInitiatedCallEntry(
-                phoneNumber: _currentCallNumber!,
-                startedAt: _callStartTime!,
-                endedAt: endedAt,
-                durationSeconds: durationSeconds,
-                isSynced: false,
-              );
+              case 'IDLE':
+                if (_callStartTime != null && _currentCallNumber != null) {
+                  final endedAt = DateTime.now();
+                  final durationSeconds =
+                      endedAt.difference(_callStartTime!).inSeconds;
 
-              debugPrint(
-                'Saving call log => ${entry.phoneNumber}, duration => ${entry.durationSeconds}',
-              );
+                  final entry = AppInitiatedCallEntry(
+                    phoneNumber: _currentCallNumber!,
+                    startedAt: _callStartTime!,
+                    endedAt: endedAt,
+                    durationSeconds: durationSeconds,
+                    isSynced: false,
+                  );
 
-              _saveLog(entry);
+                  debugPrint(
+                    'Saving call log => ${entry.phoneNumber}, duration => ${entry.durationSeconds}',
+                  );
 
-              final savedLogs = getAppInitiatedCallLogs();
-              debugPrint('Total local logs => ${savedLogs.length}');
+                  _saveLog(entry);
 
-              _currentCallNumber = null;
-              _callStartTime = null;
-              logsUpdated.value++;
+                  final savedLogs = getAppInitiatedCallLogs();
+                  debugPrint('Total local logs => ${savedLogs.length}');
+
+                  _currentCallNumber = null;
+                  _callStartTime = null;
+                  logsUpdated.value++;
+                }
+                break;
+
+              default:
+                break;
             }
-            break;
-
-          default:
-            break;
-        }
-      });
+          });
     } catch (e, st) {
       if (kDebugMode) {
         debugPrint('Failed to start CallStateListener: $e\n$st');
@@ -336,7 +336,7 @@ class AppCallTrackerService {
 
     debugPrint("Force call start => $number");
 
-    // 🔥 fallback save after delay (important)
+    // fallback save after delay
     Future.delayed(const Duration(seconds: 10), () {
       if (_currentCallNumber != null && _callStartTime != null) {
         final endedAt = DateTime.now();
@@ -364,24 +364,25 @@ class AppCallTrackerService {
     final logs = getAppInitiatedCallLogs();
     final now = DateTime.now();
 
-    final todayLogs = logs.where((log) {
-      final d = log.startedAt;
-      return d.year == now.year && d.month == now.month && d.day == now.day;
-    }).toList();
-
+    final todayLogs =
+        logs.where((log) {
+          final d = log.startedAt;
+          return d.year == now.year && d.month == now.month && d.day == now.day;
+        }).toList();
 
     if (todayLogs.isEmpty) return true;
 
-    final payload = todayLogs
-        .map(
-          (log) => {
-        "MobileNumber": log.phoneNumber,
-        "CallDate": _formatCallDateForApi(log.startedAt),
-        "Duration": _formatDurationForApi(log.durationSeconds),
-        "Status": "",
-      },
-    )
-        .toList();
+    final payload =
+        todayLogs
+            .map(
+              (log) => {
+                "MobileNumber": log.phoneNumber,
+                "CallDate": _formatCallDateForApi(log.startedAt),
+                "Duration": _formatDurationForApi(log.durationSeconds),
+                "Status": "",
+              },
+            )
+            .toList();
 
     final wrapper = {
       "ProjectId": getProject().projectId,

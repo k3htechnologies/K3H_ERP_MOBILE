@@ -46,7 +46,6 @@ class InventoryState extends BaseState {
     InventoryDashboardModel? inventoryDashboardModel,
     List<InventoryDashboardModel>? inventoryDashboardModelList,
 
-    // ✅ ADD
     Map<String, Map<String, int>>? wingCounts,
     String? wingCurrentPageKey,
     int? wingCurrentPage,
@@ -59,8 +58,6 @@ class InventoryState extends BaseState {
           inventoryDashboardModel ?? this.inventoryDashboardModel,
       inventoryDashboardModelList:
           inventoryDashboardModelList ?? this.inventoryDashboardModelList,
-
-      // ✅ ADD
       wingCounts: wingCounts ?? this.wingCounts,
       searchText: searchText ?? this.searchText,
       originalBuildingList: originalBuildingList ?? this.originalBuildingList,
@@ -76,8 +73,9 @@ class InventoryState extends BaseState {
     currentTabIndex,
     inventoryDashboardModel,
     inventoryDashboardModelList,
-    wingCounts, // ✅ ADDcurrentPage,
-    originalBuildingList, wingCurrentPageKey,
+    wingCounts,
+    originalBuildingList,
+    wingCurrentPageKey,
     wingCurrentPage,
     wingCurrentPageKey,
   ];

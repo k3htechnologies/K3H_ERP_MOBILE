@@ -140,48 +140,68 @@ class _CustomMonthYearPickerState extends State<CustomMonthYearPicker> {
                                               ),
                                               const SizedBox(height: 16),
 
-                                              /// 🔥 WRAP GRID
+                                              /// WRAP GRID
                                               SizedBox(
                                                 height: 250, // scrollable area
                                                 child: SingleChildScrollView(
                                                   child: Wrap(
                                                     spacing: 10,
                                                     runSpacing: 10,
-                                                    children: List.generate(
-                                                      maxYear - minYear + 1,
-                                                          (i) {
-                                                        final y = minYear + i;
-                                                        final isSelected = y == selectedYear;
+                                                    children: List.generate(maxYear - minYear + 1, (
+                                                      i,
+                                                    ) {
+                                                      final y = minYear + i;
+                                                      final isSelected =
+                                                          y == selectedYear;
 
-                                                        return InkWell(
-                                                          onTap: () => Navigator.pop(context, y),
-                                                          child: Container(
-                                                            width: 70,
-                                                            height: 40,
-                                                            alignment: Alignment.center,
-                                                            decoration: BoxDecoration(
-                                                              color: isSelected
-                                                                  ? AppColor.primary.withValues(alpha: 0.1)
-                                                                  : null,
-                                                              border: Border.all(
-                                                                color: isSelected
-                                                                    ? AppColor.primary
-                                                                    : AppColor.grey30,
-                                                              ),
-                                                              borderRadius: BorderRadius.circular(8),
+                                                      return InkWell(
+                                                        onTap:
+                                                            () => Navigator.pop(
+                                                              context,
+                                                              y,
                                                             ),
-                                                            child: Text(
-                                                              y.toString(),
-                                                              style: TextStyle(
-                                                                color: isSelected
-                                                                    ? AppColor.primary
-                                                                    : Colors.black,
-                                                              ),
+                                                        child: Container(
+                                                          width: 70,
+                                                          height: 40,
+                                                          alignment:
+                                                              Alignment.center,
+                                                          decoration: BoxDecoration(
+                                                            color:
+                                                                isSelected
+                                                                    ? AppColor
+                                                                        .primary
+                                                                        .withValues(
+                                                                          alpha:
+                                                                              0.1,
+                                                                        )
+                                                                    : null,
+                                                            border: Border.all(
+                                                              color:
+                                                                  isSelected
+                                                                      ? AppColor
+                                                                          .primary
+                                                                      : AppColor
+                                                                          .grey30,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  8,
+                                                                ),
+                                                          ),
+                                                          child: Text(
+                                                            y.toString(),
+                                                            style: TextStyle(
+                                                              color:
+                                                                  isSelected
+                                                                      ? AppColor
+                                                                          .primary
+                                                                      : Colors
+                                                                          .black,
                                                             ),
                                                           ),
-                                                        );
-                                                      },
-                                                    ),
+                                                        ),
+                                                      );
+                                                    }),
                                                   ),
                                                 ),
                                               ),
@@ -232,7 +252,8 @@ class _CustomMonthYearPickerState extends State<CustomMonthYearPicker> {
                       runSpacing: 12,
                       children: List.generate(12, (i) {
                         final m = i + 1;
-                        final selected = selectedMonth != null && selectedMonth == m;
+                        final selected =
+                            selectedMonth != null && selectedMonth == m;
                         final disabled = isDisabled(m);
 
                         return InkWell(
@@ -323,7 +344,6 @@ class _CustomMonthYearPickerState extends State<CustomMonthYearPicker> {
                     vertical: 15.0,
                   ),
 
-                  /// ✅ FIXED HERE
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(6.0),
                     borderSide: BorderSide(
@@ -352,7 +372,10 @@ class _CustomMonthYearPickerState extends State<CustomMonthYearPicker> {
                             finalDate != null ? AppColor.black : AppColor.grey,
                       ),
                     ),
-                    const Icon(Icons.calendar_month_outlined, color: AppColor.grey),
+                    const Icon(
+                      Icons.calendar_month_outlined,
+                      color: AppColor.grey,
+                    ),
                   ],
                 ),
               ),

@@ -324,7 +324,7 @@ String formatApiTimeToAmPm(String? timeString) {
 ///
 /// Safe for mixed API types (int, double, null).
 String formatDecimalHours(num? hours) {
-  // 🔒 Null or invalid safety (ERP APIs often send null/0)
+  // Null or invalid safety (ERP APIs often send null/0)
   if (hours == null) return "-";
 
   // Convert hours to total minutes
@@ -354,7 +354,7 @@ String formatDecimalHours(num? hours) {
 /// "4:22"  -> 4 hours 22 minutes
 /// "" / {} / null -> Duration.zero (safe for bad ERP APIs)
 Duration parseWorkingHoursToDuration(String? workingHours) {
-  // 🔒 Handle null / empty / {} (your API sends {})
+  // Handle null / empty / {} (your API sends {})
   if (workingHours == null || workingHours.isEmpty || workingHours == "{}") {
     return Duration.zero;
   }
@@ -391,7 +391,7 @@ Duration calculateShiftDuration(DateTime? shiftStart, DateTime? shiftEnd) {
 
   Duration diff = shiftEnd.difference(shiftStart);
 
-  // 🛡 Safety: if backend sends wrong order or midnight edge case
+  // Safety: if backend sends wrong order or midnight edge case
   if (diff.isNegative) {
     diff = const Duration(hours: 9);
   }
@@ -572,7 +572,7 @@ String formatDateTimeForApi(DateTime d) {
 ///
 /// It prevents crashes and avoids showing "12 am" incorrectly.
 String dateFormatterHourOnly(String? timeString) {
-  // 🔒 Safety check for null or empty API values
+  //  Safety check for null or empty API values
   if (timeString == null || timeString.isEmpty) {
     return "-";
   }

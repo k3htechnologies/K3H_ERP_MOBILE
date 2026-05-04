@@ -30,22 +30,22 @@ class CommonFileViewerMobile extends StatefulWidget {
   State<CommonFileViewerMobile> createState() => _CommonFileViewerMobileState();
 
   static Future<void> show(
-      BuildContext context, {
-        required List<String> urls,
-        List<Uint8List>? fileBytes,
-        String title = "View File",
-      }) async {
+    BuildContext context, {
+    required List<String> urls,
+    List<Uint8List>? fileBytes,
+    String title = "View File",
+  }) async {
     await showDialog(
       context: context,
       builder:
           (_) => Dialog(
-        insetPadding: const EdgeInsets.all(16),
-        child: CommonFileViewerMobile(
-          urls: urls,
-          fileBytes: fileBytes,
-          title: title,
-        ),
-      ),
+            insetPadding: const EdgeInsets.all(16),
+            child: CommonFileViewerMobile(
+              urls: urls,
+              fileBytes: fileBytes,
+              title: title,
+            ),
+          ),
     );
   }
 }
@@ -72,7 +72,7 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
     if (bytes != null && bytes.isNotEmpty) return true;
 
     final ext = url.split('.').last.toLowerCase();
-    return ['jpg','jpeg','png','webp','heic','heif','gif'].contains(ext);
+    return ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif', 'gif'].contains(ext);
   }
 
   bool isPdf(String url) {
@@ -158,7 +158,7 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
           debugPrint("Failed to save");
         }
       } else {
-        // 📄 PDF / OTHER FILE → SAVE TO DOWNLOADS
+        // PDF / OTHER FILE → SAVE TO DOWNLOADS
 
         final dir = Directory('/storage/emulated/0/Download');
         if (!await dir.exists()) {
@@ -282,7 +282,7 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
                     itemBuilder: (context, index) {
                       final url = widget.urls[index];
 
-                      if (isImage(url,bytes: widget.fileBytes?[index])) {
+                      if (isImage(url, bytes: widget.fileBytes?[index])) {
                         return Container(
                           padding: const EdgeInsets.all(16.0),
                           child: Column(
@@ -305,10 +305,10 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
                           downloadFile(
                             url,
                             bytes:
-                            widget.fileBytes != null &&
-                                widget.fileBytes!.length > index
-                                ? widget.fileBytes![index]
-                                : null,
+                                widget.fileBytes != null &&
+                                        widget.fileBytes!.length > index
+                                    ? widget.fileBytes![index]
+                                    : null,
                           );
                           goRouter.pop();
                         });
@@ -366,11 +366,11 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
                 onPressed: () {
                   final url = widget.urls[_currentPageNotifier.value];
                   final bytes =
-                  widget.fileBytes != null &&
-                      widget.fileBytes!.length >
-                          _currentPageNotifier.value
-                      ? widget.fileBytes![_currentPageNotifier.value]
-                      : null;
+                      widget.fileBytes != null &&
+                              widget.fileBytes!.length >
+                                  _currentPageNotifier.value
+                          ? widget.fileBytes![_currentPageNotifier.value]
+                          : null;
                   downloadFile(url, bytes: bytes);
                 },
                 icon: Icon(

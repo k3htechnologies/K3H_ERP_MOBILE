@@ -8,7 +8,6 @@ class CustomPaginationDropDownWidget extends StatefulWidget {
   dataFetchCallBack;
   final Function(Map<String, dynamic>) onSelected;
 
-  // 🔒 KEPT AS-IS
   final List<Map<String, dynamic>>? dataList;
 
   final String? title;
@@ -132,7 +131,9 @@ class _CustomPaginationDropDownWidgetState
                       searchFieldProps: TextFieldProps(
                         decoration: InputDecoration(
                           hintText: 'Search...',
-                          hintStyle: AppTextStyle.ts14R().copyWith(color: AppColor.black),
+                          hintStyle: AppTextStyle.ts14R().copyWith(
+                            color: AppColor.black,
+                          ),
                           isDense: true,
                           prefixIcon: Icon(Icons.search, color: AppColor.black),
                           filled: true,

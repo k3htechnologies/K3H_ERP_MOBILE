@@ -184,7 +184,7 @@ class PerformanceCubit extends Cubit<PerformanceState> {
     DateTime? fromDate;
     DateTime? toDate;
 
-    /// 🔥 Priority: Manual filter > Auto period
+    /// PRIORITY : MANUAL FILTER > AUTO PERIOD
     if (state.filterStartDate != null && state.filterEndDate != null) {
       fromDate = state.filterStartDate;
       toDate = state.filterEndDate;
