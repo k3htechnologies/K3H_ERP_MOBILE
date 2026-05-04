@@ -112,6 +112,11 @@ class _MaterialRequisitionViewScreenState
           break;
 
         case 3:
+          if (_materialRequisitionCubit.state.finalizedVendor == null) {
+            showErrorMessage(context, "", "Please Finalized Vendor");
+            _tabController.animateTo(2);
+            return;
+          }
           _purchaseOrderCubit.getPurchaseOrder(
             context: context,
             projectId: widget.projectId,
@@ -120,6 +125,11 @@ class _MaterialRequisitionViewScreenState
           );
           break;
         case 4:
+          if (_materialRequisitionCubit.state.finalizedVendor == null) {
+            showErrorMessage(context, "", "Please Finalized Vendor");
+            _tabController.animateTo(2);
+            return;
+          }
           if (_purchaseOrderCubit.state.purchaseOrderList.isEmpty) {
             showErrorMessage(context, "", "Please Generate PO");
             _tabController.animateTo(3);
@@ -131,6 +141,18 @@ class _MaterialRequisitionViewScreenState
             materialRequisitionId: widget.materialRequisitionId,
             uniqueKey: widget.uniquekey,
           );
+          break;
+        case 5:
+          if (_materialRequisitionCubit.state.finalizedVendor == null) {
+            showErrorMessage(context, "", "Please Finalized Vendor");
+            _tabController.animateTo(2);
+            return;
+          }
+          if (_purchaseOrderCubit.state.purchaseOrderList.isEmpty) {
+            showErrorMessage(context, "", "Please Generate PO");
+            _tabController.animateTo(3);
+            return;
+          }
           break;
       }
     }
@@ -204,7 +226,7 @@ class _MaterialRequisitionViewScreenState
                         uniquekey: widget.uniquekey,
                       ),
                       GRNScreen(),
-                      _buildOverviewTab(state),
+                      Container(),
                     ],
                   ),
                 );

@@ -1,9 +1,13 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
@@ -16,6 +20,8 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -42,6 +48,8 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
   // CUBIT
   late FinalizeVendorCubit _finalizeVendorCubit;
   late ProjectModel _selectedProject;
+  late LoginCubit _loginCubit;
+  late MaterialRequisitionCubit _materialCubit;
 
   final ValueNotifier<List<dynamic>> selectedVendorList = ValueNotifier([]);
   final ValueNotifier<MaterialRequisitionModel?> materialRequisitionOverview =
@@ -51,6 +59,9 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
   void initState() {
     super.initState();
     _finalizeVendorCubit = context.read<FinalizeVendorCubit>();
+    _loginCubit = context.read<LoginCubit>();
+    _materialCubit = context.read<MaterialRequisitionCubit>();
+
     _selectedProject = getProject();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadMaterialData();
@@ -78,10 +89,8 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
   }
 
   Future<void> _loadMaterialData() async {
-    final materialCubit = context.read<MaterialRequisitionCubit>();
-
     materialRequisitionOverview.value =
-        materialCubit.state.materialRequisitionOverview;
+        _materialCubit.state.materialRequisitionOverview;
     await initOverview();
   }
 
@@ -135,6 +144,14 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
         return ValueListenableBuilder(
           valueListenable: materialRequisitionOverview,
           builder: (context, overview, child) {
+            final finalizedVendor =
+                vendorForFinalize.any((v) => v.isFinalized)
+                    ? vendorForFinalize.firstWhere((v) => v.isFinalized)
+                    : null;
+
+            final isApproved =
+                finalizedVendor?.vendorFinalizationApproval?.toLowerCase() ==
+                'approved';
             return SafeArea(
               child: Container(
                 padding: EdgeInsets.all(20.0),
@@ -156,8 +173,10 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: GestureDetector(
-                            onTap: () {
+                          child: CustomButton(
+                            text: "Get Quatation",
+                            backgroundColor: AppColor.green,
+                            onPressed: () {
                               final systemGeneratedCode = Uri.encodeComponent(
                                 EncryptionManager.encryptData(
                                   widget.systemGeneratedCode,
@@ -190,46 +209,15 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                                 },
                               );
                             },
-                            child: Container(
-                              margin: EdgeInsets.only(bottom: 12),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 20.0,
-                                vertical: 6.0,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(6.0),
-                                color: AppColor.green,
-                              ),
-                              child: Text(
-                                "Get Quotation",
-                                style: AppTextStyle.ts12M(
-                                  color: AppColor.white,
-                                ),
-                              ),
-                            ),
                           ),
                         ),
                         horizontalSpacing(width: 8.h),
                         Expanded(
-                          child: GestureDetector(
-                            onTap: _onFinalizeVendorTap,
-                            child: Container(
-                              margin: EdgeInsets.only(bottom: 12),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 20.0,
-                                vertical: 6.0,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(6.0),
-                                color: AppColor.green.withValues(alpha: 0.14),
-                              ),
-                              child: Text(
-                                "Finalize Vendor",
-                                style: AppTextStyle.ts12M(
-                                  color: AppColor.green,
-                                ),
-                              ),
-                            ),
+                          child: CustomButton(
+                            text: "Finalize Vendor",
+                            textColor: AppColor.green,
+                            backgroundColor: AppColor.lightGreen,
+                            onPressed: _onFinalizeVendorTap,
                           ),
                         ),
                         horizontalSpacing(width: 8.h),
@@ -251,151 +239,225 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                         ),
                       ],
                     ),
+                    if ((vendorForFinalize
+                            .where((v) => v.isFinalized)
+                            .isNotEmpty) ||
+                        (vendorForFinalize
+                            .where((v) => v.isSelected)
+                            .isNotEmpty)) ...[
+                      verticalSpacing(),
+                      ApproveRejectWidget(
+                        isActionAlreadyPerformed: isApproved,
+                        actionTitle: isApproved ? "Approved" : "Pending",
+                        onApprove: (remark) async {
+                          final isSuccess = await _loginCubit
+                              .updateModulesWorkflowApproval(
+                                context: context,
+                                moduleName: 'MATERIAL REQUISITION',
+                                id: widget.materialRequisitionId,
+                                projectId: widget.projectId,
+                                isApproved: true,
+                                remark: remark.trim(),
+                              );
 
-                    verticalSpacing(height: 10.h),
-                    ListView.builder(
-                      itemCount: vendorForFinalize.length,
-                      shrinkWrap: true,
-                      physics: AlwaysScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        final vendor = vendorForFinalize[index];
-                        final vedorQuotationOfSelecetdVendor =
-                            vendor
-                                    .materialRequisitionQuotationTermsData
-                                    .isNotEmpty
-                                ? vendor
-                                    .materialRequisitionQuotationTermsData
-                                    .first
-                                : null;
-                        final isFinalized =
-                            overview?.finalVendor.trim().toLowerCase() ==
-                            vendor.vendorName.trim().toLowerCase();
+                          if (context.mounted && isSuccess) {
+                            initOverview();
+                          }
+                        },
+                        isMaster: true,
+                        onReject: (remark) async {
+                          final isSuccess = await _loginCubit
+                              .updateModulesWorkflowApproval(
+                                context: context,
+                                moduleName: 'MATERIAL REQUISITION',
+                                id: widget.materialRequisitionId,
+                                projectId: widget.projectId,
+                                isApproved: false,
+                                remark: remark.trim(),
+                              );
 
-                        return Container(
-                          margin: EdgeInsets.only(bottom: 12),
-                          padding: EdgeInsets.all(16),
-                          decoration: commonCardDecoration(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      CustomCheckBox(
-                                        isSelected:
-                                            isFinalized || vendor.isSelected,
-                                        onChanged: (value) {
-                                          if (isFinalized) return;
-                                          _finalizeVendorCubit
-                                              .toggleVendorSelection(
-                                                vendor.vendorId,
-                                              );
-                                        },
-                                      ),
-                                      horizontalSpacing(width: 10.w),
-                                      GestureDetector(
-                                        onTap: () async {
-                                          final materials =
-                                              materialRequisitionOverview
-                                                  .value
-                                                  ?.materialRequisitionDetailData ??
-                                              [];
-
-                                          final updatedVendors =
-                                              await _finalizeVendorCubit
-                                                  .getSelectedVenodeForCompare(
-                                                    context,
-                                                    _selectedProject.projectId,
-                                                    widget
-                                                        .materialRequisitionId,
-                                                    widget.uniquekey,
-                                                  );
-
-                                          final selectedVendor = updatedVendors
-                                              .firstWhere(
-                                                (v) =>
-                                                    v.vendorId ==
-                                                    vendor.vendorId,
-                                                orElse: () => vendor,
-                                              );
-
-                                          await goRouter.pushNamed(
-                                            AppRoutes.finalizeEditVendor,
-                                            extra: {
-                                              "vendor": selectedVendor,
-                                              "materials": materials,
-                                              "systemGeneratedCode":
-                                                  widget.systemGeneratedCode,
-                                              "projectId": widget.projectId,
-                                              "materialRequisitionId":
-                                                  widget.materialRequisitionId,
-                                              "uniquekey": widget.uniquekey,
-                                            },
-                                          );
-                                        },
-                                        child: Text(
-                                          vendor.vendorName,
-                                          style: AppTextStyle.ts16M(
-                                            color: AppColor.primary,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                          if (context.mounted && isSuccess) {
+                            initOverview();
+                          }
+                        },
+                        onThirdTap: () async {
+                          final approvalLogHistoryList = await _loginCubit
+                              .getApprovalLogHistory(
+                                context: context,
+                                projectId: widget.projectId,
+                                id: widget.materialRequisitionId,
+                                moduleName: "FINALIZED VENDOR",
+                              );
+                          if (context.mounted) {
+                            goRouter.pushNamed(
+                              AppRoutes.approvalLogHistory,
+                              queryParameters: {
+                                "title": Uri.encodeComponent(
+                                  EncryptionManager.encryptData(
+                                    "Finalized Vendor Log History",
                                   ),
-                                  CustomIconButton(
-                                    onPressed: () async {
-                                      copy(
-                                        context: context,
-                                        text: widget.systemGeneratedCode,
-                                      );
-                                    },
-                                    backgroundColor: AppColor.white,
-
-                                    icon: Icon(
-                                      Icons.copy,
-                                      size: 16,
-                                      color: AppColor.primary,
+                                ),
+                                "approvalList": Uri.encodeComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(
+                                      approvalLogHistoryList
+                                          .map((e) => e.toJson())
+                                          .toList(),
                                     ),
                                   ),
-                                ],
-                              ),
-                              verticalSpacing(height: 12),
-                              _buildRow("Company Name", vendor.companyName),
-                              _buildRow(
-                                "Base Amount",
-                                addCommasToInteger(
-                                  vedorQuotationOfSelecetdVendor?.total ?? 0,
                                 ),
-                              ),
-                              _buildRow(
-                                "Total Tax",
+                              },
+                            );
+                          }
+                        },
+                        popupTitle: "Finalized Vendor",
+                      ),
+                    ],
+                    verticalSpacing(height: 10.h),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: vendorForFinalize.length,
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          final vendor = vendorForFinalize[index];
+                          final vedorQuotationOfSelecetdVendor =
+                              vendor
+                                      .materialRequisitionQuotationTermsData
+                                      .isNotEmpty
+                                  ? vendor
+                                      .materialRequisitionQuotationTermsData
+                                      .first
+                                  : null;
+                          final isFinalized = vendor.isFinalized;
 
-                                addCommasToInteger(
-                                  _calculateTax(vendor).toDouble(),
+                          return Container(
+                            margin: EdgeInsets.only(bottom: 12),
+                            padding: EdgeInsets.all(16),
+                            decoration: commonCardDecoration(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        CustomCheckBox(
+                                          isSelected:
+                                              isFinalized || vendor.isSelected,
+                                          onChanged: (value) {
+                                            if (isFinalized) return;
+                                            _finalizeVendorCubit
+                                                .toggleVendorSelection(
+                                                  vendor.vendorId,
+                                                );
+                                          },
+                                        ),
+                                        horizontalSpacing(width: 10.w),
+                                        GestureDetector(
+                                          onTap: () async {
+                                            final materials =
+                                                materialRequisitionOverview
+                                                    .value
+                                                    ?.materialRequisitionDetailData ??
+                                                [];
+
+                                            final updatedVendors =
+                                                await _finalizeVendorCubit
+                                                    .getSelectedVenodeForCompare(
+                                                      context,
+                                                      _selectedProject
+                                                          .projectId,
+                                                      widget
+                                                          .materialRequisitionId,
+                                                      widget.uniquekey,
+                                                    );
+
+                                            final selectedVendor =
+                                                updatedVendors.firstWhere(
+                                                  (v) =>
+                                                      v.vendorId ==
+                                                      vendor.vendorId,
+                                                  orElse: () => vendor,
+                                                );
+
+                                            await goRouter.pushNamed(
+                                              AppRoutes.finalizeEditVendor,
+                                              extra: {
+                                                "vendor": selectedVendor,
+                                                "materials": materials,
+                                                "systemGeneratedCode":
+                                                    widget.systemGeneratedCode,
+                                                "projectId": widget.projectId,
+                                                "materialRequisitionId":
+                                                    widget
+                                                        .materialRequisitionId,
+                                                "uniquekey": widget.uniquekey,
+                                              },
+                                            );
+                                          },
+                                          child: Text(
+                                            vendor.vendorName,
+                                            style: AppTextStyle.ts16M(
+                                              color: AppColor.primary,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    CustomIconButton(
+                                      onPressed: () async {
+                                        copy(
+                                          context: context,
+                                          text: widget.systemGeneratedCode,
+                                        );
+                                      },
+                                      backgroundColor: AppColor.white,
+
+                                      icon: Icon(
+                                        Icons.copy,
+                                        size: 16,
+                                        color: AppColor.primary,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                valueColor: Colors.orange,
-                              ),
-
-                              _buildRow(
-                                "Grand Total",
-                                addCommasToInteger(
-                                  _calculateGrandTotal(vendor).toDouble(),
+                                verticalSpacing(height: 12),
+                                _buildRow("Company Name", vendor.companyName),
+                                _buildRow(
+                                  "Base Amount",
+                                  addCommasToInteger(
+                                    vedorQuotationOfSelecetdVendor?.total ?? 0,
+                                  ),
                                 ),
-                                valueColor: AppColor.primary,
-                              ),
+                                _buildRow(
+                                  "Total Tax",
 
-                              _buildRow(
-                                "Est. Delivery",
-                                "${vedorQuotationOfSelecetdVendor?.expectedDeliveryInDays ?? 0} Days",
-                                valueColor: Colors.green,
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                                  addCommasToInteger(
+                                    _calculateTax(vendor).toDouble(),
+                                  ),
+                                  valueColor: Colors.orange,
+                                ),
+
+                                _buildRow(
+                                  "Grand Total",
+                                  addCommasToInteger(
+                                    _calculateGrandTotal(vendor).toDouble(),
+                                  ),
+                                  valueColor: AppColor.primary,
+                                ),
+
+                                _buildRow(
+                                  "Est. Delivery",
+                                  "${vedorQuotationOfSelecetdVendor?.expectedDeliveryInDays ?? 0} Days",
+                                  valueColor: Colors.green,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),

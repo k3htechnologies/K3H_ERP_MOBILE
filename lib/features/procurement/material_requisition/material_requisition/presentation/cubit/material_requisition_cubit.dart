@@ -137,7 +137,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
     int materialRequisitionId,
     String uniquekey,
   ) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isLoading: true, finalizedVendor: null));
 
     var result = await finalizeVendorRepository.getSelectedVendorForCompare(
       projectId: projectId,

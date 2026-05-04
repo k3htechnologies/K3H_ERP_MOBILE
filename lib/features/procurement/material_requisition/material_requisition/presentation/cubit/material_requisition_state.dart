@@ -32,6 +32,7 @@ final class MaterialRequisitionState extends BaseState {
       finalizedVendor: null,
     );
   }
+
   MaterialRequisitionState copyWith({
     bool? isLoading,
     List<MaterialRequisitionModel>? materialRequisitionList,
@@ -40,7 +41,8 @@ final class MaterialRequisitionState extends BaseState {
     int? currentPage,
     String? searchText,
     MaterialRequisitionModel? materialRequisitionOverview,
-    FinalizeVendorForComparisonModel? finalizedVendor,
+
+    Object? finalizedVendor = _noChange,
   }) {
     return MaterialRequisitionState(
       isLoading: isLoading ?? this.isLoading,
@@ -52,9 +54,14 @@ final class MaterialRequisitionState extends BaseState {
       materialList: materialList ?? this.materialList,
       materialRequisitionOverview:
           materialRequisitionOverview ?? this.materialRequisitionOverview,
-      finalizedVendor: finalizedVendor ?? this.finalizedVendor,
+      finalizedVendor:
+          finalizedVendor == _noChange
+              ? this.finalizedVendor
+              : finalizedVendor as FinalizeVendorForComparisonModel?,
     );
   }
+
+  static const _noChange = Object();
 
   @override
   List<Object?> get props => [

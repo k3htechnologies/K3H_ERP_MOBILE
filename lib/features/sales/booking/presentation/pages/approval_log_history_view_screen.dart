@@ -67,11 +67,13 @@ class ApprovalLogHistoryScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // SUB TITLE
-                      Text(
-                        subTitle,
-                        style: AppTextStyle.ts16M(color: AppColor.grey),
-                      ),
-                      const SizedBox(height: 16),
+                      if (subTitle.isNotEmpty) ...[
+                        Text(
+                          subTitle,
+                          style: AppTextStyle.ts16M(color: AppColor.grey),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
 
                       /// TIMELINE
                       ListView.builder(
