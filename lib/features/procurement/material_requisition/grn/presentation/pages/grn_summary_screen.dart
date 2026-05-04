@@ -20,6 +20,7 @@ class GrnSummaryScreen extends StatefulWidget {
 }
 
 class _GrnSummaryScreenState extends State<GrnSummaryScreen> {
+  // CUBIT
   late GrnCubit _grnCubit;
   late MaterialRequisitionCubit _materialRequisitionCubit;
   final ValueNotifier<List<GRNModel>?> grnList = ValueNotifier(null);
