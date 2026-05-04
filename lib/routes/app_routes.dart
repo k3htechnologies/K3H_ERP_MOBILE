@@ -87,7 +87,9 @@ class AppRoutes {
   static String addMaterialRequisition = "/addMaterialRequisition";
   static String viewMaterialRequisition = "/viewMaterialRequisition";
   static String addGrn = "/addGrn";
+  static String viewGrn = "/viewGrn";
   static String addGrnMaterial = "/addGrnMaterial";
+  static String grnSummary = "/grnSummary";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// INVENTORY

@@ -344,19 +344,15 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
           return [];
         }
 
-        final list =
-            rawList
-                .map((e) => FinalizeVendorForComparisonModel.fromJson(e))
-                .toList();
-
         emit(
           state.copyWith(
-            vendorFinalisationForComparison: list,
+            vendorFinalisationForComparison:
+                rawList as List<FinalizeVendorForComparisonModel>,
             isLoading: false,
           ),
         );
 
-        return list;
+        return rawList;
       },
     );
   }

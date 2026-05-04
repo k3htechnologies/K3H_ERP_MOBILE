@@ -36,12 +36,7 @@ void main() async {
   // INITIAL SETUP
   await initialSetup();
   // RUN APP
-  runApp(
-    DevicePreview(
-      enabled: !kReleaseMode,
-      builder: (context) => MyApp(), // Wrap your app
-    ),
-  );
+  runApp(DevicePreview(enabled: !kReleaseMode, builder: (context) => MyApp()));
 }
 
 Future<void> requestPhonePermission() async {

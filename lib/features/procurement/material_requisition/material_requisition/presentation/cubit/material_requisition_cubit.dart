@@ -148,7 +148,6 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
         final List<FinalizeVendorForComparisonModel> requisitionVendorList =
@@ -184,7 +183,6 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
     );
     return result.fold(
       (failure) {
-        showErrorMessage(context, "Error", failure.message);
         return [];
       },
       (response) {

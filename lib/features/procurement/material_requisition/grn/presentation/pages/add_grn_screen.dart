@@ -329,6 +329,7 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                       hint: "Enter Vehicle Number",
                       textController: _vehicleNumberC,
                       isRequired: true,
+                      inputFormatterList: [UpperCaseTextFormatter()],
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Vehicle Number is required";

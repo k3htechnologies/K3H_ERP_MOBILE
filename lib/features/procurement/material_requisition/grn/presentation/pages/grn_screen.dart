@@ -49,40 +49,27 @@ class _GRNScreenState extends State<GRNScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           verticalSpacing(height: 5),
+          BlocBuilder<MaterialRequisitionCubit, MaterialRequisitionState>(
+            builder: (context, state) {
+              return Text(
+                state.materialRequisitionOverview?.systemGeneratedCode ?? "",
+                style: AppTextStyle.ts16SB(color: AppColor.primary),
+              );
+            },
+          ),
+          verticalSpacing(),
           Row(
+            spacing: 10,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              BlocBuilder<MaterialRequisitionCubit, MaterialRequisitionState>(
-                builder: (context, state) {
-                  return Text(
-                    state.materialRequisitionOverview?.systemGeneratedCode ??
-                        "",
-                    style: AppTextStyle.ts16SB(color: AppColor.primary),
-                  );
-                },
-              ),
               CustomButton(
                 text: "View Summary",
-                onPressed: () {},
+                onPressed: () async {
+                  await goRouter.pushNamed(AppRoutes.grnSummary);
+                },
                 backgroundColor: AppColor.lightBlue,
                 textColor: AppColor.primary,
               ),
-            ],
-          ),
-
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: SearchWidget(
-                  onSubmit: (val) {
-                    _grnCubit.searchGrn(val);
-                  },
-                  hintText: "Search By Material Name",
-                  textController: _searchC,
-                ),
-              ),
-              const SizedBox(width: 10),
               CustomButton(
                 leading: Icon(Icons.add, color: AppColor.white, size: 16),
                 text: "Add GRN",
@@ -121,19 +108,34 @@ class _GRNScreenState extends State<GRNScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                grn.challanNumber,
-                                style: AppTextStyle.ts14SB(
-                                  color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
+                              GestureDetector(
+                                onTap: () async {
+                                  goRouter.pushNamed(
+                                    AppRoutes.viewGrn,
+                                    queryParameters: {
+                                      "grn": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(grn.toJson()),
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                },
+                                child: Text(
+                                  grn.challanNumber,
+                                  style: AppTextStyle.ts14SB(
+                                    color: AppColor.primary,
+                                  ).copyWith(
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColor.primary,
+                                  ),
                                 ),
                               ),
                               Row(
                                 spacing: 10.w,
                                 children: [
                                   CustomIconButton.edit(
+                                    isDisabled: index != 0,
                                     onPressed: () async {
                                       goRouter.pushNamed(
                                         AppRoutes.addGrn,

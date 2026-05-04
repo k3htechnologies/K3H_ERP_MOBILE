@@ -172,7 +172,13 @@ class GrnCubit extends Cubit<GrnState> {
         if (state.allGRNList.isNotEmpty && index < state.allGRNList.length) {
           final updatedList = List<GRNModel>.from(state.allGRNList);
           updatedList[index] = updatedMaterialRequistion;
-          emit(state.copyWith(filteredGRNList: updatedList, isLoading: false));
+          emit(
+            state.copyWith(
+              filteredGRNList: updatedList,
+              allGRNList: updatedList,
+              isLoading: false,
+            ),
+          );
         }
         showSuccessMessage(context, subTitle: response['message']);
         goRouter.pop();
@@ -207,24 +213,27 @@ class GrnCubit extends Cubit<GrnState> {
     );
   }
 
-  Future<List<MaterialRequisitionDetailModel>?> getGRNSummary(
+  Future<List<GRNModel>?> getGRNSummary(
     BuildContext context,
     int materialRequisitionId,
     String uniqueKey,
+    int projectId,
   ) async {
-    DialogHelper.showProcessingOverlay(context);
-    var result = await grnRepository.getGRNSummary(
+    emit(state.copyWith(isLoading: true));
+    var result = await grnRepository.getGRNList(
       materialRequisitionId: materialRequisitionId,
       uniqueyKey: uniqueKey,
+      projectId: projectId,
     );
-    goRouter.pop();
     return result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
+        emit(state.copyWith(isLoading: false));
         return null;
       },
       (data) {
-        return data["data"] as List<MaterialRequisitionDetailModel>;
+        emit(state.copyWith(isLoading: false));
+        return data["data"] as List<GRNModel>;
       },
     );
   }

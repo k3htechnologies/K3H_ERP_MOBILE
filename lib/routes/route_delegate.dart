@@ -52,6 +52,8 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_v
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/model/grn.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/add_grn_material_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/add_grn_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/grn_summary_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/view_grn_screen.dart';
 import 'package:k3h_erp_app/features/register/presentation/pages/register_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
@@ -4968,6 +4970,32 @@ final GoRouter goRouter = GoRouter(
                       materialDetails: materialDetails,
                       index: index,
                     );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewGrn,
+                  path: AppRoutes.viewGrn,
+                  builder: (context, state) {
+                    final queryParameterGrn = state.uri.queryParameters['grn'];
+
+                    final GRNModel? grn =
+                        queryParameterGrn != null
+                            ? GRNModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterGrn),
+                                ),
+                              ),
+                            )
+                            : null;
+                    return ViewGrnScreen(grnModel: grn!);
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.grnSummary,
+                  path: AppRoutes.grnSummary,
+                  builder: (context, state) {
+                    return GrnSummaryScreen();
                   },
                 ),
               ],

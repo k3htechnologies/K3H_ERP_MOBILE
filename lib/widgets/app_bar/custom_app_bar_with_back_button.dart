@@ -295,10 +295,7 @@ class _CustomAppBarWithBackButtonState
                     onTap: () {
                       _showOverlayNotifier.value = true;
                     },
-                    child: SvgPicture.asset(
-                      AppAssets.projectIcon,
-                      height: 28,
-                    ),
+                    child: SvgPicture.asset(AppAssets.projectIcon, height: 28),
                   ),
                 ],
 

@@ -243,7 +243,7 @@ Widget infoCard(
   return Container(
     width: double.infinity,
     padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-    margin: const EdgeInsets.symmetric(vertical: 8),
+    margin: EdgeInsets.symmetric(vertical: 5.h),
     decoration: BoxDecoration(
       color: bgColor ?? AppColor.lightBlue.withValues(alpha: 0.6),
       borderRadius: BorderRadius.circular(8),

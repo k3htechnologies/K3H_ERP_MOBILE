@@ -335,8 +335,8 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
                         ),
 
                         CustomTextField(
-                          title: "Remark",
-                          hint: "Enter Remark",
+                          title: "Quality Analyst Remark",
+                          hint: "Enter Quality Analyst Remark",
                           maxLines: 3,
                           minLines: 3,
                           textController: _remarkC,
