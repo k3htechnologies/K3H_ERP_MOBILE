@@ -682,8 +682,7 @@ class _BookingScreenState extends State<BookingScreen> {
                           ),
                           buildRowTitleValue(
                             title: "Agreement Value (₹)",
-                            value:
-                                "₹ ${booking.agreementValue.displayFormatedAmount()}",
+                            value: addCommasToInteger(booking.agreementValue),
                             fixesWidth: 170,
                           ),
                           buildRowTitleValue(

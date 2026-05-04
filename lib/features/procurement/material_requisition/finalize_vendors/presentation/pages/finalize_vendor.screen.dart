@@ -85,7 +85,7 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
       widget.materialRequisitionId,
     );
 
-    materialRequisitionOverview.value = data;
+    // materialRequisitionOverview.value = data;
     await initOverview();
   }
 
@@ -370,17 +370,24 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                               _buildRow("Company Name", vendor.companyName),
                               _buildRow(
                                 "Base Amount",
-                                "₹${vedorQuotationOfSelecetdVendor?.total.toInt() ?? 0}",
+                                addCommasToInteger(
+                                  vedorQuotationOfSelecetdVendor?.total ?? 0,
+                                ),
                               ),
                               _buildRow(
                                 "Total Tax",
-                                "₹${_calculateTax(vendor)}",
+
+                                addCommasToInteger(
+                                  _calculateTax(vendor).toDouble(),
+                                ),
                                 valueColor: Colors.orange,
                               ),
 
                               _buildRow(
                                 "Grand Total",
-                                "₹${_calculateGrandTotal(vendor)}",
+                                addCommasToInteger(
+                                  _calculateGrandTotal(vendor).toDouble(),
+                                ),
                                 valueColor: AppColor.primary,
                               ),
 

@@ -463,7 +463,6 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       "RemoveTenderChequeNumberURL": tenderChequeNumberURL.deletedFileList,
     };
 
-    log("the payload is: $requestBody");
     List<Map<String, dynamic>> fileList = [];
 
     for (int i = 0; i < projectPhotoMap.fileBytesList.length; i++) {

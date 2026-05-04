@@ -198,7 +198,7 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                         ),
                         buildColumnTitleValue(
                           title: "Asset Cost",
-                          value: "₹ ${assetMapping.assetCost}",
+                          value: addCommasToInteger(assetMapping.assetCost),
                         ),
                       ],
                     ),

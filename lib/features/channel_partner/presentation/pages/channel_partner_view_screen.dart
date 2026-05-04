@@ -325,7 +325,6 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
 
                                       if (url.isNotEmpty) {
                                         final Uri uri = Uri.parse(url);
-                                        print("Launching URL: $url");
                                         if (await canLaunchUrl(uri)) {
                                           await launchUrl(
                                             uri,
@@ -536,6 +535,53 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                                           .paidBrokerageAmount
                                           .toString(),
                                 ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        decoration: commonCardDecoration(),
+                        padding: EdgeInsets.all(16),
+                        margin: const EdgeInsets.only(bottom: 10),
+                        child: Column(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Primary & Secondary Project Portfolio",
+                              style: AppTextStyle.ts16SB(),
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Primary",
+                                  value:
+                                      widget
+                                          .channelPartnerModel
+                                          .primaryProjectPortfolio,
+                                ),
+                                buildColumnTitleValue(
+                                  title: "Secondary",
+                                  value:
+                                      widget
+                                          .channelPartnerModel
+                                          .secondaryProjectPortfolio,
+                                ),
+                              ],
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Micromarket Proximity",
+                                  value:
+                                      widget
+                                          .channelPartnerModel
+                                          .micromarketProximity,
+                                ),
+                                Spacer(),
                               ],
                             ),
                           ],

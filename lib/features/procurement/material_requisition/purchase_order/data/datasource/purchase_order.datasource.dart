@@ -97,7 +97,7 @@ class PurchaseOrderDatasourceImpl implements PurchaseOrderDatasource {
   }) async {
     try {
       String generateMaterialRequisitionPurchaseOrderPdf =
-          "MaterialRequisitionPurchaseOrder/GenerateMaterialRequisitionPurchaseOrderPdf";
+          "MaterialRequisitionPurchaseOrder/DeleteMaterialRequisitionPurchaseOrder?ProjectId=$projectId&MaterialRequisitionPurchaseOrderId=$materialRequisitionPOId&Uniquekey=$uniqueKey&MaterialRequisitionId=$materialRequisitionId";
       var networResponse = await baseClient.deleteRequestWithAuthentication(
         generateMaterialRequisitionPurchaseOrderPdf,
       );

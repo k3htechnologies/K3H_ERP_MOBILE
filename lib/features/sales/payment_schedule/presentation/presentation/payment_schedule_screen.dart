@@ -267,7 +267,8 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
                     Visibility(
                       visible:
                           state.selectedScheme != null &&
-                          state.totalCumulativePercentage < 100,
+                          state.totalCumulativePercentage < 100 &&
+                          _routeAuthorizationModel.isAction,
                       child: CustomIconButton(
                         onPressed: () async {
                           await goRouter.pushNamed(

@@ -1,4 +1,5 @@
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor.model.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
@@ -9,11 +10,6 @@ abstract interface class FinalizeVendorDatasource {
     required String uniquekey,
   });
   Future<Map<String, dynamic>> apiCallPullSelectedVendorForEnquiry({
-    required int projectId,
-    required int materialRequisitionId,
-    required String uniquekey,
-  });
-  Future<Map<String, dynamic>> apiCallPullFinalizedVendor({
     required int projectId,
     required int materialRequisitionId,
     required String uniquekey,
@@ -81,31 +77,6 @@ class FinalizeVendorDatasourceImpl implements FinalizeVendorDatasource {
     try {
       String selectedVendorForEnquiryUrl =
           'MaterialRequisitionForEnquiry/PullSelectedVendorForEnquiry?MaterialRequisitionId=$materialRequisitionId&Uniquekey=$uniquekey&ProjectId=$projectId';
-      var networkResponse = await baseClient.getRequestWithAuthentication(
-        selectedVendorForEnquiryUrl,
-      );
-      return {
-        'data': List<RequisitionVendorModel>.from(
-          networkResponse["data"].map(
-            (e) => RequisitionVendorModel.fromJson(e),
-          ),
-        ),
-        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
-      };
-    } catch (error) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<Map<String, dynamic>> apiCallPullFinalizedVendor({
-    required int projectId,
-    required int materialRequisitionId,
-    required String uniquekey,
-  }) async {
-    try {
-      String selectedVendorForEnquiryUrl =
-          'MaterialRequisitionForEnquiry/PullFinalizedVendor?MaterialRequisitionId=$materialRequisitionId&Uniquekey=$uniquekey&ProjectId=$projectId';
       var networkResponse = await baseClient.getRequestWithAuthentication(
         selectedVendorForEnquiryUrl,
       );
@@ -223,7 +194,11 @@ class FinalizeVendorDatasourceImpl implements FinalizeVendorDatasource {
         ),
       );
       return {
-        'data': networkResponse["data"],
+        'data': List<FinalizeVendorForComparisonModel>.from(
+          networkResponse["data"]
+              .map((e) => FinalizeVendorForComparisonModel.fromJson(e))
+              .toList(),
+        ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

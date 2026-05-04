@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static_data.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/address/address_widget.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -84,15 +85,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   final ValueNotifier<List<Map<String, dynamic>>>
   _selectedSecondaryProjectNotifier = ValueNotifier([]);
 
-  // STATIC LIST
-  List<Map<String, dynamic>> designationList = [
-    {"zAttributesId": 1, "DisplayName": "Business Head"},
-    {"zAttributesId": 2, "DisplayName": "Cluster Head"},
-    {"zAttributesId": 3, "DisplayName": "Owner"},
-    {"zAttributesId": 4, "DisplayName": "Partner"},
-    {"zAttributesId": 5, "DisplayName": "Team Member"},
-  ];
-
   // FILE VARIABLES
   MultiFilePickerModel selectedPANForPopUpFile = MultiFilePickerModel(
     fileBytesList: [],
@@ -108,31 +100,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
   ValueNotifier<bool> isCompanyPrefilled = ValueNotifier(false);
   bool get isNewCompany => selectedCompanyType.value?['zAttributesId'] == 1;
-
-  // DROPDOWN VARIABLES
-  final List<Map<String, dynamic>> specialityList = [
-    {"zAttributesId": 1, "DisplayName": "Commercial Sale"},
-    {"zAttributesId": 2, "DisplayName": "Commercial Leasing"},
-    {"zAttributesId": 3, "DisplayName": "Residential Sale"},
-    {"zAttributesId": 4, "DisplayName": "Commercial + Residential Sale"},
-  ];
-
-  final List<Map<String, dynamic>> companyTypeList = [
-    {"zAttributesId": 1, "DisplayName": "New Company"},
-    {"zAttributesId": 2, "DisplayName": "Existing Company"},
-  ];
-
-  final List<Map<String, dynamic>> firmsType = [
-    {"zAttributesId": 1, "DisplayName": "LLP"},
-    {"zAttributesId": 2, "DisplayName": "Private Limited Company"},
-    {"zAttributesId": 3, "DisplayName": "Proprietorship"},
-  ];
-
-  final List<Map<String, dynamic>> type = [
-    {"zAttributesId": 1, "DisplayName": "International Channel Partner (IPC)"},
-    {"zAttributesId": 2, "DisplayName": "Institutional Channel Partner (ICP)"},
-    {"zAttributesId": 3, "DisplayName": "Retail Channel Partner (RCP)"},
-  ];
 
   // SELECTION VARIABLE
 
@@ -306,9 +273,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
           isCompanyPrefilled.value = true;
 
-          selectedFirmsType.value = firmsType.firstWhere(
+          selectedFirmsType.value = firmTypeList.firstWhere(
             (e) => e['DisplayName'] == data.firmsType,
-            orElse: () => firmsType[0],
+            orElse: () => firmTypeList[0],
           );
           selectedGSTCertificateForPopUpFile.value = MultiFilePickerModel(
             fileBytesList: [],
@@ -374,7 +341,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
       _companyNameC.text = channelPartnerMasterModel.companyName;
 
-      selectedFirmsType.value = firmsType.firstWhere(
+      selectedFirmsType.value = firmTypeList.firstWhere(
         (e) => e['DisplayName'] == channelPartnerMasterModel.firmsType,
       );
     } else {
@@ -396,9 +363,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
       orElse: () => specialityList.first,
     );
 
-    selectedFirmsType.value = firmsType.firstWhere(
+    selectedFirmsType.value = firmTypeList.firstWhere(
       (e) => e['DisplayName'] == channelPartnerMasterModel.firmsType,
-      orElse: () => firmsType.first,
+      orElse: () => firmTypeList.first,
     );
 
     selectedType.value = type.firstWhere(
@@ -445,7 +412,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
       _selectedPrimaryProjectNotifier.value = [
         {
           "zAttributesId": channelPartnerMasterModel.primaryProjectPortfolioId,
-          "DisplayName": channelPartnerMasterModel.PrimaryProjectPortfolio,
+          "DisplayName": channelPartnerMasterModel.primaryProjectPortfolio,
         },
       ];
     }
@@ -459,7 +426,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                 final index = entry.key;
                 final projectId = entry.value;
                 final projectName =
-                    channelPartnerMasterModel.SecondaryProjectPortfolio.split(
+                    channelPartnerMasterModel.secondaryProjectPortfolio.split(
                       ",",
                     )[index];
                 return {
@@ -611,7 +578,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         primaryProjectPortfolioId:
             _selectedPrimaryProjectNotifier.value.isNotEmpty
                 ? _selectedPrimaryProjectNotifier.value.first["zAttributesId"]
-                : null,
+                : 0,
         secondaryProjectPortfolioId:
             _selectedSecondaryProjectNotifier.value.isNotEmpty
                 ? getSecondaryProjectIds()
@@ -650,7 +617,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         primaryProjectPortfolioId:
             _selectedPrimaryProjectNotifier.value.isNotEmpty
                 ? _selectedPrimaryProjectNotifier.value.first["zAttributesId"]
-                : null,
+                : 0,
         secondaryProjectPortfolioId:
             _selectedSecondaryProjectNotifier.value.isNotEmpty
                 ? getSecondaryProjectIds()
@@ -725,7 +692,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                       isRequired: true,
                       hint: "Enter Full Name",
                       textController: _nameC,
-                      inputFormatterList: InputValidator.textOnly(50),
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(50),
+                      ],
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return "Full Name is required";
@@ -930,7 +899,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                     title: "Firms Type",
                                     isRequired: true,
                                     hintText: "Select Firms Type",
-                                    dataList: firmsType,
+                                    dataList: firmTypeList,
                                     initialValue: firmsValue,
                                     onSelected: (value) {
                                       selectedFirmsType.value = value;

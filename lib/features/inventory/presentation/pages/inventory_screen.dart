@@ -2,7 +2,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,7 +13,6 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
-import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -304,13 +302,6 @@ class _InventoryScreenState extends State<InventoryScreen>
             inventoryBuildingId: selectedBuilding.inventoryBuildingId,
             inventoryFlatFloorBasementPodiumWingId:
                 selectedWing.inventoryFlatFloorBasementPodiumWingId,
-          );
-          log("the project id is: ${_project.projectId}");
-          log(
-            "the inventory Building Id is: ${selectedBuilding.inventoryBuildingId}",
-          );
-          log(
-            "the inventory Flat Floor Basement Podium Wing Id is: ${selectedWing.inventoryFlatFloorBasementPodiumWingId}",
           );
         },
         onProjectChangeCallback: (value) {

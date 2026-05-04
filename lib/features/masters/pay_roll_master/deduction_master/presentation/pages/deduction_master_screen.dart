@@ -350,13 +350,11 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
                       ),
                       buildRowTitleValue(
                         title: "Min Salary",
-                        value:
-                            "₹ ${deduction.minSalary.toString().split(".")[0]}",
+                        value: addCommasToInteger(deduction.minSalary),
                       ),
                       buildRowTitleValue(
                         title: "Max Salary",
-                        value:
-                            "₹ ${deduction.maxSalary.toString().split(".")[0]}",
+                        value: addCommasToInteger(deduction.maxSalary),
                       ),
                       buildRowTitleValue(
                         title: "Gender",

@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigat
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/static_data.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -54,19 +55,6 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
   // DROPDOWN VARIABLE
   Map<String, dynamic>? selectedCaseType;
   Map<String, dynamic>? selectedCourtType;
-
-  final List<Map<String, dynamic>> caseTypeList = [
-    {"zAttributesId": 1, "DisplayName": "Criminal"},
-    {"zAttributesId": 2, "DisplayName": "Civil"},
-  ];
-
-  final List<Map<String, dynamic>> courtTypeList = [
-    {"zAttributesId": 1, "DisplayName": "Civil Court"},
-    {"zAttributesId": 2, "DisplayName": "District Court"},
-    {"zAttributesId": 3, "DisplayName": "High Court"},
-    {"zAttributesId": 4, "DisplayName": "Session Court"},
-    {"zAttributesId": 4, "DisplayName": "Supreme Court"},
-  ];
 
   @override
   void initState() {

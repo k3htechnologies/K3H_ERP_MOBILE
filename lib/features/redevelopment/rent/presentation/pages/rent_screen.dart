@@ -449,7 +449,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
         Text(title, style: AppTextStyle.ts12M(color: AppColor.grey)),
         const SizedBox(height: 2),
         Text(
-          '₹ ${amount.toStringAsFixed(2)}',
+          addCommasToInteger(amount.toDouble()),
           style: AppTextStyle.ts14SB(color: color),
         ),
       ],
@@ -694,7 +694,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
                 children: [
                   Text('Total', style: AppTextStyle.ts16M()),
                   Text(
-                    '₹ ${totalAmount.toStringAsFixed(2)}',
+                    addCommasToInteger(totalAmount.toDouble()),
                     style: AppTextStyle.ts16SB(color: AppColor.slightDarkBlue),
                   ),
                 ],
@@ -705,7 +705,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
                 children: [
                   Text('Paid', style: AppTextStyle.ts16M()),
                   Text(
-                    '₹ ${paidAmount.toStringAsFixed(2)}',
+                    addCommasToInteger(paidAmount),
                     style: AppTextStyle.ts16SB(color: Colors.green),
                   ),
                 ],
@@ -854,7 +854,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
                       ),
                       Text(
                         match?.amount != null && match?.amount != 0
-                            ? '₹ ${match!.amount.toStringAsFixed(2)}'
+                            ? addCommasToInteger(match!.amount)
                             : '-',
                         style: AppTextStyle.ts14B(),
                       ),
@@ -921,7 +921,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: _buildInfoRow(
                     stageName,
-                    amount > 0 ? '₹ ${amount.toStringAsFixed(2)}' : '0',
+                    amount > 0 ? addCommasToInteger(amount) : '0',
                   ),
                 );
               }),
@@ -931,7 +931,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
                 children: [
                   Text('Total', style: AppTextStyle.ts16M()),
                   Text(
-                    '₹ ${totalAmount.toStringAsFixed(2)}',
+                    addCommasToInteger(totalAmount.toDouble()),
                     style: AppTextStyle.ts16SB(color: AppColor.slightDarkBlue),
                   ),
                 ],
@@ -942,7 +942,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
                 children: [
                   Text('Paid', style: AppTextStyle.ts16M()),
                   Text(
-                    '₹ ${paidAmount.toStringAsFixed(2)}',
+                    addCommasToInteger(paidAmount),
                     style: AppTextStyle.ts16SB(color: Colors.green),
                   ),
                 ],
@@ -1000,7 +1000,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
                 children: [
                   Text('Total', style: AppTextStyle.ts16M()),
                   Text(
-                    '₹ ${totalAmount.toStringAsFixed(2)}',
+                    addCommasToInteger(totalAmount.toDouble()),
                     style: AppTextStyle.ts16SB(color: AppColor.slightDarkBlue),
                   ),
                 ],
@@ -1011,7 +1011,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
                 children: [
                   Text('Paid', style: AppTextStyle.ts16M()),
                   Text(
-                    '₹ ${paidAmount.toStringAsFixed(2)}',
+                    addCommasToInteger(paidAmount),
                     style: AppTextStyle.ts16SB(color: Colors.green),
                   ),
                 ],
@@ -1090,7 +1090,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
                 children: [
                   Text('Total', style: AppTextStyle.ts16M()),
                   Text(
-                    '₹ ${totalAmount.toStringAsFixed(2)}',
+                    addCommasToInteger(totalAmount.toDouble()),
                     style: AppTextStyle.ts16SB(color: AppColor.slightDarkBlue),
                   ),
                 ],
@@ -1101,7 +1101,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
                 children: [
                   Text('Paid', style: AppTextStyle.ts16M()),
                   Text(
-                    '₹ ${paidAmount.toStringAsFixed(2)}',
+                    addCommasToInteger(paidAmount.toDouble()),
                     style: AppTextStyle.ts16SB(color: Colors.green),
                   ),
                 ],

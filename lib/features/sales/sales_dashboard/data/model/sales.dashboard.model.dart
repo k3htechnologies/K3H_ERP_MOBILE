@@ -28,6 +28,20 @@ class SalesDashboardModel {
     "Table2": List<dynamic>.from(table2.map((x) => x.toJson())),
     "Table3": List<dynamic>.from(table3.map((x) => x.toJson())),
   };
+
+  SalesDashboardModel copyWith({
+    List<Table0>? table0,
+    List<Table1>? table1,
+    List<Table2>? table2,
+    List<Table3>? table3,
+  }) {
+    return SalesDashboardModel(
+      table0: table0 ?? this.table0,
+      table1: table1 ?? this.table1,
+      table2: table2 ?? this.table2,
+      table3: table3 ?? this.table3,
+    );
+  }
 }
 
 class Table0 {

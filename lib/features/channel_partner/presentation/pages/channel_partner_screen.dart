@@ -397,7 +397,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                       buildRowTitleValue(
                         title: "Company Name",
                         value: channelPartner.companyName,
-                        singleLine: false
+                        singleLine: false,
                       ),
                       buildRowTitleValue(
                         title: "Mobile Number",
@@ -409,7 +409,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                       buildRowTitleValue(
                         title: "RERA Number",
                         value: channelPartner.reraNumber,
-                        singleLine: false
+                        singleLine: false,
                       ),
                     ],
                   ),

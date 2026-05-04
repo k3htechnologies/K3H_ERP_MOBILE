@@ -19,6 +19,7 @@ abstract interface class GrnDatasource {
     required int materialRequisitionGRNId,
     required String uniqueKey,
     required int materialRequisitionId,
+    required int projectId,
   });
 
   Future<Map<String, dynamic>> apicallPullMaterialRequisitionGRNSummary({
@@ -84,6 +85,10 @@ class GrnDatasourceImpl implements GrnDatasource {
             body,
           );
       return {
+        'data': List<GRNModel>.from(
+          networkResponse["data"].map((e) => GRNModel.fromJson(e)),
+        ),
+
         "message": networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
@@ -97,10 +102,11 @@ class GrnDatasourceImpl implements GrnDatasource {
     required int materialRequisitionGRNId,
     required String uniqueKey,
     required int materialRequisitionId,
+    required int projectId,
   }) async {
     try {
       String deleteGRNUrl =
-          "MaterialRequisitionGRN/DeleteMaterialRequisitionGRN??MaterialRequisitionGRNId=$materialRequisitionGRNId&Uniquekey=$uniqueKey&MaterialRequisitionId=$materialRequisitionId";
+          "MaterialRequisitionGRN/DeleteMaterialRequisitionGRN??MaterialRequisitionGRNId=$materialRequisitionGRNId&Uniquekey=$uniqueKey&MaterialRequisitionId=$materialRequisitionId&ProjectId=$projectId";
       var networkResponse = await baseClient.deleteRequestWithAuthentication(
         deleteGRNUrl,
       );

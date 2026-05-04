@@ -208,6 +208,7 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                         children: [
                           GestureDetector(
                             onTap: () async {
+                              await _materialRequisitionCubit.resetOverview();
                               await goRouter.pushNamed(
                                 AppRoutes.viewMaterialRequisition,
                                 queryParameters: {

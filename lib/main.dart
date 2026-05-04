@@ -3,8 +3,10 @@ import 'dart:developer';
 
 import 'dart:io';
 import 'dart:ui';
+import 'package:device_preview/device_preview.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
@@ -34,7 +36,12 @@ void main() async {
   // INITIAL SETUP
   await initialSetup();
   // RUN APP
-  runApp(const MyApp());
+  runApp(
+    DevicePreview(
+      enabled: !kReleaseMode,
+      builder: (context) => MyApp(), // Wrap your app
+    ),
+  );
 }
 
 Future<void> requestPhonePermission() async {
@@ -164,7 +171,6 @@ void onStart(ServiceInstance service) async {
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  log("Handling background message: ${message.data}");
 }
 
 class MyApp extends StatelessWidget {
@@ -187,6 +193,8 @@ class MyApp extends StatelessWidget {
             title: "K3H ERP",
             debugShowCheckedModeBanner: false,
 
+            locale: DevicePreview.locale(context),
+            builder: DevicePreview.appBuilder,
             // THEME
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,

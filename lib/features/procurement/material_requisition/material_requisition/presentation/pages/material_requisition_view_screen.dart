@@ -3,13 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor_mainscreen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/grn_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/data/model/invoice.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/cubit/invoice_cubit.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/cubit/purchase_order_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/pages/purchase_order.screen.dart';
@@ -50,16 +50,11 @@ class _MaterialRequisitionViewScreenState
   late GrnCubit _grnCubit;
   late InvoiceCubit _invoiceCubit;
   late PurchaseOrderCubit _purchaseOrderCubit;
-  final ValueNotifier<MaterialRequisitionModel?> materialRequisitionOverview =
-      ValueNotifier(null);
-  final ValueNotifier<RequisitionVendorModel?> finalizedVendor = ValueNotifier(
-    null,
-  );
 
-  final ValueNotifier<List<dynamic>> selectedVendorList = ValueNotifier([]);
   final Set<int> selectedVendorIndex = {};
   FinalizeVendorForComparisonModel? selectedVendor;
   ValueNotifier<Set<int>> selectedIdsForSplit = ValueNotifier(<int>{});
+  ValueNotifier<List<InvoiceModel>> invoiceList = ValueNotifier([]);
   ValueNotifier<bool> isSplit = ValueNotifier(false);
 
   @override
@@ -70,25 +65,33 @@ class _MaterialRequisitionViewScreenState
     _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
     _finalizeVendorCubit = context.read<FinalizeVendorCubit>();
     _purchaseOrderCubit = context.read<PurchaseOrderCubit>();
+    _grnCubit = context.read<GrnCubit>();
+    _invoiceCubit = context.read<InvoiceCubit>();
     initOverview();
   }
 
   void initOverview() async {
-    materialRequisitionOverview.value = await _materialRequisitionCubit
-        .getMaterialRequisitionDetailsById(
-          context,
-          1,
-          widget.projectId,
-          widget.materialRequisitionId,
-        );
+    _purchaseOrderCubit.resetState();
+    _grnCubit.resetState();
+    await _materialRequisitionCubit.getMaterialRequisitionDetailsById(
+      context,
+      1,
+      widget.projectId,
+      widget.materialRequisitionId,
+    );
     if (mounted) {
-      finalizedVendor.value = await _materialRequisitionCubit
-          .getFinalizedVendor(
-            context,
-            widget.projectId,
-            widget.materialRequisitionId,
-            widget.uniquekey,
-          );
+      await _materialRequisitionCubit.getFinalizedVendor(
+        context,
+        widget.projectId,
+        widget.materialRequisitionId,
+        widget.uniquekey,
+      );
+      invoiceList.value = await _materialRequisitionCubit.getInvoiceForOverview(
+        context: context,
+        projectId: widget.projectId,
+        materialRequisitionId: widget.materialRequisitionId,
+        uniqueKey: widget.uniquekey,
+      );
     }
   }
 
@@ -98,15 +101,6 @@ class _MaterialRequisitionViewScreenState
       switch (_tabController.index) {
         case 0:
           initOverview();
-          break;
-        case 1:
-          materialRequisitionOverview.value = await _materialRequisitionCubit
-              .getMaterialRequisitionDetailsById(
-                context,
-                1,
-                widget.projectId,
-                widget.materialRequisitionId,
-              );
           break;
         case 2:
           _finalizeVendorCubit.getVendorForEnquiryList(
@@ -125,6 +119,14 @@ class _MaterialRequisitionViewScreenState
             uniqueKey: widget.uniquekey,
           );
           break;
+        case 4:
+          _grnCubit.getAllGRNList(
+            context: context,
+            projectId: widget.projectId,
+            materialRequisitionId: widget.materialRequisitionId,
+            uniqueKey: widget.uniquekey,
+          );
+          break;
       }
     }
   }
@@ -135,8 +137,9 @@ class _MaterialRequisitionViewScreenState
     _tabController.dispose();
   }
 
-  double get totalQuantity => materialRequisitionOverview
-      .value!
+  double get totalQuantity => _materialRequisitionCubit
+      .state
+      .materialRequisitionOverview!
       .materialRequisitionDetailData
       .fold(0.0, (p, e) => p + e.materialQuantity);
 
@@ -178,12 +181,12 @@ class _MaterialRequisitionViewScreenState
                     physics: NeverScrollableScrollPhysics(),
 
                     children: [
-                      _buildOverviewTab(),
-                      _buildDetailsTab(),
+                      _buildOverviewTab(state),
+                      _buildDetailsTab(state),
                       FinalizeVendorMainscreen(
                         systemgeneratedCode:
-                            materialRequisitionOverview
-                                .value
+                            state
+                                .materialRequisitionOverview
                                 ?.systemGeneratedCode ??
                             "",
                         projectId: widget.projectId,
@@ -195,8 +198,8 @@ class _MaterialRequisitionViewScreenState
                         materialRequisitionId: widget.materialRequisitionId,
                         uniquekey: widget.uniquekey,
                       ),
-                      _buildOverviewTab(),
-                      _buildOverviewTab(),
+                      GRNScreen(),
+                      _buildOverviewTab(state),
                     ],
                   ),
                 );
@@ -208,11 +211,12 @@ class _MaterialRequisitionViewScreenState
     );
   }
 
-  Widget _buildOverviewTab() {
-    if (_materialRequisitionCubit.state.isLoading ?? true) {
+  Widget _buildOverviewTab(MaterialRequisitionState state) {
+    if ((_materialRequisitionCubit.state.isLoading ?? true) ||
+        state.materialRequisitionOverview == null) {
       return Center(child: CircularProgressIndicator());
     }
-    final materialRequisition = materialRequisitionOverview.value;
+    final materialRequisition = state.materialRequisitionOverview;
     final materialList = materialRequisition?.materialRequisitionDetailData;
     return SingleChildScrollView(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
@@ -276,69 +280,78 @@ class _MaterialRequisitionViewScreenState
               ],
             ),
           ),
-          if (finalizedVendor.value != null)
-            Container(
-              decoration: commonCardDecoration(),
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 10,
-                children: [
-                  Text(
-                    "Vendor And Amount Details",
-                    style: AppTextStyle.ts16SB(color: AppColor.black),
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Vendor Name",
-                        value: finalizedVendor.value!.vendorName,
-                      ),
-                      buildColumnTitleValue(
-                        title: "Vendor Company",
-                        value: finalizedVendor.value!.companyName,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Basic Amount",
-                        value: addCommasToInteger(1000),
-                      ),
-                      buildColumnTitleValue(
-                        title: "Total Tax",
-                        value: addCommasToInteger(1000.50),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Grand Total",
-                        value: addCommasToInteger(1000),
-                      ),
-                      buildColumnTitleValue(
-                        title: "Est. Delivery",
-                        value: "12 Days",
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Paid Amount",
-                        value: addCommasToInteger(1000),
-                      ),
-                      buildColumnTitleValue(
-                        title: "Pending Amount",
-                        value: addCommasToInteger(1000.50),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+          BlocBuilder<MaterialRequisitionCubit, MaterialRequisitionState>(
+            builder: (context, state) {
+              if (state.finalizedVendor == null) return SizedBox.shrink();
+              final vendor = state.finalizedVendor!;
+
+              return Container(
+                decoration: commonCardDecoration(),
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 10,
+                  children: [
+                    Text(
+                      "Vendor And Amount Details",
+                      style: AppTextStyle.ts16SB(color: AppColor.black),
+                    ),
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Vendor Name",
+                          value: vendor.vendorName,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Vendor Company",
+                          value: vendor.companyName,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Basic Amount",
+                          value: addCommasToInteger(vendor.baseTotal),
+                        ),
+                        buildColumnTitleValue(
+                          title: "Total Tax",
+                          value: addCommasToInteger(vendor.taxTotal),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Grand Total",
+                          value: addCommasToInteger(vendor.grandTotal),
+                        ),
+                        buildColumnTitleValue(
+                          title: "Est. Delivery",
+                          value:
+                              vendor.avgDeliveryDays > 0
+                                  ? "${vendor.avgDeliveryDays} days"
+                                  : "-",
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Paid Amount",
+                          value: addCommasToInteger(vendor.paid),
+                        ),
+                        buildColumnTitleValue(
+                          title: "Pending Amount",
+                          value: addCommasToInteger(vendor.pendingAmount),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
           Container(
             padding: EdgeInsets.all(16),
             decoration: commonCardDecoration(),
@@ -369,7 +382,10 @@ class _MaterialRequisitionViewScreenState
                       ),
                       buildColumnTitleValue(
                         title: "Total Quantity",
-                        value: totalQuantity.toString(),
+                        value: addCommasToInteger(
+                          totalQuantity,
+                          withoutSign: true,
+                        ),
                       ),
                     ],
                   ),
@@ -379,7 +395,7 @@ class _MaterialRequisitionViewScreenState
                   child: ListView.builder(
                     shrinkWrap: true,
 
-                    itemCount: materialList!.length,
+                    itemCount: materialList.length,
                     itemBuilder: (context, index) {
                       final material = materialList[index];
                       return Column(
@@ -417,6 +433,59 @@ class _MaterialRequisitionViewScreenState
               ],
             ),
           ),
+          ValueListenableBuilder(
+            valueListenable: invoiceList,
+            builder: (context, value, child) {
+              if (value.isEmpty) return SizedBox.shrink();
+              return Container(
+                decoration: commonCardDecoration(),
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 10,
+                  children: [
+                    Text(
+                      "Invoice Details",
+                      style: AppTextStyle.ts16SB(color: AppColor.black),
+                    ),
+                    SizedBox(
+                      height: invoiceList.value.length == 1 ? 160.h : 340.h,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: invoiceList.value.length,
+                        itemBuilder: (context, index) {
+                          final invoice = invoiceList.value[index];
+                          return infoCard(
+                            bgColor: AppColor.white,
+                            borderColor: AppColor.primary,
+                            [
+                              {
+                                "title": "Invoice No.",
+                                "value": invoice.invoiceNumber,
+                              },
+                              {
+                                "title": "Invoice Amount",
+                                "value": addCommasToInteger(
+                                  invoice.invoiceAmount,
+                                ),
+                              },
+                              {
+                                "title": "Due Date",
+                                "value": formatDateTimeAsDDMMMYYYY(
+                                  invoice.invoiceDueDate,
+                                ),
+                              },
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+
           Container(
             padding: EdgeInsets.all(16),
             decoration: commonCardDecoration(),
@@ -448,11 +517,12 @@ class _MaterialRequisitionViewScreenState
     );
   }
 
-  Widget _buildDetailsTab() {
-    if (_materialRequisitionCubit.state.isLoading ?? true) {
+  Widget _buildDetailsTab(MaterialRequisitionState state) {
+    if ((_materialRequisitionCubit.state.isLoading ?? true) ||
+        state.materialRequisitionOverview == null) {
       return Center(child: CircularProgressIndicator());
     }
-    final materialRequisition = materialRequisitionOverview.value;
+    final materialRequisition = state.materialRequisitionOverview;
     final materialList = materialRequisition?.materialRequisitionDetailData;
     return SingleChildScrollView(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
@@ -516,69 +586,6 @@ class _MaterialRequisitionViewScreenState
               ],
             ),
           ),
-          if (finalizedVendor.value != null)
-            Container(
-              decoration: commonCardDecoration(),
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 10,
-                children: [
-                  Text(
-                    "Vendor And Amount Details",
-                    style: AppTextStyle.ts16SB(color: AppColor.black),
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Vendor Name",
-                        value: finalizedVendor.value!.vendorName,
-                      ),
-                      buildColumnTitleValue(
-                        title: "Vendor Company",
-                        value: finalizedVendor.value!.companyName,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Basic Amount",
-                        value: addCommasToInteger(1000),
-                      ),
-                      buildColumnTitleValue(
-                        title: "Total Tax",
-                        value: addCommasToInteger(1000.50),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Grand Total",
-                        value: addCommasToInteger(1000),
-                      ),
-                      buildColumnTitleValue(
-                        title: "Est. Delivery",
-                        value: "12 Days",
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Paid Amount",
-                        value: addCommasToInteger(1000),
-                      ),
-                      buildColumnTitleValue(
-                        title: "Pending Amount",
-                        value: addCommasToInteger(1000.50),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
           Container(
             padding: EdgeInsets.all(16),
             decoration: commonCardDecoration(),
@@ -679,7 +686,10 @@ class _MaterialRequisitionViewScreenState
                       ),
                       buildColumnTitleValue(
                         title: "Total Quantity",
-                        value: totalQuantity.toString(),
+                        value: addCommasToInteger(
+                          totalQuantity,
+                          withoutSign: true,
+                        ),
                       ),
                     ],
                   ),
@@ -688,7 +698,7 @@ class _MaterialRequisitionViewScreenState
                   height: materialList!.length == 1 ? 150 : 340,
                   child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: materialList!.length,
+                    itemCount: materialList.length,
                     itemBuilder: (context, index) {
                       final material = materialList[index];
                       return Row(
@@ -772,6 +782,7 @@ class _MaterialRequisitionViewScreenState
               ],
             ),
           ),
+
           Container(
             padding: EdgeInsets.all(16),
             decoration: commonCardDecoration(),
@@ -789,13 +800,6 @@ class _MaterialRequisitionViewScreenState
                 ),
               ],
             ),
-          ),
-
-          actionCardWidget(
-            createdBy: materialRequisition.createdBy,
-            createdDate: materialRequisition.createdDate,
-            modifiedBy: materialRequisition.modifiedBy,
-            modifiedDate: materialRequisition.modifiedDate,
           ),
         ],
       ),

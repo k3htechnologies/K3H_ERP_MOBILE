@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
@@ -537,7 +536,6 @@ class BookingCubit extends Cubit<BookingState> {
       if (tenantId != null) "TenantId": tenantId.toString(),
       "OTP": otp,
     };
-    log("the request body is : $requestBody ");
     for (int i = 0; i < addUpdateBookingApplicant.length; i++) {
       var e = addUpdateBookingApplicant[i];
       requestBody.addAll({

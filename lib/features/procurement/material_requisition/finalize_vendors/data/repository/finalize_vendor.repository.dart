@@ -9,11 +9,6 @@ abstract interface class FinalizeVendorRepository {
     required int materialRequisitionId,
     required String uniquekey,
   });
-  Future<Either<Failure, Map<String, dynamic>>> getFinalizedVendor({
-    required int projectId,
-    required int materialRequisitionId,
-    required String uniquekey,
-  });
 
   Future<Either<Failure, Map<String, dynamic>>>
   getAllAvailableVendorForRequisition({
@@ -59,24 +54,6 @@ class FinalizeVendorRepositoryImpl implements FinalizeVendorRepository {
   }) async {
     try {
       var result = await finalizeVendorDatasource.apicallPullVendorForEnquiry(
-        projectId: projectId,
-        materialRequisitionId: materialRequisitionId,
-        uniquekey: uniquekey,
-      );
-      return right(result);
-    } catch (error) {
-      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
-    }
-  }
-
-  @override
-  Future<Either<Failure, Map<String, dynamic>>> getFinalizedVendor({
-    required int projectId,
-    required int materialRequisitionId,
-    required String uniquekey,
-  }) async {
-    try {
-      var result = await finalizeVendorDatasource.apiCallPullFinalizedVendor(
         projectId: projectId,
         materialRequisitionId: materialRequisitionId,
         uniquekey: uniquekey,

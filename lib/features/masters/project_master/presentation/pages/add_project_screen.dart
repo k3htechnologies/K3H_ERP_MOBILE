@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -189,7 +188,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _initializeTextEditingController();
     if (_isEditMode) {
       _prefillDialogueToAddUpdateProjectMaster(widget.project!);
-      log("the project details are: ${widget.project!.toJson()}");
     }
   }
 
@@ -810,13 +808,11 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                               CustomDatePicker(
                                 title: "Submission Date",
                                 initialDate: submissionDate,
-                                startDate: DateTime.now(),
                                 setValue: (value) => submissionDate = value,
                               ),
                               CustomDatePicker(
                                 title: "Issue Date",
                                 initialDate: issueDate,
-                                startDate: DateTime.now(),
                                 setValue: (value) => issueDate = value,
                               ),
                               CustomTextField(

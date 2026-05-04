@@ -14,7 +14,7 @@ class GRNModel {
   DateTime createdDate;
   int modifiedById;
   String modifiedBy;
-  dynamic modifiedDate;
+  DateTime? modifiedDate;
   List<MaterialRequisitionDetailGrnDatum> materialRequisitionDetailGrnData;
 
   GRNModel({
@@ -49,7 +49,10 @@ class GRNModel {
     createdDate: parseValue<DateTime>(json, "CreatedDate"),
     modifiedById: parseValue<int>(json, "ModifiedById"),
     modifiedBy: parseValue<String>(json, "ModifiedBy"),
-    modifiedDate: parseValue<DateTime>(json, "ModifiedDate"),
+    modifiedDate:
+        json["ModifiedDate"] == null
+            ? null
+            : DateTime.parse(json["ModifiedDate"]),
     materialRequisitionDetailGrnData:
         json["MaterialRequisitionDetailGRNData"] == null
             ? []
@@ -74,7 +77,7 @@ class GRNModel {
     "CreatedDate": createdDate.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
-    "ModifiedDate": modifiedDate,
+    "ModifiedDate": modifiedDate?.toIso8601String(),
     "MaterialRequisitionDetailGRNData": List<dynamic>.from(
       materialRequisitionDetailGrnData.map((x) => x.toJson()),
     ),
@@ -93,12 +96,13 @@ class MaterialRequisitionDetailGrnDatum {
   String uom;
   DateTime requiredDate;
   double totalReceivedMaterialQuantity;
+  String? qualityAnalysisRemarks;
   int createdById;
   String createdBy;
   DateTime createdDate;
   int modifiedById;
   String modifiedBy;
-  dynamic modifiedDate;
+  DateTime? modifiedDate;
 
   MaterialRequisitionDetailGrnDatum({
     required this.materialRequisitionDetailGrnId,
@@ -112,6 +116,7 @@ class MaterialRequisitionDetailGrnDatum {
     required this.uom,
     required this.requiredDate,
     required this.totalReceivedMaterialQuantity,
+    required this.qualityAnalysisRemarks,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -134,12 +139,16 @@ class MaterialRequisitionDetailGrnDatum {
     uom: json["Uom"],
     requiredDate: DateTime.parse(json["RequiredDate"]),
     totalReceivedMaterialQuantity: json["TotalReceivedMaterialQuantity"],
+    qualityAnalysisRemarks: json["QualityAnalysisRemarks"],
     createdById: json["CreatedById"],
     createdBy: json["CreatedBy"],
     createdDate: DateTime.parse(json["CreatedDate"]),
     modifiedById: json["ModifiedById"],
     modifiedBy: json["ModifiedBy"],
-    modifiedDate: json["ModifiedDate"],
+    modifiedDate:
+        json["ModifiedDate"] == null
+            ? null
+            : DateTime.parse(json["ModifiedDate"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -154,11 +163,18 @@ class MaterialRequisitionDetailGrnDatum {
     "Uom": uom,
     "RequiredDate": requiredDate.toIso8601String(),
     "TotalReceivedMaterialQuantity": totalReceivedMaterialQuantity,
+    "QualityAnalysisRemarks": qualityAnalysisRemarks,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
-    "ModifiedDate": modifiedDate,
+    "ModifiedDate": modifiedDate?.toIso8601String(),
+  };
+
+  Map<String, dynamic> toJsonPayload() => {
+    "MaterialRequisitionDetailGRNId": materialRequisitionDetailGrnId,
+    "MaterialRequisitionDetailId": materialRequisitionDetailId,
+    "TotalReceivedMaterialQuantity": totalReceivedMaterialQuantity,
   };
 }

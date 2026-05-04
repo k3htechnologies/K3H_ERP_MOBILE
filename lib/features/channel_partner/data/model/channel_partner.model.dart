@@ -45,9 +45,10 @@ class ChannelPartnerModel {
   final String websiteURL;
   final DateTime? dob;
   final int primaryProjectPortfolioId;
-  final String PrimaryProjectPortfolio;
+  final String primaryProjectPortfolio;
   final String secondaryProjectPortfolioId;
-  final String SecondaryProjectPortfolio;
+  final String secondaryProjectPortfolio;
+  final String micromarketProximity;
 
   ChannelPartnerModel({
     required this.channelPartnerId,
@@ -94,9 +95,10 @@ class ChannelPartnerModel {
     required this.dob,
     required this.websiteURL,
     required this.primaryProjectPortfolioId,
-    required this.PrimaryProjectPortfolio,
+    required this.primaryProjectPortfolio,
     required this.secondaryProjectPortfolioId,
-    required this.SecondaryProjectPortfolio,
+    required this.secondaryProjectPortfolio,
+    required this.micromarketProximity,
   });
 
   factory ChannelPartnerModel.fromJson(Map<String, dynamic> json) =>
@@ -158,7 +160,7 @@ class ChannelPartnerModel {
           json,
           "PrimaryProjectPortfolioId",
         ),
-        PrimaryProjectPortfolio: parseValue<String>(
+        primaryProjectPortfolio: parseValue<String>(
           json,
           "PrimaryProjectPortfolio",
         ),
@@ -166,10 +168,11 @@ class ChannelPartnerModel {
           json,
           "SecondaryProjectPortfolioId",
         ),
-        SecondaryProjectPortfolio: parseValue<String>(
+        secondaryProjectPortfolio: parseValue<String>(
           json,
           "SecondaryProjectPortfolio",
         ),
+        micromarketProximity: parseValue<String>(json, "MicromarketProximity"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -217,9 +220,10 @@ class ChannelPartnerModel {
     "DateOfBirth": dob?.toIso8601String(),
     "WebsiteURL": websiteURL,
     "PrimaryProjectPortfolioId": primaryProjectPortfolioId,
-    "PrimaryProjectPortfolio": PrimaryProjectPortfolio,
+    "PrimaryProjectPortfolio": primaryProjectPortfolio,
     "SecondaryProjectPortfolioId": secondaryProjectPortfolioId,
-    "SecondaryProjectPortfolio": SecondaryProjectPortfolio,
+    "SecondaryProjectPortfolio": secondaryProjectPortfolio,
+    "MicromarketProximity": micromarketProximity,
   };
 }
 

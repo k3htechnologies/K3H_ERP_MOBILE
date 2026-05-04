@@ -22,6 +22,7 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_chan
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
+import 'package:k3h_erp_app/features/channel_partner/presentation/pages/cp_universe.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/paid_brokerage_booking.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/cubit/brokerage_cubit.dart';
@@ -48,6 +49,9 @@ import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/add_lit
 import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/litigation_screen.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/litigation_view_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/model/grn.model.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/add_grn_material_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/add_grn_screen.dart';
 import 'package:k3h_erp_app/features/register/presentation/pages/register_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
@@ -329,7 +333,7 @@ import 'package:k3h_erp_app/features/sales/performance/data/model/performance_re
 import 'package:k3h_erp_app/features/sales/performance/presentation/cubit/performance_cubit.dart';
 import 'package:k3h_erp_app/features/sales/performance/presentation/pages/performance.screen.dart';
 import 'package:k3h_erp_app/features/sales/performance/presentation/pages/view_performance.screen.dart';
-import 'package:k3h_erp_app/features/sales/performance/presentation_without_access/pages/performance._without_accessscreen.dart';
+import 'package:k3h_erp_app/features/sales/performance/presentation/pages/performance._without_access_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/cubit/sales_dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/sales_dashboard_screen.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
@@ -3071,6 +3075,13 @@ final GoRouter goRouter = GoRouter(
                 );
               },
             ),
+            GoRoute(
+              path: AppRoutes.cpUniverse,
+              name: AppRoutes.cpUniverse,
+              builder: (context, state) {
+                return const CpUniverseScreen();
+              },
+            ),
           ],
         ),
         // DOCUMENT
@@ -3952,13 +3963,6 @@ final GoRouter goRouter = GoRouter(
                   },
                 ),
                 GoRoute(
-                  name: AppRoutes.salesPerformanceReport,
-                  path: AppRoutes.salesPerformanceReport,
-                  builder: (context, state) {
-                    return const PerformanceWithoutAccessScreen();
-                  },
-                ),
-                GoRoute(
                   name: AppRoutes.viewPerformanceReport,
                   path: AppRoutes.viewPerformanceReport,
                   builder: (context, state) {
@@ -4202,6 +4206,13 @@ final GoRouter goRouter = GoRouter(
                       subTitle: subTitle,
                       items: approvalList,
                     );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.salesPerformanceReport,
+                  path: AppRoutes.salesPerformanceReport,
+                  builder: (context, state) {
+                    return const PerformanceWithoutAccessScreen();
                   },
                 ),
               ],
@@ -4903,6 +4914,63 @@ final GoRouter goRouter = GoRouter(
                   uniquekey: uniquekey,
                 );
               },
+            ),
+
+            GoRoute(
+              name: AppRoutes.addGrn,
+              path: AppRoutes.addGrn,
+              builder: (context, state) {
+                final queryParameterGrn =
+                    state.uri.queryParameters['grnMaterial'];
+
+                final GRNModel? grn =
+                    queryParameterGrn != null
+                        ? GRNModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterGrn),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return AddGrnScreen(grnModel: grn, index: index);
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.addGrnMaterial,
+                  path: AppRoutes.addGrnMaterial,
+                  builder: (context, state) {
+                    final queryParameterMaterialDetails =
+                        state.uri.queryParameters['material'];
+
+                    final MaterialRequisitionDetailGrnDatum? materialDetails =
+                        queryParameterMaterialDetails != null
+                            ? MaterialRequisitionDetailGrnDatum.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterMaterialDetails,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddGrnMaterialScreen(
+                      materialDetails: materialDetails,
+                      index: index,
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),

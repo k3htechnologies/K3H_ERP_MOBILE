@@ -698,7 +698,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                                           ),
                                           _buildInfoRow(
                                             "Amount",
-                                            "₹${corpus.amount.toStringAsFixed(2)}",
+                                            addCommasToInteger(corpus.amount),
                                           ),
                                         ],
                                       ),

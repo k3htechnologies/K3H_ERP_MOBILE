@@ -8,11 +8,9 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
-import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -303,85 +301,6 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 });
               }
 
-              /// CHANNEL PARTNER
-              if (isChannelPartner) {
-                items.addAll([
-                  {"title": "CP Name", "value": enquiry.channelPartnerName},
-                  {
-                    "title": "CP Mobile No.",
-                    "value": enquiry.channelPartnerMobileNumber,
-                  },
-                  {
-                    "title": "CP Designation",
-                    "value": enquiry.channelPartnerDesignation,
-                  },
-                  {
-                    "title": "CP Company Name",
-                    "value": enquiry.channelPartnerCompany,
-                  },
-                  {
-                    "title": "CP Firm Type",
-                    "value": enquiry.channelPartnerFirmsType,
-                  },
-                  {"title": "CP Type", "value": enquiry.channelPartnerType},
-                  if (enquiry.channelPartnerTeamMemberName.isNotEmpty)
-                    {
-                      "title": "CP Team Member Name",
-                      "value": enquiry.channelPartnerTeamMemberName,
-                    },
-                  if (enquiry.channelPartnerTeamMemberMobileNumber.isNotEmpty)
-                    {
-                      "title": "CP Team Member Mobile",
-                      "value": enquiry.channelPartnerTeamMemberMobileNumber,
-                      "customValueWidget": CustomClickToContactText(
-                        value: enquiry.channelPartnerTeamMemberMobileNumber,
-                        type: ContactType.phone,
-                      ),
-                    },
-                ]);
-              }
-
-              /// EMPLOYEE REFERENCE
-              if (isDirectWalking && isEmployeeReference) {
-                items.addAll([
-                  {
-                    "title": "Employee Ref Name",
-                    "value": enquiry.employeeReferenceName,
-                  },
-                  {
-                    "title": "Employee Ref Mobile",
-                    "value": enquiry.employeeReferenceMobileNumber,
-                  },
-                ]);
-              }
-
-              /// LOYALTY
-              if (isDirectWalking && isLoyalty) {
-                items.addAll([
-                  {
-                    "title": "Project",
-                    "value": enquiry.loyaltyExistingProjectName,
-                  },
-                  {
-                    "title": "Unit No",
-                    "value": enquiry.loyaltyExistingUnitNumber,
-                  },
-                  {
-                    "title": "Owner",
-                    "value": enquiry.loyaltyExistingUnitOwnerName,
-                  },
-                ]);
-              }
-
-              /// REFERENCE
-              if (isDirectWalking && isReference) {
-                items.addAll([
-                  {"title": "Project", "value": enquiry.referralProjectName},
-                  {"title": "Unit No", "value": enquiry.referralUnitNumber},
-                  {"title": "Owner", "value": enquiry.referralUnitOwnerName},
-                ]);
-              }
-
               /// SALES
               items.addAll([
                 {"title": "Sales Advisor", "value": enquiry.salesAdvisor},
@@ -394,7 +313,82 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 "value": enquiry.currentLocation,
               });
 
-              return infoCard(items, title: "Enquiry Details");
+              return Column(
+                children: [
+                  infoCard(items, title: "Enquiry Details"),
+                  Column(
+                    children: [
+                      if (isReference)
+                        infoCard([
+                          {
+                            "title": "Referral Name",
+                            "value": enquiry.referralName,
+                          },
+                          {
+                            "title": "Referral Project",
+                            "value": enquiry.referralProjectName,
+                          },
+                          {
+                            "title": "Referral Unit No",
+                            "value": enquiry.referralUnitNumber,
+                          },
+                          {
+                            "title": "Referral Unit Owner",
+                            "value": enquiry.referralUnitOwnerName,
+                          },
+                        ]),
+
+                      if (isEmployeeReference)
+                        infoCard([
+                          {
+                            "title": "Employee Name",
+                            "value": enquiry.employeeReferenceName,
+                          },
+                          {
+                            "title": "Employee Mobile",
+                            "value": enquiry.employeeReferenceMobileNumber,
+                          },
+                        ]),
+
+                      if (isLoyalty)
+                        infoCard([
+                          {
+                            "title": "Existing Project",
+                            "value": enquiry.loyaltyExistingProjectName,
+                          },
+                          {
+                            "title": "Existing Unit No",
+                            "value": enquiry.loyaltyExistingUnitNumber,
+                          },
+                          {
+                            "title": "Existing Unit Owner",
+                            "value": enquiry.loyaltyExistingUnitOwnerName,
+                          },
+                        ]),
+                      if (isChannelPartner)
+                        infoCard([
+                          {
+                            "title": "Channel Partner",
+                            "value": enquiry.channelPartnerName,
+                          },
+                          {
+                            "title": "CP Mobile",
+                            "value": enquiry.channelPartnerMobileNumber,
+                          },
+                          {
+                            "title": "CP Team Member",
+                            "value": enquiry.channelPartnerTeamMemberName,
+                          },
+                          {
+                            "title": "CP Team Mobile",
+                            "value":
+                                enquiry.channelPartnerTeamMemberMobileNumber,
+                          },
+                        ]),
+                    ],
+                  ),
+                ],
+              );
             },
           ), // APPLICANT SECTION
           Container(
@@ -415,460 +409,274 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     itemBuilder: (_, index) {
                       final applicant =
                           bookingModel!.bookingApplicantData[index];
-                      return Container(
-                        margin: EdgeInsets.only(bottom: 10),
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: AppColor.primary,
-                            width: .3,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Column(
-                          spacing: 10,
-                          children: [
-                            Row(
-                              spacing: 5,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    applicant.applicantName,
-                                    style: AppTextStyle.ts14M(),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                horizontalSpacing(),
-                                _buildApplicantTypeWidget(
-                                  applicant.applicantType,
-                                ),
-                              ],
-                            ),
+                      return infoCard(
+                        bgColor: AppColor.white,
+                        borderColor: AppColor.primary,
 
-                            Row(
-                              spacing: 5,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Mobile Number",
-                                  value:
-                                      applicant.applicantMobileNumber.isEmpty
-                                          ? "-"
-                                          : applicant.applicantMobileNumber,
-                                ),
-                                buildColumnTitleValue(
-                                  title: "Email ID",
-                                  value:
-                                      applicant.applicantEmailId.isEmpty
-                                          ? "-"
-                                          : applicant.applicantEmailId,
-                                ),
-                              ],
+                        titleWidget: Row(
+                          spacing: 5,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                applicant.applicantName,
+                                style: AppTextStyle.ts14M(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                            Row(
-                              spacing: 5,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Aadhaar Card No.",
-                                  value:
-                                      applicant.aadharCardNumber.isEmpty
-                                          ? "-"
-                                          : applicant.aadharCardNumber,
-                                ),
-                                buildColumnTitleValue(
-                                  title: "Aadhaar Card",
-                                  value:
-                                      applicant.aadharCardURL.isEmpty
-                                          ? "-"
-                                          : applicant.aadharCardURL,
-                                  customValueWidget:
-                                      CustomButton.documentOutline(
-                                        onPressed: () {
-                                          if (applicant
-                                              .aadharCardURL
-                                              .isNotEmpty) {
-                                            showFilePreviewDialog(
-                                              context,
-                                              applicant.aadharCardURL.split(
-                                                ",",
-                                              ),
-                                            );
-                                          }
-                                        },
-                                        isDisable:
-                                            applicant.aadharCardURL.isEmpty,
-                                      ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              spacing: 5,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "PAN Card No.",
-                                  value:
-                                      applicant.panNumber.isEmpty
-                                          ? "-"
-                                          : applicant.panNumber,
-                                ),
-                                buildColumnTitleValue(
-                                  title: "PAN Card.",
-                                  value:
-                                      applicant.panCardURL.isEmpty
-                                          ? "-"
-                                          : applicant.panCardURL,
-                                  customValueWidget:
-                                      CustomButton.documentOutline(
-                                        onPressed: () {
-                                          if (applicant.panCardURL.isNotEmpty) {
-                                            showFilePreviewDialog(
-                                              context,
-                                              applicant.panCardURL.split(","),
-                                            );
-                                          }
-                                        },
-                                        isDisable: applicant.panCardURL.isEmpty,
-                                      ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              spacing: 5,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Driving License",
-                                  value:
-                                      applicant.drivingLicenseNumber.isEmpty
-                                          ? "-"
-                                          : applicant.drivingLicenseNumber,
-                                ),
-                                buildColumnTitleValue(
-                                  title: "Driving License",
-                                  value:
-                                      applicant.drivingLicenseURL.isEmpty
-                                          ? "-"
-                                          : applicant.drivingLicenseURL,
-                                  customValueWidget:
-                                      CustomButton.documentOutline(
-                                        onPressed: () {
-                                          if (applicant
-                                              .drivingLicenseURL
-                                              .isNotEmpty) {
-                                            showFilePreviewDialog(
-                                              context,
-                                              applicant.drivingLicenseURL.split(
-                                                ",",
-                                              ),
-                                            );
-                                          }
-                                        },
-                                        isDisable:
-                                            applicant.drivingLicenseURL.isEmpty,
-                                      ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              spacing: 5,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Voting ID No.",
-                                  value:
-                                      applicant.votingIdNumber.isEmpty
-                                          ? "-"
-                                          : applicant.votingIdNumber,
-                                ),
-                                buildColumnTitleValue(
-                                  title: "Voting ID",
-                                  value:
-                                      applicant.votingIdURL.isEmpty
-                                          ? "-"
-                                          : applicant.votingIdURL,
-                                  customValueWidget:
-                                      CustomButton.documentOutline(
-                                        onPressed: () {
-                                          if (applicant
-                                              .votingIdURL
-                                              .isNotEmpty) {
-                                            showFilePreviewDialog(
-                                              context,
-                                              applicant.votingIdURL.split(","),
-                                            );
-                                          }
-                                        },
-                                        isDisable:
-                                            applicant.votingIdURL.isEmpty,
-                                      ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              spacing: 5,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Passport No.",
-                                  value:
-                                      applicant.passportNumber.isEmpty
-                                          ? "-"
-                                          : applicant.passportNumber,
-                                ),
-                                buildColumnTitleValue(
-                                  title: "Passport",
-                                  value:
-                                      applicant.passportURL.isEmpty
-                                          ? "-"
-                                          : applicant.passportURL,
-                                  customValueWidget:
-                                      CustomButton.documentOutline(
-                                        onPressed: () {
-                                          if (applicant
-                                              .passportURL
-                                              .isNotEmpty) {
-                                            showFilePreviewDialog(
-                                              context,
-                                              applicant.passportURL.split(","),
-                                            );
-                                          }
-                                        },
-                                        isDisable:
-                                            applicant.passportURL.isEmpty,
-                                      ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              spacing: 5,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "GST No.",
-                                  value:
-                                      applicant.gstNumber.isEmpty
-                                          ? "-"
-                                          : applicant.gstNumber,
-                                ),
-                                buildColumnTitleValue(
-                                  title: "GST",
-                                  value:
-                                      applicant.gstNumberURL.isEmpty
-                                          ? "-"
-                                          : applicant.gstNumberURL,
-                                  customValueWidget:
-                                      CustomButton.documentOutline(
-                                        onPressed: () {
-                                          if (applicant
-                                              .gstNumberURL
-                                              .isNotEmpty) {
-                                            showFilePreviewDialog(
-                                              context,
-                                              applicant.gstNumberURL.split(","),
-                                            );
-                                          }
-                                        },
-                                        isDisable:
-                                            applicant.gstNumberURL.isEmpty,
-                                      ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              spacing: 5,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Cancelled Cheque",
-                                  value:
-                                      applicant.cancelledChequeUrl.isEmpty
-                                          ? "-"
-                                          : applicant.cancelledChequeUrl,
-                                  customValueWidget:
-                                      CustomButton.documentOutline(
-                                        onPressed: () {
-                                          if (applicant
-                                              .cancelledChequeUrl
-                                              .isNotEmpty) {
-                                            showFilePreviewDialog(
-                                              context,
-                                              applicant.cancelledChequeUrl
-                                                  .split(","),
-                                            );
-                                          }
-                                        },
-                                        isDisable:
-                                            applicant
-                                                .cancelledChequeUrl
-                                                .isEmpty,
-                                      ),
-                                ),
-                                buildColumnTitleValue(
-                                  title: "POA (if NRI Execution)",
-                                  value:
-                                      applicant.poaurl.isEmpty
-                                          ? "-"
-                                          : applicant.poaurl,
-                                  customValueWidget:
-                                      CustomButton.documentOutline(
-                                        onPressed: () {
-                                          if (applicant.poaurl.isNotEmpty) {
-                                            showFilePreviewDialog(
-                                              context,
-                                              applicant.poaurl.split(","),
-                                            );
-                                          }
-                                        },
-                                        isDisable: applicant.poaurl.isEmpty,
-                                      ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              spacing: 5,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Income Docs (Form 16 / ITR)",
-                                  value:
-                                      applicant.incomeForm16Itrurl.isEmpty
-                                          ? "-"
-                                          : applicant.incomeForm16Itrurl,
-                                  customValueWidget:
-                                      CustomButton.documentOutline(
-                                        onPressed: () {
-                                          if (applicant
-                                              .incomeForm16Itrurl
-                                              .isNotEmpty) {
-                                            showFilePreviewDialog(
-                                              context,
-                                              applicant.incomeForm16Itrurl
-                                                  .split(","),
-                                            );
-                                          }
-                                        },
-                                        isDisable:
-                                            applicant
-                                                .cancelledChequeUrl
-                                                .isEmpty,
-                                      ),
-                                ),
-                                buildColumnTitleValue(
-                                  title: "NRE / NRO Bank Details",
-                                  value:
-                                      applicant.nreNroBankDetailsUrl.isEmpty
-                                          ? "-"
-                                          : applicant.nreNroBankDetailsUrl,
-                                  customValueWidget:
-                                      CustomButton.documentOutline(
-                                        onPressed: () {
-                                          if (applicant
-                                              .nreNroBankDetailsUrl
-                                              .isNotEmpty) {
-                                            showFilePreviewDialog(
-                                              context,
-                                              applicant.nreNroBankDetailsUrl
-                                                  .split(","),
-                                            );
-                                          }
-                                        },
-                                        isDisable:
-                                            applicant
-                                                .nreNroBankDetailsUrl
-                                                .isEmpty,
-                                      ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              spacing: 5,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Nominee Form",
-                                  value:
-                                      applicant.nomineeFormUrl.isEmpty
-                                          ? "-"
-                                          : applicant.nomineeFormUrl,
-                                  customValueWidget:
-                                      CustomButton.documentOutline(
-                                        onPressed: () {
-                                          if (applicant
-                                              .nomineeFormUrl
-                                              .isNotEmpty) {
-                                            showFilePreviewDialog(
-                                              context,
-                                              applicant.nomineeFormUrl.split(
-                                                ",",
-                                              ),
-                                            );
-                                          }
-                                        },
-                                        isDisable:
-                                            applicant
-                                                .cancelledChequeUrl
-                                                .isEmpty,
-                                      ),
-                                ),
-                                buildColumnTitleValue(
-                                  title: "NRE / NRO Bank Details",
-                                  value:
-                                      applicant.nreNroBankDetailsUrl.isEmpty
-                                          ? "-"
-                                          : applicant.nreNroBankDetailsUrl,
-                                  customValueWidget:
-                                      CustomButton.documentOutline(
-                                        onPressed: () {
-                                          if (applicant
-                                              .nreNroBankDetailsUrl
-                                              .isNotEmpty) {
-                                            showFilePreviewDialog(
-                                              context,
-                                              applicant.nreNroBankDetailsUrl
-                                                  .split(","),
-                                            );
-                                          }
-                                        },
-                                        isDisable:
-                                            applicant
-                                                .nreNroBankDetailsUrl
-                                                .isEmpty,
-                                      ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              spacing: 5,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Profile Photo",
-                                  value:
-                                      applicant.photoURL.isEmpty
-                                          ? "-"
-                                          : applicant.photoURL,
-                                  customValueWidget:
-                                      CustomButton.documentOutline(
-                                        onPressed: () {
-                                          if (applicant.photoURL.isNotEmpty) {
-                                            showFilePreviewDialog(
-                                              context,
-                                              applicant.photoURL.split(","),
-                                            );
-                                          }
-                                        },
-                                        isDisable: applicant.photoURL.isEmpty,
-                                      ),
-                                ),
-                                Expanded(child: SizedBox()),
-                              ],
-                            ),
+                            horizontalSpacing(),
+                            _buildApplicantTypeWidget(applicant.applicantType),
                           ],
                         ),
+
+                        [
+                          {
+                            "title": "Mobile Number",
+                            "value": applicant.applicantMobileNumber,
+                          },
+                          {
+                            "title": "Email ID",
+                            "value": applicant.applicantEmailId,
+                          },
+                          {
+                            "title": "Aadhaar Card No.",
+                            "value": applicant.aadharCardNumber,
+                          },
+                          {
+                            "title": "Aadhaar Card",
+                            "value": applicant.aadharCardURL,
+                            "widget": CustomButton.documentOutline(
+                              onPressed: () {
+                                if (applicant.aadharCardURL.isNotEmpty) {
+                                  showFilePreviewDialog(
+                                    context,
+                                    applicant.aadharCardURL.split(","),
+                                  );
+                                }
+                              },
+                              isDisable: applicant.aadharCardURL.isEmpty,
+                            ),
+                          },
+                          {
+                            "title": "PAN Card No.",
+                            "value": applicant.panNumber,
+                          },
+                          {
+                            "title": "PAN Card.",
+                            "value": applicant.panCardURL,
+                            "widget": CustomButton.documentOutline(
+                              onPressed: () {
+                                if (applicant.panCardURL.isNotEmpty) {
+                                  showFilePreviewDialog(
+                                    context,
+                                    applicant.panCardURL.split(","),
+                                  );
+                                }
+                              },
+                              isDisable: applicant.panCardURL.isEmpty,
+                            ),
+                          },
+                          {
+                            "title": "Driving License",
+                            "value": applicant.drivingLicenseNumber,
+                          },
+                          {
+                            "title": "Driving License",
+                            "value": applicant.drivingLicenseURL,
+                            "widget": CustomButton.documentOutline(
+                              onPressed: () {
+                                if (applicant.drivingLicenseURL.isNotEmpty) {
+                                  showFilePreviewDialog(
+                                    context,
+                                    applicant.drivingLicenseURL.split(","),
+                                  );
+                                }
+                              },
+                              isDisable: applicant.drivingLicenseURL.isEmpty,
+                            ),
+                          },
+                          {
+                            "title": "Voting ID No.",
+                            "value": applicant.votingIdNumber,
+                          },
+                          {
+                            "title": "Voting ID",
+                            "value": applicant.votingIdURL,
+                            "widget": CustomButton.documentOutline(
+                              onPressed: () {
+                                if (applicant.votingIdURL.isNotEmpty) {
+                                  showFilePreviewDialog(
+                                    context,
+                                    applicant.votingIdURL.split(","),
+                                  );
+                                }
+                              },
+                              isDisable: applicant.votingIdURL.isEmpty,
+                            ),
+                          },
+                          {
+                            "title": "Passport No.",
+                            "value": applicant.passportNumber,
+                          },
+                          {
+                            "title": "Passport",
+                            "value": applicant.passportURL,
+                            "widget": CustomButton.documentOutline(
+                              onPressed: () {
+                                if (applicant.passportURL.isNotEmpty) {
+                                  showFilePreviewDialog(
+                                    context,
+                                    applicant.passportURL.split(","),
+                                  );
+                                }
+                              },
+                              isDisable: applicant.passportURL.isEmpty,
+                            ),
+                          },
+                          {"title": "GST No.", "value": applicant.gstNumber},
+                          {
+                            "title": "GST Certificate",
+                            "value": applicant.gstNumberURL,
+                            "widget": CustomButton.documentOutline(
+                              onPressed: () {
+                                if (applicant.gstNumberURL.isNotEmpty) {
+                                  showFilePreviewDialog(
+                                    context,
+                                    applicant.gstNumberURL.split(","),
+                                  );
+                                }
+                              },
+                              isDisable: applicant.gstNumberURL.isEmpty,
+                            ),
+                          },
+                          {
+                            "title": "Cancelled Cheque",
+                            "value": applicant.cancelledChequeUrl,
+                            "widget": CustomButton.documentOutline(
+                              onPressed: () {
+                                if (applicant.cancelledChequeUrl.isNotEmpty) {
+                                  showFilePreviewDialog(
+                                    context,
+                                    applicant.cancelledChequeUrl.split(","),
+                                  );
+                                }
+                              },
+                              isDisable: applicant.cancelledChequeUrl.isEmpty,
+                            ),
+                          },
+                          {
+                            "title": "POA (if NRI Execution)",
+                            "value": applicant.poaurl,
+                            "widget": CustomButton.documentOutline(
+                              onPressed: () {
+                                if (applicant.poaurl.isNotEmpty) {
+                                  showFilePreviewDialog(
+                                    context,
+                                    applicant.poaurl.split(","),
+                                  );
+                                }
+                              },
+                              isDisable: applicant.poaurl.isEmpty,
+                            ),
+                          },
+                          {
+                            "title": "Income Docs (Form 16 / ITR)",
+                            "value": applicant.incomeForm16Itrurl,
+                            "widget": CustomButton.documentOutline(
+                              onPressed: () {
+                                if (applicant.incomeForm16Itrurl.isNotEmpty) {
+                                  showFilePreviewDialog(
+                                    context,
+                                    applicant.incomeForm16Itrurl.split(","),
+                                  );
+                                }
+                              },
+                              isDisable: applicant.incomeForm16Itrurl.isEmpty,
+                            ),
+                          },
+                          {
+                            "title": "NRE / NRO Bank Details",
+                            "value": applicant.nreNroBankDetailsUrl,
+                            "widget": CustomButton.documentOutline(
+                              onPressed: () {
+                                if (applicant.nreNroBankDetailsUrl.isNotEmpty) {
+                                  showFilePreviewDialog(
+                                    context,
+                                    applicant.nreNroBankDetailsUrl.split(","),
+                                  );
+                                }
+                              },
+                              isDisable: applicant.nreNroBankDetailsUrl.isEmpty,
+                            ),
+                          },
+                          {
+                            "title": "Nominee Form",
+                            "value": applicant.nomineeFormUrl,
+                            "widget": CustomButton.documentOutline(
+                              onPressed: () {
+                                if (applicant.nomineeFormUrl.isNotEmpty) {
+                                  showFilePreviewDialog(
+                                    context,
+                                    applicant.nomineeFormUrl.split(","),
+                                  );
+                                }
+                              },
+                              isDisable: applicant.nomineeFormUrl.isEmpty,
+                            ),
+                          },
+                          {
+                            "title": "Statement Of Source Of Funds",
+                            "value": applicant.statementOfSourceOfFundsURL,
+                            "widget": CustomButton.documentOutline(
+                              onPressed: () {
+                                if (applicant
+                                    .statementOfSourceOfFundsURL
+                                    .isNotEmpty) {
+                                  showFilePreviewDialog(
+                                    context,
+                                    applicant.statementOfSourceOfFundsURL.split(
+                                      ",",
+                                    ),
+                                  );
+                                }
+                              },
+                              isDisable:
+                                  applicant.statementOfSourceOfFundsURL.isEmpty,
+                            ),
+                          },
+
+                          {
+                            "title": "Payment Proof",
+                            "value": applicant.paymentProofURL,
+                            "widget": CustomButton.documentOutline(
+                              onPressed: () {
+                                if (applicant.paymentProofURL.isNotEmpty) {
+                                  showFilePreviewDialog(
+                                    context,
+                                    applicant.paymentProofURL.split(","),
+                                  );
+                                }
+                              },
+                              isDisable: applicant.paymentProofURL.isEmpty,
+                            ),
+                          },
+                          {
+                            "title": "Profile Photo",
+                            "value": applicant.photoURL,
+                            "widget": CustomButton.documentOutline(
+                              onPressed: () {
+                                if (applicant.photoURL.isNotEmpty) {
+                                  showFilePreviewDialog(
+                                    context,
+                                    applicant.photoURL.split(","),
+                                  );
+                                }
+                              },
+                              isDisable: applicant.photoURL.isEmpty,
+                            ),
+                          },
+                        ],
                       );
                     },
                   ),
@@ -1123,13 +931,14 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Agreement Value (₹) With TDS",
-                      value:
-                          "₹ ${bookingModel!.agreementValue.displayFormatedAmount()}",
+                      value: addCommasToInteger(bookingModel!.agreementValue),
                     ),
                     buildColumnTitleValue(
                       title: "Agreement Value (₹) Without TDS",
-                      value:
-                          "₹ ${(bookingModel!.agreementValue - bookingModel!.agreementValueTDS).displayFormatedAmount()}",
+                      value: addCommasToInteger(
+                        bookingModel!.agreementValue -
+                            bookingModel!.agreementValueTDS,
+                      ),
                     ),
                   ],
                 ),
@@ -1139,8 +948,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "TDS (₹)",
-                      value:
-                          "₹ ${bookingModel!.agreementValueTDS.displayFormatedAmount()}",
+                      value: addCommasToInteger(
+                        bookingModel!.agreementValueTDS,
+                      ),
                     ),
                     buildColumnTitleValue(
                       title: "GST (%)",
@@ -1154,8 +964,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "GST (₹)",
-                      value:
-                          "₹ ${bookingModel!.agreementValueGSTAmount.displayFormatedAmount()}",
+                      value: addCommasToInteger(
+                        bookingModel!.agreementValueGSTAmount,
+                      ),
                     ),
                     buildColumnTitleValue(
                       title: "Stamp Duty (%)",
@@ -1169,13 +980,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Stamp Duty (₹)",
-                      value:
-                          "₹ ${bookingModel!.stampDutyAmount.displayFormatedAmount()}",
+                      value: addCommasToInteger(bookingModel!.stampDutyAmount),
                     ),
                     buildColumnTitleValue(
                       title: "Registration Fees (₹)",
-                      value:
-                          "₹ ${bookingModel!.registrationFees.displayFormatedAmount()}",
+                      value: addCommasToInteger(bookingModel!.registrationFees),
                     ),
                   ],
                 ),
@@ -1185,8 +994,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Booking Amount (₹)",
-                      value:
-                          "₹ ${bookingModel!.bookingAmount.displayFormatedAmount()}",
+                      value: addCommasToInteger(bookingModel!.bookingAmount),
                     ),
                   ],
                 ),
@@ -1201,8 +1009,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       ),
                       buildColumnTitleValue(
                         title: "Loyalty Amount (₹)",
-                        value:
-                            "₹ ${bookingModel!.loyaltyAmount.displayFormatedAmount()}",
+                        value: addCommasToInteger(bookingModel!.loyaltyAmount),
                       ),
                     ],
                   ),
@@ -1217,8 +1024,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       ),
                       buildColumnTitleValue(
                         title: "Brokerage Amount (₹)",
-                        value:
-                            "₹ ${bookingModel!.brokerageAmount.displayFormatedAmount()}",
+                        value: addCommasToInteger(
+                          bookingModel!.brokerageAmount,
+                        ),
                       ),
                     ],
                   ),
@@ -1233,8 +1041,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       ),
                       buildColumnTitleValue(
                         title: "Employee Reference Amount (₹)",
-                        value:
-                            "₹ ${bookingModel!.employeeReferenceAmount.displayFormatedAmount()}",
+                        value: addCommasToInteger(
+                          bookingModel!.employeeReferenceAmount,
+                        ),
                       ),
                     ],
                   ),
@@ -1337,8 +1146,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                       children: [
                                         buildColumnTitleValue(
                                           title: "Value (In ₹)",
-                                          value:
-                                              "₹ ${extraCharge.value.displayFormatedAmount()}",
+                                          value: addCommasToInteger(
+                                            extraCharge.value,
+                                          ),
                                         ),
                                         buildColumnTitleValue(
                                           title: "GST (%)",
@@ -1352,8 +1162,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                       children: [
                                         buildColumnTitleValue(
                                           title: "GST Value (₹)",
-                                          value:
-                                              "₹ ${extraCharge.gstValue.displayFormatedAmount()}",
+                                          value: addCommasToInteger(
+                                            extraCharge.gstValue,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -1440,8 +1251,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 ),
                                 buildColumnTitleValue(
                                   title: "Amount (₹)",
-                                  value:
-                                      "₹ ${payment.paymentScheduleAmount.displayFormatedAmount()}",
+                                  value: addCommasToInteger(
+                                    payment.paymentScheduleAmount,
+                                  ),
                                 ),
                               ],
                             ),
@@ -1451,13 +1263,15 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                               children: [
                                 buildColumnTitleValue(
                                   title: "GST Amount (₹)",
-                                  value:
-                                      "₹ ${payment.paymentScheduleGSTAmount.displayFormatedAmount()}",
+                                  value: addCommasToInteger(
+                                    payment.paymentScheduleGSTAmount,
+                                  ),
                                 ),
                                 buildColumnTitleValue(
                                   title: "TDS Amount (₹)",
-                                  value:
-                                      "₹ ${payment.paymentScheduleTDSAmount}",
+                                  value: addCommasToInteger(
+                                    payment.paymentScheduleTDSAmount,
+                                  ),
                                 ),
                               ],
                             ),
@@ -1672,383 +1486,252 @@ class _BookingViewScreenState extends State<BookingViewScreen>
       itemCount: bookingModel!.bookingApplicantData.length,
       itemBuilder: (_, index) {
         final applicant = bookingModel!.bookingApplicantData[index];
-        return Container(
-          margin: EdgeInsets.only(bottom: 10),
-          padding: EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            border: Border.all(color: AppColor.primary, width: .3),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            spacing: 10,
-            children: [
-              Row(
-                spacing: 5,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      applicant.applicantName,
-                      style: AppTextStyle.ts14M(),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  horizontalSpacing(),
-                  _buildApplicantTypeWidget(applicant.applicantType),
-                ],
-              ),
 
-              Row(
-                spacing: 5,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(
-                    title: "Mobile Number",
-                    value:
-                        applicant.applicantMobileNumber.isEmpty
-                            ? "-"
-                            : applicant.applicantMobileNumber,
-                  ),
-                  buildColumnTitleValue(
-                    title: "Email ID",
-                    value:
-                        applicant.applicantEmailId.isEmpty
-                            ? "-"
-                            : applicant.applicantEmailId,
-                  ),
-                ],
+        return infoCard(
+          bgColor: AppColor.white,
+          borderColor: AppColor.primary,
+
+          titleWidget: Row(
+            spacing: 5,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  applicant.applicantName,
+                  style: AppTextStyle.ts14M(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              Row(
-                spacing: 5,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(
-                    title: "Aadhaar Card No.",
-                    value:
-                        applicant.aadharCardNumber.isEmpty
-                            ? "-"
-                            : applicant.aadharCardNumber,
-                  ),
-                  buildColumnTitleValue(
-                    title: "Aadhaar Card",
-                    value:
-                        applicant.aadharCardURL.isEmpty
-                            ? "-"
-                            : applicant.aadharCardURL,
-                    customValueWidget: CustomButton.documentOutline(
-                      onPressed: () {
-                        if (applicant.aadharCardURL.isNotEmpty) {
-                          showFilePreviewDialog(
-                            context,
-                            applicant.aadharCardURL.split(","),
-                          );
-                        }
-                      },
-                      isDisable: applicant.aadharCardURL.isEmpty,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                spacing: 5,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(
-                    title: "PAN Card No.",
-                    value:
-                        applicant.panNumber.isEmpty ? "-" : applicant.panNumber,
-                  ),
-                  buildColumnTitleValue(
-                    title: "PAN Card.",
-                    value:
-                        applicant.panCardURL.isEmpty
-                            ? "-"
-                            : applicant.panCardURL,
-                    customValueWidget: CustomButton.documentOutline(
-                      onPressed: () {
-                        if (applicant.panCardURL.isNotEmpty) {
-                          showFilePreviewDialog(
-                            context,
-                            applicant.panCardURL.split(","),
-                          );
-                        }
-                      },
-                      isDisable: applicant.panCardURL.isEmpty,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                spacing: 5,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(
-                    title: "Driving License",
-                    value:
-                        applicant.drivingLicenseNumber.isEmpty
-                            ? "-"
-                            : applicant.drivingLicenseNumber,
-                  ),
-                  buildColumnTitleValue(
-                    title: "Driving License",
-                    value:
-                        applicant.drivingLicenseURL.isEmpty
-                            ? "-"
-                            : applicant.drivingLicenseURL,
-                    customValueWidget: CustomButton.documentOutline(
-                      onPressed: () {
-                        if (applicant.drivingLicenseURL.isNotEmpty) {
-                          showFilePreviewDialog(
-                            context,
-                            applicant.drivingLicenseURL.split(","),
-                          );
-                        }
-                      },
-                      isDisable: applicant.drivingLicenseURL.isEmpty,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                spacing: 5,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(
-                    title: "Voting ID No.",
-                    value:
-                        applicant.votingIdNumber.isEmpty
-                            ? "-"
-                            : applicant.votingIdNumber,
-                  ),
-                  buildColumnTitleValue(
-                    title: "Voting ID",
-                    value:
-                        applicant.votingIdURL.isEmpty
-                            ? "-"
-                            : applicant.votingIdURL,
-                    customValueWidget: CustomButton.documentOutline(
-                      onPressed: () {
-                        if (applicant.votingIdURL.isNotEmpty) {
-                          showFilePreviewDialog(
-                            context,
-                            applicant.votingIdURL.split(","),
-                          );
-                        }
-                      },
-                      isDisable: applicant.votingIdURL.isEmpty,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                spacing: 5,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(
-                    title: "Passport No.",
-                    value:
-                        applicant.passportNumber.isEmpty
-                            ? "-"
-                            : applicant.passportNumber,
-                  ),
-                  buildColumnTitleValue(
-                    title: "Passport",
-                    value:
-                        applicant.passportURL.isEmpty
-                            ? "-"
-                            : applicant.passportURL,
-                    customValueWidget: CustomButton.documentOutline(
-                      onPressed: () {
-                        if (applicant.passportURL.isNotEmpty) {
-                          showFilePreviewDialog(
-                            context,
-                            applicant.passportURL.split(","),
-                          );
-                        }
-                      },
-                      isDisable: applicant.passportURL.isEmpty,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                spacing: 5,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(
-                    title: "GST No.",
-                    value:
-                        applicant.gstNumber.isEmpty ? "-" : applicant.gstNumber,
-                  ),
-                  buildColumnTitleValue(
-                    title: "GST",
-                    value:
-                        applicant.gstNumberURL.isEmpty
-                            ? "-"
-                            : applicant.gstNumberURL,
-                    customValueWidget: CustomButton.documentOutline(
-                      onPressed: () {
-                        if (applicant.gstNumberURL.isNotEmpty) {
-                          showFilePreviewDialog(
-                            context,
-                            applicant.gstNumberURL.split(","),
-                          );
-                        }
-                      },
-                      isDisable: applicant.gstNumberURL.isEmpty,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                spacing: 5,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(
-                    title: "Cancelled Cheque",
-                    value:
-                        applicant.cancelledChequeUrl.isEmpty
-                            ? "-"
-                            : applicant.cancelledChequeUrl,
-                    customValueWidget: CustomButton.documentOutline(
-                      onPressed: () {
-                        if (applicant.cancelledChequeUrl.isNotEmpty) {
-                          showFilePreviewDialog(
-                            context,
-                            applicant.cancelledChequeUrl.split(","),
-                          );
-                        }
-                      },
-                      isDisable: applicant.cancelledChequeUrl.isEmpty,
-                    ),
-                  ),
-                  buildColumnTitleValue(
-                    title: "POA (if NRI Execution)",
-                    value: applicant.poaurl.isEmpty ? "-" : applicant.poaurl,
-                    customValueWidget: CustomButton.documentOutline(
-                      onPressed: () {
-                        if (applicant.poaurl.isNotEmpty) {
-                          showFilePreviewDialog(
-                            context,
-                            applicant.poaurl.split(","),
-                          );
-                        }
-                      },
-                      isDisable: applicant.poaurl.isEmpty,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                spacing: 5,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(
-                    title: "Income Docs (Form 16 / ITR)",
-                    value:
-                        applicant.incomeForm16Itrurl.isEmpty
-                            ? "-"
-                            : applicant.incomeForm16Itrurl,
-                    customValueWidget: CustomButton.documentOutline(
-                      onPressed: () {
-                        if (applicant.incomeForm16Itrurl.isNotEmpty) {
-                          showFilePreviewDialog(
-                            context,
-                            applicant.incomeForm16Itrurl.split(","),
-                          );
-                        }
-                      },
-                      isDisable: applicant.cancelledChequeUrl.isEmpty,
-                    ),
-                  ),
-                  buildColumnTitleValue(
-                    title: "NRE / NRO Bank Details",
-                    value:
-                        applicant.nreNroBankDetailsUrl.isEmpty
-                            ? "-"
-                            : applicant.nreNroBankDetailsUrl,
-                    customValueWidget: CustomButton.documentOutline(
-                      onPressed: () {
-                        if (applicant.nreNroBankDetailsUrl.isNotEmpty) {
-                          showFilePreviewDialog(
-                            context,
-                            applicant.nreNroBankDetailsUrl.split(","),
-                          );
-                        }
-                      },
-                      isDisable: applicant.nreNroBankDetailsUrl.isEmpty,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                spacing: 5,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(
-                    title: "Nominee Form",
-                    value:
-                        applicant.nomineeFormUrl.isEmpty
-                            ? "-"
-                            : applicant.nomineeFormUrl,
-                    customValueWidget: CustomButton.documentOutline(
-                      onPressed: () {
-                        if (applicant.nomineeFormUrl.isNotEmpty) {
-                          showFilePreviewDialog(
-                            context,
-                            applicant.nomineeFormUrl.split(","),
-                          );
-                        }
-                      },
-                      isDisable: applicant.cancelledChequeUrl.isEmpty,
-                    ),
-                  ),
-                  buildColumnTitleValue(
-                    title: "NRE / NRO Bank Details",
-                    value:
-                        applicant.nreNroBankDetailsUrl.isEmpty
-                            ? "-"
-                            : applicant.nreNroBankDetailsUrl,
-                    customValueWidget: CustomButton.documentOutline(
-                      onPressed: () {
-                        if (applicant.nreNroBankDetailsUrl.isNotEmpty) {
-                          showFilePreviewDialog(
-                            context,
-                            applicant.nreNroBankDetailsUrl.split(","),
-                          );
-                        }
-                      },
-                      isDisable: applicant.nreNroBankDetailsUrl.isEmpty,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                spacing: 5,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(
-                    title: "Profile Photo",
-                    value:
-                        applicant.photoURL.isEmpty ? "-" : applicant.photoURL,
-                    customValueWidget: CustomButton.documentOutline(
-                      onPressed: () {
-                        if (applicant.photoURL.isNotEmpty) {
-                          showFilePreviewDialog(
-                            context,
-                            applicant.photoURL.split(","),
-                          );
-                        }
-                      },
-                      isDisable: applicant.photoURL.isEmpty,
-                    ),
-                  ),
-                  Expanded(child: SizedBox()),
-                ],
-              ),
+              horizontalSpacing(),
+              _buildApplicantTypeWidget(applicant.applicantType),
             ],
           ),
+
+          [
+            {
+              "title": "Mobile Number",
+              "value": applicant.applicantMobileNumber,
+            },
+            {"title": "Email ID", "value": applicant.applicantEmailId},
+            {"title": "Aadhaar Card No.", "value": applicant.aadharCardNumber},
+            {
+              "title": "Aadhaar Card",
+              "value": applicant.aadharCardURL,
+              "widget": CustomButton.documentOutline(
+                onPressed: () {
+                  if (applicant.aadharCardURL.isNotEmpty) {
+                    showFilePreviewDialog(
+                      context,
+                      applicant.aadharCardURL.split(","),
+                    );
+                  }
+                },
+                isDisable: applicant.aadharCardURL.isEmpty,
+              ),
+            },
+            {"title": "PAN Card No.", "value": applicant.panNumber},
+            {
+              "title": "PAN Card.",
+              "value": applicant.panCardURL,
+              "widget": CustomButton.documentOutline(
+                onPressed: () {
+                  if (applicant.panCardURL.isNotEmpty) {
+                    showFilePreviewDialog(
+                      context,
+                      applicant.panCardURL.split(","),
+                    );
+                  }
+                },
+                isDisable: applicant.panCardURL.isEmpty,
+              ),
+            },
+            {
+              "title": "Driving License",
+              "value": applicant.drivingLicenseNumber,
+            },
+            {
+              "title": "Driving License",
+              "value": applicant.drivingLicenseURL,
+              "widget": CustomButton.documentOutline(
+                onPressed: () {
+                  if (applicant.drivingLicenseURL.isNotEmpty) {
+                    showFilePreviewDialog(
+                      context,
+                      applicant.drivingLicenseURL.split(","),
+                    );
+                  }
+                },
+                isDisable: applicant.drivingLicenseURL.isEmpty,
+              ),
+            },
+            {"title": "Voting ID No.", "value": applicant.votingIdNumber},
+            {
+              "title": "Voting ID",
+              "value": applicant.votingIdURL,
+              "widget": CustomButton.documentOutline(
+                onPressed: () {
+                  if (applicant.votingIdURL.isNotEmpty) {
+                    showFilePreviewDialog(
+                      context,
+                      applicant.votingIdURL.split(","),
+                    );
+                  }
+                },
+                isDisable: applicant.votingIdURL.isEmpty,
+              ),
+            },
+            {"title": "Passport No.", "value": applicant.passportNumber},
+            {
+              "title": "Passport",
+              "value": applicant.passportURL,
+              "widget": CustomButton.documentOutline(
+                onPressed: () {
+                  if (applicant.passportURL.isNotEmpty) {
+                    showFilePreviewDialog(
+                      context,
+                      applicant.passportURL.split(","),
+                    );
+                  }
+                },
+                isDisable: applicant.passportURL.isEmpty,
+              ),
+            },
+            {"title": "GST No.", "value": applicant.gstNumber},
+            {
+              "title": "GST Certificate",
+              "value": applicant.gstNumberURL,
+              "widget": CustomButton.documentOutline(
+                onPressed: () {
+                  if (applicant.gstNumberURL.isNotEmpty) {
+                    showFilePreviewDialog(
+                      context,
+                      applicant.gstNumberURL.split(","),
+                    );
+                  }
+                },
+                isDisable: applicant.gstNumberURL.isEmpty,
+              ),
+            },
+            {
+              "title": "Cancelled Cheque",
+              "value": applicant.cancelledChequeUrl,
+              "widget": CustomButton.documentOutline(
+                onPressed: () {
+                  if (applicant.cancelledChequeUrl.isNotEmpty) {
+                    showFilePreviewDialog(
+                      context,
+                      applicant.cancelledChequeUrl.split(","),
+                    );
+                  }
+                },
+                isDisable: applicant.cancelledChequeUrl.isEmpty,
+              ),
+            },
+            {
+              "title": "POA (if NRI Execution)",
+              "value": applicant.poaurl,
+              "widget": CustomButton.documentOutline(
+                onPressed: () {
+                  if (applicant.poaurl.isNotEmpty) {
+                    showFilePreviewDialog(context, applicant.poaurl.split(","));
+                  }
+                },
+                isDisable: applicant.poaurl.isEmpty,
+              ),
+            },
+            {
+              "title": "Income Docs (Form 16 / ITR)",
+              "value": applicant.incomeForm16Itrurl,
+              "widget": CustomButton.documentOutline(
+                onPressed: () {
+                  if (applicant.incomeForm16Itrurl.isNotEmpty) {
+                    showFilePreviewDialog(
+                      context,
+                      applicant.incomeForm16Itrurl.split(","),
+                    );
+                  }
+                },
+                isDisable: applicant.incomeForm16Itrurl.isEmpty,
+              ),
+            },
+            {
+              "title": "NRE / NRO Bank Details",
+              "value": applicant.nreNroBankDetailsUrl,
+              "widget": CustomButton.documentOutline(
+                onPressed: () {
+                  if (applicant.nreNroBankDetailsUrl.isNotEmpty) {
+                    showFilePreviewDialog(
+                      context,
+                      applicant.nreNroBankDetailsUrl.split(","),
+                    );
+                  }
+                },
+                isDisable: applicant.nreNroBankDetailsUrl.isEmpty,
+              ),
+            },
+            {
+              "title": "Nominee Form",
+              "value": applicant.nomineeFormUrl,
+              "widget": CustomButton.documentOutline(
+                onPressed: () {
+                  if (applicant.nomineeFormUrl.isNotEmpty) {
+                    showFilePreviewDialog(
+                      context,
+                      applicant.nomineeFormUrl.split(","),
+                    );
+                  }
+                },
+                isDisable: applicant.nomineeFormUrl.isEmpty,
+              ),
+            },
+            {
+              "title": "Statement Of Source Of Funds",
+              "value": applicant.statementOfSourceOfFundsURL,
+              "widget": CustomButton.documentOutline(
+                onPressed: () {
+                  if (applicant.statementOfSourceOfFundsURL.isNotEmpty) {
+                    showFilePreviewDialog(
+                      context,
+                      applicant.statementOfSourceOfFundsURL.split(","),
+                    );
+                  }
+                },
+                isDisable: applicant.statementOfSourceOfFundsURL.isEmpty,
+              ),
+            },
+
+            {
+              "title": "Payment Proof",
+              "value": applicant.paymentProofURL,
+              "widget": CustomButton.documentOutline(
+                onPressed: () {
+                  if (applicant.paymentProofURL.isNotEmpty) {
+                    showFilePreviewDialog(
+                      context,
+                      applicant.paymentProofURL.split(","),
+                    );
+                  }
+                },
+                isDisable: applicant.paymentProofURL.isEmpty,
+              ),
+            },
+            {
+              "title": "Profile Photo",
+              "value": applicant.photoURL,
+              "widget": CustomButton.documentOutline(
+                onPressed: () {
+                  if (applicant.photoURL.isNotEmpty) {
+                    showFilePreviewDialog(
+                      context,
+                      applicant.photoURL.split(","),
+                    );
+                  }
+                },
+                isDisable: applicant.photoURL.isEmpty,
+              ),
+            },
+          ],
         );
       },
     );
@@ -2091,7 +1774,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 children: [
                   buildColumnTitleValue(
                     title: "Value (In ₹)",
-                    value: "₹ ${extraCharge.value.displayFormatedAmount()}",
+                    value: addCommasToInteger(extraCharge.value),
                   ),
                   buildColumnTitleValue(
                     title: "GST (%)",
@@ -2103,7 +1786,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 children: [
                   buildColumnTitleValue(
                     title: "GST Value (₹)",
-                    value: "₹ ${extraCharge.gstValue.displayFormatedAmount()}",
+                    value: addCommasToInteger(extraCharge.gstValue),
                   ),
                 ],
               ),
@@ -2162,8 +1845,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   ),
                   buildColumnTitleValue(
                     title: "Amount (₹)",
-                    value:
-                        "₹ ${payment.paymentScheduleAmount.displayFormatedAmount()}",
+                    value: addCommasToInteger(payment.paymentScheduleAmount),
                   ),
                 ],
               ),
@@ -2173,13 +1855,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 children: [
                   buildColumnTitleValue(
                     title: "GST Amount (₹)",
-                    value:
-                        "₹ ${payment.paymentScheduleGSTAmount.displayFormatedAmount()}",
+                    value: addCommasToInteger(payment.paymentScheduleGSTAmount),
                   ),
                   buildColumnTitleValue(
                     title: "TDS Amount (₹)",
-                    value:
-                        "₹ ${payment.paymentScheduleTDSAmount.displayFormatedAmount()}",
+                    value: addCommasToInteger(payment.paymentScheduleTDSAmount),
                   ),
                 ],
               ),
@@ -2335,8 +2015,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Booking Amount",
-                      value:
-                          "₹ ${bookingModel!.bookingAmount.displayFormatedAmount()}",
+                      value: addCommasToInteger(bookingModel!.bookingAmount),
                     ),
                   ],
                 ),

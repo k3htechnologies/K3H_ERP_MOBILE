@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -765,4 +766,42 @@ UserModel getCurrentUser() {
     LocalStorageManager().getString(StorageKey.currentUser) ?? "",
   );
   return UserModel.fromJson(userJson);
+}
+
+extension MaterialItemExtension on MaterialRequisitionQuotationDatum {
+  double get amountValue {
+    if (amount > 0) return amount;
+    return materialQuantity * materialPerUnit;
+  }
+
+  double get taxPercent => cgst + sgst + ugst + tgst;
+
+  double get taxAmount => amountValue * taxPercent / 100;
+
+  double get grandTotal => amountValue + taxAmount;
+}
+
+extension FinalizeVendorExtension on FinalizeVendorForComparisonModel {
+  List<MaterialRequisitionQuotationDatum> get allItems =>
+      materialRequisitionQuotationTermsData
+          .expand((t) => t.materialRequisitionQuotationData)
+          .toList();
+
+  double get baseTotal => allItems.fold(0.0, (sum, e) => sum + e.amountValue);
+
+  double get taxTotal => allItems.fold(0.0, (sum, e) => sum + e.taxAmount);
+
+  double get grandTotal => allItems.fold(0.0, (sum, e) => sum + e.grandTotal);
+
+  double get paid => paidAmount ?? 0;
+
+  double get pendingAmount => grandTotal - paid;
+
+  double get avgDeliveryDays {
+    if (materialRequisitionQuotationTermsData.isEmpty) return 0;
+    final total = materialRequisitionQuotationTermsData
+        .map((e) => e.expectedDeliveryInDays)
+        .fold(0.0, (a, b) => a + b);
+    return total / materialRequisitionQuotationTermsData.length;
+  }
 }

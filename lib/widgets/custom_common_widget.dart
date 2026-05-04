@@ -287,7 +287,7 @@ Widget infoCard(
                                 : second["value"] ?? "",
                         customValueWidget: second["widget"],
                       )
-                      : const SizedBox(),
+                      : const Spacer(),
                 ],
               ),
             );

@@ -135,8 +135,6 @@ class _CustomSubModuleTileState extends State<CustomSubModuleTile> {
                             Expanded(
                               child: Text(
                                 widget.title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                                 style: AppTextStyle.ts14R(
                                   color:
                                       widget.isActive ? AppColor.primary : null,

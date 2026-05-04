@@ -1,13 +1,14 @@
 import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor.model.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/repository/finalize_vendor.repository.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/data/model/invoice.model.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/data/repository/invoice.repository.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/repository/material_requisition.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -22,8 +23,14 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
   // REPOSITORY
   final MaterialRequisitionRepository _materialRequisitionRepository =
       serviceLocator<MaterialRequisitionRepository>();
-  FinalizeVendorRepository finalizeVendorRepository =
+  final FinalizeVendorRepository finalizeVendorRepository =
       serviceLocator<FinalizeVendorRepository>();
+  final InvoiceRepository invoiceRepository =
+      serviceLocator<InvoiceRepository>();
+
+  Future resetOverview() async {
+    emit(state.copyWith(materialRequisitionOverview: null));
+  }
 
   void searchMaterialRequisition(
     BuildContext context,
@@ -85,7 +92,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
   }
 
   //  Needed for Overview
-  Future<MaterialRequisitionModel?> getMaterialRequisitionDetailsById(
+  Future<void> getMaterialRequisitionDetailsById(
     BuildContext context,
     int pageNumber,
     int projectId,
@@ -101,11 +108,10 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
           queryParams: {"MaterialRequisitionId": materialRequisitionId},
         );
 
-    return result.fold(
+    result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
-        return null;
       },
       (response) {
         final List<MaterialRequisitionModel> materialRequisitionList =
@@ -115,13 +121,17 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
                 ? materialRequisitionList.first
                 : null;
 
-        emit(state.copyWith(isLoading: false));
-        return materialRequisitionDetails;
+        emit(
+          state.copyWith(
+            isLoading: false,
+            materialRequisitionOverview: materialRequisitionDetails,
+          ),
+        );
       },
     );
   }
 
-  Future<RequisitionVendorModel?> getFinalizedVendor(
+  Future<void> getFinalizedVendor(
     BuildContext context,
     int projectId,
     int materialRequisitionId,
@@ -129,26 +139,56 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
   ) async {
     emit(state.copyWith(isLoading: true));
 
-    var result = await finalizeVendorRepository.getFinalizedVendor(
+    var result = await finalizeVendorRepository.getSelectedVendorForCompare(
       projectId: projectId,
       materialRequisitionId: materialRequisitionId,
       uniquekey: uniquekey,
     );
 
-    return result.fold(
+    result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
-        return null;
       },
       (response) {
-        final List<RequisitionVendorModel> requisitionVendorList =
-            response['data'] as List<RequisitionVendorModel>;
+        final List<FinalizeVendorForComparisonModel> requisitionVendorList =
+            response['data'] as List<FinalizeVendorForComparisonModel>;
+        final finalizedVendorList =
+            requisitionVendorList
+                .where((vendor) => vendor.isFinalized == true)
+                .toList();
 
-        emit(state.copyWith(isLoading: false));
-        return requisitionVendorList.isNotEmpty
-            ? requisitionVendorList.first
-            : null;
+        emit(
+          state.copyWith(
+            isLoading: false,
+            finalizedVendor:
+                finalizedVendorList.isNotEmpty
+                    ? finalizedVendorList.first
+                    : null,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<List<InvoiceModel>> getInvoiceForOverview({
+    required int projectId,
+    required int materialRequisitionId,
+    required String uniqueKey,
+    required BuildContext context,
+  }) async {
+    var result = await invoiceRepository.getRequisitionInvoice(
+      projectId: projectId,
+      materialRequisitionId: materialRequisitionId,
+      uniqueKey: uniqueKey,
+    );
+    return result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+        return [];
+      },
+      (response) {
+        return response["data"] as List<InvoiceModel>;
       },
     );
   }

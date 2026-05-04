@@ -86,6 +86,8 @@ class AppRoutes {
   static String addMaterial = "/addMaterial";
   static String addMaterialRequisition = "/addMaterialRequisition";
   static String viewMaterialRequisition = "/viewMaterialRequisition";
+  static String addGrn = "/addGrn";
+  static String addGrnMaterial = "/addGrnMaterial";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// INVENTORY
@@ -123,6 +125,7 @@ class AppRoutes {
   static String channelPartner = "/channelPartner";
   static String addChannelPartner = "/addChannelPartner";
   static String channelPartnerView = "/channelPartnerView";
+  static String cpUniverse = "/cpUniverse";
 
   // SALES OTHER CHARGES
   static String otherCharges = "/otherCharges";

@@ -114,7 +114,7 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
         searchHintText: "Search by Charges",
         authorization: _routeAuthorizationModel,
         onAddCallback: () async {
-          if(_project.projectId==0){
+          if (_project.projectId == 0) {
             showErrorMessage(context, 'Error', "Please select a project");
             return;
           }
@@ -131,7 +131,7 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
           }
         },
         onExportCallback: (value) {
-          if(_project.projectId==0){
+          if (_project.projectId == 0) {
             showErrorMessage(context, 'Error', "Please select a project");
             return;
           }
@@ -192,95 +192,102 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
                         Expanded(
                           child: Text(
                             otherCharges.chargeName,
-                            style: AppTextStyle.ts14SB(
-                              color: AppColor.primary,
-                            )
+                            style: AppTextStyle.ts14SB(color: AppColor.primary),
                           ),
                         ),
                         horizontalSpacing(),
-                        if(_routeAuthorizationModel.isAction)
-                        Row(
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addOtherCharges,
-                                  queryParameters: {
-                                    'otherCharges': Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(otherCharges.toJson()),
+                        if (_routeAuthorizationModel.isAction)
+                          Row(
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addOtherCharges,
+                                    queryParameters: {
+                                      'otherCharges': Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(otherCharges.toJson()),
+                                        ),
                                       ),
-                                    ),
-                                    'index': index.toString(),
-                                    'projectId': _project.projectId.toString(),
-                                  },
-                                );
-                              },
-                            ),
-                            horizontalSpacing(),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeleteOtherCharges(
-                                  context,
-                                  _project.projectId,
-                                  otherCharges.otherChargesId,
-                                  otherCharges.uniquekey,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                                      'index': index.toString(),
+                                      'projectId':
+                                          _project.projectId.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                              horizontalSpacing(),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopupToDeleteOtherCharges(
+                                    context,
+                                    _project.projectId,
+                                    otherCharges.otherChargesId,
+                                    otherCharges.uniquekey,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                       ],
                     ),
                     buildRowTitleValue(
                       title: "Value",
-                      value: "₹ ${otherCharges.value.displayFormatedAmount()}",
-                      fixesWidth: 180
+                      value: addCommasToInteger(otherCharges.value),
+                      fixesWidth: 180,
                     ),
                     buildRowTitleValue(
                       title: "Calculated On",
                       value: otherCharges.calculatedOn,
-                        fixesWidth: 180
+                      fixesWidth: 180,
                     ),
                     buildRowTitleValue(
                       title: "GST Percentage",
                       value: "${otherCharges.gstPercentage} %",
-                        fixesWidth: 180
+                      fixesWidth: 180,
                     ),
                     buildRowTitleValue(
                       title: "GST Value",
-                      value: "₹ ${otherCharges.gstValue.displayFormatedAmount()}",
-                        fixesWidth: 180
+                      value: addCommasToInteger(otherCharges.gstValue),
+                      fixesWidth: 180,
                     ),
                     buildRowTitleValue(
                       title: "Value + GST Value (₹)",
-                      value: "₹ ${(otherCharges.value + otherCharges.gstValue).displayFormatedAmount()}",
-                        fixesWidth: 180
+                      value: addCommasToInteger(
+                        otherCharges.value + otherCharges.gstValue,
+                      ),
+                      fixesWidth: 180,
                     ),
                     buildRowTitleValue(
                       title: "Created By",
                       value: otherCharges.createdBy,
-                        fixesWidth: 180,
-                        singleLine: false
+                      fixesWidth: 180,
+                      singleLine: false,
                     ),
                     buildRowTitleValue(
                       title: "Created Date",
                       value: formatDate(otherCharges.createdDate),
-                        fixesWidth: 180,
-                        singleLine: false
+                      fixesWidth: 180,
+                      singleLine: false,
                     ),
                     buildRowTitleValue(
-                        title: "Modified By",
-                        value: otherCharges.modifiedBy.isNotEmpty?otherCharges.modifiedBy:"-",
-                        fixesWidth: 180,
-                      singleLine: false
+                      title: "Modified By",
+                      value:
+                          otherCharges.modifiedBy.isNotEmpty
+                              ? otherCharges.modifiedBy
+                              : "-",
+                      fixesWidth: 180,
+                      singleLine: false,
                     ),
                     buildRowTitleValue(
-                        title: "Modified Date",
-                        value: otherCharges.modifiedDate!=null? formatDate(otherCharges.modifiedDate):"-",
-                        fixesWidth: 180,
-                        singleLine: false
+                      title: "Modified Date",
+                      value:
+                          otherCharges.modifiedDate != null
+                              ? formatDate(otherCharges.modifiedDate)
+                              : "-",
+                      fixesWidth: 180,
+                      singleLine: false,
                     ),
                   ],
                 ),

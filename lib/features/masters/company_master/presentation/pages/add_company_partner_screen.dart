@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
@@ -42,13 +43,6 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
   late TextEditingController _percentageC;
   late TextEditingController _panC;
   late TextEditingController _aadhaarC;
-
-  // GENDER LIST
-  final List<Map<String, dynamic>> genderList = const [
-    {"zAttributesId": 1, "DisplayName": "Male"},
-    {"zAttributesId": 2, "DisplayName": "Female"},
-    {"zAttributesId": 3, "DisplayName": "Other"},
-  ];
 
   // SELECTED DOB
   DateTime? dateOfBirth;

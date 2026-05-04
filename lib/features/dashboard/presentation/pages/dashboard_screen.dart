@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -1121,10 +1122,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: actions.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
-              crossAxisSpacing: 10,
+              crossAxisSpacing: 10.h,
               childAspectRatio: 1.25,
+              mainAxisExtent: 90.h,
             ),
             itemBuilder: (context, index) {
               final item = actions[index];
@@ -1828,8 +1830,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                                 imageUrl: table10List.first.profilePhotoURL,
                                 fit: BoxFit.fill,
-                                width: 50,
-                                height: 50,
+                                width: 50.w,
+                                height: 50.h,
                               ),
                             )
                             : Text(
@@ -1844,15 +1846,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     table10List.first.managerName,
                     style: AppTextStyle.ts14B(),
                   ),
-                  subtitle: Text(
-                    table10List.first.managerDesignation,
-                    style: AppTextStyle.ts14R(
-                      color: AppColor.black.withValues(alpha: 0.50),
-                    ),
-                  ),
-                  trailing: Text(
-                    table10List.first.managerDepartment,
-                    style: AppTextStyle.ts14R(),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        table10List.first.managerDesignation,
+                        style: AppTextStyle.ts14R(
+                          color: AppColor.black.withValues(alpha: 0.50),
+                        ),
+                      ),
+                      Text(
+                        table10List.first.managerDepartment,
+                        style: AppTextStyle.ts14R(),
+                      ),
+                    ],
                   ),
                 ),
                 verticalSpacing(),

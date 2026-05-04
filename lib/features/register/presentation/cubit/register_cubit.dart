@@ -32,7 +32,7 @@ class RegisterCubit extends Cubit<RegisterState> {
 
       final result = await registerRepository.sendOTPModuleBased(
         mobileNumber: phone,
-        module: "OTP".toLowerCase(),
+        module: "REGISTER".toLowerCase(),
       );
 
       goRouter.pop();
@@ -56,7 +56,9 @@ class RegisterCubit extends Cubit<RegisterState> {
       );
     } catch (e) {
       goRouter.pop();
-      showErrorMessage(context, "Error", e.toString());
+      if (context.mounted) {
+        showErrorMessage(context, "Error", e.toString());
+      }
       emit(state.copyWith(isLoading: false));
     }
   }
@@ -102,7 +104,7 @@ class RegisterCubit extends Cubit<RegisterState> {
     final result = await registerRepository.validateOTP(
       mobileNumber: mobile,
       otp: enteredOtp,
-      type: "OTP".toLowerCase(),
+      type: "REGISTER".toLowerCase(),
     );
     result.fold(
       (failure) {

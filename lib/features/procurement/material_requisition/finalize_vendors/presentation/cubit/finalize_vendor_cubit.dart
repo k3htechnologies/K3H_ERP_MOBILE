@@ -235,6 +235,10 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
                 magicLinkUrl: e.magicLinkUrl,
                 systemGeneratedCode: e.systemGeneratedCode,
                 projectName: e.projectName,
+                paidAmount: e.paidAmount,
+                totalPoAmount: e.totalPoAmount,
+                totalInvoiceAmount: e.totalInvoiceAmount,
+                totalInvoice: e.totalInvoice,
               ),
             )
             .toList();
