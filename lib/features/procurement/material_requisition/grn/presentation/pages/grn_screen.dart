@@ -12,7 +12,6 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -28,7 +27,6 @@ class GRNScreen extends StatefulWidget {
 class _GRNScreenState extends State<GRNScreen> {
   late GrnCubit _grnCubit;
   late AuthorizationModel _routeAuthorizationModel;
-  late TextEditingController _searchC;
   late MaterialRequisitionCubit _materialRequisitionCubit;
 
   @override
@@ -38,7 +36,6 @@ class _GRNScreenState extends State<GRNScreen> {
     _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.materialRequisition]!;
-    _searchC = TextEditingController();
   }
 
   @override

@@ -188,7 +188,7 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
       modifiedById: _isEditMode ? widget.materialDetails!.modifiedById : 0,
       modifiedBy: _isEditMode ? widget.materialDetails!.modifiedBy : "",
       modifiedDate: _isEditMode ? widget.materialDetails!.modifiedDate : null,
-      totalReceivedMaterialQuantity: double.parse(_receivedQuantity.text) ?? 0,
+      totalReceivedMaterialQuantity: double.parse(_receivedQuantity.text),
     );
     if (_isEditMode) {
       _grnCubit.updateMaterialList(material, widget.index);

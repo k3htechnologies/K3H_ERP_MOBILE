@@ -7,7 +7,6 @@ import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/model/grn.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/repository/grn.repository.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -17,21 +16,6 @@ part 'grn_state.dart';
 class GrnCubit extends Cubit<GrnState> {
   GrnCubit() : super(GrnState.initial());
   GrnRepository grnRepository = serviceLocator<GrnRepository>();
-
-  void searchGrn(String query) {
-    List<GRNModel> filteredGRN =
-        state.allGRNList
-            .where(
-              (e) =>
-                  e.challanNumber.toLowerCase().contains(query.toLowerCase()),
-            )
-            .toList();
-    emit(
-      state.copyWith(
-        filteredGRNList: query.isNotEmpty ? filteredGRN : state.allGRNList,
-      ),
-    );
-  }
 
   Future getAllGRNList({
     required BuildContext context,

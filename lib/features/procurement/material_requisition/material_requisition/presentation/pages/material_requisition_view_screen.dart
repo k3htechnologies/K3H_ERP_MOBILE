@@ -120,6 +120,11 @@ class _MaterialRequisitionViewScreenState
           );
           break;
         case 4:
+          if (_purchaseOrderCubit.state.purchaseOrderList.isEmpty) {
+            showErrorMessage(context, "", "Please Generate PO");
+            _tabController.animateTo(3);
+            return;
+          }
           _grnCubit.getAllGRNList(
             context: context,
             projectId: widget.projectId,
