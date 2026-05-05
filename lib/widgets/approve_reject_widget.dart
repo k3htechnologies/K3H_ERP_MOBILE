@@ -135,7 +135,7 @@ class ApproveRejectWidget extends StatelessWidget {
                 child: Container(
                   height: double.infinity,
                   alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   decoration: const BoxDecoration(
                     color: AppColor.white,
                     borderRadius: BorderRadius.only(

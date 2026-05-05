@@ -1,16 +1,20 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/cubit/brokerage_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class BrokerageScreen extends StatefulWidget {
@@ -126,6 +130,7 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
             }
             return ListView.builder(
               controller: scrollController,
+
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               itemCount: _brokerageCubit.state.brokerageList.length + 1,
               itemBuilder: (context, index) {
@@ -139,7 +144,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                 }
                 var brokerage = state.brokerageList[index];
                 return Container(
-                  height: 70,
                   margin: EdgeInsets.only(bottom: 10),
                   padding: EdgeInsets.all(12),
                   decoration: commonCardDecoration(),
@@ -152,17 +156,56 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Expanded(
-                            child: Text(
-                              brokerage.applicantName,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ).copyWith(
-                                decoration: TextDecoration.underline,
-                                decorationColor: AppColor.primary,
+                            child: GestureDetector(
+                              onTap: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.viewBrokerage,
+                                  queryParameters: {
+                                    "brokerage": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(brokerage.toJson()),
+                                      ),
+                                    ),
+                                  },
+                                );
+                              },
+                              child: Text(
+                                brokerage.applicantName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
+                                ),
                               ),
                             ),
                           ),
                         ],
+                      ),
+                      buildRowTitleValue(
+                        title: "Company Name",
+                        value: brokerage.channelPartnerCompany,
+                      ),
+                      buildRowTitleValue(
+                        title: "Mobile No.",
+                        value: brokerage.channelPartnerMobileNumber,
+                      ),
+                      buildRowTitleValue(
+                        title: "Brokerage Amount",
+                        value: addCommasToInteger(
+                          brokerage.brokerageAmount.toDouble(),
+                        ),
+                      ),
+                      buildRowTitleValue(
+                        title: "Raised Invoice Amount",
+                        value: addCommasToInteger(0),
+                      ),
+
+                      buildRowTitleValue(
+                        title: "Paid Amount",
+                        value: addCommasToInteger(
+                          brokerage.paidBrokerageAmount.toDouble(),
+                        ),
                       ),
                     ],
                   ),

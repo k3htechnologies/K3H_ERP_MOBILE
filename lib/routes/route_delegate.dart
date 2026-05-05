@@ -23,12 +23,14 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/cp_universe.dart';
+import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/paid_brokerage_booking.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/cubit/brokerage_cubit.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/add_brokerage_invoice_screen.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/add_brokerage_payment.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/brokerage_screen.dart';
+import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/view_brokerage_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/pages/pay_track_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
@@ -5031,6 +5033,27 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.brokerage,
               builder: (context, state) {
                 return const BrokerageScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewBrokerage,
+              path: AppRoutes.viewBrokerage,
+              builder: (context, state) {
+                final queryParameterBrokerage =
+                    state.uri.queryParameters['brokerage'];
+
+                final BrokerageModel? brokerage =
+                    queryParameterBrokerage != null
+                        ? BrokerageModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterBrokerage),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                return ViewBrokerageScreen(brokerageModel: brokerage!);
               },
             ),
             GoRoute(

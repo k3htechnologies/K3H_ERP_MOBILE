@@ -65,7 +65,7 @@ Widget buildColumnTitleValue({
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
+        Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
         verticalSpacing(height: 4),
         customValueWidget ??
             Text(
