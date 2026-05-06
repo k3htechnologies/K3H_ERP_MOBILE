@@ -79,6 +79,7 @@ class _MaterialRequisitionViewScreenState
       widget.projectId,
       widget.materialRequisitionId,
     );
+
     if (mounted) {
       await _materialRequisitionCubit.getFinalizedVendor(
         context,

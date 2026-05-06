@@ -805,3 +805,13 @@ extension FinalizeVendorExtension on FinalizeVendorForComparisonModel {
     return total / materialRequisitionQuotationTermsData.length;
   }
 }
+
+String queryParamsFormatter({required Map<String, dynamic>? queryParams}) {
+  String url = '';
+  queryParams?.forEach((key, value) {
+    if (value != null && value.toString().trim().isNotEmpty) {
+      url += "&$key=$value";
+    }
+  });
+  return url;
+}

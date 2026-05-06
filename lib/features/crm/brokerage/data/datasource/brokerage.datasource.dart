@@ -3,6 +3,7 @@ import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/paid_brokerage_booking.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 abstract interface class BrokerageDatasource {
   Future<Map<String, dynamic>> apicallPullBrokerageBooking({
@@ -35,6 +36,7 @@ abstract interface class BrokerageDatasource {
     required int pageNumber,
     required int pageSize,
     required int projectId,
+    required int bookingId,
     Map<String, dynamic>? queryParams,
   });
 
@@ -74,7 +76,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
     }) {
       String url =
           "Brokerage/PullBrokerageBooking?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -121,7 +123,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
     }) {
       String url =
           "Brokerage/PullBrokerageInvoice?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&BookingId=$bookingId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -132,6 +134,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
           pageNumber: pageNumber,
           projectId: projectId,
           bookingId: bookingId,
+          queryParams: queryParams,
         ),
       );
       return {
@@ -233,17 +236,19 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
     required int pageNumber,
     required int pageSize,
     required int projectId,
+    required int bookingId,
     Map<String, dynamic>? queryParams,
   }) async {
     String pullPaidCrmBrokerageBookingUrl({
       required int pageSize,
       required int pageNumber,
       required int projectId,
+      required int bookingId,
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "Brokerage/PullPaidBrokerageBooking?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+          "Brokerage/PullPaidBrokerageBooking?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&BookingId=$bookingId";
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -253,6 +258,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
           pageSize: pageSize,
           pageNumber: pageNumber,
           projectId: projectId,
+          bookingId: bookingId,
           queryParams: queryParams,
         ),
       );
@@ -270,6 +276,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
           pageNumber: pageNumber,
           pageSize: pageSize,
           projectId: projectId,
+          bookingId: bookingId,
           queryParams: queryParams,
         );
       }

@@ -9,7 +9,10 @@ abstract class ENV {
 
   @EnviedField(varName: 'BASE_URL', obfuscate: true)
   static final String baseUrl = _ENV.baseUrl;
+
+  @EnviedField(varName: 'ANDROID_VERSION', obfuscate: true)
+  static final String androidVersion = _ENV.androidVersion;
+
+  @EnviedField(varName: 'IOS_VERSION', obfuscate: true)
+  static final String iosVersion = _ENV.iosVersion;
 }
-
-
-// flutter pub run build_runner build

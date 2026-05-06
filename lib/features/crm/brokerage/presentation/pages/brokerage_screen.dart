@@ -157,7 +157,8 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                         children: [
                           Expanded(
                             child: GestureDetector(
-                              onTap: () {
+                              onTap: () async {
+                                await _brokerageCubit.resetSearch();
                                 goRouter.pushNamed(
                                   AppRoutes.viewBrokerage,
                                   queryParameters: {
@@ -192,9 +193,7 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                       ),
                       buildRowTitleValue(
                         title: "Brokerage Amount",
-                        value: addCommasToInteger(
-                          brokerage.brokerageAmount.toDouble(),
-                        ),
+                        value: addCommasToInteger(brokerage.brokerageAmount),
                       ),
                       buildRowTitleValue(
                         title: "Raised Invoice Amount",
@@ -204,7 +203,7 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                       buildRowTitleValue(
                         title: "Paid Amount",
                         value: addCommasToInteger(
-                          brokerage.paidBrokerageAmount.toDouble(),
+                          brokerage.paidBrokerageAmount,
                         ),
                       ),
                     ],

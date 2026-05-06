@@ -1,4 +1,3 @@
-
 import 'package:k3h_erp_app/utils/common_function.dart';
 
 class BrokerageModel {
@@ -13,8 +12,8 @@ class BrokerageModel {
   String channelPartnerCompany;
   String channelPartnerMobileNumber;
   int brokeragePercentage;
-  int brokerageAmount;
-  int paidBrokerageAmount;
+  double brokerageAmount;
+  double paidBrokerageAmount;
   int inventoryFlatId;
   String buildingNumber;
   String wing;
@@ -62,39 +61,42 @@ class BrokerageModel {
     required this.modifiedDate,
   });
 
-  factory BrokerageModel.fromJson(Map<String, dynamic> json) =>
-      BrokerageModel(
-        bookingId: parseValue<int>(json, "BookingId"),
-        uniquekey: parseValue<String>(json, "Uniquekey"),
-        projectId: parseValue<int>(json, "ProjectId"),
-        projectName: parseValue<String>(json, "ProjectName"),
-        projectLocation: parseValue<String>(json, "ProjectLocation"),
-        applicantName: parseValue<String>(json, "ApplicantName"),
-        applicantMobileNumber: parseValue<String>(json, "ApplicantMobileNumber"),
-        channelPartnerName: parseValue<String>(json, "ChannelPartnerName"),
-        channelPartnerCompany: parseValue<String>(json, "ChannelPartnerCompany"),
-        channelPartnerMobileNumber: parseValue<String>(json, "ChannelPartnerMobileNumber"),
-        brokeragePercentage: parseValue<int>(json, "BrokeragePercentage"),
-        brokerageAmount: parseValue<int>(json, "BrokerageAmount"),
-        paidBrokerageAmount: parseValue<int>(json, "PaidBrokerageAmount"),
-        inventoryFlatId: parseValue<int>(json, "InventoryFlatId"),
-        buildingNumber: parseValue<String>(json, "BuildingNumber"),
-        wing: parseValue<String>(json, "Wing"),
-        floor: parseValue<String>(json, "Floor"),
-        flat: parseValue<String>(json, "Flat"),
-        flatType: parseValue<String>(json, "FlatType"),
-        reraCarpetAreaSqFt: parseValue<int>(json, "RERACarpetAreaSqFt"),
-        flatConfiguration: parseValue<String>(json, "FlatConfiguration"),
-        agreementValue: parseValue<int>(json, "AgreementValue"),
-        createdById: parseValue<int>(json, "CreatedById"),
-        createdBy: parseValue<String>(json, "CreatedBy"),
-        createdDate: parseValue<DateTime>(json, "CreatedDate"),
-        modifiedById: parseValue<int>(json, "ModifiedById"),
-        modifiedBy: parseValue<String>(json, "ModifiedBy"),
-        modifiedDate: json["ModifiedDate"] == null
+  factory BrokerageModel.fromJson(Map<String, dynamic> json) => BrokerageModel(
+    bookingId: parseValue<int>(json, "BookingId"),
+    uniquekey: parseValue<String>(json, "Uniquekey"),
+    projectId: parseValue<int>(json, "ProjectId"),
+    projectName: parseValue<String>(json, "ProjectName"),
+    projectLocation: parseValue<String>(json, "ProjectLocation"),
+    applicantName: parseValue<String>(json, "ApplicantName"),
+    applicantMobileNumber: parseValue<String>(json, "ApplicantMobileNumber"),
+    channelPartnerName: parseValue<String>(json, "ChannelPartnerName"),
+    channelPartnerCompany: parseValue<String>(json, "ChannelPartnerCompany"),
+    channelPartnerMobileNumber: parseValue<String>(
+      json,
+      "ChannelPartnerMobileNumber",
+    ),
+    brokeragePercentage: parseValue<int>(json, "BrokeragePercentage"),
+    brokerageAmount: parseValue<double>(json, "BrokerageAmount"),
+    paidBrokerageAmount: parseValue<double>(json, "PaidBrokerageAmount"),
+    inventoryFlatId: parseValue<int>(json, "InventoryFlatId"),
+    buildingNumber: parseValue<String>(json, "BuildingNumber"),
+    wing: parseValue<String>(json, "Wing"),
+    floor: parseValue<String>(json, "Floor"),
+    flat: parseValue<String>(json, "Flat"),
+    flatType: parseValue<String>(json, "FlatType"),
+    reraCarpetAreaSqFt: parseValue<int>(json, "RERACarpetAreaSqFt"),
+    flatConfiguration: parseValue<String>(json, "FlatConfiguration"),
+    agreementValue: parseValue<int>(json, "AgreementValue"),
+    createdById: parseValue<int>(json, "CreatedById"),
+    createdBy: parseValue<String>(json, "CreatedBy"),
+    createdDate: parseValue<DateTime>(json, "CreatedDate"),
+    modifiedById: parseValue<int>(json, "ModifiedById"),
+    modifiedBy: parseValue<String>(json, "ModifiedBy"),
+    modifiedDate:
+        json["ModifiedDate"] == null
             ? null
             : parseValue<DateTime>(json, "ModifiedDate"),
-      );
+  );
 
   Map<String, dynamic> toJson() => {
     "BookingId": bookingId,

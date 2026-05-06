@@ -3,10 +3,8 @@ import 'dart:developer';
 
 import 'dart:io';
 import 'dart:ui';
-import 'package:device_preview/device_preview.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
@@ -36,7 +34,7 @@ void main() async {
   // INITIAL SETUP
   await initialSetup();
   // RUN APP
-  runApp(DevicePreview(enabled: !kReleaseMode, builder: (context) => MyApp()));
+  runApp(MyApp());
 }
 
 Future<void> requestPhonePermission() async {
@@ -187,9 +185,6 @@ class MyApp extends StatelessWidget {
           return MaterialApp.router(
             title: "K3H ERP",
             debugShowCheckedModeBanner: false,
-
-            locale: DevicePreview.locale(context),
-            builder: DevicePreview.appBuilder,
             // THEME
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,

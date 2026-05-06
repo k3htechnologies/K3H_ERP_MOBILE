@@ -3,6 +3,8 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 class PaidBrokerageBookingModel {
   int paidBrokerageBookingId;
   String uniqueKey;
+  String invoiceNumber;
+  double invoiceAmount;
   int bookingId;
   int projectId;
   int brokerageInvoiceId;
@@ -26,6 +28,8 @@ class PaidBrokerageBookingModel {
   PaidBrokerageBookingModel({
     required this.paidBrokerageBookingId,
     required this.uniqueKey,
+    required this.invoiceNumber,
+    required this.invoiceAmount,
     required this.bookingId,
     required this.projectId,
     required this.brokerageInvoiceId,
@@ -51,6 +55,8 @@ class PaidBrokerageBookingModel {
       PaidBrokerageBookingModel(
         paidBrokerageBookingId: parseValue<int>(json, "PaidBrokerageBookingId"),
         uniqueKey: parseValue<String>(json, "Uniquekey"),
+        invoiceNumber: parseValue<String>(json, "InvoiceNumber"),
+        invoiceAmount: parseValue<double>(json, "InvoiceAmount"),
         bookingId: parseValue<int>(json, "BookingId"),
         projectId: parseValue<int>(json, "ProjectId"),
         brokerageInvoiceId: parseValue<int>(json, "BrokerageInvoiceId"),

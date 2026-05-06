@@ -34,6 +34,7 @@ abstract interface class BrokerageRepository {
     required int pageNumber,
     required int pageSize,
     required int projectId,
+    required int bookingId,
     Map<String, dynamic>? queryParams,
   });
 
@@ -143,6 +144,7 @@ class BrokerageRepositoryImp extends BrokerageRepository {
     required int pageNumber,
     required int pageSize,
     required int projectId,
+    required int bookingId,
     Map<String, dynamic>? queryParams,
   }) async {
     try {
@@ -150,6 +152,7 @@ class BrokerageRepositoryImp extends BrokerageRepository {
         pageNumber: pageNumber,
         pageSize: pageSize,
         projectId: projectId,
+        bookingId: bookingId,
         queryParams: queryParams,
       );
       return right(result);

@@ -25,7 +25,6 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/cp_universe.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.model.dart';
-import 'package:k3h_erp_app/features/crm/brokerage/data/model/paid_brokerage_booking.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/cubit/brokerage_cubit.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/add_brokerage_invoice_screen.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/add_brokerage_payment.dart';
@@ -5078,9 +5077,36 @@ final GoRouter goRouter = GoRouter(
 
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                final queryParameterBooking =
+                    state.uri.queryParameters['bookingId'];
+                final queryParameterProjectId =
+                    state.uri.queryParameters['projectId'];
+
+                final bookingId =
+                    queryParameterBooking != null &&
+                            queryParameterBooking.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterBooking),
+                          ),
+                        )
+                        : 0;
+                final projectId =
+                    queryParameterProjectId != null &&
+                            queryParameterProjectId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterProjectId),
+                          ),
+                        )
+                        : 0;
+
                 return AddBrokerageInvoiceScreen(
                   brokerageInvoiceModel: invoice,
                   index: index,
+                  projectId: projectId,
+                  bookingId: bookingId,
                 );
               },
             ),
@@ -5088,28 +5114,23 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addBrokeragePayment,
               path: AppRoutes.addBrokeragePayment,
               builder: (context, state) {
-                final queryParameterBrokeragePayment =
-                    state.uri.queryParameters['brokeragePayment'];
+                final queryParameterBrokerageInvoice =
+                    state.uri.queryParameters['brokerageInvoice'];
 
-                final PaidBrokerageBookingModel? invoice =
-                    queryParameterBrokeragePayment != null
-                        ? PaidBrokerageBookingModel.fromJson(
+                final BrokerageInvoiceModel? invoice =
+                    queryParameterBrokerageInvoice != null
+                        ? BrokerageInvoiceModel.fromJson(
                           jsonDecode(
                             EncryptionManager.decryptData(
                               Uri.decodeComponent(
-                                queryParameterBrokeragePayment,
+                                queryParameterBrokerageInvoice,
                               ),
                             ),
                           ),
                         )
                         : null;
 
-                final index =
-                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-                return AddBrokeragePayment(
-                  paidBrokerageBookingModel: invoice,
-                  index: index,
-                );
+                return AddBrokeragePayment(invoiceModel: invoice!);
               },
             ),
           ],

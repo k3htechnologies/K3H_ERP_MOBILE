@@ -30,6 +30,39 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     await getBrokerageBookingList(context, 1, projectId);
   }
 
+  Future resetSearch() async {
+    emit(state.copyWith(searchText: ""));
+  }
+
+  Future searchInvoice(
+    BuildContext context,
+    String value,
+    int projectId,
+    int bookingId,
+    int index,
+  ) async {
+    if (index == 0) {
+      emit(
+        state.copyWith(
+          searchText: value,
+          brokerageInvoiceList: [],
+          isLoading: true,
+        ),
+      );
+
+      await getBrokerageInvoiceList(context, 1, projectId, bookingId);
+    } else {
+      emit(
+        state.copyWith(
+          searchText: value,
+          brokeragePaidList: [],
+          isLoading: true,
+        ),
+      );
+      await getBrokeragePaidList(context, 1, projectId, bookingId);
+    }
+  }
+
   // <---- GET BROKERAGE BOOKING LIST ---->
   Future getBrokerageBookingList(
     BuildContext context,
@@ -78,11 +111,13 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     int projectId,
     int bookingId,
   ) async {
+    emit(state.copyWith(isLoading: true));
     var result = await _brokerageRepository.pullBrokerageInvoice(
       pageNumber: pageNumber,
       pageSize: 10,
       projectId: projectId,
       bookingId: bookingId,
+      queryParams: {"InvoiceNumber": state.searchText},
     );
 
     result.fold(
@@ -167,7 +202,14 @@ class BrokerageCubit extends Cubit<BrokerageState> {
         return;
       },
       (response) {
+        goRouter.pop();
         showSuccessMessage(context, subTitle: "Invoice Added Successfully");
+        getBrokerageInvoiceList(
+          context,
+          1,
+          int.parse(projectId),
+          int.parse(bookingId),
+        );
       },
     );
   }
@@ -253,19 +295,15 @@ class BrokerageCubit extends Cubit<BrokerageState> {
   // <---- DELETE BROKERAGE INVOICE ---->
   Future deleteBrokerageInvoice({
     required BuildContext context,
-    required int brokerageInvoiceId,
-    required String uniqueKey,
-    required int bookingId,
-    required int projectId,
-    required int pageNumber,
+    required BrokerageInvoiceModel brokerage,
     required int index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var deleteResult = await _brokerageRepository.deleteBrokerageInvoice(
-      projectId: projectId,
-      brokerageInvoiceId: brokerageInvoiceId,
-      bookingId: bookingId,
-      uniqueKey: uniqueKey,
+      projectId: brokerage.projectId,
+      brokerageInvoiceId: brokerage.brokerageInvoiceId,
+      bookingId: brokerage.bookingId,
+      uniqueKey: brokerage.uniqueKey,
     );
     goRouter.pop();
     deleteResult.fold(
@@ -298,11 +336,15 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     BuildContext context,
     int pageNumber,
     int projectId,
+    int bookingId,
   ) async {
+    emit(state.copyWith(isLoading: true));
     var result = await _brokerageRepository.pullPaidBrokerageBooking(
       pageNumber: pageNumber,
       pageSize: 10,
+      bookingId: bookingId,
       projectId: projectId,
+      queryParams: {"InvoiceNumber": state.searchText},
     );
 
     result.fold(
@@ -465,20 +507,15 @@ class BrokerageCubit extends Cubit<BrokerageState> {
   // <---- DELETE BROKERAGE PAYMENT ---->
   Future deleteBrokeragePayment({
     required BuildContext context,
-    required int paidBrokerageBookingId,
-    required String uniqueKey,
-    required int brokerageInvoiceId,
-    required int bookingId,
-    required int projectId,
-    required int pageNumber,
+    required PaidBrokerageBookingModel payment,
     required int index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var deleteResult = await _brokerageRepository.deletePaidBrokerageBooking(
-      projectId: projectId,
-      paidBrokerageBookingId: paidBrokerageBookingId,
-      bookingId: bookingId,
-      uniqueKey: uniqueKey,
+      projectId: payment.projectId,
+      paidBrokerageBookingId: payment.paidBrokerageBookingId,
+      bookingId: payment.bookingId,
+      uniqueKey: payment.uniqueKey,
     );
     goRouter.pop();
     deleteResult.fold(

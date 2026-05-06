@@ -148,7 +148,7 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                     : null;
 
             final isApproved =
-                finalizedVendor?.vendorFinalizationApproval?.toLowerCase() ==
+                finalizedVendor?.vendorFinalizationApproval.toLowerCase() ==
                 'approved';
             return SafeArea(
               child: Container(
