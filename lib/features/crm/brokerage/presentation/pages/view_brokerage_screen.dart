@@ -155,8 +155,8 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a Invoice ?',
-      'Deleting this Invoice will permanently remove all associated data.',
+      'You are about to delete a Payment ?',
+      'Deleting this Payment will permanently remove all associated data.',
     );
     if (result && context.mounted) {
       _brokerageCubit.deleteBrokeragePayment(
@@ -388,22 +388,36 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     CustomButton(
-                                      backgroundColor: AppColor.green,
+                                      backgroundColor:
+                                          invoice.invoiceAmount ==
+                                                  invoice.paymentAmount
+                                              ? AppColor.grey10
+                                              : AppColor.green,
                                       text: "Make Payment",
+                                      textColor:
+                                          invoice.invoiceAmount ==
+                                                  invoice.paymentAmount
+                                              ? AppColor.grey.withValues(
+                                                alpha: 0.5, 
+                                              )
+                                              : AppColor.white,
                                       onPressed: () {
-                                        goRouter.pushNamed(
-                                          AppRoutes.addBrokeragePayment,
-                                          queryParameters: {
-                                            "brokerageInvoice":
-                                                Uri.encodeQueryComponent(
-                                                  EncryptionManager.encryptData(
-                                                    jsonEncode(
-                                                      invoice.toJson(),
+                                        if (invoice.invoiceAmount !=
+                                            invoice.paymentAmount) {
+                                          goRouter.pushNamed(
+                                            AppRoutes.addBrokeragePayment,
+                                            queryParameters: {
+                                              "brokerageInvoice":
+                                                  Uri.encodeQueryComponent(
+                                                    EncryptionManager.encryptData(
+                                                      jsonEncode(
+                                                        invoice.toJson(),
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                          },
-                                        );
+                                            },
+                                          );
+                                        }
                                       },
                                     ),
                                   ],

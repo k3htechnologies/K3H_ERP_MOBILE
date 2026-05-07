@@ -8,6 +8,10 @@ final class MaterialRequisitionState extends BaseState {
   final int currentPage;
   final MaterialRequisitionModel? materialRequisitionOverview;
   final FinalizeVendorForComparisonModel? finalizedVendor;
+  final String filterByMaterialRequisitionStage;
+  final String filterByMaterialRequisitionStatus;
+  final DateTime? filterByFromDate;
+  final DateTime? filterByToDate;
 
   const MaterialRequisitionState({
     super.isLoading,
@@ -18,6 +22,10 @@ final class MaterialRequisitionState extends BaseState {
     required this.materialList,
     required this.materialRequisitionOverview,
     required this.finalizedVendor,
+    required this.filterByMaterialRequisitionStage,
+    required this.filterByMaterialRequisitionStatus,
+    required this.filterByFromDate,
+    required this.filterByToDate,
   });
 
   factory MaterialRequisitionState.initial() {
@@ -30,8 +38,14 @@ final class MaterialRequisitionState extends BaseState {
       searchText: "",
       materialRequisitionOverview: null,
       finalizedVendor: null,
+      filterByMaterialRequisitionStage: "",
+      filterByMaterialRequisitionStatus: "",
+      filterByFromDate: null,
+      filterByToDate: null,
     );
   }
+
+  static const _noChange = Object();
 
   MaterialRequisitionState copyWith({
     bool? isLoading,
@@ -41,6 +55,12 @@ final class MaterialRequisitionState extends BaseState {
     int? currentPage,
     String? searchText,
     MaterialRequisitionModel? materialRequisitionOverview,
+
+    Object? filterByMaterialRequisitionStage = _noChange,
+    Object? filterByMaterialRequisitionStatus = _noChange,
+
+    Object? filterByFromDate = _noChange,
+    Object? filterByToDate = _noChange,
 
     Object? finalizedVendor = _noChange,
   }) {
@@ -52,16 +72,36 @@ final class MaterialRequisitionState extends BaseState {
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       searchText: searchText ?? this.searchText,
       materialList: materialList ?? this.materialList,
+
       materialRequisitionOverview:
           materialRequisitionOverview ?? this.materialRequisitionOverview,
+
       finalizedVendor:
           finalizedVendor == _noChange
               ? this.finalizedVendor
               : finalizedVendor as FinalizeVendorForComparisonModel?,
+
+      filterByMaterialRequisitionStage:
+          filterByMaterialRequisitionStage == _noChange
+              ? this.filterByMaterialRequisitionStage
+              : filterByMaterialRequisitionStage as String? ?? "",
+
+      filterByMaterialRequisitionStatus:
+          filterByMaterialRequisitionStatus == _noChange
+              ? this.filterByMaterialRequisitionStatus
+              : filterByMaterialRequisitionStatus as String? ?? "",
+
+      filterByFromDate:
+          filterByFromDate == _noChange
+              ? this.filterByFromDate
+              : filterByFromDate as DateTime?,
+
+      filterByToDate:
+          filterByToDate == _noChange
+              ? this.filterByToDate
+              : filterByToDate as DateTime?,
     );
   }
-
-  static const _noChange = Object();
 
   @override
   List<Object?> get props => [
@@ -73,5 +113,9 @@ final class MaterialRequisitionState extends BaseState {
     searchText,
     materialRequisitionOverview,
     finalizedVendor,
+    filterByMaterialRequisitionStage,
+    filterByMaterialRequisitionStatus,
+    filterByFromDate,
+    filterByToDate,
   ];
 }

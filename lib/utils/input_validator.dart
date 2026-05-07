@@ -254,9 +254,24 @@ class InputValidator {
     ];
   }
 
+  static List<TextInputFormatter> vehicleInputFormatters() {
+    return [
+      LengthLimitingTextInputFormatter(10),
+      FilteringTextInputFormatter.allow(
+        RegExp(r'[a-zA-Z0-9]'),
+      ), // allow both cases
+      UpperCaseTextFormatter(),
+    ];
+  }
+
   static bool isValidChallan(String input) {
-    final cinRegex = RegExp(r'^[A-Z]{2}[A-Z0-9]{12}[A-Z0-9]{1}$');
-    return cinRegex.hasMatch(input);
+    final challanRegex = RegExp(r'^[A-Z]{2}[A-Z0-9]{12}[A-Z0-9]{1}$');
+    return challanRegex.hasMatch(input);
+  }
+
+  static bool isValidVehicle(String input) {
+    final vehicleRegex = RegExp(r'^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$');
+    return vehicleRegex.hasMatch(input);
   }
 
   static bool isValidCIN(String input) {

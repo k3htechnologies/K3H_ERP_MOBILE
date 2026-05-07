@@ -49,6 +49,7 @@ abstract interface class BrokerageDatasource {
     required int projectId,
     required int bookingId,
     required int paidBrokerageBookingId,
+    required int brokerageInvoiceId,
     required String uniqueKey,
   });
 
@@ -317,14 +318,16 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
     required int bookingId,
     required int paidBrokerageBookingId,
     required String uniqueKey,
+    required int brokerageInvoiceId,
   }) async {
     String deletePaidCrmBrokerageBookingUrl({
       required int projectId,
       required int paidBrokerageBookingId,
       required String uniqueKey,
+      required int brokerageInvoiceId,
       required int bookingId,
     }) {
-      return "Brokerage/DeletePaidBrokerageBooking?PaidBrokerageBookingId=$paidBrokerageBookingId&Uniquekey=$uniqueKey&ProjectId=$projectId&BookingId=$bookingId";
+      return "Brokerage/DeletePaidBrokerageBooking?PaidBrokerageBookingId=$paidBrokerageBookingId&Uniquekey=$uniqueKey&ProjectId=$projectId&BookingId=$bookingId&BrokerageInvoiceId=$brokerageInvoiceId";
     }
 
     try {
@@ -333,6 +336,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
           projectId: projectId,
           paidBrokerageBookingId: paidBrokerageBookingId,
           uniqueKey: uniqueKey,
+          brokerageInvoiceId: brokerageInvoiceId,
           bookingId: bookingId,
         ),
       );
@@ -346,6 +350,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
           projectId: projectId,
           paidBrokerageBookingId: paidBrokerageBookingId,
           uniqueKey: uniqueKey,
+          brokerageInvoiceId: brokerageInvoiceId,
           bookingId: bookingId,
         );
       }

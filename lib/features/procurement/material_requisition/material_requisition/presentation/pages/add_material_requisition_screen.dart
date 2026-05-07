@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
@@ -14,6 +15,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -42,6 +44,7 @@ class _AddMaterialRequisitionScreenState
   // CUBIT
   late MaterialRequisitionCubit _materialRequisitionCubit;
   late TextEditingController _remarkC;
+  late ProjectModel _project;
   //EDIT MODE
   bool get _isEditMode => widget.materialRequisitionModel != null;
 
@@ -55,6 +58,7 @@ class _AddMaterialRequisitionScreenState
   @override
   void initState() {
     super.initState();
+    _project = getProject();
     _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
     _remarkC = TextEditingController();
     _prefill();
@@ -104,11 +108,7 @@ class _AddMaterialRequisitionScreenState
         context: context,
         materialRequisitionDetailJSON:
             _materialRequisitionCubit.state.materialList,
-        projectId:
-            _materialRequisitionCubit
-                .state
-                .materialRequisitionOverview!
-                .projectId,
+        projectId: _project.projectId,
         remarks: _remarkC.text.trim(),
       );
     }

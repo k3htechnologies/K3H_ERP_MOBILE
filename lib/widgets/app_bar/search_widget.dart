@@ -67,10 +67,7 @@ class _SearchWidgetState extends State<SearchWidget> {
             AppAssets.searchIcon,
             width: 24,
             height: 24,
-            colorFilter: ColorFilter.mode(
-              AppColor.primary,
-              BlendMode.srcIn,
-            ),
+            colorFilter: ColorFilter.mode(AppColor.primary, BlendMode.srcIn),
           ),
 
           /// SEARCH FIELD

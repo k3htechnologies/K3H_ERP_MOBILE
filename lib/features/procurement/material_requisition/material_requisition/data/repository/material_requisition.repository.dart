@@ -21,7 +21,11 @@ abstract interface class MaterialRequisitionRepository {
     required int materialRequisitionId,
     required String uniqueKey,
   });
-
+  Future<Either<Failure, Map<String, dynamic>>> closeMaterialRequisition({
+    required int projectId,
+    required int materialRequisitionId,
+    required String uniqueKey,
+  });
   Future<Either<Failure, Map<String, dynamic>>> exportRequisition({
     required int pageNumber,
     required int pageSize,
@@ -82,6 +86,25 @@ class MaterialRequisitionRepositoryImpl
     try {
       var result = await materialRequisitionDatasource
           .apicallDeleteMaterialRequisition(
+            projectId: projectId,
+            materialRequisitionId: materialRequisitionId,
+            uniqueKey: uniqueKey,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> closeMaterialRequisition({
+    required int projectId,
+    required int materialRequisitionId,
+    required String uniqueKey,
+  }) async {
+    try {
+      var result = await materialRequisitionDatasource
+          .apicallCloseMaterialRequisition(
             projectId: projectId,
             materialRequisitionId: materialRequisitionId,
             uniqueKey: uniqueKey,

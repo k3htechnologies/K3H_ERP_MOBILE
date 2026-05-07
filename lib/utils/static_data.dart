@@ -351,3 +351,19 @@ final List<Map<String, dynamic>> genderList = const [
   {"zAttributesId": 2, "DisplayName": "Female"},
   {"zAttributesId": 3, "DisplayName": "Other"},
 ];
+
+final List<Map<String, dynamic>> materialRequisitionStagesList = const [
+  {"zAttributesId": 1, "DisplayName": "Get Quotation"},
+  {"zAttributesId": 2, "DisplayName": "Finalize Vendor"},
+  {"zAttributesId": 3, "DisplayName": "Get Purchase Order"},
+  {"zAttributesId": 4, "DisplayName": "Add GRN"},
+  {"zAttributesId": 5, "DisplayName": "Add Invoice"},
+];
+
+final List<Map<String, dynamic>> materialRequisitionStatusList = const [
+  {"zAttributesId": 1, "DisplayName": "Pending"},
+  {"zAttributesId": 2, "DisplayName": "Approved"},
+  {"zAttributesId": 3, "DisplayName": "Rejected"},
+  {"zAttributesId": 4, "DisplayName": "Completed"},
+  {"zAttributesId": 5, "DisplayName": "Cancelled"},
+];

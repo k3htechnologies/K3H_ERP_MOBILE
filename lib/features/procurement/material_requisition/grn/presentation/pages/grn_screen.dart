@@ -18,7 +18,15 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class GRNScreen extends StatefulWidget {
-  const GRNScreen({super.key});
+  final int projectId;
+  final int materialRequisitionId;
+  final String uniquekey;
+  const GRNScreen({
+    super.key,
+    required this.projectId,
+    required this.materialRequisitionId,
+    required this.uniquekey,
+  });
 
   @override
   State<GRNScreen> createState() => _GRNScreenState();
@@ -27,13 +35,11 @@ class GRNScreen extends StatefulWidget {
 class _GRNScreenState extends State<GRNScreen> {
   late GrnCubit _grnCubit;
   late AuthorizationModel _routeAuthorizationModel;
-  late MaterialRequisitionCubit _materialRequisitionCubit;
 
   @override
   void initState() {
     super.initState();
     _grnCubit = context.read<GrnCubit>();
-    _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.materialRequisition]!;
   }
@@ -62,7 +68,24 @@ class _GRNScreenState extends State<GRNScreen> {
               CustomButton(
                 text: "View Summary",
                 onPressed: () async {
-                  await goRouter.pushNamed(AppRoutes.grnSummary);
+                  await goRouter.pushNamed(
+                    AppRoutes.grnSummary,
+                    queryParameters: {
+                      "materialRequisitionId": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(
+                          widget.materialRequisitionId.toString(),
+                        ),
+                      ),
+                      "projectId": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(
+                          widget.projectId.toString(),
+                        ),
+                      ),
+                      "uniquekey": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(widget.uniquekey),
+                      ),
+                    },
+                  );
                 },
                 backgroundColor: AppColor.lightBlue,
                 textColor: AppColor.primary,

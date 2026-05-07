@@ -71,7 +71,19 @@ class BrokerageCubit extends Cubit<BrokerageState> {
   ) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
-      "ApplicantName": state.searchText,
+      "ChannelPartnerName": state.searchText,
+      "ChannelPartnerMobileNumber": state.filterCpMobileNo,
+      "ChannelPartnerCompanyName": state.filterCpCompany,
+      "ApplicantMobileNumber": state.filterApplicantMobileNo,
+      "ApplicantName": state.filterApplicantName,
+      "Wing": state.filterWing,
+      "Flat": state.filterFlat,
+      "Floor": state.filterFloor,
+      if (state.filterAgreementValue != 0)
+        "AgreementValue": state.filterAgreementValue,
+      "BookingType": state.filterBookingType,
+      "FromDate": state.filterByFromDate,
+      "ToDate": state.filterByToDate,
       "ProjectId": projectId,
     };
     var result = await _brokerageRepository.getBrokerageBookingList(
@@ -425,6 +437,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
         return;
       },
       (response) {
+        goRouter.pop();
         showSuccessMessage(context, subTitle: "Payment Added Successfully");
       },
     );
@@ -515,6 +528,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       projectId: payment.projectId,
       paidBrokerageBookingId: payment.paidBrokerageBookingId,
       bookingId: payment.bookingId,
+      brokerageInvoiceId: payment.brokerageInvoiceId,
       uniqueKey: payment.uniqueKey,
     );
     goRouter.pop();
@@ -541,6 +555,40 @@ class BrokerageCubit extends Cubit<BrokerageState> {
         );
       },
     );
+  }
+
+  void applyFilterAndSort({
+    required BuildContext context,
+    required int projectId,
+    required String filterCpCompany,
+    required String filterCpMobileNo,
+    required String filterApplicantName,
+    required String filterApplicantMobileNo,
+    required String filterWing,
+    required String filterFlat,
+    required String filterFloor,
+    required double filterAgreementValue,
+    required String filterBookingType,
+    required DateTime? filterByFromDate,
+    required DateTime? filterByToDate,
+  }) {
+    emit(
+      state.copyWith(
+        filterCpCompany: filterCpCompany,
+        filterCpMobileNo: filterCpMobileNo,
+        filterApplicantName: filterApplicantName,
+        filterApplicantMobileNo: filterApplicantMobileNo,
+        filterWing: filterWing,
+        filterFlat: filterFlat,
+        filterFloor: filterFloor,
+        filterAgreementValue: filterAgreementValue,
+        filterBookingType: filterBookingType,
+        filterByFromDate: filterByFromDate,
+        filterByToDate: filterByToDate,
+      ),
+    );
+
+    getBrokerageBookingList(context, 1, projectId);
   }
 
   // <---- EXPORT EXCEL PDF ---->

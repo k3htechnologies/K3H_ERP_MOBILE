@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 abstract interface class ProjectMasterDatasource {
   Future<Map<String, dynamic>> apicallPullProject({
@@ -74,7 +75,7 @@ class ProjectMasterDatasourceImpl implements ProjectMasterDatasource {
     }) {
       String url =
           "Project/PullProject?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -333,7 +334,7 @@ class ProjectMasterDatasourceImpl implements ProjectMasterDatasource {
     }) {
       String url =
           "Project/PullProject?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

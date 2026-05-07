@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/features/masters/employee_master/data/repository/emp
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
@@ -223,6 +224,14 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                       dataList: _paymentTypeList,
                       onSelected: (value) {
                         _selectedPaymentTypeNotifier.value = [value];
+                        if (value['DisplayName'] == 'Full Payment') {
+                          _amountC.text =
+                              widget.invoiceModel.invoiceAmount.toString();
+                          _tdsAmountC.clear();
+                        } else {
+                          _amountC.clear();
+                          _tdsAmountC.clear();
+                        }
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -236,16 +245,28 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                     );
                   },
                 ),
-                CustomTextField(
-                  textController: _amountC,
-                  isRequired: true,
-                  title: "Amount",
-                  hint: "Enter Amount",
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Amount is required";
-                    }
-                    return null;
+                ValueListenableBuilder(
+                  valueListenable: _selectedPaymentTypeNotifier,
+                  builder: (context, value, child) {
+                    return CustomTextField(
+                      textController: _amountC,
+                      isRequired: true,
+                      readOnly:
+                          value.isEmpty
+                              ? false
+                              : value.first['DisplayName'] == 'Full Payment',
+                      title: "Amount",
+                      hint: "Enter Amount",
+                      keyboardType: TextInputType.numberWithOptions(),
+                      inputFormatterList: InputValidator.decimal(2),
+
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Amount is required";
+                        }
+                        return null;
+                      },
+                    );
                   },
                 ),
                 CustomTextField(
@@ -253,6 +274,8 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                   isRequired: true,
                   title: "TDS Amount",
                   hint: "Enter TDS Amount",
+                  keyboardType: TextInputType.numberWithOptions(),
+                  inputFormatterList: InputValidator.decimal(2),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return "TDS Amount is required";

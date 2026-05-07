@@ -15,4 +15,12 @@ abstract class ENV {
 
   @EnviedField(varName: 'IOS_VERSION', obfuscate: true)
   static final String iosVersion = _ENV.iosVersion;
+
+  @EnviedField(varName: 'APP_STORE_ID', obfuscate: true)
+  static final String appStoreId = _ENV.appStoreId;
+
+  @EnviedField(varName: 'ANDROID_PACKAGE_NAME', obfuscate: true)
+  static final String androidPackageName = _ENV.androidPackageName;
 }
+
+// flutter pub run build_runner build

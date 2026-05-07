@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
@@ -13,6 +14,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
+import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ProjectSelectorOverlay extends StatefulWidget {
@@ -35,9 +37,11 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
+  late TextEditingController _searchC;
 
   ProjectModel? selectedProject;
   List<ProjectModel> projects = [];
+  List<ProjectModel> allProjects = [];
 
   bool isLoadingProject = false;
 
@@ -70,7 +74,10 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
       final result = await _projectMasterRepository.getProjectList(
         pageNumber: 1,
         pageSize: 100,
-        queryParams: {"EmployeeId": employeeId},
+        queryParams: {
+          "EmployeeId": employeeId,
+          "ProjectName": _searchC.text.trim(),
+        },
       );
 
       result.fold(
@@ -85,6 +92,10 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
           final fetchedProjects = List<ProjectModel>.from(response["data"]);
 
           setState(() {
+            if (_searchC.text.isEmpty) {
+              allProjects = fetchedProjects;
+            }
+
             projects = fetchedProjects;
 
             selectedProject =
@@ -92,6 +103,12 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                       (p) => p.projectId == widget.selectedProjectId,
                     )
                     ? fetchedProjects.firstWhere(
+                      (p) => p.projectId == widget.selectedProjectId,
+                    )
+                    : (_searchC.text.isNotEmpty &&
+                        widget.selectedProjectId != null &&
+                        widget.selectedProjectId != 0)
+                    ? allProjects.firstWhere(
                       (p) => p.projectId == widget.selectedProjectId,
                     )
                     : null;
@@ -113,7 +130,7 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
   @override
   void initState() {
     super.initState();
-
+    _searchC = TextEditingController();
     _fetchProjects();
 
     _controller = AnimationController(
@@ -131,6 +148,7 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
 
   @override
   void dispose() {
+    _searchC.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -224,8 +242,18 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                       ),
                     ),
 
-                    Divider(height: 1,color: AppColor.grey,),
-
+                    Divider(height: 1, color: AppColor.grey),
+                    Container(
+                      margin: EdgeInsets.only(top: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: SearchWidget(
+                        hintText: "Search by Project Name",
+                        onSubmit: (val) {
+                          _fetchProjects();
+                        },
+                        textController: _searchC,
+                      ),
+                    ),
                     // BODY
                     Expanded(
                       child: Builder(
@@ -246,10 +274,10 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                                   .toList();
 
                           if (filteredProjects.isEmpty) {
-                            return const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(16.0),
-                                child: Text('No other projects available'),
+                            return Center(
+                              child: noDataWidget(
+                                iconSize: 0.4.sw,
+                                message: 'No results found',
                               ),
                             );
                           }
@@ -257,7 +285,10 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                           return ListView.separated(
                             itemCount: filteredProjects.length,
                             separatorBuilder:
-                                (_, __) => Divider(height: .5,color: AppColor.lightGrey,),
+                                (_, __) => Divider(
+                                  height: .5,
+                                  color: AppColor.lightGrey,
+                                ),
                             itemBuilder: (context, index) {
                               final project = filteredProjects[index];
 

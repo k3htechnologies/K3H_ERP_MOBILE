@@ -14,10 +14,13 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/static_data.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class MaterialRequisitonScreen extends StatefulWidget {
@@ -40,6 +43,16 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
   //AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
   late TextEditingController _searchC;
+  // FILTER
+  final ValueNotifier<DateTime?> _startDateNotifier = ValueNotifier<DateTime?>(
+    null,
+  );
+  final ValueNotifier<DateTime?> _endDateNotifier = ValueNotifier<DateTime?>(
+    null,
+  );
+
+  Map<String, dynamic>? selectedMaterialRequisitionStage;
+  Map<String, dynamic>? selectedMaterialRequisitionStatus;
 
   @override
   void initState() {
@@ -111,6 +124,250 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
     }
   }
 
+  void _prefillFilterFromState() {
+    final s = _materialRequisitionCubit.state;
+
+    _startDateNotifier.value = s.filterByFromDate;
+    _endDateNotifier.value = s.filterByToDate;
+
+    if (s.filterByMaterialRequisitionStage.isNotEmpty) {
+      selectedMaterialRequisitionStage =
+          materialRequisitionStagesList
+              .where(
+                (m) => m['DisplayName'] == s.filterByMaterialRequisitionStage,
+              )
+              .firstOrNull;
+    } else {
+      selectedMaterialRequisitionStage = null;
+    }
+
+    if (s.filterByMaterialRequisitionStatus.isNotEmpty) {
+      selectedMaterialRequisitionStatus =
+          materialRequisitionStatusList
+              .where(
+                (m) => m['DisplayName'] == s.filterByMaterialRequisitionStatus,
+              )
+              .firstOrNull;
+    } else {
+      selectedMaterialRequisitionStatus = null;
+    }
+  }
+
+  Future<void> _showBottomSheetToFilterMaterialRequisition(
+    BuildContext context,
+  ) async {
+    _prefillFilterFromState();
+
+    final s = _materialRequisitionCubit.state;
+
+    bool manualClose = false;
+
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            _startDateNotifier.value != s.filterByFromDate ||
+            _endDateNotifier.value != s.filterByToDate ||
+            selectedMaterialRequisitionStage?['DisplayName'] !=
+                s.filterByMaterialRequisitionStage ||
+            selectedMaterialRequisitionStatus?['DisplayName'] !=
+                s.filterByMaterialRequisitionStatus;
+
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    await DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter Material Requisition",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              verticalSpacing(),
+
+              CustomDropDownWidget(
+                title: "Material Requisition Stage",
+                hintText: "Select Stage",
+                initialValue: selectedMaterialRequisitionStage,
+                dataList: materialRequisitionStagesList,
+                isRequired: true,
+
+                onSelected: (v) {
+                  selectedMaterialRequisitionStage = v;
+
+                  updateApplyState(innerState);
+                },
+
+                onValueClear: () {
+                  selectedMaterialRequisitionStage = null;
+
+                  updateApplyState(innerState);
+                },
+              ),
+
+              CustomDropDownWidget(
+                title: "Material Requisition Status",
+                hintText: "Select Status",
+                initialValue: selectedMaterialRequisitionStatus,
+                dataList: materialRequisitionStatusList,
+                isRequired: true,
+
+                onSelected: (v) {
+                  selectedMaterialRequisitionStatus = v;
+
+                  updateApplyState(innerState);
+                },
+
+                onValueClear: () {
+                  selectedMaterialRequisitionStatus = null;
+
+                  updateApplyState(innerState);
+                },
+              ),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: ValueListenableBuilder<DateTime?>(
+                      valueListenable: _startDateNotifier,
+                      builder: (context, startDate, child) {
+                        return CustomDatePicker(
+                          title: "Start Date",
+                          initialDate: startDate,
+
+                          setValue: (value) {
+                            _startDateNotifier.value = value;
+
+                            updateApplyState(innerState);
+                          },
+
+                          validator: (value) => null,
+                        );
+                      },
+                    ),
+                  ),
+
+                  horizontalSpacing(),
+
+                  Expanded(
+                    child: ValueListenableBuilder<DateTime?>(
+                      valueListenable: _endDateNotifier,
+                      builder: (context, endDate, child) {
+                        return ValueListenableBuilder<DateTime?>(
+                          valueListenable: _startDateNotifier,
+                          builder: (context, startDate, child) {
+                            return CustomDatePicker(
+                              title: "End Date",
+                              isRequired: false,
+                              initialDate: endDate,
+
+                              setValue: (value) {
+                                _endDateNotifier.value = value;
+
+                                updateApplyState(innerState);
+                              },
+
+                              validator: (value) {
+                                if (value == null) {
+                                  return null;
+                                }
+
+                                if (startDate != null) {
+                                  final startDateOnly = DateTime(
+                                    startDate.year,
+                                    startDate.month,
+                                    startDate.day,
+                                  );
+
+                                  final endDateOnly = DateTime(
+                                    value.year,
+                                    value.month,
+                                    value.day,
+                                  );
+
+                                  if (endDateOnly.isBefore(startDateOnly)) {
+                                    return 'End Date cannot be before Start Date';
+                                  }
+                                }
+
+                                return null;
+                              },
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+
+      onClear: () {
+        selectedMaterialRequisitionStage = null;
+
+        selectedMaterialRequisitionStatus = null;
+
+        _startDateNotifier.value = null;
+        _endDateNotifier.value = null;
+
+        _materialRequisitionCubit.applyFilterAndSort(
+          context: context,
+          filterByMaterialRequisitionStage: "",
+          filterByMaterialRequisitionStatus: "",
+          filterByFromDate: null,
+          filterByToDate: null,
+          projectId: _project.projectId,
+        );
+      },
+
+      onApply: () {
+        final startDate = _startDateNotifier.value;
+
+        final endDate = _endDateNotifier.value;
+
+        if (startDate != null && endDate != null) {
+          final startOnly = DateTime(
+            startDate.year,
+            startDate.month,
+            startDate.day,
+          );
+
+          final endOnly = DateTime(endDate.year, endDate.month, endDate.day);
+
+          if (endOnly.isBefore(startOnly)) {
+            showErrorMessage(
+              context,
+              "Invalid dates",
+              "End Date cannot be before Start Date",
+            );
+
+            return;
+          }
+        }
+
+        _materialRequisitionCubit.applyFilterAndSort(
+          context: context,
+          filterByMaterialRequisitionStage:
+              selectedMaterialRequisitionStage?['DisplayName'],
+          filterByMaterialRequisitionStatus:
+              selectedMaterialRequisitionStatus?['DisplayName'],
+          projectId: _project.projectId,
+          filterByFromDate: startDate,
+          filterByToDate: endDate,
+        );
+      },
+
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,6 +375,10 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
         screenTitle: "Material Requisition",
         authorization: _routeAuthorizationModel,
         textController: _searchC,
+        isFilterOn: true,
+        onFilterTap: () {
+          _showBottomSheetToFilterMaterialRequisition(context);
+        },
         searchHintText: "Search By Unique ID",
         onSearchSubmit: (value) {
           _materialRequisitionCubit.searchMaterialRequisition(
@@ -132,6 +393,14 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
         },
         onProjectChangeCallback: (value) {
           _project = value;
+          _materialRequisitionCubit.applyFilterAndSort(
+            context: context,
+            filterByMaterialRequisitionStage: "",
+            filterByMaterialRequisitionStatus: "",
+            filterByFromDate: null,
+            filterByToDate: null,
+            projectId: _project.projectId,
+          );
           _materialRequisitionCubit.getMaterialRequisitionList(
             context,
             1,

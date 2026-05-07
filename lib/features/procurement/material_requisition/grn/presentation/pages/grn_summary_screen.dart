@@ -10,10 +10,18 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class GrnSummaryScreen extends StatefulWidget {
-  const GrnSummaryScreen({super.key});
-
+  final int projectId;
+  final int materialRequisitionId;
+  final String uniquekey;
+  const GrnSummaryScreen({
+    super.key,
+    required this.projectId,
+    required this.materialRequisitionId,
+    required this.uniquekey,
+  });
   @override
   State<GrnSummaryScreen> createState() => _GrnSummaryScreenState();
 }
@@ -28,6 +36,16 @@ class _GrnSummaryScreenState extends State<GrnSummaryScreen> {
     super.initState();
     _grnCubit = context.read<GrnCubit>();
     _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
+    loadSummary();
+  }
+
+  void loadSummary() async {
+    grnList.value = await _grnCubit.getGRNSummary(
+      context,
+      widget.materialRequisitionId,
+      widget.uniquekey,
+      widget.projectId,
+    );
   }
 
   @override
@@ -40,7 +58,10 @@ class _GrnSummaryScreenState extends State<GrnSummaryScreen> {
       body: BlocBuilder<GrnCubit, GrnState>(
         builder: (context, state) {
           if (state.isLoading ?? true) {
-            return Expanded(child: Center(child: CircularProgressIndicator()));
+            return Center(child: CircularProgressIndicator());
+          }
+          if (grnList.value == null || grnList.value!.isEmpty) {
+            return Center(child: noDataWidget());
           }
           return ValueListenableBuilder(
             valueListenable: grnList,

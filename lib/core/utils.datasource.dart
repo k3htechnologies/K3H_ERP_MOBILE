@@ -92,9 +92,8 @@ class UtilsDatasourceImpl implements UtilsDatasource {
   Future<Map<String, dynamic>> apicallPullAppVersion() async {
     try {
       String url = '';
-
       var networkResponse = await client.getRequestWithAuthentication(url);
-      return {'data': networkResponse["data"]};
+      return networkResponse["data"].first as Map<String, dynamic>;
     } catch (error) {
       rethrow;
     }

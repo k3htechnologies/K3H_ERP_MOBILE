@@ -47,6 +47,7 @@ abstract interface class BrokerageRepository {
     required int projectId,
     required int paidBrokerageBookingId,
     required int bookingId,
+    required int brokerageInvoiceId,
     required String uniqueKey,
   });
 
@@ -182,6 +183,7 @@ class BrokerageRepositoryImp extends BrokerageRepository {
     required int projectId,
     required int paidBrokerageBookingId,
     required int bookingId,
+    required int brokerageInvoiceId,
     required String uniqueKey,
   }) async {
     try {
@@ -190,6 +192,7 @@ class BrokerageRepositoryImp extends BrokerageRepository {
         paidBrokerageBookingId: paidBrokerageBookingId,
         uniqueKey: uniqueKey,
         bookingId: bookingId,
+        brokerageInvoiceId: brokerageInvoiceId,
       );
       return right(result);
     } catch (error) {

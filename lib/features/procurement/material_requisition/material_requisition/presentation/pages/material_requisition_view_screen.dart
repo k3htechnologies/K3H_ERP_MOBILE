@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presen
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/grn_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/data/model/invoice.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/cubit/invoice_cubit.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/cubit/purchase_order_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/pages/purchase_order.screen.dart';
@@ -113,11 +114,6 @@ class _MaterialRequisitionViewScreenState
           break;
 
         case 3:
-          if (_materialRequisitionCubit.state.finalizedVendor == null) {
-            showErrorMessage(context, "", "Please Finalized Vendor");
-            _tabController.animateTo(2);
-            return;
-          }
           _purchaseOrderCubit.getPurchaseOrder(
             context: context,
             projectId: widget.projectId,
@@ -126,16 +122,6 @@ class _MaterialRequisitionViewScreenState
           );
           break;
         case 4:
-          if (_materialRequisitionCubit.state.finalizedVendor == null) {
-            showErrorMessage(context, "", "Please Finalized Vendor");
-            _tabController.animateTo(2);
-            return;
-          }
-          if (_purchaseOrderCubit.state.purchaseOrderList.isEmpty) {
-            showErrorMessage(context, "", "Please Generate PO");
-            _tabController.animateTo(3);
-            return;
-          }
           _grnCubit.getAllGRNList(
             context: context,
             projectId: widget.projectId,
@@ -170,6 +156,78 @@ class _MaterialRequisitionViewScreenState
       .materialRequisitionOverview!
       .materialRequisitionDetailData
       .fold(0.0, (p, e) => p + e.materialQuantity);
+
+  Future<void> _showPopupToCloseMaterialRequisition(
+    BuildContext context,
+    MaterialRequisitionModel materialRequisition,
+  ) async {
+    final result = await DialogHelper.showConfirmationDialog(
+      context: context,
+      title: 'Close Material Requisition',
+      message: 'Are you sure you want to Close this Material Requisition?',
+      confirmText: "Close",
+      confirmColor: AppColor.error,
+    );
+
+    if (result && context.mounted) {
+      _materialRequisitionCubit.closeMaterialRequisition(
+        context: context,
+        materialRequisitionModel: materialRequisition,
+      );
+    }
+  }
+
+  void splitMaterialRequisition({
+    required List<MaterialRequisitionDetailModel>? materialList,
+    required MaterialRequisitionModel? materialRequisition,
+  }) {
+    if (isSplit.value && selectedIdsForSplit.value.isNotEmpty) {
+      // Show popup
+      DialogHelper.showCustomDialogue(
+        context,
+        title: "Split Material Entry",
+        childContent: Column(
+          spacing: 10,
+          children: [
+            ...materialList!
+                .where(
+                  (e) => selectedIdsForSplit.value.contains(
+                    e.materialRequisitionDetailId,
+                  ),
+                )
+                .map((e) {
+                  return Row(
+                    spacing: 10,
+                    children: [
+                      CustomCheckBox(isSelected: true),
+                      Text(e.materialName, style: AppTextStyle.ts12M()),
+                    ],
+                  );
+                }),
+            CustomButton(
+              text: "Move To New Entry",
+              onPressed: () {
+                _materialRequisitionCubit.splitMaterialRequisition(
+                  context: context,
+                  materialRequisitionId: 0,
+                  uniqueKey: widget.uniquekey,
+                  projectId: widget.projectId,
+                  remarks: materialRequisition?.remarks ?? "",
+                  selectedIds: selectedIdsForSplit.value,
+                  materialRequisitionDetailJSON: materialList,
+                );
+                isSplit.value = false;
+                selectedIdsForSplit.value = {};
+              },
+            ),
+          ],
+        ),
+      );
+    } else {
+      // Normal toggle
+      isSplit.value = !isSplit.value;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -226,7 +284,11 @@ class _MaterialRequisitionViewScreenState
                         materialRequisitionId: widget.materialRequisitionId,
                         uniquekey: widget.uniquekey,
                       ),
-                      GRNScreen(),
+                      GRNScreen(
+                        materialRequisitionId: widget.materialRequisitionId,
+                        uniquekey: widget.uniquekey,
+                        projectId: widget.projectId,
+                      ),
                       Container(),
                     ],
                   ),
@@ -276,18 +338,14 @@ class _MaterialRequisitionViewScreenState
                       value: materialRequisition.materialRequisitionStage,
                     ),
                     buildColumnTitleValue(
-                      title: "Document Type",
-                      value: materialRequisition.materialRequisitionStage,
+                      title: "Status",
+                      value: materialRequisition.materialRequisitionStatus,
                     ),
                   ],
                 ),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildColumnTitleValue(
-                      title: "Status",
-                      value: materialRequisition.materialRequisitionStatus,
-                    ),
                     buildColumnTitleValue(
                       title: "Attachment",
                       value: materialRequisition.attachmentsURL.toString(),
@@ -303,6 +361,7 @@ class _MaterialRequisitionViewScreenState
                         isDisable: materialRequisition.attachmentsURL.isEmpty,
                       ),
                     ),
+                    Spacer(),
                   ],
                 ),
               ],
@@ -559,9 +618,28 @@ class _MaterialRequisitionViewScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           verticalSpacing(height: 5),
-          Text(
-            materialRequisition!.systemGeneratedCode,
-            style: AppTextStyle.ts16SB(color: AppColor.primary),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                materialRequisition!.systemGeneratedCode,
+                style: AppTextStyle.ts16SB(color: AppColor.primary),
+              ),
+              if (materialRequisition.materialRequisitionStatus.toLowerCase() !=
+                  'completed')
+                CustomButton(
+                  text: "Close Requisition",
+                  leading: Icon(Icons.close, size: 16, color: AppColor.error),
+                  backgroundColor: AppColor.lightRed,
+                  textColor: AppColor.error,
+                  onPressed: () {
+                    _showPopupToCloseMaterialRequisition(
+                      context,
+                      materialRequisition,
+                    );
+                  },
+                ),
+            ],
           ),
           Container(
             decoration: commonCardDecoration(),
@@ -582,18 +660,14 @@ class _MaterialRequisitionViewScreenState
                       value: materialRequisition.materialRequisitionStage,
                     ),
                     buildColumnTitleValue(
-                      title: "Document Type",
-                      value: materialRequisition.materialRequisitionStage,
+                      title: "Status",
+                      value: materialRequisition.materialRequisitionStatus,
                     ),
                   ],
                 ),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildColumnTitleValue(
-                      title: "Status",
-                      value: materialRequisition.materialRequisitionStatus,
-                    ),
                     buildColumnTitleValue(
                       title: "Attachment",
                       value: materialRequisition.attachmentsURL.toString(),
@@ -609,6 +683,7 @@ class _MaterialRequisitionViewScreenState
                         isDisable: materialRequisition.attachmentsURL.isEmpty,
                       ),
                     ),
+                    Spacer(),
                   ],
                 ),
               ],
@@ -636,61 +711,10 @@ class _MaterialRequisitionViewScreenState
                         ),
                         text: "Split",
                         onPressed: () {
-                          if (isSplit.value &&
-                              selectedIdsForSplit.value.isNotEmpty) {
-                            // Show popup
-                            DialogHelper.showCustomDialogue(
-                              context,
-                              title: "Split Material Entry",
-                              childContent: Column(
-                                spacing: 10,
-                                children: [
-                                  ...materialList!
-                                      .where(
-                                        (e) =>
-                                            selectedIdsForSplit.value.contains(
-                                              e.materialRequisitionDetailId,
-                                            ),
-                                      )
-                                      .map((e) {
-                                        return Row(
-                                          spacing: 10,
-                                          children: [
-                                            CustomCheckBox(isSelected: true),
-                                            Text(
-                                              e.materialName,
-                                              style: AppTextStyle.ts12M(),
-                                            ),
-                                          ],
-                                        );
-                                      }),
-                                  CustomButton(
-                                    text: "Move To New Entry",
-                                    onPressed: () {
-                                      _materialRequisitionCubit
-                                          .splitMaterialRequisition(
-                                            context: context,
-                                            materialRequisitionId: 0,
-                                            uniqueKey: widget.uniquekey,
-                                            projectId: widget.projectId,
-                                            remarks:
-                                                materialRequisition.remarks,
-                                            selectedIds:
-                                                selectedIdsForSplit.value,
-                                            materialRequisitionDetailJSON:
-                                                materialList,
-                                          );
-                                      isSplit.value = false;
-                                      selectedIdsForSplit.value = {};
-                                    },
-                                  ),
-                                ],
-                              ),
-                            );
-                          } else {
-                            // Normal toggle
-                            isSplit.value = !isSplit.value;
-                          }
+                          splitMaterialRequisition(
+                            materialList: materialList,
+                            materialRequisition: materialRequisition,
+                          );
                         },
                       ),
                   ],
@@ -723,7 +747,7 @@ class _MaterialRequisitionViewScreenState
                   ),
                 ),
                 SizedBox(
-                  height: materialList!.length == 1 ? 150 : 340,
+                  height: materialList!.length == 1 ? 180 : 350,
                   child: ListView.builder(
                     shrinkWrap: true,
                     itemCount: materialList.length,
@@ -788,6 +812,12 @@ class _MaterialRequisitionViewScreenState
                                   value: addCommasToInteger(
                                     material.materialQuantity,
                                     withoutSign: true,
+                                  ),
+                                ),
+                                buildRowTitleValue(
+                                  title: "Required Date",
+                                  value: formatDateTimeAsDDMMMYYYY(
+                                    material.requiredDate,
                                   ),
                                 ),
                                 buildRowTitleValue(

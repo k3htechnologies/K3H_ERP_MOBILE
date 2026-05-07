@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 abstract interface class MaterialRequisitionDatasource {
   Future<Map<String, dynamic>> apicallPullMaterialRequisition({
@@ -16,6 +17,11 @@ abstract interface class MaterialRequisitionDatasource {
   });
 
   Future<Map<String, dynamic>> apicallDeleteMaterialRequisition({
+    required int projectId,
+    required int materialRequisitionId,
+    required String uniqueKey,
+  });
+  Future<Map<String, dynamic>> apicallCloseMaterialRequisition({
     required int projectId,
     required int materialRequisitionId,
     required String uniqueKey,
@@ -49,7 +55,7 @@ class MaterialRequisitionDataSourceImpl
       }) {
         String url =
             "MaterialRequisition/PullMaterialRequisition?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-        queryParams?.forEach((key, value) => url += "&$key=$value");
+        url += queryParamsFormatter(queryParams: queryParams);
         return url;
       }
 
@@ -119,6 +125,33 @@ class MaterialRequisitionDataSourceImpl
     try {
       var networkResponse = await baseClient.deleteRequestWithAuthentication(
         deleteMaterialRequisitionUrl,
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallCloseMaterialRequisition({
+    required int projectId,
+    required int materialRequisitionId,
+    required String uniqueKey,
+  }) async {
+    String closeMaterialRequisitionUrl =
+        "MaterialRequisition/CloseMaterialRequisition";
+    try {
+      final payload = {
+        "MaterialRequisitionId": materialRequisitionId,
+        "Uniquekey": uniqueKey,
+        "ProjectId": projectId,
+      };
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        closeMaterialRequisitionUrl,
+        payload,
       );
       return {
         'data': networkResponse["data"],

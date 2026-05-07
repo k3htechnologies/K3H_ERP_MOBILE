@@ -305,6 +305,27 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                     verticalSpacing(),
 
                     CustomTextField(
+                      title: "Vehicle Number",
+                      hint: "Enter Vehicle Number",
+                      textController: _vehicleNumberC,
+                      isRequired: true,
+                      inputFormatterList:
+                          InputValidator.vehicleInputFormatters(),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Vehicle Number is required";
+                        }
+
+                        if (value.isNotEmpty) {
+                          if (!InputValidator.isValidVehicle(value)) {
+                            return "Vehicle Number is invalid";
+                          }
+                        }
+
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
                       title: "Challan Number",
                       hint: "Enter Challan Number",
                       isRequired: true,
@@ -321,20 +342,6 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                             return "Challan Number is invalid";
                           }
                         }
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
-                      title: "Vehicle Number",
-                      hint: "Enter Vehicle Number",
-                      textController: _vehicleNumberC,
-                      isRequired: true,
-                      inputFormatterList: [UpperCaseTextFormatter()],
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Vehicle Number is required";
-                        }
-
                         return null;
                       },
                     ),

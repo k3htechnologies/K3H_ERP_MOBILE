@@ -41,6 +41,25 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
     getMaterialRequisitionList(context, 1, projectId);
   }
 
+  void applyFilterAndSort({
+    required BuildContext context,
+    required int projectId,
+    required String? filterByMaterialRequisitionStage,
+    required String? filterByMaterialRequisitionStatus,
+    required DateTime? filterByFromDate,
+    required DateTime? filterByToDate,
+  }) {
+    emit(
+      state.copyWith(
+        filterByMaterialRequisitionStage: filterByMaterialRequisitionStage,
+        filterByMaterialRequisitionStatus: filterByMaterialRequisitionStatus,
+        filterByFromDate: filterByFromDate,
+        filterByToDate: filterByToDate,
+      ),
+    );
+    getMaterialRequisitionList(context, 1, projectId);
+  }
+
   Future getMaterialRequisitionList(
     BuildContext context,
     int pageNumber,
@@ -57,6 +76,10 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
 
     Map<String, dynamic> queryParams = {
       "SystemGeneratedCode": state.searchText,
+      "MaterialRequisitionStage": state.filterByMaterialRequisitionStage,
+      "MaterialRequisitionStatus": state.filterByMaterialRequisitionStatus,
+      "FromDate": state.filterByFromDate,
+      "ToDate": state.filterByToDate,
     };
     var result = await _materialRequisitionRepository
         .getMaterialRequisitionList(
@@ -335,6 +358,35 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
           ),
         );
 
+        showSuccessMessage(context, subTitle: response['message']);
+      },
+    );
+  }
+
+  Future closeMaterialRequisition({
+    required BuildContext context,
+    required MaterialRequisitionModel materialRequisitionModel,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var closeResult = await _materialRequisitionRepository
+        .closeMaterialRequisition(
+          projectId: materialRequisitionModel.projectId,
+          materialRequisitionId: materialRequisitionModel.materialRequisitionId,
+          uniqueKey: materialRequisitionModel.uniquekey,
+        );
+    goRouter.pop();
+    closeResult.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        goRouter.pop();
+        getMaterialRequisitionList(
+          context,
+          1,
+          materialRequisitionModel.projectId,
+        );
         showSuccessMessage(context, subTitle: response['message']);
       },
     );
