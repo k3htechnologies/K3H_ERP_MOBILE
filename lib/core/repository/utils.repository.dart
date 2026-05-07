@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/address/address_widget.dart';
 
 abstract interface class UtilsRepository {
+  Future<Either<Failure, Map<String, dynamic>>> getAppVersion();
   Future<Either<Failure, Map<String, dynamic>>> getMenu({
     required int employeeId,
   });
@@ -91,6 +92,15 @@ class UtilsRepositoryImpl implements UtilsRepository {
   final UtilsDatasource _utilsDatasource;
 
   UtilsRepositoryImpl(this._utilsDatasource);
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getAppVersion() async {
+    try {
+      var result = await _utilsDatasource.apicallPullAppVersion();
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
 
   // PULL MENU
   @override

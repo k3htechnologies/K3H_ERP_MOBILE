@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
@@ -12,6 +11,7 @@ import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'local_storage_manager.dart';
 
 abstract interface class UtilsDatasource {
+  Future<Map<String, dynamic>> apicallPullAppVersion();
   Future<Map<String, dynamic>> apicallPullMenu({required int employeeId});
 
   Future<Map<String, dynamic>> apicallExcelImport({
@@ -88,6 +88,17 @@ abstract interface class UtilsDatasource {
 
 class UtilsDatasourceImpl implements UtilsDatasource {
   final client = BaseClient();
+  @override
+  Future<Map<String, dynamic>> apicallPullAppVersion() async {
+    try {
+      String url = '';
+
+      var networkResponse = await client.getRequestWithAuthentication(url);
+      return {'data': networkResponse["data"]};
+    } catch (error) {
+      rethrow;
+    }
+  }
 
   // PULL MENU
   @override
@@ -512,5 +523,4 @@ class UtilsDatasourceImpl implements UtilsDatasource {
 
     return response;
   }
-
 }
