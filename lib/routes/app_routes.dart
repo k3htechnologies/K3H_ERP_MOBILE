@@ -90,6 +90,7 @@ class AppRoutes {
   static String viewGrn = "/viewGrn";
   static String addGrnMaterial = "/addGrnMaterial";
   static String grnSummary = "/grnSummary";
+  static String addInvoice = "/addInvoice";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// INVENTORY

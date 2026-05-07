@@ -1,12 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-
 import 'dart:io';
 import 'dart:ui';
-import 'package:device_preview/device_preview.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
@@ -36,7 +34,7 @@ void main() async {
   // INITIAL SETUP
   await initialSetup();
   // RUN APP
-  runApp(DevicePreview(enabled: !kReleaseMode, builder: (context) => MyApp()));
+  runApp(MyApp());
 }
 
 Future<void> requestPhonePermission() async {
@@ -59,6 +57,13 @@ class MyHttpOverrides extends HttpOverrides {
       ..badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;
   }
+}
+
+@pragma('vm:entry-point')
+Future<bool> onIosBackground(ServiceInstance service) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  DartPluginRegistrant.ensureInitialized();
+  return true;
 }
 
 Future initialSetup() async {
@@ -93,8 +98,15 @@ Future initialSetup() async {
         onStart: onStart,
         isForegroundMode: true,
         autoStart: false,
+        foregroundServiceNotificationId: 888,
+        initialNotificationTitle: 'K3H ERP',
+        initialNotificationContent: 'Tracking your location...',
       ),
-      iosConfiguration: IosConfiguration(),
+      iosConfiguration: IosConfiguration(
+        autoStart: false,
+        onForeground: onStart,
+        onBackground: onIosBackground,
+      ),
     );
   }
   final storage = LocalStorageManager();
@@ -125,7 +137,19 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
-
+  Timer.periodic(const Duration(seconds: 10), (timer) async {
+    if (service is AndroidServiceInstance) {
+      if (await service.isForegroundService()) {
+        service.setForegroundNotificationInfo(
+          title: "K3H ERP",
+          content: "Location tracking active...",
+        );
+      }
+    }
+  });
+  service.on('stop').listen((event) {
+    service.stopSelf();
+  });
   try {
     LocationPermission permission = await Geolocator.checkPermission();
 
@@ -188,8 +212,6 @@ class MyApp extends StatelessWidget {
             title: "K3H ERP",
             debugShowCheckedModeBanner: false,
 
-            locale: DevicePreview.locale(context),
-            builder: DevicePreview.appBuilder,
             // THEME
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,

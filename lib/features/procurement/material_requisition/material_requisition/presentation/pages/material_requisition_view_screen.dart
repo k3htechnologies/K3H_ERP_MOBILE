@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presen
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/grn_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/data/model/invoice.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/cubit/invoice_cubit.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/pages/invoice.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/cubit/purchase_order_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/pages/purchase_order.screen.dart';
@@ -86,11 +87,21 @@ class _MaterialRequisitionViewScreenState
         widget.materialRequisitionId,
         widget.uniquekey,
       );
+    }
+    if (mounted) {
       invoiceList.value = await _materialRequisitionCubit.getInvoiceForOverview(
         context: context,
         projectId: widget.projectId,
         materialRequisitionId: widget.materialRequisitionId,
         uniqueKey: widget.uniquekey,
+      );
+    }
+    if (mounted) {
+      await _invoiceCubit.getInvoice(
+        projectId: widget.projectId,
+        materialRequisitionId: widget.materialRequisitionId,
+        uniqueKey: widget.uniquekey,
+        context: context,
       );
     }
   }
@@ -121,6 +132,14 @@ class _MaterialRequisitionViewScreenState
           break;
         case 4:
           _grnCubit.getAllGRNList(
+            context: context,
+            projectId: widget.projectId,
+            materialRequisitionId: widget.materialRequisitionId,
+            uniqueKey: widget.uniquekey,
+          );
+          break;
+        case 5:
+          _invoiceCubit.getInvoice(
             context: context,
             projectId: widget.projectId,
             materialRequisitionId: widget.materialRequisitionId,
@@ -199,7 +218,13 @@ class _MaterialRequisitionViewScreenState
                         uniquekey: widget.uniquekey,
                       ),
                       GRNScreen(),
-                      _buildOverviewTab(state),
+                      InvoiceScreen(
+                        systemGeneratedCode:
+                            state
+                                .materialRequisitionOverview
+                                ?.systemGeneratedCode ??
+                            "",
+                      ),
                     ],
                   ),
                 );

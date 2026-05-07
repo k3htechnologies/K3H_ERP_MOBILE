@@ -63,10 +63,22 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
       body: SafeArea(
         child: BlocBuilder<InventoryCubit, InventoryState>(
           builder: (context, state) {
-            if (state.isLoading == true) {
+            if (state.isLoading ?? true) {
               return loader();
             }
+
             final inventoryDashboardData = state.inventoryDashboardModelList;
+
+            final table0 =
+                inventoryDashboardData.isNotEmpty &&
+                        inventoryDashboardData.first.table0.isNotEmpty
+                    ? inventoryDashboardData.first.table0.first
+                    : null;
+            if (table0 == null) {
+              return Center(
+                child: noDataWidget(message: "No Data Found", iconSize: 180),
+              );
+            }
             return SingleChildScrollView(
               padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
               child: Column(
@@ -159,12 +171,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                     ),
                                   ),
                                   Text(
-                                    inventoryDashboardData
-                                        .first
-                                        .table0
-                                        .first
-                                        .totalBuilding
-                                        .toString(),
+                                    table0.totalBuilding.toString(),
                                     style: AppTextStyle.ts20SB(
                                       color: AppColor.black,
                                     ),

@@ -52,9 +52,7 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
     super.initState();
     _finalizeVendorCubit = context.read<FinalizeVendorCubit>();
     _selectedProject = getProject();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadMaterialData();
-    });
+    _loadMaterialData();
   }
 
   Future<void> initOverview() async {
@@ -79,6 +77,13 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
 
   Future<void> _loadMaterialData() async {
     final materialCubit = context.read<MaterialRequisitionCubit>();
+
+    await materialCubit.getMaterialRequisitionDetailsById(
+      context,
+      1,
+      widget.projectId,
+      widget.materialRequisitionId,
+    );
 
     materialRequisitionOverview.value =
         materialCubit.state.materialRequisitionOverview;
@@ -366,24 +371,17 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                               _buildRow("Company Name", vendor.companyName),
                               _buildRow(
                                 "Base Amount",
-                                addCommasToInteger(
-                                  vedorQuotationOfSelecetdVendor?.total ?? 0,
-                                ),
+                                "₹${vedorQuotationOfSelecetdVendor?.total.toInt() ?? 0}",
                               ),
                               _buildRow(
                                 "Total Tax",
-
-                                addCommasToInteger(
-                                  _calculateTax(vendor).toDouble(),
-                                ),
+                                "₹${_calculateTax(vendor)}",
                                 valueColor: Colors.orange,
                               ),
 
                               _buildRow(
                                 "Grand Total",
-                                addCommasToInteger(
-                                  _calculateGrandTotal(vendor).toDouble(),
-                                ),
+                                "₹${_calculateGrandTotal(vendor)}",
                                 valueColor: AppColor.primary,
                               ),
 

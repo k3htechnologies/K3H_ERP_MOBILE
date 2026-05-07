@@ -14,20 +14,21 @@ class MaterialCalculationModel {
 
   void calculate() {
     final qty = double.tryParse(quantity.text) ?? 0;
-    final price = double.tryParse(unitPrice.text) ?? 0;
+    final unit = double.tryParse(unitPrice.text) ?? 0;
 
-    final base = qty * price;
+    final sgstVal = double.tryParse(sgst.text) ?? 0;
+    final cgstVal = double.tryParse(cgst.text) ?? 0;
+    final igstVal = double.tryParse(igst.text) ?? 0;
+    final gstVal = double.tryParse(gst.text) ?? 0;
+
+    final base = qty * unit;
     baseAmt.text = base.toStringAsFixed(2);
 
-    final taxPercent =
-        (double.tryParse(sgst.text) ?? 0) +
-        (double.tryParse(cgst.text) ?? 0) +
-        (double.tryParse(igst.text) ?? 0) +
-        (double.tryParse(gst.text) ?? 0);
+    final totalTaxPercent = sgstVal + cgstVal + igstVal + gstVal;
+    final taxAmount = (base * totalTaxPercent) / 100;
 
-    final taxAmt = (base * taxPercent) / 100;
-    tax.value = taxAmt;
-    total.value = base + taxAmt;
+    tax.value = taxAmount;
+    total.value = base + taxAmount;
   }
 
   void addListeners() {
