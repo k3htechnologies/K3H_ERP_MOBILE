@@ -55,6 +55,8 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presen
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/grn_summary_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/view_grn_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/pages/add_invoice.screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/pages/add_make_payment.screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/pages/make_payment.screen.dart';
 import 'package:k3h_erp_app/features/register/presentation/pages/register_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
@@ -5011,6 +5013,30 @@ final GoRouter goRouter = GoRouter(
                 return AddInvoiceScreen(
                   systemgeneratedCode: systemGeneratedCode,
                   grn: grn,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.makePayment,
+              path: AppRoutes.makePayment,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>?;
+                final grn = extra?['grn'] as GRNModel?;
+                final systemGeneratedCode = extra?['systemGeneratedCode'] ?? "";
+                return MakePaymentScreen(
+                  systemgeneratedCode: systemGeneratedCode,
+                  grn: grn,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.makePaymentScreen,
+              path: AppRoutes.makePaymentScreen,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>?;
+                final systemGeneratedCode = extra?['systemGeneratedCode'] ?? "";
+                return AddMakePaymentScreen(
+                  systemgeneratedCode: systemGeneratedCode,
                 );
               },
             ),

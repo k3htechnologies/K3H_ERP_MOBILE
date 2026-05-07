@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/model/grn.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/cubit/invoice_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -23,6 +24,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   // CUBIT
   late GrnCubit _grnCubit;
   late MaterialRequisitionCubit _materialRequisitionCubit;
+
   @override
   void initState() {
     super.initState();
@@ -71,70 +73,94 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
             },
           ),
           verticalSpacing(),
+
           BlocBuilder<GrnCubit, GrnState>(
-            builder: (context, state) {
-              if (state.isLoading ?? true) {
+            builder: (context, grnState) {
+              if (grnState.isLoading ?? true) {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              if (state.allGRNList.isEmpty) {
+              if (grnState.allGRNList.isEmpty) {
                 return const Text("No GRN found");
               }
-
-              return Column(
-                children:
-                    state.allGRNList.map((grn) {
-                      return Container(
-                        padding: const EdgeInsets.all(16),
-                        margin: const EdgeInsets.only(bottom: 10),
-                        decoration: commonCardDecoration(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildRow(
-                              "Date",
-                              formatDateTimeAsDDMMMYYYY(grn.createdDate),
-                            ),
-                            _buildRow("Vehicle No", grn.vehicleNumber),
-                            _buildRow("Challan No", grn.challanNumber),
-                            verticalSpacing(),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
+              return BlocBuilder<InvoiceCubit, InvoiceState>(
+                builder: (context, invoiceState) {
+                  return Column(
+                    children:
+                        grnState.allGRNList.map((grn) {
+                          final hasInvoice = invoiceState.invoiceList.any(
+                            (invoice) =>
+                                invoice.materialRequisitionId ==
+                                grn.materialRequisitionId,
+                          );
+                          return Container(
+                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.only(bottom: 10),
+                            decoration: commonCardDecoration(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    goRouter.pushNamed(
-                                      AppRoutes.addInvoice,
-                                      extra: {
-                                        'systemGeneratedCode':
-                                            widget.systemGeneratedCode,
-                                        "grn": grn,
+                                _buildRow(
+                                  "Date",
+                                  formatDateTimeAsDDMMMYYYY(grn.createdDate),
+                                ),
+                                _buildRow("Vehicle No", grn.vehicleNumber),
+                                _buildRow("Challan No", grn.challanNumber),
+                                verticalSpacing(),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        if (hasInvoice) {
+                                          goRouter.pushNamed(
+                                            AppRoutes.makePayment,
+                                            extra: {
+                                              'systemGeneratedCode':
+                                                  widget.systemGeneratedCode,
+                                              "grn": grn,
+                                            },
+                                          );
+                                        } else {
+                                          goRouter.pushNamed(
+                                            AppRoutes.addInvoice,
+                                            extra: {
+                                              'systemGeneratedCode':
+                                                  widget.systemGeneratedCode,
+                                              "grn": grn,
+                                            },
+                                          );
+                                        }
                                       },
-                                    );
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 20.0,
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppColor.primary,
-                                      borderRadius: BorderRadius.circular(6.0),
-                                    ),
-                                    child: Text(
-                                      "Create Invoice",
-                                      style: AppTextStyle.ts14M(
-                                        color: AppColor.white,
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 20.0,
+                                          vertical: 6,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColor.primary,
+                                          borderRadius: BorderRadius.circular(
+                                            6.0,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          hasInvoice
+                                              ? "Make Payment"
+                                              : "Create Invoice",
+                                          style: AppTextStyle.ts14M(
+                                            color: AppColor.white,
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
+                          );
+                        }).toList(),
+                  );
+                },
               );
             },
           ),
