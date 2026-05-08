@@ -26,10 +26,20 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import '../../../material_requisition/presentation/cubit/material_requisition_cubit.dart';
 
 class AddGrnScreen extends StatefulWidget {
+  final int projectId;
+  final int materialRequisitionId;
+  final String uniquekey;
   final GRNModel? grnModel;
   final int? index;
 
-  const AddGrnScreen({super.key, required this.grnModel, required this.index});
+  const AddGrnScreen({
+    super.key,
+    required this.grnModel,
+    required this.index,
+    required this.projectId,
+    required this.materialRequisitionId,
+    required this.uniquekey,
+  });
 
   @override
   State<AddGrnScreen> createState() => _AddGrnScreenState();
@@ -40,6 +50,7 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
   late GrnCubit _grnCubit;
   late MaterialRequisitionCubit _materialRequisitionCubit;
   late TextEditingController _challanNumberC, _vehicleNumberC, _remarkC;
+
   //EDIT MODE
   bool get _isEditMode => widget.grnModel != null;
 
@@ -195,6 +206,13 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                             CustomButton(
                               text: "Add Material",
                               onPressed: () async {
+                                await _materialRequisitionCubit
+                                    .getFinalizedVendor(
+                                      context,
+                                      widget.projectId,
+                                      widget.materialRequisitionId,
+                                      widget.uniquekey,
+                                    );
                                 await goRouter.pushNamed(
                                   AppRoutes.addGrnMaterial,
                                 );
@@ -228,6 +246,15 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                                         children: [
                                           CustomIconButton.edit(
                                             onPressed: () async {
+                                              await _materialRequisitionCubit
+                                                  .getFinalizedVendor(
+                                                    context,
+                                                    widget.projectId,
+                                                    widget
+                                                        .materialRequisitionId,
+                                                    widget.uniquekey,
+                                                  );
+
                                               goRouter.pushNamed(
                                                 AppRoutes.addGrnMaterial,
                                                 queryParameters: {

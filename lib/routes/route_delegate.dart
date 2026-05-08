@@ -4954,6 +4954,12 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final queryParameterGrn =
                     state.uri.queryParameters['grnMaterial'];
+                final queryParameterMaterialRequisitionId =
+                    state.uri.queryParameters['materialRequisitionId'];
+                final queryParameterProjectId =
+                    state.uri.queryParameters['projectId'];
+                final queryParameterUniquekey =
+                    state.uri.queryParameters['uniquekey'];
 
                 final GRNModel? grn =
                     queryParameterGrn != null
@@ -4968,7 +4974,40 @@ final GoRouter goRouter = GoRouter(
 
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-                return AddGrnScreen(grnModel: grn, index: index);
+                final materialRequisitionId =
+                    queryParameterMaterialRequisitionId != null &&
+                            queryParameterMaterialRequisitionId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(
+                              queryParameterMaterialRequisitionId,
+                            ),
+                          ),
+                        )
+                        : 0;
+                final projectId =
+                    queryParameterProjectId != null &&
+                            queryParameterProjectId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterProjectId),
+                          ),
+                        )
+                        : 0;
+                final uniquekey =
+                    queryParameterUniquekey != null &&
+                            queryParameterUniquekey.isNotEmpty
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterUniquekey),
+                        )
+                        : "";
+                return AddGrnScreen(
+                  grnModel: grn,
+                  index: index,
+                  materialRequisitionId: materialRequisitionId,
+                  projectId: projectId,
+                  uniquekey: uniquekey,
+                );
               },
               routes: [
                 GoRoute(
@@ -4977,6 +5016,11 @@ final GoRouter goRouter = GoRouter(
                   builder: (context, state) {
                     final queryParameterMaterialDetails =
                         state.uri.queryParameters['material'];
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
 
                     final MaterialRequisitionDetailGrnDatum? materialDetails =
                         queryParameterMaterialDetails != null
@@ -4991,11 +5035,6 @@ final GoRouter goRouter = GoRouter(
                             )
                             : null;
 
-                    final index =
-                        int.tryParse(
-                          state.uri.queryParameters['index'] ?? '',
-                        ) ??
-                        0;
                     return AddGrnMaterialScreen(
                       materialDetails: materialDetails,
                       index: index,

@@ -273,6 +273,15 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
             final disabled =
                 !_routeAuthorizationModel.isAction ||
                 invoice.approvalStatus.toLowerCase().contains('approved');
+            if (index == state.brokerageInvoiceList.length) {
+              return state.brokerageInvoiceList.length <
+                      state.totalNumberOfRecordInvoice
+                  ? Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                  : const SizedBox.shrink();
+            }
             return ValueListenableBuilder<bool>(
               valueListenable: notifier,
               builder: (context, isExpanded, _) {
@@ -713,6 +722,15 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
           itemBuilder: (context, index) {
             final payment = state.brokeragePaidList[index];
             final notifier = _paymentExpandList[index];
+            if (index == state.brokeragePaidList.length) {
+              return state.brokeragePaidList.length <
+                      state.totalNumberOfRecordPaid
+                  ? Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                  : const SizedBox.shrink();
+            }
 
             return ValueListenableBuilder<bool>(
               valueListenable: notifier,
