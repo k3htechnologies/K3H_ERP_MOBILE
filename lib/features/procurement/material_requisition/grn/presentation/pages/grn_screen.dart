@@ -90,14 +90,15 @@ class _GRNScreenState extends State<GRNScreen> {
                 backgroundColor: AppColor.lightBlue,
                 textColor: AppColor.primary,
               ),
-              CustomButton(
-                leading: Icon(Icons.add, color: AppColor.white, size: 16),
-                text: "Add GRN",
-                onPressed: () async {
-                  await _grnCubit.clearMaterialList();
-                  await goRouter.pushNamed(AppRoutes.addGrn);
-                },
-              ),
+              if (_routeAuthorizationModel.isAction)
+                CustomButton(
+                  leading: Icon(Icons.add, color: AppColor.white, size: 16),
+                  text: "Add GRN",
+                  onPressed: () async {
+                    await _grnCubit.clearMaterialList();
+                    await goRouter.pushNamed(AppRoutes.addGrn);
+                  },
+                ),
             ],
           ),
 
@@ -155,7 +156,9 @@ class _GRNScreenState extends State<GRNScreen> {
                                 spacing: 10.w,
                                 children: [
                                   CustomIconButton.edit(
-                                    isDisabled: index != 0,
+                                    isDisabled:
+                                        (index != 0 ||
+                                            _routeAuthorizationModel.isAction),
                                     onPressed: () async {
                                       goRouter.pushNamed(
                                         AppRoutes.addGrn,

@@ -33,7 +33,6 @@ class _PurchaseOrderScreenState extends State<PurchaseOrderScreen> {
   @override
   void initState() {
     _purchaseOrderCubit = context.read<PurchaseOrderCubit>();
-
     super.initState();
   }
 

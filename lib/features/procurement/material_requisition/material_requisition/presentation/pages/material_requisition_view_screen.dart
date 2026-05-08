@@ -80,7 +80,6 @@ class _MaterialRequisitionViewScreenState
       widget.projectId,
       widget.materialRequisitionId,
     );
-
     if (mounted) {
       await _materialRequisitionCubit.getFinalizedVendor(
         context,
@@ -88,6 +87,7 @@ class _MaterialRequisitionViewScreenState
         widget.materialRequisitionId,
         widget.uniquekey,
       );
+      if (!mounted) return;
       invoiceList.value = await _materialRequisitionCubit.getInvoiceForOverview(
         context: context,
         projectId: widget.projectId,
@@ -130,16 +130,6 @@ class _MaterialRequisitionViewScreenState
           );
           break;
         case 5:
-          if (_materialRequisitionCubit.state.finalizedVendor == null) {
-            showErrorMessage(context, "", "Please Finalized Vendor");
-            _tabController.animateTo(2);
-            return;
-          }
-          if (_purchaseOrderCubit.state.purchaseOrderList.isEmpty) {
-            showErrorMessage(context, "", "Please Generate PO");
-            _tabController.animateTo(3);
-            return;
-          }
           break;
       }
     }
@@ -416,9 +406,11 @@ class _MaterialRequisitionViewScreenState
                         buildColumnTitleValue(
                           title: "Est. Delivery",
                           value:
-                              vendor.avgDeliveryDays > 0
-                                  ? "${vendor.avgDeliveryDays} days"
-                                  : "-",
+                              vendor
+                                  .materialRequisitionQuotationTermsData
+                                  .first
+                                  .expectedDeliveryInDays
+                                  .toString(),
                         ),
                       ],
                     ),

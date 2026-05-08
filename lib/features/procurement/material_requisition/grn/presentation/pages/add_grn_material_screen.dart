@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -14,7 +13,6 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
@@ -39,7 +37,6 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
   // CUBIT
   late GrnCubit _grnCubit;
 
-  late ProjectModel _project;
   final ValueNotifier<List<MaterialRequisitionQuotationDatum>> rawMaterialList =
       ValueNotifier([]);
   final ValueNotifier<Map<String, dynamic>?> _selectedMaterial = ValueNotifier(
@@ -63,7 +60,6 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
   @override
   void initState() {
     super.initState();
-    _project = getProject();
     initializeTextEditingController();
     _grnCubit = context.read<GrnCubit>();
     _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();

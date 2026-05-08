@@ -561,22 +561,20 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                                 CustomIconButton(
                                   onPressed: () async {
                                     if (materialRequisition.isCopy) {
-                                      await _materialRequisitionCubit
-                                          .copyMaterialRequisition(
-                                            context: context,
-                                            materialRequisitionId:
-                                                materialRequisition
-                                                    .materialRequisitionId,
-                                            uniqueKey:
-                                                materialRequisition.uniquekey,
-                                            projectId:
-                                                materialRequisition.projectId,
-                                            remarks:
-                                                materialRequisition.remarks,
-                                            materialRequisitionDetailJSON:
-                                                materialRequisition
-                                                    .materialRequisitionDetailData,
-                                          );
+                                      goRouter.goNamed(
+                                        AppRoutes.copyMaterialRequisition,
+                                        queryParameters: {
+                                          "materialRequisition":
+                                              Uri.encodeQueryComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(
+                                                    materialRequisition
+                                                        .toJson(),
+                                                  ),
+                                                ),
+                                              ),
+                                        },
+                                      );
                                     }
                                   },
                                   backgroundColor: AppColor.white,

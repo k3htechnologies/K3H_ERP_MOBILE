@@ -20,11 +20,9 @@ class ViewGrnScreen extends StatefulWidget {
 }
 
 class _ViewGrnScreenState extends State<ViewGrnScreen> {
-  late MaterialRequisitionCubit _materialRequisitionCubit;
   @override
   void initState() {
     super.initState();
-    _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
   }
 
   @override

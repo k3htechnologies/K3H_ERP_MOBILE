@@ -796,14 +796,6 @@ extension FinalizeVendorExtension on FinalizeVendorForComparisonModel {
   double get paid => paidAmount ?? 0;
 
   double get pendingAmount => grandTotal - paid;
-
-  double get avgDeliveryDays {
-    if (materialRequisitionQuotationTermsData.isEmpty) return 0;
-    final total = materialRequisitionQuotationTermsData
-        .map((e) => e.expectedDeliveryInDays)
-        .fold(0.0, (a, b) => a + b);
-    return total / materialRequisitionQuotationTermsData.length;
-  }
 }
 
 String queryParamsFormatter({required Map<String, dynamic>? queryParams}) {

@@ -92,9 +92,9 @@ class _SplashMobileScreenState extends State<SplashScreen> {
     if (kIsWeb) return false;
 
     if (Platform.isAndroid) {
-      return androidVersion != data["AndroidVersionERP"];
+      return androidVersion != data["AndroidVersion"];
     } else if (Platform.isIOS) {
-      return iosVersion != data["IosVersionERP"];
+      return iosVersion != data["IosVersion"];
     }
     return false;
   }

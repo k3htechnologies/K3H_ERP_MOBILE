@@ -55,6 +55,7 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presen
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/add_grn_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/grn_summary_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/view_grn_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/copy_material_requisition_screen.dart';
 import 'package:k3h_erp_app/features/register/presentation/pages/register_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
@@ -4684,6 +4685,31 @@ final GoRouter goRouter = GoRouter(
                 return AddMaterialScreen(
                   materialDetails: materialDetails,
                   index: index,
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.copyMaterialRequisition,
+              name: AppRoutes.copyMaterialRequisition,
+
+              builder: (context, state) {
+                final queryParameterMaterialRequisition =
+                    state.uri.queryParameters['materialRequisition'];
+
+                final MaterialRequisitionModel? materialRequisition =
+                    queryParameterMaterialRequisition != null
+                        ? MaterialRequisitionModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(
+                                queryParameterMaterialRequisition,
+                              ),
+                            ),
+                          ),
+                        )
+                        : null;
+                return CopyMaterialRequisitionScreen(
+                  materialRequisitionModel: materialRequisition!,
                 );
               },
             ),

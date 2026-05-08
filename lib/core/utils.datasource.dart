@@ -91,7 +91,7 @@ class UtilsDatasourceImpl implements UtilsDatasource {
   @override
   Future<Map<String, dynamic>> apicallPullAppVersion() async {
     try {
-      String url = '';
+      String url = 'Static/GetAppCurrentVersion';
       var networkResponse = await client.getRequestWithAuthentication(url);
       return networkResponse["data"].first as Map<String, dynamic>;
     } catch (error) {

@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/model/grn.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -29,13 +28,11 @@ class GrnSummaryScreen extends StatefulWidget {
 class _GrnSummaryScreenState extends State<GrnSummaryScreen> {
   // CUBIT
   late GrnCubit _grnCubit;
-  late MaterialRequisitionCubit _materialRequisitionCubit;
   final ValueNotifier<List<GRNModel>?> grnList = ValueNotifier(null);
   @override
   void initState() {
     super.initState();
     _grnCubit = context.read<GrnCubit>();
-    _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
     loadSummary();
   }
 
