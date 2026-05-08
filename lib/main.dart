@@ -1,6 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-
 import 'dart:io';
 import 'dart:ui';
 import 'package:firebase_core/firebase_core.dart';
@@ -59,6 +59,13 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
+@pragma('vm:entry-point')
+Future<bool> onIosBackground(ServiceInstance service) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  DartPluginRegistrant.ensureInitialized();
+  return true;
+}
+
 Future initialSetup() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -91,8 +98,15 @@ Future initialSetup() async {
         onStart: onStart,
         isForegroundMode: true,
         autoStart: false,
+        foregroundServiceNotificationId: 888,
+        initialNotificationTitle: 'K3H ERP',
+        initialNotificationContent: 'Tracking your location...',
       ),
-      iosConfiguration: IosConfiguration(),
+      iosConfiguration: IosConfiguration(
+        autoStart: false,
+        onForeground: onStart,
+        onBackground: onIosBackground,
+      ),
     );
   }
   final storage = LocalStorageManager();
@@ -123,7 +137,19 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
-
+  Timer.periodic(const Duration(seconds: 10), (timer) async {
+    if (service is AndroidServiceInstance) {
+      if (await service.isForegroundService()) {
+        service.setForegroundNotificationInfo(
+          title: "K3H ERP",
+          content: "Location tracking active...",
+        );
+      }
+    }
+  });
+  service.on('stop').listen((event) {
+    service.stopSelf();
+  });
   try {
     LocationPermission permission = await Geolocator.checkPermission();
 
@@ -185,6 +211,7 @@ class MyApp extends StatelessWidget {
           return MaterialApp.router(
             title: "K3H ERP",
             debugShowCheckedModeBanner: false,
+
             // THEME
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,

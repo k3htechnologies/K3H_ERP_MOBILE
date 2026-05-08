@@ -82,7 +82,7 @@ class InvoiceCubit extends Cubit<InvoiceState> {
       "InvoiceDueDate": dueDate,
       "Remarks": remarks,
     };
-    final List<Map<String, dynamic>> fileList = [];
+    List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < uploadInvoicePhoto.fileBytesList.length; i++) {
       if (uploadInvoicePhoto.fileNameList[i].contains("http")) {
         continue;
@@ -187,17 +187,17 @@ class InvoiceCubit extends Cubit<InvoiceState> {
       "ProjectId": projectId.toString(),
       "MaterialRequisitionInvoiceId": materialRequisitionInvoiceId.toString(),
       "MaterialRequisitionId": materialRequisitionId.toString(),
-      "PaymentMode": selectPaymentMode["DisplayName"],
+      "PaymentMode": selectPaymentMode["DisplayName"].toString(),
       "BankListMasterId": selectedBank["zAttributesId"].toString(),
       "AccountNumber": accountNumber,
       "IFSCCode": ifscCode,
-      "PaymentType": selectPaymentType["DisplayName"],
-      "AmountPaid": amountPaid,
-      "TDSAmount": tdsAmount,
+      "PaymentType": selectPaymentType["DisplayName"].toString(),
+      "AmountPaid": amountPaid.isEmpty ? "0" : amountPaid,
+      "TDSAmount": tdsAmount.isEmpty ? "0" : tdsAmount,
       "TransactionNumber": transactionNumber,
       "IsAdvance": isAdvance.toString(),
     };
-    final List<Map<String, dynamic>> fileList = [];
+    List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < transactionReceiptPhoto.fileBytesList.length; i++) {
       fileList.add({
         "key": "TransactionReceiptURL",

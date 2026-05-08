@@ -61,9 +61,7 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
     _materialCubit = context.read<MaterialRequisitionCubit>();
 
     _selectedProject = getProject();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadMaterialData();
-    });
+    _loadMaterialData();
   }
 
   Future<void> initOverview() async {
@@ -87,6 +85,15 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
   }
 
   Future<void> _loadMaterialData() async {
+    final materialCubit = context.read<MaterialRequisitionCubit>();
+
+    await materialCubit.getMaterialRequisitionDetailsById(
+      context,
+      1,
+      widget.projectId,
+      widget.materialRequisitionId,
+    );
+
     materialRequisitionOverview.value =
         _materialCubit.state.materialRequisitionOverview;
     await initOverview();

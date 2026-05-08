@@ -44,7 +44,7 @@ class _AddMaterialRequisitionScreenState
   // CUBIT
   late MaterialRequisitionCubit _materialRequisitionCubit;
   late TextEditingController _remarkC;
-  late ProjectModel _project;
+  late ProjectModel _selectedProject;
   //EDIT MODE
   bool get _isEditMode => widget.materialRequisitionModel != null;
 
@@ -58,7 +58,7 @@ class _AddMaterialRequisitionScreenState
   @override
   void initState() {
     super.initState();
-    _project = getProject();
+    _selectedProject = getProject();
     _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
     _remarkC = TextEditingController();
     _prefill();
@@ -108,7 +108,7 @@ class _AddMaterialRequisitionScreenState
         context: context,
         materialRequisitionDetailJSON:
             _materialRequisitionCubit.state.materialList,
-        projectId: _project.projectId,
+        projectId: _selectedProject.projectId,
         remarks: _remarkC.text.trim(),
       );
     }
