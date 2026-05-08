@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class InvoiceScreen extends StatefulWidget {
@@ -87,12 +88,35 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                 builder: (context, invoiceState) {
                   return Column(
                     children:
-                        grnState.allGRNList.map((grn) {
+                        grnState.allGRNList.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final grn = entry.value;
                           final hasInvoice = invoiceState.invoiceList.any(
                             (invoice) =>
                                 invoice.materialRequisitionId ==
                                 grn.materialRequisitionId,
                           );
+                          final invoice =
+                              index < invoiceState.invoiceList.length
+                                  ? invoiceState.invoiceList[index]
+                                  : null;
+
+                          final payment =
+                              invoiceState.paymentList.isNotEmpty
+                                  ? invoiceState.paymentList.first
+                                  : null;
+
+                          final isPaid =
+                              payment?.paymentType.toLowerCase() == "full";
+
+                          final isPartiallyPaid =
+                              payment?.paymentType.toLowerCase() == "partial";
+                          final buttonText =
+                              !hasInvoice
+                                  ? "Create Invoice"
+                                  : isPaid
+                                  ? "View Payment"
+                                  : "Make Payment";
                           return Container(
                             padding: const EdgeInsets.all(16),
                             margin: const EdgeInsets.only(bottom: 10),
@@ -107,21 +131,74 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                                 _buildRow("Vehicle No", grn.vehicleNumber),
                                 _buildRow("Challan No", grn.challanNumber),
                                 verticalSpacing(),
+                                isPaid || isPartiallyPaid
+                                    ? Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            "Status",
+                                            style: AppTextStyle.ts14R(
+                                              color: AppColor.black.withValues(
+                                                alpha: 0.5,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          ":   ",
+                                          style: AppTextStyle.ts14R(
+                                            color: AppColor.black.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 6.0,
+                                              vertical: 1,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(4.0),
+                                              color:
+                                                  isPaid
+                                                      ? AppColor.green20
+                                                          .withValues(
+                                                            alpha: 0.10,
+                                                          )
+                                                      : AppColor.orange
+                                                          .withValues(
+                                                            alpha: 0.10,
+                                                          ),
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                isPaid
+                                                    ? "Paid"
+                                                    : "Partially Paid",
+                                                style: AppTextStyle.ts12M(
+                                                  color:
+                                                      isPaid
+                                                          ? AppColor.green
+                                                          : AppColor.orange,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                    : SizedBox.shrink(),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        if (hasInvoice) {
-                                          goRouter.pushNamed(
-                                            AppRoutes.makePayment,
-                                            extra: {
-                                              'systemGeneratedCode':
-                                                  widget.systemGeneratedCode,
-                                              "grn": grn,
-                                            },
-                                          );
-                                        } else {
+                                    CustomButton(
+                                      text: buttonText,
+                                      onPressed: () {
+                                        if (!hasInvoice) {
                                           goRouter.pushNamed(
                                             AppRoutes.addInvoice,
                                             extra: {
@@ -130,28 +207,27 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                                               "grn": grn,
                                             },
                                           );
+                                          return;
                                         }
+                                        if (isPaid) {
+                                          goRouter.pushNamed(
+                                            AppRoutes.viewPayment,
+                                            extra: {
+                                              'systemGeneratedCode':
+                                                  widget.systemGeneratedCode,
+                                            },
+                                          );
+                                          return;
+                                        }
+                                        goRouter.pushNamed(
+                                          AppRoutes.makePayment,
+                                          extra: {
+                                            'systemGeneratedCode':
+                                                widget.systemGeneratedCode,
+                                            "grn": grn,
+                                          },
+                                        );
                                       },
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 20.0,
-                                          vertical: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColor.primary,
-                                          borderRadius: BorderRadius.circular(
-                                            6.0,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          hasInvoice
-                                              ? "Make Payment"
-                                              : "Create Invoice",
-                                          style: AppTextStyle.ts14M(
-                                            color: AppColor.white,
-                                          ),
-                                        ),
-                                      ),
                                     ),
                                   ],
                                 ),

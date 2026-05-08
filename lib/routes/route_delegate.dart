@@ -58,6 +58,7 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presen
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/pages/add_invoice.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/pages/add_make_payment.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/pages/make_payment.screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/pages/view_payment.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/copy_material_requisition_screen.dart';
 import 'package:k3h_erp_app/features/register/presentation/pages/register_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
@@ -5102,6 +5103,17 @@ final GoRouter goRouter = GoRouter(
                 final extra = state.extra as Map<String, dynamic>?;
                 final systemGeneratedCode = extra?['systemGeneratedCode'] ?? "";
                 return AddMakePaymentScreen(
+                  systemgeneratedCode: systemGeneratedCode,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewPayment,
+              path: AppRoutes.viewPayment,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>?;
+                final systemGeneratedCode = extra?['systemGeneratedCode'] ?? "";
+                return ViewPaymentScreen(
                   systemgeneratedCode: systemGeneratedCode,
                 );
               },

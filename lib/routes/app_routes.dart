@@ -94,6 +94,7 @@ class AppRoutes {
   static String addInvoice = "/addInvoice";
   static String makePayment = "/makePayment";
   static String makePaymentScreen = "/makePaymentScreen";
+  static String viewPayment = "/viewPayment";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// INVENTORY
