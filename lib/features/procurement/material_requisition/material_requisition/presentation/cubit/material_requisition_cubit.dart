@@ -490,6 +490,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
                 'MaterialQuantity': e.materialQuantity,
                 'UomMasterId': e.uomMasterId,
                 'RequiredDate': e.requiredDate.toIso8601String(),
+                "Remark": e.remarks,
               },
             )
             .toList(),
@@ -505,6 +506,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
         return;
       },
       (response) {
+        goRouter.pop();
         showSuccessMessage(context, subTitle: response['message']);
         getMaterialRequisitionList(context, 1, projectId);
       },

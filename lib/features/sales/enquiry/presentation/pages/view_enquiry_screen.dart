@@ -1311,21 +1311,21 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
 
           Widget lostReasonWidget() =>
               (statusName == "Lost")
-                  ? CustomDropDownWidget(
-                    title: "Lost Reason",
-                    hintText: "Select Lost Reason",
-                    isRequired: true,
-                    dataList: lostReasonList,
-                    initialValue: _selectedLostReason.value,
-                    onSelected:
-                        (val) => innerBottomsheetState(
-                          () => _selectedLostReason.value = val,
-                        ),
-                    validator:
-                        (val) => val == null ? "Lost reason is required" : null,
-                    onValueClear: () {
-                      innerBottomsheetState(
-                        () => _selectedLostReason.value = null,
+                  ? ValueListenableBuilder(
+                    valueListenable: _selectedLostReason,
+                    builder: (context, value, child) {
+                      return CustomDropDownWidget(
+                        title: "Lost Reason",
+                        hintText: "Select Lost Reason",
+                        isRequired: true,
+                        dataList: lostReasonList,
+                        initialValue: _selectedLostReason.value,
+                        onSelected: (val) => _selectedLostReason.value = val,
+                        validator:
+                            (val) =>
+                                val == null ? "Lost reason is required" : null,
+
+                        onValueClear: () => _selectedLostReason.value = null,
                       );
                     },
                   )

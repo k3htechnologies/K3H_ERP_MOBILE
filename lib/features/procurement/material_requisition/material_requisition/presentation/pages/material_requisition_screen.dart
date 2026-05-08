@@ -561,7 +561,7 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                                 CustomIconButton(
                                   onPressed: () async {
                                     if (materialRequisition.isCopy) {
-                                      goRouter.goNamed(
+                                      goRouter.pushNamed(
                                         AppRoutes.copyMaterialRequisition,
                                         queryParameters: {
                                           "materialRequisition":
