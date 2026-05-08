@@ -251,15 +251,13 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
   Widget _buildInvoiceView() {
     return BlocBuilder<BrokerageCubit, BrokerageState>(
       builder: (context, state) {
-        if (_invoiceExpandList.length != state.brokerageInvoiceList.length) {
-          _invoiceExpandList.clear();
-          _invoiceExpandList.addAll(
-            List.generate(
-              state.brokerageInvoiceList.length,
-              (_) => ValueNotifier(false),
-            ),
-          );
-        }
+        _invoiceExpandList.clear();
+        _invoiceExpandList.addAll(
+          List.generate(
+            state.brokerageInvoiceList.length,
+            (_) => ValueNotifier(false),
+          ),
+        );
         if (state.isLoading ?? true) {
           return Center(child: CircularProgressIndicator());
         }
@@ -398,7 +396,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
                                           invoice.invoiceAmount ==
                                                   invoice.paymentAmount
                                               ? AppColor.grey.withValues(
-                                                alpha: 0.5, 
+                                                alpha: 0.5,
                                               )
                                               : AppColor.white,
                                       onPressed: () {
@@ -542,7 +540,6 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
                 title: "Amount",
                 value: addCommasToInteger(invoice.invoiceAmount),
               ),
-              buildRowTitleValue(title: "Payment Mode", value: "Cheque"),
               Row(
                 children: [
                   buildColumnTitleValue(
@@ -696,15 +693,14 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
   Widget _buildPaymentView() {
     return BlocBuilder<BrokerageCubit, BrokerageState>(
       builder: (context, state) {
-        if (_paymentExpandList.length != state.brokeragePaidList.length) {
-          _paymentExpandList.clear();
-          _paymentExpandList.addAll(
-            List.generate(
-              state.brokeragePaidList.length,
-              (_) => ValueNotifier(false),
-            ),
-          );
-        }
+        _paymentExpandList.clear();
+        _paymentExpandList.addAll(
+          List.generate(
+            state.brokeragePaidList.length,
+            (_) => ValueNotifier(false),
+          ),
+        );
+
         if (state.isLoading ?? true) {
           return Center(child: CircularProgressIndicator());
         }

@@ -20,7 +20,19 @@ class BrokerageCubit extends Cubit<BrokerageState> {
   final BrokerageRepository _brokerageRepository =
       serviceLocator<BrokerageRepository>();
 
-  // <---- SEARCH BROKERAGE ---->
+  Future clearInvoiceAndPayment() async {
+    emit(
+      state.copyWith(
+        currentPageInvoice: 1,
+        brokerageInvoiceList: [],
+        totalNumberOfRecordInvoice: 0,
+        currentPagePaid: 1,
+        brokeragePaidList: [],
+        totalNumberOfRecordPaid: 0,
+      ),
+    );
+  }
+
   Future searchBrokerage(
     BuildContext context,
     String value,
@@ -63,7 +75,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     }
   }
 
-  // <---- GET BROKERAGE BOOKING LIST ---->
   Future getBrokerageBookingList(
     BuildContext context,
     int pageNumber,
@@ -116,7 +127,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     );
   }
 
-  // <---- GET BROKERAGE INVOICE LIST ---->
   Future getBrokerageInvoiceList(
     BuildContext context,
     int pageNumber,
@@ -157,7 +167,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     );
   }
 
-  // ADD BROKERAGE INVOICE
   Future addBrokerageInvoice({
     required BuildContext context,
     required String bookingId,
@@ -226,7 +235,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     );
   }
 
-  // UPDATE BROKERAGE INVOICE
   Future updateBrokerageInvoice({
     required BuildContext context,
     required String brokerageInvoiceId,
@@ -304,7 +312,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     );
   }
 
-  // <---- DELETE BROKERAGE INVOICE ---->
   Future deleteBrokerageInvoice({
     required BuildContext context,
     required BrokerageInvoiceModel brokerage,
@@ -343,7 +350,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     );
   }
 
-  // <---- GET PAID BROKERAGE LIST ---->
   Future getBrokeragePaidList(
     BuildContext context,
     int pageNumber,
@@ -384,7 +390,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     );
   }
 
-  // ADD BROKERAGE PAYMENT
   Future addBrokeragePayment({
     required BuildContext context,
     required String bookingId,
@@ -443,7 +448,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     );
   }
 
-  // UPDATE BROKERAGE INVOICE
   Future updateBrokeragePayment({
     required BuildContext context,
     required String paidBrokerageBookingId,
@@ -517,7 +521,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     );
   }
 
-  // <---- DELETE BROKERAGE PAYMENT ---->
   Future deleteBrokeragePayment({
     required BuildContext context,
     required PaidBrokerageBookingModel payment,
@@ -591,7 +594,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     getBrokerageBookingList(context, 1, projectId);
   }
 
-  // <---- EXPORT EXCEL PDF ---->
   Future exportExcelPdf(
     BuildContext context,
     String exportType,

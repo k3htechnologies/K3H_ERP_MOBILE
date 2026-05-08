@@ -487,6 +487,7 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                             child: GestureDetector(
                               onTap: () async {
                                 await _brokerageCubit.resetSearch();
+                                await _brokerageCubit.clearInvoiceAndPayment();
                                 goRouter.pushNamed(
                                   AppRoutes.viewBrokerage,
                                   queryParameters: {
