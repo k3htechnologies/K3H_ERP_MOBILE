@@ -154,15 +154,12 @@ class CustomDropDownWidget extends StatelessWidget {
                       );
                     },
                     onChanged: (value) {
-                      if (!isDisabled) {
-                        if (formFieldState.value?['zAttributesId'] !=
-                            value?['zAttributesId']) {
-                          formFieldState.didChange(value);
+                      if (isDisabled) return;
 
-                          if (value != null) {
-                            onSelected(value);
-                          }
-                        }
+                      formFieldState.didChange(value);
+
+                      if (value != null) {
+                        onSelected(value);
                       }
                     },
                   ),

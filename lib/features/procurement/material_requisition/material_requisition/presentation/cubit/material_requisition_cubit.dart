@@ -154,7 +154,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
     );
   }
 
-  Future<void> getFinalizedVendor(
+  Future<FinalizeVendorForComparisonModel?> getFinalizedVendor(
     BuildContext context,
     int projectId,
     int materialRequisitionId,
@@ -168,9 +168,10 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
       uniquekey: uniquekey,
     );
 
-    result.fold(
+    return result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
+        return null;
       },
       (response) {
         final List<FinalizeVendorForComparisonModel> requisitionVendorList =
@@ -189,6 +190,9 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
                     : null,
           ),
         );
+        return finalizedVendorList.isNotEmpty
+            ? finalizedVendorList.first
+            : null;
       },
     );
   }
@@ -490,6 +494,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
                 'MaterialQuantity': e.materialQuantity,
                 'UomMasterId': e.uomMasterId,
                 'RequiredDate': e.requiredDate.toIso8601String(),
+                "Remark": e.remarks,
               },
             )
             .toList(),
@@ -505,6 +510,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
         return;
       },
       (response) {
+        goRouter.pop();
         showSuccessMessage(context, subTitle: response['message']);
         getMaterialRequisitionList(context, 1, projectId);
       },

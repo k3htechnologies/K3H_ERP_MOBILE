@@ -96,7 +96,24 @@ class _GRNScreenState extends State<GRNScreen> {
                   text: "Add GRN",
                   onPressed: () async {
                     await _grnCubit.clearMaterialList();
-                    await goRouter.pushNamed(AppRoutes.addGrn);
+                    await goRouter.pushNamed(
+                      AppRoutes.addGrn,
+                      queryParameters: {
+                        "materialRequisitionId": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(
+                            widget.materialRequisitionId.toString(),
+                          ),
+                        ),
+                        "projectId": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(
+                            widget.projectId.toString(),
+                          ),
+                        ),
+                        "uniquekey": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(widget.uniquekey),
+                        ),
+                      },
+                    );
                   },
                 ),
             ],
@@ -162,6 +179,7 @@ class _GRNScreenState extends State<GRNScreen> {
                                     onPressed: () async {
                                       goRouter.pushNamed(
                                         AppRoutes.addGrn,
+
                                         queryParameters: {
                                           "grnMaterial":
                                               Uri.encodeQueryComponent(
@@ -170,6 +188,23 @@ class _GRNScreenState extends State<GRNScreen> {
                                                 ),
                                               ),
                                           'index': index.toString(),
+                                          "materialRequisitionId":
+                                              Uri.encodeQueryComponent(
+                                                EncryptionManager.encryptData(
+                                                  widget.materialRequisitionId
+                                                      .toString(),
+                                                ),
+                                              ),
+                                          "projectId": Uri.encodeQueryComponent(
+                                            EncryptionManager.encryptData(
+                                              widget.projectId.toString(),
+                                            ),
+                                          ),
+                                          "uniquekey": Uri.encodeQueryComponent(
+                                            EncryptionManager.encryptData(
+                                              widget.uniquekey,
+                                            ),
+                                          ),
                                         },
                                       );
                                     },
