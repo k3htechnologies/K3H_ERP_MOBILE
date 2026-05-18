@@ -8,7 +8,6 @@ abstract interface class LitigationDatasource {
   Future<Map<String, dynamic>> apicallPullLitigation({
     required int pageNumber,
     required int pageSize,
-    required int projectId,
     Map<String, dynamic>? queryParams,
   });
 
@@ -96,22 +95,18 @@ class LitigationDatasourceImpl extends LitigationDatasource {
   Future<Map<String, dynamic>> apicallPullLitigation({
     required int pageNumber,
     required int pageSize,
-    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
-    String pullLitigationUrl({
-      required int projectId,
-      Map<String, dynamic>? queryParams,
-    }) {
+    String pullLitigationUrl({Map<String, dynamic>? queryParams}) {
       String url =
-          "Litigation/PullLitigation?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+          "Litigation/PullLitigation?PageSize=$pageSize&PageNumber=$pageNumber";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullLitigationUrl(projectId: projectId, queryParams: queryParams),
+        pullLitigationUrl(queryParams: queryParams),
       );
       return {
         'data': List<LitigationModel>.from(
@@ -122,7 +117,6 @@ class LitigationDatasourceImpl extends LitigationDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         apicallPullLitigation(
-          projectId: projectId,
           queryParams: queryParams,
           pageNumber: pageNumber,
           pageSize: pageSize,

@@ -11,7 +11,6 @@ import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigat
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
 
 class LitigationCubit extends Cubit<LitigationState> {
   LitigationCubit() : super(LitigationState.initial());
@@ -74,13 +73,7 @@ class LitigationCubit extends Cubit<LitigationState> {
     required int pageNumber,
   }) async {
     emit(state.copyWith(isLoading: true));
-    if (getProject().projectId == 0) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showErrorMessage(context, "Error", "Please select a project");
-      });
-      emit(state.copyWith(isLoading: false));
-      return;
-    }
+
     var queryParams = {
       "Title": state.searchText,
       "CaseNumber": state.filterCaseNumber,
@@ -90,7 +83,6 @@ class LitigationCubit extends Cubit<LitigationState> {
     final result = await _litigationRepository.pullLitigation(
       pageNumber: pageNumber,
       pageSize: 4,
-      projectId: getProject().projectId,
       queryParams: queryParams,
     );
 
@@ -224,13 +216,14 @@ class LitigationCubit extends Cubit<LitigationState> {
     required BuildContext context,
     required int pageNumber,
     required int litigationId,
+    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     emit(state.copyWith(isLoading: true));
     final result = await _litigationRepository.pullLitigationHearing(
       pageNumber: pageNumber,
       pageSize: 5,
-      projectId: getProject().projectId,
+      projectId: projectId,
       litigationId: litigationId,
       queryParams: queryParams,
     );
@@ -366,13 +359,14 @@ class LitigationCubit extends Cubit<LitigationState> {
     int index,
     LitigationHearingModel litigationHearingModel,
     int litigationId,
+    int projectId,
     BuildContext context,
   ) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _litigationRepository.deleteLitigationHearing(
       litigationId: litigationId,
       uniqueKey: litigationHearingModel.uniquekey,
-      projectId: getProject().projectId,
+      projectId: projectId,
       litigationHearingId: litigationHearingModel.litigationHearingId,
     );
     goRouter.pop();
@@ -409,13 +403,14 @@ class LitigationCubit extends Cubit<LitigationState> {
     required BuildContext context,
     required int pageNumber,
     required int litigationId,
+    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     emit(state.copyWith(isLoading: true));
     final result = await _litigationRepository.pullLitigationDocument(
       pageNumber: pageNumber,
       pageSize: 15,
-      projectId: getProject().projectId,
+      projectId: projectId,
       litigationId: litigationId,
       queryParams: queryParams,
     );
@@ -608,6 +603,7 @@ class LitigationCubit extends Cubit<LitigationState> {
     required BuildContext context,
     required int pageNumber,
     required int litigationId,
+    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     emit(state.copyWith(isLoading: true));
@@ -615,7 +611,7 @@ class LitigationCubit extends Cubit<LitigationState> {
     final result = await _litigationRepository.pullLitigationClosure(
       pageNumber: pageNumber,
       pageSize: 10,
-      projectId: getProject().projectId,
+      projectId: projectId,
       litigationId: litigationId,
       queryParams: queryParams,
     );
@@ -824,11 +820,7 @@ class LitigationCubit extends Cubit<LitigationState> {
     var result = await _litigationRepository.getLitigationForExport(
       pageNumber: 1,
       pageSize: state.litigationTotalRecords,
-      queryParams: {
-        "ExportType": exportType,
-        "Title": state.searchText.trim(),
-        "ProjectId": getProject().projectId,
-      },
+      queryParams: {"ExportType": exportType, "Title": state.searchText.trim()},
     );
     goRouter.pop();
     result.fold(

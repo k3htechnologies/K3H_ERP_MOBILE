@@ -95,7 +95,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     _litigationCubit = context.read<LitigationCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.litigation] ??
-            AuthorizationModel();
+        AuthorizationModel();
     _documentNameC = TextEditingController();
     _remarkC = TextEditingController();
     _conclusionC = TextEditingController();
@@ -128,6 +128,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
           _litigationCubit.getLitigationHearingList(
             context: context,
             pageNumber: 1,
+            projectId: widget.litigationModel.projectId,
             litigationId: widget.litigationModel.litigationId,
           );
           break;
@@ -136,6 +137,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
           _litigationCubit.getLitigationDocumentList(
             context: context,
             pageNumber: 1,
+            projectId: widget.litigationModel.projectId,
             litigationId: widget.litigationModel.litigationId,
           );
           break;
@@ -165,6 +167,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
             context: context,
             pageNumber: _litigationCubit.state.hearingCurrentPage + 1,
             litigationId: widget.litigationModel.litigationId,
+            projectId: widget.litigationModel.projectId,
           );
         });
       }
@@ -176,7 +179,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     _documentScrollController = ScrollController();
     _documentScrollController.addListener(() {
       if (_documentScrollController.position.pixels >=
-          _documentScrollController.position.maxScrollExtent - 100 &&
+              _documentScrollController.position.maxScrollExtent - 100 &&
           !(_litigationCubit.state.isLoading ?? false) &&
           _litigationCubit.state.litigationDocumentList.length <
               _litigationCubit.state.documentTotalRecords) {
@@ -186,6 +189,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
           _litigationCubit.getLitigationDocumentList(
             context: context,
             pageNumber: _litigationCubit.state.documentCurrentPage + 1,
+            projectId: widget.litigationModel.projectId,
             litigationId: widget.litigationModel.litigationId,
           );
         });
@@ -245,19 +249,25 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text("Case Details", style: AppTextStyle.ts16SB()),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          buildColumnTitleValue(
-                            title: "Case Title",
-                            value: litigation.title,
-                          ),
-                          buildColumnTitleValue(
-                            title: "Case / Petiton / Dispute Number",
-                            value: litigation.caseNumber,
-                          ),
-                        ],
+                      _buildRowWrapper(
+                        child: buildColumnTitleValue(
+                          title: "Project",
+                          value: litigation.projectName,
+                        ),
                       ),
+                      _buildRowWrapper(
+                        child: buildColumnTitleValue(
+                          title: "Case Title",
+                          value: litigation.title,
+                        ),
+                      ),
+                      _buildRowWrapper(
+                        child: buildColumnTitleValue(
+                          title: "Case / Petiton / Dispute Number",
+                          value: litigation.caseNumber,
+                        ),
+                      ),
+
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -266,33 +276,26 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                             value: litigation.caseType,
                           ),
                           buildColumnTitleValue(
-                            title: "Case Status",
-                            value: litigation.status,
-                            valueTextStyle: AppTextStyle.ts14B(
-                              color:
-                                  (litigation.status.toLowerCase() == 'open' ||
-                                          litigation.status.toLowerCase() ==
-                                              'reopen')
-                                      ? AppColor.green
-                                      : AppColor.red,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          buildColumnTitleValue(
-                            title: "Project",
-                            value: litigation.projectName,
-                          ),
-                          buildColumnTitleValue(
                             title: "Date Of Filling",
                             value: formatDateTimeAsDDMMMYYYY(
                               litigation.dateOfFilling,
                             ),
                           ),
                         ],
+                      ),
+                      _buildRowWrapper(
+                        child: buildColumnTitleValue(
+                          title: "Case Status",
+                          value: litigation.status,
+                          valueTextStyle: AppTextStyle.ts14B(
+                            color:
+                                (litigation.status.toLowerCase() == 'open' ||
+                                        litigation.status.toLowerCase() ==
+                                            'reopen')
+                                    ? AppColor.green
+                                    : AppColor.red,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -342,31 +345,30 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text("Parties Details", style: AppTextStyle.ts16SB()),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          buildColumnTitleValue(
-                            title: "Plaintiff",
-                            value: litigation.plantiff,
-                          ),
-                          buildColumnTitleValue(
-                            title: "Assigned Representative",
-                            value: litigation.assignedRepresentative,
-                          ),
-                        ],
+                      _buildRowWrapper(
+                        child: buildColumnTitleValue(
+                          title: "Plaintiff / Complaint / Petition",
+                          value: litigation.plantiff,
+                        ),
                       ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          buildColumnTitleValue(
-                            title: "Defendant / Opposite Party / Respondent",
-                            value: litigation.defendant,
-                          ),
-                          buildColumnTitleValue(
-                            title: "Opposite Representative",
-                            value: litigation.opposingRepresentative,
-                          ),
-                        ],
+                      _buildRowWrapper(
+                        child: buildColumnTitleValue(
+                          title: "Defendant / Opposite Party / Respondent",
+                          value: litigation.defendant,
+                        ),
+                      ),
+
+                      _buildRowWrapper(
+                        child: buildColumnTitleValue(
+                          title: "Assigned Representative",
+                          value: litigation.assignedRepresentative,
+                        ),
+                      ),
+                      _buildRowWrapper(
+                        child: buildColumnTitleValue(
+                          title: "Opposite Representative",
+                          value: litigation.opposingRepresentative,
+                        ),
                       ),
                     ],
                   ),
@@ -578,9 +580,11 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                           await goRouter.pushNamed(
                             AppRoutes.addLitigationHearing,
                             queryParameters: {
-                              'litigationId':
-                                  widget.litigationModel.litigationId
-                                      .toString(),
+                              "litigation": Uri.encodeQueryComponent(
+                                EncryptionManager.encryptData(
+                                  jsonEncode(widget.litigationModel.toJson()),
+                                ),
+                              ),
                             },
                           );
 
@@ -588,6 +592,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                             _litigationCubit.getLitigationHearingList(
                               context: context,
                               pageNumber: 1,
+                              projectId: widget.litigationModel.projectId,
                               litigationId: widget.litigationModel.litigationId,
                             );
                           }
@@ -614,7 +619,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Hearing History', style: AppTextStyle.ts16SB()),
-                  if (status != "closed" && _routeAuthorizationModel.isAction )
+                  if (status != "closed" && _routeAuthorizationModel.isAction)
                     CustomButton(
                       backgroundColor: AppColor.lightBlue,
                       leading: Icon(Icons.add),
@@ -625,14 +630,18 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                         await goRouter.pushNamed(
                           AppRoutes.addLitigationHearing,
                           queryParameters: {
-                            'litigationId':
-                                widget.litigationModel.litigationId.toString(),
+                            "litigation": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(
+                                jsonEncode(widget.litigationModel.toJson()),
+                              ),
+                            ),
                           },
                         );
                         if (context.mounted) {
                           _litigationCubit.getLitigationHearingList(
                             context: context,
                             pageNumber: 1,
+                            projectId: widget.litigationModel.projectId,
                             litigationId: widget.litigationModel.litigationId,
                           );
                         }
@@ -690,7 +699,8 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                               ),
                               //Only Lastest Hearing can be Update and Delete but make sure Api return data by date and Time
                               if (index == 0 &&
-                                  status.toLowerCase() != 'closed' && _routeAuthorizationModel.isAction)
+                                  status.toLowerCase() != 'closed' &&
+                                  _routeAuthorizationModel.isAction)
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
@@ -708,11 +718,15 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                                                   ),
                                                 ),
                                             'index': index.toString(),
-                                            'litigationId':
-                                                widget
-                                                    .litigationModel
-                                                    .litigationId
-                                                    .toString(),
+                                            "litigation":
+                                                Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(
+                                                      widget.litigationModel
+                                                          .toJson(),
+                                                    ),
+                                                  ),
+                                                ),
                                           },
                                         );
                                       },
@@ -746,6 +760,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                                       .isNotEmpty) {
                                     showFilePreviewDialog(
                                       context,
+                                      title: hearing.fileName,
                                       hearing.hearingAttachementUrl.split(","),
                                     );
                                   }
@@ -795,6 +810,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                           if (context.mounted) {
                             _litigationCubit.getLitigationDocumentList(
                               context: context,
+                              projectId: widget.litigationModel.projectId,
                               pageNumber: 1,
                               litigationId: widget.litigationModel.litigationId,
                             );
@@ -833,6 +849,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                           _litigationCubit.getLitigationDocumentList(
                             context: context,
                             pageNumber: 1,
+                            projectId: widget.litigationModel.projectId,
                             litigationId: widget.litigationModel.litigationId,
                           );
                         }
@@ -869,6 +886,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                         if (document.documentUrl.isNotEmpty) {
                           showFilePreviewDialog(
                             context,
+                            title: document.documentName,
                             document.documentUrl.split(","),
                           );
                         }
@@ -895,6 +913,10 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     required VoidCallback onViewTab,
     required VoidCallback onDeleteTab,
   }) {
+    final disabled =
+        status.toLowerCase() == 'closed' ||
+        !_routeAuthorizationModel.isAction ||
+        litigationDocModel.litigationHearingId != 0;
     return Row(
       children: [
         Expanded(
@@ -944,23 +966,26 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                       ),
                       onPressed: onViewTab,
                     ),
-                    // Edit/Delete buttons only if litigation is not closed
-                    if (status.toLowerCase() != 'closed' && _routeAuthorizationModel.isAction)
-                      Row(
-                        children: [
-                          horizontalSpacing(),
-                          CustomIconButton.edit(
-                            onPressed: () async {
-                              _showPopUpToAddUpdateDocument(
-                                documentModel: litigationDocModel,
-                                index: index,
-                              );
-                            },
-                          ),
-                          horizontalSpacing(),
-                          CustomIconButton.delete(onPressed: onDeleteTab),
-                        ],
-                      ),
+                    // Enabled Edit/Delete buttons only if litigation is not closed
+                    Row(
+                      children: [
+                        horizontalSpacing(),
+                        CustomIconButton.edit(
+                          isDisabled: disabled,
+                          onPressed: () async {
+                            _showPopUpToAddUpdateDocument(
+                              documentModel: litigationDocModel,
+                              index: index,
+                            );
+                          },
+                        ),
+                        horizontalSpacing(),
+                        CustomIconButton.delete(
+                          isDisabled: disabled,
+                          onPressed: onDeleteTab,
+                        ),
+                      ],
+                    ),
                   ],
                 ),
                 Row(
@@ -1027,6 +1052,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
         index,
         obj,
         widget.litigationModel.litigationId,
+        widget.litigationModel.projectId,
         context,
       );
     }
@@ -1364,7 +1390,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                 .litigationList[widget.index]
                 .litigationClosureData[index]
                 .uniquekey,
-      "ProjectId": getProject().projectId.toString(),
+      "ProjectId": widget.litigationModel.projectId.toString(),
       "LitigationId": widget.litigationModel.litigationId.toString(),
       "ClosureDate": closureDate!.toIso8601String(),
       "Remark": _remarkC.text.trim(),
@@ -1412,10 +1438,14 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
       _litigationCubit.updateLitigationReopen(
         context: context,
         litigationId: widget.litigationModel.litigationId,
-        projectId: getProject().projectId,
+        projectId: widget.litigationModel.projectId,
         uniqueKey: widget.litigationModel.uniquekey,
         litigationIndex: widget.index,
       );
     }
+  }
+
+  Widget _buildRowWrapper({required Widget child}) {
+    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [child]);
   }
 }

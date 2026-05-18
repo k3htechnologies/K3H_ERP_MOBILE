@@ -11,11 +11,12 @@ final class LitigationDashboardState extends BaseState {
     required this.selectedRangeIndex,
   });
 
-  factory LitigationDashboardState.initial() => LitigationDashboardState(
-    isLoading: true,
-    litigationDashboardModelList: [],
-    selectedRangeIndex: 0,
-  );
+  factory LitigationDashboardState.initial({ required int selectedRangeIndex}) =>
+      LitigationDashboardState(
+        isLoading: true,
+        litigationDashboardModelList: [],
+        selectedRangeIndex: selectedRangeIndex,
+      );
 
   LitigationDashboardState copyWith({
     bool? isLoading,

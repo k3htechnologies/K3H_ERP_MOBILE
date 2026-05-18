@@ -3711,6 +3711,19 @@ final GoRouter goRouter = GoRouter(
                   builder: (context, state) {
                     final queryParameterLitigationHearing =
                         state.uri.queryParameters['litigationHearing'];
+                    final queryParameterLitigation =
+                        state.uri.queryParameters['litigation'];
+
+                    final LitigationModel? litigation =
+                        queryParameterLitigation != null
+                            ? LitigationModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterLitigation),
+                                ),
+                              ),
+                            )
+                            : null;
 
                     final LitigationHearingModel? litigationHearing =
                         queryParameterLitigationHearing != null
@@ -3729,12 +3742,10 @@ final GoRouter goRouter = GoRouter(
                           state.uri.queryParameters['index'] ?? '',
                         ) ??
                         0;
-                    final litigationId =
-                        state.uri.queryParameters['litigationId'] ?? '';
                     return AddLitigationHearingScreen(
                       litigationHearingModel: litigationHearing,
-                      litigationId: litigationId,
                       index: index,
+                      litigationModel: litigation!,
                     );
                   },
                 ),
@@ -5473,7 +5484,9 @@ final GoRouter goRouter = GoRouter(
                           .map((e) => PayTrackPaymentLedgerModel.fromJson(e))
                           .toList();
                 }
-                return AddPaymentLedgerScreen(paymentLedgerList: paymentLedgerList);
+                return AddPaymentLedgerScreen(
+                  paymentLedgerList: paymentLedgerList,
+                );
               },
             ),
           ],

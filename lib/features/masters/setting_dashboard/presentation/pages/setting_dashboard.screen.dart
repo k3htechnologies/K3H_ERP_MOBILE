@@ -100,9 +100,9 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
         }
 
         final table0 =
-        (state.settingDashboardModel?.table0.isNotEmpty ?? false)
-            ? state.settingDashboardModel!.table0.first
-            : null;
+            (state.settingDashboardModel?.table0.isNotEmpty ?? false)
+                ? state.settingDashboardModel!.table0.first
+                : null;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -116,7 +116,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                     value: table0?.totalCompanies.toString() ?? "0.0",
                     title: "Total Companies",
                     subtitle:
-                    "+${table0?.companiesAddedThisMonth.toInt() ?? 0} this month",
+                        "+${table0?.companiesAddedThisMonth.toInt() ?? 0} this month",
                     subtitleColor: AppColor.green,
                   ),
                 ),
@@ -127,7 +127,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                     value: table0?.totalEmployees.toString() ?? "0.0",
                     title: "Total Employees",
                     subtitle:
-                    "+${table0?.employeesAddedThisMonth.toInt() ?? 0} this month",
+                        "+${table0?.employeesAddedThisMonth.toInt() ?? 0} this month",
                     subtitleColor: AppColor.green,
                   ),
                 ),
@@ -153,7 +153,7 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                   value: table0?.registeredVendors.toString() ?? "0.0",
                   title: "Registered Vendors",
                   subtitle:
-                  "+${table0?.vendorsAddedThisMonth.toInt() ?? 0} this month",
+                      "+${table0?.vendorsAddedThisMonth.toInt() ?? 0} this month",
                   subtitleColor: AppColor.green,
                 ),
               ],
@@ -183,7 +183,9 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
         children: [
           Row(
             children: [
-              title=="Registered Vendors"?Image.asset(icon,width: 30,height: 30,):SvgPicture.asset(icon, width: 30, height: 30),
+              title == "Registered Vendors"
+                  ? Image.asset(icon, width: 30, height: 30)
+                  : SvgPicture.asset(icon, width: 30, height: 30),
               horizontalSpacing(width: 12),
               Text(
                 value.toString(),
@@ -213,9 +215,9 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
         }
 
         final table1 =
-        (state.settingDashboardModel?.table1.isNotEmpty ?? false)
-            ? state.settingDashboardModel!.table1.first
-            : null;
+            (state.settingDashboardModel?.table1.isNotEmpty ?? false)
+                ? state.settingDashboardModel!.table1.first
+                : null;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -319,9 +321,9 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
         }
 
         final table2 =
-        (state.settingDashboardModel?.table2.isNotEmpty ?? false)
-            ? state.settingDashboardModel!.table2.first
-            : null;
+            (state.settingDashboardModel?.table2.isNotEmpty ?? false)
+                ? state.settingDashboardModel!.table2.first
+                : null;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           decoration: commonCardDecoration(),
@@ -444,13 +446,13 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
         }
 
         final table4 =
-        (state.settingDashboardModel?.table4.isNotEmpty ?? false)
-            ? state.settingDashboardModel!.table4.first
-            : null;
+            (state.settingDashboardModel?.table4.isNotEmpty ?? false)
+                ? state.settingDashboardModel!.table4.first
+                : null;
         final table7 =
-        (state.settingDashboardModel?.table7.isNotEmpty ?? false)
-            ? state.settingDashboardModel!.table7.first
-            : null;
+            (state.settingDashboardModel?.table7.isNotEmpty ?? false)
+                ? state.settingDashboardModel!.table7.first
+                : null;
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -591,14 +593,14 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
         }
 
         final table3 =
-        (state.settingDashboardModel?.table3.isNotEmpty ?? false)
-            ? state.settingDashboardModel!.table3.first
-            : null;
+            (state.settingDashboardModel?.table3.isNotEmpty ?? false)
+                ? state.settingDashboardModel!.table3.first
+                : null;
 
         final table5 =
-        (state.settingDashboardModel?.table5.isNotEmpty ?? false)
-            ? state.settingDashboardModel!.table5
-            : null;
+            (state.settingDashboardModel?.table5.isNotEmpty ?? false)
+                ? state.settingDashboardModel!.table5
+                : null;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           decoration: commonCardDecoration(),
@@ -680,16 +682,16 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
               if (table5 != null && table5.isNotEmpty) ...[
                 Column(
                   children:
-                  table5.map((item) {
-                    return VendorDistributionProgressBar(
-                      title: item.companyType,
-                      value: item.vendorCount,
-                      total: table5.fold(
-                        0,
+                      table5.map((item) {
+                        return VendorDistributionProgressBar(
+                          title: item.companyType,
+                          value: item.vendorCount,
+                          total: table5.fold(
+                            0,
                             (sum, e) => sum + e.vendorCount,
-                      ),
-                    );
-                  }).toList(),
+                          ),
+                        );
+                      }).toList(),
                 ),
               ] else ...[
                 Center(

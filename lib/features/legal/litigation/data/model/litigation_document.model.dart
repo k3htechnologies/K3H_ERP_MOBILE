@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/utils/common_function.dart';
 
 class LitigationDocumentModel {
+  int litigationHearingId;
   int litigationDocumentId;
   String uniquekey;
   int projectId;
@@ -15,6 +16,7 @@ class LitigationDocumentModel {
   DateTime? modifiedDate;
 
   LitigationDocumentModel({
+    required this.litigationHearingId,
     required this.litigationDocumentId,
     required this.uniquekey,
     required this.projectId,
@@ -31,6 +33,7 @@ class LitigationDocumentModel {
 
   factory LitigationDocumentModel.fromJson(Map<String, dynamic> json) {
     return LitigationDocumentModel(
+      litigationHearingId: parseValue<int>(json, "LitigationHearingId"),
       litigationDocumentId: parseValue<int>(json, "LitigationDocumentId"),
       uniquekey: parseValue<String>(json, "Uniquekey"),
       projectId: parseValue<int>(json, "ProjectId"),
@@ -53,6 +56,7 @@ class LitigationDocumentModel {
   }
 
   Map<String, dynamic> toJson() => {
+    "LitigationHearingId": litigationDocumentId,
     "LitigationDocumentId": litigationDocumentId,
     "Uniquekey": uniquekey,
     "ProjectId": projectId,

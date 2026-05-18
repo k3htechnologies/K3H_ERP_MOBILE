@@ -13,6 +13,9 @@ class UserDashboardModel {
   final List<dynamic> table9;
   final List<Table10> table10;
   final List<Table11> table11;
+  final List<Table12> table12;
+  final List<Table13> table13;
+
   UserDashboardModel({
     required this.table0,
     required this.table1,
@@ -26,6 +29,8 @@ class UserDashboardModel {
     required this.table9,
     required this.table10,
     required this.table11,
+    required this.table12,
+    required this.table13,
   });
 
   factory UserDashboardModel.fromJson(
@@ -47,6 +52,12 @@ class UserDashboardModel {
     table11: List<Table11>.from(
       json["Table11"].map((x) => Table11.fromJson(x)),
     ),
+    table12: List<Table12>.from(
+      json["Table12"].map((x) => Table12.fromJson(x)),
+    ),
+    table13: List<Table13>.from(
+      json["Table13"].map((x) => Table13.fromJson(x)),
+    ),
   );
 
   Map<String, dynamic> toJson() => {
@@ -62,6 +73,8 @@ class UserDashboardModel {
     "Table9": List<dynamic>.from(table9.map((x) => x)),
     "Table10": List<dynamic>.from(table10.map((x) => x.toJson())),
     "Table11": List<dynamic>.from(table11.map((x) => x.toJson())),
+    "Table12": List<dynamic>.from(table12.map((x) => x.toJson())),
+   "Table13": List<dynamic>.from(table13.map((x) => x.toJson())),
   };
 }
 
@@ -478,5 +491,110 @@ class Table11 {
     "EndLongitude": endLongitude,
     "Distance": distance,
     "Polyline": polyline,
+  };
+}
+
+class Table12 {
+  DateTime? attendanceDate;
+  int employeeId;
+  String fullName;
+  String attendanceId;
+  String punchIn;
+  String punchOut;
+  String punchInAddress;
+  String punchOutAddress;
+  String workingHours;
+  String attendanceStatus;
+
+  Table12({
+    required this.attendanceDate,
+    required this.employeeId,
+    required this.fullName,
+    required this.attendanceId,
+    required this.punchIn,
+    required this.punchOut,
+    required this.punchInAddress,
+    required this.punchOutAddress,
+    required this.workingHours,
+    required this.attendanceStatus,
+  });
+
+  factory Table12.fromJson(Map<String, dynamic> json) => Table12(
+    attendanceDate: parseApiDate(json["AttendanceDate"]),
+    employeeId: parseValue<int>(json, "EmployeeId"),
+    fullName: parseValue<String>(json, "FullName"),
+    attendanceId: parseValue<String>(json, "AttendanceId"),
+    punchIn: parseValue<String>(json, "PunchIn"),
+    punchOut: parseValue<String>(json, "PunchOut"),
+    punchInAddress: parseValue<String>(json, "PunchInAddress"),
+    punchOutAddress: parseValue<String>(json, "PunchOutAddress"),
+    workingHours: parseValue<String>(json, "WorkingHours"),
+    attendanceStatus: parseValue<String>(json, "AttendanceStatus"),
+  );
+
+  Map<String, dynamic> toJson() => {
+    'AttendanceDate': attendanceDate?.toIso8601String(),
+    'EmployeeId': employeeId,
+    'FullName': fullName,
+    'AttendanceId': attendanceId,
+    'PunchIn': punchIn,
+    'PunchOut': punchOut,
+    'PunchInAddress': punchInAddress,
+    'PunchOutAddress': punchOutAddress,
+    'WorkingHours': workingHours,
+    'AttendanceStatus': attendanceStatus,
+  };
+}
+
+class Table13 {
+  String moduleName;
+  String projectName;
+  String buildingNumber;
+  String wing;
+  String floor;
+  String flat;
+  String applicantName;
+  String projectDocumentName;
+  String projectDocumentCategory;
+  String modulePath;
+
+  Table13({
+    required this.moduleName,
+    required this.projectName,
+    required this.buildingNumber,
+    required this.wing,
+    required this.floor,
+    required this.flat,
+    required this.applicantName,
+    required this.projectDocumentName,
+    required this.projectDocumentCategory,
+    required this.modulePath,
+  });
+  factory Table13.fromJson(Map<String, dynamic> json) => Table13(
+    moduleName: parseValue<String>(json, "ModuleName"),
+    projectName: parseValue<String>(json, "ProjectName"),
+    buildingNumber: parseValue<String>(json, "BuildingNumber"),
+    wing: parseValue<String>(json, "Wing"),
+    floor: parseValue<String>(json, "Floor"),
+    flat: parseValue<String>(json, "Flat"),
+    applicantName: parseValue<String>(json, "ApplicantName"),
+    projectDocumentName: parseValue<String>(json, "ProjectDocumentName"),
+    projectDocumentCategory: parseValue<String>(
+      json,
+      "ProjectDocumentCategory",
+    ),
+    modulePath: parseValue<String>(json, "ModulePath"),
+  );
+  Map<String, dynamic> toJson() => {
+    'ModuleName': moduleName,
+    'ProjectName': projectName,
+    'BuildingNumber': buildingNumber,
+    'Wing': wing,
+    'Floor': floor,
+    'Flat': flat,
+    'ApplicantName': applicantName,
+    'ProjectDocumentName': projectDocumentName,
+    'ProjectDocumentCategory': projectDocumentCategory,
+    'ModulePath': modulePath,
   };
 }

@@ -2,10 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -562,6 +559,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     // PUNCH IN - PUNCH OUT WIDGET
                     _buildWordayOverviewWidget(state, context),
                     verticalSpacing(),
+                    _pendingApprovalWidget(),
+                    verticalSpacing(),
                     _buildDailyActivitiesWidget(context),
                     verticalSpacing(),
                     //  SCHEDULED TASK WIDGET
@@ -812,6 +811,110 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _buildDashboardPunchInPunchOutWidget(context),
               ],
             ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _pendingApprovalWidget() {
+    return BlocBuilder<DashboardCubit, DashboardState>(
+      builder: (context, state) {
+        final pendingInventory =
+            (state.userData != null && state.userData!.table13.isNotEmpty)
+                ? state.userData?.table13
+                    .where(
+                      (i) => i.moduleName.toLowerCase().contains('inventory'),
+                    )
+                    .length
+                : 0;
+        final pendingParking =
+            (state.userData != null && state.userData!.table13.isNotEmpty)
+                ? state.userData?.table13
+                    .where(
+                      (i) => i.moduleName.toLowerCase().contains('parking'),
+                    )
+                    .length
+                : 0;
+        return Container(
+          decoration: commonCardDecoration(),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Pending Approvals",
+                style: AppTextStyle.ts14M(
+                  color: AppColor.black.withValues(alpha: 0.50),
+                ),
+              ),
+
+              Row(
+                spacing: 10,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColor.grey10),
+                    ),
+                    child: Row(
+                      spacing: 10,
+                      children: [
+                        CustomIconButton(
+                          onPressed: () {},
+                          size: 22,
+                          icon: SvgPicture.asset(
+                            AppAssets.car,
+                            height: 20.0,
+                            width: 20.0,
+                            color: AppColor.primary.withValues(alpha: 0.4),
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Inventory"),
+                            Text(pendingInventory.toString()),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColor.grey10),
+                    ),
+                    child: Row(
+                      spacing: 10,
+                      children: [
+                        CustomIconButton(
+                          onPressed: () {},
+                          size: 22,
+                          backgroundColor: AppColor.lightGreen50,
+                          icon: SvgPicture.asset(
+                            AppAssets.car,
+                            height: 20.0,
+                            width: 20.0,
+                            color: AppColor.green.withValues(alpha: 0.4),
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Parking"),
+                            Text(pendingParking.toString()),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         );
       },
