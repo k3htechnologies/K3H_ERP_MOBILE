@@ -2,10 +2,13 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_call_log.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/repository/pay_track.repository.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_state.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/repository/booking.repository.dart';
+import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
+import 'package:k3h_erp_app/features/sales/enquiry/data/repository/enquiry.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -15,9 +18,15 @@ class PayTrackCubit extends Cubit<PayTrackState> {
   // REPOSITORIES
   final BookingRepository _bookingRepository =
       serviceLocator<BookingRepository>();
+  final EnquiryRepository _enquiryRepository =
+      serviceLocator<EnquiryRepository>();
 
   final PayTrackRepository _payTrackRepository =
       serviceLocator<PayTrackRepository>();
+
+  Future resetOverview() async {
+    emit(state.copyWith(payTrackOverview: null));
+  }
 
   Future getPayTrackList(
     BuildContext context,
@@ -132,9 +141,101 @@ class PayTrackCubit extends Cubit<PayTrackState> {
 
         final booking = list.isNotEmpty ? list.first : null;
 
-        emit(state.copyWith(isLoading: false));
+        emit(state.copyWith(isLoading: false, bookingData: booking));
 
         return booking;
+      },
+    );
+  }
+
+  // <---- GET SINGLE ENQUIRY BY ID ---->
+  Future<void> getEnquiryById({
+    required int enquiryId,
+    required int projectId,
+  }) async {
+    emit(state.copyWith(isFetchingEnquiryDetails: true));
+
+    final queryParams = {"EnquiryId": enquiryId};
+
+    final result = await _enquiryRepository.getEnquiryList(
+      pageNumber: 1,
+      pageSize: 1,
+      projectId: projectId,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(
+          state.copyWith(
+            isFetchingEnquiryDetails: false,
+            currentEnquiryDetails: null,
+          ),
+        );
+      },
+      (response) {
+        /// IMPORTANT: Repository already returns List<EnquiryModel>
+        final List<EnquiryModel> dataList =
+            (response['data'] as List?)?.cast<EnquiryModel>() ?? [];
+
+        if (dataList.isNotEmpty) {
+          final updatedEnquiry = dataList.first;
+
+          emit(
+            state.copyWith(
+              currentEnquiryDetails: updatedEnquiry,
+              isFetchingEnquiryDetails: false,
+            ),
+          );
+        } else {
+          emit(
+            state.copyWith(
+              isFetchingEnquiryDetails: false,
+              currentEnquiryDetails: null,
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  Future getPayTrackCallLog(
+    BuildContext context,
+    int pageNumber,
+    int projectId,
+    int bookingId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+        PayTrackCubit();
+        emit(state.copyWith(isLoading: false, payTrackList: []));
+      });
+      return;
+    }
+    Map<String, dynamic> queryParams = {"BookingId": bookingId};
+
+    var result = await _payTrackRepository.getPayTrackCallLog(
+      pageSize: 10,
+      pageNumber: pageNumber,
+      projectId: projectId,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        emit(
+          state.copyWith(
+            payTrackCallLogList: response['data'] as List<PayTrackCallLogModel>,
+            totalNumberOfRecord: response['totalNumberOfRecord'],
+            isLoading: false,
+          ),
+        );
       },
     );
   }

@@ -33,6 +33,9 @@ abstract interface class PaymentDatasource {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>> apicallAddUpdatePayTrackPaymentScheduleDemand({
+    required Map<String, String> body,
+  });
 }
 
 class PaymentDatasourceImpl extends PaymentDatasource {
@@ -244,6 +247,35 @@ class PaymentDatasourceImpl extends PaymentDatasource {
           projectId: projectId,
           queryParams: queryParams,
         );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdatePayTrackPaymentScheduleDemand({
+    required Map<String, String> body,
+  }) async {
+    String url = "PayTrack/AddUpdatePayTrackPaymentScheduleDemand";
+
+    try {
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        url,
+        body,
+      );
+
+      return {
+        'data': List<PayTrackPaymentLedgerModel>.from(
+          networkResponse["data"].map(
+            (e) => PayTrackPaymentLedgerModel.fromJson(e),
+          ),
+        ),
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallAddUpdatePayTrackPaymentScheduleDemand(body: body);
       }
       rethrow;
     }

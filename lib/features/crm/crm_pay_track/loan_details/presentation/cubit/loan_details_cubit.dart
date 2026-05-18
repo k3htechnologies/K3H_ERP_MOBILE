@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/data/model/loan_details.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/data/repository/loan_details.repository.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/presentation/cubit/loan_details_state.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_booking_files.model.dart';
@@ -51,19 +52,20 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
+
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
-        if (response['data'].isNotEmpty) {
-          emit(
-            state.copyWith(
-              isLoading: false,
-              bankLoanDetails: response['data'][0],
-            ),
-          );
-        } else {
-          emit(state.copyWith(isLoading: false));
-        }
+        final List<BookingLoanDetailsModel> list =
+            List<BookingLoanDetailsModel>.from(response['data'] ?? []);
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            bankDetailsList: list,
+            bankLoanDetails: list.isNotEmpty ? list.first : null,
+          ),
+        );
       },
     );
   }
@@ -73,7 +75,7 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
     required int projectId,
     required int bookingId,
     required int bankListMasterId,
-    required double loanSanctionAmount,
+    required String loanSanctionAmount,
     required String loanSanctionDate,
     required String loanAccountNumber,
     required String bankBranchName,
@@ -119,12 +121,13 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
     required String uniqueKey,
     required int projectId,
     required int bookingId,
-    required double loanSanctionAmount,
+    required String loanSanctionAmount,
     required String loanSanctionDate,
     required int bankListMasterId,
     required String loanAccountNumber,
     required String bankBranchName,
     required String address,
+    required int index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
@@ -161,6 +164,47 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
     );
   }
 
+  Future deleteBankDetails(
+    int index,
+    int bookingLoanDetailsId,
+    String uniquekey,
+    int projectId,
+    int bookingId,
+    BuildContext context,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _bankLoanDetailsRepository.deleteBookingLoanDetails(
+      bookingLoanDetailsId: bookingLoanDetailsId,
+      uniqueKey: uniquekey,
+      projectId: projectId,
+      bookingId: bookingId,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+        return;
+      },
+      (response) {
+        final updatedList = List<BookingLoanDetailsModel>.from(
+          state.bankDetailsList,
+        );
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            bankDetailsList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
+        );
+        showSuccessMessage(context, subTitle: response['message']);
+      },
+    );
+  }
+
   Future<void> addOrUpdateBankLoan({
     required BuildContext context,
     required int projectId,
@@ -171,6 +215,7 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
     required String accountNumber,
     required DateTime sanctionDate,
     required String sanctionAmount,
+    required int index,
   }) async {
     if (state.bankLoanDetails != null) {
       // UPDATE
@@ -181,11 +226,12 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
         projectId: projectId,
         bookingId: bookingId,
         bankListMasterId: selectedBank["zAttributesId"],
-        loanSanctionAmount: double.parse(sanctionAmount),
+        loanSanctionAmount: sanctionAmount,
         address: address,
         bankBranchName: branchName,
         loanSanctionDate: sanctionDate.toIso8601String(),
         loanAccountNumber: accountNumber,
+        index: index,
       );
     } else {
       // ADD
@@ -198,7 +244,7 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
         bankBranchName: branchName,
         loanAccountNumber: accountNumber,
         loanSanctionDate: sanctionDate.toIso8601String(),
-        loanSanctionAmount: double.parse(sanctionAmount),
+        loanSanctionAmount: sanctionAmount,
       );
     }
   }
@@ -208,10 +254,14 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
     required int pageNumber,
     required int projectId,
     required int bookingId,
+    int? bookingLoanDetailsId,
   }) async {
     emit(state.copyWith(isLoading: true));
 
-    Map<String, dynamic> queryParams = {"ApplicantName": state.searchText};
+    Map<String, dynamic> queryParams = {
+      "ApplicantName": state.searchText,
+      "BookingLoanDetailsId": bookingLoanDetailsId,
+    };
 
     var result = await _payTrackBookingFilesRepository
         .getPayTrackBookingFilesList(
@@ -260,7 +310,7 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < bankDocuments.fileNameList.length; i++) {
       if (bankDocuments.fileNameList[i].contains("http")) {
-        continue; // Skip already uploaded files
+        continue;
       }
       fileList.add({
         "key": "PayTrackBookingFilesURL",
@@ -381,6 +431,42 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
                 state.totalNumberOfRecord > 0
                     ? state.totalNumberOfRecord - 1
                     : 0,
+          ),
+        );
+        showSuccessMessage(context, subTitle: response['message']);
+      },
+    );
+  }
+
+  Future closeAccount({
+    required BuildContext context,
+    required int bookingLoanDetailsId,
+    required String uniqueKey,
+    required int projectId,
+    required int bookingId,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, dynamic> requestBody = {
+      "BookingLoanDetailsId": bookingLoanDetailsId,
+      "Uniquekey": uniqueKey,
+      "ProjectId": projectId,
+      "BookingId": bookingId,
+    };
+
+    var addResult = await _bankLoanDetailsRepository
+        .updateBookingLoanDetailsStatus(body: requestBody);
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        emit(state.copyWith(isLoading: false));
+        return;
+      },
+      (response) {
+        emit(
+          state.copyWith(
+            bankLoanDetails: response['data'][0],
+            isLoading: false,
           ),
         );
         showSuccessMessage(context, subTitle: response['message']);

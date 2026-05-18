@@ -44,7 +44,7 @@ class PayTrackBookingFilesModel {
         isMaster: parseValue<int>(json, "IsMaster"),
         payTrackBookingFilesUrl: parseValue<String>(
           json,
-          "PayTrackBookingFilesUrl",
+          "PayTrackBookingFilesURL",
         ),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),

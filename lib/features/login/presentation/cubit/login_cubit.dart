@@ -170,64 +170,34 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> _handleLocationPermissionFlow(BuildContext context) async {
-    // STEP 1: Always show your custom disclosure FIRST
-    final shouldRequest = await showLocationDisclosure(context);
-
-    if (!shouldRequest) return;
-
-    // STEP 2: Then request permission
-    LocationPermission permission = await Geolocator.requestPermission();
-
-    if (permission == LocationPermission.denied) {
-      if (context.mounted) {
-        showErrorMessage(
-          context,
-          "Permission Denied",
-          "Location permission is required",
-        );
-      }
+    if (context.mounted) {
+      await showLocationDisclosure(context);
     }
 
-    if (permission == LocationPermission.deniedForever) {
-      if (context.mounted) {
-        showErrorMessage(
-          context,
-          "Permission Required",
-          "Enable location permission from settings",
-        );
-      }
-
-      await Geolocator.openAppSettings();
-    }
+    // Show actual iOS permission popup
+    await Geolocator.requestPermission();
   }
 
-  Future<bool> showLocationDisclosure(BuildContext context) async {
-    final result = await showDialog<bool>(
+  Future<void> showLocationDisclosure(BuildContext context) async {
+    await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) {
         return AlertDialog(
-          title: const Text("Location Permission Required"),
+          title: const Text("Location Access"),
           content: const Text(
-            "This app collects location data to track your field activity "
-            "even when the app is closed or not in use. "
-            "This is required for attendance and route tracking.",
+            "Your location is used for attendance marking "
+            "and work-related field activity while using the app.",
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text("Deny"),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text("Allow"),
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Continue"),
             ),
           ],
         );
       },
     );
-
-    return result ?? false;
   }
 
   Future<void> _loadAddressInBackground() async {

@@ -96,6 +96,11 @@ class AppRoutes {
   static String makePaymentScreen = "/makePaymentScreen";
   static String viewPayment = "/viewPayment";
 
+  // STOCK MANAGEMENT
+  static String stockManagement = "/stock";
+  static String addStockManagement = "/addStockManagement";
+  static String viewStockManagement = "/viewStockManagement";
+
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// INVENTORY
 
@@ -172,6 +177,10 @@ class AppRoutes {
 
   /// PAY TRACK
   static String payTrackMaster = "/payTrack";
+  static String viewPayTrackMaster = "/viewPayTrackMaster";
+  static String addBankLoanDocument = "/addBankLoanDocument";
+  static String addActiveBank = "/addActiveBank";
+  static String addPaymentLedger = "/addPaymentLedger";
 
   /// BROKERAGE
   static String brokerage = "/brokerage";

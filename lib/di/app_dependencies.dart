@@ -35,6 +35,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/sales/payment_schedule_schem
 import 'package:k3h_erp_app/di/feature_dependencies/sales/report/performance_report.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/sales_dashboard/sales_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/setting_dashboard/setting_dashboard.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/stock_management/stock_management.dependency.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
 
 import 'feature_dependencies/calendar/calendar.dependencies.dart';
@@ -236,4 +237,6 @@ void initDependencies() {
   registerMaterialRequisitionGRNDependencies(serviceLocator);
   // CRM BROKERAGE
   registerBrokerageDependencies(serviceLocator);
+  // STOCK MANAGEMENT
+  registerStockManagementrDependencies(serviceLocator);
 }

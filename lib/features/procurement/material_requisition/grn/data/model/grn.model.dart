@@ -15,6 +15,8 @@ class GRNModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  bool? isInvoiceCreated;
+  bool? isInvoicePaymentCompleted;
   List<MaterialRequisitionDetailGrnDatum> materialRequisitionDetailGrnData;
 
   GRNModel({
@@ -32,6 +34,8 @@ class GRNModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.isInvoiceCreated,
+    required this.isInvoicePaymentCompleted,
     required this.materialRequisitionDetailGrnData,
   });
 
@@ -53,6 +57,11 @@ class GRNModel {
         json["ModifiedDate"] == null
             ? null
             : DateTime.parse(json["ModifiedDate"]),
+    isInvoiceCreated: parseValue<bool>(json, "IsInvoiceCreated"),
+    isInvoicePaymentCompleted: parseValue<bool>(
+      json,
+      "IsInvoicePaymentCompleted",
+    ),
     materialRequisitionDetailGrnData:
         json["MaterialRequisitionDetailGRNData"] == null
             ? []
@@ -78,6 +87,8 @@ class GRNModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "IsInvoiceCreated": isInvoiceCreated,
+    "IsInvoicePaymentCompleted": isInvoicePaymentCompleted,
     "MaterialRequisitionDetailGRNData": List<dynamic>.from(
       materialRequisitionDetailGrnData.map((x) => x.toJson()),
     ),

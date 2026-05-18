@@ -1,8 +1,9 @@
-import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/data/model/invoice.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/data/model/invoice_payment.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/data/repository/invoice.repository.dart';
@@ -56,8 +57,10 @@ class InvoiceCubit extends Cubit<InvoiceState> {
     required String invoiceDate,
     required String dueDate,
     required String remarks,
+    required int materialRequisitionGRNId,
     required MultiFilePickerModel uploadInvoicePhoto,
     required MultiFilePickerModel performaInvoicePhoto,
+    required MultiFilePickerModel measurementReportPhoto,
   }) async {
     if (uploadInvoicePhoto.fileNameList.isEmpty &&
         performaInvoicePhoto.fileNameList.isEmpty) {
@@ -81,6 +84,7 @@ class InvoiceCubit extends Cubit<InvoiceState> {
       "InvoiceAmount": invoiceAmount,
       "InvoiceDueDate": dueDate,
       "Remarks": remarks,
+      "MaterialRequisitionGRNId": materialRequisitionGRNId.toString(),
     };
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < uploadInvoicePhoto.fileBytesList.length; i++) {
@@ -103,6 +107,17 @@ class InvoiceCubit extends Cubit<InvoiceState> {
         "fileName": performaInvoicePhoto.fileNameList[i],
       });
     }
+    for (int i = 0; i < measurementReportPhoto.fileBytesList.length; i++) {
+      if (measurementReportPhoto.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "MeasurementReportURL",
+        "value": measurementReportPhoto.fileBytesList[i],
+        "fileName": measurementReportPhoto.fileNameList[i],
+      });
+    }
+
     var result = await invoiceRepository.addUpdateRequisitionInvoice(
       body: body,
       fileList: fileList,
@@ -112,54 +127,27 @@ class InvoiceCubit extends Cubit<InvoiceState> {
       (failure) {
         showErrorMessage(context, "Error", failure.message);
       },
-      (response) {
+      (response) async {
         goRouter.pop();
-        getInvoice(
+        await getInvoice(
           projectId: projectId,
           materialRequisitionId: materialRequisitionId,
           uniqueKey: uniqueKey,
           context: context,
         );
-        showSuccessMessage(context);
-      },
-    );
-  }
+        if (context.mounted) {
+          final grnCubit = context.read<GrnCubit>();
 
-  Future<void> deleteInvoice({
-    required int projectId,
-    required int materialRequisitionInvoiceId,
-    required int materialRequisitionId,
-    required String uniqueKey,
-    required BuildContext context,
-  }) async {
-    var res = await DialogHelper.deleteDialog(
-      context,
-      'You are about to delete an invoice?',
-      'Deleting this invoice will permanently remove its contents.',
-    );
-    if (!res) {
-      return;
-    }
-    var result = await invoiceRepository.deleteRequisitionInvoice(
-      projectId: projectId,
-      materialRequisitionInvoiceId: materialRequisitionInvoiceId,
-      uniqueKey: uniqueKey,
-      materialRequisitionId: materialRequisitionId,
-    );
-    result.fold(
-      (failure) {
-        emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error", failure.message);
-      },
-      (response) {
-        emit(state.copyWith(isLoading: false));
-        showSuccessMessage(context);
-        getInvoice(
-          projectId: projectId,
-          materialRequisitionId: materialRequisitionId,
-          uniqueKey: uniqueKey,
-          context: context,
-        );
+          await grnCubit.getAllGRNList(
+            context: context,
+            materialRequisitionId: materialRequisitionId,
+            uniqueKey: uniqueKey,
+            projectId: projectId,
+          );
+        }
+        if (context.mounted) {
+          showSuccessMessage(context);
+        }
       },
     );
   }
@@ -215,16 +203,28 @@ class InvoiceCubit extends Cubit<InvoiceState> {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error", failure.message);
       },
-      (response) {
+      (response) async {
         goRouter.pop();
         emit(state.copyWith(isLoading: false));
-        getInvoice(
+        await getInvoice(
           projectId: projectId,
           materialRequisitionId: materialRequisitionId,
           uniqueKey: uniqueKey,
           context: context,
         );
-        showSuccessMessage(context);
+        if (context.mounted) {
+          final grnCubit = context.read<GrnCubit>();
+
+          await grnCubit.getAllGRNList(
+            context: context,
+            materialRequisitionId: materialRequisitionId,
+            uniqueKey: uniqueKey,
+            projectId: projectId,
+          );
+        }
+        if (context.mounted) {
+          showSuccessMessage(context);
+        }
       },
     );
   }

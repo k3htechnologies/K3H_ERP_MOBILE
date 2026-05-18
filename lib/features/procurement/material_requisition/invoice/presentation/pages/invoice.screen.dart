@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/model/grn.model.dart';
@@ -25,35 +27,37 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   // CUBIT
   late GrnCubit _grnCubit;
   late MaterialRequisitionCubit _materialRequisitionCubit;
+  late InvoiceCubit _invoiceCubit;
 
   @override
   void initState() {
     super.initState();
     _grnCubit = context.read<GrnCubit>();
     _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
+    _invoiceCubit = context.read<InvoiceCubit>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       initOverview();
     });
   }
 
-  Future initOverview() async {
+  Future<void> initOverview() async {
+    final overview =
+        _materialRequisitionCubit.state.materialRequisitionOverview;
+
+    if (overview == null) return;
+
     await _grnCubit.getAllGRNList(
       context: context,
-      materialRequisitionId:
-          _materialRequisitionCubit
-              .state
-              .materialRequisitionOverview!
-              .materialRequisitionId,
-      uniqueKey:
-          _materialRequisitionCubit
-              .state
-              .materialRequisitionOverview!
-              .uniquekey,
-      projectId:
-          _materialRequisitionCubit
-              .state
-              .materialRequisitionOverview!
-              .projectId,
+      materialRequisitionId: overview.materialRequisitionId,
+      uniqueKey: overview.uniquekey,
+      projectId: overview.projectId,
+    );
+
+    await _invoiceCubit.getInvoice(
+      context: context,
+      projectId: overview.projectId,
+      materialRequisitionId: overview.materialRequisitionId,
+      uniqueKey: overview.uniquekey,
     );
   }
 
@@ -75,170 +79,182 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           ),
           verticalSpacing(),
 
-          BlocBuilder<GrnCubit, GrnState>(
-            builder: (context, grnState) {
-              if (grnState.isLoading ?? true) {
-                return const Center(child: CircularProgressIndicator());
-              }
+          Expanded(
+            child: BlocBuilder<GrnCubit, GrnState>(
+              builder: (context, grnState) {
+                return BlocBuilder<InvoiceCubit, InvoiceState>(
+                  builder: (context, invoiceState) {
+                    return ListView.builder(
+                      itemCount: grnState.allGRNList.length,
+                      itemBuilder: (context, index) {
+                        final grn = grnState.allGRNList[index];
+                        final grnId = grn.materialRequisitionGrnId;
+                        final invoice =
+                            invoiceState.invoiceList
+                                .where(
+                                  (e) => e.materialRequisitionGrnId == grnId,
+                                )
+                                .firstOrNull;
 
-              if (grnState.allGRNList.isEmpty) {
-                return const Text("No GRN found");
-              }
-              return BlocBuilder<InvoiceCubit, InvoiceState>(
-                builder: (context, invoiceState) {
-                  return Column(
-                    children:
-                        grnState.allGRNList.asMap().entries.map((entry) {
-                          final index = entry.key;
-                          final grn = entry.value;
-                          final hasInvoice = invoiceState.invoiceList.any(
-                            (invoice) =>
-                                invoice.materialRequisitionId ==
-                                grn.materialRequisitionId,
-                          );
-                          final invoice =
-                              index < invoiceState.invoiceList.length
-                                  ? invoiceState.invoiceList[index]
-                                  : null;
+                        final hasInvoice = grn.isInvoiceCreated ?? false;
 
-                          final payment =
-                              invoiceState.paymentList.isNotEmpty
-                                  ? invoiceState.paymentList.first
-                                  : null;
+                        final paidTillDate =
+                            invoice?.invoiceAmountPaidTillDate ?? 0;
 
-                          final isPaid =
-                              payment?.paymentType.toLowerCase() == "full";
+                        final totalAmount = invoice?.invoiceAmount ?? 0;
 
-                          final isPartiallyPaid =
-                              payment?.paymentType.toLowerCase() == "partial";
-                          final buttonText =
-                              !hasInvoice
-                                  ? "Create Invoice"
-                                  : isPaid
-                                  ? "View Payment"
-                                  : "Make Payment";
-                          return Container(
-                            padding: const EdgeInsets.all(16),
-                            margin: const EdgeInsets.only(bottom: 10),
-                            decoration: commonCardDecoration(),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildRow(
-                                  "Date",
-                                  formatDateTimeAsDDMMMYYYY(grn.createdDate),
-                                ),
-                                _buildRow("Vehicle No", grn.vehicleNumber),
-                                _buildRow("Challan No", grn.challanNumber),
-                                verticalSpacing(),
-                                isPaid || isPartiallyPaid
-                                    ? Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            "Status",
+                        final hasPayment = paidTillDate > 0;
+
+                        final isFullyPaid =
+                            hasPayment && paidTillDate >= totalAmount;
+
+                        final paymentType =
+                            !hasPayment
+                                ? ""
+                                : isFullyPaid
+                                ? "Paid"
+                                : "Partially Paid";
+
+                        final showStatus = hasPayment;
+
+                        final buttonText =
+                            !hasInvoice
+                                ? "Create Invoice"
+                                : !hasPayment
+                                ? "Make Payment"
+                                : "View Payment";
+                        return Container(
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.only(bottom: 10),
+                          decoration: commonCardDecoration(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildRow(
+                                "Date",
+                                formatDateTimeAsDDMMMYYYY(grn.createdDate),
+                              ),
+                              _buildRow("Vehicle No", grn.vehicleNumber),
+                              _buildRow("Challan No", grn.challanNumber),
+                              verticalSpacing(),
+                              showStatus
+                                  ? Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              "Status",
+                                              style: AppTextStyle.ts14R(
+                                                color: AppColor.black
+                                                    .withValues(alpha: 0.5),
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            ":   ",
                                             style: AppTextStyle.ts14R(
                                               color: AppColor.black.withValues(
                                                 alpha: 0.5,
                                               ),
                                             ),
                                           ),
-                                        ),
-                                        Text(
-                                          ":   ",
-                                          style: AppTextStyle.ts14R(
-                                            color: AppColor.black.withValues(
-                                              alpha: 0.5,
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Container(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: 6.0,
-                                              vertical: 1,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(4.0),
-                                              color:
-                                                  isPaid
-                                                      ? AppColor.green20
-                                                          .withValues(
-                                                            alpha: 0.10,
-                                                          )
-                                                      : AppColor.orange
-                                                          .withValues(
-                                                            alpha: 0.10,
-                                                          ),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                isPaid
-                                                    ? "Paid"
-                                                    : "Partially Paid",
-                                                style: AppTextStyle.ts12M(
-                                                  color:
-                                                      isPaid
-                                                          ? AppColor.green
-                                                          : AppColor.orange,
+                                          Expanded(
+                                            child: Container(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 6,
+                                                vertical: 2,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                                color:
+                                                    hasPayment
+                                                        ? AppColor.green20
+                                                            .withValues(
+                                                              alpha: 0.10,
+                                                            )
+                                                        : AppColor.orange
+                                                            .withValues(
+                                                              alpha: 0.10,
+                                                            ),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  paymentType,
+                                                  style: AppTextStyle.ts12M(
+                                                    color:
+                                                        hasPayment
+                                                            ? AppColor.green
+                                                            : AppColor.orange,
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    )
-                                    : SizedBox.shrink(),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    CustomButton(
-                                      text: buttonText,
-                                      onPressed: () {
-                                        if (!hasInvoice) {
-                                          goRouter.pushNamed(
-                                            AppRoutes.addInvoice,
-                                            extra: {
-                                              'systemGeneratedCode':
-                                                  widget.systemGeneratedCode,
-                                              "grn": grn,
-                                            },
-                                          );
-                                          return;
-                                        }
-                                        if (isPaid) {
-                                          goRouter.pushNamed(
-                                            AppRoutes.viewPayment,
-                                            extra: {
-                                              'systemGeneratedCode':
-                                                  widget.systemGeneratedCode,
-                                            },
-                                          );
-                                          return;
-                                        }
+                                        ],
+                                      ),
+                                      verticalSpacing(height: 6.0),
+                                    ],
+                                  )
+                                  : const SizedBox.shrink(),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  CustomButton(
+                                    text: buttonText,
+                                    onPressed: () {
+                                      if (!hasInvoice) {
                                         goRouter.pushNamed(
-                                          AppRoutes.makePayment,
+                                          AppRoutes.addInvoice,
                                           extra: {
                                             'systemGeneratedCode':
                                                 widget.systemGeneratedCode,
                                             "grn": grn,
                                           },
                                         );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                  );
-                },
-              );
-            },
+                                        return;
+                                      }
+                                      if (hasPayment) {
+                                        goRouter.pushNamed(
+                                          AppRoutes.viewPayment,
+                                          extra: {
+                                            'systemGeneratedCode':
+                                                widget.systemGeneratedCode,
+                                            'invoiceNumber':
+                                                invoiceState
+                                                    .invoiceList
+                                                    .first
+                                                    .invoiceNumber,
+                                          },
+                                        );
+                                        return;
+                                      }
+                                      goRouter.pushNamed(
+                                        AppRoutes.makePayment,
+                                        extra: {
+                                          'systemGeneratedCode':
+                                              widget.systemGeneratedCode,
+                                          "grn": grn,
+                                        },
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),

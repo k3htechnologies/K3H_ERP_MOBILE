@@ -22,6 +22,10 @@ abstract interface class BankLoanDetailsRepository {
     required int projectId,
     required int bookingId,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> updateBookingLoanDetailsStatus({
+    required Map<String, dynamic> body,
+  });
 }
 
 class BankLoanDetailsRepositoryImpl extends BankLoanDetailsRepository {
@@ -80,6 +84,19 @@ class BankLoanDetailsRepositoryImpl extends BankLoanDetailsRepository {
             projectId: projectId,
             bookingId: bookingId,
           );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> updateBookingLoanDetailsStatus({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await bankLoanDetailsDatasource
+          .apicallUpdateBookingLoanDetailsStatus(body: body);
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

@@ -22,6 +22,10 @@ class AppUpdateHelper {
     required Map<String, dynamic> data,
     required VoidCallback onNoUpdate,
   }) async {
+    if (kDebugMode) {
+      onNoUpdate();
+      return;
+    }
     final currentVersion = Platform.isAndroid ? androidVersion : iosVersion;
 
     final latestVersion =

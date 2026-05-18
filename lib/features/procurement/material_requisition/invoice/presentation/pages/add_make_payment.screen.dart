@@ -46,6 +46,7 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
   late ValueNotifier<List<Map<String, dynamic>>> _selectedPaymentModeNotifier;
   late ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier;
   late ValueNotifier<List<Map<String, dynamic>>> _selectedPaymentTypeNotifier;
+  late ValueNotifier<bool> _isFullPaymentNotifier;
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   // PAYMENT MODE LIST
@@ -55,11 +56,6 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
     {"zAttributesId": 3, "DisplayName": "UPI"},
     {"zAttributesId": 4, "DisplayName": "NEFT"},
     {"zAttributesId": 5, "DisplayName": "RTGS"},
-  ];
-  // PAYMENT TYPE LIST
-  final List<Map<String, dynamic>> _paymentTypeList = [
-    {"zAttributesId": 1, "DisplayName": "Partial"},
-    {"zAttributesId": 2, "DisplayName": "Full"},
   ];
 
   // FILE VARIABLES
@@ -84,6 +80,7 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
     _selectedPaymentTypeNotifier = ValueNotifier<List<Map<String, dynamic>>>(
       [],
     );
+    _isFullPaymentNotifier = ValueNotifier(false);
   }
 
   void _initializeTextControllers() {
@@ -106,6 +103,7 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
     _amountPaidC.dispose();
     _tdsAmountC.dispose();
     _transactionOrChequeNumberC.dispose();
+    _isFullPaymentNotifier.dispose();
     super.dispose();
   }
 
@@ -140,6 +138,25 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
         };
       },
     );
+  }
+
+  List<Map<String, dynamic>> getPaymentTypeList() {
+    final invoice = _invoiceCubit.state.invoiceList.first;
+
+    final paidTillDate = invoice.invoiceAmountPaidTillDate;
+
+    // FIRST PAYMENT
+    if (paidTillDate == 0) {
+      return [
+        {"zAttributesId": 1, "DisplayName": "Partial"},
+        {"zAttributesId": 2, "DisplayName": "Full"},
+      ];
+    }
+
+    // PARTIAL PAYMENT ALREADY DONE
+    return [
+      {"zAttributesId": 1, "DisplayName": "Partial"},
+    ];
   }
 
   void _submitForm() {
@@ -303,12 +320,36 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
                               selectedPaymentType.isNotEmpty
                                   ? selectedPaymentType.first
                                   : null,
-                          dataList: _paymentTypeList,
+                          dataList: getPaymentTypeList(),
                           onSelected: (value) {
                             _selectedPaymentTypeNotifier.value = [value];
+                            final paymentType =
+                                value["DisplayName"]
+                                    .toString()
+                                    .trim()
+                                    .toLowerCase();
+                            final isFull = paymentType == "full";
+                            _isFullPaymentNotifier.value = isFull;
+                            final invoice =
+                                _invoiceCubit.state.invoiceList.first;
+                            final invoiceAmount =
+                                (invoice.invoiceAmount -
+                                    invoice.invoiceAmountPaidTillDate);
+
+                            _pendingAmountC.text = invoiceAmount
+                                .toStringAsFixed(2);
+                            if (isFull) {
+                              _amountPaidC.text = invoiceAmount.toStringAsFixed(
+                                2,
+                              );
+                            } else {
+                              _amountPaidC.clear();
+                            }
                           },
                           onValueClear: () {
                             _selectedPaymentTypeNotifier.value = [];
+                            _isFullPaymentNotifier.value = false;
+                            _amountPaidC.clear();
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -321,27 +362,65 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
                     ),
                     CustomTextField(
                       title: "Pending Amount",
-                      hint: "Enter Pending Amount",
+                      hint: "Pending Amount",
                       isRequired: true,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Pending Amount is required";
-                        }
-                        return null;
-                      },
+                      readOnly: true,
                       textController: _pendingAmountC,
                     ),
-                    CustomTextField(
-                      title: "Amount Paid",
-                      hint: "Enter Amount Paid",
-                      isRequired: true,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Amount Paid is required";
-                        }
-                        return null;
+                    ValueListenableBuilder(
+                      valueListenable: _isFullPaymentNotifier,
+                      builder: (context, isFullPayment, _) {
+                        final pendingAmount =
+                            double.tryParse(_pendingAmountC.text) ?? 0;
+
+                        return CustomTextField(
+                          title: "Amount Paid",
+                          hint: "Enter Amount Paid",
+                          isRequired: true,
+                          readOnly: isFullPayment,
+                          textController: _amountPaidC,
+
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Amount Paid is required";
+                            }
+
+                            final enteredAmount = double.tryParse(value) ?? 0;
+
+                            if (enteredAmount <= 0) {
+                              return "Enter valid amount";
+                            }
+
+                            // cannot exceed pending
+                            if (enteredAmount > pendingAmount) {
+                              return "Amount should not exceed pending amount";
+                            }
+
+                            final selectedType =
+                                _selectedPaymentTypeNotifier.value.firstOrNull;
+
+                            final paymentType =
+                                selectedType?["DisplayName"]
+                                    ?.toString()
+                                    .trim()
+                                    .toLowerCase();
+
+                            // partial payment validation
+                            if (paymentType == "partial" &&
+                                enteredAmount == pendingAmount) {
+                              return "Select Full payment type";
+                            }
+
+                            // full payment validation
+                            if (paymentType == "full" &&
+                                enteredAmount != pendingAmount) {
+                              return "Full payment must equal pending amount";
+                            }
+
+                            return null;
+                          },
+                        );
                       },
-                      textController: _amountPaidC,
                     ),
                     CustomTextField(
                       title: "TDS Amount",

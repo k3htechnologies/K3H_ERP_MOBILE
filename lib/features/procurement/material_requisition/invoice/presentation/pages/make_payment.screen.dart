@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/model/grn.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/cubit/invoice_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
@@ -13,6 +17,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -73,143 +78,177 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
               style: AppTextStyle.ts16M(color: AppColor.primary),
             ),
             verticalSpacing(),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-              decoration: BoxDecoration(
-                color: AppColor.lightBluebg,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColor.black.withValues(alpha: 0.05),
-                    blurRadius: 2,
-                    spreadRadius: 0,
-                    offset: Offset(0, 2),
+            BlocBuilder<InvoiceCubit, InvoiceState>(
+              builder: (context, state) {
+                if (state.isLoading ?? true) {
+                  return Center(child: loader());
+                }
+                return Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.0,
+                    vertical: 12.0,
                   ),
-                  BoxShadow(
-                    color: AppColor.black.withValues(alpha: 0.0),
-                    blurRadius: 0,
-                    spreadRadius: 0,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: _buildRow(
-                          "Date",
-                          formatDateTimeAsDDMMMYYYY(widget.grn!.createdDate),
-                        ),
+                  decoration: BoxDecoration(
+                    color: AppColor.lightBluebg,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColor.black.withValues(alpha: 0.05),
+                        blurRadius: 2,
+                        spreadRadius: 0,
+                        offset: Offset(0, 2),
                       ),
-                      Expanded(
-                        child: _buildRow(
-                          "Vehicle No.",
-                          widget.grn!.vehicleNumber,
-                        ),
+                      BoxShadow(
+                        color: AppColor.black.withValues(alpha: 0.0),
+                        blurRadius: 0,
+                        spreadRadius: 0,
+                        offset: Offset(0, 2),
                       ),
                     ],
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                  verticalSpacing(height: 16.h),
-                  Row(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: _buildRow(
-                          "Challan No.",
-                          widget.grn!.challanNumber,
-                        ),
-                      ),
-                      Expanded(
-                        child: _buildRow(
-                          "Total Requisition Amount",
-                          widget.grn!.challanNumber,
-                        ),
-                      ),
-                    ],
-                  ),
-                  verticalSpacing(height: 16.h),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: _buildRow(
-                          "Paid  Requisition Amount",
-                          widget.grn!.challanNumber,
-                        ),
-                      ),
-                      Expanded(
-                        child: _buildRow(
-                          "Remaining Requisition Amount ",
-                          widget.grn!.challanNumber,
-                        ),
-                      ),
-                    ],
-                  ),
-                  verticalSpacing(height: 16.h),
-                  ListView.builder(
-                    itemCount:
-                        widget.grn?.materialRequisitionDetailGrnData.length ??
-                        0,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      final material =
-                          widget.grn!.materialRequisitionDetailGrnData[index];
-                      return Container(
-                        margin: EdgeInsets.only(bottom: 10.0),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 12.0,
-                          vertical: 12.0,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColor.lightGreyBackground,
-                          borderRadius: BorderRadius.circular(8.0),
-                          border: Border.all(
-                            width: 0.1,
-                            color: AppColor.black.withValues(alpha: 0.5),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: _buildRow(
+                              "Date",
+                              formatDateTimeAsDDMMMYYYY(
+                                widget.grn!.createdDate,
+                              ),
+                            ),
                           ),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: _buildRow(
-                                "Material",
-                                material.materialName,
+                          Expanded(
+                            child: _buildRow(
+                              "Vehicle No.",
+                              widget.grn!.vehicleNumber,
+                            ),
+                          ),
+                        ],
+                      ),
+                      verticalSpacing(height: 16.h),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: _buildRow(
+                              "Challan No.",
+                              widget.grn!.challanNumber,
+                            ),
+                          ),
+                          Expanded(
+                            child: _buildRow(
+                              "Total Requisition Amount",
+                              state.invoiceList.first.invoiceAmount.toString(),
+                            ),
+                          ),
+                        ],
+                      ),
+                      verticalSpacing(height: 16.h),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: _buildRow(
+                              "Paid  Requisition Amount",
+                              state.invoiceList.first.invoiceAmountPaidTillDate
+                                  .toString(),
+                            ),
+                          ),
+                          Expanded(
+                            child: _buildRow(
+                              "Remaining Requisition Amount ",
+                              (state.invoiceList.first.invoiceAmount -
+                                      state
+                                          .invoiceList
+                                          .first
+                                          .invoiceAmountPaidTillDate)
+                                  .toStringAsFixed(2),
+                            ),
+                          ),
+                        ],
+                      ),
+                      verticalSpacing(height: 16.h),
+                      ListView.builder(
+                        itemCount:
+                            widget
+                                .grn
+                                ?.materialRequisitionDetailGrnData
+                                .length ??
+                            0,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          final material =
+                              widget
+                                  .grn!
+                                  .materialRequisitionDetailGrnData[index];
+                          return Container(
+                            margin: EdgeInsets.only(bottom: 10.0),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12.0,
+                              vertical: 12.0,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColor.lightGreyBackground,
+                              borderRadius: BorderRadius.circular(8.0),
+                              border: Border.all(
+                                width: 0.1,
+                                color: AppColor.black.withValues(alpha: 0.5),
                               ),
                             ),
-                            Expanded(
-                              child: _buildRow(
-                                "Sub-Material",
-                                material.subMaterialName,
-                              ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: _buildRow(
+                                    "Material",
+                                    material.materialName,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: _buildRow(
+                                    "Sub-Material",
+                                    material.subMaterialName,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: _buildRow(
+                                    "Quantity",
+                                    material.materialQuantity.toString(),
+                                  ),
+                                ),
+                              ],
                             ),
-                            Expanded(
-                              child: _buildRow(
-                                "Quantity",
-                                material.materialQuantity.toString(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                );
+              },
             ),
             verticalSpacing(height: 20.0),
             BlocBuilder<InvoiceCubit, InvoiceState>(
               builder: (context, state) {
                 final invoiceDetails = state.invoiceList.first;
+                final invoice = state.invoiceList.first;
+
+                final isApproved =
+                    invoice.invoiceStatus.toLowerCase() == "approved";
+                final approvalStatus = invoice.invoiceStatus;
+
+                final isAlreadyApproved =
+                    approvalStatus.toLowerCase() == "approved";
+
+                final isRejected = approvalStatus.toLowerCase() == "rejected";
+                final hasPayment = invoice.invoiceAmountPaidTillDate > 0;
                 return Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 16.0,
@@ -223,50 +262,34 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Expanded(
-                            child: RichText(
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: "Invoice No.",
-                                    style: AppTextStyle.ts14R(
-                                      color: AppColor.black.withValues(
-                                        alpha: 0.5,
-                                      ),
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "Invoice No.",
+                                  style: AppTextStyle.ts14R(
+                                    color: AppColor.black.withValues(
+                                      alpha: 0.5,
                                     ),
                                   ),
-                                  TextSpan(
-                                    text: ": ",
-                                    style: AppTextStyle.ts14R(
-                                      color: AppColor.black.withValues(
-                                        alpha: 0.5,
-                                      ),
+                                ),
+                                TextSpan(
+                                  text: ": ",
+                                  style: AppTextStyle.ts14R(
+                                    color: AppColor.black.withValues(
+                                      alpha: 0.5,
                                     ),
                                   ),
-                                  TextSpan(
-                                    text: invoiceDetails.invoiceNumber,
-                                    style: AppTextStyle.ts14R(
-                                      color: AppColor.black.withValues(
-                                        alpha: 0.5,
-                                      ),
+                                ),
+                                TextSpan(
+                                  text: invoiceDetails.invoiceNumber,
+                                  style: AppTextStyle.ts14R(
+                                    color: AppColor.black.withValues(
+                                      alpha: 0.5,
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: CustomButton(
-                              text: "Make Payment",
-                              onPressed: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.makePaymentScreen,
-                                  extra: {
-                                    'systemGeneratedCode':
-                                        widget.systemgeneratedCode,
-                                  },
-                                );
-                              },
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -308,29 +331,27 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Expanded(
-                            child: buildColumnTitleValue(
-                              title: "Measurement Report",
-                              value:
-                                  invoiceDetails.uploadInvoiceUrl.isEmpty
-                                      ? "-"
-                                      : invoiceDetails.uploadInvoiceUrl,
-                              customValueWidget: CustomButton.documentOutline(
-                                onPressed: () {
-                                  if (invoiceDetails
-                                      .uploadInvoiceUrl
-                                      .isNotEmpty) {
-                                    showFilePreviewDialog(
-                                      context,
-                                      invoiceDetails.uploadInvoiceUrl.split(
-                                        ",",
-                                      ),
-                                    );
-                                  }
-                                },
-                                isDisable:
-                                    invoiceDetails.uploadInvoiceUrl.isEmpty,
-                              ),
+                          buildColumnTitleValue(
+                            title: "Measurement Report",
+                            value:
+                                invoiceDetails.measurementReportUrl.isEmpty
+                                    ? "-"
+                                    : invoiceDetails.measurementReportUrl,
+                            customValueWidget: CustomButton.documentOutline(
+                              onPressed: () {
+                                if (invoiceDetails
+                                    .measurementReportUrl
+                                    .isNotEmpty) {
+                                  showFilePreviewDialog(
+                                    context,
+                                    invoiceDetails.measurementReportUrl.split(
+                                      ",",
+                                    ),
+                                  );
+                                }
+                              },
+                              isDisable:
+                                  invoiceDetails.measurementReportUrl.isEmpty,
                             ),
                           ),
                         ],
@@ -339,56 +360,50 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Expanded(
-                            child: buildColumnTitleValue(
-                              title: "Invoice Document",
-                              value:
-                                  invoiceDetails.uploadInvoiceUrl.isEmpty
-                                      ? "-"
-                                      : invoiceDetails.uploadInvoiceUrl,
-                              customValueWidget: CustomButton.documentOutline(
-                                onPressed: () {
-                                  if (invoiceDetails
-                                      .uploadInvoiceUrl
-                                      .isNotEmpty) {
-                                    showFilePreviewDialog(
-                                      context,
-                                      invoiceDetails.uploadInvoiceUrl.split(
-                                        ",",
-                                      ),
-                                    );
-                                  }
-                                },
-                                isDisable:
-                                    invoiceDetails.uploadInvoiceUrl.isEmpty,
-                              ),
+                          buildColumnTitleValue(
+                            title: "Invoice Document",
+                            value:
+                                invoiceDetails.uploadInvoiceUrl.isEmpty
+                                    ? "-"
+                                    : invoiceDetails.uploadInvoiceUrl,
+                            customValueWidget: CustomButton.documentOutline(
+                              onPressed: () {
+                                if (invoiceDetails
+                                    .uploadInvoiceUrl
+                                    .isNotEmpty) {
+                                  showFilePreviewDialog(
+                                    context,
+                                    invoiceDetails.uploadInvoiceUrl.split(","),
+                                  );
+                                }
+                              },
+                              isDisable:
+                                  invoiceDetails.uploadInvoiceUrl.isEmpty,
                             ),
                           ),
 
                           horizontalSpacing(),
-                          Expanded(
-                            child: buildColumnTitleValue(
-                              title: "Performance Report",
-                              value:
-                                  invoiceDetails.performaInvoiceUrl.isEmpty
-                                      ? "-"
-                                      : invoiceDetails.performaInvoiceUrl,
-                              customValueWidget: CustomButton.documentOutline(
-                                onPressed: () {
-                                  if (invoiceDetails
-                                      .performaInvoiceUrl
-                                      .isNotEmpty) {
-                                    showFilePreviewDialog(
-                                      context,
-                                      invoiceDetails.performaInvoiceUrl.split(
-                                        ",",
-                                      ),
-                                    );
-                                  }
-                                },
-                                isDisable:
-                                    invoiceDetails.uploadInvoiceUrl.isEmpty,
-                              ),
+                          buildColumnTitleValue(
+                            title: "Performance Report",
+                            value:
+                                invoiceDetails.performaInvoiceUrl.isEmpty
+                                    ? "-"
+                                    : invoiceDetails.performaInvoiceUrl,
+                            customValueWidget: CustomButton.documentOutline(
+                              onPressed: () {
+                                if (invoiceDetails
+                                    .performaInvoiceUrl
+                                    .isNotEmpty) {
+                                  showFilePreviewDialog(
+                                    context,
+                                    invoiceDetails.performaInvoiceUrl.split(
+                                      ",",
+                                    ),
+                                  );
+                                }
+                              },
+                              isDisable:
+                                  invoiceDetails.uploadInvoiceUrl.isEmpty,
                             ),
                           ),
                         ],
@@ -402,7 +417,146 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                                 ? "-"
                                 : invoiceDetails.remarks,
                           ),
-                          horizontalSpacing(),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          if (isApproved) ...[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                /// VIEW PAYMENT
+                                if (hasPayment)
+                                  Expanded(
+                                    child: CustomButton(
+                                      text: "View Payment",
+                                      backgroundColor: AppColor.lightBlue,
+                                      textColor: AppColor.primary,
+                                      onPressed: () {
+                                        goRouter.pushNamed(
+                                          AppRoutes.viewPayment,
+                                          extra: {
+                                            'systemGeneratedCode':
+                                                widget.systemgeneratedCode,
+                                            'invoiceNumber':
+                                                invoice.invoiceNumber,
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  ),
+
+                                if (hasPayment) horizontalSpacing(),
+
+                                /// MAKE PAYMENT
+                                Expanded(
+                                  child: CustomButton(
+                                    text: "Make Payment",
+                                    onPressed: () {
+                                      goRouter.pushNamed(
+                                        AppRoutes.makePaymentScreen,
+                                        extra: {
+                                          'systemGeneratedCode':
+                                              widget.systemgeneratedCode,
+                                          "grn": widget.grn,
+                                        },
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                          verticalSpacing(),
+                          ApproveRejectWidget(
+                            isActionAlreadyPerformed:
+                                isAlreadyApproved || isRejected,
+                            actionTitle:
+                                approvalStatus.isEmpty
+                                    ? "Pending"
+                                    : approvalStatus,
+
+                            onApprove: (remark) async {
+                              final isSuccess = await context
+                                  .read<LoginCubit>()
+                                  .updateModulesWorkflowApproval(
+                                    context: context,
+                                    moduleName: 'MATERIAL REQUISITION',
+                                    id: invoice.materialRequisitionId,
+                                    subId: invoice.materialRequisitionInvoiceId,
+                                    projectId: _selectedProject.projectId,
+                                    isApproved: true,
+                                    remark: remark.trim(),
+                                  );
+
+                              if (context.mounted && isSuccess) {
+                                await _invoiceCubit.getInvoice(
+                                  projectId: _selectedProject.projectId,
+                                  materialRequisitionId:
+                                      _materialRequisitionCubit
+                                          .state
+                                          .materialRequisitionOverview!
+                                          .materialRequisitionId,
+                                  uniqueKey:
+                                      _materialRequisitionCubit
+                                          .state
+                                          .materialRequisitionOverview!
+                                          .uniquekey,
+                                  context: context,
+                                );
+                              }
+                            },
+
+                            onReject: (remark) async {
+                              await context
+                                  .read<LoginCubit>()
+                                  .updateModulesWorkflowApproval(
+                                    context: context,
+                                    moduleName: 'MATERIAL REQUISITION',
+                                    id: invoice.materialRequisitionId,
+                                    subId: invoice.materialRequisitionInvoiceId,
+                                    projectId: _selectedProject.projectId,
+                                    isApproved: false,
+                                    remark: remark.trim(),
+                                  );
+                            },
+
+                            onThirdTap: () async {
+                              final approvalLogHistoryList = await context
+                                  .read<LoginCubit>()
+                                  .getApprovalLogHistory(
+                                    context: context,
+                                    projectId: _selectedProject.projectId,
+                                    id: invoice.materialRequisitionId,
+                                    subId: invoice.materialRequisitionInvoiceId,
+                                    moduleName: 'ADD INVOICE',
+                                  );
+                              if (context.mounted) {
+                                goRouter.pushNamed(
+                                  AppRoutes.approvalLogHistory,
+                                  queryParameters: {
+                                    "title": Uri.encodeComponent(
+                                      EncryptionManager.encryptData(
+                                        "Invoice Log History",
+                                      ),
+                                    ),
+                                    "approvalList": Uri.encodeComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(
+                                          approvalLogHistoryList
+                                              .map((e) => e.toJson())
+                                              .toList(),
+                                        ),
+                                      ),
+                                    ),
+                                  },
+                                );
+                              }
+                            },
+
+                            popupTitle: "Invoice",
+                            isMaster: true,
+                          ),
                         ],
                       ),
                     ],

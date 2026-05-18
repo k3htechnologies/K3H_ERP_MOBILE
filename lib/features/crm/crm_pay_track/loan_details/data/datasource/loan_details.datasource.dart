@@ -21,6 +21,10 @@ abstract interface class BookingLoanDetailsDatasource {
     required int projectId,
     required int bookingId,
   });
+
+  Future<Map<String, dynamic>> apicallUpdateBookingLoanDetailsStatus({
+    required Map<String, dynamic> body,
+  });
 }
 
 class BookingLoanDetailsDatasourceImpl extends BookingLoanDetailsDatasource {
@@ -148,6 +152,34 @@ class BookingLoanDetailsDatasourceImpl extends BookingLoanDetailsDatasource {
           bookingId: bookingId,
           uniqueKey: uniqueKey,
         );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallUpdateBookingLoanDetailsStatus({
+    required Map<String, dynamic> body,
+  }) async {
+    String updateBookingLoanDetailsStatusUrl =
+        "BookingLoanDetails/UpdateBookingLoanDetailsStatus";
+    try {
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        updateBookingLoanDetailsStatusUrl,
+        body,
+      );
+      return {
+        'data': List<BookingLoanDetailsModel>.from(
+          networkResponse["data"].map(
+            (e) => BookingLoanDetailsModel.fromJson(e),
+          ),
+        ),
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallAddUpdateBookingLoanDetails(body: body);
       }
       rethrow;
     }

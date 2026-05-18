@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
@@ -199,90 +200,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
   LatLng? startLatLng;
   LatLng? lastPoint;
   double totalDistance = 0.0;
-  Future<void> punchIn(BuildContext context) async {
-    try {
-      Position pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.bestForNavigation,
-      );
-
-      final address = await _getAddressFromGPS();
-      if (address == null) {
-        showErrorMessage(context, "Error", "Unable to fetch location");
-        return;
-      }
-
-      // ✅ Save initial point
-      await storage.setString(
-        "route_points",
-        jsonEncode([
-          {"lat": pos.latitude, "lng": pos.longitude},
-        ]),
-      );
-
-      startLatLng = LatLng(pos.latitude, pos.longitude);
-      routePoints = [startLatLng!];
-      lastPoint = startLatLng;
-      totalDistance = 0.0;
-
-      // ✅ Start background service (single source of truth)
-      final service = FlutterBackgroundService();
-      final isRunning = await service.isRunning();
-      if (!isRunning) {
-        await service.startService();
-      }
-
-      final int attendanceIdToSend = currentAttendanceId ?? 0;
-      final result = await _dashboardCubit.addAttendance(
-        context,
-        attendanceId: attendanceIdToSend,
-        punchAddress: address,
-        startLatitude: pos.latitude,
-        startLongitude: pos.longitude,
-        endLatitude: 0,
-        endLongitude: 0,
-        polyline: "",
-        distance: 0,
-      );
-
-      if (result != null) {
-        currentAttendanceId = result['AttendanceId'];
-        currentUniquekey = result['Uniquekey'];
-      }
-    } catch (e) {
-      debugPrint("Punch In GPS Error: $e");
-    }
-  }
-
   // Future<void> punchIn(BuildContext context) async {
   //   try {
   //     Position pos = await Geolocator.getCurrentPosition(
   //       desiredAccuracy: LocationAccuracy.bestForNavigation,
   //     );
-
+  //     debugPrint("📍 Accuracy: ${pos.accuracy} meters");
   //     final address = await _getAddressFromGPS();
-
   //     if (address == null) {
   //       showErrorMessage(context, "Error", "Unable to fetch location");
   //       return;
   //     }
 
+  //     // ✅ Save initial point
   //     await storage.setString(
   //       "route_points",
   //       jsonEncode([
   //         {"lat": pos.latitude, "lng": pos.longitude},
   //       ]),
   //     );
-  //     await FlutterBackgroundService().startService();
 
-  //     //  START FOREGROUND TRACKING
-  //     _startLocationTracking();
   //     startLatLng = LatLng(pos.latitude, pos.longitude);
-  //     routePoints.clear();
-  //     routePoints.add(startLatLng!);
+  //     routePoints = [startLatLng!];
   //     lastPoint = startLatLng;
   //     totalDistance = 0.0;
-  //     final int attendanceIdToSend = currentAttendanceId ?? 0;
 
+  //     if (Platform.isAndroid) {
+  //       final service = FlutterBackgroundService();
+  //       final isRunning = await service.isRunning();
+
+  //       if (!isRunning) {
+  //         await service.startService();
+  //       }
+  //     }
+  //     final int attendanceIdToSend = currentAttendanceId ?? 0;
   //     final result = await _dashboardCubit.addAttendance(
   //       context,
   //       attendanceId: attendanceIdToSend,
@@ -303,6 +254,57 @@ class _DashboardScreenState extends State<DashboardScreen> {
   //     debugPrint("Punch In GPS Error: $e");
   //   }
   // }
+
+  Future<void> punchIn(BuildContext context) async {
+    try {
+      Position pos = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.bestForNavigation,
+      );
+
+      final address = await _getAddressFromGPS();
+
+      if (address == null) {
+        showErrorMessage(context, "Error", "Unable to fetch location");
+        return;
+      }
+
+      await storage.setString(
+        "route_points",
+        jsonEncode([
+          {"lat": pos.latitude, "lng": pos.longitude},
+        ]),
+      );
+      // await FlutterBackgroundService().startService();
+
+      //  START FOREGROUND TRACKING
+      _startLocationTracking();
+      startLatLng = LatLng(pos.latitude, pos.longitude);
+      routePoints.clear();
+      routePoints.add(startLatLng!);
+      lastPoint = startLatLng;
+      totalDistance = 0.0;
+      final int attendanceIdToSend = currentAttendanceId ?? 0;
+
+      final result = await _dashboardCubit.addAttendance(
+        context,
+        attendanceId: attendanceIdToSend,
+        punchAddress: address,
+        startLatitude: pos.latitude,
+        startLongitude: pos.longitude,
+        endLatitude: 0,
+        endLongitude: 0,
+        polyline: "",
+        distance: 0,
+      );
+
+      if (result != null) {
+        currentAttendanceId = result['AttendanceId'];
+        currentUniquekey = result['Uniquekey'];
+      }
+    } catch (e) {
+      debugPrint("Punch In GPS Error: $e");
+    }
+  }
 
   Future<void> punchOut(BuildContext context) async {
     final address = await _getAddressFromGPS();
@@ -394,6 +396,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         distanceFilter: 5,
       ),
     ).listen((Position position) async {
+      if (position.accuracy > 50.0) return;
       final currentPoint = LatLng(position.latitude, position.longitude);
       if (routePoints.isEmpty) {
         if (startLatLng != null) {
@@ -402,6 +405,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           totalDistance = 0.0;
           return;
         }
+        debugPrint("POINT => ${position.latitude}, ${position.longitude}");
+
+        debugPrint("Accuracy => ${position.accuracy}");
+
+        debugPrint("Route Count => ${routePoints.length}");
 
         startLatLng = currentPoint;
         routePoints.add(currentPoint);
@@ -421,7 +429,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         currentPoint.longitude,
       );
 
-      if (segmentDistance < 5) return;
+      if (segmentDistance < 2) return;
 
       routePoints.add(currentPoint);
       totalDistance += segmentDistance;

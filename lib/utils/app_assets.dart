@@ -49,6 +49,7 @@ class AppAssets {
   static const String editIcon2 = "$svgPath/common/edit2.svg";
   static const String deleteIcon = "$svgPath/common/deleteIcon.svg";
   static const String deleteIcon2 = "$svgPath/common/delete2.svg";
+  static const String removeIcon = "$svgPath/common/remove.svg";
   static const String crossIcon = "$svgPath/common/crossIcon.svg";
   static const String folderIcon = "$svgPath/common/folderIcon.svg";
   static const String sendIcon = "$svgPath/sendIcon.svg";

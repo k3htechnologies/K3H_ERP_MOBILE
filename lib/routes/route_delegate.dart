@@ -30,8 +30,18 @@ import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/add_broker
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/add_brokerage_payment.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/brokerage_screen.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/view_brokerage_screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/cubit/files_cubit.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/data/model/loan_details.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/presentation/cubit/loan_details_cubit.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/presentation/pages/add_active_bank.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/presentation/pages/add_bank_loan_documents.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_booking_files.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/pages/pay_track_screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/pages/pay_track_view_screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_cubit.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/add_payment_ledger.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/project_overview_screen.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
@@ -352,6 +362,11 @@ import 'package:k3h_erp_app/features/sales/target/data/model/sales_target_sourci
 import 'package:k3h_erp_app/features/sales/target/presentation/cubit/target_cubit.dart';
 import 'package:k3h_erp_app/features/sales/target/presentation/pages/target_screen.dart';
 import 'package:k3h_erp_app/features/sales/target/presentation/pages/target_view_screen.dart';
+import 'package:k3h_erp_app/features/stock_management/data/model/stock_management.model.dart';
+import 'package:k3h_erp_app/features/stock_management/presentation/cubit/stock_management_cubit.dart';
+import 'package:k3h_erp_app/features/stock_management/presentation/pages/add_stock_management.screen.dart';
+import 'package:k3h_erp_app/features/stock_management/presentation/pages/stock_management.screen.dart';
+import 'package:k3h_erp_app/features/stock_management/presentation/pages/view_stock_management.screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
@@ -4613,6 +4628,96 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
+        // STOCK MANAGEMENT
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => StockManagementCubit(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.stockManagement,
+              path: AppRoutes.stockManagement,
+              builder: (context, state) {
+                return StockManagementScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addStockManagement,
+              path: AppRoutes.addStockManagement,
+              builder: (context, state) {
+                final queryParameterStock = state.uri.queryParameters['stock'];
+                final StockManagementModel? stock =
+                    queryParameterStock != null
+                        ? StockManagementModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterStock),
+                            ),
+                          ),
+                        )
+                        : null;
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                final isRemove =
+                    state.uri.queryParameters['isRemove'] == "true";
+                return AddStockManagementScreen(
+                  stock: stock,
+                  index: index,
+                  isRemove: isRemove,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewStockManagement,
+              path: AppRoutes.viewStockManagement,
+              builder: (context, state) {
+                final queryParameterMaterialName =
+                    state.uri.queryParameters['materialName'];
+                final queryParameterSubMaterialName =
+                    state.uri.queryParameters['subMaterialName'];
+
+                final queryParameterSubMaterialMasterId =
+                    state.uri.queryParameters['subMaterialMasterId'];
+
+                final materialName =
+                    queryParameterMaterialName != null &&
+                            queryParameterMaterialName.isNotEmpty
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterMaterialName),
+                        )
+                        : "";
+                final subMaterialName =
+                    queryParameterSubMaterialName != null &&
+                            queryParameterSubMaterialName.isNotEmpty
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterSubMaterialName),
+                        )
+                        : "";
+
+                final subMaterialMasterId =
+                    queryParameterSubMaterialMasterId != null &&
+                            queryParameterSubMaterialMasterId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(
+                              queryParameterSubMaterialMasterId,
+                            ),
+                          ),
+                        )
+                        : 0;
+
+                return ViewStockManagementScreen(
+                  materialName: materialName,
+                  subMaterialName: subMaterialName,
+                  subMaterialMasterId: subMaterialMasterId,
+                );
+              },
+            ),
+          ],
+        ),
 
         // MATERIAL REQUISITION
         ShellRoute(
@@ -5152,8 +5257,10 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final extra = state.extra as Map<String, dynamic>?;
                 final systemGeneratedCode = extra?['systemGeneratedCode'] ?? "";
+                final invoiceNumber = extra?['invoiceNumber'] ?? "";
                 return ViewPaymentScreen(
                   systemgeneratedCode: systemGeneratedCode,
+                  invoiceNumber: invoiceNumber,
                 );
               },
             ),
@@ -5165,6 +5272,11 @@ final GoRouter goRouter = GoRouter(
             return MultiBlocProvider(
               providers: [
                 BlocProvider(create: (_) => PayTrackCubit(), child: child),
+                BlocProvider(create: (_) => BookingCubit(), child: child),
+                BlocProvider(create: (_) => CallTrackerCubit(), child: child),
+                BlocProvider(create: (_) => LoanDetailsCubit(), child: child),
+                BlocProvider(create: (_) => FilesCubit(), child: child),
+                BlocProvider(create: (_) => PaymentCubit(), child: child),
               ],
               child: child,
             );
@@ -5174,6 +5286,195 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.payTrackMaster,
               name: AppRoutes.payTrackMaster,
               builder: (context, state) => PayTrackScreen(),
+            ),
+            GoRoute(
+              name: AppRoutes.viewPayTrackMaster,
+              path: AppRoutes.viewPayTrackMaster,
+              builder: (context, state) {
+                final queryParameterProjectId =
+                    state.uri.queryParameters['projectId'];
+                final queryParameterBookingId =
+                    state.uri.queryParameters['bookingId'];
+                final queryParameterEnquiryId =
+                    state.uri.queryParameters['enquiryId'];
+                final queryParameterApplicantName =
+                    state.uri.queryParameters['applicantName'];
+                final projectId =
+                    queryParameterProjectId != null &&
+                            queryParameterProjectId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterProjectId),
+                          ),
+                        )
+                        : 0;
+                final bookingId =
+                    queryParameterBookingId != null &&
+                            queryParameterBookingId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterBookingId),
+                          ),
+                        )
+                        : 0;
+                final enquiryId =
+                    queryParameterEnquiryId != null &&
+                            queryParameterEnquiryId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterEnquiryId),
+                          ),
+                        )
+                        : 0;
+                final applicantName =
+                    queryParameterApplicantName != null &&
+                            queryParameterApplicantName.isNotEmpty
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterApplicantName),
+                        )
+                        : "";
+                return PayTrackViewScreen(
+                  applicantName: applicantName,
+                  projectId: projectId,
+                  bookingId: bookingId,
+                  enquiryId: enquiryId,
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addBankLoanDocument,
+              name: AppRoutes.addBankLoanDocument,
+              builder: (context, state) {
+                final queryParameterBookingId =
+                    state.uri.queryParameters['bookingId'];
+
+                final queryParameterProjectId =
+                    state.uri.queryParameters['projectId'];
+
+                final queryParameterDocument =
+                    state.uri.queryParameters['document'];
+
+                final queryParameterIndex = state.uri.queryParameters['index'];
+
+                final bookingId =
+                    queryParameterBookingId != null &&
+                            queryParameterBookingId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterBookingId),
+                          ),
+                        )
+                        : 0;
+
+                final projectId =
+                    queryParameterProjectId != null &&
+                            queryParameterProjectId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterProjectId),
+                          ),
+                        )
+                        : 0;
+
+                final PayTrackBookingFilesModel? document =
+                    queryParameterDocument != null
+                        ? PayTrackBookingFilesModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterDocument),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index = int.tryParse(queryParameterIndex ?? '') ?? 0;
+
+                return AddBankLoanDocumentScreen(
+                  projectId: projectId,
+                  bookingId: bookingId,
+                  payTrackBookingFilesModel: document,
+                  index: index,
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addActiveBank,
+              name: AppRoutes.addActiveBank,
+              builder: (context, state) {
+                final queryParameterBookingId =
+                    state.uri.queryParameters['bookingId'];
+
+                final queryParameterProjectId =
+                    state.uri.queryParameters['projectId'];
+
+                final queryParameterDocument =
+                    state.uri.queryParameters['document'];
+
+                final queryParameterIndex = state.uri.queryParameters['index'];
+
+                final bookingId =
+                    queryParameterBookingId != null &&
+                            queryParameterBookingId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterBookingId),
+                          ),
+                        )
+                        : 0;
+
+                final projectId =
+                    queryParameterProjectId != null &&
+                            queryParameterProjectId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterProjectId),
+                          ),
+                        )
+                        : 0;
+
+                final BookingLoanDetailsModel? document =
+                    queryParameterDocument != null
+                        ? BookingLoanDetailsModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterDocument),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index = int.tryParse(queryParameterIndex ?? '') ?? 0;
+
+                return AddActiveBankScreen(
+                  bookingId: bookingId,
+                  projectId: projectId,
+                  details: document,
+                  index: index,
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addPaymentLedger,
+              name: AppRoutes.addPaymentLedger,
+              builder: (context, state) {
+                final paymentLedgerParam =
+                    state.uri.queryParameters['paymentLedger'];
+
+                List<PayTrackPaymentLedgerModel> paymentLedgerList = [];
+
+                if (paymentLedgerParam != null &&
+                    paymentLedgerParam.isNotEmpty) {
+                  final decodedData = jsonDecode(
+                    Uri.decodeComponent(paymentLedgerParam),
+                  );
+
+                  paymentLedgerList =
+                      (decodedData as List)
+                          .map((e) => PayTrackPaymentLedgerModel.fromJson(e))
+                          .toList();
+                }
+                return AddPaymentLedgerScreen(paymentLedgerList: paymentLedgerList);
+              },
             ),
           ],
         ),
