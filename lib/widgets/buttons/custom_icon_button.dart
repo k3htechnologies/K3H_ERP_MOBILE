@@ -55,6 +55,41 @@ class CustomIconButton extends StatelessWidget {
              isDisabled ? AppColor.lightGreyBackground : AppColor.lightRed,
          size: 16,
        );
+  CustomIconButton.add({
+    Key? key,
+    required VoidCallback onPressed,
+    bool isDisabled = false,
+  }) : this(
+         key: key,
+         onPressed: isDisabled ? () {} : onPressed,
+         icon: Icon(
+           Icons.add,
+           size: 16,
+           color: isDisabled ? AppColor.grey2 : AppColor.black,
+         ),
+         backgroundColor:
+             isDisabled ? AppColor.lightGreyBackground : AppColor.lightBlue,
+         size: 16,
+       );
+  CustomIconButton.remove({
+    Key? key,
+    required VoidCallback onPressed,
+    bool isDisabled = false,
+  }) : this(
+         key: key,
+         onPressed: isDisabled ? () {} : onPressed,
+         icon: SvgPicture.asset(
+           AppAssets.removeIcon,
+           height: 16,
+           colorFilter: ColorFilter.mode(
+             isDisabled ? AppColor.grey2 : AppColor.error,
+             BlendMode.srcIn,
+           ),
+         ),
+         backgroundColor:
+             isDisabled ? AppColor.lightGreyBackground : AppColor.lightRed,
+         size: 16,
+       );
 
   @override
   Widget build(BuildContext context) {

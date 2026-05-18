@@ -92,23 +92,23 @@ Future initialSetup() async {
   ]);
   final info = await PackageInfo.fromPlatform();
   currentVersion = info.version;
-  if (Platform.isAndroid) {
-    await FlutterBackgroundService().configure(
-      androidConfiguration: AndroidConfiguration(
-        onStart: onStart,
-        isForegroundMode: true,
-        autoStart: false,
-        foregroundServiceNotificationId: 888,
-        initialNotificationTitle: 'K3H ERP',
-        initialNotificationContent: 'Tracking your location...',
-      ),
-      iosConfiguration: IosConfiguration(
-        autoStart: false,
-        onForeground: onStart,
-        onBackground: onIosBackground,
-      ),
-    );
-  }
+
+  await FlutterBackgroundService().configure(
+    androidConfiguration: AndroidConfiguration(
+      onStart: onStart,
+      isForegroundMode: true,
+      autoStart: false,
+      foregroundServiceNotificationId: 888,
+      initialNotificationTitle: 'K3H ERP',
+      initialNotificationContent: 'Tracking your location...',
+    ),
+    iosConfiguration: IosConfiguration(
+      autoStart: false,
+      onForeground: onStart,
+      onBackground: onIosBackground,
+    ),
+  );
+
   final storage = LocalStorageManager();
   final storedVersion = storage.getString(StorageKey.appVersion);
   if (storedVersion != currentVersion) {
@@ -137,6 +137,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
+  await LocalStorageManager().init();
   Timer.periodic(const Duration(seconds: 10), (timer) async {
     if (service is AndroidServiceInstance) {
       if (await service.isForegroundService()) {

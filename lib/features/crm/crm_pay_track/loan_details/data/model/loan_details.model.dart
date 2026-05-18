@@ -11,6 +11,8 @@ class BookingLoanDetailsModel {
   String bankName;
   String loanAccountNumber;
   String bankBranchName;
+  String bankStatusClosedActive;
+  int noOfBankDocument;
   String address;
   int createdById;
   String createdBy;
@@ -30,6 +32,8 @@ class BookingLoanDetailsModel {
     required this.bankName,
     required this.loanAccountNumber,
     required this.bankBranchName,
+    required this.noOfBankDocument,
+    required this.bankStatusClosedActive,
     required this.address,
     required this.createdById,
     required this.createdBy,
@@ -55,6 +59,11 @@ class BookingLoanDetailsModel {
         loanAccountNumber: parseValue<String>(json, "LoanAccountNumber"),
         bankBranchName: parseValue<String>(json, "BankBranchName"),
         address: parseValue<String>(json, "Address"),
+        noOfBankDocument: parseValue<int>(json, "NoOfBankDocument"),
+        bankStatusClosedActive: parseValue<String>(
+          json,
+          "BankStatusClosedActive",
+        ),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
         createdDate: DateTime.parse(json["CreatedDate"]),

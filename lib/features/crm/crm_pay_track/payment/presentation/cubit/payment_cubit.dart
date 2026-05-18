@@ -45,6 +45,7 @@ class PaymentCubit extends Cubit<PaymentState> {
     var result = await paymentRepository.getPayTrackPaymentScheduleList(
       bookingId: bookingId,
       projectId: projectId,
+      queryParams: {"IsCheckPermission": true},
     );
 
     result.fold(
@@ -59,6 +60,44 @@ class PaymentCubit extends Cubit<PaymentState> {
             payTrackPaymentScheduleList: response['data'],
           ),
         );
+      },
+    );
+  }
+
+  Future addDemandDraft({
+    required BuildContext context,
+    required int bookingPaymentScheduleId,
+    required int bookingId,
+    required int projectId,
+    required String paymentScheduleDemandType,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, String> requestBody = {
+      "BookingPaymentScheduleId": bookingPaymentScheduleId.toString(),
+      "BookingId": bookingId.toString(),
+      "ProjectId": projectId.toString(),
+      "PaymentScheduleDemandType": paymentScheduleDemandType,
+    };
+
+    var addResult = await paymentRepository
+        .addUpdatePayTrackPaymentScheduleDemand(body: requestBody);
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+        emit(
+          state.copyWith(
+            paymentLedger: [
+              response['data'][0] as PayTrackPaymentLedgerModel,
+              ...state.paymentLedger,
+            ],
+          ),
+        );
+        showSuccessMessage(context);
       },
     );
   }
@@ -249,7 +288,7 @@ class PaymentCubit extends Cubit<PaymentState> {
             (response['data'] as List<dynamic>)
                 .map(
                   (e) => {
-                    "zAttributesId": e["BankListMasterId"],
+                    "zAttributesId": e["ProjectWithBankDetailsId"],
                     "DisplayName": e["BankNameWithCode"],
                   },
                 )
@@ -270,7 +309,6 @@ class PaymentCubit extends Cubit<PaymentState> {
     var result = await _projectMasterRepository.getProjectWithBankDetails(
       projectId: project.projectId,
     );
-
     return result.fold(
       (failure) {
         return {"itemList": <Map<String, dynamic>>[], "totalNumberOfRecord": 0};
@@ -282,8 +320,9 @@ class PaymentCubit extends Cubit<PaymentState> {
           "itemList": List<Map<String, dynamic>>.from(
             data.map(
               (e) => {
-                "zAttributesId": e["BankListMasterId"],
-                "DisplayName": e["BankName"],
+                "zAttributesId": e["ProjectWithBankDetailsId"],
+                "DisplayName": "${e["BankName"]} - ${e["NatureOfAccount"]}",
+                "AccountHolderName": e["BeneficiaryAccountHolderName"],
                 "AccountNumber": e["AccountNumber"],
                 "Branch": e["Branch"],
                 "IFSCCode": e["IFSCCode"],
@@ -299,44 +338,44 @@ class PaymentCubit extends Cubit<PaymentState> {
 
   // <---- ADD UPDATE PAYMENT LEDGER APPROVAL ---->
   // ? Note : Following binding is not complete.
-  Future<bool> addUpdatePaymentLedgerApproval({
-    required BuildContext context,
-    required PayTrackPaymentLedgerModel paymentLedger,
-    required String remark,
-    required bool isApproved,
-  }) async {
-    DialogHelper.showProcessingOverlay(context);
-    Map<String, dynamic> request = {
-      "ProjectId": paymentLedger.projectId,
-      "ModuleName": "PAY TRACK LEDGER APPROVAL",
-      "Id": paymentLedger.payTrackPaymentLedgerId,
-      "SubId": 0,
-      "SubSubId": 0,
-      "SubSubSubId": 0,
-      "IsApproved": isApproved,
-      "Remarks": remark,
-    };
-    var result;
-    goRouter.pop();
-    return result.fold(
-      (failure) {
-        emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, 'Error', failure.message);
-        return false;
-      },
-      (response) async {
-        await showSuccessMessage(context);
-        if (context.mounted) {
-          await getPaymentLedgerList(
-            context,
-            paymentLedger.bookingId,
-            paymentLedger.projectId,
-          );
-        }
-        return true;
-      },
-    );
-  }
+  // Future<bool> addUpdatePaymentLedgerApproval({
+  //   required BuildContext context,
+  //   required PayTrackPaymentLedgerModel paymentLedger,
+  //   required String remark,
+  //   required bool isApproved,
+  // }) async {
+  //   DialogHelper.showProcessingOverlay(context);
+  //   Map<String, dynamic> request = {
+  //     "ProjectId": paymentLedger.projectId,
+  //     "ModuleName": "PAY TRACK LEDGER APPROVAL",
+  //     "Id": paymentLedger.payTrackPaymentLedgerId,
+  //     "SubId": 0,
+  //     "SubSubId": 0,
+  //     "SubSubSubId": 0,
+  //     "IsApproved": isApproved,
+  //     "Remarks": remark,
+  //   };
+  //   var result;
+  //   goRouter.pop();
+  //   return result.fold(
+  //     (failure) {
+  //       emit(state.copyWith(isLoading: false));
+  //       showErrorMessage(context, 'Error', failure.message);
+  //       return false;
+  //     },
+  //     (response) async {
+  //       await showSuccessMessage(context);
+  //       if (context.mounted) {
+  //         await getPaymentLedgerList(
+  //           context,
+  //           paymentLedger.bookingId,
+  //           paymentLedger.projectId,
+  //         );
+  //       }
+  //       return true;
+  //     },
+  //   );
+  // }
 
   // <---- EXPORT PAYMENT LEDGER ---->
   Future exportPaymentLedger(

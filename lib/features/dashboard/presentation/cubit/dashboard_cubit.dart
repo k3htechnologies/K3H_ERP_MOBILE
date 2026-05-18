@@ -25,6 +25,7 @@ class DashboardCubit extends Cubit<DashboardState> {
       serviceLocator<ProjectMasterRepository>();
 
   //  ON TAB CHANGE METHOD
+  
   void onTabChanged(int index, BuildContext context) {
     emit(state.copyWith(currentTabIndex: index));
   }

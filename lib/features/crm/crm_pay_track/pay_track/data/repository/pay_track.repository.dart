@@ -10,7 +10,12 @@ abstract interface class PayTrackRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-
+  Future<Either<Failure, Map<String, dynamic>>> getPayTrackCallLog({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
   Future<Either<Failure, Map<String, dynamic>>> exportPayTrackList({
     required int pageNumber,
     required int pageSize,
@@ -30,6 +35,26 @@ class PayTrackRepositoryImpl extends PayTrackRepository {
   }) async {
     try {
       var result = await payTrackDatasource.apiCallPullPayTrack(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        projectId: projectId,
+        queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getPayTrackCallLog({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await payTrackDatasource.apiCallPullPayTrackCallLog(
         pageNumber: pageNumber,
         pageSize: pageSize,
         projectId: projectId,

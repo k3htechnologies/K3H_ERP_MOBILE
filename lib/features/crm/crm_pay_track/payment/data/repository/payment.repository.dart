@@ -33,6 +33,8 @@ abstract interface class PaymentRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>>
+  addUpdatePayTrackPaymentScheduleDemand({required Map<String, String> body});
 }
 
 class PaymentRepositoryImpl extends PaymentRepository {
@@ -125,6 +127,20 @@ class PaymentRepositoryImpl extends PaymentRepository {
             projectId: projectId,
             queryParams: queryParams,
           );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  addUpdatePayTrackPaymentScheduleDemand({
+    required Map<String, String> body,
+  }) async {
+    try {
+      var result = await paymentDatasource
+          .apicallAddUpdatePayTrackPaymentScheduleDemand(body: body);
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

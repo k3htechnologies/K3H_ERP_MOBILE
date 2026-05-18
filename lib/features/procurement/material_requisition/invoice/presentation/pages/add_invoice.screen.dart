@@ -65,6 +65,20 @@ class _AddInvoiceScreenState extends State<AddInvoiceScreen> {
     _initializeTextEditingController();
   }
 
+  void initOverview() async {
+    final overview =
+        _materialRequisitionCubit.state.materialRequisitionOverview;
+
+    if (overview == null) return;
+
+    await _invoiceCubit.getInvoice(
+      projectId: overview.projectId,
+      materialRequisitionId: overview.materialRequisitionId,
+      uniqueKey: overview.uniquekey,
+      context: context,
+    );
+  }
+
   @override
   void dispose() {
     // CONTROLLERS
@@ -106,8 +120,10 @@ class _AddInvoiceScreenState extends State<AddInvoiceScreen> {
       invoiceDate: _invoiceDate?.toIso8601String() ?? "",
       dueDate: _dueDate?.toIso8601String() ?? "",
       remarks: _remarkC.text,
+      materialRequisitionGRNId: widget.grn!.materialRequisitionGrnId,
       uploadInvoicePhoto: selectedInvoiceFile,
       performaInvoicePhoto: selectedPerformanceReportFile,
+      measurementReportPhoto: selectedMeasurementReportFile,
     );
   }
 
@@ -128,138 +144,125 @@ class _AddInvoiceScreenState extends State<AddInvoiceScreen> {
               style: AppTextStyle.ts16M(color: AppColor.primary),
             ),
             verticalSpacing(),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-              decoration: BoxDecoration(
-                color: AppColor.lightBluebg,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColor.black.withValues(alpha: 0.05),
-                    blurRadius: 2,
-                    spreadRadius: 0,
-                    offset: Offset(0, 2),
+            BlocBuilder<InvoiceCubit, InvoiceState>(
+              builder: (context, state) {
+                if (state.isLoading ?? true) {
+                  return Center(child: loader());
+                }
+                return Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.0,
+                    vertical: 12.0,
                   ),
-                  BoxShadow(
-                    color: AppColor.black.withValues(alpha: 0.0),
-                    blurRadius: 0,
-                    spreadRadius: 0,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: _buildRow(
-                          "Date",
-                          formatDateTimeAsDDMMMYYYY(widget.grn!.createdDate),
-                        ),
+                  decoration: BoxDecoration(
+                    color: AppColor.lightBluebg,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColor.black.withValues(alpha: 0.05),
+                        blurRadius: 2,
+                        spreadRadius: 0,
+                        offset: Offset(0, 2),
                       ),
-                      Expanded(
-                        child: _buildRow(
-                          "Vehicle No.",
-                          widget.grn!.vehicleNumber,
-                        ),
+                      BoxShadow(
+                        color: AppColor.black.withValues(alpha: 0.0),
+                        blurRadius: 0,
+                        spreadRadius: 0,
+                        offset: Offset(0, 2),
                       ),
                     ],
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                  verticalSpacing(height: 16.h),
-                  Row(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: _buildRow(
-                          "Challan No.",
-                          widget.grn!.challanNumber,
-                        ),
-                      ),
-                      Expanded(
-                        child: _buildRow(
-                          "Total Requisition Amount",
-                          widget.grn!.challanNumber,
-                        ),
-                      ),
-                    ],
-                  ),
-                  verticalSpacing(height: 16.h),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: _buildRow(
-                          "Paid  Requisition Amount",
-                          widget.grn!.challanNumber,
-                        ),
-                      ),
-                      Expanded(
-                        child: _buildRow(
-                          "Remaining Requisition Amount ",
-                          widget.grn!.challanNumber,
-                        ),
-                      ),
-                    ],
-                  ),
-                  verticalSpacing(height: 16.h),
-                  ListView.builder(
-                    itemCount:
-                        widget.grn?.materialRequisitionDetailGrnData.length ??
-                        0,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      final material =
-                          widget.grn!.materialRequisitionDetailGrnData[index];
-                      return Container(
-                        margin: EdgeInsets.only(bottom: 10.0),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 12.0,
-                          vertical: 12.0,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColor.lightGreyBackground,
-                          borderRadius: BorderRadius.circular(8.0),
-                          border: Border.all(
-                            width: 0.1,
-                            color: AppColor.black.withValues(alpha: 0.5),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: _buildRow(
+                              "Date",
+                              formatDateTimeAsDDMMMYYYY(
+                                widget.grn!.createdDate,
+                              ),
+                            ),
                           ),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: _buildRow(
-                                "Material",
-                                material.materialName,
+                          Expanded(
+                            child: _buildRow(
+                              "Vehicle No.",
+                              widget.grn!.vehicleNumber,
+                            ),
+                          ),
+                        ],
+                      ),
+                      verticalSpacing(height: 16.h),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildRow("Challan No.", widget.grn!.challanNumber),
+                        ],
+                      ),
+                      verticalSpacing(height: 16.h),
+                      ListView.builder(
+                        itemCount:
+                            widget
+                                .grn
+                                ?.materialRequisitionDetailGrnData
+                                .length ??
+                            0,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          final material =
+                              widget
+                                  .grn!
+                                  .materialRequisitionDetailGrnData[index];
+                          return Container(
+                            margin: EdgeInsets.only(bottom: 10.0),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12.0,
+                              vertical: 12.0,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColor.lightGreyBackground,
+                              borderRadius: BorderRadius.circular(8.0),
+                              border: Border.all(
+                                width: 0.1,
+                                color: AppColor.black.withValues(alpha: 0.5),
                               ),
                             ),
-                            Expanded(
-                              child: _buildRow(
-                                "Sub-Material",
-                                material.subMaterialName,
-                              ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: _buildRow(
+                                    "Material",
+                                    material.materialName,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: _buildRow(
+                                    "Sub-Material",
+                                    material.subMaterialName,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: _buildRow(
+                                    "Quantity",
+                                    material.materialQuantity.toString(),
+                                  ),
+                                ),
+                              ],
                             ),
-                            Expanded(
-                              child: _buildRow(
-                                "Quantity",
-                                material.materialQuantity.toString(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                );
+              },
             ),
             verticalSpacing(height: 20.0),
             Container(
