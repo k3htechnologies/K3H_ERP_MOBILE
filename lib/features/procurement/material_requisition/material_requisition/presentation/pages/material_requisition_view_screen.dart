@@ -330,7 +330,7 @@ class _MaterialRequisitionViewScreenState
           verticalSpacing(height: 5),
           Text(
             materialRequisition!.systemGeneratedCode,
-            style: AppTextStyle.ts16SB(color: AppColor.primary),
+            style: AppTextStyle.ts16M(color: AppColor.primary),
           ),
           Container(
             decoration: commonCardDecoration(),
@@ -636,7 +636,7 @@ class _MaterialRequisitionViewScreenState
             children: [
               Text(
                 materialRequisition!.systemGeneratedCode,
-                style: AppTextStyle.ts16SB(color: AppColor.primary),
+                style: AppTextStyle.ts16M(color: AppColor.primary),
               ),
               if (materialRequisition.materialRequisitionStatus.toLowerCase() !=
                   'completed')
