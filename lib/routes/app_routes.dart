@@ -181,6 +181,7 @@ class AppRoutes {
   static String addBankLoanDocument = "/addBankLoanDocument";
   static String addActiveBank = "/addActiveBank";
   static String addPaymentLedger = "/addPaymentLedger";
+  static String viewPaymentLedger = "/viewPaymentLedger";
 
   /// BROKERAGE
   static String brokerage = "/brokerage";

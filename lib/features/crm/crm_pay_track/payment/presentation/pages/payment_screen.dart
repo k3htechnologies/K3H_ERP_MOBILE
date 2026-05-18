@@ -378,10 +378,23 @@ class _PaymentScreenState extends State<PaymentScreen>
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     Expanded(
-                                      child: Text(
-                                        ledger.paymentFor,
-                                        style: AppTextStyle.ts14M(
-                                          color: AppColor.primary,
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          goRouter.pushNamed(
+                                            AppRoutes.viewPaymentLedger,
+                                            queryParameters: {
+                                              'paymentLedgerSummary':
+                                                  Uri.encodeComponent(
+                                                    jsonEncode(ledger.toJson()),
+                                                  ),
+                                            },
+                                          );
+                                        },
+                                        child: Text(
+                                          ledger.paymentFor,
+                                          style: AppTextStyle.ts14M(
+                                            color: AppColor.primary,
+                                          ),
                                         ),
                                       ),
                                     ),

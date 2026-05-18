@@ -160,7 +160,59 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
     );
   }
 
-  void _submitForm() {}
+  void _submitForm() {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    debugPrint(
+      "Selected Project Bank => ${_selectedProjectBankNameNotifier.value}",
+    );
+    _paymentCubit.addPaymentLedgerMaster(
+      context: context,
+
+      bookingId: widget.paymentLedgerList.first.bookingId.toString(),
+
+      projectId: widget.paymentLedgerList.first.projectId.toString(),
+
+      bookingOtherChargesId: "0",
+
+      paymentFor: selectedPaymentFor.value?["DisplayName"]?.toString() ?? "",
+
+      paymentMode:
+          _selectedPaymentModeNotifier.value.isNotEmpty
+              ? _selectedPaymentModeNotifier.value.first["DisplayName"]
+                  .toString()
+              : "",
+
+      paymentReceivedFrom:
+          _selectedPaymentreceivedFromNotifier.value.isNotEmpty
+              ? _selectedPaymentreceivedFromNotifier.value.first["DisplayName"]
+                  .toString()
+              : "",
+
+      bankListMasterId:
+          _selectedBankNotifier.value.isNotEmpty
+              ? _selectedBankNotifier.value.first["zAttributesId"].toString()
+              : "0",
+
+      projectBankListMasterId:
+          _selectedProjectBankNameNotifier.value.isNotEmpty
+              ? _selectedProjectBankNameNotifier.value.first["BankListMasterId"]
+                  .toString()
+              : "0",
+
+      receivedAmount: _receivedAmountC.text.trim(),
+
+      transactionChequeDemandDraftNumber:
+          _transactionOrChequeNumberC.text.trim(),
+
+      transactionChequeDemandDraftDate:
+          transactionDate?.toIso8601String().split("T").first ?? "",
+
+      selectedChequeUrl: selectedChequeForPopUpFile,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -210,17 +262,17 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                                         bookingId: 0,
                                         projectId: 0,
                                         paymentFor: "",
-                                        totalAmount: 0,
                                         receivedAmount: 0,
+                                        totalAmount: 0,
                                         uploadedPaymentLedgerCount: 0,
                                         approvalPendingPaymentLedgerCount: 0,
                                       ),
                                 );
 
-                            totalAmountVN.value = matchedLedger.totalAmount;
+                            totalAmountVN.value = matchedLedger.receivedAmount;
                             paidAmountVN.value = matchedLedger.receivedAmount;
                             pendingAmountVN.value =
-                                matchedLedger.totalAmount -
+                                matchedLedger.receivedAmount -
                                 matchedLedger.receivedAmount;
                           },
                           onValueClear: () {
@@ -477,13 +529,22 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                       valueListenable: _selectedProjectBankNameNotifier,
                       builder: (context, selectedProjectBank, _) {
                         return CustomMultipleSelectPopup(
+                          key: ValueKey(
+                            selectedProjectBank.isEmpty
+                                ? 'project_bank_empty'
+                                : selectedProjectBank.first['zAttributesId'],
+                          ),
+
                           title: 'Project Bank Name',
                           hintText: "Select Project Bank Name",
                           isRequired: true,
                           isMultiSelect: false,
                           initialValue: selectedProjectBank,
                           dataList: const [],
+
                           onSelected: (value) {
+                            debugPrint("PROJECT BANK VALUE => $value");
+
                             _selectedProjectBankNameNotifier.value = value;
 
                             if (value.isNotEmpty) {
@@ -501,14 +562,17 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                                   (item["AcType"] ?? "").toString();
                             }
                           },
+
                           dataFetchCallBack:
                               _paymentCubit.getProjectWithBankDropdown,
+
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return "Bank Name is required";
                             }
                             return null;
                           },
+
                           onClear: () {
                             _selectedProjectBankNameNotifier.value = [];
 

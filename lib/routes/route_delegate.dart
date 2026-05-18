@@ -40,8 +40,10 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cu
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/pages/pay_track_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/pages/pay_track_view_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger_summary.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/add_payment_ledger.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/view_payment_ledger.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/project_overview_screen.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
@@ -5473,7 +5475,65 @@ final GoRouter goRouter = GoRouter(
                           .map((e) => PayTrackPaymentLedgerModel.fromJson(e))
                           .toList();
                 }
-                return AddPaymentLedgerScreen(paymentLedgerList: paymentLedgerList);
+                return AddPaymentLedgerScreen(
+                  paymentLedgerList: paymentLedgerList,
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.viewPaymentLedger,
+              name: AppRoutes.viewPaymentLedger,
+              builder: (context, state) {
+                final paymentLedgerSummaryParam =
+                    state.uri.queryParameters['paymentLedgerSummary'];
+
+                PayTrackPaymentLedgerSummaryModel? summary;
+
+                if (paymentLedgerSummaryParam != null &&
+                    paymentLedgerSummaryParam.isNotEmpty) {
+                  final decodedData = jsonDecode(
+                    Uri.decodeComponent(paymentLedgerSummaryParam),
+                  );
+
+                  summary = PayTrackPaymentLedgerSummaryModel.fromJson(
+                    decodedData,
+                  );
+                }
+
+                return ViewPaymentLedgerScreen(
+                  summary:
+                      summary ??
+                      PayTrackPaymentLedgerSummaryModel(
+                        payTrackPaymentLedgerId: 0,
+                        uniquekey: "",
+                        bookingId: 0,
+                        projectId: 0,
+                        bookingOtherChargesId: 0,
+                        chargeName: "",
+                        paymentFor: "",
+                        paymentMode: "",
+                        paymentReceivedFrom: "",
+                        bankListMasterId: 0,
+                        bankName: "",
+                        projectBankListMasterId: 0,
+                        projectBankName: "",
+                        projectAccountNumber: "",
+                        projectIfscCode: "",
+                        receivedAmount: 0,
+                        transactionChequeDemandDraftNumber: "",
+                        transactionChequeDemandDraftUrl: "",
+                        transactionChequeDemandDraftDate: "",
+                        approvalStatus: "",
+                        isApproval: false,
+                        paymentReceiptUrl: "",
+                        createdById: 0,
+                        createdBy: "",
+                        createdDate: DateTime.now(),
+                        modifiedById: 0,
+                        modifiedBy: "",
+                        modifiedDate: DateTime.now(),
+                      ),
+                );
               },
             ),
           ],

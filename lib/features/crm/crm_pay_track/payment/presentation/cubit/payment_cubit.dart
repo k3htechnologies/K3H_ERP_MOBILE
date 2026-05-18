@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger_summary.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/repository/payment.repository.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_state.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
@@ -123,6 +124,39 @@ class PaymentCubit extends Cubit<PaymentState> {
         final updatedList =
             response['data'] as List<PayTrackPaymentLedgerModel>;
         emit(state.copyWith(isLoading: false, paymentLedger: updatedList));
+      },
+    );
+  }
+
+  // <---- GET PAYMENT LEDGER SUMMARY LIST ---->
+  Future getPaymentLedgerSummaryList(
+    BuildContext context,
+    int bookingId,
+    int projectId,
+    String paymentFor,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+    var result = await paymentRepository
+        .getPayTrackPayTrackPaymentLedgerSummaryList(
+          bookingId: bookingId,
+          projectId: projectId,
+          paymentFor: paymentFor,
+        );
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        // Always replace list to avoid duplicates on mobile refresh/approval
+        final updatedList =
+            response['data'] as List<PayTrackPaymentLedgerSummaryModel>;
+        emit(
+          state.copyWith(
+            isLoading: false,
+            payTrackPaymentLedgerSummaryList: updatedList,
+          ),
+        );
       },
     );
   }
@@ -300,15 +334,17 @@ class PaymentCubit extends Cubit<PaymentState> {
     );
   }
 
-  // <---- PROJECT WISE BANK DROPDOWN ---->
+  // <---- PROJECT WISE BANK DROPDOWN ---->\
   Future<Map<String, dynamic>> getProjectWithBankDropdown(
     int pageNumber, {
     String? value,
   }) async {
     ProjectModel project = getProject();
+
     var result = await _projectMasterRepository.getProjectWithBankDetails(
       projectId: project.projectId,
     );
+
     return result.fold(
       (failure) {
         return {"itemList": <Map<String, dynamic>>[], "totalNumberOfRecord": 0};
@@ -321,6 +357,8 @@ class PaymentCubit extends Cubit<PaymentState> {
             data.map(
               (e) => {
                 "zAttributesId": e["ProjectWithBankDetailsId"],
+                "ProjectWithBankDetailsId": e["ProjectWithBankDetailsId"],
+                "BankListMasterId": e["BankListMasterId"],
                 "DisplayName": "${e["BankName"]} - ${e["NatureOfAccount"]}",
                 "AccountHolderName": e["BeneficiaryAccountHolderName"],
                 "AccountNumber": e["AccountNumber"],

@@ -1,4 +1,5 @@
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger_summary.screen.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
@@ -35,6 +36,13 @@ abstract interface class PaymentDatasource {
   });
   Future<Map<String, dynamic>> apicallAddUpdatePayTrackPaymentScheduleDemand({
     required Map<String, String> body,
+  });
+
+  Future<Map<String, dynamic>> apicallPullPayTrackPaymentLedgerSummary({
+    required int bookingId,
+    required int projectId,
+    required String paymentFor,
+    Map<String, dynamic>? queryParams,
   });
 }
 
@@ -276,6 +284,57 @@ class PaymentDatasourceImpl extends PaymentDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         return apicallAddUpdatePayTrackPaymentScheduleDemand(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullPayTrackPaymentLedgerSummary({
+    required int bookingId,
+    required int projectId,
+    required String paymentFor,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String url({
+      required int bookingId,
+      required int projectId,
+      required String paymentFor,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String finalUrl =
+          "PayTrack/PullPayTrackPaymentLedgerSummary?BookingId=$bookingId&ProjectId=$projectId&PaymentFor=${Uri.encodeComponent(paymentFor)}";
+
+      queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
+      return finalUrl;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        url(
+          bookingId: bookingId,
+          projectId: projectId,
+          paymentFor: paymentFor,
+          queryParams: queryParams,
+        ),
+      );
+
+      return {
+        'data': List<PayTrackPaymentLedgerSummaryModel>.from(
+          networkResponse["data"].map(
+            (e) => PayTrackPaymentLedgerSummaryModel.fromJson(e),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallPullPayTrackPaymentLedgerSummary(
+          bookingId: bookingId,
+          projectId: projectId,
+          paymentFor: paymentFor,
+          queryParams: queryParams,
+        );
       }
       rethrow;
     }

@@ -35,6 +35,13 @@ abstract interface class PaymentRepository {
   });
   Future<Either<Failure, Map<String, dynamic>>>
   addUpdatePayTrackPaymentScheduleDemand({required Map<String, String> body});
+  Future<Either<Failure, Map<String, dynamic>>>
+  getPayTrackPayTrackPaymentLedgerSummaryList({
+    required int bookingId,
+    required int projectId,
+    required String paymentFor,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class PaymentRepositoryImpl extends PaymentRepository {
@@ -141,6 +148,28 @@ class PaymentRepositoryImpl extends PaymentRepository {
     try {
       var result = await paymentDatasource
           .apicallAddUpdatePayTrackPaymentScheduleDemand(body: body);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  getPayTrackPayTrackPaymentLedgerSummaryList({
+    required int bookingId,
+    required int projectId,
+    required String paymentFor,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await paymentDatasource
+          .apicallPullPayTrackPaymentLedgerSummary(
+            bookingId: bookingId,
+            projectId: projectId,
+            paymentFor: paymentFor,
+            queryParams: queryParams,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
