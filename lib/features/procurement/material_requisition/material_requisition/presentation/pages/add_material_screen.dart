@@ -93,7 +93,7 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
     _uomC.text = widget.materialDetails!.uomCode;
     _requiredDate.value = widget.materialDetails!.requiredDate;
     _quantityC.text = widget.materialDetails!.materialQuantity.toString();
-    _remarkC.text = widget.materialDetails!.remarks;
+    _remarkC.text = widget.materialDetails!.remark;
   }
 
   // <---- DROPDOWN FUNCTIONS ---->
@@ -196,7 +196,7 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
       uomCode: _uomC.text,
       uom: _uomC.text,
       requiredDate: _requiredDate.value ?? DateTime.now(),
-      remarks: _remarkC.text.trim(),
+      remark: _remarkC.text.trim(),
       materialReceivedQuantityTillDate:
           _isEditMode
               ? widget.materialDetails!.materialReceivedQuantityTillDate

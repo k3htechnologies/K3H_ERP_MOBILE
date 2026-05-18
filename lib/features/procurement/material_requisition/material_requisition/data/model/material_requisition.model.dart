@@ -167,7 +167,7 @@ class MaterialRequisitionDetailModel {
   String uom;
   DateTime requiredDate;
   double materialReceivedQuantityTillDate;
-  String remarks;
+  String remark;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -188,7 +188,7 @@ class MaterialRequisitionDetailModel {
     required this.uom,
     required this.requiredDate,
     required this.materialReceivedQuantityTillDate,
-    required this.remarks,
+    required this.remark,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -212,7 +212,7 @@ class MaterialRequisitionDetailModel {
         uomMasterId: parseValue<int>(json, "UomMasterId"),
         uomCode: parseValue<String>(json, "UomCode"),
         uom: parseValue<String>(json, "Uom"),
-        remarks: parseValue<String>(json, "Remarks"),
+        remark: parseValue<String>(json, "Remark"),
         requiredDate: parseValue<DateTime>(json, "RequiredDate"),
         materialReceivedQuantityTillDate: parseValue<double>(
           json,
@@ -240,6 +240,7 @@ class MaterialRequisitionDetailModel {
     "UomMasterId": uomMasterId,
     "UomCode": uomCode,
     "Uom": uom,
+    "Remark": remark,
     "RequiredDate": requiredDate.toIso8601String(),
     "MaterialReceivedQuantityTillDate": materialReceivedQuantityTillDate,
     "CreatedById": createdById,
@@ -256,5 +257,6 @@ class MaterialRequisitionDetailModel {
     'MaterialQuantity': materialQuantity,
     'UomMasterId': uomMasterId,
     'RequiredDate': formatDateTimeForApi(requiredDate),
+    'Remark': remark,
   };
 }

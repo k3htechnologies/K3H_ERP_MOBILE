@@ -49,7 +49,7 @@ class _CopyMaterialRequisitionScreenState
             .toList();
     _remarkControllers =
         widget.materialRequisitionModel.materialRequisitionDetailData.map((m) {
-          return TextEditingController(text: m.remarks.toString());
+          return TextEditingController(text: m.remark.toString());
         }).toList();
     super.initState();
   }
@@ -74,7 +74,7 @@ class _CopyMaterialRequisitionScreenState
                 uom: m.uom,
                 requiredDate: _selectedRequiredDates[index],
                 materialReceivedQuantityTillDate: 0,
-                remarks: _remarkControllers[index].text,
+                remark: _remarkControllers[index].text,
                 createdById: 0,
                 createdBy: "",
                 createdDate: DateTime.now(),

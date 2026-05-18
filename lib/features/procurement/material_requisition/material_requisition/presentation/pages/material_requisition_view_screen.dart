@@ -521,9 +521,7 @@ class _MaterialRequisitionViewScreenState
                           buildRowTitleValue(
                             title: "Remark",
                             value:
-                                material.remarks.isEmpty
-                                    ? "-"
-                                    : material.remarks,
+                                material.remark.isEmpty ? "-" : material.remark,
                           ),
                           if (index < (materialList.length - 1))
                             Divider(color: AppColor.grey, thickness: .3),
@@ -838,9 +836,9 @@ class _MaterialRequisitionViewScreenState
                                 buildRowTitleValue(
                                   title: "Remark",
                                   value:
-                                      material.remarks.isEmpty
+                                      material.remark.isEmpty
                                           ? "-"
-                                          : material.remarks,
+                                          : material.remark,
                                 ),
                                 if (index < (materialList.length - 1))
                                   Divider(color: AppColor.grey, thickness: .3),

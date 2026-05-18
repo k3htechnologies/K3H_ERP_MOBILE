@@ -494,7 +494,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
                 'MaterialQuantity': e.materialQuantity,
                 'UomMasterId': e.uomMasterId,
                 'RequiredDate': e.requiredDate.toIso8601String(),
-                "Remark": e.remarks,
+                "Remark": e.remark,
               },
             )
             .toList(),

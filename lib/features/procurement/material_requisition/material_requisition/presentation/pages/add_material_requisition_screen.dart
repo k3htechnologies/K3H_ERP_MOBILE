@@ -253,7 +253,7 @@ class _AddMaterialRequisitionScreenState
                                     },
                                     {
                                       "title": "Remark",
-                                      "value": material.remarks,
+                                      "value": material.remark,
                                     },
                                   ],
                                 );
