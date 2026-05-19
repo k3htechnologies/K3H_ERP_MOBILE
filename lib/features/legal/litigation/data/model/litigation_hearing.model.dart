@@ -6,6 +6,7 @@ class LitigationHearingModel {
   DateTime hearingDate;
   String hearingAttachementUrl;
   String remark;
+  String fileName;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -18,6 +19,7 @@ class LitigationHearingModel {
     required this.uniquekey,
     required this.hearingDate,
     required this.hearingAttachementUrl,
+    required this.fileName,
     required this.remark,
     required this.createdById,
     required this.createdBy,
@@ -31,6 +33,7 @@ class LitigationHearingModel {
     return LitigationHearingModel(
       litigationHearingId: parseValue<int>(json, "LitigationHearingId"),
       uniquekey: parseValue<String>(json, "Uniquekey"),
+      fileName: parseValue<String>(json, "FileName"),
       hearingDate: parseValue<DateTime>(json, "HearingDate"),
       hearingAttachementUrl: parseValue<String>(json, "HearingAttachementURL"),
       remark: parseValue<String>(json, "Remark"),
@@ -52,6 +55,7 @@ class LitigationHearingModel {
     "HearingDate": hearingDate.toIso8601String(),
     "HearingAttachementURL": hearingAttachementUrl,
     "Remark": remark,
+    "FileName": fileName,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

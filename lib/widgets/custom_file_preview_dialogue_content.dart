@@ -359,7 +359,6 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
                 ],
               ),
             ),
-
             // DOWNLOAD BUTTON
             Align(
               alignment: Alignment.centerRight,

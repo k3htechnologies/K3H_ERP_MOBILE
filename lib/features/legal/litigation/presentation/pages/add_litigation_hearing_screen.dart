@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hearing.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigation_cubit.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
@@ -14,12 +15,12 @@ import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
 class AddLitigationHearingScreen extends StatefulWidget {
   final LitigationHearingModel? litigationHearingModel;
-  final String litigationId;
+  final LitigationModel litigationModel;
   final int index;
   const AddLitigationHearingScreen({
     super.key,
     required this.litigationHearingModel,
-    required this.litigationId,
+    required this.litigationModel,
     this.index = 0,
   });
 
@@ -40,7 +41,7 @@ class _AddLitigationHearingScreenState
     deletedFileList: "",
   );
   // TEXT CONTROLLER
-  late TextEditingController _remarkC;
+  late TextEditingController _fileName, _remarkC;
 
   // DATE VARIABLE
   DateTime? hearingDate;
@@ -61,11 +62,13 @@ class _AddLitigationHearingScreenState
   }
 
   void _initControllers() {
+    _fileName = TextEditingController();
     _remarkC = TextEditingController();
   }
 
   void _prefillLitigationHearing(LitigationHearingModel litigationHearing) {
     _remarkC.text = litigationHearing.remark;
+    _fileName.text = litigationHearing.fileName;
     hearingDocument.fileBytesList = [];
     hearingDocument.deletedFileList = "";
     hearingDocument.fileNameList =
@@ -85,10 +88,11 @@ class _AddLitigationHearingScreenState
               ? widget.litigationHearingModel!.litigationHearingId.toString()
               : "0",
       if (_isEditMode) "Uniquekey": widget.litigationHearingModel!.uniquekey,
-      "ProjectId": getProject().projectId.toString(),
-      "LitigationId": widget.litigationId,
+      "ProjectId": widget.litigationModel.projectId.toString(),
+      "LitigationId": widget.litigationModel.litigationId.toString(),
       "HearingDate": hearingDate!.toIso8601String().split('T')[0],
       "Remark": _remarkC.text.trim(),
+      "FileName": _fileName.text.trim(),
       "RemoveHearingAttachementURL": hearingDocument.deletedFileList,
     };
     if (!_isEditMode) {
@@ -132,7 +136,26 @@ class _AddLitigationHearingScreenState
                   setValue: (value) => hearingDate = value,
                   validator: (value) {
                     if (value == null) return "Hearing Date is required";
-
+                    if (!value.isAfter(widget.litigationModel.dateOfFilling) ||
+                        (widget.litigationModel.hearingDate != null &&
+                            !value.isAfter(
+                              widget.litigationModel.hearingDate!,
+                            ))) {
+                      return 'Hearing Date cannot be in the past.';
+                    }
+                    return null;
+                  },
+                ),
+                CustomTextField(
+                  title: "File Name",
+                  hint: 'Enter File Name',
+                  textController: _fileName,
+                  inputFormatterList: [LengthLimitingTextInputFormatter(50)],
+                  validator: (val) {
+                    if ((val == null || val.trim().isEmpty) &&
+                        hearingDocument.fileNameList.isNotEmpty) {
+                      return 'File Name is required';
+                    }
                     return null;
                   },
                 ),
@@ -143,7 +166,6 @@ class _AddLitigationHearingScreenState
                     hearingDocument.fileNameList = fileNameList;
                     hearingDocument.fileBytesList = bytesList;
                   },
-                  isRequired: true,
                   onFileDeleteCallback: (fileBytesList, fileNameList, deleted) {
                     hearingDocument.fileBytesList = fileBytesList;
                     hearingDocument.fileNameList = fileNameList;
@@ -151,7 +173,8 @@ class _AddLitigationHearingScreenState
                   },
                   maxFiles: 5,
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
+                    if ((value == null || value.isEmpty) &&
+                        _fileName.text.isNotEmpty) {
                       return "File is required";
                     }
                     return null;

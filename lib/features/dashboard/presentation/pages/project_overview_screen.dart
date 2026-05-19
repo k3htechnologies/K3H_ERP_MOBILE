@@ -133,10 +133,10 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
             margin: EdgeInsets.only(bottom: 10),
             decoration: commonCardDecoration(),
             child: Column(
+              spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("Basic Project Details", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -150,17 +150,16 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                     ),
                   ],
                 ),
-                verticalSpacing(),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "CTS Number",
-                      value: widget.project.ctsNumber,
-                    ),
-                    buildColumnTitleValue(
                       title: "Business Category",
                       value: widget.project.bussinessCategory,
+                    ),
+                    buildColumnTitleValue(
+                      title: "File Number",
+                      value: widget.project.fileNumber,
                     ),
                   ],
                 ),
@@ -168,8 +167,8 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "File Number",
-                      value: widget.project.fileNumber,
+                      title: "CTS Number",
+                      value: widget.project.ctsNumber,
                     ),
                   ],
                 ),
@@ -339,7 +338,16 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                     ),
                   ],
                 ),
-                verticalSpacing(),
+              ],
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 10),
+            decoration: commonCardDecoration(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Text("Designing Architect", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
                 Row(
@@ -360,7 +368,16 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                     ),
                   ],
                 ),
-                verticalSpacing(),
+              ],
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 10),
+            decoration: commonCardDecoration(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Text("RCC Consultant", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
                 Row(
@@ -384,6 +401,7 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
               ],
             ),
           ),
+
           // LOCATION DETAILS
           Container(
             padding: EdgeInsets.all(16),
@@ -562,6 +580,10 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                                 widget.project.reraComplitionDate!,
                               )
                               : "-",
+                    ),
+                    buildColumnTitleValue(
+                      title: "APF Number",
+                      value: widget.project.apfNumber.toString(),
                     ),
                   ],
                 ),

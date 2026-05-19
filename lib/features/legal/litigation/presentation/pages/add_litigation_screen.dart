@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/local_storage_manager.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigation_cubit.dart';
@@ -8,10 +12,11 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/static_data.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/custom_verification_dialog.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -55,15 +60,35 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
   // DROPDOWN VARIABLE
   Map<String, dynamic>? selectedCaseType;
   Map<String, dynamic>? selectedCourtType;
-
+  Map<String, dynamic>? _selectedProject;
+  List<Map<String, dynamic>> projects = [];
   @override
   void initState() {
     super.initState();
     _litigationCubit = context.read<LitigationCubit>();
-    _initControllers();
+    _initControllers(); // First check if project list exists in storage
+    final projectListString = LocalStorageManager().getString(
+      StorageKey.projectList,
+    );
 
-    if (_isEditMode) {
-      _populateForm(widget.litigationModel!);
+    if (projectListString != null && projectListString.isNotEmpty) {
+      // Load from storage
+      final List<dynamic> projectJsonList = jsonDecode(projectListString);
+      final List<ProjectModel> projectsfromStorage =
+          projectJsonList
+              .map(
+                (json) => ProjectModel.fromJson(json as Map<String, dynamic>),
+              )
+              .toList();
+      for (var p in projectsfromStorage) {
+        projects.add({
+          "zAttributesId": p.projectId,
+          "DisplayName": p.projectName,
+        });
+      }
+      if (_isEditMode) {
+        _populateForm(widget.litigationModel!);
+      }
     }
   }
 
@@ -93,6 +118,8 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
 
   // POPULATE FORM
   void _populateForm(LitigationModel model) {
+    _selectedProject =
+        projects.where((m) => m['zAttributesId'] == model.projectId).first;
     _caseTitleC.text = model.title;
     _caseNumberC.text = model.caseNumber;
     _caseBriefC.text = model.caseBrief;
@@ -118,13 +145,45 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
   }
 
   // SUBMIT FORM
-  void _submitForm() {
+  void _submit(BuildContext context) {
     if (!_formKey.currentState!.validate()) return;
+    if (_isEditMode) {
+      _submitForm();
+    } else {
+      showCompleteVerificationDialog(
+        context,
+        subTitle: RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: 'Verify Details To Continue',
+                style: AppTextStyle.ts14R(color: AppColor.grey),
+              ),
+              TextSpan(
+                text: ' • HRMS',
+                style: AppTextStyle.ts14M(color: AppColor.primary),
+              ),
+            ],
+          ),
+        ),
+        verificationSteps: {
+          "Title": _caseTitleC.text.trim().isNotEmpty,
+          "Date Of Filling": dateOfFilling != null,
+          "Case Type": selectedCaseType != null,
+          "Case Number": _caseNumberC.text.trim().isNotEmpty,
+        },
+        onVerifyOTP: () {
+          _submitForm();
+        },
+      );
+    }
+  }
 
+  void _submitForm() {
     final payload = {
       if (_isEditMode) "Uniquekey": widget.litigationModel!.uniquekey,
+      "ProjectId": _selectedProject!['zAttributesId'],
       "LitigationId": _isEditMode ? widget.litigationModel!.litigationId : 0,
-      "ProjectId": getProject().projectId,
       "Title": _caseTitleC.text.trim(),
       "CaseNumber": _caseNumberC.text.trim(),
       "CaseType": selectedCaseType?['DisplayName'],
@@ -179,7 +238,9 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
               color: AppColor.white,
             ),
             text: _isEditMode ? "Update" : "Add",
-            onPressed: _submitForm,
+            onPressed: () {
+              _submit(context);
+            },
           ),
         ),
       ),
@@ -195,20 +256,37 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
         children: [
           Text("Case Details", style: AppTextStyle.ts14M(color: AppColor.grey)),
           verticalSpacing(),
+          CustomDropDownWidget(
+            title: "Project",
+            hintText: "Select Project",
+            isDisabled: _isEditMode,
+            initialValue: _selectedProject,
+            dataList: projects,
+            isRequired: true,
+            validator:
+                (v) => (v == null || v.isEmpty) ? "Project is required" : null,
+            onSelected: (v) {
+              _selectedProject = v;
+            },
+            onValueClear: () {
+              _selectedProject = null;
+            },
+          ),
 
           CustomTextField(
             title: "Title",
             hint: "Enter Title",
             textController: _caseTitleC,
-            inputFormatterList: [LengthLimitingTextInputFormatter(250)],
+            inputFormatterList: [LengthLimitingTextInputFormatter(100)],
             isRequired: true,
             validator: (v) => v!.isEmpty ? "Title is required" : null,
           ),
 
           CustomDatePicker(
-            title: "Date Of Filing",
+            title: "Date Of Filling",
             initialDate: dateOfFilling,
             isRequired: true,
+            readOnly: _isEditMode,
             setValue: (v) => dateOfFilling = v,
             validator: (value) {
               if (value == null) {
@@ -335,13 +413,9 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
           ),
 
           CustomTextField(
-            isRequired: true,
             title: "Opposing Representative",
             hint: "Enter Opposing Representative",
             textController: _opposingRepC,
-            validator:
-                (v) =>
-                    v!.isEmpty ? "Opposing Representative is required" : null,
           ),
 
           CustomTextField(

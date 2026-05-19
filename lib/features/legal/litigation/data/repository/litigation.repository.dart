@@ -7,7 +7,6 @@ abstract interface class LitigationRepository {
   Future<Either<Failure, Map<String, dynamic>>> pullLitigation({
     required int pageNumber,
     required int pageSize,
-    required int projectId,
     Map<String, dynamic>? queryParams,
   });
 
@@ -96,14 +95,12 @@ class LitigationRepositoryImpl extends LitigationRepository {
   Future<Either<Failure, Map<String, dynamic>>> pullLitigation({
     required int pageNumber,
     required int pageSize,
-    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     try {
       final result = await litigationDatasource.apicallPullLitigation(
         pageNumber: pageNumber,
         pageSize: pageSize,
-        projectId: projectId,
         queryParams: queryParams,
       );
       return right(result);

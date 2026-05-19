@@ -157,6 +157,28 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Container(
+                    decoration: commonCardDecoration(),
+                    padding: EdgeInsets.all(16),
+                    margin: EdgeInsets.only(bottom: 20),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Project : ",
+                          style: AppTextStyle.ts14M(color: AppColor.grey),
+                        ),
+                        Flexible(
+                          child: Text(
+                            _selectedProject.projectId == 0
+                                ? 'All Project'
+                                : _selectedProject.projectName,
+                            style: AppTextStyle.ts14SB(color: AppColor.black),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   _buildTotalCasesWidget(
                     context,
                     bgColor: AppColor.blueBgColor,
@@ -235,7 +257,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                   // CASE ANALYSIS WIDGET
                   _buildCaseAnalysisWidget(context),
                   verticalSpacing(),
-                  _buildRecentlyUploadedDocumentsWidget(context),
+                  // _buildRecentlyUploadedDocumentsWidget(context),
                 ],
               ),
             ),
@@ -685,23 +707,32 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Expanded(
-                                        child: Text(
-                                          "Case No: ${item.caseNumber}",
-                                          style: AppTextStyle.ts14M(),
+                                        flex: 2,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Project Name: ${item.projectName}",
+                                              style: AppTextStyle.ts14M(),
+                                            ),
+                                            Text(
+                                              "Case No: ${item.caseNumber}",
+                                              style: AppTextStyle.ts12R(),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      horizontalSpacing(width: 20.0),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          Text(
-                                            formatDateTimeAsDDMMMYYYY(
-                                              item.hearingDate,
-                                            ),
-                                            style: AppTextStyle.ts14M(),
+
+                                      Flexible(
+                                        child: Text(
+                                          formatDateTimeAsDDMMMYYYY(
+                                            item.hearingDate,
                                           ),
-                                        ],
+                                          style: AppTextStyle.ts12M(),
+                                          textAlign: TextAlign.end,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -747,7 +778,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                                             item.daysRemaining == 0
                                                 ? "Today"
                                                 : "in ${item.daysRemaining} Days",
-                                            style: AppTextStyle.ts14M(
+                                            style: AppTextStyle.ts12M(
                                               color: AppColor.white,
                                             ),
                                           ),
@@ -788,23 +819,23 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
           return Center(child: loader());
         }
 
-        final table7 = state.litigationDashboardModel?.table7;
+        final table6 = state.litigationDashboardModel?.table6;
 
-        List<Table7> filteredData = [];
-        if (table7 != null && table7.isNotEmpty) {
+        List<Table6> filteredData = [];
+        if (table6 != null && table6.isNotEmpty) {
           if (state.selectedRangeIndex == 0) {
             filteredData =
-                table7
+                table6
                     .where((e) => e.monthNumber >= 1 && e.monthNumber <= 4)
                     .toList();
           } else if (state.selectedRangeIndex == 1) {
             filteredData =
-                table7
+                table6
                     .where((e) => e.monthNumber >= 5 && e.monthNumber <= 8)
                     .toList();
           } else {
             filteredData =
-                table7
+                table6
                     .where((e) => e.monthNumber >= 9 && e.monthNumber <= 12)
                     .toList();
           }
@@ -866,7 +897,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
               ),
               verticalSpacing(),
 
-              if (table7!.isNotEmpty) ...[
+              if (table6!.isNotEmpty) ...[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -1002,158 +1033,6 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
           spots: _mapToSpots(openedData),
         ),
       ],
-    );
-  }
-
-  Widget _buildRecentlyUploadedDocumentsWidget(BuildContext context) {
-    return BlocBuilder<LitigationDashboardCubit, LitigationDashboardState>(
-      builder: (context, state) {
-        if (state.isLoading!) {
-          return Center(child: loader());
-        }
-        final litigationDashboardModel = state.litigationDashboardModel;
-        final table6 = litigationDashboardModel?.table6;
-        List<Map<String, String>> getDocuments(Table6 item) {
-          List<Map<String, String>> docs = [];
-
-          if (item.closureAttachementUrl.trim().isNotEmpty) {
-            docs.add({
-              "title": "Closure Document",
-              "url": item.closureAttachementUrl,
-            });
-          }
-
-          if (item.hearingAttachementUrl.trim().isNotEmpty) {
-            docs.add({
-              "title": "Hearing Document",
-              "url": item.hearingAttachementUrl,
-            });
-          }
-
-          if (item.documentUrl.trim().isNotEmpty) {
-            docs.add({"title": "Litigation Document", "url": item.documentUrl});
-          }
-
-          return docs;
-        }
-
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-          decoration: commonCardDecoration(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      "Recently Uploaded Documents",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.black.withValues(alpha: 0.50),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              verticalSpacing(),
-              if (table6 != null && table6.isNotEmpty) ...[
-                SizedBox(
-                  height: 200.0,
-                  child: ListView.builder(
-                    itemCount: table6.length,
-                    shrinkWrap: true,
-                    physics: AlwaysScrollableScrollPhysics(),
-                    itemBuilder: (context, int index) {
-                      var item = table6[index];
-                      final bool isLast = index == table6.length - 1;
-                      final documents = getDocuments(item);
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          verticalSpacing(height: 9.0),
-                          Text(
-                            item.documentName.isEmpty ? "-" : item.documentName,
-                            style: AppTextStyle.ts16SB(),
-                          ),
-                          verticalSpacing(height: 9.0),
-                          Text(
-                            "Case No: ${item.caseNumber}",
-                            style: AppTextStyle.ts14M(
-                              color: AppColor.black.withValues(alpha: 0.5),
-                            ),
-                          ),
-                          verticalSpacing(height: 9.0),
-
-                          Wrap(
-                            spacing: 10,
-                            runSpacing: 10,
-                            children:
-                                documents.map((doc) {
-                                  return GestureDetector(
-                                    onTap: () {
-                                      showFilePreviewDialog(
-                                        context,
-                                        doc["url"]!.split(","),
-                                      );
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 10,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: AppColor.primary,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            doc["title"]!,
-                                            style: AppTextStyle.ts12M(
-                                              color: AppColor.primary,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 6),
-                                          Icon(
-                                            Icons.remove_red_eye_outlined,
-                                            color: AppColor.primary,
-                                            size: 18,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                          ),
-                          verticalSpacing(height: 9.0),
-                          !isLast
-                              ? Divider(
-                                color: AppColor.black.withValues(alpha: 0.5),
-                              )
-                              : SizedBox.shrink(),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-              ] else ...[
-                Center(
-                  child: Text(
-                    "No Data Found",
-                    style: AppTextStyle.ts12M(
-                      color: AppColor.black.withValues(alpha: .5),
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        );
-      },
     );
   }
 }

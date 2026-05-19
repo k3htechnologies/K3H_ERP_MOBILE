@@ -243,7 +243,7 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   // ------------------------------ SET MPIN ------------------------------
-
+  //? Unused Function
   Future<void> sepMpin({
     required BuildContext context,
     required String pin,
@@ -266,7 +266,6 @@ class LoginCubit extends Cubit<LoginState> {
         },
         (message) async {
           showSuccessMessage(context, subTitle: message);
-
           await localStorage.removeAll();
           goRouter.replace(AppRoutes.splashScreen);
         },

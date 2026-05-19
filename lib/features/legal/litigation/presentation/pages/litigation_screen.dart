@@ -262,9 +262,6 @@ class _LitigationScreenState extends State<LitigationScreen> {
           }
           _litigationCubit.exportExcelPdf(context, value);
         },
-        onProjectChangeCallback: (value) {
-          _litigationCubit.getLitigationList(context: context, pageNumber: 1);
-        },
         textController: _searchC,
         onSearchSubmit: (value) {
           _litigationCubit.searchLitigation(value, context);
@@ -326,6 +323,8 @@ class _LitigationScreenState extends State<LitigationScreen> {
                             },
                             child: Text(
                               litigation.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: AppTextStyle.ts16M(
                                 color: AppColor.primary,
                               ).copyWith(
@@ -355,8 +354,11 @@ class _LitigationScreenState extends State<LitigationScreen> {
                                     goRouter.pushNamed(
                                       AppRoutes.addLitigationHearing,
                                       queryParameters: {
-                                        'litigationId':
-                                            litigation.litigationId.toString(),
+                                        "litigation": Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(litigation.toJson()),
+                                          ),
+                                        ),
                                       },
                                     );
                                   },
@@ -397,27 +399,16 @@ class _LitigationScreenState extends State<LitigationScreen> {
                     ),
                     verticalSpacing(height: 10),
                     buildRowTitleValue(
+                      title: "Project",
+                      value: litigation.projectName,
+                    ),
+                    buildRowTitleValue(
                       title: "Case / Petition / Dispute Number",
                       value: litigation.caseNumber,
                     ),
                     buildRowTitleValue(
-                      title: "Status",
-                      value: litigation.status,
-                      valueTextStyle: AppTextStyle.ts14B(
-                        color:
-                            (litigation.status.toLowerCase() == 'open' ||
-                                    litigation.status.toLowerCase() == 'reopen')
-                                ? AppColor.green
-                                : AppColor.red,
-                      ),
-                    ),
-                    buildRowTitleValue(
                       title: "Case Type",
                       value: litigation.caseType,
-                    ),
-                    buildRowTitleValue(
-                      title: "Project",
-                      value: litigation.projectName,
                     ),
                     buildRowTitleValue(
                       title: "Date Off Filling",
@@ -433,6 +424,18 @@ class _LitigationScreenState extends State<LitigationScreen> {
                                 litigation.hearingDate!,
                               )
                               : '-',
+                    ),
+                    buildRowTitleValue(
+                      title: "Status",
+                      value: litigation.status,
+                      valueTextStyle: AppTextStyle.ts14B(
+                        color:
+                            (litigation.status.toLowerCase() == 'open')
+                                ? AppColor.green
+                                : litigation.status.toLowerCase() == 'reopen'
+                                ? AppColor.yellow
+                                : AppColor.red,
+                      ),
                     ),
                   ],
                 ),

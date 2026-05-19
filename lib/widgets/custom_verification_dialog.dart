@@ -8,72 +8,80 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 Future<void> showCompleteVerificationDialog(
   BuildContext context, {
-  required TextEditingController otpController,
+  TextEditingController? otpController,
+  Widget? subTitle,
   required VoidCallback onVerifyOTP,
   required Map<String, bool> verificationSteps,
 }) {
-  otpController.clear();
+  otpController?.clear();
   return DialogHelper.showCustomDialogue(
     context,
     title: "Complete Verification",
     childContent: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Verify Details To Continue",
-          style: AppTextStyle.ts12R(color: AppColor.grey),
-        ),
+        subTitle ??
+            Text(
+              "Verify Details To Continue",
+              style: AppTextStyle.ts12R(color: AppColor.grey),
+            ),
         verticalSpacing(height: 15),
 
         ...verificationSteps.entries.map(
           (step) => _buildVerificationStep(step.key, step.value),
         ),
 
-        verticalSpacing(height: 10),
+        if (otpController != null) ...[
+          verticalSpacing(height: 10),
 
-        Text("Verify Otp", style: AppTextStyle.ts14R()),
-        verticalSpacing(height: 5),
+          Text("Verify Otp", style: AppTextStyle.ts14R()),
+          verticalSpacing(height: 5),
 
-        TextFormField(
-          controller: otpController,
-          keyboardType: TextInputType.number,
-          cursorColor: AppColor.primary,
-          maxLength: 4,
+          TextFormField(
+            controller: otpController,
+            keyboardType: TextInputType.number,
+            cursorColor: AppColor.primary,
+            maxLength: 4,
 
-          decoration: InputDecoration(
-            isDense: true,
-            hintText: "Enter OTP",
-            counterText: "",
-            hintStyle: AppTextStyle.ts14R().copyWith(color: AppColor.grey),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 14,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: BorderSide(color: AppColor.grey30),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: BorderSide(color: AppColor.primary),
+            decoration: InputDecoration(
+              isDense: true,
+              hintText: "Enter OTP",
+              counterText: "",
+              hintStyle: AppTextStyle.ts14R().copyWith(color: AppColor.grey),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 14,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(6),
+                borderSide: BorderSide(color: AppColor.grey30),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(6),
+                borderSide: BorderSide(color: AppColor.primary),
+              ),
             ),
           ),
-        ),
+        ],
       ],
     ),
     bottomSection: SizedBox(
       height: 40,
       child: CustomButton(
-        text: "Verify OTP & Add",
+        text: (otpController != null) ? "Verify OTP & Add" : "Verify & Add",
         onPressed: () {
-          if (otpController.text.length == 4) {
-            onVerifyOTP();
+          if (otpController != null) {
+            if (otpController.text.length == 4) {
+              onVerifyOTP();
+            } else {
+              showErrorMessage(
+                context,
+                "Error",
+                "Please enter valid 4-digit OTP",
+              );
+            }
           } else {
-            showErrorMessage(
-              context,
-              "Error",
-              "Please enter valid 4-digit OTP",
-            );
+            onVerifyOTP();
           }
         },
       ),

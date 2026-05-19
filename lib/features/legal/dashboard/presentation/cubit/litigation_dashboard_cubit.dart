@@ -9,7 +9,23 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 part 'litigation_dashboard_state.dart';
 
 class LitigationDashboardCubit extends Cubit<LitigationDashboardState> {
-  LitigationDashboardCubit() : super(LitigationDashboardState.initial());
+  LitigationDashboardCubit()
+    : super(
+        LitigationDashboardState.initial(
+          selectedRangeIndex: _getCurrentRangeIndex(),
+        ),
+      );
+  static int _getCurrentRangeIndex() {
+    final currentMonth = DateTime.now().month;
+
+    if (currentMonth >= 1 && currentMonth <= 4) {
+      return 0;
+    } else if (currentMonth >= 5 && currentMonth <= 8) {
+      return 1;
+    } else {
+      return 2;
+    }
+  }
 
   // REPOSITORY
   final LitigationDashboardRepository _litigationDashboardRepository =

@@ -422,6 +422,7 @@ Future<void> exportExcelOrPdfMobile(String base64, String fileName) async {
 void showFilePreviewDialog(
   BuildContext context,
   List<String> urls, {
+  String? title,
   List<Uint8List>? fileBytes,
 }) {
   showDialog(
@@ -430,7 +431,11 @@ void showFilePreviewDialog(
         (context) => Dialog(
           insetPadding: const EdgeInsets.all(20),
           backgroundColor: Colors.white,
-          child: CommonFileViewer(urls: urls, fileBytes: fileBytes),
+          child: CommonFileViewer(
+            urls: urls,
+            fileBytes: fileBytes,
+            title: title ?? "View File",
+          ),
         ),
   );
 }
