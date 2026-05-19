@@ -20,6 +20,7 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SourcingViewScreen extends StatefulWidget {
   final ChannelPartnerModel channelPartner;
@@ -457,7 +458,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
   // BUILD OVERVIEW TAB
   Widget _buildOverviewTab() {
     return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -469,18 +470,18 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
           verticalSpacing(),
           Container(
             decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(16),
+            margin: const EdgeInsets.only(bottom: 10),
             child: Column(
-              spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "Basic Details",
-                  style: AppTextStyle.ts14M(color: AppColor.grey),
+                  style: AppTextStyle.ts16SB(color: AppColor.black),
                 ),
+                verticalSpacing(),
                 Row(
-                  spacing: 5,
+                  spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
@@ -488,18 +489,29 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                       value: widget.channelPartner.name,
                     ),
                     buildColumnTitleValue(
-                      title: "Contact No.",
-                      value: widget.channelPartner.mobileNumber,
-                      customValueWidget: CustomClickToContactText(
-                        value: widget.channelPartner.mobileNumber,
-                      ),
+                      title: "DOB",
+                      value:
+                          widget.channelPartner.dob != null
+                              ? formatDateTimeAsDDMMMYYYY(
+                                widget.channelPartner.dob!,
+                              )
+                              : "-",
                     ),
                   ],
                 ),
+                verticalSpacing(),
                 Row(
-                  spacing: 5,
+                  spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    buildColumnTitleValue(
+                      title: "Mobile No.",
+                      value: widget.channelPartner.mobileNumber,
+                      customValueWidget: CustomClickToContactText(
+                        value: widget.channelPartner.mobileNumber,
+                        type: ContactType.phone,
+                      ),
+                    ),
                     buildColumnTitleValue(
                       title: "E-Mail ID",
                       value: widget.channelPartner.emailId,
@@ -508,16 +520,17 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                         type: ContactType.email,
                       ),
                     ),
+                  ],
+                ),
+                verticalSpacing(),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     buildColumnTitleValue(
                       title: "Company Name",
                       value: widget.channelPartner.companyName,
                     ),
-                  ],
-                ),
-                Row(
-                  spacing: 5,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
                     buildColumnTitleValue(
                       title: "Alternate Contact No.",
                       value: widget.channelPartner.alternativeMobileNumber,
@@ -527,31 +540,101 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                     ),
                   ],
                 ),
+                verticalSpacing(),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Speciality",
+                      value: widget.channelPartner.speciality,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Firm Type",
+                      value: widget.channelPartner.firmsType,
+                    ),
+                  ],
+                ),
+                verticalSpacing(),
+                Row(
+                  spacing: 10,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Type",
+                      value: widget.channelPartner.type,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Designation",
+                      value: widget.channelPartner.designation,
+                    ),
+                  ],
+                ),
+                verticalSpacing(),
+                Row(
+                  spacing: 10,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Website URL",
+                      value: widget.channelPartner.websiteURL,
+                      customValueWidget: GestureDetector(
+                        onTap: () async {
+                          final url = widget.channelPartner.websiteURL;
+
+                          if (url.isNotEmpty) {
+                            final Uri uri = Uri.parse(url);
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(
+                                uri,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            } else {
+                              debugPrint("Could not launch URL: $url");
+                            }
+                          }
+                        },
+                        child: Text(
+                          widget.channelPartner.websiteURL.isEmpty
+                              ? "-"
+                              : widget.channelPartner.websiteURL,
+                          style: AppTextStyle.ts14M(
+                            color: AppColor.primary,
+                          ).copyWith(
+                            decoration: TextDecoration.underline,
+                            decorationColor: AppColor.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Spacer(),
+                  ],
+                ),
               ],
             ),
           ),
           Container(
             decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(16),
+            margin: const EdgeInsets.only(bottom: 10),
             child: Column(
-              spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "RERA Details",
-                  style: AppTextStyle.ts14M(color: AppColor.grey),
+                  style: AppTextStyle.ts16SB(color: AppColor.black),
                 ),
+                verticalSpacing(),
                 Row(
-                  spacing: 5,
+                  spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "Available RERA Number",
+                      title: "Available RERA No.",
                       value:
-                          widget.channelPartner.reraNumber.isNotEmpty
-                              ? "Yes"
-                              : "No",
+                          widget.channelPartner.reraNumber.isEmpty
+                              ? "No"
+                              : "Yes",
                     ),
                     buildColumnTitleValue(
                       title: "RERA Number",
@@ -564,19 +647,17 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
           ),
           Container(
             decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(16),
+            margin: const EdgeInsets.only(bottom: 10),
             child: Column(
-              spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Address",
-                  style: AppTextStyle.ts14M(color: AppColor.grey),
+                  "Address Details",
+                  style: AppTextStyle.ts16SB(color: AppColor.black),
                 ),
+                verticalSpacing(),
                 Row(
-                  spacing: 5,
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
                       title: "Country",
@@ -588,9 +669,8 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                     ),
                   ],
                 ),
+                verticalSpacing(),
                 Row(
-                  spacing: 5,
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
                       title: "District",
@@ -602,14 +682,18 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                     ),
                   ],
                 ),
+                verticalSpacing(),
                 Row(
-                  spacing: 5,
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
                       title: "Village",
                       value: widget.channelPartner.villageName,
                     ),
+                  ],
+                ),
+                verticalSpacing(),
+                Row(
+                  children: [
                     buildColumnTitleValue(
                       title: "Office Address",
                       value: widget.channelPartner.officeAddress,
@@ -628,10 +712,72 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
               children: [
                 Text(
                   "Document Details",
-                  style: AppTextStyle.ts14M(color: AppColor.grey),
+                  style: AppTextStyle.ts16SB(color: AppColor.black),
                 ),
                 verticalSpacing(),
                 _buildDocumentCard(context, widget.channelPartner),
+              ],
+            ),
+          ),
+          Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            margin: const EdgeInsets.only(bottom: 10),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("IBM & OBM Details", style: AppTextStyle.ts16SB()),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "No Of IBM",
+                      value: widget.channelPartner.noOfIbm.toString(),
+                    ),
+                    buildColumnTitleValue(
+                      title: "No Of OBM",
+                      value: widget.channelPartner.noOfObm.toString(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            margin: const EdgeInsets.only(bottom: 10),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Primary & Secondary Project Portfolio",
+                  style: AppTextStyle.ts16SB(),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Primary",
+                      value: widget.channelPartner.primaryProjectPortfolio,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Secondary",
+                      value: widget.channelPartner.secondaryProjectPortfolio,
+                    ),
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Micromarket Proximity",
+                      value: widget.channelPartner.micromarketProximity,
+                    ),
+                    Spacer(),
+                  ],
+                ),
               ],
             ),
           ),

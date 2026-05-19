@@ -7,6 +7,7 @@ class ChannelPartnerModel {
   final String name;
   final String emailId;
   final String mobileNumber;
+  final String mobileNumberCountryCode;
   final String alternativeMobileNumber;
   final String panNumber;
   final String panCardUrl;
@@ -44,6 +45,8 @@ class ChannelPartnerModel {
   final double paidBrokerageAmount;
   final String websiteURL;
   final DateTime? dob;
+  final int noOfIbm;
+  final int noOfObm;
   final int primaryProjectPortfolioId;
   final String primaryProjectPortfolio;
   final String secondaryProjectPortfolioId;
@@ -57,6 +60,7 @@ class ChannelPartnerModel {
     required this.name,
     required this.emailId,
     required this.mobileNumber,
+    required this.mobileNumberCountryCode,
     required this.alternativeMobileNumber,
     required this.panNumber,
     required this.panCardUrl,
@@ -87,6 +91,8 @@ class ChannelPartnerModel {
     required this.modifiedById,
     required this.modifiedBy,
     this.modifiedDate,
+    required this.noOfIbm,
+    required this.noOfObm,
     required this.noOfEnquiry,
     required this.noOfBooking,
     required this.brokeragePercentage,
@@ -109,10 +115,16 @@ class ChannelPartnerModel {
         name: parseValue<String>(json, "Name"),
         emailId: parseValue<String>(json, "EmailId"),
         mobileNumber: parseValue<String>(json, "MobileNumber"),
+        mobileNumberCountryCode: parseValue<String>(
+          json,
+          "MobileNumberCountryCode",
+        ),
         alternativeMobileNumber: parseValue<String>(
           json,
           "AlternativeMobileNumber",
         ),
+        noOfIbm: parseValue<int>(json, "NoOfIbm"),
+        noOfObm: parseValue<int>(json, "NoOfObm"),
         panNumber: parseValue<String>(json, "PanNumber"),
         panCardUrl: parseValue<String>(json, "PanCardURL"),
         aadhaarCardNumber: parseValue<String>(json, "AadharCardNumber"),
@@ -178,6 +190,9 @@ class ChannelPartnerModel {
   Map<String, dynamic> toJson() => {
     "ChannelPartnerId": channelPartnerId,
     "Uniquekey": uniquekey,
+    "NoOfIbm": noOfIbm,
+    "NoOfObm": noOfObm,
+    "MobileNumberCountryCode": mobileNumberCountryCode,
     "SystemGeneratedCode": systemGeneratedCode,
     "Name": name,
     "EmailId": emailId,

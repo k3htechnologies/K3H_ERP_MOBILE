@@ -1,6 +1,8 @@
 // SAME IMPORTS (unchanged)
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/country_code.dart';
 import 'package:k3h_erp_app/core/models/modules_workflow_approval.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
@@ -66,6 +68,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   final _formKey = GlobalKey<FormState>();
   // TIME VARIABLE
   String? _timeInC;
+  String? _timeOutC;
   // DATE VARIABLE
   DateTime? _enquiryDate;
   DateTime? _nextFollowUpDate;
@@ -98,7 +101,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   final ValueNotifier<DateTime?> _dateOfBirthNotifier = ValueNotifier(null);
   final ValueNotifier<List<Map<String, dynamic>>> _selectedTeamMemberNotifier =
       ValueNotifier([]);
-  final ValueNotifier<String> _channelPartnerMobileNotifier = ValueNotifier('');
+  final ValueNotifier<String> _channelPartnerCodeNotifier = ValueNotifier('');
   final ValueNotifier<Map<String, dynamic>?> _selectedFinalStage =
       ValueNotifier(null);
   final ValueNotifier<bool> _hasManualEntryNotifier = ValueNotifier(false);
@@ -138,14 +141,23 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       _countryOfResidenceC,
       _cityOfResidenceC,
       // Channel Partner
-      _channelPartnerMobileC,
+      _channelPartnerCodeC,
       _teamMemberNameC,
       _teamMemberMobileC,
+      _teamMemberEmailC,
       _remarkC,
       otpController;
   late ProjectModel _project;
 
   final closedStatuses = ['booking done', 'cancelled', 'lost'];
+  ValueNotifier<CountryCode> selectedMobileNoCountry = ValueNotifier(
+    countryList.firstWhere((e) => e.code == "+91"),
+  );
+  ValueNotifier<CountryCode> selectedTeamMemberMobileNoCountry = ValueNotifier(
+    countryList.firstWhere((e) => e.code == "+91"),
+  );
+  ValueNotifier<bool> _isTeamMemberAlreadyExist = ValueNotifier(false);
+
   @override
   void initState() {
     super.initState();
@@ -180,10 +192,10 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _cityOfResidenceC.dispose();
     _selectedBudgetInCr.dispose();
     // CHANNEL PARTNER CONTROLLERS
-    _channelPartnerMobileC.dispose();
+    _channelPartnerCodeC.dispose();
     _teamMemberNameC.dispose();
     _teamMemberMobileC.dispose();
-
+    _teamMemberEmailC.dispose();
     // OTHER CONTROLLERS
     _remarkC.dispose();
 
@@ -198,7 +210,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _selectedSubSourceNotifier.dispose();
     _selectedSubSubSourceNotifier.dispose();
     _selectedTeamMemberNotifier.dispose();
-    _channelPartnerMobileNotifier.dispose();
+    _channelPartnerCodeNotifier.dispose();
     _selectedSaleAdvisorNotifier.dispose();
     _selectedEmployeeNotifier.dispose();
 
@@ -215,9 +227,10 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _areaPrefC = TextEditingController();
     _countryOfResidenceC = TextEditingController();
     _cityOfResidenceC = TextEditingController();
-    _channelPartnerMobileC = TextEditingController();
+    _channelPartnerCodeC = TextEditingController();
     _teamMemberNameC = TextEditingController();
     _teamMemberMobileC = TextEditingController();
+    _teamMemberEmailC = TextEditingController();
     _remarkC = TextEditingController();
     otpController = TextEditingController();
   }
@@ -280,6 +293,18 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     // TEXT CONTROLLERS
     _nameC.text = model.name;
     _mobileC.text = model.mobileNumber;
+    selectedMobileNoCountry.value = countryList.firstWhere(
+      (e) => e.code == model.mobileNumberCountryCode,
+      orElse:
+          () => CountryCode(
+            name: "India",
+            code: "+91",
+            countryCode: "IN",
+            mobileLength: 10,
+            regex: RegExp(r'^[6-9]\d{9}$'),
+          ),
+    );
+    _teamMemberEmailC.text = model.channelPartnerTeamMemberEmailId;
     _emailC.text = model.emailId;
     _locationC.text = model.currentLocation;
     _areaPrefC.text =
@@ -287,11 +312,12 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _remarkC.text = model.remark;
 
     // SOURCE BASED TEXT FIELDS
-    _channelPartnerMobileC.text = model.channelPartnerMobileNumber;
-    _channelPartnerMobileNotifier.value = model.channelPartnerMobileNumber;
+    _channelPartnerCodeC.text = model.channelPartnerCode;
+    _channelPartnerCodeNotifier.value = model.channelPartnerCode;
 
     // TIME
     _timeInC = model.enquiryTimeIn;
+    _timeOutC = model.enquiryTimeOut;
 
     // DATES
     _dateOfBirthNotifier.value = model.dateOfBirth;
@@ -457,10 +483,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
       // AUTO-FETCH CHANNEL PARTNER CARD IN EDIT MODE
       if (model.channelPartnerMobileNumber.isNotEmpty) {
-        _enquiryCubit.fetchChannelPartners(
-          1,
-          value: model.channelPartnerMobileNumber,
-        );
+        _enquiryCubit.fetchChannelPartners(1, value: model.channelPartnerCode);
       }
 
       // AUTO-FETCH TEAM MEMBER BY ID IN EDIT MODE
@@ -570,11 +593,11 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   }
 
   // SUBMIT FORM
-  void _submitForm() {
+  void _submitForm(BuildContext context) async {
     if (!_formKey.currentState!.validate()) return;
 
-    // VERIFY OTP ONLY IN FIRST ONBOARDING STAGE
-    if (!_isEditMode) {
+    // VERIFY OTP ONLY IN FIRST ONBOARDING STAGE AND USER IS INDIAN
+    if (!_isEditMode && selectedMobileNoCountry.value.countryCode == "IN") {
       //  SEND OTP FIRST
       _loginCubit.sendOTPModuleBased(
         context: context,
@@ -679,8 +702,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       if (_isEditMode) "Uniquekey": widget.enquiryModel!.uniquekey,
       "ProjectId": getProject().projectId,
       "EnquiryTimeIn": _timeInC,
-      "EnquiryTimeOut": null,
+      "EnquiryTimeOut": _timeOutC,
       "Name": _nameC.text.trim(),
+      "MobileNumberCountryCode": selectedMobileNoCountry.value.code,
       "MobileNumber": _mobileC.text.trim(),
       "EmailId": _emailC.text.trim(),
       "DateOfBirth": _dateOfBirthNotifier.value?.toIso8601String(),
@@ -718,6 +742,11 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         "ChannelPartnerTeamMemberName": _teamMemberNameC.text.trim(),
       if (_selectedTeamMemberNotifier.value.isEmpty)
         "ChannelPartnerTeamMemberMobileNumber": _teamMemberMobileC.text.trim(),
+      if (_selectedTeamMemberNotifier.value.isEmpty)
+        "ChannelPartnerTeamMemberMobileNumberCountryCode":
+            selectedTeamMemberMobileNoCountry.value.code,
+      if (_selectedTeamMemberNotifier.value.isEmpty)
+        "ChannelPartnerTeamMemberEmailId": _teamMemberEmailC.text.trim(),
       "Nationality": _enquiryCubit.state.selectedNationality,
       "CountryOfResidence": _countryOfResidenceC.text.trim(),
       "CityOfResidence": _cityOfResidenceC.text.trim(),
@@ -1040,7 +1069,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               size: 18,
             ),
             text: !_isEditMode ? 'Add' : 'Update',
-            onPressed: _submitForm,
+            onPressed: () => _submitForm(context),
             backgroundColor: AppColor.primary,
           ),
         ),
@@ -1071,26 +1100,64 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               return null;
             },
           ),
-          CustomTextField(
-            title: "Mobile Number",
-            textController: _mobileC,
-            hint: "Enter Mobile Number",
-            keyboardType: TextInputType.phone,
-            isRequired: true,
-            readOnly: _isEditMode,
-            inputFormatterList: InputValidator.digit(10),
-            validator: (val) {
-              if (val == null || val.trim().isEmpty) {
-                return "Mobile number is required";
-              }
-              return null;
+          ValueListenableBuilder(
+            valueListenable: selectedMobileNoCountry,
+            builder: (context, value, child) {
+              return CustomTextField(
+                title: "Mobile Number",
+                textController: _mobileC,
+                readOnly: _isEditMode,
+                hint: "Enter Mobile Number",
+                keyboardType: TextInputType.phone,
+                isRequired: true,
+                showCountryDropdown: true,
+                selectedCountry: value,
+                onCountryChanged: (country) {
+                  if (country == null) return;
+
+                  selectedMobileNoCountry.value = country;
+                },
+                inputFormatterList: [
+                  LengthLimitingTextInputFormatter(value.mobileLength),
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
+                validator: (value) {
+                  final mobile = value?.trim() ?? "";
+                  final country = selectedMobileNoCountry.value;
+                  if (value == null || value.isEmpty) {
+                    return "Mobile Number is required";
+                  }
+                  if (mobile.isNotEmpty) {
+                    // LENGTH AND REGEX VALIDATION
+                    if ((mobile.length != country.mobileLength) ||
+                        country.regex != null &&
+                            !country.regex!.hasMatch(mobile)) {
+                      return "Invalid Mobile Number";
+                    }
+                  }
+
+                  return null;
+                },
+              );
             },
           ),
-          CustomTextField(
-            title: "E-mail ID",
-            textController: _emailC,
-            keyboardType: TextInputType.emailAddress,
-            hint: "Enter Email",
+          ValueListenableBuilder(
+            valueListenable: selectedMobileNoCountry,
+            builder: (context, selectedMobNovalue, child) {
+              return CustomTextField(
+                title: "E-mail ID",
+                isRequired: selectedMobNovalue.countryCode != "IN",
+                textController: _emailC,
+                keyboardType: TextInputType.emailAddress,
+                hint: "Enter Email",
+                validator:
+                    (value) =>
+                        (selectedMobNovalue.countryCode != "IN" &&
+                                (value == null || value.isEmpty))
+                            ? "E-mail ID is required"
+                            : null,
+              );
+            },
           ),
           ValueListenableBuilder<DateTime?>(
             valueListenable: _dateOfBirthNotifier,
@@ -1172,6 +1239,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                 // ignore: deprecated_member_use
                 groupValue: state.selectedNationality,
                 // ignore: deprecated_member_use
+                enabled: !_isEditMode,
                 onChanged: (value) {
                   _enquiryCubit.onSelectedOptionChanged(value!);
                   if (value == 'Indian') {
@@ -1184,6 +1252,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               horizontalSpacing(),
               Radio<String>(
                 value: state.options[1],
+                enabled: !_isEditMode,
                 // ignore: deprecated_member_use
                 groupValue: state.selectedNationality,
                 // ignore: deprecated_member_use
@@ -1245,6 +1314,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   CustomDropDownWidget(
                     title: "Source",
                     hintText: "Select Source",
+                    isDisabled: _isEditMode,
                     isRequired: true,
                     initialValue: selectedSource,
                     dataList: sourceTypeList,
@@ -1252,8 +1322,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                       _selectedSourceNotifier.value = v;
                       _selectedSubSourceNotifier.value = null;
                       _selectedSubSubSourceNotifier.value = null;
-                      _channelPartnerMobileC.clear();
-                      _channelPartnerMobileNotifier.value = '';
+                      _channelPartnerCodeC.clear();
+                      _channelPartnerCodeNotifier.value = '';
                       _selectedTeamMemberNotifier.value = [];
                       _hasManualEntryNotifier.value = false;
                       _teamMemberNameC.clear();
@@ -1276,6 +1346,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   if (selectedSource != null)
                     CustomDropDownWidget(
                       title: "Sub Source",
+                      isDisabled: _isEditMode,
                       hintText: "Select Sub Source",
                       isRequired: true,
                       initialValue: selectedSubSource,
@@ -1302,24 +1373,25 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
                   if (isChannelPartner) ...[
                     CustomTextField(
-                      title: "Channel Partner",
-                      hint: "Search by Channel Partner Mobile No.",
-                      textController: _channelPartnerMobileC,
-                      keyboardType: TextInputType.phone,
+                      title: "Channel Partner Code",
+                      hint: "Search by Channel Partner Code",
+                      textController: _channelPartnerCodeC,
+                      readOnly: _isEditMode,
                       isRequired: true,
-                      inputFormatterList: InputValidator.digit(10),
+                      inputFormatterList: [
+                        UpperCaseTextFormatter(),
+                        LengthLimitingTextInputFormatter(18),
+                      ],
                       validator: (val) {
                         if (val == null || val.trim().isEmpty) {
-                          return "Channel Partner mobile number is required";
+                          return "Channel Partner code is required";
                         }
-                        if (val.trim().length != 10) {
-                          return "Mobile number must be 10 digits";
-                        }
+
                         return null;
                       },
                       onChangeFunction: (value) async {
-                        _channelPartnerMobileNotifier.value = value;
-                        if (value.length != 10) {
+                        _channelPartnerCodeNotifier.value = value;
+                        if (value.length != 18) {
                           _selectedTeamMemberNotifier.value = [];
                           _hasManualEntryNotifier.value = false;
                           _teamMemberNameC.clear();
@@ -1346,16 +1418,16 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                       },
                     ),
                     ValueListenableBuilder<String>(
-                      valueListenable: _channelPartnerMobileNotifier,
+                      valueListenable: _channelPartnerCodeNotifier,
                       builder: (context, mobile, _) {
                         return BlocBuilder<EnquiryCubit, EnquiryState>(
                           builder: (context, state) {
                             final partner = state.channelPartnerModel;
 
-                            final bool hasEnteredMobile = mobile.length == 10;
+                            final bool hasEnteredCPCode = mobile.length == 18;
 
                             //  NO PARTNER FOUND
-                            if (hasEnteredMobile &&
+                            if (hasEnteredCPCode &&
                                 partner == null &&
                                 state.isFetchingChannelPartners == false) {
                               return Container(
@@ -1370,7 +1442,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                   ),
                                 ),
                                 child: Text(
-                                  "No Channel Partner found for this mobile number",
+                                  "No Channel Partner found for this Channel Partner Code",
                                   style: AppTextStyle.ts14R(
                                     color: AppColor.red,
                                   ),
@@ -1380,67 +1452,30 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
                             //  PARTNER FOUND
                             if (partner != null) {
-                              return Container(
-                                padding: const EdgeInsets.all(16),
-                                margin: const EdgeInsets.only(bottom: 10),
-                                decoration: BoxDecoration(
-                                  color: AppColor.lightBlue,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    width: 0.5,
-                                    color: AppColor.primary,
-                                  ),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Full Name",
-                                          value: partner.name,
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Company Name",
-                                          value: partner.companyName,
-                                        ),
-                                      ],
-                                    ),
-                                    verticalSpacing(),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Firms Type",
-                                          value: partner.firmsType,
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Mobile",
-                                          value: partner.mobileNumber,
-                                        ),
-                                      ],
-                                    ),
-                                    verticalSpacing(),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Designation",
-                                          value: partner.designation,
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Type",
-                                          value: partner.type,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
+                              return infoCard([
+                                {
+                                  "title": "CP Code",
+                                  "value": partner.systemGeneratedCode,
+                                },
+                                {"title": "Full Name", "value": partner.name},
+                                {
+                                  "title": "Company Name",
+                                  "value": partner.companyName,
+                                },
+                                {
+                                  "title": "Firms Type",
+                                  "value": partner.firmsType,
+                                },
+                                {
+                                  "title": "Mobile",
+                                  "value": partner.mobileNumber,
+                                },
+                                {
+                                  "title": "Designation",
+                                  "value": partner.designation,
+                                },
+                                {"title": "Type", "value": partner.type},
+                              ]);
                             }
 
                             return const SizedBox.shrink();
@@ -1453,9 +1488,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   (state.channelPartnerModel == null)
                       ? SizedBox.shrink()
                       : ValueListenableBuilder<String>(
-                        valueListenable: _channelPartnerMobileNotifier,
+                        valueListenable: _channelPartnerCodeNotifier,
                         builder: (context, mobileValue, child) {
-                          if (!isChannelPartner || mobileValue.length != 10) {
+                          if (!isChannelPartner || mobileValue.length != 18) {
                             return const SizedBox.shrink();
                           }
                           return ValueListenableBuilder<
@@ -1470,10 +1505,12 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                 children: [
                                   ValueListenableBuilder(
                                     valueListenable: _hasManualEntryNotifier,
+
                                     builder: (context, value, child) {
                                       return Visibility(
                                         visible: !value,
                                         child: CustomMultipleSelectPopup(
+                                          isReadOnly: _isEditMode,
                                           title: 'Team Member',
                                           isRequired: false,
                                           isMultiSelect: false,
@@ -1497,6 +1534,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                     CustomTextField(
                                       title: "Team Member Name",
                                       hint: "Enter Team Member Name",
+
                                       textController: _teamMemberNameC,
                                       onChangeFunction: (_) {
                                         _selectedTeamMemberNotifier.value = [];
@@ -1519,37 +1557,132 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                         return null;
                                       },
                                     ),
+                                    ValueListenableBuilder(
+                                      valueListenable:
+                                          selectedTeamMemberMobileNoCountry,
+                                      builder: (context, value, child) {
+                                        return CustomTextField(
+                                          title: "Team Member Mobile Number",
+                                          hint: "Enter Mobile Number",
+                                          textController: _teamMemberMobileC,
+                                          keyboardType: TextInputType.phone,
+                                          showCountryDropdown: true,
+                                          selectedCountry: value,
+                                          onChangeFunction: (value) async {
+                                            final country =
+                                                selectedTeamMemberMobileNoCountry
+                                                    .value;
+                                            _selectedTeamMemberNotifier.value =
+                                                [];
+                                            _hasManualEntryNotifier.value =
+                                                _teamMemberNameC.text
+                                                    .trim()
+                                                    .isNotEmpty ||
+                                                _teamMemberMobileC.text
+                                                    .trim()
+                                                    .isNotEmpty;
+                                            if (value.isNotEmpty &&
+                                                country.mobileLength ==
+                                                    value.length) {
+                                              _isTeamMemberAlreadyExist.value =
+                                                  (await _enquiryCubit
+                                                      .fetchChannelPartnersByMobile(
+                                                        _teamMemberMobileC.text
+                                                            .trim(),
+                                                      )).isNotEmpty;
+                                              if (_isTeamMemberAlreadyExist
+                                                      .value &&
+                                                  context.mounted) {
+                                                showErrorMessage(
+                                                  context,
+                                                  "Error",
+                                                  "Team Member Mobile number already exists",
+                                                );
+                                              }
+                                            } else {
+                                              _isTeamMemberAlreadyExist.value =
+                                                  false;
+                                            }
+                                          },
+                                          onCountryChanged: (country) {
+                                            if (country == null) return;
 
-                                    CustomTextField(
-                                      title: "Team Member Mobile Number",
-                                      hint: "Enter Mobile Number",
-                                      textController: _teamMemberMobileC,
-                                      keyboardType: TextInputType.phone,
-                                      inputFormatterList: InputValidator.digit(
-                                        10,
-                                      ),
-                                      onChangeFunction: (_) {
-                                        _selectedTeamMemberNotifier.value = [];
-                                        _hasManualEntryNotifier.value =
-                                            _teamMemberNameC.text
-                                                .trim()
-                                                .isNotEmpty ||
-                                            _teamMemberMobileC.text
-                                                .trim()
-                                                .isNotEmpty;
+                                            selectedTeamMemberMobileNoCountry
+                                                .value = country;
+                                          },
+                                          inputFormatterList: [
+                                            LengthLimitingTextInputFormatter(
+                                              value.mobileLength,
+                                            ),
+                                            FilteringTextInputFormatter
+                                                .digitsOnly,
+                                          ],
+                                          validator: (value) {
+                                            final country =
+                                                selectedTeamMemberMobileNoCountry
+                                                    .value;
+                                            final mobile = value?.trim() ?? "";
+
+                                            if (_teamMemberNameC
+                                                    .text
+                                                    .isNotEmpty &&
+                                                mobile.isEmpty) {
+                                              return "Team Member Mobile Number is required";
+                                            }
+
+                                            if (mobile.isNotEmpty) {
+                                              // LENGTH AND REGEX VALIDATION
+                                              if ((mobile.length !=
+                                                      country.mobileLength) ||
+                                                  country.regex != null &&
+                                                      !country.regex!.hasMatch(
+                                                        mobile,
+                                                      )) {
+                                                return "Invalid Team Member Mobile Number";
+                                              }
+                                            }
+                                            if (_isTeamMemberAlreadyExist
+                                                .value) {
+                                              return "Team Member Mobile number already exists";
+                                            }
+                                            return null;
+                                          },
+                                        );
                                       },
-                                      validator: (val) {
-                                        if (_teamMemberNameC.text.isNotEmpty &&
-                                            _teamMemberMobileC.text.isEmpty) {
-                                          return "Team member mobile number is required";
-                                        }
-
-                                        if (val != null &&
-                                            val.isNotEmpty &&
-                                            val.length != 10) {
-                                          return "Mobile number must be 10 digits";
-                                        }
-                                        return null;
+                                    ),
+                                    ValueListenableBuilder(
+                                      valueListenable:
+                                          selectedTeamMemberMobileNoCountry,
+                                      builder: (
+                                        context,
+                                        selectedMobNovalue,
+                                        child,
+                                      ) {
+                                        return CustomTextField(
+                                          title: "Team Member E-mail ID",
+                                          isRequired:
+                                              selectedMobNovalue.countryCode !=
+                                              "IN",
+                                          textController: _teamMemberEmailC,
+                                          keyboardType:
+                                              TextInputType.emailAddress,
+                                          hint: "Enter Team Member E-mail ID",
+                                          validator:
+                                              (value) =>
+                                                  (selectedMobNovalue
+                                                                  .countryCode !=
+                                                              "IN" &&
+                                                          (_teamMemberMobileC
+                                                                  .text
+                                                                  .isNotEmpty ||
+                                                              _teamMemberNameC
+                                                                  .text
+                                                                  .isNotEmpty) &&
+                                                          (value == null ||
+                                                              value.isEmpty))
+                                                      ? "Team Member E-mail ID is required"
+                                                      : null,
+                                        );
                                       },
                                     ),
                                   ],
@@ -2230,6 +2363,11 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         dataList: const [],
         dataFetchCallBack: _fetchSalesEmployees,
         onSelected: (value) => _selectedSourcingManager = value,
+      ),
+      CustomTimePicker(
+        title: 'Customer Time Out',
+        initialTime: parseTimeOfDayFromHHmm(_timeOutC),
+        setValue: (val) => _timeOutC = formatTimeOfDayHHmm(val),
       ),
       CustomTextField(
         title: "Remarks",

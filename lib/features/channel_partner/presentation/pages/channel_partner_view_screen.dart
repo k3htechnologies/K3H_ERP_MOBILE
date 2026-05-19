@@ -485,7 +485,7 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Enquiry & Booking Details",
+                              "Enquiry, Booking, IBM & OBM Details",
                               style: AppTextStyle.ts16SB(),
                             ),
                             Row(
@@ -533,6 +533,22 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                                       widget
                                           .channelPartnerModel
                                           .paidBrokerageAmount
+                                          .toString(),
+                                ),
+                                buildColumnTitleValue(
+                                  title: "No Of IBM",
+                                  value:
+                                      widget.channelPartnerModel.noOfIbm
+                                          .toString(),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "No Of OBM",
+                                  value:
+                                      widget.channelPartnerModel.noOfObm
                                           .toString(),
                                 ),
                               ],

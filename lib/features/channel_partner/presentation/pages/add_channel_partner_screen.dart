@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/country_code.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -118,6 +119,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   ValueNotifier<Map<String, dynamic>?> selectedVillageVN = ValueNotifier(null);
 
   DateTime? _dob;
+  ValueNotifier<CountryCode> selectedMobileNoCountry = ValueNotifier(
+    countryList.firstWhere((e) => e.code == "+91"),
+  );
 
   @override
   void initState() {
@@ -316,6 +320,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _nameC.text = channelPartnerMasterModel.name;
     _emailC.text = channelPartnerMasterModel.emailId;
     _mobileNumberC.text = channelPartnerMasterModel.mobileNumber;
+    selectedMobileNoCountry.value = countryList.firstWhere(
+      (e) => e.code == channelPartnerMasterModel.mobileNumberCountryCode,
+    );
+
     _alternateMobileNumberC.text =
         channelPartnerMasterModel.alternativeMobileNumber;
     _panNumberC.text = channelPartnerMasterModel.panNumber;
@@ -554,6 +562,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         name: _nameC.text.trim(),
         emailId: _emailC.text.trim(),
         mobileNumber: _mobileNumberC.text.trim(),
+        mobileNumberCountryCode: selectedMobileNoCountry.value.code,
         alternativeMobileNumber: _alternateMobileNumberC.text.trim(),
         panCardNumber: _panNumberC.text.trim(),
         aadhaarCardNumber: _aadhaarNumberC.text.trim(),
@@ -592,6 +601,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         name: _nameC.text.trim(),
         emailId: _emailC.text.trim(),
         mobileNumber: _mobileNumberC.text.trim(),
+        mobileNumberCountryCode: selectedMobileNoCountry.value.code,
         alternativeMobileNumber: _alternateMobileNumberC.text.trim(),
         panCardNumber: _panNumberC.text.trim(),
         aadhaarCardNumber: _aadhaarNumberC.text.trim(),
@@ -715,47 +725,65 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         return null;
                       },
                     ),
-                    CustomTextField(
-                      title: 'Email Id',
-                      textController: _emailC,
-                      hint: "Enter Valid E-mail Id",
-                      inputFormatterList: InputValidator.emailInputFormatters(),
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                    CustomTextField(
-                      title: 'Mobile Number',
-                      isRequired: true,
-                      readOnly: _isEditMode,
-                      hint: "Enter Mobile Number",
-                      textController: _mobileNumberC,
-                      keyboardType: TextInputType.phone,
-                      validator: (value) {
-                        if (value == null || value == "") {
-                          return "Mobile number is required";
-                        }
-                        if (!InputValidator.isValidMobileNumber(value)) {
-                          return "Invalid mobile number";
-                        }
-                        return null;
-                      },
-                      inputFormatterList: InputValidator.digit(10),
-                      prefixWidget: IntrinsicHeight(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                    ValueListenableBuilder(
+                      valueListenable: selectedMobileNoCountry,
+                      builder: (context, value, child) {
+                        return CustomTextField(
+                          title: "Mobile Number",
+                          textController: _mobileNumberC,
+                          hint: "Enter Mobile Number",
+                          keyboardType: TextInputType.phone,
+                          isRequired: true,
+                          showCountryDropdown: true,
+                          selectedCountry: value,
+                          onCountryChanged: (country) {
+                            if (country == null) return;
 
-                          children: [
-                            SizedBox(width: 10),
-                            Text("+91"),
-                            VerticalDivider(
-                              color: AppColor.black,
-                              thickness: 0.5,
-                              width: 15,
-                              indent: 5,
-                              endIndent: 5,
+                            selectedMobileNoCountry.value = country;
+                          },
+                          inputFormatterList: [
+                            LengthLimitingTextInputFormatter(
+                              value.mobileLength,
                             ),
+                            FilteringTextInputFormatter.digitsOnly,
                           ],
-                        ),
-                      ),
+                          validator: (value) {
+                            final mobile = value?.trim() ?? "";
+                            final country = selectedMobileNoCountry.value;
+                            if (value == null || value.isEmpty) {
+                              return "Mobile Number is required";
+                            }
+                            if (mobile.isNotEmpty) {
+                              // LENGTH AND REGEX VALIDATION
+                              if ((mobile.length != country.mobileLength) ||
+                                  country.regex != null &&
+                                      !country.regex!.hasMatch(mobile)) {
+                                return "Invalid Mobile Number";
+                              }
+                            }
+
+                            return null;
+                          },
+                        );
+                      },
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: selectedMobileNoCountry,
+                      builder: (context, selectedMobNovalue, child) {
+                        return CustomTextField(
+                          title: "E-mail ID",
+                          isRequired: selectedMobNovalue.countryCode != "IN",
+                          textController: _emailC,
+                          keyboardType: TextInputType.emailAddress,
+                          hint: "Enter Email",
+                          validator:
+                              (value) =>
+                                  (selectedMobNovalue.countryCode != "IN" &&
+                                          (value == null || value.isEmpty))
+                                      ? "E-mail ID is required"
+                                      : null,
+                        );
+                      },
                     ),
                     CustomTextField(
                       title: 'Alternate Mobile Number',

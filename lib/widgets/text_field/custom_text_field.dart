@@ -1,8 +1,14 @@
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:k3h_erp_app/core/country_code.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
+import '../dropdown/custom_multi_select_pop_up.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController textController;
@@ -22,6 +28,9 @@ class CustomTextField extends StatelessWidget {
   final Function(String)? onSubmitFunction;
   final String? Function(String?)? validator;
   final double bottomMargin;
+  final bool showCountryDropdown;
+  final CountryCode? selectedCountry;
+  final Function(CountryCode?)? onCountryChanged;
 
   const CustomTextField({
     super.key,
@@ -42,6 +51,9 @@ class CustomTextField extends StatelessWidget {
     this.onSubmitFunction,
     this.validator,
     this.bottomMargin = 18.0,
+    this.showCountryDropdown = false,
+    this.selectedCountry,
+    this.onCountryChanged,
   });
 
   @override
@@ -117,7 +129,70 @@ class CustomTextField extends StatelessWidget {
                     horizontal: 10.0,
                     vertical: 14.0,
                   ),
-                  prefixIcon: prefixWidget,
+                  prefixIcon:
+                      showCountryDropdown
+                          ? InkWell(
+                            onTap:
+                                readOnly
+                                    ? null
+                                    : () async {
+                                      final country =
+                                          await DialogHelper.showCountryPickerBottomSheet(
+                                            context,
+                                            countries: countryList,
+                                            selectedCountry: selectedCountry,
+                                          );
+
+                                      if (country != null) {
+                                        onCountryChanged?.call(country);
+                                      }
+                                    },
+
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                  ),
+
+                                  child: Row(
+                                    children: [
+                                      CountryFlag.fromCountryCode(
+                                        selectedCountry?.countryCode ?? "IN",
+                                        theme: ImageTheme(
+                                          width: 30.w,
+                                          height: 20.h,
+                                          shape: RoundedRectangle(6),
+                                        ),
+                                      ),
+                                      horizontalSpacing(width: 5),
+                                      Text(
+                                        selectedCountry != null
+                                            ? "${selectedCountry?.countryCode} ${selectedCountry?.code}"
+                                            : "IN +91",
+                                        style: AppTextStyle.ts14R(
+                                          color: AppColor.grey,
+                                        ),
+                                      ),
+
+                                      const Icon(
+                                        Icons.arrow_drop_down,
+                                        size: 18,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                Container(
+                                  width: 1,
+                                  height: 24,
+                                  color: AppColor.grey30,
+                                ),
+                              ],
+                            ),
+                          )
+                          : prefixWidget,
                   suffixIcon: suffixWidget,
 
                   //  APPLY hasError HERE

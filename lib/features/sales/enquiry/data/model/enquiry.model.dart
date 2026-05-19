@@ -66,7 +66,18 @@ class EnquiryModel {
     required this.employeeReferenceMobileNumber,
     required this.remark,
     required this.villageMasterId,
+    required this.projectName,
+    required this.enquiryTimeInDisplay,
+    required this.enquiryTimeOutDisplay,
+    required this.mobileNumberCountryCode,
 
+    required this.channelPartnerCode,
+    required this.channelPartnerMobileNumberCountryCode,
+
+    required this.channelPartnerTeamMemberMobileNumberCountryCode,
+    required this.channelPartnerTeamMemberEmailId,
+
+    required this.enquiryFollowUpDays,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -82,6 +93,7 @@ class EnquiryModel {
   final String enquiryTimeOut;
   final String name;
   final String mobileNumber;
+  final String mobileNumberCountryCode;
   final String emailId;
   final String systemGeneratedCode;
 
@@ -111,6 +123,17 @@ class EnquiryModel {
   final String finalStageDetail;
   final DateTime? enquiryDate;
   final DateTime? nextFollowUpDate;
+  final String projectName;
+  final String enquiryTimeInDisplay;
+  final String enquiryTimeOutDisplay;
+
+  final String channelPartnerCode;
+  final String channelPartnerMobileNumberCountryCode;
+
+  final String channelPartnerTeamMemberMobileNumberCountryCode;
+  final String channelPartnerTeamMemberEmailId;
+
+  final String enquiryFollowUpDays;
 
   /// NAMES
   String salesAdvisor;
@@ -271,7 +294,35 @@ class EnquiryModel {
       ),
       remark: parseValue<String>(json, "Remark"),
       villageMasterId: json["VillageMasterId"],
+      projectName: parseValue<String>(json, "ProjectName"),
 
+      enquiryTimeInDisplay: parseValue<String>(json, "EnquiryTimeInDisplay"),
+
+      enquiryTimeOutDisplay: parseValue<String>(json, "EnquiryTimeOutDisplay"),
+
+      mobileNumberCountryCode: parseValue<String>(
+        json,
+        "MobileNumberCountryCode",
+      ),
+
+      channelPartnerCode: parseValue<String>(json, "ChannelPartnerCode"),
+
+      channelPartnerMobileNumberCountryCode: parseValue<String>(
+        json,
+        "ChannelPartnerMobileNumberCountryCode",
+      ),
+
+      channelPartnerTeamMemberMobileNumberCountryCode: parseValue<String>(
+        json,
+        "ChannelPartnerTeamMemberMobileNumberCountryCode",
+      ),
+
+      channelPartnerTeamMemberEmailId: parseValue<String>(
+        json,
+        "ChannelPartnerTeamMemberEmailId",
+      ),
+
+      enquiryFollowUpDays: parseValue<String>(json, "EnquiryFollowUpDays"),
       createdById: parseValue<int>(json, "CreatedById"),
       createdBy: parseValue<String>(json, "CreatedBy"),
       createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -350,6 +401,24 @@ class EnquiryModel {
     "Remark": remark,
     "VillageMasterId": villageMasterId,
     "ChannelPartnerMobileNumber": channelPartnerMobileNumber,
+    "ProjectName": projectName,
+
+    "EnquiryTimeInDisplay": enquiryTimeInDisplay,
+    "EnquiryTimeOutDisplay": enquiryTimeOutDisplay,
+
+    "MobileNumberCountryCode": mobileNumberCountryCode,
+
+    "ChannelPartnerCode": channelPartnerCode,
+
+    "ChannelPartnerMobileNumberCountryCode":
+        channelPartnerMobileNumberCountryCode,
+
+    "ChannelPartnerTeamMemberMobileNumberCountryCode":
+        channelPartnerTeamMemberMobileNumberCountryCode,
+
+    "ChannelPartnerTeamMemberEmailId": channelPartnerTeamMemberEmailId,
+
+    "EnquiryFollowUpDays": enquiryFollowUpDays,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

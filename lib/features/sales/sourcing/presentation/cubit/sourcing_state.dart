@@ -8,6 +8,19 @@ class SourcingState extends BaseState {
   final String searchText;
   final int currentTabIndex;
   final String selectedFilter;
+  final String filterByCompanyName;
+  final String filterByDesignation;
+  final String filterByFirmType;
+  final String filterByType;
+  final String filterByCPName;
+  final String filterByOfficeAddress;
+  final String filterByGSTNumber;
+  final String filterByRERANumber;
+  final String filterByPANNumber;
+  final String filterByAadhaarNumber;
+  final String filterBySpeciality;
+  final String filterByCity;
+  final String filterByVillage;
   final String currentSortColumn;
   final String currentSortDirection;
 
@@ -20,6 +33,19 @@ class SourcingState extends BaseState {
     required this.searchText,
     required this.currentTabIndex,
     required this.selectedFilter,
+    required this.filterByCompanyName,
+    required this.filterByDesignation,
+    required this.filterByFirmType,
+    required this.filterByType,
+    required this.filterByCPName,
+    required this.filterByOfficeAddress,
+    required this.filterByGSTNumber,
+    required this.filterByRERANumber,
+    required this.filterByPANNumber,
+    required this.filterByAadhaarNumber,
+    required this.filterBySpeciality,
+    required this.filterByCity,
+    required this.filterByVillage,
     required this.currentSortColumn,
     required this.currentSortDirection,
   });
@@ -35,6 +61,19 @@ class SourcingState extends BaseState {
     selectedFilter: "ALL",
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
+    filterByCompanyName: "",
+    filterByDesignation: "",
+    filterByFirmType: "",
+    filterByType: "",
+    filterByCPName: "",
+    filterByOfficeAddress: "",
+    filterByGSTNumber: "",
+    filterByRERANumber: "",
+    filterByPANNumber: "",
+    filterByAadhaarNumber: "",
+    filterBySpeciality: "",
+    filterByCity: "",
+    filterByVillage: "",
   );
 
   SourcingState copyWith({
@@ -48,18 +87,48 @@ class SourcingState extends BaseState {
     String? selectedFilter,
     String? currentSortColumn,
     String? currentSortDirection,
+    String? filterByCompanyName,
+    String? filterByDesignation,
+    String? filterByFirmType,
+    String? filterByType,
+    String? filterByCPName,
+    String? filterByOfficeAddress,
+    String? filterByGSTNumber,
+    String? filterByRERANumber,
+    String? filterByPANNumber,
+    String? filterByAadhaarNumber,
+    String? filterBySpeciality,
+    String? filterByCity,
+    String? filterByVillage,
   }) {
     return SourcingState(
       isLoading: isLoading ?? this.isLoading,
       channelPartnerList: channelPartnerList ?? this.channelPartnerList,
-      totalNumberOfRecordCP: totalNumberOfRecordCP ?? this.totalNumberOfRecordCP,
+      totalNumberOfRecordCP:
+          totalNumberOfRecordCP ?? this.totalNumberOfRecordCP,
       currentPageCp: currentPageCp ?? this.currentPageCp,
       sourcingList: sourcingList ?? this.sourcingList,
       searchText: searchText ?? this.searchText,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
       selectedFilter: selectedFilter ?? this.selectedFilter,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
-      currentSortDirection: currentSortDirection ?? this.currentSortDirection
+      currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+
+      filterByCompanyName: filterByCompanyName ?? this.filterByCompanyName,
+      filterByDesignation: filterByDesignation ?? this.filterByDesignation,
+      filterByFirmType: filterByFirmType ?? this.filterByFirmType,
+      filterByType: filterByType ?? this.filterByType,
+      filterByCPName: filterByCPName ?? this.filterByCPName,
+      filterByOfficeAddress:
+          filterByOfficeAddress ?? this.filterByOfficeAddress,
+      filterByGSTNumber: filterByGSTNumber ?? this.filterByGSTNumber,
+      filterByRERANumber: filterByRERANumber ?? this.filterByRERANumber,
+      filterByPANNumber: filterByPANNumber ?? this.filterByPANNumber,
+      filterByAadhaarNumber:
+          filterByAadhaarNumber ?? this.filterByAadhaarNumber,
+      filterBySpeciality: filterBySpeciality ?? this.filterBySpeciality,
+      filterByCity: filterByCity ?? this.filterByCity,
+      filterByVillage: filterByVillage ?? this.filterByVillage,
     );
   }
 
@@ -73,6 +142,21 @@ class SourcingState extends BaseState {
     searchText,
     currentTabIndex,
     selectedFilter,
+
+    filterByCompanyName,
+    filterByDesignation,
+    filterByFirmType,
+    filterByType,
+    filterByCPName,
+    filterByOfficeAddress,
+    filterByGSTNumber,
+    filterByRERANumber,
+    filterByPANNumber,
+    filterByAadhaarNumber,
+    filterBySpeciality,
+    filterByCity,
+    filterByVillage,
+
     currentSortColumn,
     currentSortDirection,
   ];

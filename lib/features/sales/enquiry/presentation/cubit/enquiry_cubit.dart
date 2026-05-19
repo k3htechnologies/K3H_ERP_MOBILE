@@ -178,10 +178,32 @@ class EnquiryCubit extends Cubit<EnquiryState> {
       pageNumber: pageNumber,
       pageSize: 10,
       queryParams: {
-        "MobileNumber": value ?? "",
-        "SortBy": "MobileNumber ASC",
+        "SystemGeneratedCode": value ?? "",
         "IsCheckPermission": false,
       },
+    );
+
+    return result.fold((failure) => [], (response) {
+      final partners = response['data'] as List<ChannelPartnerModel>;
+
+      ///  Auto store first partner when searching by mobile
+      if (partners.isNotEmpty && value != null && value.isNotEmpty) {
+        emit(state.copyWith(channelPartnerModel: partners.first));
+      }
+      emit(state.copyWith(isFetchingChannelPartners: false));
+
+      return partners;
+    });
+  }
+
+  Future<List<ChannelPartnerModel>> fetchChannelPartnersByMobile(
+    String? value,
+  ) async {
+    emit(state.copyWith(isFetchingChannelPartners: true));
+    final result = await _channelPartnerRepository.getChannelPartnerList(
+      pageNumber: 1,
+      pageSize: 10,
+      queryParams: {"MobileNumber": value ?? "", "IsCheckPermission": false},
     );
 
     return result.fold((failure) => [], (response) {

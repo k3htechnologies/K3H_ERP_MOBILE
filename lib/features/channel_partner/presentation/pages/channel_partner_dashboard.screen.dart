@@ -94,6 +94,7 @@ class _ChannelPartnerDashboardScreenState
                     title: "Booking Active CP",
                     titleColor: AppColor.black.withValues(alpha: 0.5),
                     value: table0?.activeChannelPartner ?? 0,
+                    subText: "this month",
                     valueColor: AppColor.black,
                   ),
                   verticalSpacing(),
@@ -548,11 +549,15 @@ class _ChannelPartnerDashboardScreenState
                           ),
                         ),
                         child: Column(
+                          spacing: 5,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(alerts.name, style: AppTextStyle.ts14M()),
                             Text(
-                              alerts.systemGeneratedCode,
+                              "${alerts.systemGeneratedCode} - ${alerts.name}",
+                              style: AppTextStyle.ts14M(),
+                            ),
+                            Text(
+                              alerts.missingFields,
                               style: AppTextStyle.ts14R(),
                             ),
                           ],

@@ -37,9 +37,18 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
   // TEXT EDIT CONTROLLER
   late TextEditingController _searchC,
       _filterCompanyNameC,
+      _filterDesignationC,
+      _filterFirmTypeC,
+      _filterTypeC,
       _filterMobileNumberC,
+      _filterOfficeAddressC,
+      _filterGSTNumberC,
+      _filterRERANumberC,
+      _filterPANNumberC,
+      _filterAadhaarNumberC,
+      _filterSpecialityC,
+      _filterCityC,
       _filterVillageC;
-
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
@@ -49,7 +58,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
     super.initState();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.channelPartner]!;
-    _initControllers();
+    _initializeTextEditingController();
     _channelPartnerCubit = context.read<ChannelPartnerCubit>();
     _onScroll();
     _channelPartnerCubit.getChannelPartnerList(context, 1);
@@ -67,10 +76,20 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
   }
 
   // INITIALIZE CONTROLLERS
-  void _initControllers() {
+  void _initializeTextEditingController() {
     _searchC = TextEditingController();
     _filterCompanyNameC = TextEditingController();
+    _filterDesignationC = TextEditingController();
+    _filterFirmTypeC = TextEditingController();
+    _filterTypeC = TextEditingController();
     _filterMobileNumberC = TextEditingController();
+    _filterOfficeAddressC = TextEditingController();
+    _filterGSTNumberC = TextEditingController();
+    _filterRERANumberC = TextEditingController();
+    _filterPANNumberC = TextEditingController();
+    _filterAadhaarNumberC = TextEditingController();
+    _filterSpecialityC = TextEditingController();
+    _filterCityC = TextEditingController();
     _filterVillageC = TextEditingController();
   }
 
@@ -102,7 +121,17 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
     final state = _channelPartnerCubit.state;
 
     _filterCompanyNameC.text = state.filterByCompanyName;
+    _filterDesignationC.text = state.filterByDesignation;
+    _filterFirmTypeC.text = state.filterByFirmType;
+    _filterTypeC.text = state.filterByType;
     _filterMobileNumberC.text = state.filterByMobileNumber;
+    _filterOfficeAddressC.text = state.filterByOfficeAddress;
+    _filterGSTNumberC.text = state.filterByGSTNumber;
+    _filterRERANumberC.text = state.filterByRERANumber;
+    _filterPANNumberC.text = state.filterByPANNumber;
+    _filterAadhaarNumberC.text = state.filterByAadhaarNumber;
+    _filterSpecialityC.text = state.filterBySpeciality;
+    _filterCityC.text = state.filterByCity;
     _filterVillageC.text = state.filterByVillage;
 
     String? selectedDirection =
@@ -111,7 +140,17 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
             : null;
 
     final String initialCompanyName = _filterCompanyNameC.text;
+    final String initialDesignation = _filterDesignationC.text;
+    final String initialFirmType = _filterFirmTypeC.text;
+    final String initialType = _filterTypeC.text;
     final String initialMobileNumber = _filterMobileNumberC.text;
+    final String initialOfficeAddress = _filterOfficeAddressC.text;
+    final String initialGSTNumber = _filterGSTNumberC.text;
+    final String initialRERANumber = _filterRERANumberC.text;
+    final String initialPANNumber = _filterPANNumberC.text;
+    final String initialAadhaarNumber = _filterAadhaarNumberC.text;
+    final String initialSpeciality = _filterSpecialityC.text;
+    final String initialCity = _filterCityC.text;
     final String initialVillage = _filterVillageC.text;
     final String? initialDirection = selectedDirection;
 
@@ -123,9 +162,20 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
       innerState(() {
         manualClose =
             (_filterCompanyNameC.text.trim() != initialCompanyName) ||
-            (_filterVillageC.text.trim() != initialVillage) ||
+            (_filterDesignationC.text.trim() != initialDesignation) ||
+            (_filterFirmTypeC.text.trim() != initialFirmType) ||
+            (_filterTypeC.text.trim() != initialType) ||
             (_filterMobileNumberC.text.trim() != initialMobileNumber) ||
+            (_filterOfficeAddressC.text.trim() != initialOfficeAddress) ||
+            (_filterGSTNumberC.text.trim() != initialGSTNumber) ||
+            (_filterRERANumberC.text.trim() != initialRERANumber) ||
+            (_filterPANNumberC.text.trim() != initialPANNumber) ||
+            (_filterAadhaarNumberC.text.trim() != initialAadhaarNumber) ||
+            (_filterSpecialityC.text.trim() != initialSpeciality) ||
+            (_filterCityC.text.trim() != initialCity) ||
+            (_filterVillageC.text.trim() != initialVillage) ||
             (selectedDirection != initialDirection);
+
         applyEnabled.value = manualClose;
       });
     }
@@ -143,14 +193,14 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
           }
 
           return SingleChildScrollView(
-            padding: EdgeInsets.only(right: 15),
+            padding: const EdgeInsets.only(right: 15),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("Sort By Full Name", style: AppTextStyle.ts14M()),
                 verticalSpacing(),
+
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     GestureDetector(
                       onTap: () => selectDirection("ASC"),
@@ -170,7 +220,9 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                         child: Text("A-Z", style: AppTextStyle.ts12R()),
                       ),
                     ),
+
                     horizontalSpacing(),
+
                     GestureDetector(
                       onTap: () => selectDirection("DESC"),
                       child: Container(
@@ -191,21 +243,94 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                     ),
                   ],
                 ),
+
                 verticalSpacing(height: 20),
+
                 CustomTextField(
                   title: "Company Name",
                   hint: "Enter Company Name",
                   textController: _filterCompanyNameC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                verticalSpacing(),
+
+                CustomTextField(
+                  title: "Designation",
+                  hint: "Enter Designation",
+                  textController: _filterDesignationC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
+                CustomTextField(
+                  title: "Firm Type",
+                  hint: "Enter Firm Type",
+                  textController: _filterFirmTypeC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
+                CustomTextField(
+                  title: "Type",
+                  hint: "Enter Type",
+                  textController: _filterTypeC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
                 CustomTextField(
                   title: "Mobile Number",
                   hint: "Enter Mobile Number",
+                  keyboardType: TextInputType.number,
                   textController: _filterMobileNumberC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                verticalSpacing(),
+
+                CustomTextField(
+                  title: "Office Address",
+                  hint: "Enter Office Address",
+                  textController: _filterOfficeAddressC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
+                CustomTextField(
+                  title: "GST Number",
+                  hint: "Enter GST Number",
+                  textController: _filterGSTNumberC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
+                CustomTextField(
+                  title: "RERA Number",
+                  hint: "Enter RERA Number",
+                  textController: _filterRERANumberC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
+                CustomTextField(
+                  title: "PAN Number",
+                  hint: "Enter PAN Number",
+                  textController: _filterPANNumberC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
+                CustomTextField(
+                  title: "Aadhaar Card Number",
+                  hint: "Enter Aadhaar Card Number",
+                  textController: _filterAadhaarNumberC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
+                CustomTextField(
+                  title: "Speciality",
+                  hint: "Enter Speciality",
+                  textController: _filterSpecialityC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
+                CustomTextField(
+                  title: "City",
+                  hint: "Enter City",
+                  textController: _filterCityC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
                 CustomTextField(
                   title: "Village",
                   hint: "Enter Village",
@@ -217,26 +342,51 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
           );
         },
       ),
+
       onClear: () {
         _filterCompanyNameC.clear();
-        _filterVillageC.clear();
+        _filterDesignationC.clear();
+        _filterFirmTypeC.clear();
+        _filterTypeC.clear();
         _filterMobileNumberC.clear();
+        _filterOfficeAddressC.clear();
+        _filterGSTNumberC.clear();
+        _filterRERANumberC.clear();
+        _filterPANNumberC.clear();
+        _filterAadhaarNumberC.clear();
+        _filterSpecialityC.clear();
+        _filterCityC.clear();
+        _filterVillageC.clear();
+
         _channelPartnerCubit.applyChannelPartnerFilterAndSort(
           context: context,
           isClear: true,
         );
       },
+
       onApply: () {
         applied = true;
+
         _channelPartnerCubit.applyChannelPartnerFilterAndSort(
           context: context,
           companyName: _filterCompanyNameC.text.trim(),
-          village: _filterVillageC.text.trim(),
+          designation: _filterDesignationC.text.trim(),
+          firmType: _filterFirmTypeC.text.trim(),
+          type: _filterTypeC.text.trim(),
           mobileNumber: _filterMobileNumberC.text.trim(),
+          officeAddress: _filterOfficeAddressC.text.trim(),
+          gstNumber: _filterGSTNumberC.text.trim(),
+          reraNumber: _filterRERANumberC.text.trim(),
+          panNumber: _filterPANNumberC.text.trim(),
+          aadhaarNumber: _filterAadhaarNumberC.text.trim(),
+          speciality: _filterSpecialityC.text.trim(),
+          city: _filterCityC.text.trim(),
+          village: _filterVillageC.text.trim(),
           sortColumn: selectedDirection != null ? "Full Name" : null,
           sortDirection: selectedDirection,
         );
       },
+
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
@@ -244,8 +394,18 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
       _filterCompanyNameC.clear();
-      _filterVillageC.clear();
+      _filterDesignationC.clear();
+      _filterFirmTypeC.clear();
+      _filterTypeC.clear();
       _filterMobileNumberC.clear();
+      _filterOfficeAddressC.clear();
+      _filterGSTNumberC.clear();
+      _filterRERANumberC.clear();
+      _filterPANNumberC.clear();
+      _filterAadhaarNumberC.clear();
+      _filterSpecialityC.clear();
+      _filterCityC.clear();
+      _filterVillageC.clear();
     }
   }
 
@@ -394,6 +554,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                         value: channelPartner.systemGeneratedCode,
                         singleLine: false,
                       ),
+
                       buildRowTitleValue(
                         title: "Company Name",
                         value: channelPartner.companyName,
@@ -409,6 +570,16 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                       buildRowTitleValue(
                         title: "RERA Number",
                         value: channelPartner.reraNumber,
+                        singleLine: false,
+                      ),
+                      buildRowTitleValue(
+                        title: "No Of IBM",
+                        value: channelPartner.noOfIbm.toString(),
+                        singleLine: false,
+                      ),
+                      buildRowTitleValue(
+                        title: "No Of OBM",
+                        value: channelPartner.noOfObm.toString(),
                         singleLine: false,
                       ),
                     ],

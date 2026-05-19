@@ -52,6 +52,20 @@ class SourcingCubit extends Cubit<SourcingState> {
   // <---- FILTER CP SOURCING ---->
   Future applyChannelPartnerSourcingFilterAndSort({
     required BuildContext context,
+    String? companyName,
+    String? designation,
+    String? firmType,
+    String? type,
+    String? mobileNumber,
+    String? officeAddress,
+    String? gstNumber,
+    String? reraNumber,
+    String? panNumber,
+    String? aadhaarNumber,
+    String? speciality,
+    String? city,
+    String? village,
+
     String? sortColumn,
     String? sortDirection,
     bool? isClear,
@@ -59,6 +73,20 @@ class SourcingCubit extends Cubit<SourcingState> {
     if (isClear ?? false) {
       emit(
         state.copyWith(
+          filterByCompanyName: "",
+          filterByDesignation: "",
+          filterByFirmType: "",
+          filterByType: "",
+          filterByCPName: "",
+          filterByOfficeAddress: "",
+          filterByGSTNumber: "",
+          filterByRERANumber: "",
+          filterByPANNumber: "",
+          filterByAadhaarNumber: "",
+          filterBySpeciality: "",
+          filterByCity: "",
+          filterByVillage: "",
+
           currentSortColumn: "Created Date",
           currentSortDirection: "DESC",
           currentPageCp: 1,
@@ -67,8 +95,23 @@ class SourcingCubit extends Cubit<SourcingState> {
     } else {
       emit(
         state.copyWith(
+          filterByCompanyName: companyName ?? state.filterByCompanyName,
+          filterByDesignation: designation ?? state.filterByDesignation,
+          filterByFirmType: firmType ?? state.filterByFirmType,
+          filterByType: type ?? state.filterByType,
+          filterByCPName: mobileNumber ?? state.filterByCPName,
+          filterByOfficeAddress: officeAddress ?? state.filterByOfficeAddress,
+          filterByGSTNumber: gstNumber ?? state.filterByGSTNumber,
+          filterByRERANumber: reraNumber ?? state.filterByRERANumber,
+          filterByPANNumber: panNumber ?? state.filterByPANNumber,
+          filterByAadhaarNumber: aadhaarNumber ?? state.filterByAadhaarNumber,
+          filterBySpeciality: speciality ?? state.filterBySpeciality,
+          filterByCity: city ?? state.filterByCity,
+          filterByVillage: village ?? state.filterByVillage,
+
           currentSortColumn: sortColumn ?? state.currentSortColumn,
           currentSortDirection: sortDirection ?? state.currentSortDirection,
+
           currentPageCp: 1,
         ),
       );
@@ -116,8 +159,21 @@ class SourcingCubit extends Cubit<SourcingState> {
   Future getChannelPartnerList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
-      "IsCheckPermission":false,
+      "IsCheckPermission": false,
       "MobileNumber": state.searchText,
+      "CompanyName": state.filterByCompanyName,
+      "Designation": state.filterByDesignation,
+      "FirmsType": state.filterByFirmType,
+      "Type": state.filterByType,
+      "ChannelPartnerName": state.filterByCPName,
+      "OfficeAddress": state.filterByOfficeAddress,
+      "GSTNumber": state.filterByGSTNumber,
+      "RERANumber": state.filterByRERANumber,
+      "PanNumber": state.filterByPANNumber,
+      "AadharCardNumber": state.filterByAadhaarNumber,
+      "Speciality": state.filterBySpeciality,
+      "CityName": state.filterByCity,
+      "VillageName": state.filterByVillage,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     var result = await _channelPartnerRepository.getChannelPartnerList(

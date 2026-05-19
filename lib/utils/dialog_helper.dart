@@ -3,9 +3,11 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:country_flags/country_flags.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -14,9 +16,12 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
+import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_snack_bar.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
+import '../core/country_code.dart';
 
 class DialogHelper {
   // <----PROCESSING DIALOG ---->
@@ -580,6 +585,219 @@ class DialogHelper {
               ),
             ),
           ),
+    );
+  }
+
+  static Future<CountryCode?> showCountryPickerBottomSheet(
+    BuildContext context, {
+    required List<CountryCode> countries,
+    CountryCode? selectedCountry,
+  }) async {
+    CountryCode? tempSelected = selectedCountry;
+
+    final TextEditingController searchC = TextEditingController();
+
+    List<CountryCode> filteredCountries = List.from(countries);
+
+    return await showModalBottomSheet<CountryCode>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+
+      builder: (context) {
+        final screenHeight = MediaQuery.of(context).size.height;
+
+        final double bottomSheetHeight = (screenHeight * 0.52);
+
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              height: bottomSheetHeight,
+
+              decoration: const BoxDecoration(
+                color: AppColor.white,
+
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "Select Country",
+                            style: AppTextStyle.ts20M(),
+                          ),
+                        ),
+
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).pop();
+                          },
+
+                          child: const Icon(Icons.close),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Container(
+                    height: 1.0,
+
+                    decoration: const BoxDecoration(color: AppColor.grey),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+
+                    child: SearchWidget(
+                      isFilterOn: false,
+                      hintText: "Search By Country Name",
+                      textController: searchC,
+                      onSubmit: (value) async {
+                        setModalState(() {
+                          filteredCountries =
+                              countries.where((e) {
+                                final search = value.toLowerCase();
+
+                                return e.name.toLowerCase().contains(search) ||
+                                    e.code.contains(search);
+                              }).toList();
+                        });
+                      },
+                    ),
+                  ),
+
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+
+                      child: ListView.builder(
+                        itemCount: filteredCountries.length,
+
+                        itemBuilder: (context, index) {
+                          final country = filteredCountries[index];
+
+                          final isSelected =
+                              tempSelected?.countryCode == country.countryCode;
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  setModalState(() {
+                                    tempSelected = country;
+                                  });
+                                },
+
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8.0,
+                                  ),
+
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          right: 10,
+                                        ),
+
+                                        child:
+                                            isSelected
+                                                ? Icon(
+                                                  Icons.radio_button_checked,
+
+                                                  color: AppColor.primary,
+
+                                                  size: 20,
+                                                )
+                                                : Icon(
+                                                  Icons.radio_button_unchecked,
+
+                                                  color: AppColor.black,
+
+                                                  size: 20,
+                                                ),
+                                      ),
+                                      CountryFlag.fromCountryCode(
+                                        country.countryCode,
+                                        theme: ImageTheme(
+                                          width: 30.w,
+                                          height: 20.h,
+                                          shape: RoundedRectangle(6),
+                                        ),
+                                      ),
+                                      horizontalSpacing(),
+                                      Flexible(
+                                        child: Text(
+                                          "${country.name} (${country.code})",
+
+                                          style: AppTextStyle.ts14R(),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                              Container(height: 1, color: AppColor.grey30),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+
+                  SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                          fixedSize: WidgetStateProperty.all(
+                            const Size(30, 40),
+                          ),
+
+                          backgroundColor: WidgetStateProperty.all(
+                            AppColor.primary,
+                          ),
+                        ),
+
+                        onPressed: () {
+                          Navigator.pop(context, tempSelected);
+                        },
+
+                        child: Text(
+                          'Select',
+
+                          style: AppTextStyle.ts14M(color: AppColor.white),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
