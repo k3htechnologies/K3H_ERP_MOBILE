@@ -242,7 +242,7 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                                       widget.channelPartnerModel.mobileNumber,
                                   customValueWidget: CustomClickToContactText(
                                     value:
-                                        widget.channelPartnerModel.mobileNumber,
+                                        "${widget.channelPartnerModel.mobileNumberCountryCode} ${widget.channelPartnerModel.mobileNumber}",
                                     type: ContactType.phone,
                                   ),
                                 ),

@@ -23,6 +23,7 @@ import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class SalesDashboardScreen extends StatefulWidget {
@@ -361,6 +362,11 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                                     child: _infoColumn(
                                       "Mobile Number",
                                       item.mobileNumber,
+                                      customWidget: CustomClickToContactText(
+                                        value:
+                                            //TODO: COUNTRY CODE
+                                            " ${item.mobileNumber}",
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -674,7 +680,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
     );
   }
 
-  Widget _infoColumn(String title, String value) {
+  Widget _infoColumn(String title, String value, {Widget? customWidget}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -685,7 +691,8 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
           ),
         ),
         const SizedBox(height: 4),
-        Text(value, style: AppTextStyle.ts14M(color: AppColor.black)),
+        customWidget ??
+            Text(value, style: AppTextStyle.ts14M(color: AppColor.black)),
       ],
     );
   }
