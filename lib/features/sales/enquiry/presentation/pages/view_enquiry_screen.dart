@@ -1016,9 +1016,9 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                             closedStatuses.contains(
                               item.status.toLowerCase(),
                             ) ||
-                            (state.enquiryFollowUpList.isNotEmpty &&
+                            (state.currentEnquiryDetails != null &&
                                 closedStatuses.contains(
-                                  state.enquiryFollowUpList.first.status
+                                  state.currentEnquiryDetails!.finalStage
                                       .toLowerCase(),
                                 )) ||
                             !_routeAuthorizationModel.isAction;
