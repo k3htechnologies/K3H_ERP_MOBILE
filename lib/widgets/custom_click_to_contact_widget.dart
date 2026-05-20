@@ -46,6 +46,9 @@ class CustomClickToContactText extends StatelessWidget {
             "Phone permission is required to make a call.",
           );
         }
+        await Future.delayed(const Duration(seconds: 1));
+        await openAppSettings();
+
         return;
       }
 
