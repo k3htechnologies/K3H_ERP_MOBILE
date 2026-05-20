@@ -182,6 +182,9 @@ class AppRoutes {
   static String addActiveBank = "/addActiveBank";
   static String addPaymentLedger = "/addPaymentLedger";
   static String viewPaymentLedger = "/viewPaymentLedger";
+  static String addRefundScreen = "/addRefundScreen";
+  static String addApplicantDetailsRequests = "/addApplicantDetailsRequests";
+  static String swapBookedParking = "/swapBookedParking";
 
   /// BROKERAGE
   static String brokerage = "/brokerage";

@@ -15,7 +15,9 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ViewPaymentLedgerScreen extends StatefulWidget {
   final PayTrackPaymentLedgerSummaryModel summary;
@@ -72,6 +74,8 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                         approvalStatus.toLowerCase() == "approved";
                     final isRejected =
                         approvalStatus.toLowerCase() == "rejected";
+                    final isEditDeleteDisabled =
+                        isAlreadyApproved || isRejected;
                     return Theme(
                       data: Theme.of(
                         context,
@@ -88,9 +92,49 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                           collapsedIconColor: AppColor.black,
                           shape: const Border(),
                           collapsedShape: const Border(),
-                          title: buildRowTitleValue(
-                            title: "Amount",
-                            value: addCommasToInteger(summary.receivedAmount),
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: _buildRow(
+                                  "Amount",
+                                  addCommasToInteger(summary.receivedAmount),
+                                ),
+                              ),
+                              horizontalSpacing(),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  CustomIconButton.edit(
+                                    isDisabled: isEditDeleteDisabled,
+                                    onPressed: () async {
+                                      goRouter.pushNamed(
+                                        AppRoutes.addPaymentLedger,
+                                        queryParameters: {
+                                          'paymentLedger': Uri.encodeComponent(
+                                            jsonEncode([summary.toJson()]),
+                                          ),
+                                        },
+                                      );
+                                    },
+                                  ),
+                                  horizontalSpacing(),
+                                  CustomIconButton.delete(
+                                    isDisabled: isEditDeleteDisabled,
+                                    onPressed: () {
+                                      _paymentCubit.deletePayTrackPaymentLedger(
+                                        context: context,
+                                        payTrackPaymentLedgerId:
+                                            summary.payTrackPaymentLedgerId,
+                                        uniqueKey: summary.uniquekey,
+                                        bookingId: summary.bookingId,
+                                        projectId: summary.projectId,
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                           children: [
                             Column(
@@ -114,9 +158,9 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                         .read<LoginCubit>()
                                         .updateModulesWorkflowApproval(
                                           context: context,
-                                          moduleName: 'MATERIAL REQUISITION',
-                                          id: summary.bookingId,
-                                          subId: summary.projectId,
+                                          moduleName:
+                                              'PAY TRACK LEDGER APPROVAL',
+                                          id: summary.payTrackPaymentLedgerId,
                                           projectId: summary.projectId,
                                           isApproved: true,
                                           remark: remark.trim(),
@@ -132,7 +176,6 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                           );
                                     }
                                   },
-
                                   onReject: (remark) async {
                                     await context
                                         .read<LoginCubit>()
@@ -141,7 +184,6 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                           moduleName:
                                               'PAY TRACK LEDGER APPROVAL',
                                           id: summary.bookingId,
-                                          subId: summary.projectId,
                                           projectId: summary.projectId,
                                           isApproved: false,
                                           remark: remark.trim(),
@@ -154,7 +196,6 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                           context: context,
                                           projectId: summary.projectId,
                                           id: summary.bookingId,
-                                          subId: summary.projectId,
                                           moduleName:
                                               'PAY TRACK LEDGER APPROVAL',
                                         );
@@ -164,7 +205,7 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                         queryParameters: {
                                           "title": Uri.encodeComponent(
                                             EncryptionManager.encryptData(
-                                              "Invoice Log History",
+                                              "PAY TRACK LEDGER APPROVAL",
                                             ),
                                           ),
                                           "approvalList": Uri.encodeComponent(
@@ -182,9 +223,167 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                   },
                                   popupTitle: "PAY TRACK LEDGER APPROVAL",
                                 ),
-                                Container(),
-                                Container(),
-                                Container(),
+                                Container(
+                                  padding: EdgeInsets.all(16.0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    color: AppColor.lightGreyBackground,
+                                    border: Border.all(
+                                      color: AppColor.black.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      width: 0.8,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    spacing: 12.0,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Our Bank Details",
+                                        style: AppTextStyle.ts14M(
+                                          color: AppColor.black.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                        ),
+                                      ),
+                                      buildColumnTitleValueNormal(
+                                        title: "Bank Name",
+                                        value: summary.bankName,
+                                      ),
+                                      buildColumnTitleValueNormal(
+                                        title: "Account Number",
+                                        value: summary.projectAccountNumber,
+                                      ),
+                                      buildColumnTitleValueNormal(
+                                        title: "IFSC Code",
+                                        value: summary.projectIfscCode,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.all(16.0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    color: AppColor.lightGreyBackground,
+                                    border: Border.all(
+                                      color: AppColor.black.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      width: 0.8,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    spacing: 12.0,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Opposite Party Bank Details",
+                                        style: AppTextStyle.ts14M(
+                                          color: AppColor.black.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                        ),
+                                      ),
+                                      buildColumnTitleValueNormal(
+                                        title: "Bank Name",
+                                        value: summary.bankName,
+                                      ),
+                                      buildColumnTitleValueNormal(
+                                        title:
+                                            "Transaction / Cheque / Demand Draft No",
+                                        value:
+                                            summary
+                                                .transactionChequeDemandDraftNumber,
+                                      ),
+                                      buildColumnTitleValueNormal(
+                                        title:
+                                            "Transaction / Cheque / Demand Draft Date",
+                                        value: formatDateTimeAsDDMMMYYYY(
+                                          summary
+                                              .transactionChequeDemandDraftDate,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.all(16.0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    color: AppColor.lightGreyBackground,
+                                    border: Border.all(
+                                      color: AppColor.black.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      width: 0.8,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    spacing: 12.0,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Others",
+                                        style: AppTextStyle.ts14M(
+                                          color: AppColor.black.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                        ),
+                                      ),
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: buildColumnTitleValueNormal(
+                                              title: "Created By",
+                                              value: summary.createdBy,
+                                            ),
+                                          ),
+                                          horizontalSpacing(),
+                                          Expanded(
+                                            child: buildColumnTitleValueNormal(
+                                              title: "Created Date",
+                                              value: formatDateTimeAsDDMMMYYYY(
+                                                summary.createdDate,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: buildColumnTitleValueNormal(
+                                              title: "Modified By",
+                                              value: summary.modifiedBy,
+                                            ),
+                                          ),
+                                          horizontalSpacing(),
+                                          Expanded(
+                                            child: buildColumnTitleValueNormal(
+                                              title: "Modified Date",
+                                              value: formatDateTimeAsDDMMMYYYY(
+                                                summary.modifiedDate,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ],
@@ -197,6 +396,37 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildRow(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: AppTextStyle.ts14R(
+                color: AppColor.black.withValues(alpha: 0.5),
+              ),
+            ),
+          ),
+          Text(
+            ":   ",
+            style: AppTextStyle.ts14R(
+              color: AppColor.black.withValues(alpha: 0.5),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: AppTextStyle.ts14M(color: AppColor.black),
+            ),
+          ),
+        ],
       ),
     );
   }

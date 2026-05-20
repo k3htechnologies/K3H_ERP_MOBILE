@@ -155,9 +155,9 @@ class PaymentDatasourceImpl extends PaymentDatasource {
           .multipartRequestWithAuthenticationBytes(url, fileList, body);
 
       return {
-        'data': List<PayTrackPaymentLedgerModel>.from(
+        'data': List<PayTrackPaymentLedgerSummaryModel>.from(
           networkResponse["data"].map(
-            (e) => PayTrackPaymentLedgerModel.fromJson(e),
+            (e) => PayTrackPaymentLedgerSummaryModel.fromJson(e),
           ),
         ),
         'message': networkResponse['message'],

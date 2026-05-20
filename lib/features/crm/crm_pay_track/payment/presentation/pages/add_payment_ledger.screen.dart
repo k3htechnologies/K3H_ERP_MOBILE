@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger_summary.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_cubit.dart';
 import 'package:k3h_erp_app/features/masters/bank_list_master/data/model/bank_list_master.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
@@ -22,7 +22,7 @@ import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddPaymentLedgerScreen extends StatefulWidget {
-  final List<PayTrackPaymentLedgerModel> paymentLedgerList;
+  final List<PayTrackPaymentLedgerSummaryModel> paymentLedgerList;
   const AddPaymentLedgerScreen({super.key, required this.paymentLedgerList});
 
   @override
@@ -36,9 +36,9 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
       serviceLocator<EmployeeMasterRepository>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late ValueNotifier<Map<String, dynamic>?> selectedPaymentFor;
-  late ValueNotifier<List<Map<String, dynamic>>> _selectedPaymentModeNotifier;
+  late ValueNotifier<Map<String, dynamic>?> _selectedPaymentModeNotifier;
   late ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier;
-  late ValueNotifier<List<Map<String, dynamic>>>
+  late ValueNotifier<Map<String, dynamic>?>
   _selectedPaymentreceivedFromNotifier;
   late ValueNotifier<double> totalAmountVN;
   late ValueNotifier<double> paidAmountVN;
@@ -80,23 +80,28 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
   );
 
   DateTime? transactionDate;
+
+  //EDIT MODE
+  bool get _isEditMode => widget.paymentLedgerList.isNotEmpty;
   @override
   void initState() {
     super.initState();
     _paymentCubit = context.read<PaymentCubit>();
     selectedPaymentFor = ValueNotifier<Map<String, dynamic>?>(null);
-    _selectedPaymentModeNotifier = ValueNotifier<List<Map<String, dynamic>>>(
-      [],
-    );
+    _selectedPaymentModeNotifier = ValueNotifier<Map<String, dynamic>?>(null);
     _selectedBankNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
-    _selectedPaymentreceivedFromNotifier =
-        ValueNotifier<List<Map<String, dynamic>>>([]);
+    _selectedPaymentreceivedFromNotifier = ValueNotifier<Map<String, dynamic>?>(
+      null,
+    );
     totalAmountVN = ValueNotifier(0);
     paidAmountVN = ValueNotifier(0);
     pendingAmountVN = ValueNotifier(0);
     _selectedProjectBankNameNotifier =
         ValueNotifier<List<Map<String, dynamic>>>([]);
     _initializeControllers();
+    if (_isEditMode) {
+      _prefillPaymentLedger(widget.paymentLedgerList);
+    }
   }
 
   @override
@@ -125,6 +130,74 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
     _ifscCodeC = TextEditingController();
     _branchC = TextEditingController();
     _accountTypeC = TextEditingController();
+  }
+
+  void _prefillPaymentLedger(List<PayTrackPaymentLedgerSummaryModel> list) {
+    final item = list.first;
+    final paymentFor = paymentForList.firstWhere(
+      (e) => e['DisplayName'] == item.paymentFor,
+      orElse: () => paymentForList.first,
+    );
+
+    selectedPaymentFor.value = paymentFor;
+
+    totalAmountVN.value = item.receivedAmount;
+
+    paidAmountVN.value = item.receivedAmount;
+
+    pendingAmountVN.value = totalAmountVN.value - paidAmountVN.value;
+    final paymentMode = paymentForList.firstWhere(
+      (e) => e['DisplayName'] == item.paymentMode,
+      orElse: () => paymentForList.first,
+    );
+
+    _selectedPaymentModeNotifier.value = paymentMode;
+
+    _selectedBankNotifier.value = [
+      {"zAttributesId": item.bankListMasterId, "DisplayName": item.bankName},
+    ];
+
+    _selectedProjectBankNameNotifier.value = [
+      {
+        "zAttributesId": item.projectBankListMasterId,
+        "DisplayName": item.projectBankName,
+      },
+    ];
+
+    final paymentReceivedFrom = paymentReceivedFormList.firstWhere(
+      (e) => e['DisplayName'] == item.paymentReceivedFrom,
+      orElse: () => paymentReceivedFormList.first,
+    );
+
+    _selectedPaymentreceivedFromNotifier.value = paymentReceivedFrom;
+    _receivedAmountC.text = item.receivedAmount.toString();
+
+    _transactionOrChequeNumberC.text = item.transactionChequeDemandDraftNumber;
+
+    transactionDate = item.transactionChequeDemandDraftDate;
+
+    _selectedPaymentModeNotifier.value = _paymentModeList.firstWhere(
+      (e) => (e['DisplayName'] as String?) == item.paymentMode,
+      orElse: () => _paymentModeList.first,
+    );
+    selectedChequeForPopUpFile.fileNameList =
+        item.paymentReceiptUrl.isEmpty ? [] : item.paymentReceiptUrl.split(",");
+
+    _selectedProjectBankNameNotifier.value = [
+      {
+        "zAttributesId": item.projectBankListMasterId,
+        "BankListMasterId": item.projectBankListMasterId,
+        "DisplayName": item.bankName,
+        "AccountNumber": item.projectAccountNumber,
+        "IFSCCode": item.projectIfscCode,
+        "Branch": item.bankName,
+        "AcType": "",
+      },
+    ];
+    _accountNumberC.text = item.projectAccountNumber;
+    _ifscCodeC.text = item.projectIfscCode;
+    _branchC.text = item.bankName;
+    _accountTypeC.text = "";
   }
 
   // FETCH BANK
@@ -164,9 +237,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    debugPrint(
-      "Selected Project Bank => ${_selectedProjectBankNameNotifier.value}",
-    );
+
     _paymentCubit.addPaymentLedgerMaster(
       context: context,
 
@@ -179,16 +250,10 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
       paymentFor: selectedPaymentFor.value?["DisplayName"]?.toString() ?? "",
 
       paymentMode:
-          _selectedPaymentModeNotifier.value.isNotEmpty
-              ? _selectedPaymentModeNotifier.value.first["DisplayName"]
-                  .toString()
-              : "",
+          _selectedPaymentModeNotifier.value!["DisplayName"].toString(),
 
       paymentReceivedFrom:
-          _selectedPaymentreceivedFromNotifier.value.isNotEmpty
-              ? _selectedPaymentreceivedFromNotifier.value.first["DisplayName"]
-                  .toString()
-              : "",
+          _selectedPaymentreceivedFromNotifier.value!["DisplayName"].toString(),
 
       bankListMasterId:
           _selectedBankNotifier.value.isNotEmpty
@@ -217,7 +282,8 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Add Payment Ledger",
+        screenTitle:
+            _isEditMode ? "Update Payment Ledger" : "Add Payment Ledger",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
@@ -258,14 +324,36 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                                 .firstWhere(
                                   (e) => e.paymentFor == selectedName,
                                   orElse:
-                                      () => PayTrackPaymentLedgerModel(
+                                      () => PayTrackPaymentLedgerSummaryModel(
+                                        payTrackPaymentLedgerId: 0,
+                                        uniquekey: '',
                                         bookingId: 0,
                                         projectId: 0,
-                                        paymentFor: "",
+                                        bookingOtherChargesId: 0,
+                                        chargeName: '',
+                                        paymentFor: '',
+                                        paymentMode: '',
+                                        paymentReceivedFrom: '',
+                                        bankListMasterId: 0,
+                                        bankName: '',
+                                        projectBankListMasterId: 0,
+                                        projectBankName: '',
+                                        projectAccountNumber: '',
+                                        projectIfscCode: '',
                                         receivedAmount: 0,
-                                        totalAmount: 0,
-                                        uploadedPaymentLedgerCount: 0,
-                                        approvalPendingPaymentLedgerCount: 0,
+                                        transactionChequeDemandDraftNumber: '',
+                                        transactionChequeDemandDraftUrl: '',
+                                        transactionChequeDemandDraftDate:
+                                            DateTime.now(),
+                                        approvalStatus: '',
+                                        isApproval: false,
+                                        paymentReceiptUrl: '',
+                                        createdById: 0,
+                                        createdBy: '',
+                                        createdDate: DateTime.now(),
+                                        modifiedById: 0,
+                                        modifiedBy: '',
+                                        modifiedDate: DateTime.now(),
                                       ),
                                 );
 
@@ -362,13 +450,10 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                           title: "Payment Mode",
                           hintText: "Select Payment Mode",
                           isRequired: true,
-                          initialValue:
-                              selectedPaymentMode.isNotEmpty
-                                  ? selectedPaymentMode.first
-                                  : null,
+                          initialValue: selectedPaymentMode,
                           dataList: _paymentModeList,
                           onSelected: (value) {
-                            _selectedPaymentModeNotifier.value = [value];
+                            _selectedPaymentModeNotifier.value = value;
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -377,7 +462,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                             return null;
                           },
                           onValueClear: () {
-                            _selectedPaymentModeNotifier.value = [];
+                            _selectedPaymentModeNotifier.value = null;
                           },
                         );
                       },
@@ -416,17 +501,12 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                           hintText: "Select Payment Received From",
                           dataList: paymentReceivedFormList,
                           isRequired: true,
-                          initialValue:
-                              selectPayement.isNotEmpty
-                                  ? selectPayement.first
-                                  : null,
+                          initialValue: selectPayement,
                           onSelected: (value) {
-                            _selectedPaymentreceivedFromNotifier.value = [
-                              value,
-                            ];
+                            _selectedPaymentreceivedFromNotifier.value = value;
                           },
                           onValueClear: () {
-                            _selectedPaymentreceivedFromNotifier.value = [];
+                            _selectedPaymentreceivedFromNotifier.value = null;
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -631,9 +711,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                                       readOnly: true,
                                     ),
                                   ),
-
                                   horizontalSpacing(),
-
                                   Expanded(
                                     child: CustomTextField(
                                       textController: _accountTypeC,
@@ -662,8 +740,12 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
           color: AppColor.white,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            leading: Icon(Icons.add, size: 18, color: AppColor.white),
-            text: "Add",
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              size: 18,
+              color: AppColor.white,
+            ),
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),
         ),
