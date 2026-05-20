@@ -154,13 +154,14 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
           }
 
           // 4️. CLOSED STATUS CHECK
-
-          if (closedStatuses.contains(enquiry.finalStage.toLowerCase()) ||
+          final hideFollowUp =
+              closedStatuses.contains(enquiry.finalStage.toLowerCase()) ||
               (state.enquiryFollowUpList.isNotEmpty &&
                   closedStatuses.contains(
                     state.enquiryFollowUpList.first.status.toLowerCase(),
                   )) ||
-              !_routeAuthorizationModel.isAction) {
+              !_routeAuthorizationModel.isAction;
+          if (hideFollowUp) {
             return const SizedBox.shrink();
           }
 
@@ -300,7 +301,8 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                   ? enquiry.mobileNumber
                                   : "-",
                           customValueWidget: CustomClickToContactText(
-                            value: enquiry.mobileNumber,
+                            value:
+                                "${enquiry.mobileNumberCountryCode} ${enquiry.mobileNumber}",
                             type: ContactType.phone,
                           ),
                         ),
@@ -441,17 +443,17 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
 
                         children: [
                           buildColumnTitleValue(
+                            title: "CP Code",
+                            value:
+                                enquiry.channelPartnerCode.isNotEmpty
+                                    ? enquiry.channelPartnerCode
+                                    : "-",
+                          ),
+                          buildColumnTitleValue(
                             title: "CP Name",
                             value:
                                 enquiry.channelPartnerName.isNotEmpty
                                     ? enquiry.channelPartnerName
-                                    : "-",
-                          ),
-                          buildColumnTitleValue(
-                            title: "CP Mobile No.",
-                            value:
-                                enquiry.channelPartnerMobileNumber.isNotEmpty
-                                    ? enquiry.channelPartnerMobileNumber
                                     : "-",
                           ),
                         ],
@@ -460,6 +462,18 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
 
                         children: [
+                          buildColumnTitleValue(
+                            title: "CP Mobile No.",
+                            value:
+                                enquiry.channelPartnerMobileNumber.isNotEmpty
+                                    ? enquiry.channelPartnerMobileNumber
+                                    : "-",
+                            customValueWidget: CustomClickToContactText(
+                              value:
+                                  "${enquiry.channelPartnerMobileNumberCountryCode} ${enquiry.channelPartnerMobileNumber}",
+                              type: ContactType.phone,
+                            ),
+                          ),
                           buildColumnTitleValue(
                             title: "CP Designation",
                             value:
@@ -467,6 +481,13 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                     ? enquiry.channelPartnerDesignation
                                     : "-",
                           ),
+                        ],
+                      ),
+
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+
+                        children: [
                           buildColumnTitleValue(
                             title: "CP Company Name",
                             value:
@@ -474,13 +495,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                     ? enquiry.channelPartnerCompany
                                     : "-",
                           ),
-                        ],
-                      ),
-
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-
-                        children: [
                           buildColumnTitleValue(
                             title: "CP Firms Type",
                             value:
@@ -488,6 +502,12 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                     ? enquiry.channelPartnerFirmsType
                                     : "-",
                           ),
+                        ],
+                      ),
+
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           buildColumnTitleValue(
                             title: "CP Type",
                             value:
@@ -495,12 +515,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                     ? enquiry.channelPartnerType
                                     : "-",
                           ),
-                        ],
-                      ),
 
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
                           if (enquiry.channelPartnerTeamMemberName.isNotEmpty)
                             buildColumnTitleValue(
                               title: "CP Team Member Name",
@@ -511,12 +526,16 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                       ? enquiry.channelPartnerTeamMemberName
                                       : "-",
                             ),
-
+                        ],
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           if (enquiry
                               .channelPartnerTeamMemberMobileNumber
                               .isNotEmpty)
                             buildColumnTitleValue(
-                              title: "CP Team Member Mobile",
+                              title: "CP Team Member Mobile No.",
                               value:
                                   enquiry
                                           .channelPartnerTeamMemberMobileNumber
@@ -526,11 +545,23 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                       : "-",
                               customValueWidget: CustomClickToContactText(
                                 value:
-                                    enquiry
-                                        .channelPartnerTeamMemberMobileNumber,
+                                    "${enquiry.channelPartnerTeamMemberMobileNumberCountryCode} ${enquiry.channelPartnerTeamMemberMobileNumber}",
                                 type: ContactType.phone,
                               ),
                             ),
+                          buildColumnTitleValue(
+                            title: "CP Team Member E-Mail ID",
+                            value:
+                                enquiry
+                                        .channelPartnerTeamMemberEmailId
+                                        .isNotEmpty
+                                    ? enquiry.channelPartnerTeamMemberEmailId
+                                    : "-",
+                            customValueWidget: CustomClickToContactText(
+                              value: enquiry.channelPartnerTeamMemberEmailId,
+                              type: ContactType.email,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -956,7 +987,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
         }
 
         final items = state.enquiryFollowUpList;
-
         return SingleChildScrollView(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
           child: Column(
@@ -982,6 +1012,16 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                       itemBuilder: (context, index) {
                         final isExtraDot = index == items.length;
                         final item = !isExtraDot ? items[index] : items[0];
+                        final isdisabled =
+                            closedStatuses.contains(
+                              item.status.toLowerCase(),
+                            ) ||
+                            (state.enquiryFollowUpList.isNotEmpty &&
+                                closedStatuses.contains(
+                                  state.enquiryFollowUpList.first.status
+                                      .toLowerCase(),
+                                )) ||
+                            !_routeAuthorizationModel.isAction;
 
                         return IntrinsicHeight(
                           child: Row(
@@ -1109,17 +1149,14 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                                       ],
                                                     ),
                                                   ),
-                                                  if (index == 0 &&
-                                                      (!closedStatuses.contains(
-                                                            item.status
-                                                                .toLowerCase(),
-                                                          ) &&
-                                                          (_routeAuthorizationModel
-                                                              .isAction)))
+
+                                                  if (index == 0)
                                                     Row(
                                                       spacing: 5,
                                                       children: [
                                                         CustomIconButton.edit(
+                                                          isDisabled:
+                                                              isdisabled,
                                                           onPressed: () {
                                                             _showAddUpdateEnquiryFollowUpBottomSheet(
                                                               context,
@@ -1130,6 +1167,8 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                                           },
                                                         ),
                                                         CustomIconButton.delete(
+                                                          isDisabled:
+                                                              isdisabled,
                                                           onPressed: () {
                                                             _showPopupToDeleteFollowUp(
                                                               index: index,
@@ -1148,6 +1187,17 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                               ),
                                               verticalSpacing(),
                                               statusWidget(item.status),
+                                              if (item
+                                                  .lostReason
+                                                  .isNotEmpty) ...[
+                                                verticalSpacing(),
+                                                Text(
+                                                  "Lost Reason: ${item.lostReason}",
+                                                  style: AppTextStyle.ts12R(
+                                                    color: AppColor.grey,
+                                                  ),
+                                                ),
+                                              ],
                                               verticalSpacing(),
 
                                               Text(
@@ -1202,7 +1252,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
 
     switch (s) {
       case 'booking done':
-        return statusChip(status, AppColor.green20, AppColor.green);
+        return statusChip(status, AppColor.lightGreen, AppColor.green);
 
       case 'blocked':
         return statusChip(status, AppColor.purple20, AppColor.purple);
@@ -1220,7 +1270,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
         return statusChip(status, AppColor.lightBlue2, AppColor.info);
 
       case 're - visit scheduled':
-        return statusChip(status, AppColor.lightGreenBg, AppColor.darkGreen);
+        return statusChip(status, AppColor.lightGreen, AppColor.darkGreen);
 
       case 're - visit proposed':
         return statusChip(status, AppColor.lightOrangenBg, AppColor.orange);

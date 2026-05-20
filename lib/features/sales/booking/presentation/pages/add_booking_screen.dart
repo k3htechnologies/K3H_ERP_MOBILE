@@ -1327,7 +1327,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                 "title": "Mobile No",
                                 "value": enquiry.mobileNumber,
                                 "widget": CustomClickToContactText(
-                                  value: enquiry.mobileNumber,
+                                  value:
+                                      "${enquiry.mobileNumberCountryCode} ${enquiry.mobileNumber}",
                                 ),
                               },
                               {"title": "Source", "value": enquiry.source},
@@ -1412,6 +1413,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                       "title": "CP Mobile",
                                       "value":
                                           enquiry.channelPartnerMobileNumber,
+                                      "widget": CustomClickToContactText(
+                                        value:
+                                            "${enquiry.channelPartnerMobileNumberCountryCode} ${enquiry.channelPartnerMobileNumber}",
+                                      ),
                                     },
                                     {
                                       "title": "CP Team Member",
@@ -1423,6 +1428,22 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                       "value":
                                           enquiry
                                               .channelPartnerTeamMemberMobileNumber,
+                                      "widget": CustomClickToContactText(
+                                        value:
+                                            "${enquiry.channelPartnerTeamMemberMobileNumberCountryCode} ${enquiry.channelPartnerTeamMemberMobileNumber}",
+                                      ),
+                                    },
+                                    {
+                                      "title": "CP Team E-mail ID",
+                                      "value":
+                                          enquiry
+                                              .channelPartnerTeamMemberEmailId,
+                                      "widget": CustomClickToContactText(
+                                        value:
+                                            enquiry
+                                                .channelPartnerTeamMemberEmailId,
+                                        type: ContactType.email,
+                                      ),
                                     },
                                   ]),
                               ],
@@ -2842,6 +2863,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     applicant.applicantMobileNumber.isEmpty
                         ? "-"
                         : applicant.applicantMobileNumber,
+                customValueWidget: CustomClickToContactText(
+                  value:
+                      "${applicant.applicantMobileNumberCountryCode} ${applicant.applicantMobileNumber}",
+                ),
               ),
               buildColumnTitleValue(
                 title: "Email ID",

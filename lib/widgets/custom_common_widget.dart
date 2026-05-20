@@ -216,7 +216,7 @@ Widget approvalStatusWidget(String status) {
 
   switch (s) {
     case 'approved':
-      return statusChip(status, AppColor.green20, AppColor.green);
+      return statusChip(status, AppColor.lightGreen, AppColor.green);
 
     case 'rejected':
       return statusChip(status, AppColor.lightRed, AppColor.red);

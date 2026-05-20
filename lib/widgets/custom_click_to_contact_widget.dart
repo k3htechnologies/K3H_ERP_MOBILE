@@ -38,7 +38,6 @@ class CustomClickToContactText extends StatelessWidget {
 
             service.setPendingCall(value);
             service.forceStartCall(value);
-
           } catch (_) {}
         } else if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -91,11 +90,7 @@ class CustomClickToContactText extends StatelessWidget {
           const SizedBox(width: 6),
           Flexible(
             child: Text(
-              type == ContactType.phone
-                  ? (value.trim().length == 10
-                      ? '+91 ${value.trim()}'
-                      : value.trim())
-                  : value,
+              type == ContactType.phone ? value.trim() : value,
               style:
                   textStyle ??
                   const TextStyle(

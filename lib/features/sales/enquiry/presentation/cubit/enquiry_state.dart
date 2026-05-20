@@ -13,16 +13,32 @@ class EnquiryState extends BaseState {
   final String selectedNationality;
   final ChannelPartnerModel? channelPartnerModel;
   final List<EnquiryFollowUpModel> enquiryFollowUpList;
+
   final String currentSortColumn;
   final String currentSortDirection;
+
   final DateTime? filterStartDate;
   final DateTime? filterEndDate;
+
   final String filterSystemCode;
   final String filterMobileNumber;
+  final String filterBudget;
+  final String filterRequirementType;
+  final String filterSource;
+  final String filterSubSource;
+  final String filterChannelPartnerMobile;
+  final String filterNationality;
+  final String filterCurrentLocation;
+  final String filterCustomerClassification;
+  final String filterEthnicity;
+  final String filterSalesAdvisor;
+  final String filterSourcingManager;
+  final String filterAccommodation;
   final String filterFollowUpDays;
-  final String filterRequirement;
-  final String filterStage;
+  final String filterFinalStage;
+
   final EnquiryModel? currentEnquiryDetails;
+
   final bool isFetchingEnquiryDetails;
   final bool isFetchingChannelPartners;
 
@@ -41,9 +57,20 @@ class EnquiryState extends BaseState {
     this.filterEndDate,
     this.filterSystemCode = "",
     this.filterMobileNumber = "",
+    this.filterBudget = "",
+    this.filterRequirementType = "",
+    this.filterSource = "",
+    this.filterSubSource = "",
+    this.filterChannelPartnerMobile = "",
+    this.filterNationality = "",
+    this.filterCurrentLocation = "",
+    this.filterCustomerClassification = "",
+    this.filterEthnicity = "",
+    this.filterSalesAdvisor = "",
+    this.filterSourcingManager = "",
+    this.filterAccommodation = "",
     this.filterFollowUpDays = "",
-    this.filterRequirement = "",
-    this.filterStage = "",
+    this.filterFinalStage = "",
     this.currentEnquiryDetails,
     this.isFetchingEnquiryDetails = false,
     this.isFetchingChannelPartners = false,
@@ -64,9 +91,20 @@ class EnquiryState extends BaseState {
     filterEndDate: null,
     filterSystemCode: "",
     filterMobileNumber: "",
+    filterBudget: "",
+    filterRequirementType: "",
+    filterSource: "",
+    filterSubSource: "",
+    filterChannelPartnerMobile: "",
+    filterNationality: "",
+    filterCurrentLocation: "",
+    filterCustomerClassification: "",
+    filterEthnicity: "",
+    filterSalesAdvisor: "",
+    filterSourcingManager: "",
+    filterAccommodation: "",
     filterFollowUpDays: "",
-    filterRequirement: "",
-    filterStage: "",
+    filterFinalStage: "",
     currentEnquiryDetails: null,
     isFetchingEnquiryDetails: false,
     isFetchingChannelPartners: false,
@@ -90,9 +128,20 @@ class EnquiryState extends BaseState {
     Object? filterEndDate = _noChange,
     String? filterSystemCode,
     String? filterMobileNumber,
+    String? filterBudget,
+    String? filterRequirementType,
+    String? filterSource,
+    String? filterSubSource,
+    String? filterChannelPartnerMobile,
+    String? filterNationality,
+    String? filterCurrentLocation,
+    String? filterCustomerClassification,
+    String? filterEthnicity,
+    String? filterSalesAdvisor,
+    String? filterSourcingManager,
+    String? filterAccommodation,
     String? filterFollowUpDays,
-    String? filterRequirement,
-    String? filterStage,
+    String? filterFinalStage,
     Object? currentEnquiryDetails = _noChange,
     Object? isFetchingEnquiryDetails = _noChange,
     Object? isFetchingChannelPartners = _noChange,
@@ -104,12 +153,16 @@ class EnquiryState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       selectedNationality: selectedNationality ?? this.selectedNationality,
       searchText: searchText ?? this.searchText,
+
       channelPartnerModel:
           clearChannelPartner
               ? null
               : (channelPartnerModel ?? this.channelPartnerModel),
+
       enquiryFollowUpList: enquiryFollowUpList ?? this.enquiryFollowUpList,
+
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
+
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
 
       filterStartDate:
@@ -123,18 +176,51 @@ class EnquiryState extends BaseState {
               : filterEndDate as DateTime?,
 
       filterSystemCode: filterSystemCode ?? this.filterSystemCode,
+
       filterMobileNumber: filterMobileNumber ?? this.filterMobileNumber,
+
+      filterBudget: filterBudget ?? this.filterBudget,
+
+      filterRequirementType:
+          filterRequirementType ?? this.filterRequirementType,
+
+      filterSource: filterSource ?? this.filterSource,
+
+      filterChannelPartnerMobile:
+          filterChannelPartnerMobile ?? this.filterChannelPartnerMobile,
+
+      filterNationality: filterNationality ?? this.filterNationality,
+
+      filterCurrentLocation:
+          filterCurrentLocation ?? this.filterCurrentLocation,
+
+      filterCustomerClassification:
+          filterCustomerClassification ?? this.filterCustomerClassification,
+
+      filterEthnicity: filterEthnicity ?? this.filterEthnicity,
+
+      filterSalesAdvisor: filterSalesAdvisor ?? this.filterSalesAdvisor,
+
+      filterSourcingManager:
+          filterSourcingManager ?? this.filterSourcingManager,
+
+      filterAccommodation: filterAccommodation ?? this.filterAccommodation,
+
       filterFollowUpDays: filterFollowUpDays ?? this.filterFollowUpDays,
-      filterRequirement: filterRequirement ?? this.filterRequirement,
-      filterStage: filterStage ?? this.filterStage,
+
+      filterFinalStage: filterFinalStage ?? this.filterFinalStage,
+      filterSubSource: filterSubSource ?? this.filterSubSource,
+
       currentEnquiryDetails:
           currentEnquiryDetails == _noChange
               ? this.currentEnquiryDetails
               : currentEnquiryDetails as EnquiryModel?,
+
       isFetchingEnquiryDetails:
           isFetchingEnquiryDetails == _noChange
               ? this.isFetchingEnquiryDetails
               : isFetchingEnquiryDetails as bool,
+
       isFetchingChannelPartners:
           isFetchingChannelPartners == _noChange
               ? this.isFetchingChannelPartners
@@ -158,9 +244,20 @@ class EnquiryState extends BaseState {
     filterEndDate,
     filterSystemCode,
     filterMobileNumber,
+    filterBudget,
+    filterRequirementType,
+    filterSource,
+    filterSubSource,
+    filterChannelPartnerMobile,
+    filterNationality,
+    filterCurrentLocation,
+    filterCustomerClassification,
+    filterEthnicity,
+    filterSalesAdvisor,
+    filterSourcingManager,
+    filterAccommodation,
     filterFollowUpDays,
-    filterRequirement,
-    filterStage,
+    filterFinalStage,
     currentEnquiryDetails,
     isFetchingEnquiryDetails,
     isFetchingChannelPartners,

@@ -545,6 +545,8 @@ class BookingCubit extends Cubit<BookingState> {
         "AddUpdateBookingApplicant[$i].ApplicantName": e.applicantName,
         "AddUpdateBookingApplicant[$i].ApplicantMobileNumber":
             e.applicantMobileNumber,
+        "AddUpdateBookingApplicant[$i].ApplicantMobileNumberCountryCode":
+            e.applicantMobileNumberCountryCode,
         "AddUpdateBookingApplicant[$i].ApplicantEmailId": e.applicantEmailId,
         "AddUpdateBookingApplicant[$i].AadharCardNumber": e.aadharCardNumber,
         "AddUpdateBookingApplicant[$i].PanNumber": e.panNumber,
@@ -838,6 +840,8 @@ class BookingCubit extends Cubit<BookingState> {
         "AddUpdateBookingApplicant[$i].ApplicantName": e.applicantName,
         "AddUpdateBookingApplicant[$i].ApplicantMobileNumber":
             e.applicantMobileNumber,
+        "AddUpdateBookingApplicant[$i].ApplicantMobileNumberCountryCode":
+            e.applicantMobileNumberCountryCode,
         "AddUpdateBookingApplicant[$i].ApplicantEmailId": e.applicantEmailId,
         "AddUpdateBookingApplicant[$i].RemovePhotoURL":
             e.profilePhotoImage.deletedFileList,

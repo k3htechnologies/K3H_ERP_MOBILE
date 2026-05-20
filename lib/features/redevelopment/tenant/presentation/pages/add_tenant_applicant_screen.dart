@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:k3h_erp_app/core/country_code.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -41,7 +42,9 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
       serviceLocator<EmployeeMasterRepository>();
 
   final _formKey = GlobalKey<FormState>();
-
+  ValueNotifier<CountryCode> selectedMobileNoCountry = ValueNotifier(
+    countryList.firstWhere((e) => e.code == "+91"),
+  );
   // TEXT CONTROLLERS
   late TextEditingController _applicantNameC,
       _mobileC,
@@ -289,6 +292,8 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
             applicantType: selectedApplicantType.value!['DisplayName'],
             applicantName: _applicantNameC.text.trim(),
             applicantMobileNumber: _mobileC.text,
+            applicantMobileNumberCountryCode:
+                selectedMobileNoCountry.value.code,
             applicantEmailId: _emailC.text.trim(),
             photoURL: widget.applicant?.photoURL ?? '',
             aadharCardNumber: _aadharC.text.trim(),
@@ -403,20 +408,44 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                       return null;
                     },
                   ),
-                  CustomTextField(
-                    title: 'Mobile Number',
-                    isRequired: true,
-                    hint: "Enter Mobile Number",
-                    textController: _mobileC,
-                    inputFormatterList: InputValidator.digit(10),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return "Mobile Number is required";
-                      }
-                      if (!InputValidator.isValidMobileNumber(value)) {
-                        return "Invalid mobile number";
-                      }
-                      return null;
+                  ValueListenableBuilder(
+                    valueListenable: selectedMobileNoCountry,
+                    builder: (context, value, child) {
+                      return CustomTextField(
+                        title: "Mobile Number",
+                        textController: _mobileC,
+                        hint: "Enter Mobile Number",
+                        keyboardType: TextInputType.phone,
+                        isRequired: true,
+                        showCountryDropdown: true,
+                        selectedCountry: value,
+                        onCountryChanged: (country) {
+                          if (country == null) return;
+
+                          selectedMobileNoCountry.value = country;
+                        },
+                        inputFormatterList: [
+                          LengthLimitingTextInputFormatter(value.mobileLength),
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        validator: (value) {
+                          final mobile = value?.trim() ?? "";
+                          final country = selectedMobileNoCountry.value;
+                          if (value == null || value.isEmpty) {
+                            return "Mobile Number is required";
+                          }
+                          if (mobile.isNotEmpty) {
+                            // LENGTH AND REGEX VALIDATION
+                            if ((mobile.length != country.mobileLength) ||
+                                country.regex != null &&
+                                    !country.regex!.hasMatch(mobile)) {
+                              return "Invalid Mobile Number";
+                            }
+                          }
+
+                          return null;
+                        },
+                      );
                     },
                   ),
                   CustomTextField(
@@ -746,8 +775,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
               size: 18,
               color: AppColor.white,
             ),
-            text:
-                _isEditingApplicantType ? "Update" : "Add",
+            text: _isEditingApplicantType ? "Update" : "Add",
             onPressed: _save,
           ),
         ),

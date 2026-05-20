@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -285,9 +286,16 @@ class _BookingViewScreenState extends State<BookingViewScreen>
 
               /// BASIC INFO
               items.addAll([
-                {"title": "Unique Code", "value": enquiry.systemGeneratedCode},
+                {"title": "Enquiry Code", "value": enquiry.systemGeneratedCode},
                 {"title": "Name", "value": enquiry.name},
-                {"title": "Mobile No.", "value": enquiry.mobileNumber},
+                {
+                  "title": "Mobile No.",
+                  "value": enquiry.mobileNumber,
+                  "widget": CustomClickToContactText(
+                    value:
+                        "${enquiry.mobileNumberCountryCode} ${enquiry.mobileNumber}",
+                  ),
+                },
                 {"title": "Source", "value": enquiry.source},
               ]);
 
@@ -374,6 +382,10 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                           {
                             "title": "CP Mobile",
                             "value": enquiry.channelPartnerMobileNumber,
+                            "widget": CustomClickToContactText(
+                              value:
+                                  "${enquiry.channelPartnerMobileNumberCountryCode} ${enquiry.channelPartnerMobileNumber}",
+                            ),
                           },
                           {
                             "title": "CP Team Member",
@@ -383,6 +395,18 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                             "title": "CP Team Mobile",
                             "value":
                                 enquiry.channelPartnerTeamMemberMobileNumber,
+                            "widget": CustomClickToContactText(
+                              value:
+                                  "${enquiry.channelPartnerTeamMemberMobileNumberCountryCode} ${enquiry.channelPartnerTeamMemberMobileNumber}",
+                            ),
+                          },
+                          {
+                            "title": "CP Team E-mail ID",
+                            "value": enquiry.channelPartnerTeamMemberEmailId,
+                            "widget": CustomClickToContactText(
+                              value: enquiry.channelPartnerTeamMemberEmailId,
+                              type: ContactType.email,
+                            ),
                           },
                         ]),
                     ],

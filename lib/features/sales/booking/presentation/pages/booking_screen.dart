@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static_data.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
@@ -64,28 +65,6 @@ class _BookingScreenState extends State<BookingScreen> {
       ValueNotifier(null);
   final ValueNotifier<Map<String, dynamic>?> _selectedSubSourceNotifier =
       ValueNotifier(null);
-  final List<Map<String, dynamic>> sourceTypeList = [
-    {'zAttributesId': 1, 'DisplayName': 'Channel Partner'},
-    {'zAttributesId': 2, 'DisplayName': 'Direct Walking'},
-  ];
-  final List<Map<String, dynamic>> channelPartnerActivityList = [
-    {'zAttributesId': 1, 'DisplayName': 'Channel Partner Data Calling'},
-    {'zAttributesId': 2, 'DisplayName': 'Channel Partner Walked In'},
-    {'zAttributesId': 3, 'DisplayName': 'Digital Activity'},
-  ];
-  final List<Map<String, dynamic>> directWalkingSubSourceList = [
-    {'zAttributesId': 1, 'DisplayName': 'Advertisement'},
-    {'zAttributesId': 2, 'DisplayName': 'Exhibition'},
-    {'zAttributesId': 3, 'DisplayName': 'Employee Reference'},
-    {'zAttributesId': 4, 'DisplayName': 'HRR Website'},
-    {'zAttributesId': 5, 'DisplayName': 'Loyalty'},
-    {'zAttributesId': 6, 'DisplayName': 'Management Reference'},
-    {'zAttributesId': 7, 'DisplayName': 'Property Search Portal'},
-    {'zAttributesId': 8, 'DisplayName': 'SMS'},
-    {'zAttributesId': 9, 'DisplayName': 'Site Branding'},
-    {'zAttributesId': 10, 'DisplayName': 'Reference'},
-    {'zAttributesId': 11, 'DisplayName': 'Other'},
-  ];
   @override
   void initState() {
     super.initState();

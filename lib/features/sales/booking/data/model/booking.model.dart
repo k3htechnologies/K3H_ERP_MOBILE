@@ -440,6 +440,7 @@ class BookingApplicantData {
   String applicantType;
   String applicantName;
   String applicantMobileNumber;
+  String applicantMobileNumberCountryCode;
   String applicantEmailId;
   String photoURL;
   String aadharCardNumber;
@@ -551,6 +552,7 @@ class BookingApplicantData {
     required this.applicantType,
     required this.applicantName,
     required this.applicantMobileNumber,
+    required this.applicantMobileNumberCountryCode,
     required this.applicantEmailId,
     required this.photoURL,
     required this.aadharCardNumber,
@@ -585,6 +587,10 @@ class BookingApplicantData {
         bookingApplicantId: parseValue<int>(json, "BookingApplicantId"),
         applicantType: parseValue<String>(json, "ApplicantType"),
         applicantName: parseValue<String>(json, "ApplicantName"),
+        applicantMobileNumberCountryCode: parseValue<String>(
+          json,
+          "ApplicantMobileNumberCountryCode",
+        ),
         applicantMobileNumber: parseValue<String>(
           json,
           "ApplicantMobileNumber",
@@ -629,6 +635,7 @@ class BookingApplicantData {
     "ApplicantType": applicantType,
     "ApplicantName": applicantName,
     "ApplicantMobileNumber": applicantMobileNumber,
+    "ApplicantMobileNumberCountryCode": applicantMobileNumberCountryCode,
     "ApplicantEmailId": applicantEmailId,
     "PhotoURL": photoURL,
     "AadharCardNumber": aadharCardNumber,
@@ -663,6 +670,7 @@ class BookingApplicantData {
     String? applicantType,
     String? applicantName,
     String? applicantMobileNumber,
+    String? applicantMobileNumberCountryCode,
     String? applicantEmailId,
     String? photoURL,
     String? aadharCardNumber,
@@ -697,6 +705,9 @@ class BookingApplicantData {
       applicantName: applicantName ?? this.applicantName,
       applicantMobileNumber:
           applicantMobileNumber ?? this.applicantMobileNumber,
+      applicantMobileNumberCountryCode:
+          applicantMobileNumberCountryCode ??
+          this.applicantMobileNumberCountryCode,
       applicantEmailId: applicantEmailId ?? this.applicantEmailId,
       photoURL: photoURL ?? this.photoURL,
       aadharCardNumber: aadharCardNumber ?? this.aadharCardNumber,

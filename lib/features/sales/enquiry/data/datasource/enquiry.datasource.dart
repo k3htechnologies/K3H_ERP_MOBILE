@@ -3,6 +3,7 @@ import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry_followup.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 abstract interface class EnquiryDatasource {
   Future<Map<String, dynamic>> apiCallPullEnquiry({
@@ -72,7 +73,7 @@ class EnquiryDatasourceImpl extends EnquiryDatasource {
     }) {
       String url =
           "Enquiry/PullEnquiry?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

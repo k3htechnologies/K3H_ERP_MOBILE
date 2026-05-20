@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:k3h_erp_app/core/country_code.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
@@ -139,7 +141,9 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
     fileNameList: [],
     deletedFileList: "",
   );
-
+  ValueNotifier<CountryCode> selectedMobileNoCountry = ValueNotifier(
+    countryList.firstWhere((e) => e.code == "+91"),
+  );
   @override
   void initState() {
     super.initState();
@@ -184,6 +188,17 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
           e['DisplayName'].toString().toLowerCase() ==
           applicant.applicantType.toLowerCase(),
       orElse: () => applicantTypeList.first,
+    );
+    selectedMobileNoCountry.value = countryList.firstWhere(
+      (e) => e.code == applicant.applicantMobileNumberCountryCode,
+      orElse:
+          () => CountryCode(
+            name: "India",
+            code: "+91",
+            countryCode: "IN",
+            mobileLength: 10,
+            regex: RegExp(r'^[6-9]\d{9}$'),
+          ),
     );
 
     void setFileLists(MultiFilePickerModel target, String url) {
@@ -231,7 +246,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
       applicantName: _applicantNameC.text.trim(),
       applicantMobileNumber: _mobileC.text.trim(),
       applicantEmailId: _emailC.text.trim(),
-
+      applicantMobileNumberCountryCode: selectedMobileNoCountry.value.code,
       photoURL:
           profilePhotoFile.fileNameList.isNotEmpty
               ? profilePhotoFile.fileNameList.join(",")
@@ -388,39 +403,45 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       return null;
                     },
                   ),
-                  CustomTextField(
-                    title: 'Mobile Number',
-                    isRequired: true,
-                    hint: "Enter Mobile Number",
-                    textController: _mobileC,
-                    keyboardType: TextInputType.phone,
-                    inputFormatterList: InputValidator.digit(10),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return "Mobile Number is required";
-                      }
-                      if (!InputValidator.isValidMobileNumber(value)) {
-                        return "Invalid mobile number";
-                      }
-                      return null;
-                    },
-                    prefixWidget: IntrinsicHeight(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
+                  ValueListenableBuilder(
+                    valueListenable: selectedMobileNoCountry,
+                    builder: (context, value, child) {
+                      return CustomTextField(
+                        title: "Mobile Number",
+                        textController: _mobileC,
+                        hint: "Enter Mobile Number",
+                        keyboardType: TextInputType.phone,
+                        isRequired: true,
+                        showCountryDropdown: true,
+                        selectedCountry: value,
+                        onCountryChanged: (country) {
+                          if (country == null) return;
 
-                        children: [
-                          SizedBox(width: 10),
-                          Text("+91"),
-                          VerticalDivider(
-                            color: AppColor.black,
-                            thickness: 0.5,
-                            width: 15,
-                            indent: 5,
-                            endIndent: 5,
-                          ),
+                          selectedMobileNoCountry.value = country;
+                        },
+                        inputFormatterList: [
+                          LengthLimitingTextInputFormatter(value.mobileLength),
+                          FilteringTextInputFormatter.digitsOnly,
                         ],
-                      ),
-                    ),
+                        validator: (value) {
+                          final mobile = value?.trim() ?? "";
+                          final country = selectedMobileNoCountry.value;
+                          if (value == null || value.isEmpty) {
+                            return "Mobile Number is required";
+                          }
+                          if (mobile.isNotEmpty) {
+                            // LENGTH AND REGEX VALIDATION
+                            if ((mobile.length != country.mobileLength) ||
+                                country.regex != null &&
+                                    !country.regex!.hasMatch(mobile)) {
+                              return "Invalid Mobile Number";
+                            }
+                          }
+
+                          return null;
+                        },
+                      );
+                    },
                   ),
                   CustomTextField(
                     title: 'Email Id',

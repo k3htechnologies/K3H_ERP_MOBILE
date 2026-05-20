@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
@@ -17,12 +18,15 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static_data.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -52,14 +56,26 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
   late TextEditingController _searchC,
       _systemCodeC,
       _mobileNumberC,
+      _budgetC,
+      _requirementTypeC,
+      _channelPartnerMobileC,
+      _nationalityC,
+      _currentLocationC,
+      _customerClassificationC,
+      _ethnicityC,
+      _salesAdvisorC,
+      _sourcingManagerC,
+      _accommodationC,
       _followUpDaysC,
-      _requirementC,
-      _stageC;
-
+      _finalStageC;
   // DATE VARIABLES
   final ValueNotifier<DateTime?> _startDateNotifier = ValueNotifier(null);
   final ValueNotifier<DateTime?> _endDateNotifier = ValueNotifier(null);
   final closedStatuses = ['booking done', 'cancelled', 'lost'];
+  final ValueNotifier<Map<String, dynamic>?> _selectedSourceNotifier =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedSubSourceNotifier =
+      ValueNotifier(null);
 
   Future<void> openWhatsApp({
     required String phoneNumber,
@@ -141,9 +157,18 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     _searchC.dispose();
     _systemCodeC.dispose();
     _mobileNumberC.dispose();
+    _budgetC.dispose();
+    _requirementTypeC.dispose();
+    _channelPartnerMobileC.dispose();
+    _nationalityC.dispose();
+    _currentLocationC.dispose();
+    _customerClassificationC.dispose();
+    _ethnicityC.dispose();
+    _salesAdvisorC.dispose();
+    _sourcingManagerC.dispose();
+    _accommodationC.dispose();
     _followUpDaysC.dispose();
-    _requirementC.dispose();
-    _stageC.dispose();
+    _finalStageC.dispose();
 
     scrollController.dispose();
 
@@ -157,9 +182,18 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     _searchC = TextEditingController();
     _systemCodeC = TextEditingController();
     _mobileNumberC = TextEditingController();
+    _budgetC = TextEditingController();
+    _requirementTypeC = TextEditingController();
+    _channelPartnerMobileC = TextEditingController();
+    _nationalityC = TextEditingController();
+    _currentLocationC = TextEditingController();
+    _customerClassificationC = TextEditingController();
+    _ethnicityC = TextEditingController();
+    _salesAdvisorC = TextEditingController();
+    _sourcingManagerC = TextEditingController();
+    _accommodationC = TextEditingController();
     _followUpDaysC = TextEditingController();
-    _requirementC = TextEditingController();
-    _stageC = TextEditingController();
+    _finalStageC = TextEditingController();
   }
 
   // <---- PAGINATION ---->
@@ -188,7 +222,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
   Future<void> _showBottomSheetToFilterEnquiry(BuildContext context) async {
     final state = _enquiryCubit.state;
 
-    // SET INITIAL DATA
+    // INITIAL DATA
     final DateTime? initialStartDate = state.filterStartDate;
     final DateTime? initialEndDate = state.filterEndDate;
 
@@ -197,18 +231,39 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
 
     final initialSystemCode = state.filterSystemCode;
     final initialMobile = state.filterMobileNumber;
+    final initialBudget = state.filterBudget;
+    final initialRequirementType = state.filterRequirementType;
+    final initialSource = state.filterSource;
+    final initialSubSource = state.filterSubSource;
+    final initialChannelPartnerMobile = state.filterChannelPartnerMobile;
+    final initialNationality = state.filterNationality;
+    final initialCurrentLocation = state.filterCurrentLocation;
+    final initialCustomerClassification = state.filterCustomerClassification;
+    final initialEthnicity = state.filterEthnicity;
+    final initialSalesAdvisor = state.filterSalesAdvisor;
+    final initialSourcingManager = state.filterSourcingManager;
+    final initialAccommodation = state.filterAccommodation;
     final initialFollowUpDays = state.filterFollowUpDays;
-    final initialRequirement = state.filterRequirement;
-    final initialStage = state.filterStage;
+    final initialFinalStage = state.filterFinalStage;
 
+    // CONTROLLERS
     _systemCodeC.text = initialSystemCode;
     _mobileNumberC.text = initialMobile;
+    _budgetC.text = initialBudget;
+    _requirementTypeC.text = initialRequirementType;
+    _channelPartnerMobileC.text = initialChannelPartnerMobile;
+    _nationalityC.text = initialNationality;
+    _currentLocationC.text = initialCurrentLocation;
+    _customerClassificationC.text = initialCustomerClassification;
+    _ethnicityC.text = initialEthnicity;
+    _salesAdvisorC.text = initialSalesAdvisor;
+    _sourcingManagerC.text = initialSourcingManager;
+    _accommodationC.text = initialAccommodation;
     _followUpDaysC.text = initialFollowUpDays;
-    _requirementC.text = initialRequirement;
-    _stageC.text = initialStage;
+    _finalStageC.text = initialFinalStage;
+
     _startDateNotifier.value = initialStartDate;
     _endDateNotifier.value = initialEndDate;
-
     String? selectedDirection = initialDirection;
 
     bool applied = false;
@@ -216,23 +271,43 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
 
     void updateApplyState() {
+      final currentSource =
+          (_selectedSourceNotifier.value?['zAttributesId'] == -1)
+              ? ''
+              : _selectedSourceNotifier.value?['DisplayName'] ?? '';
+
+      final currentSubSource =
+          (_selectedSubSourceNotifier.value?['zAttributesId'] == -1)
+              ? ''
+              : _selectedSubSourceNotifier.value?['DisplayName'] ?? '';
+
       final bool manualChange =
           (_startDateNotifier.value != initialStartDate) ||
           (_endDateNotifier.value != initialEndDate) ||
           (_systemCodeC.text.trim() != initialSystemCode) ||
           (_mobileNumberC.text.trim() != initialMobile) ||
+          (_budgetC.text.trim() != initialBudget) ||
+          (_requirementTypeC.text.trim() != initialRequirementType) ||
+          (currentSource != initialSource) ||
+          (currentSubSource != initialSubSource) ||
+          (_channelPartnerMobileC.text.trim() != initialChannelPartnerMobile) ||
+          (_nationalityC.text.trim() != initialNationality) ||
+          (_currentLocationC.text.trim() != initialCurrentLocation) ||
+          (_customerClassificationC.text.trim() !=
+              initialCustomerClassification) ||
+          (_ethnicityC.text.trim() != initialEthnicity) ||
+          (_salesAdvisorC.text.trim() != initialSalesAdvisor) ||
+          (_sourcingManagerC.text.trim() != initialSourcingManager) ||
+          (_accommodationC.text.trim() != initialAccommodation) ||
           (_followUpDaysC.text.trim() != initialFollowUpDays) ||
-          (_requirementC.text.trim() != initialRequirement) ||
-          (_stageC.text.trim() != initialStage) ||
+          (_finalStageC.text.trim() != initialFinalStage) ||
           (selectedDirection != initialDirection);
 
-      // Disable Apply if only one date is set
       final bool onlyOneDateSet =
           (_startDateNotifier.value != null &&
               _endDateNotifier.value == null) ||
           (_endDateNotifier.value != null && _startDateNotifier.value == null);
 
-      // Disable Apply if From > To
       final bool invalidRange =
           (_startDateNotifier.value != null &&
               _endDateNotifier.value != null &&
@@ -244,6 +319,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter Enquiry",
+
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {
@@ -282,7 +358,9 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                         child: Text("A-Z", style: AppTextStyle.ts12R()),
                       ),
                     ),
+
                     horizontalSpacing(),
+
                     GestureDetector(
                       onTap: () => selectDirection("DESC"),
                       child: Container(
@@ -306,7 +384,139 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
 
                 verticalSpacing(height: 20),
 
-                // DATE PICKERS
+                CustomTextField(
+                  textController: _systemCodeC,
+                  title: "Enquiry Code",
+                  hint: "Enter System Code",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+
+                CustomTextField(
+                  textController: _mobileNumberC,
+                  title: "Mobile Number",
+                  hint: "Enter Mobile Number",
+                  keyboardType: TextInputType.phone,
+                  inputFormatterList: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9\s+]')),
+                  ],
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+
+                CustomTextField(
+                  textController: _budgetC,
+                  title: "Budget",
+                  hint: "Enter Budget",
+                  inputFormatterList: InputValidator.decimal(2),
+                  keyboardType: TextInputType.number,
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+
+                CustomTextField(
+                  textController: _requirementTypeC,
+                  title: "Requirement Type",
+                  hint: "Enter Requirement Type",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+
+                ValueListenableBuilder(
+                  valueListenable: _selectedSourceNotifier,
+                  builder: (context, selectedSource, _) {
+                    final bool isChannelPartner =
+                        selectedSource?['zAttributesId'] == 1;
+
+                    return Column(
+                      children: [
+                        CustomDropDownWidget(
+                          title: 'Source',
+                          hintText: 'Select Source',
+                          initialValue: selectedSource,
+                          dataList: sourceTypeList,
+                          onSelected: (v) {
+                            _selectedSourceNotifier.value = v;
+                            updateApplyState();
+                          },
+                          onValueClear: () {
+                            _selectedSourceNotifier.value = null;
+                            updateApplyState();
+                          },
+                        ),
+
+                        if ((selectedSource != null))
+                          ValueListenableBuilder(
+                            valueListenable: _selectedSubSourceNotifier,
+                            builder: (context, selectedSubSource, _) {
+                              return CustomDropDownWidget(
+                                title: "Sub Source",
+                                initialValue: selectedSubSource,
+                                dataList:
+                                    isChannelPartner
+                                        ? channelPartnerActivityList
+                                        : directWalkingSubSourceList,
+                                onSelected: (v) {
+                                  _selectedSubSourceNotifier.value = v;
+                                  updateApplyState();
+                                },
+                                onValueClear: () {
+                                  _selectedSubSourceNotifier.value = null;
+                                  updateApplyState();
+                                },
+                              );
+                            },
+                          ),
+                      ],
+                    );
+                  },
+                ),
+
+                CustomTextField(
+                  textController: _channelPartnerMobileC,
+                  title: "Channel Partner Mobile",
+                  hint: "Enter Channel Partner Mobile",
+                  keyboardType: TextInputType.phone,
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+
+                CustomTextField(
+                  textController: _nationalityC,
+                  title: "Nationality",
+                  hint: "Enter Nationality",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+
+                CustomTextField(
+                  textController: _currentLocationC,
+                  title: "Current Location",
+                  hint: "Enter Current Location",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+
+                CustomTextField(
+                  textController: _customerClassificationC,
+                  title: "Customer Classification",
+                  hint: "Enter Classification",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+
+                CustomTextField(
+                  textController: _ethnicityC,
+                  title: "Ethnicity",
+                  hint: "Enter Ethnicity",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+
+                CustomTextField(
+                  textController: _salesAdvisorC,
+                  title: "Sales Advisor",
+                  hint: "Enter Sales Advisor",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+
+                CustomTextField(
+                  textController: _sourcingManagerC,
+                  title: "Sourcing Manager",
+                  hint: "Enter Sourcing Manager",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
                 Row(
                   children: [
                     Expanded(
@@ -314,7 +524,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                         valueListenable: _startDateNotifier,
                         builder: (context, startDate, _) {
                           return CustomDatePicker(
-                            title: "Start Date",
+                            title: "From Date",
                             initialDate: startDate,
                             setValue: (value) {
                               _startDateNotifier.value = value;
@@ -325,29 +535,19 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                         },
                       ),
                     ),
+
                     horizontalSpacing(),
+
                     Expanded(
                       child: ValueListenableBuilder<DateTime?>(
                         valueListenable: _endDateNotifier,
                         builder: (context, endDate, _) {
                           return CustomDatePicker(
-                            title: "End Date",
+                            title: "To Date",
                             initialDate: endDate,
                             setValue: (value) {
                               _endDateNotifier.value = value;
                               updateApplyState();
-                            },
-                            validator: (value) {
-                              final start = _startDateNotifier.value;
-                              if (start != null && value == null) {
-                                return 'End Date required';
-                              }
-                              if (start != null &&
-                                  value != null &&
-                                  start.isAfter(value)) {
-                                return 'End Date cannot be before Start Date';
-                              }
-                              return null;
                             },
                           );
                         },
@@ -356,36 +556,24 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                   ],
                 ),
 
-                // TEXT FIELDS
                 CustomTextField(
-                  textController: _systemCodeC,
-                  title: "Enquiry Code",
-                  hint: "Enter Enquiry Code",
+                  textController: _accommodationC,
+                  title: "Accommodation",
+                  hint: "Enter Accommodation",
                   onChangeFunction: (_) => updateApplyState(),
                 ),
-                CustomTextField(
-                  textController: _mobileNumberC,
-                  title: "Mobile Number",
-                  hint: "Enter Mobile Number",
-                  keyboardType: TextInputType.phone,
-                  onChangeFunction: (_) => updateApplyState(),
-                ),
+
                 CustomTextField(
                   textController: _followUpDaysC,
                   title: "Follow Up Days",
                   hint: "Enter Follow Up Days",
                   onChangeFunction: (_) => updateApplyState(),
                 ),
+
                 CustomTextField(
-                  textController: _requirementC,
-                  title: "Requirement",
-                  hint: "Enter Requirement",
-                  onChangeFunction: (_) => updateApplyState(),
-                ),
-                CustomTextField(
-                  textController: _stageC,
-                  title: "Stage",
-                  hint: "Enter Stage",
+                  textController: _finalStageC,
+                  title: "Final Stage",
+                  hint: "Enter Final Stage",
                   onChangeFunction: (_) => updateApplyState(),
                 ),
               ],
@@ -398,12 +586,25 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
       onClear: () {
         _startDateNotifier.value = null;
         _endDateNotifier.value = null;
+
         _systemCodeC.clear();
         _mobileNumberC.clear();
+        _budgetC.clear();
+        _requirementTypeC.clear();
+        _channelPartnerMobileC.clear();
+        _nationalityC.clear();
+        _currentLocationC.clear();
+        _customerClassificationC.clear();
+        _ethnicityC.clear();
+        _salesAdvisorC.clear();
+        _sourcingManagerC.clear();
+        _accommodationC.clear();
         _followUpDaysC.clear();
-        _requirementC.clear();
-        _stageC.clear();
+        _finalStageC.clear();
+
         selectedDirection = null;
+        _selectedSourceNotifier.value = null;
+        _selectedSubSourceNotifier.value = null;
 
         _enquiryCubit.applyEnquiryFilterAndSort(
           context: context,
@@ -411,12 +612,24 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
           filterEndDate: null,
           filterSystemCode: '',
           filterMobileNumber: '',
+          filterBudget: '',
+          filterRequirementType: '',
+          filterSource: '',
+          filterSubSource: '',
+          filterChannelPartnerMobile: '',
+          filterNationality: '',
+          filterCurrentLocation: '',
+          filterCustomerClassification: '',
+          filterEthnicity: '',
+          filterSalesAdvisor: '',
+          filterSourcingManager: '',
+          filterAccommodation: '',
           filterFollowUpDays: '',
-          filterRequirement: '',
-          filterStage: '',
+          filterFinalStage: '',
           sortColumn: "",
           sortDirection: "",
         );
+
         _enquiryCubit.getEnquiryList(context, 1, _project.projectId);
       },
 
@@ -430,9 +643,28 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
           filterEndDate: _endDateNotifier.value,
           filterSystemCode: _systemCodeC.text.trim(),
           filterMobileNumber: _mobileNumberC.text.trim(),
+          filterBudget: _budgetC.text.trim(),
+          filterRequirementType: _requirementTypeC.text.trim(),
+          filterSource:
+              (_selectedSourceNotifier.value != null &&
+                      _selectedSourceNotifier.value!['zAttributesId'] != -1)
+                  ? _selectedSourceNotifier.value!['DisplayName']
+                  : '',
+          filterSubSource:
+              (_selectedSubSourceNotifier.value != null &&
+                      _selectedSubSourceNotifier.value!['zAttributesId'] != -1)
+                  ? _selectedSubSourceNotifier.value!['DisplayName']
+                  : '',
+          filterChannelPartnerMobile: _channelPartnerMobileC.text.trim(),
+          filterNationality: _nationalityC.text.trim(),
+          filterCurrentLocation: _currentLocationC.text.trim(),
+          filterCustomerClassification: _customerClassificationC.text.trim(),
+          filterEthnicity: _ethnicityC.text.trim(),
+          filterSalesAdvisor: _salesAdvisorC.text.trim(),
+          filterSourcingManager: _sourcingManagerC.text.trim(),
+          filterAccommodation: _accommodationC.text.trim(),
           filterFollowUpDays: _followUpDaysC.text.trim(),
-          filterRequirement: _requirementC.text.trim(),
-          filterStage: _stageC.text.trim(),
+          filterFinalStage: _finalStageC.text.trim(),
           sortColumn: selectedDirection != null ? "Name" : "",
           sortDirection: selectedDirection ?? "",
         );
@@ -472,7 +704,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     } else if (difference > 0) {
       return "Follow up in $difference day(s)";
     } else {
-      return "Follow up overdue by ${difference.abs()} day(s)";
+      return "-";
     }
   }
 
@@ -543,6 +775,16 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                       : const SizedBox.shrink();
                 }
                 var enquiry = state.enquiryList[index];
+                final editDisable =
+                    !_routeAuthorizationModel.isAction ||
+                    closedStatuses.contains(enquiry.finalStage.toLowerCase());
+                final deleteDisable =
+                    !_routeAuthorizationModel.isAction ||
+                    (enquiry.nextFollowUpDate != null ||
+                        closedStatuses.contains(
+                          enquiry.finalStage.toLowerCase(),
+                        ));
+
                 return Container(
                   margin: EdgeInsets.only(bottom: 10),
                   padding: EdgeInsets.all(12),
@@ -596,56 +838,47 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                             ),
                           ),
                           horizontalSpacing(),
-                          if (_routeAuthorizationModel.isAction) ...[
-                            if (!closedStatuses.contains(
-                              enquiry.finalStage.toLowerCase(),
-                            )) ...[
-                              CustomIconButton.edit(
-                                onPressed: () {
-                                  goRouter.pushNamed(
-                                    AppRoutes.addEnquiry,
-                                    queryParameters: {
-                                      "enquiry": Uri.encodeQueryComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(enquiry.toJson()),
-                                        ),
-                                      ),
-                                      'index': index.toString(),
-                                    },
-                                  );
+                          CustomIconButton.edit(
+                            isDisabled: editDisable,
+                            onPressed: () {
+                              goRouter.pushNamed(
+                                AppRoutes.addEnquiry,
+                                queryParameters: {
+                                  "enquiry": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(enquiry.toJson()),
+                                    ),
+                                  ),
+                                  'index': index.toString(),
                                 },
-                              ),
-                              horizontalSpacing(),
-                            ],
-                            CustomIconButton.delete(
-                              isDisabled:
-                                  (enquiry.nextFollowUpDate != null ||
-                                      [
-                                        'booking done',
-                                        'cancelled',
-                                        'lost',
-                                      ].contains(
-                                        enquiry.finalStage.toLowerCase(),
-                                      )),
-                              onPressed: () {
-                                _showPopupToDeleteEnquiry(
-                                  context: context,
-                                  enquiryModel: enquiry,
-                                  index: index,
-                                );
-                              },
-                            ),
-                          ],
+                              );
+                            },
+                          ),
+                          horizontalSpacing(),
+
+                          CustomIconButton.delete(
+                            isDisabled: deleteDisable,
+                            onPressed: () {
+                              _showPopupToDeleteEnquiry(
+                                context: context,
+                                enquiryModel: enquiry,
+                                index: index,
+                              );
+                            },
+                          ),
                         ],
                       ),
                       buildRowTitleValue(
                         title: "Enquiry Code  ",
                         value: enquiry.systemGeneratedCode,
                         customValueWidget: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              enquiry.systemGeneratedCode,
-                              style: AppTextStyle.ts14M(),
+                            Expanded(
+                              child: Text(
+                                enquiry.systemGeneratedCode,
+                                style: AppTextStyle.ts14M(),
+                              ),
                             ),
                             horizontalSpacing(width: 2),
                             CustomIconButton(
@@ -670,8 +903,17 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                         title: "Mobile Number",
                         value: enquiry.mobileNumber,
                         customValueWidget: CustomClickToContactText(
-                          value: enquiry.mobileNumber,
+                          value:
+                              "${enquiry.mobileNumberCountryCode} ${enquiry.mobileNumber}",
                         ),
+                      ),
+                      buildRowTitleValue(
+                        title: "Source",
+                        value: enquiry.source,
+                      ),
+                      buildRowTitleValue(
+                        title: "Customer Classification",
+                        value: enquiry.customerClassification,
                       ),
                       buildRowTitleValue(
                         title: "Enquiry Follow Up Days",

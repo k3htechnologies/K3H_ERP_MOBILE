@@ -182,6 +182,7 @@ class TenantApplicantData extends BookingApplicantData {
     required super.applicantType,
     required super.applicantName,
     required super.applicantMobileNumber,
+    required super.applicantMobileNumberCountryCode,
     required super.applicantEmailId,
     required super.photoURL,
     required super.aadharCardNumber,
@@ -225,6 +226,10 @@ class TenantApplicantData extends BookingApplicantData {
         bookingApplicantId: parseValue<int>(json, "BookingApplicantId"),
         applicantType: parseValue<String>(json, "ApplicantType"),
         applicantName: parseValue<String>(json, "ApplicantName"),
+        applicantMobileNumberCountryCode: parseValue<String>(
+          json,
+          "ApplicantMobileNumberCountryCode",
+        ),
         applicantMobileNumber: parseValue<String>(
           json,
           "ApplicantMobileNumber",

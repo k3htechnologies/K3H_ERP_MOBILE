@@ -156,7 +156,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   ValueNotifier<CountryCode> selectedTeamMemberMobileNoCountry = ValueNotifier(
     countryList.firstWhere((e) => e.code == "+91"),
   );
-  ValueNotifier<bool> _isTeamMemberAlreadyExist = ValueNotifier(false);
+  final ValueNotifier<bool> _isTeamMemberAlreadyExist = ValueNotifier(false);
 
   @override
   void initState() {
@@ -1052,8 +1052,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               if (user.designation.toLowerCase() != 'GRE'.toLowerCase())
                 _enquiryInfoCard(),
               _followUpCard(),
-              if (user.designation.toLowerCase() != 'GRE'.toLowerCase())
-                _salesCard(),
+              _salesCard(),
             ],
           ),
         ),
