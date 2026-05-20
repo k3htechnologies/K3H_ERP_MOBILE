@@ -523,7 +523,8 @@ class _SourcingScreenState extends State<SourcingScreen> {
                       title: "Mobile No.",
                       value: channelPartner.mobileNumber,
                       customValueWidget: CustomClickToContactText(
-                        value: channelPartner.mobileNumber,
+                        value:
+                            "${channelPartner.mobileNumberCountryCode} ${channelPartner.mobileNumber}",
                       ),
                     ),
                     buildRowTitleValue(

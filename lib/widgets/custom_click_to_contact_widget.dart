@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/services/app_call_tracker_service.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -29,34 +30,48 @@ class CustomClickToContactText extends StatelessWidget {
     late final Uri uri;
 
     if (type == ContactType.phone) {
-      uri = Uri(scheme: 'tel', path: value);
-      if (Platform.isAndroid) {
-        final status = await Permission.phone.request();
-        if (status.isGranted) {
-          try {
-            final service = serviceLocator<AppCallTrackerService>();
+      PermissionStatus status = await Permission.phone.status;
 
-            service.setPendingCall(value);
-            service.forceStartCall(value);
-          } catch (_) {}
-        } else if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Phone permission is needed to show this call on Dashboard.',
-              ),
-              duration: Duration(seconds: 3),
-            ),
+      // REQUEST EVERY CLICK IF NOT GRANTED
+      if (!status.isGranted) {
+        status = await Permission.phone.request();
+      }
+
+      // PERMISSION DENIED
+      if (status.isDenied) {
+        if (context.mounted) {
+          showErrorMessage(
+            context,
+            "Permission Denied",
+            "Phone permission is required to make a call.",
           );
         }
-      } else {
-        try {
-          final service = serviceLocator<AppCallTrackerService>();
-
-          service.setPendingCall(value);
-          service.forceStartCall(value);
-        } catch (_) {}
+        return;
       }
+
+      // PERMANENTLY DENIED
+      if (status.isPermanentlyDenied) {
+        if (context.mounted) {
+          showErrorMessage(
+            context,
+            "Permission Required",
+            "Please enable phone permission from app settings.",
+          );
+        }
+
+        await Future.delayed(const Duration(seconds: 1));
+        await openAppSettings();
+        return;
+      }
+
+      uri = Uri(scheme: 'tel', path: value);
+
+      try {
+        final service = serviceLocator<AppCallTrackerService>();
+
+        service.setPendingCall(value);
+        service.forceStartCall(value);
+      } catch (_) {}
     } else {
       uri = Uri(scheme: 'mailto', path: value);
     }

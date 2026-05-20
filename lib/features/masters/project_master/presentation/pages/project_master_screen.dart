@@ -12,6 +12,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/static_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -32,9 +33,8 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
 
   // TEXT CONTROLLER
   late TextEditingController _searchC,
-      _filterProjectStatusC,
       _filterVillageC,
-      _filterArchitectNameC,
+      _filterLiasoningArchitectNameC,
       _filterRERANumberC,
       _filterProjectLocationC,
       _filterCTSNumberC;
@@ -45,11 +45,14 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
+
+  final ValueNotifier<Map<String, dynamic>?> selectedProjectStatus =
+      ValueNotifier(null);
   final ValueNotifier<Map<String, dynamic>?> selectedProjectSchemeNotifier =
       ValueNotifier(null);
   ValueNotifier<Map<String, dynamic>?> selectedProjectSubSchemeNotifier =
       ValueNotifier(null);
-
+  ValueNotifier<bool?> isRedevelopement = ValueNotifier(false);
   // STATIC LISTS
   List<Map<String, dynamic>> projectSchemeList = [
     {"zAttributesId": 1, "DisplayName": "BMC"},
@@ -102,9 +105,8 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
 
     _filterCTSNumberC = TextEditingController();
     _filterProjectLocationC = TextEditingController();
-    _filterProjectStatusC = TextEditingController();
     _filterVillageC = TextEditingController();
-    _filterArchitectNameC = TextEditingController();
+    _filterLiasoningArchitectNameC = TextEditingController();
     _filterRERANumberC = TextEditingController();
   }
 
@@ -142,15 +144,16 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
 
     _filterCTSNumberC.text = state.filterCTSNumber;
     _filterProjectLocationC.text = state.filterProjectLocation;
-    final String initialProjectLocation = _filterProjectLocationC.text;
-    final String initialCTSNumber = _filterCTSNumberC.text;
+    final String initialProjectLocation = state.filterProjectLocation;
+    final String initialCTSNumber = state.filterCTSNumber;
     final String? initialProjectScheme = state.filterProjectScheme;
     final String? initialProjectSubScheme = state.filterProjectSubScheme;
-    final String initialArchitectName = _filterArchitectNameC.text;
-    final String initialRERANumber = _filterRERANumberC.text;
-    final String initialProjectStatus = _filterProjectStatusC.text;
-    final String initialVillage = _filterVillageC.text;
-
+    final String initialArchitectName =
+        state.filterLiasoningArchitectName ?? "";
+    final String initialRERANumber = state.filterRERANumber ?? "";
+    final String initialProjectStatus = state.filterProjectStatus ?? "";
+    final String initialVillage = state.filterVillage ?? "";
+    final bool? initialIsRedevelopement = state.isRedevelopment;
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     bool applied = false;
@@ -164,10 +167,13 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                 initialProjectScheme) ||
             (getDisplayOrEmpty(selectedProjectSubSchemeNotifier.value) !=
                 initialProjectSubScheme) ||
-            (_filterArchitectNameC.text.trim() != initialArchitectName) ||
+            (_filterLiasoningArchitectNameC.text.trim() !=
+                initialArchitectName) ||
             (_filterRERANumberC.text.trim() != initialRERANumber) ||
-            (_filterProjectStatusC.text.trim() != initialProjectStatus) ||
-            (_filterVillageC.text.trim() != initialVillage);
+            (getDisplayOrEmpty(selectedProjectStatus.value) !=
+                initialProjectStatus) ||
+            (_filterVillageC.text.trim() != initialVillage) ||
+            (isRedevelopement.value != initialIsRedevelopement);
         applyEnabled.value = manualClose;
       });
     }
@@ -182,6 +188,38 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 verticalSpacing(height: 5),
+                Text("Is Redevelopment", style: AppTextStyle.ts14M()),
+                ValueListenableBuilder<bool?>(
+                  valueListenable: isRedevelopement,
+                  builder: (context, value, child) {
+                    return Row(
+                      children: [
+                        Radio<bool>(
+                          value: true,
+                          groupValue: value,
+                          onChanged: (val) {
+                            isRedevelopement.value = val;
+                            updateApplyState(innerState);
+                          },
+                        ),
+                        Text("Yes", style: AppTextStyle.ts14R()),
+
+                        horizontalSpacing(),
+
+                        Radio<bool>(
+                          value: false,
+                          groupValue: value,
+                          onChanged: (val) {
+                            isRedevelopement.value = val;
+                            updateApplyState(innerState);
+                          },
+                        ),
+                        Text("No", style: AppTextStyle.ts14R()),
+                      ],
+                    );
+                  },
+                ),
+                verticalSpacing(),
                 CustomTextField(
                   title: "Project Location",
                   hint: "Enter Project Location",
@@ -195,6 +233,25 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                   inputFormatterList: [],
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
+                ValueListenableBuilder(
+                  valueListenable: selectedProjectStatus,
+                  builder: (context, value, child) {
+                    return CustomDropDownWidget(
+                      title: 'Project Status',
+                      hintText: "Select Project Status",
+                      initialValue: value,
+                      dataList: projectStatusList,
+                      onSelected: (value) {
+                        selectedProjectStatus.value = value;
+                        updateApplyState(innerState);
+                      },
+                      onValueClear: () {
+                        selectedProjectStatus.value = null;
+                        updateApplyState(innerState);
+                      },
+                    );
+                  },
+                ),
                 CustomTextField(
                   title: "Village",
                   hint: "Enter Village",
@@ -202,9 +259,9 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
-                  title: "Architect Name",
-                  hint: "Enter Architect Name",
-                  textController: _filterArchitectNameC,
+                  title: "Liasoning Architect Name",
+                  hint: "Enter Liasoning Architect Name",
+                  textController: _filterLiasoningArchitectNameC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
@@ -266,12 +323,13 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
       onClear: () {
         _filterCTSNumberC.clear();
         _filterProjectLocationC.clear();
-        _filterArchitectNameC.clear();
-        _filterProjectStatusC.clear();
+        _filterLiasoningArchitectNameC.clear();
         _filterRERANumberC.clear();
         _filterVillageC.clear();
         selectedProjectSchemeNotifier.value = null;
         selectedProjectSubSchemeNotifier.value = null;
+        selectedProjectStatus.value = null;
+        isRedevelopement.value=false;
         _projectMasterCubit.sortProject(context: context, isClear: true);
       },
       onApply: () {
@@ -280,11 +338,14 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
           context: context,
           ctsNumber: _filterCTSNumberC.text.trim(),
           projectLocation: _filterProjectLocationC.text.trim(),
-          projectStatus: _filterProjectStatusC.text.trim(),
+          village: _filterVillageC.text.trim(),
+          liasoningArchitectName: _filterLiasoningArchitectNameC.text.trim(),
+          projectStatus: selectedProjectStatus.value?['DisplayName'] ?? "",
           projectScheme: getDisplayOrEmpty(selectedProjectSchemeNotifier.value),
           projectSubScheme: getDisplayOrEmpty(
             selectedProjectSubSchemeNotifier.value,
           ),
+          isRedevelopment: isRedevelopement.value,
         );
       },
       isApplyEnabled: applyEnabled.value,
@@ -522,18 +583,6 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
         return const SizedBox.shrink();
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        projectStatus,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: AppTextStyle.ts14R(color: textColor),
-      ),
-    );
+    return statusChip(projectStatus, bgColor, textColor);
   }
 }

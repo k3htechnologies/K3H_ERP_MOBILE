@@ -1,4 +1,3 @@
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +10,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static_data.dart';
 import 'package:k3h_erp_app/widgets/address/address_widget.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -166,15 +166,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
         return projectSubSchemeBMCList;
     }
   }
-
-  // STATIC LISTS
-  List<Map<String, dynamic>> projectStatusList = [
-    {"zAttributesId": 1, "DisplayName": "On-Going"},
-    {"zAttributesId": 2, "DisplayName": "Completed"},
-    {"zAttributesId": 3, "DisplayName": "On-Hold"},
-    {"zAttributesId": 4, "DisplayName": "Cancelled"},
-    {"zAttributesId": 5, "DisplayName": "Planning"},
-  ];
 
   // EDIT MODE
   bool get _isEditMode => widget.project != null;

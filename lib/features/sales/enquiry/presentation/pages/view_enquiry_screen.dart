@@ -516,7 +516,9 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                     : "-",
                           ),
 
-                          if (enquiry.channelPartnerTeamMemberName.isNotEmpty)
+                          if (enquiry
+                              .channelPartnerTeamMemberName
+                              .isNotEmpty) ...[
                             buildColumnTitleValue(
                               title: "CP Team Member Name",
                               value:
@@ -526,14 +528,17 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                       ? enquiry.channelPartnerTeamMemberName
                                       : "-",
                             ),
+                          ] else ...[
+                            Spacer(),
+                          ],
                         ],
                       ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (enquiry
-                              .channelPartnerTeamMemberMobileNumber
-                              .isNotEmpty)
+                      if (enquiry
+                          .channelPartnerTeamMemberMobileNumber
+                          .isNotEmpty)
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             buildColumnTitleValue(
                               title: "CP Team Member Mobile No.",
                               value:
@@ -549,21 +554,21 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                 type: ContactType.phone,
                               ),
                             ),
-                          buildColumnTitleValue(
-                            title: "CP Team Member E-Mail ID",
-                            value:
-                                enquiry
-                                        .channelPartnerTeamMemberEmailId
-                                        .isNotEmpty
-                                    ? enquiry.channelPartnerTeamMemberEmailId
-                                    : "-",
-                            customValueWidget: CustomClickToContactText(
-                              value: enquiry.channelPartnerTeamMemberEmailId,
-                              type: ContactType.email,
+                            buildColumnTitleValue(
+                              title: "CP Team Member E-Mail ID",
+                              value:
+                                  enquiry
+                                          .channelPartnerTeamMemberEmailId
+                                          .isNotEmpty
+                                      ? enquiry.channelPartnerTeamMemberEmailId
+                                      : "-",
+                              customValueWidget: CustomClickToContactText(
+                                value: enquiry.channelPartnerTeamMemberEmailId,
+                                type: ContactType.email,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
                     ],
 
                     // ADVERTISEMENT

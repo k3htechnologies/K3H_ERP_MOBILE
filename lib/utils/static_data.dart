@@ -323,12 +323,13 @@ List<Map<String, dynamic>> flatFacingList = [
   {'zAttributesId': 1, 'DisplayName': 'EAST'},
   {'zAttributesId': 2, 'DisplayName': 'BACK'},
   {'zAttributesId': 3, 'DisplayName': 'FRONT'},
-  {'zAttributesId': 4, 'DisplayName': 'GARDEN'},
-  {'zAttributesId': 5, 'DisplayName': 'NORTH'},
-  {'zAttributesId': 6, 'DisplayName': 'PARK'},
-  {'zAttributesId': 7, 'DisplayName': 'ROAD'},
-  {'zAttributesId': 8, 'DisplayName': 'SOUTH'},
-  {'zAttributesId': 9, 'DisplayName': 'WEST'},
+  {'zAttributesId': 4, 'DisplayName': 'INTERNAL VIEW'},
+  {'zAttributesId': 5, 'DisplayName': 'GARDEN'},
+  {'zAttributesId': 6, 'DisplayName': 'NORTH'},
+  {'zAttributesId': 7, 'DisplayName': 'PARK'},
+  {'zAttributesId': 8, 'DisplayName': 'ROAD'},
+  {'zAttributesId': 9, 'DisplayName': 'SOUTH'},
+  {'zAttributesId': 10, 'DisplayName': 'WEST'},
 ];
 
 // Legal
@@ -366,4 +367,13 @@ final List<Map<String, dynamic>> materialRequisitionStatusList = const [
   {"zAttributesId": 3, "DisplayName": "Rejected"},
   {"zAttributesId": 4, "DisplayName": "Completed"},
   {"zAttributesId": 5, "DisplayName": "Cancelled"},
+];
+
+List<Map<String, dynamic>> projectStatusList = [
+  {"zAttributesId": 1, "DisplayName": "On-Going"},
+  {"zAttributesId": 2, "DisplayName": "Up-Coming"},
+  {"zAttributesId": 3, "DisplayName": "Completed"},
+  {"zAttributesId": 4, "DisplayName": "On-Hold"},
+  {"zAttributesId": 5, "DisplayName": "Cancelled"},
+  {"zAttributesId": 6, "DisplayName": "Planning"},
 ];

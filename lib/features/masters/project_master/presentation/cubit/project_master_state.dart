@@ -42,11 +42,11 @@ class ProjectMasterState extends BaseState {
   final String filterCTSNumber;
   final String? filterProjectStatus;
   final String? filterVillage;
-  final String? filterArchitectName;
+  final String? filterLiasoningArchitectName;
   final String? filterRERANumber;
   final String? filterProjectScheme;
   final String? filterProjectSubScheme;
-  final int? isRedevelopment;
+  final bool? isRedevelopment;
   const ProjectMasterState({
     required this.isEmployeeLoading,
     required this.projectList,
@@ -79,7 +79,7 @@ class ProjectMasterState extends BaseState {
     required this.filterCTSNumber,
     required this.filterProjectStatus,
     required this.filterVillage,
-    required this.filterArchitectName,
+    required this.filterLiasoningArchitectName,
     required this.filterRERANumber,
     required this.filterProjectScheme,
     required this.filterProjectSubScheme,
@@ -123,7 +123,7 @@ class ProjectMasterState extends BaseState {
     filterProjectLocation: '',
     filterProjectStatus: '',
     filterVillage: '',
-    filterArchitectName: '',
+    filterLiasoningArchitectName: '',
     filterRERANumber: '',
     filterProjectScheme: null,
     filterProjectSubScheme: null,
@@ -150,11 +150,11 @@ class ProjectMasterState extends BaseState {
     String? filterProjectName,
     String? filterProjectStatus,
     String? filterVillage,
-    String? filterArchitectName,
+    String? filterLiasoningArchitectName,
     String? filterRERANumber,
     String? filterProjectScheme,
     String? filterProjectSubScheme,
-    int? isRedevelopment,
+    bool? isRedevelopment,
 
     StateType? stateType,
     bool? isLoading,
@@ -233,12 +233,13 @@ class ProjectMasterState extends BaseState {
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
       filterProjectStatus: filterProjectStatus ?? this.filterProjectStatus,
       filterVillage: filterVillage ?? this.filterVillage,
-      filterArchitectName: filterArchitectName ?? this.filterArchitectName,
+      filterLiasoningArchitectName:
+          filterLiasoningArchitectName ?? this.filterLiasoningArchitectName,
       filterRERANumber: filterRERANumber ?? this.filterRERANumber,
       filterProjectScheme: filterProjectScheme ?? this.filterProjectScheme,
       filterProjectSubScheme:
           filterProjectSubScheme ?? this.filterProjectSubScheme,
-      isRedevelopment: isRedevelopment ?? this.isRedevelopment,
+      isRedevelopment: isRedevelopment,
     );
   }
 
@@ -280,7 +281,7 @@ class ProjectMasterState extends BaseState {
     filterProjectLocation,
     filterProjectStatus,
     filterVillage,
-    filterArchitectName,
+    filterLiasoningArchitectName,
     filterRERANumber,
     filterProjectScheme,
     filterProjectSubScheme,

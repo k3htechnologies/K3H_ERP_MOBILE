@@ -104,11 +104,11 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     String? projectLocation,
     String? projectStatus,
     String? village,
-    String? architectName,
+    String? liasoningArchitectName,
     String? reraNumber,
     String? projectScheme,
     String? projectSubScheme,
-    bool isRedevelopment = false,
+    bool? isRedevelopment,
     bool? isClear,
   }) async {
     if (isClear ?? false) {
@@ -120,7 +120,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
           filterProjectName: '',
           filterProjectStatus: '',
           filterVillage: '',
-          filterArchitectName: '',
+          filterLiasoningArchitectName: '',
           filterRERANumber: '',
           filterProjectScheme: '',
           filterProjectSubScheme: '',
@@ -135,17 +135,13 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
           currentPage: 1,
           filterProjectStatus: projectStatus ?? state.filterProjectStatus,
           filterVillage: village ?? state.filterVillage,
-          filterArchitectName: architectName ?? state.filterArchitectName,
+          filterLiasoningArchitectName:
+              liasoningArchitectName ?? state.filterLiasoningArchitectName,
           filterRERANumber: reraNumber ?? state.filterRERANumber,
           filterProjectScheme: projectScheme ?? state.filterProjectScheme,
           filterProjectSubScheme:
               projectSubScheme ?? state.filterProjectSubScheme,
-          isRedevelopment:
-              isRedevelopment == true
-                  ? 1
-                  : isRedevelopment == false
-                  ? 0
-                  : state.isRedevelopment,
+          isRedevelopment: isRedevelopment ?? state.isRedevelopment,
         ),
       );
     }
@@ -165,32 +161,16 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       pageSize: state.pageSize,
       queryParams: {
         "ProjectName": state.searchText,
-        if (state.filterProjectLocation.isNotEmpty)
-          "ProjectLocation": state.filterProjectLocation,
-        if (state.filterCTSNumber.isNotEmpty)
-          "CTCNumber": state.filterCTSNumber,
-        if (state.filterProjectStatus != null &&
-            state.filterProjectStatus!.isNotEmpty)
-          "ProjectStatus": state.filterProjectStatus,
-
-        if (state.filterVillage != null && state.filterVillage!.isNotEmpty)
-          "VillageName": state.filterVillage,
-
-        if (state.filterArchitectName != null &&
-            state.filterArchitectName!.isNotEmpty)
-          "ArchitectName": state.filterArchitectName,
-
-        if (state.filterRERANumber != null &&
-            state.filterRERANumber!.isNotEmpty)
-          "RERANumber": state.filterRERANumber,
-
-        if (state.filterProjectScheme != null &&
-            state.filterProjectScheme!.isNotEmpty)
-          "ProjectScheme": state.filterProjectScheme,
-
-        if (state.filterProjectSubScheme != null &&
-            state.filterProjectSubScheme!.isNotEmpty)
-          "ProjectSubScheme": state.filterProjectSubScheme,
+        "ProjectLocation": state.filterProjectLocation,
+        "CTCNumber": state.filterCTSNumber,
+        "ProjectStatus": state.filterProjectStatus,
+        "VillageName": state.filterVillage,
+        "ArchitectName": state.filterLiasoningArchitectName,
+        "RERANumber": state.filterRERANumber,
+        "ProjectScheme": state.filterProjectScheme,
+        "ProjectSubScheme": state.filterProjectSubScheme,
+        if (state.isRedevelopment != null)
+          "IsRedevelopment": state.isRedevelopment.toString(),
       },
     );
 

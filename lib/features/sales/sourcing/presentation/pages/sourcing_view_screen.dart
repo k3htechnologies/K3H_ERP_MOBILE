@@ -508,7 +508,8 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                       title: "Mobile No.",
                       value: widget.channelPartner.mobileNumber,
                       customValueWidget: CustomClickToContactText(
-                        value: widget.channelPartner.mobileNumber,
+                        value:
+                            "${widget.channelPartner.mobileNumberCountryCode} ${widget.channelPartner.mobileNumber}",
                         type: ContactType.phone,
                       ),
                     ),

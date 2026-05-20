@@ -1697,6 +1697,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                       builder: (context, selectedSubSubSource, child) {
                         return CustomDropDownWidget(
                           title: "Sub Sub Source",
+                          isDisabled: _isEditMode,
                           isRequired: true,
                           initialValue: selectedSubSubSource,
                           dataList: subSubSourceList,
@@ -1724,6 +1725,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                             CustomMultipleSelectPopup(
                               title: 'Employee Reference Name',
                               isRequired: true,
+                              isReadOnly: _isEditMode,
                               hintText: "Select Employee Reference Name",
                               isMultiSelect: false,
                               initialValue: selectedEmployee,
@@ -1837,6 +1839,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                           children: [
                             CustomMultipleSelectPopup(
                               title: 'Project',
+                              isReadOnly: _isEditMode,
                               isRequired: true,
                               isMultiSelect: false,
                               hintText: "Select Project",
@@ -1859,6 +1862,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                               builder: (context, selectedFlat, _) {
                                 return CustomMultipleSelectPopup(
                                   title: 'Unit Number',
+                                  isReadOnly: _isEditMode,
                                   hintText: "Select Unit Number",
                                   isRequired: true,
                                   isMultiSelect: false,
@@ -1930,6 +1934,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                           children: [
                             CustomMultipleSelectPopup(
                               title: 'Project',
+                              isReadOnly: _isEditMode,
                               isRequired: true,
                               isMultiSelect: false,
                               initialValue: selectedProject,
@@ -1951,6 +1956,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                               builder: (context, selectedFlat, _) {
                                 return CustomMultipleSelectPopup(
                                   title: 'Unit Number',
+                                  isReadOnly: _isEditMode,
                                   isRequired: true,
                                   isMultiSelect: false,
                                   initialValue: selectedFlat,
