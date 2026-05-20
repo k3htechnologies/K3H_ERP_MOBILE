@@ -32,41 +32,42 @@ class CustomClickToContactText extends StatelessWidget {
     if (type == ContactType.phone) {
       PermissionStatus status = await Permission.phone.status;
 
-      // REQUEST EVERY CLICK IF NOT GRANTED
-      if (!status.isGranted) {
-        status = await Permission.phone.request();
-      }
-
-      // PERMISSION DENIED
-      if (status.isDenied) {
-        if (context.mounted) {
-          showErrorMessage(
-            context,
-            "Permission Denied",
-            "Phone permission is required to make a call.",
-          );
-        }
-        await Future.delayed(const Duration(seconds: 1));
-        await openAppSettings();
-
-        return;
-      }
-
-      // PERMANENTLY DENIED
-      if (status.isPermanentlyDenied) {
-        if (context.mounted) {
-          showErrorMessage(
-            context,
-            "Permission Required",
-            "Please enable phone permission from app settings.",
-          );
+      if (Platform.isAndroid) {
+        // REQUEST EVERY CLICK IF NOT GRANTED
+        if (!status.isGranted) {
+          status = await Permission.phone.request();
         }
 
-        await Future.delayed(const Duration(seconds: 1));
-        await openAppSettings();
-        return;
-      }
+        // PERMISSION DENIED
+        if (status.isDenied) {
+          if (context.mounted) {
+            showErrorMessage(
+              context,
+              "Permission Denied",
+              "Phone permission is required to make a call.",
+            );
+          }
+          await Future.delayed(const Duration(seconds: 1));
+          await openAppSettings();
 
+          return;
+        }
+
+        // PERMANENTLY DENIED
+        if (status.isPermanentlyDenied) {
+          if (context.mounted) {
+            showErrorMessage(
+              context,
+              "Permission Required",
+              "Please enable phone permission from app settings.",
+            );
+          }
+
+          await Future.delayed(const Duration(seconds: 1));
+          await openAppSettings();
+          return;
+        }
+      }
       uri = Uri(scheme: 'tel', path: value);
 
       try {
