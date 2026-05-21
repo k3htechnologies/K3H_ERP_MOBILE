@@ -185,6 +185,9 @@ class AppRoutes {
   static String addRefundScreen = "/addRefundScreen";
   static String addApplicantDetailsRequests = "/addApplicantDetailsRequests";
   static String swapBookedParking = "/swapBookedParking";
+  static String addFlatSpecificationRemarkScreen =
+      "/addFlatSpecificationRemarkScreen";
+  static String modifiedRequestsMakePayment = "/modifiedRequestsMakePayment";
 
   /// BROKERAGE
   static String brokerage = "/brokerage";

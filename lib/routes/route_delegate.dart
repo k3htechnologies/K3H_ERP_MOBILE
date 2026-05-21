@@ -42,9 +42,11 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/pa
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger_summary.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/add_payment_ledger.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/make_payment.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/view_payment_ledger.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/add_applicant_details_requests.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/add_flat_specification_remark.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/add_parking_details.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/add_refund.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
@@ -5583,6 +5585,25 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.swapBookedParking,
               builder: (context, state) {
                 return AddParkingDetailsScreen();
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addFlatSpecificationRemarkScreen,
+              name: AppRoutes.addFlatSpecificationRemarkScreen,
+              builder: (context, state) {
+                return AddFlatSpecificationRemarkScreen();
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.modifiedRequestsMakePayment,
+              name: AppRoutes.modifiedRequestsMakePayment,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>;
+                return ModifiedRequestsMakePaymentScreen(
+                  uniquekey: extra["uniquekey"],
+                  bookingId: extra["bookingId"],
+                  projectId: extra["projectId"],
+                );
               },
             ),
           ],

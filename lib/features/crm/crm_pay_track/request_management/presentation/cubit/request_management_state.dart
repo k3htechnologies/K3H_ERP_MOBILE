@@ -8,6 +8,7 @@ class RequestManagementState extends BaseState {
   final List<BookingApplicantModificationRequestModel>
   bookingApplicantModificationRequestModel;
   final List<FlatAlterationRequestsModel> flatAlterationRequestsModel;
+  final List<BookingModel> refundRequestList;
   const RequestManagementState({
     super.isLoading,
     required this.bookingData,
@@ -16,6 +17,7 @@ class RequestManagementState extends BaseState {
     required this.parkingModificationRequestList,
     required this.bookingApplicantModificationRequestModel,
     required this.flatAlterationRequestsModel,
+    required this.refundRequestList,
   });
 
   factory RequestManagementState.initial() => RequestManagementState(
@@ -26,6 +28,7 @@ class RequestManagementState extends BaseState {
     parkingModificationRequestList: [],
     bookingApplicantModificationRequestModel: [],
     flatAlterationRequestsModel: [],
+    refundRequestList: [],
   );
 
   RequestManagementState copyWith({
@@ -37,6 +40,7 @@ class RequestManagementState extends BaseState {
     List<BookingApplicantModificationRequestModel>?
     bookingApplicantModificationRequestModel,
     List<FlatAlterationRequestsModel>? flatAlterationRequestsModel,
+    List<BookingModel>? refundRequestList,
   }) {
     return RequestManagementState(
       isLoading: isLoading ?? this.isLoading,
@@ -52,6 +56,7 @@ class RequestManagementState extends BaseState {
           this.bookingApplicantModificationRequestModel,
       flatAlterationRequestsModel:
           flatAlterationRequestsModel ?? this.flatAlterationRequestsModel,
+      refundRequestList: refundRequestList ?? this.refundRequestList,
     );
   }
 
@@ -64,5 +69,6 @@ class RequestManagementState extends BaseState {
     parkingModificationRequestList,
     bookingApplicantModificationRequestModel,
     flatAlterationRequestsModel,
+    refundRequestList,
   ];
 }

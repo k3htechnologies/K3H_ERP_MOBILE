@@ -1,5 +1,3 @@
-
-
 import 'package:k3h_erp_app/utils/common_function.dart';
 
 class FlatAlterationRequestsModel {
@@ -13,7 +11,7 @@ class FlatAlterationRequestsModel {
   String versionNumber;
   int createdById;
   String createdBy;
-  DateTime createdDate;
+  DateTime? createdDate;
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
@@ -35,25 +33,32 @@ class FlatAlterationRequestsModel {
     required this.modifiedDate,
   });
 
-  factory FlatAlterationRequestsModel.fromJson(Map<String, dynamic> json) => FlatAlterationRequestsModel(
-    flatAlterationRequestId: parseValue<int>(json,"FlatAlterationRequestId"),
-    uniqueKey: parseValue<String>(json,"UniqueKey"),
-    bookingId: parseValue<int>(json,"BookingId"),
-    projectId: parseValue<int>(json,"ProjectId"),
-    flatAlterationRemark: parseValue<String>(json,"FlatAlterationRemark"),
-    isApproval: parseValue<bool>(json,"IsApproval"),
-    approvalStatus: parseValue<String>(json,"ApprovalStatus"),
-    versionNumber: parseValue<String>(json,"VersionNumber"),
-    createdById: parseValue<int>(json,"CreatedById"),
-    createdBy: parseValue<String>(json,"CreatedBy"),
-    createdDate: DateTime.parse(json["CreatedDate"]),
-    modifiedById: parseValue<int>(json,"ModifiedById"),
-    modifiedBy: parseValue<String>(json,"ModifiedBy"),
-    modifiedDate:
-    json["ModifiedDate"] == null
-        ? null
-        : parseValue<DateTime>(json, "ModifiedDate"),
-  );
+  factory FlatAlterationRequestsModel.fromJson(Map<String, dynamic> json) =>
+      FlatAlterationRequestsModel(
+        flatAlterationRequestId: parseValue<int>(
+          json,
+          "FlatAlterationRequestId",
+        ),
+        uniqueKey: parseValue<String>(json, "UniqueKey"),
+        bookingId: parseValue<int>(json, "BookingId"),
+        projectId: parseValue<int>(json, "ProjectId"),
+        flatAlterationRemark: parseValue<String>(json, "FlatAlterationRemark"),
+        isApproval: parseValue<bool>(json, "IsApproval"),
+        approvalStatus: parseValue<String>(json, "ApprovalStatus"),
+        versionNumber: parseValue<String>(json, "VersionNumber"),
+        createdById: parseValue<int>(json, "CreatedById"),
+        createdBy: parseValue<String>(json, "CreatedBy"),
+        createdDate:
+            json["CreatedDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "CreatedDate"),
+        modifiedById: parseValue<int>(json, "ModifiedById"),
+        modifiedBy: parseValue<String>(json, "ModifiedBy"),
+        modifiedDate:
+            json["ModifiedDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "ModifiedDate"),
+      );
 
   Map<String, dynamic> toJson() => {
     "FlatAlterationRequestId": flatAlterationRequestId,
@@ -66,7 +71,7 @@ class FlatAlterationRequestsModel {
     "VersionNumber": versionNumber,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
-    "CreatedDate": createdDate.toIso8601String(),
+    "CreatedDate": createdDate?.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),

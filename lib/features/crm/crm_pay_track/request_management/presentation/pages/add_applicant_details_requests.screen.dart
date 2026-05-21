@@ -57,7 +57,7 @@ class _AddApplicantDetailsRequestsScreenState
 
   final List<Map<String, dynamic>> applicantTypeList = const [
     {"zAttributesId": 1, "DisplayName": "Applicant"},
-    {"zAttributesId": 2, "DisplayName": "Co-Applicant"},
+    {"zAttributesId": 2, "DisplayName": "Co - Applicant"},
   ];
   late TextEditingController _applicantNameC,
       _mobileC,
@@ -196,6 +196,12 @@ class _AddApplicantDetailsRequestsScreenState
 
   void _submitForm() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
+    final latestVersion = context
+        .read<RequestManagementCubit>()
+        .state
+        .bookingApplicantModificationRequestModel
+        .map((e) => int.tryParse(e.versionNumber) ?? 0)
+        .fold(0, (a, b) => a > b ? a : b);
 
     final applicant = BookingApplicantModificationRequestModel(
       bookingApplicantModificationRequestId: 0,
@@ -228,7 +234,7 @@ class _AddApplicantDetailsRequestsScreenState
       isApproval: true,
       approvalStatus: "Pending",
 
-      versionNumber: "1",
+      versionNumber: (latestVersion + 1).toString(),
 
       createdById: 0,
       createdBy: "",

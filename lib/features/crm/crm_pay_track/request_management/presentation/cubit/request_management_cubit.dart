@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/booking_applicant_modification_request.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/flat_alteration_requests.model.dart';
@@ -114,6 +115,100 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
         }
       },
     );
+  }
+
+  Future<void> saveApplicantRequests(
+    BuildContext context, {
+    required int bookingId,
+    required int projectId,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    try {
+      final pendingApplicants =
+          state.bookingApplicantModificationRequestModel
+              .where((e) => e.bookingApplicantModificationRequestId == 0)
+              .toList();
+
+      if (pendingApplicants.isEmpty) {
+        goRouter.pop();
+
+        showErrorMessage(context, "Error", "No applicant requests to save");
+        return;
+      }
+
+      for (final applicant in pendingApplicants) {
+        final Map<String, String> requestBody = {
+          "BookingApplicantModificationRequestId":
+              applicant.bookingApplicantModificationRequestId.toString(),
+
+          "BookingId": bookingId.toString(),
+
+          "ProjectId": projectId.toString(),
+
+          "ApplicantType": applicant.applicantType,
+
+          "ApplicantName": applicant.applicantName,
+
+          "ApplicantMobileNumber": applicant.applicantMobileNumber,
+
+          "ApplicantEmailId": applicant.applicantEmailId,
+
+          "AadharCardNumber": applicant.aadharCardNumber,
+
+          "PanNumber": applicant.panNumber,
+
+          "PassportNumber": applicant.passportNumber,
+
+          "DrivingLicenseNumber": applicant.drivingLicenseNumber,
+
+          "VotingIdNumber": applicant.votingIdNumber,
+
+          "GSTNumber": applicant.gstNumber,
+
+          "ApprovalStatus": applicant.approvalStatus,
+
+          "VersionNumber": applicant.versionNumber,
+        };
+
+        final result = await _requestManagementRepository
+            .updateBookingApplicantModificationRequest(
+              bookingId: bookingId,
+              projectId: projectId,
+              body: requestBody,
+              fileList: [],
+            );
+
+        result.fold((failure) {
+          throw Exception(failure.message);
+        }, (_) {});
+      }
+
+      goRouter.pop();
+
+      if (context.mounted) {
+        showSuccessMessage(
+          context,
+          subTitle: "Applicant requests saved successfully",
+        );
+      }
+
+      if (context.mounted) {
+        await getBookingApplicantModificationRequestList(
+          context,
+          10,
+          1,
+          bookingId,
+          projectId,
+        );
+      }
+    } catch (e) {
+      goRouter.pop();
+
+      if (context.mounted) {
+        showErrorMessage(context, "Error", e.toString());
+      }
+    }
   }
 
   Future cancelBooking(
@@ -367,6 +462,54 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
           bookingId,
           projectId,
         );
+      },
+    );
+  }
+
+  Future addFlatAlterationRequest({
+    required BuildContext context,
+    required int projectId,
+    required int bookingId,
+    required String uniquekey,
+    required String flatAlterationRemark,
+    required MultiFilePickerModel proofDocumentFile,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    Map<String, String> requestBody = {
+      "FlatAlterationRequestId": 0.toString(),
+      "UniqueKey": uniquekey,
+      "BookingId": bookingId.toString(),
+      "ProjectId": projectId.toString(),
+      "FlatAlterationRemark": flatAlterationRemark,
+      "ApprovalStatus": "",
+      "VersionNumber": "",
+    };
+
+    var addResult = await _requestManagementRepository.addFlatAlterationRequest(
+      body: requestBody,
+    );
+
+    goRouter.pop();
+
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+
+        emit(state.copyWith(isLoading: false));
+
+        return;
+      },
+      (response) async {
+        showSuccessMessage(context, subTitle: "Request done successfully");
+        await getFlatAlterationRequestList(
+          context,
+          10,
+          1,
+          bookingId,
+          projectId,
+        );
+        goRouter.pop();
       },
     );
   }
