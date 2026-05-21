@@ -470,4 +470,20 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       },
     );
   }
+
+  Future<List<ChannelPartnerModel>> fetchChannelPartnersByMobile(
+    String? value,
+  ) async {
+    final result = await _channelPartnerRepository.getChannelPartnerList(
+      pageNumber: 1,
+      pageSize: 10,
+      queryParams: {"MobileNumber": value ?? "", "IsCheckPermission": false},
+    );
+
+    return result.fold((failure) => [], (response) {
+      final partners = response['data'] as List<ChannelPartnerModel>;
+
+      return partners;
+    });
+  }
 }

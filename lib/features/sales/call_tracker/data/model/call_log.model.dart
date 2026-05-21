@@ -12,6 +12,13 @@ class CallLogModel {
   String status;
   String remark;
   DateTime? rescheduleDate;
+  DateTime? siteVisitProposedDate;
+  String budget;
+  String requirement;
+  String requirementType;
+  String villageMasterId;
+  String villageName;
+  bool isEditable;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -31,6 +38,13 @@ class CallLogModel {
     required this.status,
     required this.remark,
     required this.rescheduleDate,
+    required this.siteVisitProposedDate,
+    required this.budget,
+    required this.requirement,
+    required this.requirementType,
+    required this.villageMasterId,
+    required this.villageName,
+    required this.isEditable,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -50,15 +64,32 @@ class CallLogModel {
     duration: parseValue<String>(json, "Duration"),
     status: parseValue<String>(json, "Status"),
     remark: parseValue<String>(json, "Remark"),
+
     rescheduleDate:
         json["RescheduleDate"] == null
             ? null
             : DateTime.parse(json["RescheduleDate"]),
+
+    siteVisitProposedDate:
+        json["SiteVisitProposedDate"] == null
+            ? null
+            : DateTime.parse(json["SiteVisitProposedDate"]),
+
+    budget: parseValue<String>(json, "Budget"),
+    requirement: parseValue<String>(json, "Requirement"),
+    requirementType: parseValue<String>(json, "RequirementType"),
+    villageMasterId: parseValue<String>(json, "VillageMasterId"),
+    villageName: parseValue<String>(json, "VillageName"),
+
+    isEditable: parseValue<bool>(json, "IsEditable"),
+
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
     createdDate: DateTime.parse(json["CreatedDate"]),
+
     modifiedById: parseValue<int>(json, "ModifiedById"),
     modifiedBy: parseValue<String>(json, "ModifiedBy"),
+
     modifiedDate:
         json["ModifiedDate"] == null
             ? null
@@ -77,6 +108,13 @@ class CallLogModel {
     "Status": status,
     "Remark": remark,
     "RescheduleDate": rescheduleDate?.toIso8601String(),
+    "SiteVisitProposedDate": siteVisitProposedDate?.toIso8601String(),
+    "Budget": budget,
+    "Requirement": requirement,
+    "RequirementType": requirementType,
+    "VillageMasterId": villageMasterId,
+    "VillageName": villageName,
+    "IsEditable": isEditable,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

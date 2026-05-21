@@ -1545,8 +1545,20 @@ class _BookingViewScreenState extends State<BookingViewScreen>
             {
               "title": "Mobile Number",
               "value": applicant.applicantMobileNumber,
+              "widget": CustomClickToContactText(
+                value:
+                    "${applicant.applicantMobileNumberCountryCode} ${applicant.applicantMobileNumber}",
+                type: ContactType.phone,
+              ),
             },
-            {"title": "Email ID", "value": applicant.applicantEmailId},
+            {
+              "title": "Email ID",
+              "value": applicant.applicantEmailId,
+              "widget": CustomClickToContactText(
+                value: applicant.applicantEmailId,
+                type: ContactType.email,
+              ),
+            },
             {"title": "Aadhaar Card No.", "value": applicant.aadharCardNumber},
             {
               "title": "Aadhaar Card",

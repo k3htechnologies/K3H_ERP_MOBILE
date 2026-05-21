@@ -5,7 +5,9 @@ import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/core/models/modules_workflow_approval.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
+import 'package:k3h_erp_app/core/models/village.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
+import 'package:k3h_erp_app/service/exceptions.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 
 import 'local_storage_manager.dart';
@@ -84,6 +86,11 @@ abstract interface class UtilsDatasource {
   });
 
   Future<Map<String, dynamic>> pullCountryStateCityDistrictVillage();
+  Future<Map<String, dynamic>> apiCallPullVillage({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class UtilsDatasourceImpl implements UtilsDatasource {
@@ -521,5 +528,49 @@ class UtilsDatasourceImpl implements UtilsDatasource {
     );
 
     return response;
+  }
+
+  /// FETCH VILLAGE LIST
+  @override
+  Future<Map<String, dynamic>> apiCallPullVillage({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullVillageUrl({
+      required int pageSize,
+      required int pageNumber,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "Static/PullVillage?PageSize=$pageSize&PageNumber=$pageNumber";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await client.getRequestWithAuthentication(
+        pullVillageUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': List<VillageModel>.from(
+          networkResponse["data"].map((e) => VillageModel.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallPullVillage(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
   }
 }

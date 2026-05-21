@@ -42,6 +42,11 @@ class AppRoutes {
   static String projectDetails = "/projectDetails";
   static String addBankDetails = "/addBankDetails";
   static String addEmployeeToModule = "/addEmployeeToModule";
+  // TAB ACCESS ROUTES
+  static String projectMasterAssignEmployee = "/projectMasterAssignEmployee";
+  static String projectMasterBankDetails = "/projectMasterBankDetails";
+  static String projectMasterSetCompany = "/projectMasterSetCompany";
+  static String projectMasterApprovalSetup = "/projectMasterApprovalSetup";
 
   // EMPLOYEE MASTER
   static String employeeMaster = "/employeeMaster";
@@ -126,6 +131,7 @@ class AppRoutes {
 
   // SALES CALL TRACKER
   static String callTracker = "/callTracker";
+  static String updateCallTracker = "/updateCallTracker";
 
   // SALES ENQUIRY
   static String enquiry = "/enquiry";

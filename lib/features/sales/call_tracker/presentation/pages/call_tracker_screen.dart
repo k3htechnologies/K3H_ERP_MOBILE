@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/core/services/app_call_tracker_service.dart';
@@ -9,13 +11,14 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/data/model/call_log.model.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_tracker_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
@@ -36,8 +39,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
   late CallTrackerCubit _callTrackerCubit;
   late TabController _tabController;
   late AuthorizationModel _routhAuthorizationModel;
-  late TextEditingController _searchC, _remarkC;
-  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _searchC, _remarkC, _filterMobileNoC;
   late AppCallTrackerService _appCallTrackerService;
 
   late ScrollController scrollController;
@@ -46,9 +48,14 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
   Timer? _debounceCallLog;
 
   late ProjectModel _project;
+  final ValueNotifier<DateTime?> _startDateNotifier = ValueNotifier<DateTime?>(
+    null,
+  );
+  final ValueNotifier<DateTime?> _endDateNotifier = ValueNotifier<DateTime?>(
+    null,
+  );
 
   DateTime? selectedRescheduleDate;
-
   @override
   void initState() {
     super.initState();
@@ -59,6 +66,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     _project = getProject();
     _searchC = TextEditingController();
     _remarkC = TextEditingController();
+    _filterMobileNoC = TextEditingController();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
     _onScrollCallingData();
@@ -72,6 +80,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     _tabController.dispose();
     _searchC.dispose();
     _remarkC.dispose();
+    _filterMobileNoC.dispose();
     scrollController.dispose();
     _scrollControllerCallLog.dispose();
     _debounce?.cancel();
@@ -145,69 +154,6 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     });
   }
 
-  Future<void> _showBottomSheetToUpdateCallLog(
-    BuildContext context,
-    CallLogModel obj,
-    int projectId,
-    int index,
-  ) async {
-    _remarkC.text = obj.remark;
-    selectedRescheduleDate = obj.rescheduleDate;
-
-    DialogHelper.showCustomBottomSheet(
-      context,
-      "Update Call Log",
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              CustomTextField(
-                isRequired: true,
-                title: "Remark",
-                hint: "Enter Remark",
-                textController: _remarkC,
-                minLines: 3,
-                maxLines: 3,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter remark";
-                  }
-                  return null;
-                },
-              ),
-              CustomDatePicker(
-                title: "Reschedule Date",
-                initialDate: selectedRescheduleDate,
-                setValue: (value) {
-                  selectedRescheduleDate = value;
-                },
-              ),
-              Spacer(),
-              CustomButton(
-                text: "Save",
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _callTrackerCubit.updateCallLog(
-                      context: context,
-                      callLogId: obj.callLogId,
-                      projectId: projectId,
-                      uniqueKey: obj.uniquekey,
-                      remark: _remarkC.text,
-                      rescheduleDate: selectedRescheduleDate,
-                      index: index,
-                    );
-                  }
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Future<void> _showPopupToDeleteCallLog(
     BuildContext context,
     CallLogModel obj,
@@ -241,6 +187,170 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     await _callTrackerCubit.getCallingDataList(context, 1, _project.projectId);
   }
 
+  Future<void> _showBottomSheetToFilter(BuildContext context) async {
+    final state = _callTrackerCubit.state;
+
+    _filterMobileNoC.text = state.filterMobileNo;
+
+    _startDateNotifier.value = state.filterRescheduleFromDate;
+    _endDateNotifier.value = state.filterRescheduleToDate;
+
+    bool manualClose = false;
+
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            _filterMobileNoC.text.trim() != state.filterMobileNo ||
+            _startDateNotifier.value != state.filterRescheduleFromDate ||
+            _endDateNotifier.value != state.filterRescheduleToDate;
+
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    await DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title:
+          _tabController.index == 0 ? "Filter Calling Data" : "Filter Call Log",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                verticalSpacing(),
+
+                CustomTextField(
+                  textController: _filterMobileNoC,
+                  title: "Mobile Number",
+                  hint: "Enter Mobile Number",
+                  keyboardType: TextInputType.phone,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
+                ValueListenableBuilder<DateTime?>(
+                  valueListenable: _startDateNotifier,
+                  builder: (context, startDate, child) {
+                    return CustomDatePicker(
+                      title: "Reschedule From Date",
+                      initialDate: startDate,
+                      setValue: (value) {
+                        _startDateNotifier.value = value;
+
+                        updateApplyState(innerState);
+                      },
+                      validator: (value) => null,
+                    );
+                  },
+                ),
+
+                ValueListenableBuilder<DateTime?>(
+                  valueListenable: _endDateNotifier,
+                  builder: (context, endDate, child) {
+                    return ValueListenableBuilder<DateTime?>(
+                      valueListenable: _startDateNotifier,
+                      builder: (context, startDate, child) {
+                        return CustomDatePicker(
+                          title: "Reschedule To Date",
+                          isRequired: false,
+                          initialDate: endDate,
+                          setValue: (value) {
+                            _endDateNotifier.value = value;
+
+                            updateApplyState(innerState);
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return null;
+                            }
+
+                            if (startDate != null) {
+                              final startDateOnly = DateTime(
+                                startDate.year,
+                                startDate.month,
+                                startDate.day,
+                              );
+
+                              final endDateOnly = DateTime(
+                                value.year,
+                                value.month,
+                                value.day,
+                              );
+
+                              if (endDateOnly.isBefore(startDateOnly)) {
+                                return 'To Date cannot be before From Date';
+                              }
+                            }
+
+                            return null;
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+
+      onClear: () {
+        _filterMobileNoC.clear();
+
+        _startDateNotifier.value = null;
+        _endDateNotifier.value = null;
+
+        _callTrackerCubit.applyFilterAndSort(
+          context: context,
+          mobileNumber: '',
+          rescheduleFromDate: null,
+          rescheduleToDate: null,
+          projectId: _project.projectId,
+        );
+      },
+
+      onApply: () {
+        final startDate = _startDateNotifier.value;
+
+        final endDate = _endDateNotifier.value;
+
+        if (startDate != null && endDate != null) {
+          final startOnly = DateTime(
+            startDate.year,
+            startDate.month,
+            startDate.day,
+          );
+
+          final endOnly = DateTime(endDate.year, endDate.month, endDate.day);
+
+          if (endOnly.isBefore(startOnly)) {
+            showErrorMessage(
+              context,
+              "Invalid dates",
+              "To Date cannot be before From Date",
+            );
+
+            return;
+          }
+        }
+
+        _callTrackerCubit.applyFilterAndSort(
+          context: context,
+          projectId: _project.projectId,
+          mobileNumber: _filterMobileNoC.text.trim(),
+          rescheduleFromDate: startDate,
+          rescheduleToDate: endDate,
+        );
+      },
+
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -251,10 +361,11 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
             return CustomAppBar(
               screenTitle: "Call Tracker",
               authorization: _routhAuthorizationModel,
-
-              searchHintText: state.currentTabIndex == 0
-                  ? "Search By Customer Name"
-                  : "Search By Receiver Name",
+              isFilterOn: true,
+              searchHintText:
+                  state.currentTabIndex == 0
+                      ? "Search By Customer Name"
+                      : "Search By Receiver Name",
 
               onSearchSubmit: (value) {
                 if (state.currentTabIndex == 0) {
@@ -271,11 +382,13 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                   );
                 }
               },
-
+              onFilterTap: () {
+                _showBottomSheetToFilter(context);
+              },
               textController: _searchC,
 
               onExportCallback: (value) {
-                if(_project.projectId==0){
+                if (_project.projectId == 0) {
                   showErrorMessage(context, "Error", "Please Select a Project");
                   return;
                 }
@@ -322,7 +435,10 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
       ),
       body: Column(
         children: [
-          ChipStyleTabBar(controller: _tabController, tabs: ['Calling Data','Call Log']),
+          ChipStyleTabBar(
+            controller: _tabController,
+            tabs: ['Calling Data', 'Call Log'],
+          ),
           Expanded(
             child: TabBarView(
               physics: const NeverScrollableScrollPhysics(),
@@ -449,74 +565,81 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
           return Center(child: loader());
         }
 
-        return  state.callLogList.isEmpty
+        return state.callLogList.isEmpty
             ? ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: [
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.6,
-              child: Center(
-                child: noDataWidget(message: "No Call Log Found"),
-              ),
-            ),
-          ],
-        )
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  child: Center(
+                    child: noDataWidget(message: "No Call Log Found"),
+                  ),
+                ),
+              ],
+            )
             : NotificationListener<ScrollNotification>(
-          onNotification: (scrollInfo) {
-            if (scrollInfo.metrics.pixels >=
-                scrollInfo.metrics.maxScrollExtent - 100 &&
-                !_callTrackerCubit.state.isLoading! &&
-                _callTrackerCubit.state.callLogList.length <
-                    _callTrackerCubit.state.totalNumberOfRecordCallLog) {
-
-              _callTrackerCubit.getCallLogList(
-                context,
-                _callTrackerCubit.state.currentPageCallLog + 1,
-                _project.projectId,
-              );
-            }
-            return false;
-          },
-          child: ListView.builder(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.callLogList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.callLogList.length) {
-                return state.callLogList.length <
-                    state.totalNumberOfRecordCallLog
-                    ? const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator()),
-                )
-                    : const SizedBox.shrink();
-              }
-
-              final callLog = state.callLogList[index];
-              return CallLogExpandableCard(
-                callLog: callLog,
-                index: index,
-                editCallBack: () {
-                  _showBottomSheetToUpdateCallLog(
+              onNotification: (scrollInfo) {
+                if (scrollInfo.metrics.pixels >=
+                        scrollInfo.metrics.maxScrollExtent - 100 &&
+                    !_callTrackerCubit.state.isLoading! &&
+                    _callTrackerCubit.state.callLogList.length <
+                        _callTrackerCubit.state.totalNumberOfRecordCallLog) {
+                  _callTrackerCubit.getCallLogList(
                     context,
-                    callLog,
+                    _callTrackerCubit.state.currentPageCallLog + 1,
                     _project.projectId,
-                    index,
+                  );
+                }
+                return false;
+              },
+              child: ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                itemCount: state.callLogList.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == state.callLogList.length) {
+                    return state.callLogList.length <
+                            state.totalNumberOfRecordCallLog
+                        ? const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : const SizedBox.shrink();
+                  }
+
+                  final callLog = state.callLogList[index];
+                  return CallLogExpandableCard(
+                    callLog: callLog,
+                    index: index,
+                    editCallBack: () {
+                      goRouter.pushNamed(
+                        AppRoutes.updateCallTracker,
+                        queryParameters: {
+                          "callLog": Uri.encodeQueryComponent(
+                            EncryptionManager.encryptData(
+                              jsonEncode(callLog.toJson()),
+                            ),
+                          ),
+                          "index": index.toString(),
+                        },
+                      );
+                    },
+                    deleteCallBack: () {
+                      _showPopupToDeleteCallLog(
+                        context,
+                        callLog,
+                        _project.projectId,
+                        index,
+                      );
+                    },
+                    routhAuthorizationModel: _routhAuthorizationModel,
                   );
                 },
-                deleteCallBack: () {
-                  _showPopupToDeleteCallLog(
-                    context,
-                    callLog,
-                    _project.projectId,
-                    index,
-                  );
-                },
-                routhAuthorizationModel: _routhAuthorizationModel,
-              );
-            },
-          ),
-        );
+              ),
+            );
       },
     );
   }
@@ -529,9 +652,9 @@ class CallLogExpandableCard extends StatefulWidget {
   final CallLogModel callLog;
   final int index;
 
-   const CallLogExpandableCard({
+  const CallLogExpandableCard({
     super.key,
-     required this.routhAuthorizationModel,
+    required this.routhAuthorizationModel,
     required this.callLog,
     required this.index,
     required this.deleteCallBack,
@@ -544,8 +667,6 @@ class CallLogExpandableCard extends StatefulWidget {
 
 class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
   bool isExpanded = false;
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -568,7 +689,11 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
                     ? AnimatedOpacity(
                       duration: const Duration(milliseconds: 200),
                       opacity: 1,
-                      child: _expandedContent(callLog, widget.index,widget.routhAuthorizationModel),
+                      child: _expandedContent(
+                        callLog,
+                        widget.index,
+                        widget.routhAuthorizationModel,
+                      ),
                     )
                     : const SizedBox(),
           ),
@@ -580,24 +705,66 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
   Widget _header(CallLogModel callLog) {
     return InkWell(
       onTap: () => setState(() => isExpanded = !isExpanded),
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            child: Text(callLog.receiverName, style: AppTextStyle.ts14SB()),
+          Row(
+            children: [
+              Expanded(
+                child: Text(callLog.receiverName, style: AppTextStyle.ts14SB()),
+              ),
+              _statusChip("Outgoing"),
+              horizontalSpacing(width: 6),
+              AnimatedRotation(
+                turns: isExpanded ? 0.5 : 0,
+                duration: const Duration(milliseconds: 300),
+                child: const Icon(Icons.keyboard_arrow_down),
+              ),
+            ],
           ),
-          _statusChip("Outgoing"),
-          horizontalSpacing(width: 6),
-          AnimatedRotation(
-            turns: isExpanded ? 0.5 : 0,
-            duration: const Duration(milliseconds: 300),
-            child: const Icon(Icons.keyboard_arrow_down),
+          Row(
+            children: [
+              buildColumnTitleValue(
+                title: "Call Rescheduled Date",
+                value:
+                    callLog.rescheduleDate != null
+                        ? formatDateTimeAsDDMMMYYYY(callLog.rescheduleDate!)
+                        : "-",
+              ),
+
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 10,
+                children: [
+                  CustomIconButton.edit(
+                    isDisabled:
+                        !(widget.routhAuthorizationModel.isAction &&
+                            callLog.isEditable),
+                    onPressed: () {
+                      widget.editCallBack();
+                    },
+                  ),
+                  CustomIconButton.delete(
+                    isDisabled:
+                        !(widget.routhAuthorizationModel.isAction &&
+                            callLog.isEditable),
+                    onPressed: () {
+                      widget.deleteCallBack();
+                    },
+                  ),
+                ],
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _expandedContent(CallLogModel callLog, int index,AuthorizationModel authorization) {
+  Widget _expandedContent(
+    CallLogModel callLog,
+    int index,
+    AuthorizationModel authorization,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: Column(
@@ -631,36 +798,7 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
           ),
           Row(
             children: [
-              buildColumnTitleValue(
-                title: "Call Rescheduled Date",
-                value:
-                    callLog.rescheduleDate != null
-                        ? formatDateTimeAsDDMMMYYYY(callLog.rescheduleDate!)
-                        : "-",
-              ),
-            ],
-          ),
-          Row(
-            children: [
               buildColumnTitleValue(title: "Remark", value: callLog.remark),
-              if(authorization.isAction && callLog.remark.isEmpty)...[
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: 10,
-                  children: [
-                    CustomIconButton.edit(
-                      onPressed: () {
-                        widget.editCallBack();
-                      },
-                    ),
-                    CustomIconButton.delete(
-                      onPressed: () {
-                        widget.deleteCallBack();
-                      },
-                    ),
-                  ],
-                ),
-              ]
             ],
           ),
         ],

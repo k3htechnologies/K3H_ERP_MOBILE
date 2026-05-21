@@ -322,7 +322,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
                       ),
-                      verticalSpacing(height: 10.h),
+                      /*    verticalSpacing(height: 10.h),
                       Center(
                         child: RichText(
                           text: TextSpan(
@@ -361,6 +361,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
+                    */
                     ],
                   ),
                 ),

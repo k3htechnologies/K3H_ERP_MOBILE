@@ -122,6 +122,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   ValueNotifier<CountryCode> selectedMobileNoCountry = ValueNotifier(
     countryList.firstWhere((e) => e.code == "+91"),
   );
+  final ValueNotifier<bool> _isAlreadyExist = ValueNotifier(false);
 
   @override
   void initState() {
@@ -747,6 +748,20 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                             ),
                             FilteringTextInputFormatter.digitsOnly,
                           ],
+                          onChangeFunction: (value) async {
+                            final country = selectedMobileNoCountry.value;
+
+                            if (value.isNotEmpty &&
+                                country.mobileLength == value.length) {
+                              _isAlreadyExist.value =
+                                  (await _channelPartnerCubit
+                                      .fetchChannelPartnersByMobile(
+                                        _mobileNumberC.text.trim(),
+                                      )).isNotEmpty;
+                            } else {
+                              _isAlreadyExist.value = false;
+                            }
+                          },
                           validator: (value) {
                             final mobile = value?.trim() ?? "";
                             final country = selectedMobileNoCountry.value;
@@ -761,7 +776,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                 return "Invalid Mobile Number";
                               }
                             }
-
+                            if (_isAlreadyExist.value && !_isEditMode) {
+                              return "Mobile Number already exists";
+                            }
                             return null;
                           },
                         );

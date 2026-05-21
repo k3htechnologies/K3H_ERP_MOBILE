@@ -8,6 +8,9 @@ class CallTrackerState extends BaseState {
   final int totalNumberOfRecordCallLog;
   final int currentPageCallLog;
   final String searchText;
+  final String filterMobileNo;
+  final DateTime? filterRescheduleFromDate;
+  final DateTime? filterRescheduleToDate;
   final int currentTabIndex;
 
   const CallTrackerState({
@@ -19,7 +22,10 @@ class CallTrackerState extends BaseState {
     required this.totalNumberOfRecordCallLog,
     required this.currentPageCallLog,
     required this.searchText,
+    required this.filterMobileNo,
     required this.currentTabIndex,
+    required this.filterRescheduleFromDate,
+    required this.filterRescheduleToDate,
   });
 
   factory CallTrackerState.initial() => CallTrackerState(
@@ -31,8 +37,13 @@ class CallTrackerState extends BaseState {
     totalNumberOfRecordCallLog: 0,
     currentPageCallLog: 1,
     searchText: "",
+    filterMobileNo: "",
     currentTabIndex: 0,
+    filterRescheduleFromDate: null,
+    filterRescheduleToDate: null,
   );
+
+  static const _noChange = Object();
 
   CallTrackerState copyWith({
     bool? isLoading,
@@ -43,7 +54,10 @@ class CallTrackerState extends BaseState {
     int? totalNumberOfRecordCallLog,
     int? currentPageCallLog,
     String? searchText,
+    String? filterMobileNo,
     int? currentTabIndex,
+    Object? filterRescheduleFromDate = _noChange,
+    Object? filterRescheduleToDate = _noChange,
   }) {
     return CallTrackerState(
       isLoading: isLoading ?? this.isLoading,
@@ -58,6 +72,17 @@ class CallTrackerState extends BaseState {
       currentPageCallLog: currentPageCallLog ?? this.currentPageCallLog,
       searchText: searchText ?? this.searchText,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
+      filterMobileNo: filterMobileNo ?? this.filterMobileNo,
+
+      filterRescheduleFromDate:
+          filterRescheduleFromDate == _noChange
+              ? this.filterRescheduleFromDate
+              : filterRescheduleFromDate as DateTime?,
+
+      filterRescheduleToDate:
+          filterRescheduleToDate == _noChange
+              ? this.filterRescheduleToDate
+              : filterRescheduleToDate as DateTime?,
     );
   }
 
@@ -72,5 +97,8 @@ class CallTrackerState extends BaseState {
     currentPageCallLog,
     searchText,
     currentTabIndex,
+    filterMobileNo,
+    filterRescheduleFromDate,
+    filterRescheduleToDate,
   ];
 }

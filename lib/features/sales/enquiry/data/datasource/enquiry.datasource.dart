@@ -13,11 +13,6 @@ abstract interface class EnquiryDatasource {
     Map<String, dynamic>? queryParams,
   });
 
-  Future<Map<String, dynamic>> apiCallPullVillage({
-    required int pageNumber,
-    required int pageSize,
-    Map<String, dynamic>? queryParams,
-  });
   Future<Map<String, dynamic>> apicallAddUpdateEnquiry({
     required Map<String, dynamic> body,
   });
@@ -126,50 +121,6 @@ class EnquiryDatasourceImpl extends EnquiryDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         apicallAddUpdateEnquiry(body: body);
-      }
-      rethrow;
-    }
-  }
-
-  /// FETCH VILLAGE LIST
-  @override
-  Future<Map<String, dynamic>> apiCallPullVillage({
-    required int pageNumber,
-    required int pageSize,
-    Map<String, dynamic>? queryParams,
-  }) async {
-    String pullVillageUrl({
-      required int pageSize,
-      required int pageNumber,
-      Map<String, dynamic>? queryParams,
-    }) {
-      String url =
-          "Static/PullVillage?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
-      return url;
-    }
-
-    try {
-      var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullVillageUrl(
-          pageSize: pageSize,
-          pageNumber: pageNumber,
-          queryParams: queryParams,
-        ),
-      );
-      return {
-        'data': List<VillageModel>.from(
-          networkResponse["data"].map((e) => VillageModel.fromJson(e)),
-        ),
-        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
-      };
-    } catch (error) {
-      if (error is TokenExpiredException) {
-        apiCallPullVillage(
-          pageNumber: pageNumber,
-          pageSize: pageSize,
-          queryParams: queryParams,
-        );
       }
       rethrow;
     }

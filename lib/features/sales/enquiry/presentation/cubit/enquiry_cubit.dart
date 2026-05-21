@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/models/village.model.dart';
+import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/repository/channel_partner.repository.dart';
@@ -25,6 +26,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
   final ChannelPartnerRepository _channelPartnerRepository =
       serviceLocator<ChannelPartnerRepository>();
 
+  final UtilsRepository _utilsRepository = serviceLocator<UtilsRepository>();
   // SEARCH
   void searchEnquiry(BuildContext context, String searchText, int projectId) {
     emit(state.copyWith(searchText: searchText.trim()));
@@ -214,7 +216,6 @@ class EnquiryCubit extends Cubit<EnquiryState> {
   Future<List<ChannelPartnerModel>> fetchChannelPartnersByMobile(
     String? value,
   ) async {
-    emit(state.copyWith(isFetchingChannelPartners: true));
     final result = await _channelPartnerRepository.getChannelPartnerList(
       pageNumber: 1,
       pageSize: 10,
@@ -223,12 +224,6 @@ class EnquiryCubit extends Cubit<EnquiryState> {
 
     return result.fold((failure) => [], (response) {
       final partners = response['data'] as List<ChannelPartnerModel>;
-
-      ///  Auto store first partner when searching by mobile
-      if (partners.isNotEmpty && value != null && value.isNotEmpty) {
-        emit(state.copyWith(channelPartnerModel: partners.first));
-      }
-      emit(state.copyWith(isFetchingChannelPartners: false));
 
       return partners;
     });
@@ -239,7 +234,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     int pageNumber, {
     String? value,
   }) async {
-    final result = await _enquiryRepository.getVillageList(
+    final result = await _utilsRepository.getVillageList(
       pageNumber: pageNumber,
       pageSize: 15,
       queryParams:
@@ -556,5 +551,23 @@ class EnquiryCubit extends Cubit<EnquiryState> {
         }
       },
     );
+  }
+
+  Future<List<EnquiryModel>> fetchEnquiryByMobileNo(
+    String? value, {
+    required int projectId,
+  }) async {
+    final result = await _enquiryRepository.getEnquiryList(
+      pageNumber: 1,
+      projectId: projectId,
+      pageSize: 10,
+      queryParams: {"MobileNumber": value ?? "", "IsCheckPermission": false},
+    );
+
+    return result.fold((failure) => [], (response) {
+      final enquiry = response['data'] as List<EnquiryModel>;
+
+      return enquiry;
+    });
   }
 }

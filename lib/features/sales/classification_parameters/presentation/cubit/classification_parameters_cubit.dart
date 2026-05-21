@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/village.model.dart';
+import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/classification_parameters/data/model/classification_paramerter.model.dart';
 import 'package:k3h_erp_app/features/sales/classification_parameters/data/repository/classification_parameters.repositiory.dart';
@@ -21,8 +22,7 @@ class ClassificationParametersCubit
   final ClassificationParametersRepository _classificationParametersRepository =
       serviceLocator<ClassificationParametersRepository>();
 
-  final EnquiryRepository _enquiryRepository =
-      serviceLocator<EnquiryRepository>();
+  final UtilsRepository _utilsRepository = serviceLocator<UtilsRepository>();
 
   // <---- GET CLASSIFICATION PARAMETERS LIST ---->
   Future getClassificationParametersList(
@@ -175,7 +175,7 @@ class ClassificationParametersCubit
     int pageNumber, {
     String? value,
   }) async {
-    final result = await _enquiryRepository.getVillageList(
+    final result = await _utilsRepository.getVillageList(
       pageNumber: pageNumber,
       pageSize: 15,
       queryParams:

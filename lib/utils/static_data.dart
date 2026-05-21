@@ -319,17 +319,18 @@ List<Map<String, dynamic>> flatStatusListWithOtherOptions = [
 ];
 
 // STATIC LISTS FOR FLAT FACING
+
 List<Map<String, dynamic>> flatFacingList = [
-  {'zAttributesId': 1, 'DisplayName': 'EAST'},
-  {'zAttributesId': 2, 'DisplayName': 'BACK'},
-  {'zAttributesId': 3, 'DisplayName': 'FRONT'},
-  {'zAttributesId': 4, 'DisplayName': 'INTERNAL VIEW'},
-  {'zAttributesId': 5, 'DisplayName': 'GARDEN'},
-  {'zAttributesId': 6, 'DisplayName': 'NORTH'},
-  {'zAttributesId': 7, 'DisplayName': 'PARK'},
-  {'zAttributesId': 8, 'DisplayName': 'ROAD'},
+  {'zAttributesId': 1, 'DisplayName': 'City View – Includes roads'},
+  {'zAttributesId': 2, 'DisplayName': 'Forest / Mangrove View'},
+  {'zAttributesId': 3, 'DisplayName': 'Building View'},
+  {'zAttributesId': 4, 'DisplayName': 'Internal Amenity View'},
+  {'zAttributesId': 5, 'DisplayName': 'Garden View'},
+  {'zAttributesId': 6, 'DisplayName': 'Club-house View'},
+  {'zAttributesId': 7, 'DisplayName': 'Sea View'},
+  {'zAttributesId': 8, 'DisplayName': 'Open View'},
   {'zAttributesId': 9, 'DisplayName': 'SOUTH'},
-  {'zAttributesId': 10, 'DisplayName': 'WEST'},
+  {'zAttributesId': 10, 'DisplayName': 'Others'},
 ];
 
 // Legal
@@ -376,4 +377,15 @@ List<Map<String, dynamic>> projectStatusList = [
   {"zAttributesId": 4, "DisplayName": "On-Hold"},
   {"zAttributesId": 5, "DisplayName": "Cancelled"},
   {"zAttributesId": 6, "DisplayName": "Planning"},
+];
+
+List<Map<String, dynamic>> callStatus = [
+  {"zAttributesId": 1, "DisplayName": "Connected"},
+  {"zAttributesId": 2, "DisplayName": "Not Connected"},
+  {"zAttributesId": 3, "DisplayName": "Wrong Number"},
+  {"zAttributesId": 4, "DisplayName": "Switched Off"},
+  {"zAttributesId": 5, "DisplayName": "Busy"},
+  {"zAttributesId": 6, "DisplayName": "No Answer"},
+  {"zAttributesId": 7, "DisplayName": "Disconnected"},
+  {"zAttributesId": 8, "DisplayName": "Rescheduled"},
 ];

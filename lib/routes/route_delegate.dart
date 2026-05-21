@@ -326,8 +326,10 @@ import 'package:k3h_erp_app/features/sales/booking/presentation/pages/add_bookin
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/approval_log_history_view_screen.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_screen.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_view_screen.dart';
+import 'package:k3h_erp_app/features/sales/call_tracker/data/model/call_log.model.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_tracker_cubit.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/call_tracker_screen.dart';
+import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/update_call_log_screen.dart';
 import 'package:k3h_erp_app/features/sales/classification_parameters/data/model/classification_paramerter.model.dart';
 import 'package:k3h_erp_app/features/sales/classification_parameters/presentation/cubit/classification_parameters_cubit.dart';
 import 'package:k3h_erp_app/features/sales/classification_parameters/presentation/pages/Classification_parameter_screen.dart';
@@ -3977,6 +3979,36 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.callTracker,
                   builder: (context, state) {
                     return CallTrackerScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.updateCallTracker,
+                  path: AppRoutes.updateCallTracker,
+                  builder: (context, state) {
+                    final queryParameterCallLog =
+                        state.uri.queryParameters['callLog'];
+                    final callLog =
+                        queryParameterCallLog != null &&
+                                queryParameterCallLog.isNotEmpty
+                            ? CallLogModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterCallLog),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+
+                    return UpdateCallLogScreen(
+                      callLogModel: callLog!,
+                      index: index,
+                    );
                   },
                 ),
               ],

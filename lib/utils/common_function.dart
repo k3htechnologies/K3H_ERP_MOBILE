@@ -773,6 +773,19 @@ UserModel getCurrentUser() {
   return UserModel.fromJson(userJson);
 }
 
+// HELPER: Find item in list by DisplayName
+Map<String, dynamic>? findItem(List<Map<String, dynamic>> list, String value) {
+  if (value.isEmpty) {
+    return null;
+  }
+  return list.firstWhere(
+    (e) =>
+        e["DisplayName"].toString().toLowerCase().trim() ==
+        value.toLowerCase().trim(),
+    orElse: () => list.first,
+  );
+}
+
 extension MaterialItemExtension on MaterialRequisitionQuotationDatum {
   double get amountValue {
     if (amount > 0) return amount;

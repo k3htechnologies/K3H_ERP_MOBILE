@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
+import 'package:k3h_erp_app/core/models/village.model.dart';
+import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/data/model/call_log.model.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/data/model/calling_data.model.dart';
@@ -18,6 +20,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
   final CallTrackerRepository _callTrackerRepository =
       serviceLocator<CallTrackerRepository>();
 
+  final UtilsRepository _utilsRepository = serviceLocator<UtilsRepository>();
   // HELPER ON TAB CHANGED
   void onTabChanged(int index, BuildContext context) {
     emit(state.copyWith(currentTabIndex: index, searchText: ""));
@@ -42,13 +45,41 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
     await getCallLogList(context, 1, projectId);
   }
 
+  Future<void> applyFilterAndSort({
+    required BuildContext context,
+    String? mobileNumber,
+    DateTime? rescheduleFromDate,
+    DateTime? rescheduleToDate,
+    required int projectId,
+  }) async {
+    emit(
+      state.copyWith(
+        filterMobileNo: mobileNumber,
+        filterRescheduleFromDate: rescheduleFromDate,
+        filterRescheduleToDate: rescheduleToDate,
+      ),
+    );
+
+    if (state.currentTabIndex == 0) {
+      getCallingDataList(context, 1, projectId);
+    } else {
+      await getCallLogList(context, 1, projectId);
+    }
+  }
+
   // <---- GET CALLING DATA LIST ---->
   Future getCallingDataList(
     BuildContext context,
     int pageNumber,
     int projectId,
   ) async {
-    var queryParams = {"Name": state.searchText};
+    var queryParams = {
+      "Name": state.searchText,
+      "MobileNumber": state.filterMobileNo,
+      "RescheduleDateFromDate":
+          state.filterRescheduleFromDate?.toIso8601String(),
+      "RescheduleDateToDate": state.filterRescheduleToDate?.toIso8601String(),
+    };
 
     emit(state.copyWith(isLoading: true));
     if (projectId == 0) {
@@ -95,7 +126,13 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
     int pageNumber,
     int projectId,
   ) async {
-    var queryParams = {"Name": state.searchText};
+    var queryParams = {
+      "Name": state.searchText,
+      "MobileNumber": state.filterMobileNo,
+      "RescheduleDateFromDate":
+          state.filterRescheduleFromDate?.toIso8601String(),
+      "RescheduleDateToDate": state.filterRescheduleToDate?.toIso8601String(),
+    };
     emit(state.copyWith(isLoading: true));
     if (projectId == 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -142,7 +179,13 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
     required int projectId,
     required String uniqueKey,
     required String remark,
+    required String status,
+    required String budget,
+    required String requirement,
+    required String residentialType,
+    required String villageIds,
     required DateTime? rescheduleDate,
+    required DateTime? siteVisitProposedDate,
     required int index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -150,8 +193,14 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
       "CallLogId": callLogId,
       "ProjectId": projectId,
       "Uniquekey": uniqueKey,
-      "Status": "",
+      "Status": status,
       "Remark": remark,
+      "VillageMasterId": villageIds,
+      "Budget": budget,
+      "Requirement": requirement,
+      "RequirementType": residentialType,
+      if (siteVisitProposedDate != null)
+        "SiteVisitProposedDate": siteVisitProposedDate.toIso8601String(),
       if (rescheduleDate != null)
         "RescheduleDate": rescheduleDate.toIso8601String(),
     };
@@ -211,6 +260,39 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
         } else {
           getCallLogList(context, state.currentPageCallLog, projectId);
         }
+      },
+    );
+  }
+
+  Future<Map<String, dynamic>> fetchVillages(
+    int pageNumber, {
+    String? value,
+  }) async {
+    final result = await _utilsRepository.getVillageList(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      queryParams:
+          value != null && value.isNotEmpty ? {"VillageName": value} : {},
+    );
+
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final villages = response['data'] as List<VillageModel>;
+
+        return {
+          "itemList":
+              villages.map((village) {
+                return {
+                  "zAttributesId": village.villageMasterId,
+                  "DisplayName": village.villageName,
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
+        };
       },
     );
   }

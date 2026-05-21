@@ -50,6 +50,7 @@ class Table0 {
   final int projectId;
   final String name;
   final String mobileNumber;
+  final String mobileNumberCountryCode;
   final DateTime enquiryDate;
   final String enquiryTimeIn;
   final String salesAdvisor;
@@ -63,6 +64,7 @@ class Table0 {
     required this.projectId,
     required this.name,
     required this.mobileNumber,
+    required this.mobileNumberCountryCode,
     required this.enquiryDate,
     required this.enquiryTimeIn,
     required this.salesAdvisor,
@@ -77,6 +79,10 @@ class Table0 {
     projectId: parseValue<int>(json, "ProjectId"),
     name: parseValue<String>(json, "Name"),
     mobileNumber: parseValue<String>(json, "MobileNumber"),
+    mobileNumberCountryCode: parseValue<String>(
+      json,
+      "MobileNumberCountryCode",
+    ),
     enquiryDate: parseValue<DateTime>(json, "EnquiryDate"),
     enquiryTimeIn: parseValue<String>(json, "EnquiryTimeIn"),
     salesAdvisor: parseValue<String>(json, "SalesAdvisor"),
@@ -87,6 +93,7 @@ class Table0 {
 
   Map<String, dynamic> toJson() => {
     "SystemGeneratedCode": systemGeneratedCode,
+    "MobileNumberCountryCode": mobileNumberCountryCode,
     "ProjectName": projectName,
     "ProjectId": projectId,
     "Name": name,
@@ -104,6 +111,7 @@ class Table1 {
   final String systemGeneratedCode;
   final String projectName;
   final String name;
+  final String mobileNumberCountryCode;
   final String mobileNumber;
   final String enquiryFollowUpDays;
   final String finalStage;
@@ -125,6 +133,7 @@ class Table1 {
     required this.sourcingManager,
     required this.createdDate,
     required this.enquiryId,
+    required this.mobileNumberCountryCode,
   });
 
   factory Table1.fromJson(Map<String, dynamic> json) => Table1(
@@ -132,6 +141,10 @@ class Table1 {
     projectName: parseValue<String>(json, "ProjectName"),
     name: parseValue<String>(json, "Name"),
     mobileNumber: parseValue<String>(json, "MobileNumber"),
+    mobileNumberCountryCode: parseValue<String>(
+      json,
+      "MobileNumberCountryCode",
+    ),
     enquiryFollowUpDays: parseValue<String>(json, "EnquiryFollowUpDays"),
     finalStage: parseValue<String>(json, "FinalStage"),
     nextFollowUpDate:
@@ -148,6 +161,7 @@ class Table1 {
     "SystemGeneratedCode": systemGeneratedCode,
     "ProjectName": projectName,
     "Name": name,
+    "MobileNumberCountryCode": mobileNumberCountryCode,
     "MobileNumber": mobileNumber,
     "EnquiryFollowUpDays": enquiryFollowUpDays,
     "FinalStage": finalStage,

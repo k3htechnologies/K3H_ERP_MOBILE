@@ -91,7 +91,7 @@ class _ChannelPartnerDashboardScreenState
                   _buildTotalCasesWidget(
                     context,
                     bgColor: AppColor.white,
-                    title: "Booking Active CP",
+                    title: "Enquiry By CP",
                     titleColor: AppColor.black.withValues(alpha: 0.5),
                     value: table0?.activeChannelPartner ?? 0,
                     subText: "this month",

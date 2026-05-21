@@ -2,6 +2,7 @@ import 'package:k3h_erp_app/features/sales/call_tracker/data/model/call_log.mode
 import 'package:k3h_erp_app/features/sales/call_tracker/data/model/calling_data.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 abstract interface class CallTrackerDataSource {
   Future<Map<String, dynamic>> apicallPullCallingData({
@@ -65,7 +66,7 @@ class CallTrackerDataSourceImpl implements CallTrackerDataSource {
     }) {
       String url =
           "CallTracker/PullCallingData?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -112,7 +113,7 @@ class CallTrackerDataSourceImpl implements CallTrackerDataSource {
     }) {
       String url =
           "CallLog/PullCallLog?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

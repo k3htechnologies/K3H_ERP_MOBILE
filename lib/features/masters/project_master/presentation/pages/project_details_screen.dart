@@ -50,6 +50,12 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
   late final PageController pageController;
   int currentIndex = 0;
   late final List<String> projectImages;
+  // AUTHORIZATION
+  late AuthorizationModel _projectDetailsRouteAuthorizationModel,
+      _employeeRouteAuthorizationModel,
+      _bankDetailsRouteAuthorizationModel,
+      _companyRouteAuthorizationModel,
+      _approvalRouteAuthorizationModel;
 
   // PAGINATION
   late ScrollController employeeScrollController;
@@ -64,14 +70,23 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
 
   // TEXT CONTROLLER
   late TextEditingController _searchEmployeeC;
+  late final List<String> _tabs;
 
   @override
   void initState() {
     super.initState();
-
+    _initAuth();
     _projectMasterCubit = context.read<ProjectMasterCubit>();
 
-    _tabController = TabController(length: 5, vsync: this);
+    _tabs = [
+      if (_projectDetailsRouteAuthorizationModel.isView) "Overview",
+      if (_employeeRouteAuthorizationModel.isView) "Employee",
+      if (_bankDetailsRouteAuthorizationModel.isView) "Bank Details",
+      if (_companyRouteAuthorizationModel.isView) "Company",
+      if (_approvalRouteAuthorizationModel.isView) "Approval",
+    ];
+
+    _tabController = TabController(length: _tabs.length, vsync: this);
     _tabController.addListener(_handleTabChange);
 
     _delayFuture = Future.delayed(const Duration(seconds: 2));
@@ -93,6 +108,24 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     _onCompanyScroll();
     _onBankScroll();
     _searchEmployeeC = TextEditingController();
+  }
+
+  void _initAuth() {
+    _projectDetailsRouteAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.projectDetails]!;
+
+    _employeeRouteAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes
+            .projectMasterAssignEmployee]!;
+
+    _bankDetailsRouteAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes
+            .projectMasterBankDetails]!;
+    _companyRouteAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.projectMasterSetCompany]!;
+    _approvalRouteAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes
+            .projectMasterApprovalSetup]!;
   }
 
   @override
@@ -218,13 +251,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
             verticalSpacing(),
             ChipStyleTabBar(
               controller: _tabController,
-              tabs: [
-                "Overview",
-                "Employee",
-                "Bank Details",
-                "Company",
-                "Approval",
-              ],
+              tabs: _tabs,
               onTabChanged: (_) {
                 _searchEmployeeC.clear();
               },
@@ -234,11 +261,15 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 physics: NeverScrollableScrollPhysics(),
                 controller: _tabController,
                 children: [
-                  _overviewSection(),
-                  _employeeSection(),
-                  _bankSection(),
-                  _companySection(),
-                  _approvalSection(),
+                  if (_projectDetailsRouteAuthorizationModel.isView)
+                    _overviewSection(),
+                  if (_employeeRouteAuthorizationModel.isView)
+                    _employeeSection(),
+                  if (_bankDetailsRouteAuthorizationModel.isView)
+                    _bankSection(),
+                  if (_companyRouteAuthorizationModel.isView) _companySection(),
+                  if (_approvalRouteAuthorizationModel.isView)
+                    _approvalSection(),
                 ],
               ),
             ),
@@ -999,17 +1030,23 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 children: [
                   Text("Employee Details", style: AppTextStyle.ts16SB()),
                   Spacer(),
-                  CustomButton(
-                    text:
-                        state.employeeByProject.isEmpty ? "Add" : "Add/Update",
-                    onPressed: () async {
-                      FocusScope.of(context).unfocus();
-                      _searchEmployeeC.clear();
-                      await _showEmployeeSelectionBottomSheet(context);
-                    },
-                    backgroundColor: AppColor.primary,
-                    padding: EdgeInsets.symmetric(vertical: 3, horizontal: 10),
-                  ),
+                  if (_employeeRouteAuthorizationModel.isAction)
+                    CustomButton(
+                      text:
+                          state.employeeByProject.isEmpty
+                              ? "Add"
+                              : "Add/Update",
+                      onPressed: () async {
+                        FocusScope.of(context).unfocus();
+                        _searchEmployeeC.clear();
+                        await _showEmployeeSelectionBottomSheet(context);
+                      },
+                      backgroundColor: AppColor.primary,
+                      padding: EdgeInsets.symmetric(
+                        vertical: 3,
+                        horizontal: 10,
+                      ),
+                    ),
                 ],
               ),
             );
@@ -1081,6 +1118,8 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                               ),
                             ),
                             CustomIconButton.delete(
+                              isDisabled:
+                                  !_employeeRouteAuthorizationModel.isAction,
                               onPressed: () {
                                 _showDeleteEmployeeDialog(context, employee);
                                 FocusScope.of(context).unfocus();
@@ -1299,14 +1338,19 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 children: [
                   Text("Company Details", style: AppTextStyle.ts16SB()),
                   Spacer(),
-                  CustomButton(
-                    text: state.companyByProject.isEmpty ? "Add" : "Add/Update",
-                    onPressed: () {
-                      _showCompanySelectionBottomSheet(context);
-                    },
-                    backgroundColor: AppColor.primary,
-                    padding: EdgeInsets.symmetric(vertical: 3, horizontal: 10),
-                  ),
+                  if (_companyRouteAuthorizationModel.isAction)
+                    CustomButton(
+                      text:
+                          state.companyByProject.isEmpty ? "Add" : "Add/Update",
+                      onPressed: () {
+                        _showCompanySelectionBottomSheet(context);
+                      },
+                      backgroundColor: AppColor.primary,
+                      padding: EdgeInsets.symmetric(
+                        vertical: 3,
+                        horizontal: 10,
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -1627,33 +1671,35 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                         style: AppTextStyle.ts16SB(),
                                       ),
                                     ),
-                                    CustomIconButton(
-                                      onPressed: () {
-                                        goRouter.pushNamed(
-                                          AppRoutes.addEmployeeToModule,
-                                          queryParameters: {
-                                            "modulesWorkflowApprovalModel":
-                                                Uri.encodeQueryComponent(
-                                                  EncryptionManager.encryptData(
-                                                    jsonEncode(module),
+                                    if (_approvalRouteAuthorizationModel
+                                        .isAction)
+                                      CustomIconButton(
+                                        onPressed: () {
+                                          goRouter.pushNamed(
+                                            AppRoutes.addEmployeeToModule,
+                                            queryParameters: {
+                                              "modulesWorkflowApprovalModel":
+                                                  Uri.encodeQueryComponent(
+                                                    EncryptionManager.encryptData(
+                                                      jsonEncode(module),
+                                                    ),
                                                   ),
-                                                ),
-                                            "projectId":
-                                                Uri.encodeQueryComponent(
-                                                  EncryptionManager.encryptData(
-                                                    widget.project.projectId
-                                                        .toString(),
+                                              "projectId":
+                                                  Uri.encodeQueryComponent(
+                                                    EncryptionManager.encryptData(
+                                                      widget.project.projectId
+                                                          .toString(),
+                                                    ),
                                                   ),
-                                                ),
-                                          },
-                                        );
-                                      },
-                                      icon: Icon(
-                                        Icons.add,
-                                        color: AppColor.primary,
-                                        size: 16,
+                                            },
+                                          );
+                                        },
+                                        icon: Icon(
+                                          Icons.add,
+                                          color: AppColor.primary,
+                                          size: 16,
+                                        ),
                                       ),
-                                    ),
                                   ],
                                 ),
 
@@ -1728,6 +1774,9 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                                         ),
                                                       ),
                                                       CustomIconButton.delete(
+                                                        isDisabled:
+                                                            !_approvalRouteAuthorizationModel
+                                                                .isAction,
                                                         onPressed: () {
                                                           _showDeleteModulePermissionDialog(
                                                             context,
@@ -1787,17 +1836,18 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   children: [
                     Text("Bank Details", style: AppTextStyle.ts16SB()),
                     Spacer(),
-                    CustomButton(
-                      onPressed: () {
-                        _navigateToAddBankDetails(context);
-                      },
-                      text: "Add",
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
+                    if (_bankDetailsRouteAuthorizationModel.isAction)
+                      CustomButton(
+                        onPressed: () {
+                          _navigateToAddBankDetails(context);
+                        },
+                        text: "Add",
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
+                        backgroundColor: AppColor.primary,
                       ),
-                      backgroundColor: AppColor.primary,
-                    ),
                   ],
                 ),
               ),
@@ -1821,15 +1871,19 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 children: [
                   Text("Update Bank Details", style: AppTextStyle.ts16SB()),
                   Spacer(),
-                  CustomButton(
-                    onPressed: () {
-                      _navigateToAddBankDetails(context);
-                    },
-                    text: "Add",
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    backgroundColor: AppColor.primary,
-                    leading: Icon(Icons.add, color: AppColor.white, size: 16),
-                  ),
+                  if (_bankDetailsRouteAuthorizationModel.isAction)
+                    CustomButton(
+                      onPressed: () {
+                        _navigateToAddBankDetails(context);
+                      },
+                      text: "Add",
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      backgroundColor: AppColor.primary,
+                      leading: Icon(Icons.add, color: AppColor.white, size: 16),
+                    ),
                 ],
               ),
             ),
@@ -1867,12 +1921,18 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                             Row(
                               children: [
                                 CustomIconButton.edit(
+                                  isDisabled:
+                                      !_bankDetailsRouteAuthorizationModel
+                                          .isAction,
                                   onPressed: () {
                                     _navigateToEditBankDetails(context, bank);
                                   },
                                 ),
                                 horizontalSpacing(),
                                 CustomIconButton.delete(
+                                  isDisabled:
+                                      !_bankDetailsRouteAuthorizationModel
+                                          .isAction,
                                   onPressed: () {
                                     _showDeleteBankDialog(context, bank);
                                   },

@@ -14,11 +14,7 @@ abstract interface class EnquiryRepository {
   Future<Either<Failure, Map<String, dynamic>>> addUpdateEnquiry({
     required Map<String, dynamic> body,
   });
-  Future<Either<Failure, Map<String, dynamic>>> getVillageList({
-    required int pageNumber,
-    required int pageSize,
-    Map<String, dynamic>? queryParams,
-  });
+
   Future<Either<Failure, Map<String, dynamic>>> exportEnquiry({
     required int pageNumber,
     required int projectId,
@@ -83,25 +79,6 @@ class EnquiryRepositoryImpl extends EnquiryRepository {
   }) async {
     try {
       var result = await enquiryDatasource.apicallAddUpdateEnquiry(body: body);
-      return right(result);
-    } catch (error) {
-      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
-    }
-  }
-
-  /// FETCH VILLAGE LIST
-  @override
-  Future<Either<Failure, Map<String, dynamic>>> getVillageList({
-    required int pageNumber,
-    required int pageSize,
-    Map<String, dynamic>? queryParams,
-  }) async {
-    try {
-      var result = await enquiryDatasource.apiCallPullVillage(
-        pageNumber: pageNumber,
-        pageSize: pageSize,
-        queryParams: queryParams,
-      );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

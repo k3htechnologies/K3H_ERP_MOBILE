@@ -156,6 +156,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   ValueNotifier<CountryCode> selectedTeamMemberMobileNoCountry = ValueNotifier(
     countryList.firstWhere((e) => e.code == "+91"),
   );
+  final ValueNotifier<bool> _isMobileNoAlreadyExist = ValueNotifier(false);
   final ValueNotifier<bool> _isTeamMemberAlreadyExist = ValueNotifier(false);
 
   @override
@@ -336,22 +337,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _cityOfResidenceC.text = model.cityOfResidence;
 
     _updateAge();
-
-    // HELPER: Find item in list by DisplayName
-    Map<String, dynamic>? findItem(
-      List<Map<String, dynamic>> list,
-      String value,
-    ) {
-      if (value.isEmpty) {
-        return null;
-      }
-      return list.firstWhere(
-        (e) =>
-            e["DisplayName"].toString().toLowerCase().trim() ==
-            value.toLowerCase().trim(),
-        orElse: () => list.first,
-      );
-    }
 
     // DROPDOWNS - NOTIFIER
     _selectedAccommodationNotifier.value = findItem(
@@ -1116,6 +1101,20 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
                   selectedMobileNoCountry.value = country;
                 },
+                onChangeFunction: (value) async {
+                  final country = selectedMobileNoCountry.value;
+
+                  if (value.isNotEmpty &&
+                      country.mobileLength == value.length) {
+                    _isMobileNoAlreadyExist.value =
+                        (await _enquiryCubit.fetchEnquiryByMobileNo(
+                          _mobileC.text.trim(),
+                          projectId: _project.projectId,
+                        )).isNotEmpty;
+                  } else {
+                    _isMobileNoAlreadyExist.value = false;
+                  }
+                },
                 inputFormatterList: [
                   LengthLimitingTextInputFormatter(value.mobileLength),
                   FilteringTextInputFormatter.digitsOnly,
@@ -1133,6 +1132,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                             !country.regex!.hasMatch(mobile)) {
                       return "Invalid Mobile Number";
                     }
+                  }
+                  if (_isMobileNoAlreadyExist.value && !_isEditMode) {
+                    return "Mobile number already exists";
                   }
 
                   return null;
@@ -1589,15 +1591,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                                         _teamMemberMobileC.text
                                                             .trim(),
                                                       )).isNotEmpty;
-                                              if (_isTeamMemberAlreadyExist
-                                                      .value &&
-                                                  context.mounted) {
-                                                showErrorMessage(
-                                                  context,
-                                                  "Error",
-                                                  "Team Member Mobile number already exists",
-                                                );
-                                              }
                                             } else {
                                               _isTeamMemberAlreadyExist.value =
                                                   false;
@@ -1641,7 +1634,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                               }
                                             }
                                             if (_isTeamMemberAlreadyExist
-                                                .value) {
+                                                    .value &&
+                                                !_isEditMode) {
                                               return "Team Member Mobile number already exists";
                                             }
                                             return null;

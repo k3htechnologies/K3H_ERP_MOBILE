@@ -364,8 +364,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                                       item.mobileNumber,
                                       customWidget: CustomClickToContactText(
                                         value:
-                                            //TODO: COUNTRY CODE
-                                            " ${item.mobileNumber}",
+                                            "${item.mobileNumberCountryCode} ${item.mobileNumber}",
                                       ),
                                     ),
                                   ),
@@ -409,14 +408,12 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                                 ],
                               ),
                               verticalSpacing(),
-                              if (item.canTimeOut == 1) ...{
-                                CustomButton(
-                                  text: "Time Out",
-                                  onPressed: () {
-                                    _showMarkAsTimeOutPopup(context, item);
-                                  },
-                                ),
-                              },
+                              CustomButton(
+                                text: "Time Out",
+                                onPressed: () {
+                                  _showMarkAsTimeOutPopup(context, item);
+                                },
+                              ),
                             ],
                           ),
                         );
@@ -537,6 +534,10 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                                   child: _infoColumn(
                                     "Mobile Number",
                                     activeFollowUps.mobileNumber,
+                                    customWidget: CustomClickToContactText(
+                                      value:
+                                          "${activeFollowUps.mobileNumberCountryCode} ${activeFollowUps.mobileNumber}",
+                                    ),
                                   ),
                                 ),
                               ],
