@@ -188,6 +188,9 @@ class AppRoutes {
   static String addFlatSpecificationRemarkScreen =
       "/addFlatSpecificationRemarkScreen";
   static String modifiedRequestsMakePayment = "/modifiedRequestsMakePayment";
+  static String addFlatHandoverDocuments = "/addFlatHandoverDocuments";
+  static String addFiles = "/addFiles";
+  static String crmDashbaord = "/crmDashboard";
 
   /// BROKERAGE
   static String brokerage = "/brokerage";

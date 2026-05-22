@@ -31,6 +31,8 @@ import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/add_broker
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/brokerage_screen.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/view_brokerage_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/cubit/files_cubit.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/pages/add_files.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/pages/add_flat_handover.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/data/model/loan_details.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/presentation/cubit/loan_details_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/presentation/pages/add_active_bank.screen.dart';
@@ -49,6 +51,8 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presen
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/add_flat_specification_remark.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/add_parking_details.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/add_refund.screen.dart';
+import 'package:k3h_erp_app/features/crm/dashboard/presentation/cubit/crm_dashboard_cubit.dart';
+import 'package:k3h_erp_app/features/crm/dashboard/presentation/pages/crm_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/project_overview_screen.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
@@ -5289,6 +5293,7 @@ final GoRouter goRouter = GoRouter(
           builder: (context, state, child) {
             return MultiBlocProvider(
               providers: [
+                BlocProvider(create: (_) => CrmDashboardCubit(), child: child),
                 BlocProvider(create: (_) => PayTrackCubit(), child: child),
                 BlocProvider(create: (_) => BookingCubit(), child: child),
                 BlocProvider(create: (_) => CallTrackerCubit(), child: child),
@@ -5304,6 +5309,13 @@ final GoRouter goRouter = GoRouter(
             );
           },
           routes: [
+            GoRoute(
+              name: AppRoutes.crmDashbaord,
+              path: AppRoutes.crmDashbaord,
+              builder: (context, state) {
+                return const CrmDashboardScreen();
+              },
+            ),
             GoRoute(
               path: AppRoutes.payTrackMaster,
               name: AppRoutes.payTrackMaster,
@@ -5603,6 +5615,27 @@ final GoRouter goRouter = GoRouter(
                   uniquekey: extra["uniquekey"],
                   bookingId: extra["bookingId"],
                   projectId: extra["projectId"],
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addFlatHandoverDocuments,
+              name: AppRoutes.addFlatHandoverDocuments,
+              builder: (context, state) {
+                return AddFlatHandoverScreen();
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addFiles,
+              name: AppRoutes.addFiles,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return AddFilesScreen(
+                  projectId: extra['projectId'],
+                  bookingId: extra['bookingId'],
+                  filesModel: extra['file'],
+                  index: extra['index'],
+                  isEdit: extra['isEdit'] ?? false,
                 );
               },
             ),
