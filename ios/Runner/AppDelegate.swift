@@ -3,6 +3,7 @@ import Flutter
 import UserNotifications
 import FirebaseCore
 import FirebaseMessaging
+import GoogleMaps
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, MessagingDelegate {
@@ -14,6 +15,8 @@ import FirebaseMessaging
 
     FirebaseApp.configure()
 
+    GMSServices.provideAPIKey("AIzaSyATMi_WzfUnBfhb66_FR8c1Fg_zEwHyaCs")
+
     GeneratedPluginRegistrant.register(with: self)
 
     UNUserNotificationCenter.current().delegate = self
@@ -23,19 +26,28 @@ import FirebaseMessaging
     Messaging.messaging().delegate = self
     Messaging.messaging().isAutoInitEnabled = true
 
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    return super.application(
+      application,
+      didFinishLaunchingWithOptions: launchOptions
+    )
   }
 
   override func application(
     _ application: UIApplication,
     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
   ) {
-    super.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
+    super.application(
+      application,
+      didRegisterForRemoteNotificationsWithDeviceToken: deviceToken
+    )
 
     Messaging.messaging().apnsToken = deviceToken
   }
 
-  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+  func messaging(
+    _ messaging: Messaging,
+    didReceiveRegistrationToken fcmToken: String?
+  ) {
     print("\(fcmToken ?? "")")
   }
 }
