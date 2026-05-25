@@ -24,7 +24,7 @@ class BookingApplicantModificationRequestModel {
   String versionNumber;
   int createdById;
   String createdBy;
-  DateTime createdDate;
+  DateTime? createdDate;
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
@@ -88,7 +88,10 @@ class BookingApplicantModificationRequestModel {
     versionNumber: parseValue<String>(json, "VersionNumber"),
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
-    createdDate: parseValue<DateTime>(json, "CreatedDate"),
+    createdDate:
+        json["CreatedDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "CreatedDate"),
     modifiedById: parseValue<int>(json, "ModifiedById"),
     modifiedBy: parseValue<String>(json, "ModifiedBy"),
     modifiedDate:
@@ -122,7 +125,7 @@ class BookingApplicantModificationRequestModel {
     "VersionNumber": versionNumber,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
-    "CreatedDate": createdDate.toIso8601String(),
+    "CreatedDate": createdDate?.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),

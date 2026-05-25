@@ -189,6 +189,15 @@ class AppRoutes {
   static String addActiveBank = "/addActiveBank";
   static String addPaymentLedger = "/addPaymentLedger";
   static String viewPaymentLedger = "/viewPaymentLedger";
+  static String addRefundScreen = "/addRefundScreen";
+  static String addApplicantDetailsRequests = "/addApplicantDetailsRequests";
+  static String swapBookedParking = "/swapBookedParking";
+  static String addFlatSpecificationRemarkScreen =
+      "/addFlatSpecificationRemarkScreen";
+  static String modifiedRequestsMakePayment = "/modifiedRequestsMakePayment";
+  static String addFlatHandoverDocuments = "/addFlatHandoverDocuments";
+  static String addFiles = "/addFiles";
+  static String crmDashbaord = "/crmDashboard";
 
   /// BROKERAGE
   static String brokerage = "/brokerage";

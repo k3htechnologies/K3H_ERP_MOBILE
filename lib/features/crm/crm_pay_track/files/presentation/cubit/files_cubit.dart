@@ -19,6 +19,7 @@ class FilesCubit extends Cubit<FilesState> {
     int projectId,
     int bookingId,
     String value,
+    String fileType,
   ) async {
     emit(state.copyWith(searchText: value, payTrackBookingFileList: []));
     await getFilesList(
@@ -26,6 +27,7 @@ class FilesCubit extends Cubit<FilesState> {
       pageNumber: 1,
       projectId: projectId,
       bookingId: bookingId,
+      fileType: fileType,
     );
   }
 
@@ -34,6 +36,7 @@ class FilesCubit extends Cubit<FilesState> {
     required int pageNumber,
     required int projectId,
     required int bookingId,
+    required String fileType,
   }) async {
     emit(state.copyWith(isLoading: true));
 
@@ -45,7 +48,7 @@ class FilesCubit extends Cubit<FilesState> {
           pageNumber: pageNumber,
           projectId: projectId,
           bookingId: bookingId,
-          fileType: "FILES",
+          fileType: fileType,
           queryParams: queryParams,
         );
 
@@ -73,21 +76,25 @@ class FilesCubit extends Cubit<FilesState> {
     required int bookingId,
     required String fileName,
     required MultiFilePickerModel filePicker,
+    required String fileType,
   }) async {
     DialogHelper.showProcessingOverlay(context);
+
     final body = <String, String>{
       'PayTrackBookingFilesId': '0',
       'ProjectId': projectId.toString(),
       'BookingId': bookingId.toString(),
       'FileName': fileName,
-      'FileType': "FILES",
+      'FileType': fileType,
     };
 
     List<Map<String, dynamic>> fileList = [];
+
     for (int i = 0; i < filePicker.fileNameList.length; i++) {
       if (filePicker.fileNameList[i].contains("http")) {
-        continue; // Skip already uploaded files
+        continue;
       }
+
       fileList.add({
         "key": "PayTrackBookingFilesURL",
         "value": filePicker.fileBytesList[i],
@@ -100,7 +107,9 @@ class FilesCubit extends Cubit<FilesState> {
           body: body,
           fileList: fileList,
         );
+
     goRouter.pop();
+
     result.fold(
       (failure) {
         showErrorMessage(context, 'Error', failure.message);
@@ -109,11 +118,13 @@ class FilesCubit extends Cubit<FilesState> {
         goRouter.pop();
 
         showSuccessMessage(context, subTitle: response['message']);
-        getFilesList(
+
+        await getFilesList(
           context: context,
           pageNumber: 1,
           projectId: projectId,
           bookingId: bookingId,
+          fileType: fileType,
         );
       },
     );

@@ -19,7 +19,7 @@ class PayTrackPaymentLedgerSummaryModel {
   double receivedAmount;
   String transactionChequeDemandDraftNumber;
   String transactionChequeDemandDraftUrl;
-  String transactionChequeDemandDraftDate;
+  DateTime transactionChequeDemandDraftDate;
   String approvalStatus;
   bool isApproval;
   String paymentReceiptUrl;
@@ -88,10 +88,10 @@ class PayTrackPaymentLedgerSummaryModel {
       json,
       "TransactionChequeDemandDraftURL",
     ),
-    transactionChequeDemandDraftDate: parseValue<String>(
-      json,
-      "TransactionChequeDemandDraftDate",
-    ),
+    transactionChequeDemandDraftDate:
+        json["TransactionChequeDemandDraftDate"] != null
+            ? DateTime.parse(json["TransactionChequeDemandDraftDate"])
+            : DateTime.now(),
     approvalStatus: parseValue<String>(json, "ApprovalStatus"),
     isApproval: parseValue<bool>(json, "IsApproval"),
     paymentReceiptUrl: parseValue<String>(json, "PaymentReceiptURL"),
@@ -128,7 +128,8 @@ class PayTrackPaymentLedgerSummaryModel {
     "ReceivedAmount": receivedAmount,
     "TransactionChequeDemandDraftNumber": transactionChequeDemandDraftNumber,
     "TransactionChequeDemandDraftURL": transactionChequeDemandDraftUrl,
-    "TransactionChequeDemandDraftDate": transactionChequeDemandDraftDate,
+    "TransactionChequeDemandDraftDate":
+        transactionChequeDemandDraftDate.toIso8601String(),
     "ApprovalStatus": approvalStatus,
     "IsApproval": isApproval,
     "PaymentReceiptURL": paymentReceiptUrl,

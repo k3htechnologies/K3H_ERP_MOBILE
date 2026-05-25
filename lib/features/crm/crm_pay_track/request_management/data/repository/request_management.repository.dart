@@ -44,6 +44,10 @@ abstract interface class RequestManagementRepository {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
+  Future<Either<Failure, Map<String, dynamic>>>
+  addAmountRefundedAgainstBookingAddUpdateRefundedAmount({
+    required Map<String, dynamic> body,
+  });
 }
 
 class RequestManagementRepositoryImpl extends RequestManagementRepository {
@@ -166,6 +170,22 @@ class RequestManagementRepositoryImpl extends RequestManagementRepository {
             projectId: projectId,
             body: body,
             fileList: fileList,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  addAmountRefundedAgainstBookingAddUpdateRefundedAmount({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await flatAlterationRequestDatasource
+          .apicallAmountRefundedAgainstBookingAddUpdateRefundedAmount(
+            body: body,
           );
       return right(result);
     } catch (error) {

@@ -44,6 +44,10 @@ abstract interface class PaymentDatasource {
     required String paymentFor,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>> apicallAddUpdateRefundedAmountLedger({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
 }
 
 class PaymentDatasourceImpl extends PaymentDatasource {
@@ -155,9 +159,9 @@ class PaymentDatasourceImpl extends PaymentDatasource {
           .multipartRequestWithAuthenticationBytes(url, fileList, body);
 
       return {
-        'data': List<PayTrackPaymentLedgerModel>.from(
+        'data': List<PayTrackPaymentLedgerSummaryModel>.from(
           networkResponse["data"].map(
-            (e) => PayTrackPaymentLedgerModel.fromJson(e),
+            (e) => PayTrackPaymentLedgerSummaryModel.fromJson(e),
           ),
         ),
         'message': networkResponse['message'],
@@ -334,6 +338,37 @@ class PaymentDatasourceImpl extends PaymentDatasource {
           projectId: projectId,
           paymentFor: paymentFor,
           queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateRefundedAmountLedger({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    String url = "AmountRefundedAgainstBooking/AddUpdateRefundedAmountLedger";
+
+    try {
+      var networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(url, fileList, body);
+
+      return {
+        'data': List<PayTrackPaymentLedgerSummaryModel>.from(
+          networkResponse["data"].map(
+            (e) => PayTrackPaymentLedgerSummaryModel.fromJson(e),
+          ),
+        ),
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallAddUpdatePayTrackPaymentLedger(
+          body: body,
+          fileList: fileList,
         );
       }
       rethrow;

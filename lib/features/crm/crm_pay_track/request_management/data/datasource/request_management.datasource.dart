@@ -43,6 +43,10 @@ abstract interface class RequestManagementDatasource {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
+  Future<Map<String, dynamic>>
+  apicallAmountRefundedAgainstBookingAddUpdateRefundedAmount({
+    required Map<String, dynamic> body,
+  });
 }
 
 class RequestManagementDatasourceImpl extends RequestManagementDatasource {
@@ -310,6 +314,34 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
           projectId: projectId,
           body: body,
           fileList: fileList,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>>
+  apicallAmountRefundedAgainstBookingAddUpdateRefundedAmount({
+    required Map<String, dynamic> body,
+  }) async {
+    const url = "AmountRefundedAgainstBooking/AddUpdateRefundedAmount";
+
+    try {
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        url,
+        body,
+      );
+
+      return {
+        'data': networkResponse['data'],
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallAmountRefundedAgainstBookingAddUpdateRefundedAmount(
+          body: body,
         );
       }
       rethrow;

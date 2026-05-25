@@ -23,11 +23,7 @@ abstract interface class BookingDatasource {
     Map<String, dynamic>? queryParams,
   });
   Future<Map<String, dynamic>> apiCallCancelBooking({
-    required int bookingId,
-    required String uniqueKey,
-    required int projectId,
-    required String parkingId,
-    required int inventoryFlatId,
+    required Map<String, dynamic> body,
   });
   Future<Map<String, dynamic>> apiCallPullBookingForExport({
     required int pageNumber,
@@ -181,36 +177,13 @@ class BookingDatasourceImpl extends BookingDatasource {
   //  CANCEL BOOKING
   @override
   Future<Map<String, dynamic>> apiCallCancelBooking({
-    required int bookingId,
-    required String uniqueKey,
-    required int projectId,
-    required String parkingId,
-    required int inventoryFlatId,
+    required Map<String, dynamic> body,
   }) async {
-    String cancelBookingUrl({
-      required int bookingId,
-      required String uniqueKey,
-      required int projectId,
-      required int inventoryFlatId,
-      required String parkingId,
-    }) {
-      return "Booking/CancelBooking?"
-          "BookingId=$bookingId&"
-          "Uniquekey=$uniqueKey&"
-          "ProjectId=$projectId&"
-          "InventoryFlatId=$inventoryFlatId&"
-          "ParkingId=$parkingId";
-    }
-
+    String closeBookingUrl = "Booking/CancelBooking";
     try {
-      var networkResponse = await baseClient.deleteRequestWithAuthentication(
-        cancelBookingUrl(
-          bookingId: bookingId,
-          uniqueKey: uniqueKey,
-          projectId: projectId,
-          inventoryFlatId: inventoryFlatId,
-          parkingId: parkingId,
-        ),
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        closeBookingUrl,
+        body,
       );
       return {
         'data': networkResponse["data"],
@@ -218,13 +191,7 @@ class BookingDatasourceImpl extends BookingDatasource {
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apiCallCancelBooking(
-          bookingId: bookingId,
-          uniqueKey: uniqueKey,
-          projectId: projectId,
-          inventoryFlatId: inventoryFlatId,
-          parkingId: parkingId,
-        );
+        apiCallCancelBooking(body: body);
       }
       rethrow;
     }

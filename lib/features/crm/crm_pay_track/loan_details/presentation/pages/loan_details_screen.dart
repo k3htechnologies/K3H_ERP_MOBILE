@@ -58,6 +58,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
       pageNumber: 1,
       projectId: widget.projectId,
       bookingId: widget.bookingId,
+      fileType: "",
     );
   }
 

@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/call_logs/presentation/pages/call_logs.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/pages/files.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/pages/flat_handover_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/presentation/pages/loan_details_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_state.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/payment_screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/request_management_screen.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -128,10 +132,22 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                       projectId: widget.projectId,
                       bookingId: widget.bookingId,
                     ),
-                    _buildOverviewTab(state),
-                    _buildOverviewTab(state),
-                    _buildOverviewTab(state),
-                    _buildOverviewTab(state),
+                    RequestManagementScreen(
+                      projectId: widget.projectId,
+                      bookingId: widget.bookingId,
+                    ),
+                    FlatHandoverScreen(
+                      projectId: widget.projectId,
+                      bookingId: widget.bookingId,
+                    ),
+                    FilesScreen(
+                      projectId: widget.projectId,
+                      bookingId: widget.bookingId,
+                    ),
+                    CallLogsScreen(
+                      projectId: widget.projectId,
+                      bookingId: widget.bookingId,
+                    ),
                   ],
                 ),
               );

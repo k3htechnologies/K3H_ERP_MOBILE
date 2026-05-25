@@ -31,6 +31,8 @@ import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/add_broker
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/brokerage_screen.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/view_brokerage_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/cubit/files_cubit.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/pages/add_files.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/pages/add_flat_handover.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/data/model/loan_details.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/presentation/cubit/loan_details_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/presentation/pages/add_active_bank.screen.dart';
@@ -39,11 +41,18 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/pages/pay_track_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/pages/pay_track_view_screen.dart';
-import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger_summary.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/add_payment_ledger.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/make_payment.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/view_payment_ledger.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/add_applicant_details_requests.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/add_flat_specification_remark.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/add_parking_details.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/add_refund.screen.dart';
+import 'package:k3h_erp_app/features/crm/dashboard/presentation/cubit/crm_dashboard_cubit.dart';
+import 'package:k3h_erp_app/features/crm/dashboard/presentation/pages/crm_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/pending_approvals_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/project_overview_screen.dart';
@@ -5371,17 +5380,29 @@ final GoRouter goRouter = GoRouter(
           builder: (context, state, child) {
             return MultiBlocProvider(
               providers: [
+                BlocProvider(create: (_) => CrmDashboardCubit(), child: child),
                 BlocProvider(create: (_) => PayTrackCubit(), child: child),
                 BlocProvider(create: (_) => BookingCubit(), child: child),
                 BlocProvider(create: (_) => CallTrackerCubit(), child: child),
                 BlocProvider(create: (_) => LoanDetailsCubit(), child: child),
                 BlocProvider(create: (_) => FilesCubit(), child: child),
                 BlocProvider(create: (_) => PaymentCubit(), child: child),
+                BlocProvider(
+                  create: (_) => RequestManagementCubit(),
+                  child: child,
+                ),
               ],
               child: child,
             );
           },
           routes: [
+            GoRoute(
+              name: AppRoutes.crmDashbaord,
+              path: AppRoutes.crmDashbaord,
+              builder: (context, state) {
+                return const CrmDashboardScreen();
+              },
+            ),
             GoRoute(
               path: AppRoutes.payTrackMaster,
               name: AppRoutes.payTrackMaster,
@@ -5560,7 +5581,7 @@ final GoRouter goRouter = GoRouter(
                 final paymentLedgerParam =
                     state.uri.queryParameters['paymentLedger'];
 
-                List<PayTrackPaymentLedgerModel> paymentLedgerList = [];
+                List<PayTrackPaymentLedgerSummaryModel> paymentLedgerList = [];
 
                 if (paymentLedgerParam != null &&
                     paymentLedgerParam.isNotEmpty) {
@@ -5570,7 +5591,10 @@ final GoRouter goRouter = GoRouter(
 
                   paymentLedgerList =
                       (decodedData as List)
-                          .map((e) => PayTrackPaymentLedgerModel.fromJson(e))
+                          .map(
+                            (e) =>
+                                PayTrackPaymentLedgerSummaryModel.fromJson(e),
+                          )
                           .toList();
                 }
                 return AddPaymentLedgerScreen(
@@ -5620,7 +5644,7 @@ final GoRouter goRouter = GoRouter(
                         receivedAmount: 0,
                         transactionChequeDemandDraftNumber: "",
                         transactionChequeDemandDraftUrl: "",
-                        transactionChequeDemandDraftDate: "",
+                        transactionChequeDemandDraftDate: DateTime.now(),
                         approvalStatus: "",
                         isApproval: false,
                         paymentReceiptUrl: "",
@@ -5631,6 +5655,74 @@ final GoRouter goRouter = GoRouter(
                         modifiedBy: "",
                         modifiedDate: DateTime.now(),
                       ),
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addRefundScreen,
+              name: AppRoutes.addRefundScreen,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                final booking = extra['booking'] as BookingModel;
+
+                return AddRefundScreen(booking: booking);
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addApplicantDetailsRequests,
+              name: AppRoutes.addApplicantDetailsRequests,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return AddApplicantDetailsRequestsScreen(
+                  bookingId: extra['bookingId'],
+                  projectId: extra['projectId'],
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.swapBookedParking,
+              name: AppRoutes.swapBookedParking,
+              builder: (context, state) {
+                return AddParkingDetailsScreen();
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addFlatSpecificationRemarkScreen,
+              name: AppRoutes.addFlatSpecificationRemarkScreen,
+              builder: (context, state) {
+                return AddFlatSpecificationRemarkScreen();
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.modifiedRequestsMakePayment,
+              name: AppRoutes.modifiedRequestsMakePayment,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>;
+                return ModifiedRequestsMakePaymentScreen(
+                  uniquekey: extra["uniquekey"],
+                  bookingId: extra["bookingId"],
+                  projectId: extra["projectId"],
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addFlatHandoverDocuments,
+              name: AppRoutes.addFlatHandoverDocuments,
+              builder: (context, state) {
+                return AddFlatHandoverScreen();
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addFiles,
+              name: AppRoutes.addFiles,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return AddFilesScreen(
+                  projectId: extra['projectId'],
+                  bookingId: extra['bookingId'],
+                  filesModel: extra['file'],
+                  index: extra['index'],
+                  isEdit: extra['isEdit'] ?? false,
                 );
               },
             ),

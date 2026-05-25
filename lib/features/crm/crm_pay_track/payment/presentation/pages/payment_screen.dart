@@ -133,8 +133,13 @@ class _PaymentScreenState extends State<PaymentScreen>
                           shape: const Border(),
                           collapsedShape: const Border(),
                           title: Text(
-                            paymentSchedules.name,
-                            style: AppTextStyle.ts14M(),
+                            paymentSchedules.type.contains("Date")
+                                ? paymentSchedules.date != null
+                                    ? formatDateTimeAsDDMMMYYYY(
+                                      paymentSchedules.date!,
+                                    )
+                                    : "-"
+                                : paymentSchedules.name,
                           ),
                           children: [
                             buildRowTitleValue(
@@ -219,9 +224,10 @@ class _PaymentScreenState extends State<PaymentScreen>
                               }),
                             ),
                             if ((paymentSchedules.type.toLowerCase() ==
-                                    "stage") &&
-                                (paymentSchedules.demandType.toLowerCase() !=
-                                    ''))
+                                        "stage" ||
+                                    paymentSchedules.type.toLowerCase() ==
+                                        "date") &&
+                                paymentSchedules.demandType.trim().isNotEmpty)
                               CustomButton(
                                 text: "+ Demand Draft",
                                 onPressed: () {

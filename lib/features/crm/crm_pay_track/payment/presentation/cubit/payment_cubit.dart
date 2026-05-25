@@ -374,46 +374,91 @@ class PaymentCubit extends Cubit<PaymentState> {
     );
   }
 
-  // <---- ADD UPDATE PAYMENT LEDGER APPROVAL ---->
-  // ? Note : Following binding is not complete.
-  // Future<bool> addUpdatePaymentLedgerApproval({
-  //   required BuildContext context,
-  //   required PayTrackPaymentLedgerModel paymentLedger,
-  //   required String remark,
-  //   required bool isApproved,
-  // }) async {
-  //   DialogHelper.showProcessingOverlay(context);
-  //   Map<String, dynamic> request = {
-  //     "ProjectId": paymentLedger.projectId,
-  //     "ModuleName": "PAY TRACK LEDGER APPROVAL",
-  //     "Id": paymentLedger.payTrackPaymentLedgerId,
-  //     "SubId": 0,
-  //     "SubSubId": 0,
-  //     "SubSubSubId": 0,
-  //     "IsApproved": isApproved,
-  //     "Remarks": remark,
-  //   };
-  //   var result;
-  //   goRouter.pop();
-  //   return result.fold(
-  //     (failure) {
-  //       emit(state.copyWith(isLoading: false));
-  //       showErrorMessage(context, 'Error', failure.message);
-  //       return false;
-  //     },
-  //     (response) async {
-  //       await showSuccessMessage(context);
-  //       if (context.mounted) {
-  //         await getPaymentLedgerList(
-  //           context,
-  //           paymentLedger.bookingId,
-  //           paymentLedger.projectId,
-  //         );
-  //       }
-  //       return true;
-  //     },
-  //   );
-  // }
+  Future refundAmountPaymentLedger({
+    required BuildContext context,
+    required String uniquekey,
+    required String bookingId,
+    required String projectId,
+    required String paymentFor,
+    required String paymentMode,
+    required String projectBankListMasterId,
+    required String accountHolderName,
+    required String bankListMasterId,
+    required String accountNumber,
+    required String ifscCode,
+    required String amountType,
+    required String paymentType,
+    required String refundedAmount,
+    required String transactionChequeDemandDraftNumber,
+    required String transactionChequeDemandDraftDate,
+    required MultiFilePickerModel chequeFile,
+    required MultiFilePickerModel paymentReceiptFile,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    Map<String, String> requestBody = {
+      "RefundedAmountLedgerId": "0",
+      "Uniquekey": uniquekey,
+      "BookingId": bookingId,
+      "ProjectId": projectId,
+      "PaymentFor": paymentFor,
+      "PaymentMode": paymentMode,
+      "ProjectBankListMasterId": projectBankListMasterId,
+      "AccountHolderName": accountHolderName,
+      "BankListMasterId": bankListMasterId,
+      "AccountNumber": accountNumber,
+      "IFSCCode": ifscCode,
+      "AmountType": amountType,
+      "PaymentType": paymentType,
+      "RefundedAmount": refundedAmount,
+      "TransactionChequeDemandDraftNumber": transactionChequeDemandDraftNumber,
+      "RemoveTransactionChequeDemandDraftURL": "",
+      "TransactionChequeDemandDraftDate": transactionChequeDemandDraftDate,
+      "RemovePaymentReceiptURL": "",
+    };
+
+    List<Map<String, dynamic>> fileList = [];
+    for (int i = 0; i < chequeFile.fileNameList.length; i++) {
+      if (chequeFile.fileNameList[i].contains("http")) {
+        continue;
+      }
+
+      fileList.add({
+        "key": "TransactionChequeDemandDraftURL",
+        "value": chequeFile.fileBytesList[i],
+        "fileName": chequeFile.fileNameList[i],
+      });
+    }
+    for (int i = 0; i < paymentReceiptFile.fileNameList.length; i++) {
+      if (paymentReceiptFile.fileNameList[i].contains("http")) {
+        continue;
+      }
+
+      fileList.add({
+        "key": "PaymentReceiptURL",
+        "value": paymentReceiptFile.fileBytesList[i],
+        "fileName": paymentReceiptFile.fileNameList[i],
+      });
+    }
+    var addResult = await paymentRepository.addUpdateRefundedAmountLedger(
+      body: requestBody,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        goRouter.pop();
+
+        showSuccessMessage(
+          context,
+          subTitle: response['message'] ?? "Refund payment added successfully",
+        );
+      },
+    );
+  }
 
   // <---- EXPORT PAYMENT LEDGER ---->
   Future exportPaymentLedger(

@@ -42,6 +42,11 @@ abstract interface class PaymentRepository {
     required String paymentFor,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateRefundedAmountLedger({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
 }
 
 class PaymentRepositoryImpl extends PaymentRepository {
@@ -170,6 +175,22 @@ class PaymentRepositoryImpl extends PaymentRepository {
             paymentFor: paymentFor,
             queryParams: queryParams,
           );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateRefundedAmountLedger({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    try {
+      var result = await paymentDatasource.apicallAddUpdateRefundedAmountLedger(
+        body: body,
+        fileList: fileList,
+      );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

@@ -252,6 +252,8 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
         menu.moduleName.trim().toLowerCase() == "legal";
     final isChannelPartnerDashboard =
         menu.moduleName.trim().toLowerCase() == "channel partner";
+
+    final isCrmDashboard = menu.moduleName.trim().toLowerCase() == "crm";
     bool isCurrentModuleActive = menu.subModuleData.any(
       (sub) => _isActiveModule(sub),
     );
@@ -296,6 +298,11 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
             AppRoutes.channelPartnerDashboard,
           );
     }
+    if (isCrmDashboard) {
+      isCurrentModuleActive =
+          isCurrentModuleActive ||
+          _isRouteActive(_currentPathForBuild, AppRoutes.crmDashbaord);
+    }
 
     final tile = CustomModuleTile(
       key: ValueKey('module-${menu.moduleName}-$isCurrentModuleActive'),
@@ -318,6 +325,8 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
           await _onItemTap(navigateToPath: AppRoutes.litigationDashboard);
         } else if (isChannelPartnerDashboard) {
           await _onItemTap(navigateToPath: AppRoutes.channelPartnerDashboard);
+        } else if (isCrmDashboard) {
+          await _onItemTap(navigateToPath: AppRoutes.crmDashbaord);
         }
       },
       items:

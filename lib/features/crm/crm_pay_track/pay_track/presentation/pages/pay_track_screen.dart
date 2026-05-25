@@ -158,7 +158,9 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                             );
                           },
                           child: Text(
-                            payTrack.applicantName,
+                            payTrack.applicantName.isNotEmpty
+                                ? payTrack.applicantName
+                                : '-',
                             style: AppTextStyle.ts16M(color: AppColor.primary),
                           ),
                         ),

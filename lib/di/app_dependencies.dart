@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/crm/dashboard/crm_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/pay_track/pay_track.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/dashboard/dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/legal/litigation/litigation.dependencies.dart';
@@ -239,4 +240,6 @@ void initDependencies() {
   registerBrokerageDependencies(serviceLocator);
   // STOCK MANAGEMENT
   registerStockManagementrDependencies(serviceLocator);
+  // CRM DASHBOARD
+  registerCrmDashboardDependencies(serviceLocator);
 }
