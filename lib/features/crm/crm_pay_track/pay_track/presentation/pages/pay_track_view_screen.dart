@@ -155,7 +155,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
     if (enquiry == null) {
       return const Center(child: CircularProgressIndicator());
     }
-    final bool isDirectWalking = enquiry.source == "Direct Walking";
+    final bool isDirectWalking = enquiry.source == "Direct Walkin";
 
     final bool isAdvertisement = enquiry.subSource == "Advertisement";
     final isHtml =

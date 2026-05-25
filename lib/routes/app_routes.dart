@@ -11,6 +11,7 @@ class AppRoutes {
   /// MAIN DASHBOARD
   // DASHBOARD
   static String dashboardScreen = "/dashboard";
+  static String pendingApprovalScreen = "/pendingApprovalScreen";
   static String projectOverview = "/projectOverview";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>

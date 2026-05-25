@@ -31,6 +31,7 @@ class CustomAppBarWithBackButton extends StatefulWidget
   final Function(String)? onExportCallback;
   final Function(ProjectModel)? onProjectChangeCallback;
   final VoidCallback? onFilterTap;
+  final Widget? secondaryWidget;
 
   const CustomAppBarWithBackButton({
     super.key,
@@ -42,6 +43,7 @@ class CustomAppBarWithBackButton extends StatefulWidget
     this.onExportCallback,
     this.onProjectChangeCallback,
     this.onFilterTap,
+    this.secondaryWidget,
   });
 
   @override
@@ -284,7 +286,7 @@ class _CustomAppBarWithBackButtonState
                 style: AppTextStyle.ts16SB(color: AppColor.black),
               ),
             ),
-
+            if (widget.secondaryWidget != null) widget.secondaryWidget!,
             // ACTIONS
             Row(
               mainAxisSize: MainAxisSize.min,

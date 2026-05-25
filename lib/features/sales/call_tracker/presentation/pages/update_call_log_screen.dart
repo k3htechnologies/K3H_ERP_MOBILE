@@ -82,8 +82,7 @@ class _UpdateCallLogScreenState extends State<UpdateCallLogScreen> {
       }
     }
     // PREFILL LOCATIONS
-    if (callLog.villageMasterId != null &&
-        callLog.villageMasterId.toString().isNotEmpty) {
+    if (callLog.villageMasterId.toString().isNotEmpty) {
       final villageIdsRaw = callLog.villageMasterId.toString();
       final villageNamesRaw = callLog.villageName;
 

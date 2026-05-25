@@ -443,23 +443,43 @@ class _InventoryScreenState extends State<InventoryScreen>
 
   // FLOOR LIST
   Widget _buildFloorList(
-    List floorList,
+    List<FloorModel> floorList,
     WingModel wing,
     BuildingModel building,
     int buildingIndex,
     int wingIndex,
   ) {
-    if (floorList.isEmpty) {
-      return Center(child: Text("No floors found"));
+    final selectedFilter =
+        context.watch<InventoryCubit>().state.selectedStatusFilter;
+
+    final filteredFloorList =
+        selectedFilter?.toLowerCase() == 'total'
+            ? floorList
+            : floorList.where((floor) {
+              return floor.flatList.any(
+                (flat) =>
+                    flat.flatStatus.toLowerCase() ==
+                    selectedFilter?.toLowerCase(),
+              );
+            }).toList();
+
+    if (filteredFloorList.isEmpty) {
+      return Center(child: noDataWidget(message: "No floors found"));
     }
     final bool isActionAllowed = wing.isApproval;
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: floorList.length,
+      itemCount: filteredFloorList.length,
       itemBuilder: (context, index) {
-        final floor = floorList[index];
-
+        final floor = filteredFloorList[index];
+        final filteredFlats =
+            selectedFilter == null || selectedFilter.toLowerCase() == 'total'
+                ? floor.flatList
+                : floor.flatList.where((flat) {
+                  return flat.flatStatus.toLowerCase() ==
+                      selectedFilter.toLowerCase();
+                }).toList();
         return ValueListenableBuilder<Set<String>>(
           valueListenable: _expandedFloors,
           builder: (context, expandedSet, child) {
@@ -590,7 +610,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                                       children: [
                                         Expanded(
                                           child: Text(
-                                            "${floor.floor}",
+                                            floor.floor,
                                             style: AppTextStyle.ts14M(),
                                           ),
                                         ),
@@ -772,7 +792,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                                     child: SizedBox(
                                       width: double.infinity,
                                       child: _buildFlatList(
-                                        floor.flatList,
+                                        filteredFlats,
                                         floor,
                                         buildingIndex,
                                         wingIndex,
@@ -1151,8 +1171,11 @@ class _InventoryScreenState extends State<InventoryScreen>
     }
 
     final selectedWing = wingList[currentWingIndex];
+    final wingKey =
+        "${selectedWing.inventoryBuildingId}_${selectedWing.inventoryFlatFloorBasementPodiumWingId}";
+
     final counts =
-        context.read<InventoryCubit>().state.wingCounts[selectedWing.wing] ??
+        context.read<InventoryCubit>().state.wingCounts[wingKey] ??
         {
           "total": 0,
           "available": 0,
@@ -1171,17 +1194,41 @@ class _InventoryScreenState extends State<InventoryScreen>
         border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        spacing: 10,
         children: [
-          _buildCountItem(
-            "Available",
-            counts['available'] ?? 0,
-            AppColor.darkGreen,
+          _buildCountItem("Total", counts['total'] ?? 0, AppColor.black),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                spacing: 10,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildCountItem(
+                    "Available",
+                    counts['available'] ?? 0,
+                    AppColor.darkGreen,
+                  ),
+                  _buildCountItem(
+                    "Booked",
+                    counts['booked'] ?? 0,
+                    AppColor.error,
+                  ),
+                  _buildCountItem(
+                    "Alloted",
+                    counts['alloted'] ?? 0,
+                    AppColor.purple,
+                  ),
+                  _buildCountItem("Hold", counts['hold'] ?? 0, AppColor.yellow),
+                  _buildCountItem(
+                    "Blocked",
+                    counts['blocked'] ?? 0,
+                    AppColor.black,
+                  ),
+                ],
+              ),
+            ),
           ),
-          _buildCountItem("Booked", counts['booked'] ?? 0, AppColor.error),
-          _buildCountItem("Alloted", counts['alloted'] ?? 0, AppColor.purple),
-          _buildCountItem("Hold", counts['hold'] ?? 0, AppColor.yellow),
-          _buildCountItem("Blocked", counts['blocked'] ?? 0, AppColor.black),
         ],
       ),
     );
@@ -1189,18 +1236,47 @@ class _InventoryScreenState extends State<InventoryScreen>
 
   // COUNT ITEM
   Widget _buildCountItem(String label, int count, Color color) {
-    return Row(
-      children: [
-        Text(
-          count.toString(),
-          style: AppTextStyle.ts12R().copyWith(fontSize: 10, color: color),
+    final selectedFilter =
+        context.watch<InventoryCubit>().state.selectedStatusFilter;
+
+    final isSelected = selectedFilter?.toLowerCase() == label.toLowerCase();
+
+    return InkWell(
+      onTap: () {
+        final cubit = context.read<InventoryCubit>();
+
+        // Reset filter when same item tapped
+        if (isSelected) {
+          cubit.updateStatusFilter(null);
+        } else {
+          cubit.updateStatusFilter(label);
+        }
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              count.toString(),
+              style: AppTextStyle.ts14SB().copyWith(color: color),
+            ),
+
+            horizontalSpacing(width: 5),
+
+            Text(
+              label,
+              style:
+                  isSelected
+                      ? AppTextStyle.ts14SB().copyWith(color: color)
+                      : AppTextStyle.ts14R().copyWith(color: AppColor.black),
+            ),
+          ],
         ),
-        horizontalSpacing(width: 5),
-        Text(
-          label,
-          style: AppTextStyle.ts12R().copyWith(fontSize: 10, color: color),
-        ),
-      ],
+      ),
     );
   }
 

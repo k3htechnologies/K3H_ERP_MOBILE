@@ -10,6 +10,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -820,28 +821,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _pendingApprovalWidget() {
     return BlocBuilder<DashboardCubit, DashboardState>(
       builder: (context, state) {
-        final pendingInventory =
-            (state.userData != null && state.userData!.table13.isNotEmpty)
-                ? state.userData?.table13
-                    .where(
-                      (i) => i.moduleName.toLowerCase().contains('inventory'),
-                    )
-                    .length
-                : 0;
-        final pendingParking =
-            (state.userData != null && state.userData!.table13.isNotEmpty)
-                ? state.userData?.table13
-                    .where(
-                      (i) => i.moduleName.toLowerCase().contains('parking'),
-                    )
-                    .length
-                : 0;
+        final table13 = state.userData?.table13 ?? [];
+
+        /// Inventory Data
+        final inventoryList =
+            table13
+                .where((i) => i.moduleName.toLowerCase().contains('inventory'))
+                .toList();
+
+        /// Parking Data
+        final parkingList =
+            table13
+                .where((i) => i.moduleName.toLowerCase().contains('parking'))
+                .toList();
+
+        /// Booking Data
+        final bookingList =
+            table13
+                .where((i) => i.moduleName.toLowerCase().contains('booking'))
+                .toList();
+        final pendingInventory = inventoryList.length;
+        final pendingParking = parkingList.length;
+        final pendingBooking = bookingList.length;
+
         return Container(
           decoration: commonCardDecoration(),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+
           child: Column(
             spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
               Text(
                 "Pending Approvals",
@@ -852,64 +862,239 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
               Row(
                 spacing: 10,
+
                 children: [
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColor.grey10),
-                    ),
-                    child: Row(
-                      spacing: 10,
-                      children: [
-                        CustomIconButton(
-                          onPressed: () {},
-                          size: 22,
-                          icon: SvgPicture.asset(
-                            AppAssets.car,
-                            height: 20.0,
-                            width: 20.0,
-                            color: AppColor.primary.withValues(alpha: 0.4),
-                          ),
+                  /// Inventory
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        /// Convert inventory data
+                        final inventoryData =
+                            inventoryList.map((e) {
+                              return [
+                                {"title": "Project", "value": e.projectName},
+                                {
+                                  "title": "Building",
+                                  "value": e.buildingNumber,
+                                },
+                                {"title": "Wing", "value": e.wing},
+                              ];
+                            }).toList();
+
+                        goRouter.pushNamed(
+                          AppRoutes.pendingApprovalScreen,
+
+                          queryParameters: {
+                            "title": "Inventory",
+
+                            "onViewRoute": AppRoutes.inventory,
+
+                            "pendingApproval": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(
+                                jsonEncode(inventoryData),
+                              ),
+                            ),
+                          },
+                        );
+                      },
+
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColor.grey10),
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+
+                        child: Row(
+                          spacing: 10,
+
                           children: [
-                            Text("Inventory"),
-                            Text(pendingInventory.toString()),
+                            CustomIconButton(
+                              onPressed: () {},
+
+                              size: 22,
+                              backgroundColor: AppColor.lightBlue,
+
+                              icon: SvgPicture.asset(
+                                AppAssets.boxIcon,
+                                height: 20.0,
+                                width: 20.0,
+                                color: AppColor.primary,
+                              ),
+                            ),
+
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+
+                              children: [
+                                Text("Inventory", style: AppTextStyle.ts12R()),
+
+                                Text(pendingInventory.toString()),
+                              ],
+                            ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColor.grey10),
-                    ),
-                    child: Row(
-                      spacing: 10,
-                      children: [
-                        CustomIconButton(
-                          onPressed: () {},
-                          size: 22,
-                          backgroundColor: AppColor.lightGreen50,
-                          icon: SvgPicture.asset(
-                            AppAssets.car,
-                            height: 20.0,
-                            width: 20.0,
-                            color: AppColor.green.withValues(alpha: 0.4),
-                          ),
+
+                  /// Parking
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        /// Convert parking data
+                        final parkingData =
+                            parkingList.map((e) {
+                              return [
+                                {"title": "Project", "value": e.projectName},
+                                {
+                                  "title": "Building",
+                                  "value": e.buildingNumber,
+                                },
+                                {"title": "Wing", "value": e.wing},
+                                {"title": "Floor", "value": e.floor},
+                              ];
+                            }).toList();
+
+                        goRouter.pushNamed(
+                          AppRoutes.pendingApprovalScreen,
+
+                          queryParameters: {
+                            "title": "Parking",
+
+                            "onViewRoute": AppRoutes.parking,
+
+                            "pendingApproval": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(
+                                jsonEncode(parkingData),
+                              ),
+                            ),
+                          },
+                        );
+                      },
+
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColor.grey10),
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+
+                        child: Row(
+                          spacing: 10,
+
                           children: [
-                            Text("Parking"),
-                            Text(pendingParking.toString()),
+                            CustomIconButton(
+                              onPressed: () {},
+
+                              size: 22,
+                              backgroundColor: AppColor.lightGreen.withValues(
+                                alpha: 0.4,
+                              ),
+
+                              icon: SvgPicture.asset(
+                                AppAssets.car,
+                                height: 20.0,
+                                width: 20.0,
+                                color: AppColor.darkGreen.withValues(
+                                  alpha: 0.6,
+                                ),
+                              ),
+                            ),
+
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+
+                              children: [
+                                Text("Parking", style: AppTextStyle.ts12R()),
+
+                                Text(pendingParking.toString()),
+                              ],
+                            ),
                           ],
                         ),
-                      ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 10,
+
+                children: [
+                  /// Parking
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        /// Convert parking data
+                        final bookingData =
+                            bookingList.map((e) {
+                              return [
+                                {"title": "Project", "value": e.projectName},
+                                {"title": "Flat", "value": e.flat},
+                                {
+                                  "title": "Applicant",
+                                  "value": e.applicantName,
+                                },
+                              ];
+                            }).toList();
+
+                        goRouter.pushNamed(
+                          AppRoutes.pendingApprovalScreen,
+
+                          queryParameters: {
+                            "title": "Booking",
+
+                            "onViewRoute": AppRoutes.booking,
+
+                            "pendingApproval": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(
+                                jsonEncode(bookingData),
+                              ),
+                            ),
+                          },
+                        );
+                      },
+
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColor.grey10),
+                        ),
+
+                        child: Row(
+                          spacing: 10,
+
+                          children: [
+                            CustomIconButton(
+                              onPressed: () {},
+
+                              size: 22,
+                              backgroundColor: AppColor.lightOrangenBg,
+
+                              icon: Icon(
+                                Icons.assignment_turned_in_outlined,
+                                size: 20,
+                                color: AppColor.orange,
+                              ),
+                            ),
+
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+
+                              children: [
+                                Text("Booking", style: AppTextStyle.ts12R()),
+
+                                Text(pendingBooking.toString()),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -930,7 +1115,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             state.data!.startLongitude != 0 &&
             state.data!.endLatitude != 0 &&
             state.data!.endLongitude != 0;
-        print("Has Location:$hasLocation");
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,

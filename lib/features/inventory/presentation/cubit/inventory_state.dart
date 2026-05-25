@@ -10,6 +10,7 @@ class InventoryState extends BaseState {
   final List<BuildingModel> originalBuildingList;
   final int wingCurrentPage;
   final String? wingCurrentPageKey;
+  final String? selectedStatusFilter;
 
   const InventoryState({
     super.isLoading,
@@ -22,6 +23,7 @@ class InventoryState extends BaseState {
     required this.originalBuildingList,
     this.wingCurrentPageKey,
     this.wingCurrentPage = 0,
+    this.selectedStatusFilter = 'total',
   });
 
   factory InventoryState.initial() => InventoryState(
@@ -49,6 +51,7 @@ class InventoryState extends BaseState {
     Map<String, Map<String, int>>? wingCounts,
     String? wingCurrentPageKey,
     int? wingCurrentPage,
+    String? selectedStatusFilter,
   }) {
     return InventoryState(
       isLoading: isLoading ?? this.isLoading,
@@ -63,6 +66,7 @@ class InventoryState extends BaseState {
       originalBuildingList: originalBuildingList ?? this.originalBuildingList,
       wingCurrentPageKey: wingCurrentPageKey ?? this.wingCurrentPageKey,
       wingCurrentPage: wingCurrentPage ?? this.wingCurrentPage,
+      selectedStatusFilter: selectedStatusFilter ?? this.selectedStatusFilter,
     );
   }
 
@@ -78,5 +82,6 @@ class InventoryState extends BaseState {
     wingCurrentPageKey,
     wingCurrentPage,
     wingCurrentPageKey,
+    selectedStatusFilter,
   ];
 }

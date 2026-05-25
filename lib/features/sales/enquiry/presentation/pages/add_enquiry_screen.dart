@@ -1241,6 +1241,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                 groupValue: state.selectedNationality,
                 // ignore: deprecated_member_use
                 enabled: !_isEditMode,
+                // ignore: deprecated_member_use
                 onChanged: (value) {
                   _enquiryCubit.onSelectedOptionChanged(value!);
                   if (value == 'Indian') {

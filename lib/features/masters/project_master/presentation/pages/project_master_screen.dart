@@ -196,7 +196,9 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                       children: [
                         Radio<bool>(
                           value: true,
+                          // ignore: deprecated_member_use
                           groupValue: value,
+                          // ignore: deprecated_member_use
                           onChanged: (val) {
                             isRedevelopement.value = val;
                             updateApplyState(innerState);
@@ -208,7 +210,9 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
 
                         Radio<bool>(
                           value: false,
+                          // ignore: deprecated_member_use
                           groupValue: value,
+                          // ignore: deprecated_member_use
                           onChanged: (val) {
                             isRedevelopement.value = val;
                             updateApplyState(innerState);
@@ -329,7 +333,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
         selectedProjectSchemeNotifier.value = null;
         selectedProjectSubSchemeNotifier.value = null;
         selectedProjectStatus.value = null;
-        isRedevelopement.value=false;
+        isRedevelopement.value = false;
         _projectMasterCubit.sortProject(context: context, isClear: true);
       },
       onApply: () {

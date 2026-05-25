@@ -109,7 +109,10 @@ class InventoryCubit extends Cubit<InventoryState> {
 
           for (var building in buildings) {
             for (var wing in building.wingList) {
-              wingCounts[wing.wing] = calculateWingCounts(wing);
+              final wingKey =
+                  "${building.inventoryBuildingId}_${wing.inventoryFlatFloorBasementPodiumWingId}";
+
+              wingCounts[wingKey] = calculateWingCounts(wing);
             }
           }
           int buildingIndex =
@@ -433,20 +436,20 @@ class InventoryCubit extends Cubit<InventoryState> {
     for (var floor in wing.floorList) {
       for (var flat in floor.flatList) {
         total++;
-        switch (flat.flatStatus) {
-          case "Available":
+        switch (flat.flatStatus.toLowerCase()) {
+          case "available":
             available++;
             break;
-          case "Booked":
+          case "booked":
             booked++;
             break;
-          case "Blocked":
+          case "blocked":
             blocked++;
             break;
-          case "Hold":
+          case "hold":
             hold++;
             break;
-          case "Alloted":
+          case "alloted":
             alloted++;
             break;
         }
@@ -488,5 +491,9 @@ class InventoryCubit extends Cubit<InventoryState> {
         );
       },
     );
+  }
+
+  void updateStatusFilter(String? status) {
+    emit(state.copyWith(selectedStatusFilter: status));
   }
 }

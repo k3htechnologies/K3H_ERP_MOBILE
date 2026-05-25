@@ -230,7 +230,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
 
         final enquiry = state.currentEnquiryDetails!;
         final bool isChannelPartner = enquiry.source == "Channel Partner";
-        final bool isDirectWalking = enquiry.source == "Direct Walking";
+        final bool isDirectWalking = enquiry.source == "Direct Walkin";
         final bool isNRI = enquiry.nationality.toLowerCase() == 'nri';
         final bool isAdvertisement = enquiry.subSource == "Advertisement";
         final bool isEmployeeReference =

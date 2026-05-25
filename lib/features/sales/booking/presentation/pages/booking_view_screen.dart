@@ -275,7 +275,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               final enquiry = state.enquiryList.first;
 
               final bool isChannelPartner = enquiry.source == "Channel Partner";
-              final bool isDirectWalking = enquiry.source == "Direct Walking";
+              final bool isDirectWalking = enquiry.source == "Direct Walkin";
               final bool isAdvertisement = enquiry.subSource == "Advertisement";
               final bool isEmployeeReference =
                   enquiry.subSource == "Employee Reference";

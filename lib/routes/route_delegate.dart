@@ -45,6 +45,7 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubi
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/add_payment_ledger.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/view_payment_ledger.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
+import 'package:k3h_erp_app/features/dashboard/presentation/pages/pending_approvals_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/project_overview_screen.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
@@ -537,6 +538,60 @@ final GoRouter goRouter = GoRouter(
               child: DashboardScreen(),
             );
           },
+          routes: [
+            GoRoute(
+              path: AppRoutes.pendingApprovalScreen,
+              name: AppRoutes.pendingApprovalScreen,
+
+              builder: (context, state) {
+                /// Encrypted Data
+                final queryParameterPendingApprovalData =
+                    state.uri.queryParameters['pendingApproval'];
+
+                /// Screen Title
+                final queryParameterTitle = state.uri.queryParameters['title'];
+
+                /// onView Route / Type
+                final queryParameterOnView =
+                    state.uri.queryParameters['onViewRoute'];
+
+                /// Parsed Data
+                List<List<Map<String, String>>> data = [];
+
+                if (queryParameterPendingApprovalData != null) {
+                  final decryptedData = EncryptionManager.decryptData(
+                    Uri.decodeQueryComponent(queryParameterPendingApprovalData),
+                  );
+
+                  final decodedData = jsonDecode(decryptedData);
+
+                  data =
+                      (decodedData as List)
+                          .map<List<Map<String, String>>>(
+                            (card) =>
+                                (card as List)
+                                    .map<Map<String, String>>(
+                                      (item) => Map<String, String>.from(item),
+                                    )
+                                    .toList(),
+                          )
+                          .toList();
+                }
+
+                return BlocProvider(
+                  create: (_) => DashboardCubit(),
+
+                  child: PendingApprovalsScreen(
+                    pageTitle: queryParameterTitle ?? "Pending Approvals",
+
+                    onViewRoute: queryParameterOnView!,
+
+                    data: data,
+                  ),
+                );
+              },
+            ),
+          ],
         ),
 
         GoRoute(

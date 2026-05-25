@@ -258,4 +258,5 @@ class AppAssets {
       "$svgPath/settingDashboardFilledIcon.svg";
   static const String payRollDashboardFilledIcon =
       "$svgPath/payRollModuleFillIcon.svg";
+  static const String boxIcon = "$svgPath/box.svg";
 }
