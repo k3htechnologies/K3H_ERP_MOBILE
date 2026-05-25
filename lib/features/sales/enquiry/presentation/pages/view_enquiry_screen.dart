@@ -605,6 +605,10 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                 enquiry.employeeReferenceMobileNumber.isNotEmpty
                                     ? enquiry.employeeReferenceMobileNumber
                                     : "-",
+                            customValueWidget: CustomClickToContactText(
+                              value: enquiry.employeeReferenceMobileNumber,
+                              type: ContactType.phone,
+                            ),
                           ),
                         ],
                       ),

@@ -136,6 +136,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
     _overlayEntry = OverlayEntry(
       builder:
           (context) => SafeArea(
+            bottom: false,
             child: Material(
               color: Colors.transparent,
               child: Stack(

@@ -38,7 +38,7 @@ final List<Map<String, dynamic>> occupationType = [
 
 final List<Map<String, dynamic>> sourceTypeList = [
   {'zAttributesId': 1, 'DisplayName': 'Channel Partner'},
-  {'zAttributesId': 2, 'DisplayName': 'Direct Walking'},
+  {'zAttributesId': 2, 'DisplayName': 'Direct Walkin'},
 ];
 
 final List<Map<String, dynamic>> residentialType = [

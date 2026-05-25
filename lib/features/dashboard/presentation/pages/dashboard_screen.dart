@@ -924,6 +924,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildDashboardPunchInPunchOutWidget(BuildContext context) {
     return BlocBuilder<DashboardCubit, DashboardState>(
       builder: (context, state) {
+        final bool hasLocation =
+            state.data != null &&
+            state.data!.startLatitude != 0 &&
+            state.data!.startLongitude != 0 &&
+            state.data!.endLatitude != 0 &&
+            state.data!.endLongitude != 0;
+        print("Has Location:$hasLocation");
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1010,6 +1018,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
             ),
+            if (hasLocation) ...[
+              verticalSpacing(height: 5),
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (_) => MapScreen(
+                            startLatitude: state.data!.startLatitude,
+                            startLongitude: state.data!.startLongitude,
+                            endLatitude: state.data!.endLatitude,
+                            endLongitude: state.data!.endLongitude,
+                            polyline: state.data!.polyline,
+                            distance: state.data!.distance.toDouble(),
+                            attendanceDataModel: state.data!,
+                          ),
+                    ),
+                  );
+                },
+                child: Text(
+                  "View Location",
+                  style: AppTextStyle.ts12M().copyWith(
+                    color: AppColor.primary,
+                    decoration: TextDecoration.underline,
+                    decorationColor: AppColor.primary,
+                  ),
+                ),
+              ),
+            ],
           ],
         );
       },

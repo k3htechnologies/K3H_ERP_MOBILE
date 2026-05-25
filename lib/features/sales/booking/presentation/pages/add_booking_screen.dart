@@ -766,28 +766,17 @@ class _AddBookingScreenState extends State<AddBookingScreen>
           return {"itemList": [], "totalNumberOfRecord": 0};
         },
         (response) {
-          final data = response['data'] as List? ?? [];
-          final banks =
-              data
-                  .map(
-                    (e) => Map<String, dynamic>.from(e as Map<String, dynamic>),
-                  )
-                  .toList();
-          final Map<int, Map<String, dynamic>> unique = {};
-          for (final b in banks) {
-            final id =
-                b['BankListMasterId'] is int
-                    ? b['BankListMasterId'] as int
-                    : int.tryParse(b['BankListMasterId'].toString()) ?? -1;
-            unique[id] = {
-              "zAttributesId": id,
-              "DisplayName": b['BankNameWithCode'],
-            };
-          }
-          final total = response['totalNumberOfRecord'] ?? unique.length;
+          final banks = response['data'] as List<BankListMasterModel>;
+
           return {
-            "itemList": unique.values.toList(),
-            "totalNumberOfRecord": total,
+            "itemList":
+                banks.map((bank) {
+                  return {
+                    "zAttributesId": bank.bankListMasterId,
+                    "DisplayName": bank.bankNameWithCode,
+                  };
+                }).toList(),
+            "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
           };
         },
       );
@@ -1033,7 +1022,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             double.tryParse(_agreementGstPercentageC.text) ?? 0.0,
         agreementValueGSTAmount: _agreementGstAmountNotifier.value,
         stampDutyPercentage: double.tryParse(_stampDutyPercentageC.text) ?? 0.0,
-        stampDutyAmount: double.parse(_stampDutyAmountC.text.trim()),
+        stampDutyAmount: _stampDutyAmountNotifier.value,
         registrationFees: double.parse(_registrationFeesC.text.trim()),
         parkingId: parkingId,
         handoverType: handoverType,
@@ -1088,7 +1077,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             double.tryParse(_agreementGstPercentageC.text) ?? 0.0,
         agreementValueGSTAmount: _agreementGstAmountNotifier.value,
         stampDutyPercentage: double.tryParse(_stampDutyPercentageC.text) ?? 0.0,
-        stampDutyAmount: double.parse(_stampDutyAmountC.text.trim()),
+        stampDutyAmount: _stampDutyAmountNotifier.value,
         registrationFees: double.parse(_registrationFeesC.text.trim()),
         sourceOfFunding: _selectedFundingSource.value!['DisplayName'] ?? "",
         parkingId: parkingId,
