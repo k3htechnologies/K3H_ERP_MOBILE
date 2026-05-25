@@ -82,7 +82,6 @@ class _InventoryOverallReportOverviewState
 
           final wings = _getUniqueWings(reportList);
 
-          /// Dynamic TabController
           if (_tabController == null ||
               _tabController!.length != wings.length) {
             _tabController?.dispose();
@@ -214,225 +213,256 @@ class _InventoryOverallReportOverviewState
                           (sum, item) => sum + (item.memberParking),
                         );
 
-                        return SingleChildScrollView(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              /// =========================
-                              /// AREA
-                              /// =========================
-                              Container(
-                                decoration: commonCardDecoration(),
-                                margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.all(14),
-
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("Area", style: AppTextStyle.ts16SB()),
-
-                                    verticalSpacing(height: 5),
-
-                                    Divider(height: 1, color: AppColor.grey50),
-
-                                    verticalSpacing(height: 5),
-
-                                    buildRowTitleValue(
-                                      fixesWidth: 180.w,
-                                      title: "Total",
-                                      value:
-                                          "${totalArea.toStringAsFixed(2)} sq.ft",
-                                    ),
-
-                                    buildRowTitleValue(
-                                      fixesWidth: 180.w,
-                                      title: "Sold",
-                                      value:
-                                          "${soldArea.toStringAsFixed(2)} sq.ft",
-                                    ),
-
-                                    buildRowTitleValue(
-                                      fixesWidth: 180.w,
-                                      title: "Available",
-                                      value:
-                                          "${availableArea.toStringAsFixed(2)} sq.ft",
-                                      valueTextStyle: AppTextStyle.ts14M(
-                                        color: AppColor.green,
-                                      ),
-                                    ),
-
-                                    buildRowTitleValue(
-                                      fixesWidth: 180.w,
-                                      title: "Blocked",
-                                      value:
-                                          "${blockedArea.toStringAsFixed(2)} sq.ft",
-                                      valueTextStyle: AppTextStyle.ts14M(
-                                        color: AppColor.red,
-                                      ),
-                                    ),
-
-                                    buildRowTitleValue(
-                                      fixesWidth: 180.w,
-                                      title: "Hold",
-                                      value:
-                                          "${holdArea.toStringAsFixed(2)} sq.ft",
-                                      valueTextStyle: AppTextStyle.ts14M(
-                                        color: AppColor.yellow,
-                                      ),
-                                    ),
-
-                                    buildRowTitleValue(
-                                      fixesWidth: 180.w,
-                                      title: "Alloted",
-                                      value:
-                                          "${allotedArea.toStringAsFixed(2)} sq.ft",
-                                    ),
-                                  ],
-                                ),
+                        return ListView.builder(
+                          itemCount: wingData.length,
+                          itemBuilder: (context, index) {
+                            final item = wingData[index];
+                            return SingleChildScrollView(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
                               ),
-
-                              /// =========================
-                              /// UNIT
-                              /// =========================
-                              Container(
-                                decoration: commonCardDecoration(),
-                                margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.all(14),
-
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("Unit", style: AppTextStyle.ts16SB()),
-
-                                    verticalSpacing(height: 5),
-
-                                    Divider(height: 1, color: AppColor.grey50),
-
-                                    verticalSpacing(height: 5),
-
-                                    buildRowTitleValue(
-                                      fixesWidth: 180.w,
-                                      title: "Total",
-                                      value: totalUnit.toString(),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.buildingNumber,
+                                    style: AppTextStyle.ts16SB(
+                                      color: AppColor.primary,
                                     ),
+                                  ),
 
-                                    buildRowTitleValue(
-                                      fixesWidth: 180.w,
-                                      title: "Sold",
-                                      value: soldUnit.toString(),
-                                    ),
+                                  /// =========================
+                                  /// AREA
+                                  /// =========================
+                                  Container(
+                                    decoration: commonCardDecoration(),
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    padding: const EdgeInsets.all(14),
 
-                                    buildRowTitleValue(
-                                      fixesWidth: 180.w,
-                                      title: "Available",
-                                      value: availableUnit.toString(),
-                                      valueTextStyle: AppTextStyle.ts14M(
-                                        color: AppColor.green,
-                                      ),
-                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Area",
+                                          style: AppTextStyle.ts16SB(),
+                                        ),
 
-                                    buildRowTitleValue(
-                                      fixesWidth: 180.w,
-                                      title: "Blocked",
-                                      value: blockedUnit.toString(),
-                                      valueTextStyle: AppTextStyle.ts14M(
-                                        color: AppColor.red,
-                                      ),
-                                    ),
+                                        verticalSpacing(height: 5),
 
-                                    buildRowTitleValue(
-                                      fixesWidth: 180.w,
-                                      title: "Hold",
-                                      value: holdUnit.toString(),
-                                      valueTextStyle: AppTextStyle.ts14M(
-                                        color: AppColor.yellow,
-                                      ),
-                                    ),
+                                        Divider(
+                                          height: 1,
+                                          color: AppColor.grey50,
+                                        ),
 
-                                    buildRowTitleValue(
-                                      fixesWidth: 180.w,
-                                      title: "Alloted",
-                                      value: allotedUnit.toString(),
+                                        verticalSpacing(height: 5),
+
+                                        buildRowTitleValue(
+                                          fixesWidth: 180.w,
+                                          title: "Total",
+                                          value:
+                                              "${totalArea.toStringAsFixed(2)} sq.ft",
+                                        ),
+
+                                        buildRowTitleValue(
+                                          fixesWidth: 180.w,
+                                          title: "Sold",
+                                          value:
+                                              "${soldArea.toStringAsFixed(2)} sq.ft",
+                                        ),
+
+                                        buildRowTitleValue(
+                                          fixesWidth: 180.w,
+                                          title: "Available",
+                                          value:
+                                              "${availableArea.toStringAsFixed(2)} sq.ft",
+                                          valueTextStyle: AppTextStyle.ts14M(
+                                            color: AppColor.green,
+                                          ),
+                                        ),
+
+                                        buildRowTitleValue(
+                                          fixesWidth: 180.w,
+                                          title: "Blocked",
+                                          value:
+                                              "${blockedArea.toStringAsFixed(2)} sq.ft",
+                                          valueTextStyle: AppTextStyle.ts14M(
+                                            color: AppColor.red,
+                                          ),
+                                        ),
+
+                                        buildRowTitleValue(
+                                          fixesWidth: 180.w,
+                                          title: "Hold",
+                                          value:
+                                              "${holdArea.toStringAsFixed(2)} sq.ft",
+                                          valueTextStyle: AppTextStyle.ts14M(
+                                            color: AppColor.yellow,
+                                          ),
+                                        ),
+
+                                        buildRowTitleValue(
+                                          fixesWidth: 180.w,
+                                          title: "Alloted",
+                                          value:
+                                              "${allotedArea.toStringAsFixed(2)} sq.ft",
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
+                                  ),
+
+                                  /// =========================
+                                  /// UNIT
+                                  /// =========================
+                                  Container(
+                                    decoration: commonCardDecoration(),
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    padding: const EdgeInsets.all(14),
+
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Unit",
+                                          style: AppTextStyle.ts16SB(),
+                                        ),
+
+                                        verticalSpacing(height: 5),
+
+                                        Divider(
+                                          height: 1,
+                                          color: AppColor.grey50,
+                                        ),
+
+                                        verticalSpacing(height: 5),
+
+                                        buildRowTitleValue(
+                                          fixesWidth: 180.w,
+                                          title: "Total",
+                                          value: totalUnit.toString(),
+                                        ),
+
+                                        buildRowTitleValue(
+                                          fixesWidth: 180.w,
+                                          title: "Sold",
+                                          value: soldUnit.toString(),
+                                        ),
+
+                                        buildRowTitleValue(
+                                          fixesWidth: 180.w,
+                                          title: "Available",
+                                          value: availableUnit.toString(),
+                                          valueTextStyle: AppTextStyle.ts14M(
+                                            color: AppColor.green,
+                                          ),
+                                        ),
+
+                                        buildRowTitleValue(
+                                          fixesWidth: 180.w,
+                                          title: "Blocked",
+                                          value: blockedUnit.toString(),
+                                          valueTextStyle: AppTextStyle.ts14M(
+                                            color: AppColor.red,
+                                          ),
+                                        ),
+
+                                        buildRowTitleValue(
+                                          fixesWidth: 180.w,
+                                          title: "Hold",
+                                          value: holdUnit.toString(),
+                                          valueTextStyle: AppTextStyle.ts14M(
+                                            color: AppColor.yellow,
+                                          ),
+                                        ),
+
+                                        buildRowTitleValue(
+                                          fixesWidth: 180.w,
+                                          title: "Alloted",
+                                          value: allotedUnit.toString(),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  /// =========================
+                                  /// PARKING
+                                  /// =========================
+                                  Container(
+                                    decoration: commonCardDecoration(),
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    padding: const EdgeInsets.all(14),
+
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Parking",
+                                          style: AppTextStyle.ts16SB(),
+                                        ),
+
+                                        verticalSpacing(height: 5),
+
+                                        Divider(
+                                          height: 1,
+                                          color: AppColor.grey50,
+                                        ),
+
+                                        verticalSpacing(height: 5),
+
+                                        buildRowTitleValue(
+                                          fixesWidth: 180.w,
+                                          title: "Total",
+                                          value: totalParking.toString(),
+                                        ),
+
+                                        buildRowTitleValue(
+                                          fixesWidth: 180.w,
+                                          title: "Available",
+                                          value: availableParking.toString(),
+                                          valueTextStyle: AppTextStyle.ts14M(
+                                            color: AppColor.green,
+                                          ),
+                                        ),
+
+                                        buildRowTitleValue(
+                                          fixesWidth: 180.w,
+                                          title: "Blocked",
+                                          value: blockedParking.toString(),
+                                          valueTextStyle: AppTextStyle.ts14M(
+                                            color: AppColor.red,
+                                          ),
+                                        ),
+
+                                        buildRowTitleValue(
+                                          fixesWidth: 180.w,
+                                          title: "Booked",
+                                          value: bookedParking.toString(),
+                                        ),
+
+                                        buildRowTitleValue(
+                                          fixesWidth: 180.w,
+                                          title: "Hold",
+                                          value: holdParking.toString(),
+                                          valueTextStyle: AppTextStyle.ts14M(
+                                            color: AppColor.yellow,
+                                          ),
+                                        ),
+
+                                        buildRowTitleValue(
+                                          fixesWidth: 180.w,
+                                          title: "Member",
+                                          value: memberParking.toString(),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-
-                              /// =========================
-                              /// PARKING
-                              /// =========================
-                              Container(
-                                decoration: commonCardDecoration(),
-                                margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.all(14),
-
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Parking",
-                                      style: AppTextStyle.ts16SB(),
-                                    ),
-
-                                    verticalSpacing(height: 5),
-
-                                    Divider(height: 1, color: AppColor.grey50),
-
-                                    verticalSpacing(height: 5),
-
-                                    buildRowTitleValue(
-                                      fixesWidth: 180.w,
-                                      title: "Total",
-                                      value: totalParking.toString(),
-                                    ),
-
-                                    buildRowTitleValue(
-                                      fixesWidth: 180.w,
-                                      title: "Available",
-                                      value: availableParking.toString(),
-                                      valueTextStyle: AppTextStyle.ts14M(
-                                        color: AppColor.green,
-                                      ),
-                                    ),
-
-                                    buildRowTitleValue(
-                                      fixesWidth: 180.w,
-                                      title: "Blocked",
-                                      value: blockedParking.toString(),
-                                      valueTextStyle: AppTextStyle.ts14M(
-                                        color: AppColor.red,
-                                      ),
-                                    ),
-
-                                    buildRowTitleValue(
-                                      fixesWidth: 180.w,
-                                      title: "Booked",
-                                      value: bookedParking.toString(),
-                                    ),
-
-                                    buildRowTitleValue(
-                                      fixesWidth: 180.w,
-                                      title: "Hold",
-                                      value: holdParking.toString(),
-                                      valueTextStyle: AppTextStyle.ts14M(
-                                        color: AppColor.yellow,
-                                      ),
-                                    ),
-
-                                    buildRowTitleValue(
-                                      fixesWidth: 180.w,
-                                      title: "Member",
-                                      value: memberParking.toString(),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                            );
+                          },
                         );
                       }).toList(),
                 ),
