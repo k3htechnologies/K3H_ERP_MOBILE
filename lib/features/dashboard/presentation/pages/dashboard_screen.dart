@@ -849,255 +849,244 @@ class _DashboardScreenState extends State<DashboardScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
 
           child: Column(
-            spacing: 10,
-            crossAxisAlignment: CrossAxisAlignment.start,
-
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                "Pending Approvals",
-                style: AppTextStyle.ts14M(
-                  color: AppColor.black.withValues(alpha: 0.50),
-                ),
-              ),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      /// Inventory
+                      if (pendingInventory > 0)
+                        SizedBox(
+                          width: (constraints.maxWidth - 10) / 2,
+                          child: InkWell(
+                            onTap: () {
+                              final inventoryData =
+                                  inventoryList.map((e) {
+                                    return [
+                                      {
+                                        "title": "Project",
+                                        "value": e.projectName,
+                                      },
+                                      {
+                                        "title": "Building",
+                                        "value": e.buildingNumber,
+                                      },
+                                      {"title": "Wing", "value": e.wing},
+                                    ];
+                                  }).toList();
 
-              Row(
-                spacing: 10,
+                              goRouter.pushNamed(
+                                AppRoutes.pendingApprovalScreen,
 
-                children: [
-                  /// Inventory
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        /// Convert inventory data
-                        final inventoryData =
-                            inventoryList.map((e) {
-                              return [
-                                {"title": "Project", "value": e.projectName},
-                                {
-                                  "title": "Building",
-                                  "value": e.buildingNumber,
+                                queryParameters: {
+                                  "title": "Inventory",
+
+                                  "onViewRoute": AppRoutes.inventory,
+
+                                  "pendingApproval": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(inventoryData),
+                                    ),
+                                  ),
                                 },
-                                {"title": "Wing", "value": e.wing},
-                              ];
-                            }).toList();
+                              );
+                            },
 
-                        goRouter.pushNamed(
-                          AppRoutes.pendingApprovalScreen,
-
-                          queryParameters: {
-                            "title": "Inventory",
-
-                            "onViewRoute": AppRoutes.inventory,
-
-                            "pendingApproval": Uri.encodeQueryComponent(
-                              EncryptionManager.encryptData(
-                                jsonEncode(inventoryData),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: AppColor.grey10),
+                              ),
+                              child: Row(
+                                spacing: 10,
+                                children: [
+                                  CustomIconButton(
+                                    onPressed: () {},
+                                    size: 22,
+                                    backgroundColor: AppColor.lightBlue,
+                                    icon: SvgPicture.asset(
+                                      AppAssets.boxIcon,
+                                      height: 20,
+                                      width: 20,
+                                      color: AppColor.primary,
+                                    ),
+                                  ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Inventory",
+                                        style: AppTextStyle.ts12R(),
+                                      ),
+                                      Text(pendingInventory.toString()),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
-                          },
-                        );
-                      },
-
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColor.grey10),
+                          ),
                         ),
 
-                        child: Row(
-                          spacing: 10,
+                      /// Parking
+                      if (pendingParking > 0)
+                        SizedBox(
+                          width: (constraints.maxWidth - 10) / 2,
+                          child: InkWell(
+                            onTap: () {
+                              final parkingData =
+                                  parkingList.map((e) {
+                                    return [
+                                      {
+                                        "title": "Project",
+                                        "value": e.projectName,
+                                      },
+                                      {
+                                        "title": "Building",
+                                        "value": e.buildingNumber,
+                                      },
+                                      {"title": "Wing", "value": e.wing},
+                                      {"title": "Floor", "value": e.floor},
+                                    ];
+                                  }).toList();
 
-                          children: [
-                            CustomIconButton(
-                              onPressed: () {},
+                              goRouter.pushNamed(
+                                AppRoutes.pendingApprovalScreen,
 
-                              size: 22,
-                              backgroundColor: AppColor.lightBlue,
+                                queryParameters: {
+                                  "title": "Parking",
 
-                              icon: SvgPicture.asset(
-                                AppAssets.boxIcon,
-                                height: 20.0,
-                                width: 20.0,
-                                color: AppColor.primary,
-                              ),
-                            ),
+                                  "onViewRoute": AppRoutes.parking,
 
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-
-                              children: [
-                                Text("Inventory", style: AppTextStyle.ts12R()),
-
-                                Text(pendingInventory.toString()),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  /// Parking
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        /// Convert parking data
-                        final parkingData =
-                            parkingList.map((e) {
-                              return [
-                                {"title": "Project", "value": e.projectName},
-                                {
-                                  "title": "Building",
-                                  "value": e.buildingNumber,
+                                  "pendingApproval": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(parkingData),
+                                    ),
+                                  ),
                                 },
-                                {"title": "Wing", "value": e.wing},
-                                {"title": "Floor", "value": e.floor},
-                              ];
-                            }).toList();
+                              );
+                            },
 
-                        goRouter.pushNamed(
-                          AppRoutes.pendingApprovalScreen,
-
-                          queryParameters: {
-                            "title": "Parking",
-
-                            "onViewRoute": AppRoutes.parking,
-
-                            "pendingApproval": Uri.encodeQueryComponent(
-                              EncryptionManager.encryptData(
-                                jsonEncode(parkingData),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: AppColor.grey10),
+                              ),
+                              child: Row(
+                                spacing: 10,
+                                children: [
+                                  CustomIconButton(
+                                    onPressed: () {},
+                                    size: 22,
+                                    backgroundColor: AppColor.lightGreen
+                                        .withValues(alpha: 0.4),
+                                    icon: SvgPicture.asset(
+                                      AppAssets.car,
+                                      height: 20,
+                                      width: 20,
+                                      color: AppColor.darkGreen.withValues(
+                                        alpha: 0.6,
+                                      ),
+                                    ),
+                                  ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Parking",
+                                        style: AppTextStyle.ts12R(),
+                                      ),
+                                      Text(pendingParking.toString()),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
-                          },
-                        );
-                      },
-
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColor.grey10),
+                          ),
                         ),
 
-                        child: Row(
-                          spacing: 10,
+                      /// Booking
+                      if (pendingBooking > 0)
+                        SizedBox(
+                          width: (constraints.maxWidth - 10) / 2,
+                          child: InkWell(
+                            onTap: () {
+                              final bookingData =
+                                  bookingList.map((e) {
+                                    return [
+                                      {
+                                        "title": "Project",
+                                        "value": e.projectName,
+                                      },
+                                      {"title": "Flat", "value": e.flat},
+                                      {
+                                        "title": "Applicant",
+                                        "value": e.applicantName,
+                                      },
+                                    ];
+                                  }).toList();
 
-                          children: [
-                            CustomIconButton(
-                              onPressed: () {},
+                              goRouter.pushNamed(
+                                AppRoutes.pendingApprovalScreen,
 
-                              size: 22,
-                              backgroundColor: AppColor.lightGreen.withValues(
-                                alpha: 0.4,
-                              ),
+                                queryParameters: {
+                                  "title": "Booking",
 
-                              icon: SvgPicture.asset(
-                                AppAssets.car,
-                                height: 20.0,
-                                width: 20.0,
-                                color: AppColor.darkGreen.withValues(
-                                  alpha: 0.6,
-                                ),
-                              ),
-                            ),
+                                  "onViewRoute": AppRoutes.booking,
 
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-
-                              children: [
-                                Text("Parking", style: AppTextStyle.ts12R()),
-
-                                Text(pendingParking.toString()),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                spacing: 10,
-
-                children: [
-                  /// Parking
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        /// Convert parking data
-                        final bookingData =
-                            bookingList.map((e) {
-                              return [
-                                {"title": "Project", "value": e.projectName},
-                                {"title": "Flat", "value": e.flat},
-                                {
-                                  "title": "Applicant",
-                                  "value": e.applicantName,
+                                  "pendingApproval": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(bookingData),
+                                    ),
+                                  ),
                                 },
-                              ];
-                            }).toList();
+                              );
+                            },
 
-                        goRouter.pushNamed(
-                          AppRoutes.pendingApprovalScreen,
-
-                          queryParameters: {
-                            "title": "Booking",
-
-                            "onViewRoute": AppRoutes.booking,
-
-                            "pendingApproval": Uri.encodeQueryComponent(
-                              EncryptionManager.encryptData(
-                                jsonEncode(bookingData),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: AppColor.grey10),
+                              ),
+                              child: Row(
+                                spacing: 10,
+                                children: [
+                                  CustomIconButton(
+                                    onPressed: () {},
+                                    size: 22,
+                                    backgroundColor: AppColor.lightOrangenBg,
+                                    icon: Icon(
+                                      Icons.assignment_turned_in_outlined,
+                                      size: 20,
+                                      color: AppColor.orange,
+                                    ),
+                                  ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Booking",
+                                        style: AppTextStyle.ts12R(),
+                                      ),
+                                      Text(pendingBooking.toString()),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
-                          },
-                        );
-                      },
-
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColor.grey10),
+                          ),
                         ),
-
-                        child: Row(
-                          spacing: 10,
-
-                          children: [
-                            CustomIconButton(
-                              onPressed: () {},
-
-                              size: 22,
-                              backgroundColor: AppColor.lightOrangenBg,
-
-                              icon: Icon(
-                                Icons.assignment_turned_in_outlined,
-                                size: 20,
-                                color: AppColor.orange,
-                              ),
-                            ),
-
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-
-                              children: [
-                                Text("Booking", style: AppTextStyle.ts12R()),
-
-                                Text(pendingBooking.toString()),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                    ],
+                  );
+                },
               ),
             ],
           ),

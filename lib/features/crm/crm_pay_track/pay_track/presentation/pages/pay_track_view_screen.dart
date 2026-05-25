@@ -63,7 +63,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
       enquiryId: widget.enquiryId,
       projectId: widget.projectId,
     );
-    if (context.mounted) {
+    if (mounted) {
       await _payTrackCubit.getPayTrackCallLog(
         context,
         1,
@@ -71,7 +71,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
         widget.bookingId,
       );
     }
-    if (context.mounted) {
+    if (mounted) {
       await _payTrackCubit.getPayTrackList(context, 1, widget.projectId);
     }
   }

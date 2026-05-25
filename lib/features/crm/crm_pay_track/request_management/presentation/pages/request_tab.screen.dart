@@ -51,20 +51,22 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
       widget.bookingId,
       widget.projectId,
     );
-    await _requestManagementCubit.getParkingModificationRequestList(
-      context,
-      10,
-      1,
-      widget.bookingId,
-      widget.projectId,
-    );
-    await _requestManagementCubit.getFlatAlterationRequestList(
-      context,
-      10,
-      1,
-      widget.bookingId,
-      widget.projectId,
-    );
+    if (mounted) {
+      await _requestManagementCubit.getParkingModificationRequestList(
+        context,
+        10,
+        1,
+        widget.bookingId,
+        widget.projectId,
+      );
+      await _requestManagementCubit.getFlatAlterationRequestList(
+        context,
+        10,
+        1,
+        widget.bookingId,
+        widget.projectId,
+      );
+    }
   }
 
   @override

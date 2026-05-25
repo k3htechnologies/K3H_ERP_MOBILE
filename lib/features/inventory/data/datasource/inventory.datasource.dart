@@ -90,6 +90,12 @@ abstract interface class InventoryDatasource {
   Future<Map<String, dynamic>> apicallToAddFloor({
     required Map<String, dynamic> body,
   });
+
+  Future<Map<String, dynamic>> apicallPullProjectInventoryParkingDetails({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class InventoryDatasourceImpl implements InventoryDatasource {
@@ -654,6 +660,49 @@ class InventoryDatasourceImpl implements InventoryDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         apicallToAddInventoryFlat(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullProjectInventoryParkingDetails({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullInventoryUrl({
+      required int pageNumber,
+      required int pageSize,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "InventoryParkingOverallReport/PullProjectInventoryParkingDetails?PageNumber=$pageNumber&PageSize=$pageSize";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullInventoryUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': List<BuildingModel>.from(
+          networkResponse["data"].map((e) => BuildingModel.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullProjectInventoryParkingDetails(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
+        );
       }
       rethrow;
     }

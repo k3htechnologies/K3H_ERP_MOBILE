@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/dashboard/crm_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/pay_track/pay_track.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/dashboard/dashboard.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/inventory/inventory_report.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/legal/litigation/litigation.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/legal/litigation_dashboard/litigation_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/marketing/content/content.dependencies.dart';
@@ -164,6 +165,7 @@ void initDependencies() {
   registerRentDependencies(serviceLocator);
   // INVENTORY DEPENDENCIES
   registerInventoryDependencies(serviceLocator);
+  registerInventoryReportReportDependencies(serviceLocator);
   // PARKING DEPENDENCIES
   registerParkingDependencies(serviceLocator);
   // CHANNEL PARTNER DEPENDENCIES

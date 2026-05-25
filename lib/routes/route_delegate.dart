@@ -62,6 +62,9 @@ import 'package:k3h_erp_app/features/inventory/presentation/pages/add_inventory_
 import 'package:k3h_erp_app/features/inventory/presentation/pages/add_unit_specification_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_dashboard.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/unit_specification_view_screen.dart';
+import 'package:k3h_erp_app/features/inventory/reports/presentation/cubit/inventory_report_cubit.dart';
+import 'package:k3h_erp_app/features/inventory/reports/presentation/pages/inventory_overall_report.dart';
+import 'package:k3h_erp_app/features/inventory/reports/presentation/pages/inventory_report_overview.dart';
 import 'package:k3h_erp_app/features/legal/dashboard/presentation/cubit/litigation_dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/legal/dashboard/presentation/pages/litigation_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
@@ -2922,7 +2925,15 @@ final GoRouter goRouter = GoRouter(
         // INVENTORY
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider(create: (_) => InventoryCubit(), child: child);
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => InventoryCubit()),
+                BlocProvider<InventoryReportCubit>(
+                  create: (_) => InventoryReportCubit(),
+                ),
+              ],
+              child: child,
+            );
           },
           routes: [
             GoRoute(
@@ -3047,6 +3058,28 @@ final GoRouter goRouter = GoRouter(
                 }
 
                 return UnitSpecificationViewScreen(flatModel: flatModel!);
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.inventoryParkingOverallReport,
+              path: AppRoutes.inventoryParkingOverallReport,
+              builder: (context, state) {
+                return InventoryOverallReport();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.inventoryParkingOverallReportOverview,
+              path: AppRoutes.inventoryParkingOverallReportOverview,
+              builder: (context, state) {
+                final projectId =
+                    int.tryParse(
+                      EncryptionManager.decryptData(
+                        state.uri.queryParameters['projectId'] ?? '',
+                      ),
+                    ) ??
+                    0;
+
+                return InventoryOverallReportOverview(projectId: projectId);
               },
             ),
           ],
