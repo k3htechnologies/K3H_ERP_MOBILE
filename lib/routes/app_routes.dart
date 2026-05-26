@@ -116,6 +116,9 @@ class AppRoutes {
   static String addInventorySpecification = "/addInventorySpecification";
   static String addUnitSpecification = "/addUnitSpecification";
   static String viewUnitSpecification = "/viewUnitSpecification";
+  static String unitDistributionStatus = "/unitDistributionStatus";
+
+  // INVENTORY REPORT
   static String inventoryParkingOverallReport =
       "/inventoryParkingOverallReport";
   static String inventoryParkingOverallReportOverview =

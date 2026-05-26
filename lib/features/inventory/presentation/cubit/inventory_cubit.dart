@@ -496,4 +496,41 @@ class InventoryCubit extends Cubit<InventoryState> {
   void updateStatusFilter(String? status) {
     emit(state.copyWith(selectedStatusFilter: status));
   }
+
+  Future<void> fetchUnitsByProjectId(
+    int pageNumber, {
+    required Map<String, dynamic> queryParams,
+    required int projectId,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+    final result = await _inventoryRepository.getPaginatedFlats(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      projectId: projectId,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(flatList: [], isLoading: false));
+      },
+      (response) {
+        final List<FlatModel> flats = response['data'] as List<FlatModel>;
+        final updatedFlats =
+            state.currentUnitPage == 0 ? flats : [...state.flatList, ...flats];
+        emit(
+          state.copyWith(
+            flatList: updatedFlats,
+            currentUnitPage: pageNumber,
+            isLoading: false,
+            unitTotalRecords: response['totalNumberOfRecord'],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> resetUnits() async {
+    emit(state.copyWith(flatList: [], currentUnitPage: 1, unitTotalRecords: 0));
+  }
 }

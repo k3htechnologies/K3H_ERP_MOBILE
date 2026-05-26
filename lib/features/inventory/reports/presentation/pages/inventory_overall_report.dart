@@ -26,6 +26,9 @@ class InventoryOverallReport extends StatefulWidget {
 class _InventoryOverallReportState extends State<InventoryOverallReport> {
   late TextEditingController _searchC;
   late InventoryReportCubit _inventoryReportCubit;
+  // PAGINATION
+  late ScrollController scrollController;
+  Timer? _debounce;
   @override
   void initState() {
     _searchC = TextEditingController();
@@ -34,10 +37,6 @@ class _InventoryOverallReportState extends State<InventoryOverallReport> {
     _inventoryReportCubit.getInventoryReport(pageNumber: 1, context: context);
     super.initState();
   }
-
-  // PAGINATION
-  late ScrollController scrollController;
-  Timer? _debounce;
 
   // <---- PAGINATION ---->
   void _onScroll() {

@@ -54,7 +54,12 @@ class CommonRadialChart extends StatelessWidget {
               items.map((e) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
-                  child: _legend(e.color, e.value, e.title),
+                  child: _legend(
+                    e.color,
+                    e.value,
+                    e.title,
+                    onValueTap: e.onValueTap,
+                  ),
                 );
               }).toList(),
         ),
@@ -62,7 +67,12 @@ class CommonRadialChart extends StatelessWidget {
     );
   }
 
-  Widget _legend(Color color, int value, String text) {
+  Widget _legend(
+    Color color,
+    int value,
+    String text, {
+    VoidCallback? onValueTap,
+  }) {
     return Row(
       children: [
         Container(
@@ -76,9 +86,21 @@ class CommonRadialChart extends StatelessWidget {
         horizontalSpacing(width: 8),
         Text(text, style: AppTextStyle.ts14M(color: color)),
         Spacer(),
-        Text(
-          value.toString().padLeft(2, '0'),
-          style: AppTextStyle.ts14SB(color: color),
+        InkWell(
+          onTap:
+              onValueTap ??
+              () {
+                // Handle tap event
+              },
+          child: Text(
+            value.toString().padLeft(2, '0'),
+            style:
+                onValueTap != null
+                    ? AppTextStyle.ts14SB(
+                      color: value > 0 ? AppColor.primary : AppColor.grey,
+                    )
+                    : AppTextStyle.ts14SB(color: color),
+          ),
         ),
       ],
     );
@@ -138,10 +160,12 @@ class RadialChartItem {
   final String title;
   final int value;
   final Color color;
+  final VoidCallback? onValueTap;
 
   RadialChartItem({
     required this.title,
     required this.value,
     required this.color,
+    this.onValueTap,
   });
 }

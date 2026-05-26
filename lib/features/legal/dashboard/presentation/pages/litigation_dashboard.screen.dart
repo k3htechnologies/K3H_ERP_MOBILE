@@ -897,7 +897,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
               ),
               verticalSpacing(),
 
-              if (table6!.isNotEmpty) ...[
+              if (table6 != null && table6.isNotEmpty) ...[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [

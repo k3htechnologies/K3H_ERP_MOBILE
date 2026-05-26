@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
@@ -446,6 +449,16 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
 
         final data = state.inventoryDashboardModel;
         final table0 = data?.table0.first;
+        final blockedUnits =
+            state.inventoryDashboardModel!.table0.first.blockedFlats;
+        final allotedUnits =
+            state.inventoryDashboardModel!.table0.first.allotedFlats;
+        final bookedUnits =
+            state.inventoryDashboardModel!.table0.first.bookedFlats;
+        final holdUnits = state.inventoryDashboardModel!.table0.first.holdFlats;
+        final availableUnits =
+            state.inventoryDashboardModel!.table0.first.availableFlats;
+
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -472,52 +485,145 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                     items: [
                       RadialChartItem(
                         title: "Blocked Units",
-                        value:
-                            state
-                                .inventoryDashboardModel!
-                                .table0
-                                .first
-                                .blockedFlats,
+                        value: blockedUnits,
                         color: AppColor.black.withValues(alpha: 0.5),
+                        onValueTap:
+                            blockedUnits == 0
+                                ? () {}
+                                : () async {
+                                  final title = "Blocked Units ($blockedUnits)";
+                                  final queryParams = {"FlatStatus": "blocked"};
+                                  await _inventoryCubit.resetUnits();
+                                  await goRouter.pushNamed(
+                                    AppRoutes.unitDistributionStatus,
+                                    queryParameters: {
+                                      'title': Uri.encodeComponent(
+                                        EncryptionManager.encryptData(title),
+                                      ),
+                                      'queryParams': Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(queryParams),
+                                        ),
+                                      ),
+                                      'projectId':
+                                          _selectedProject.projectId.toString(),
+                                    },
+                                  );
+                                },
                       ),
                       RadialChartItem(
                         title: "Member Units",
-                        value:
-                            state
-                                .inventoryDashboardModel!
-                                .table0
-                                .first
-                                .allotedFlats,
+                        value: allotedUnits,
                         color: AppColor.purple,
+                        onValueTap:
+                            allotedUnits == 0
+                                ? () {}
+                                : () async {
+                                  final title = "Member Units ($allotedUnits)";
+                                  final queryParams = {"FlatStatus": "alloted"};
+                                  await _inventoryCubit.resetUnits();
+                                  await goRouter.pushNamed(
+                                    AppRoutes.unitDistributionStatus,
+                                    queryParameters: {
+                                      'title': Uri.encodeComponent(
+                                        EncryptionManager.encryptData(title),
+                                      ),
+                                      'queryParams': Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(queryParams),
+                                        ),
+                                      ),
+                                      'projectId':
+                                          _selectedProject.projectId.toString(),
+                                    },
+                                  );
+                                },
                       ),
                       RadialChartItem(
                         title: "Booked Units",
-                        value:
-                            state
-                                .inventoryDashboardModel!
-                                .table0
-                                .first
-                                .bookedFlats,
+                        value: bookedUnits,
                         color: AppColor.error,
+                        onValueTap:
+                            bookedUnits == 0
+                                ? () {}
+                                : () async {
+                                  final title = "Booked Units ($bookedUnits)";
+                                  final queryParams = {"FlatStatus": "booked"};
+                                  await _inventoryCubit.resetUnits();
+                                  await goRouter.pushNamed(
+                                    AppRoutes.unitDistributionStatus,
+                                    queryParameters: {
+                                      'title': Uri.encodeComponent(
+                                        EncryptionManager.encryptData(title),
+                                      ),
+                                      'queryParams': Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(queryParams),
+                                        ),
+                                      ),
+                                      'projectId':
+                                          _selectedProject.projectId.toString(),
+                                    },
+                                  );
+                                },
                       ),
                       RadialChartItem(
                         title: "Hold Units",
-                        value:
-                            state
-                                .inventoryDashboardModel!
-                                .table0
-                                .first
-                                .holdFlats,
+                        value: holdUnits,
                         color: AppColor.yellow,
+                        onValueTap:
+                            holdUnits == 0
+                                ? () {}
+                                : () async {
+                                  final title = "Hold Units ($holdUnits)";
+                                  final queryParams = {"FlatStatus": "hold"};
+                                  await _inventoryCubit.resetUnits();
+                                  await goRouter.pushNamed(
+                                    AppRoutes.unitDistributionStatus,
+                                    queryParameters: {
+                                      'title': Uri.encodeComponent(
+                                        EncryptionManager.encryptData(title),
+                                      ),
+                                      'queryParams': Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(queryParams),
+                                        ),
+                                      ),
+                                      'projectId':
+                                          _selectedProject.projectId.toString(),
+                                    },
+                                  );
+                                },
                       ),
                       RadialChartItem(
                         title: "Available Units",
-                        value:
-                            state
-                                .inventoryDashboardModel!
-                                .table0
-                                .first
-                                .availableFlats,
+                        onValueTap:
+                            availableUnits == 0
+                                ? () {}
+                                : () async {
+                                  final title =
+                                      "Available Units (${state.inventoryDashboardModel!.table0.first.availableFlats})";
+                                  final queryParams = {
+                                    "FlatStatus": "available",
+                                  };
+                                  await _inventoryCubit.resetUnits();
+                                  await goRouter.pushNamed(
+                                    AppRoutes.unitDistributionStatus,
+                                    queryParameters: {
+                                      'title': Uri.encodeComponent(
+                                        EncryptionManager.encryptData(title),
+                                      ),
+                                      'queryParams': Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(queryParams),
+                                        ),
+                                      ),
+                                      'projectId':
+                                          _selectedProject.projectId.toString(),
+                                    },
+                                  );
+                                },
+                        value: availableUnits,
                         color: AppColor.green,
                       ),
                     ],

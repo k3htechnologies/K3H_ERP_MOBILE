@@ -11,6 +11,9 @@ class InventoryState extends BaseState {
   final int wingCurrentPage;
   final String? wingCurrentPageKey;
   final String? selectedStatusFilter;
+  final List<FlatModel> flatList;
+  final int currentUnitPage;
+  final int unitTotalRecords;
 
   const InventoryState({
     super.isLoading,
@@ -24,6 +27,9 @@ class InventoryState extends BaseState {
     this.wingCurrentPageKey,
     this.wingCurrentPage = 0,
     this.selectedStatusFilter = 'total',
+    this.flatList = const [],
+    this.currentUnitPage = 0,
+    this.unitTotalRecords = 0,
   });
 
   factory InventoryState.initial() => InventoryState(
@@ -35,7 +41,10 @@ class InventoryState extends BaseState {
     searchText: "",
     originalBuildingList: [],
     wingCurrentPageKey: null,
+    flatList: [],
     wingCurrentPage: 0,
+    currentUnitPage: 0,
+    unitTotalRecords: 0,
   );
 
   InventoryState copyWith({
@@ -52,6 +61,9 @@ class InventoryState extends BaseState {
     String? wingCurrentPageKey,
     int? wingCurrentPage,
     String? selectedStatusFilter,
+    List<FlatModel>? flatList,
+    int? currentUnitPage,
+    int? unitTotalRecords,
   }) {
     return InventoryState(
       isLoading: isLoading ?? this.isLoading,
@@ -67,6 +79,9 @@ class InventoryState extends BaseState {
       wingCurrentPageKey: wingCurrentPageKey ?? this.wingCurrentPageKey,
       wingCurrentPage: wingCurrentPage ?? this.wingCurrentPage,
       selectedStatusFilter: selectedStatusFilter ?? this.selectedStatusFilter,
+      flatList: flatList ?? this.flatList,
+      currentUnitPage: currentUnitPage ?? this.currentUnitPage,
+      unitTotalRecords: unitTotalRecords ?? this.unitTotalRecords,
     );
   }
 
@@ -83,5 +98,8 @@ class InventoryState extends BaseState {
     wingCurrentPage,
     wingCurrentPageKey,
     selectedStatusFilter,
+    flatList,
+    currentUnitPage,
+    unitTotalRecords,
   ];
 }

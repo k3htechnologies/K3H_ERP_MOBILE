@@ -14,6 +14,7 @@ class AppColor {
     0xFFE4F0FF,
   ); // BOTTOM SHEET BACKGROUND
   static const Color lightGreyBackground = Color(0xFFF9FAFB); // BACKGROUND
+  static const Color darkPurple = Color(0xFF570C57); // BACKGROUND
   static const Color purple = Color(0xFF8A38F5); // BOTTOM SHEET BACKGROUND
   static const Color purple20 = Color(0x338A38F5);
   static const Color priorityHighColor = Color(0xFFB91C1C);

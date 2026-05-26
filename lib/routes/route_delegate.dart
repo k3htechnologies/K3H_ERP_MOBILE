@@ -61,6 +61,7 @@ import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubi
 import 'package:k3h_erp_app/features/inventory/presentation/pages/add_inventory_specification_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/add_unit_specification_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_dashboard.dart';
+import 'package:k3h_erp_app/features/inventory/presentation/pages/unit_distribution_status_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/unit_specification_view_screen.dart';
 import 'package:k3h_erp_app/features/inventory/reports/presentation/cubit/inventory_report_cubit.dart';
 import 'package:k3h_erp_app/features/inventory/reports/presentation/pages/inventory_overall_report.dart';
@@ -2943,6 +2944,55 @@ final GoRouter goRouter = GoRouter(
                 return const InventoryDashboard();
               },
             ),
+            GoRoute(
+              name: AppRoutes.unitDistributionStatus,
+              path: AppRoutes.unitDistributionStatus,
+              builder: (context, state) {
+                final queryParamsData =
+                    state.uri.queryParameters['queryParams'];
+
+                Map<String, dynamic> queryParams = {};
+                if (queryParamsData != null) {
+                  queryParams = Map<String, dynamic>.from(
+                    jsonDecode(
+                      EncryptionManager.decryptData(
+                        Uri.decodeQueryComponent(queryParamsData),
+                      ),
+                    ),
+                  );
+                }
+
+                final title =
+                    state.uri.queryParameters['title'] != null
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeQueryComponent(
+                            state.uri.queryParameters['title']!,
+                          ),
+                        )
+                        : '';
+                final subTitle =
+                    state.uri.queryParameters['subTitle'] != null
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeQueryComponent(
+                            state.uri.queryParameters['subTitle']!,
+                          ),
+                        )
+                        : null;
+                final projectId =
+                    int.tryParse(
+                      state.uri.queryParameters['projectId'] ?? '0',
+                    ) ??
+                    0;
+
+                return UnitDistributionStatusScreen(
+                  title: title,
+                  subTitle: subTitle,
+                  queryParams: queryParams,
+                  projectId: projectId,
+                );
+              },
+            ),
+
             GoRoute(
               name: AppRoutes.inventory,
               path: AppRoutes.inventory,
