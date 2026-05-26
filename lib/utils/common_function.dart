@@ -741,6 +741,20 @@ String addCommasToInteger(double value, {bool withoutSign = false}) {
   return withoutSign ? result : '₹ $result';
 }
 
+String formattedAmount(num value, {bool showRupeeSymbol = true}) {
+  final symbol = showRupeeSymbol ? "₹ " : "";
+
+  if (value >= 10000000) {
+    return "$symbol${(value / 10000000).toStringAsFixed(1)} CR";
+  } else if (value >= 100000) {
+    return "$symbol${(value / 100000).toStringAsFixed(1)} L";
+  } else if (value >= 1000) {
+    return "$symbol${(value / 1000).toStringAsFixed(1)} K";
+  } else {
+    return "$symbol${value.toStringAsFixed(0)}";
+  }
+}
+
 String getInitials(String name) {
   if (name.trim().isEmpty) return '';
 
