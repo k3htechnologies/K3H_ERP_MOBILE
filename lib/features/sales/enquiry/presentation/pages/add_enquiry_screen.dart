@@ -975,7 +975,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     if (employeeId != null && employeeId != 0) {
       queryParams["EmployeeId"] = employeeId;
     } else if (value != null && value.isNotEmpty) {
-      queryParams["EmployeeName"] = value;
+      queryParams["FullName"] = value;
     }
 
     final result = await _utilsRepository.pullPaginationProjectWithEmployee(

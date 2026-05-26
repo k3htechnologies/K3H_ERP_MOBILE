@@ -206,7 +206,7 @@ class _UnitDistributionStatusScreenState
                                             flat.flatStatus.toLowerCase() ==
                                                 "hold")
                                         ? "${flat.flatStatus} BY ${flat.modifiedBy} on ${formatDate(flat.modifiedDate ?? DateTime.now())}"
-                                        : flat.flatConfiguration,
+                                        : flat.ownerName,
                               ),
                             ],
                           ),
