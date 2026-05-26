@@ -309,7 +309,9 @@ class FinalizeVendorCubit extends Cubit<FinalizeVendorState> {
         showSuccessMessage(context);
         if (context.mounted) {
           Future.delayed(Duration(milliseconds: 300), () {
-            Navigator.pop(context);
+            if (context.mounted) {
+              Navigator.pop(context);
+            }
           });
         }
       },

@@ -32,11 +32,11 @@ class CrmDashboardRepositoryImpl implements CrmDashboardRepository {
         "FilterType": filterType,
       };
 
-      if (fromDate != null && fromDate.isNotEmpty) {
+      if (fromDate.isNotEmpty) {
         queryParams["FromDate"] = fromDate;
       }
 
-      if (toDate != null && toDate.isNotEmpty) {
+      if (toDate.isNotEmpty) {
         queryParams["ToDate"] = toDate;
       }
       var result = await crmDashboardDatasource.apiCallPullDashboard(
