@@ -86,7 +86,7 @@ class _InventoryOverallReportOverviewState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Report",
+        screenTitle: "Report Overview",
         authorization: AuthorizationModel(),
       ),
 
