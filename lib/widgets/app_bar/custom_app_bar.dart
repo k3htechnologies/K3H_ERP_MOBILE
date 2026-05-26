@@ -18,6 +18,7 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_export_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/core/presentation/pages/main_screen.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -256,111 +257,6 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
     }
   }
 
-  final LayerLink _exportLayerLink = LayerLink();
-  OverlayEntry? _exportOverlayEntry;
-  final GlobalKey _exportButtonKey = GlobalKey();
-
-  void _toggleExportOverlay() {
-    if (_exportOverlayEntry != null) {
-      _removeExportOverlay();
-    } else {
-      _showExportOverlay();
-    }
-  }
-
-  void _showExportOverlay() {
-    const double dropdownWidth = 180;
-
-    final RenderBox buttonBox =
-        _exportButtonKey.currentContext!.findRenderObject() as RenderBox;
-
-    final Offset buttonPosition = buttonBox.localToGlobal(Offset.zero);
-    final double screenWidth = MediaQuery.of(context).size.width;
-
-    double shiftX = 0;
-
-    // check overflow on right
-    final overflowRight = buttonPosition.dx + dropdownWidth - screenWidth;
-
-    if (overflowRight > 0) {
-      shiftX = -overflowRight - 8;
-    }
-
-    _exportOverlayEntry = OverlayEntry(
-      builder: (context) {
-        return Stack(
-          children: [
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: _removeExportOverlay,
-                behavior: HitTestBehavior.translucent,
-              ),
-            ),
-
-            CompositedTransformFollower(
-              link: _exportLayerLink,
-              showWhenUnlinked: false,
-              offset: Offset(shiftX, 40),
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  width: dropdownWidth,
-                  decoration: BoxDecoration(
-                    color: AppColor.white,
-                    borderRadius: BorderRadius.circular(6),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColor.black.withValues(alpha: 0.1),
-                        blurRadius: 8,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildExportItem(
-                        label: 'Export as Excel',
-                        value: 'EXCEL',
-                      ),
-                      _buildExportItem(label: 'Export as PDF', value: 'PDF'),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-
-    Overlay.of(context, rootOverlay: true).insert(_exportOverlayEntry!);
-  }
-
-  void _removeExportOverlay() {
-    _exportOverlayEntry?.remove();
-    _exportOverlayEntry = null;
-  }
-
-  Widget _buildExportItem({required String label, required String value}) {
-    return InkWell(
-      onTap: () {
-        _removeExportOverlay();
-        widget.onExportCallback?.call(value);
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Row(
-          children: [
-            Icon(Icons.file_download_outlined, color: AppColor.primary),
-            const SizedBox(width: 8),
-            Text(label, style: AppTextStyle.ts14R()),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -453,19 +349,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                       if (widget.authorization.isExport &&
                           widget.onExportCallback != null) ...[
                         horizontalSpacing(),
-                        CompositedTransformTarget(
-                          link: _exportLayerLink,
-                          child: CustomIconButton(
-                            key: _exportButtonKey,
-                            onPressed: _toggleExportOverlay,
-                            icon: Icon(
-                              Icons.file_download_outlined,
-                              size: 16,
-                              color: AppColor.darkGreen,
-                            ),
-                            backgroundColor: AppColor.lightGreen,
-                          ),
-                        ),
+                        CustomExportButton(onExport: widget.onExportCallback!),
                       ],
 
                       if (widget.authorization.isAction &&

@@ -176,10 +176,13 @@ class AppRoutes {
   static String paymentScheduleScheme = "/paymentScheduleScheme";
   static String addPaymentScheduleScheme = "/addPaymentScheduleScheme";
 
-  // SALES REPORT (PERFORMANCE)
+  // SALES REPORT
+  // PERFORMANCE
   static String performanceReport = "/performance";
   static String salesPerformanceReport = "/salesPerformance";
   static String viewPerformanceReport = "/viewPerformance";
+  // ACHIEVEMENT
+  static String achievementReport = "/achievement";
 
   // SALES CLASSIFICATION PARAMETERS
   static String classificationParameter = "/classificationParameter";

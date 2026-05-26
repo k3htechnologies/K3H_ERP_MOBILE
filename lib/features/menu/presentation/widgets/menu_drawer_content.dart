@@ -28,8 +28,7 @@ void removeHiddenSubSubModules(List<ModuleModel> modules) {
           (subSub) =>
               subSub.subSubModuleName == "Incentive" ||
               subSub.subSubModuleName == "Enquiry" ||
-              subSub.subSubModuleName == "CP Enquiry" ||
-              subSub.subSubModuleName == "Achievement",
+              subSub.subSubModuleName == "CP Enquiry",
         );
       }
     }

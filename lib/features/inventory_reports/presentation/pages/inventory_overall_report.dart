@@ -4,14 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/inventory/reports/presentation/cubit/inventory_report_cubit.dart';
-import 'package:k3h_erp_app/features/inventory/reports/presentation/cubit/inventory_report_state.dart';
+import 'package:k3h_erp_app/features/inventory_reports/presentation/cubit/inventory_report_cubit.dart';
+import 'package:k3h_erp_app/features/inventory_reports/presentation/cubit/inventory_report_state.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_export_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -34,6 +35,7 @@ class _InventoryOverallReportState extends State<InventoryOverallReport> {
     _searchC = TextEditingController();
     _onScroll();
     _inventoryReportCubit = context.read<InventoryReportCubit>();
+    _inventoryReportCubit.resetState();
     _inventoryReportCubit.getInventoryReport(pageNumber: 1, context: context);
     super.initState();
   }
@@ -72,12 +74,24 @@ class _InventoryOverallReportState extends State<InventoryOverallReport> {
         child: Column(
           spacing: 10,
           children: [
-            SearchWidget(
-              onSubmit: (val) {
-                _inventoryReportCubit.search(context, val);
-              },
-              textController: _searchC,
-              hintText: "Search By Project Name",
+            Row(
+              spacing: 10,
+              children: [
+                Expanded(
+                  child: SearchWidget(
+                    onSubmit: (val) {
+                      _inventoryReportCubit.search(context, val);
+                    },
+                    textController: _searchC,
+                    hintText: "Search By Project Name",
+                  ),
+                ),
+                CustomExportButton(
+                  onExport: (value) {
+                    _inventoryReportCubit.exportExcelPdf(context, value);
+                  },
+                ),
+              ],
             ),
             BlocBuilder<InventoryReportCubit, InventoryReportState>(
               builder: (context, state) {
