@@ -2,8 +2,8 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 
 class CrmDashboardModel {
   List<Table0> table0;
-  List<dynamic> table1;
-  List<dynamic> table2;
+  List<Table1> table1;
+  List<Table2> table2;
   List<dynamic> table3;
   List<Table4> table4;
   List<dynamic> table5;
@@ -23,8 +23,8 @@ class CrmDashboardModel {
     Map<String, dynamic> json,
   ) => CrmDashboardModel(
     table0: List<Table0>.from(json["Table0"].map((x) => Table0.fromJson(x))),
-    table1: List<dynamic>.from(json["Table1"].map((x) => x)),
-    table2: List<dynamic>.from(json["Table2"].map((x) => x)),
+    table1: List<Table1>.from(json["Table1"].map((x) => Table1.fromJson(x))),
+    table2: List<Table2>.from(json["Table2"].map((x) => Table2.fromJson(x))),
     table3: List<dynamic>.from(json["Table3"].map((x) => x)),
     table4: List<Table4>.from(json["Table4"].map((x) => Table4.fromJson(x))),
     table5: List<dynamic>.from(json["Table5"].map((x) => x)),
@@ -33,8 +33,8 @@ class CrmDashboardModel {
 
   Map<String, dynamic> toJson() => {
     "Table0": List<dynamic>.from(table0.map((x) => x.toJson())),
-    "Table1": List<dynamic>.from(table1.map((x) => x)),
-    "Table2": List<dynamic>.from(table2.map((x) => x)),
+    "Table1": List<dynamic>.from(table1.map((x) => x.toJson())),
+    "Table2": List<dynamic>.from(table2.map((x) => x.toJson())),
     "Table3": List<dynamic>.from(table3.map((x) => x)),
     "Table4": List<dynamic>.from(table4.map((x) => x.toJson())),
     "Table5": List<dynamic>.from(table5.map((x) => x)),
@@ -43,22 +43,22 @@ class CrmDashboardModel {
 }
 
 class Table0 {
-  int totalAgreementAmount;
-  int totalAgreementGstAmount;
-  int totalAgreementTdsAmount;
-  int totalReceivedAgreementAmount;
-  int totalOutstandingAgreementValue;
+  double totalAgreementAmount;
+  double totalAgreementGstAmount;
+  double totalAgreementTdsAmount;
+  double totalReceivedAgreementAmount;
+  double totalOutstandingAgreementValue;
   int totalBooking;
   int nonRegisteredBooking;
   int registeredBooking;
   int upcomingRegistration;
-  int totalCollection;
-  int collectionAgreementReceived;
-  int collectionGst;
-  int collectionTds;
-  int totalBrokerageAmount;
-  int paidBrokerageAmount;
-  int outstandingBrokerageAmount;
+  double totalCollection;
+  double collectionAgreementReceived;
+  double collectionGst;
+  double collectionTds;
+  double totalBrokerageAmount;
+  double paidBrokerageAmount;
+  double outstandingBrokerageAmount;
   int totalChannelPartner;
 
   Table0({
@@ -82,14 +82,20 @@ class Table0 {
   });
 
   factory Table0.fromJson(Map<String, dynamic> json) => Table0(
-    totalAgreementAmount: parseValue<int>(json, "TotalAgreementAmount"),
-    totalAgreementGstAmount: parseValue<int>(json, "TotalAgreementGSTAmount"),
-    totalAgreementTdsAmount: parseValue<int>(json, "TotalAgreementTDSAmount"),
-    totalReceivedAgreementAmount: parseValue<int>(
+    totalAgreementAmount: parseValue<double>(json, "TotalAgreementAmount"),
+    totalAgreementGstAmount: parseValue<double>(
+      json,
+      "TotalAgreementGSTAmount",
+    ),
+    totalAgreementTdsAmount: parseValue<double>(
+      json,
+      "TotalAgreementTDSAmount",
+    ),
+    totalReceivedAgreementAmount: parseValue<double>(
       json,
       "TotalReceivedAgreementAmount",
     ),
-    totalOutstandingAgreementValue: parseValue<int>(
+    totalOutstandingAgreementValue: parseValue<double>(
       json,
       "TotalOutstandingAgreementValue",
     ),
@@ -97,16 +103,16 @@ class Table0 {
     nonRegisteredBooking: parseValue<int>(json, "NonRegisteredBooking"),
     registeredBooking: parseValue<int>(json, "RegisteredBooking"),
     upcomingRegistration: parseValue<int>(json, "UpcomingRegistration"),
-    totalCollection: parseValue<int>(json, "TotalCollection"),
-    collectionAgreementReceived: parseValue<int>(
+    totalCollection: parseValue<double>(json, "TotalCollection"),
+    collectionAgreementReceived: parseValue<double>(
       json,
       "CollectionAgreementReceived",
     ),
-    collectionGst: parseValue<int>(json, "CollectionGST"),
-    collectionTds: parseValue<int>(json, "CollectionTDS"),
-    totalBrokerageAmount: parseValue<int>(json, "TotalBrokerageAmount"),
-    paidBrokerageAmount: parseValue<int>(json, "PaidBrokerageAmount"),
-    outstandingBrokerageAmount: parseValue<int>(
+    collectionGst: parseValue<double>(json, "CollectionGST"),
+    collectionTds: parseValue<double>(json, "CollectionTDS"),
+    totalBrokerageAmount: parseValue<double>(json, "TotalBrokerageAmount"),
+    paidBrokerageAmount: parseValue<double>(json, "PaidBrokerageAmount"),
+    outstandingBrokerageAmount: parseValue<double>(
       json,
       "OutstandingBrokerageAmount",
     ),
@@ -134,8 +140,60 @@ class Table0 {
   };
 }
 
+class Table1 {
+  int brokerageAmount;
+  String channelPartnerName;
+
+  Table1({required this.brokerageAmount, required this.channelPartnerName});
+
+  factory Table1.fromJson(Map<String, dynamic> json) => Table1(
+    brokerageAmount: parseValue<int>(json, "BrokerageAmount"),
+    channelPartnerName: parseValue<String>(json, "ChannelPartnerName"),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "BrokerageAmount": brokerageAmount,
+    "ChannelPartnerName": channelPartnerName,
+  };
+}
+
+class Table2 {
+  String systemGeneratedCode;
+  String applicantName;
+  double agreementValue;
+  DateTime createdDate;
+  String flat;
+
+  Table2({
+    required this.systemGeneratedCode,
+    required this.applicantName,
+    required this.agreementValue,
+    required this.createdDate,
+    required this.flat,
+  });
+
+  factory Table2.fromJson(Map<String, dynamic> json) => Table2(
+    systemGeneratedCode: parseValue<String>(json, "SystemGeneratedCode"),
+    applicantName: parseValue<String>(json, "ApplicantName"),
+    agreementValue: parseValue<double>(json, "AgreementValue"),
+    createdDate:
+        json["CreatedDate"] != null
+            ? DateTime.parse(json["CreatedDate"])
+            : DateTime.now(),
+    flat: parseValue<String>(json, "Flat"),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "SystemGeneratedCode": systemGeneratedCode,
+    "ApplicantName": applicantName,
+    "AgreementValue": agreementValue,
+    "CreatedDate": createdDate.toIso8601String(),
+    "Flat": flat,
+  };
+}
+
 class Table4 {
-  Label label;
+  String label;
   int agreement;
   int gst;
   int tds;
@@ -148,26 +206,18 @@ class Table4 {
   });
 
   factory Table4.fromJson(Map<String, dynamic> json) => Table4(
-    label: Label.fromJson(json["Label"]),
+    label: parseValue<String>(json, "Label"),
     agreement: parseValue<int>(json, "Agreement"),
     gst: parseValue<int>(json, "GST"),
     tds: parseValue<int>(json, "TDS"),
   );
 
   Map<String, dynamic> toJson() => {
-    "Label": label.toJson(),
+    "Label": label,
     "Agreement": agreement,
     "GST": gst,
     "TDS": tds,
   };
-}
-
-class Label {
-  Label();
-
-  factory Label.fromJson(Map<String, dynamic> json) => Label();
-
-  Map<String, dynamic> toJson() => {};
 }
 
 class Table6 {

@@ -17,7 +17,17 @@ class CrmDashboardDatasourceImpl implements CrmDashboardDatasource {
   }) async {
     String pullDashboardUrl({Map<String, dynamic>? queryParams}) {
       String url = "CrmDashboard/CrmPullDashboard";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+
+      if (queryParams != null && queryParams.isNotEmpty) {
+        url += "?";
+
+        queryParams.forEach((key, value) {
+          url += "$key=$value&";
+        });
+
+        url = url.substring(0, url.length - 1);
+      }
+
       return url;
     }
 
@@ -25,11 +35,13 @@ class CrmDashboardDatasourceImpl implements CrmDashboardDatasource {
       var networkResponse = await baseClient.getRequestWithAuthentication(
         pullDashboardUrl(queryParams: queryParams),
       );
+
       final rawData = networkResponse["data"] ?? networkResponse["Data"];
 
       if (rawData == null) {
         return {'data': null, 'totalNumberOfRecord': 0};
       }
+
       final CrmDashboardModel model = CrmDashboardModel.fromJson(rawData);
 
       return {

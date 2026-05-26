@@ -19,11 +19,13 @@ class CrmDashboardCubit extends Cubit<CrmDashboardState> {
   Future getCrmDashboardList(
     BuildContext context, {
     required String filterType,
+    required int projectId,
   }) async {
     emit(state.copyWith(isLoading: true));
 
     var result = await _crmDashboardRepository.getDashboardList(
       filterType: filterType,
+      projectId: projectId,
     );
 
     result.fold(
