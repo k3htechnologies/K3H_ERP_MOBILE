@@ -550,9 +550,36 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                         ],
                       ),
                       buildRowTitleValue(
-                        title: "CP Code",
+                        title: "CP Code  ",
                         value: channelPartner.systemGeneratedCode,
-                        singleLine: false,
+                        customValueWidget: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                channelPartner.systemGeneratedCode,
+                                style: AppTextStyle.ts14M(),
+                              ),
+                            ),
+                            horizontalSpacing(width: 2),
+                            InkWell(
+                              onTap: () {
+                                copy(
+                                  context: context,
+                                  text: channelPartner.systemGeneratedCode,
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Icon(
+                                  Icons.copy,
+                                  size: 16,
+                                  color: AppColor.primary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
 
                       buildRowTitleValue(

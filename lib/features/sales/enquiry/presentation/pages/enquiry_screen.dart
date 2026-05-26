@@ -881,19 +881,20 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                               ),
                             ),
                             horizontalSpacing(width: 2),
-                            CustomIconButton(
-                              onPressed: () async {
+                            InkWell(
+                              onTap: () {
                                 copy(
                                   context: context,
                                   text: enquiry.systemGeneratedCode,
                                 );
                               },
-                              backgroundColor: AppColor.white,
-
-                              icon: Icon(
-                                Icons.copy,
-                                size: 16,
-                                color: AppColor.primary,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Icon(
+                                  Icons.copy,
+                                  size: 16,
+                                  color: AppColor.primary,
+                                ),
                               ),
                             ),
                           ],
