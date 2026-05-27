@@ -936,12 +936,14 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                         value: enquiry.requirement,
                         singleLine: false,
                       ),
-                      if (enquiry.finalStage.isNotEmpty)
-                        buildRowTitleValue(
-                          title: "Stage",
-                          value: enquiry.finalStage,
-                          customValueWidget: statusWidget(enquiry.finalStage),
-                        ),
+                      buildRowTitleValue(
+                        title: "Stage",
+                        value: enquiry.finalStage,
+                        customValueWidget:
+                            enquiry.finalStage.isNotEmpty
+                                ? statusWidget(enquiry.finalStage)
+                                : null,
+                      ),
                     ],
                   ),
                 );

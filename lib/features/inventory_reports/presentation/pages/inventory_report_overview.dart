@@ -95,11 +95,11 @@ class _InventoryOverallReportOverviewState
           final reportList = state.reportDetailsList;
 
           if (state.isLoading ?? true && state.reportDetailsList.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: loader());
           }
 
           if (reportList.isEmpty) {
-            return const Center(child: Text("No Data Found"));
+            return Center(child: noDataWidget(message: "No Data Found"));
           }
 
           /// BUILDING TABS

@@ -366,12 +366,15 @@ import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/model/pa
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/cubit/payment_schedule_scheme_cubit.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/pages/add_payment_schedule_scheme_screen.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/pages/payment_schedule_scheme_screen.dart';
-import 'package:k3h_erp_app/features/sales/performance/data/model/performance_report_closing.model.dart';
-import 'package:k3h_erp_app/features/sales/performance/data/model/performance_report_sourcing.model.dart';
-import 'package:k3h_erp_app/features/sales/performance/presentation/cubit/performance_cubit.dart';
-import 'package:k3h_erp_app/features/sales/performance/presentation/pages/performance.screen.dart';
-import 'package:k3h_erp_app/features/sales/performance/presentation/pages/view_performance.screen.dart';
-import 'package:k3h_erp_app/features/sales/performance/presentation/pages/performance._without_access_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/project_achievement_report.model.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/cubit/achievement_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/pages/managers_achievement_report.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/performance/data/model/performance_report_closing.model.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/performance/data/model/performance_report_sourcing.model.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/performance/presentation/cubit/performance_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/performance/presentation/pages/performance.screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/performance/presentation/pages/view_performance.screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/performance/presentation/pages/performance._without_access_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/cubit/sales_dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/sales_dashboard_screen.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
@@ -400,6 +403,7 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 
 import '../features/sales/payment_schedule/data/model/payment_schedule.model.dart';
+import '../features/sales/sales_reports/achievement/presentation/pages/achievement_screen.dart';
 
 String? authenticateAndAuthorizeRoute(GoRouterState state) {
   // SPLASH || LOGIN
@@ -4166,8 +4170,11 @@ final GoRouter goRouter = GoRouter(
             // SALES REPORT
             ShellRoute(
               builder: (context, state, child) {
-                return BlocProvider(
-                  create: (_) => PerformanceCubit(),
+                return MultiBlocProvider(
+                  providers: [
+                    BlocProvider(create: (_) => PerformanceCubit()),
+                    BlocProvider(create: (_) => AchievementCubit()),
+                  ],
                   child: child,
                 );
               },
@@ -4212,6 +4219,41 @@ final GoRouter goRouter = GoRouter(
                     return ViewPerformanceScreen(
                       sourcing: sourcing,
                       closing: closing,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.achievementReport,
+                  path: AppRoutes.achievementReport,
+                  builder: (context, state) {
+                    return const AchievementScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.managerAchievementReport,
+                  path: AppRoutes.managerAchievementReport,
+                  builder: (context, state) {
+                    final type = state.uri.queryParameters['type'] ?? '';
+
+                    final projectParam =
+                        state.uri.queryParameters['projectAchievement'];
+
+                    ProjectAchievementReportModel? projectAchievement;
+
+                    if (projectParam != null && projectParam.isNotEmpty) {
+                      projectAchievement =
+                          ProjectAchievementReportModel.fromJson(
+                            jsonDecode(
+                              EncryptionManager.decryptData(
+                                Uri.decodeComponent(projectParam),
+                              ),
+                            ),
+                          );
+                    }
+
+                    return ManagerAchievementReport(
+                      type: type,
+                      projectAchievementReportModel: projectAchievement!,
                     );
                   },
                 ),

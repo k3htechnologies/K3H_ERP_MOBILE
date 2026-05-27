@@ -32,7 +32,7 @@ class InventoryReportCubit extends Cubit<InventoryReportState> {
     emit(state.copyWith(isLoading: true));
     final queryParams = {"ProjectName": state.searchText};
     final response = await inventoryReportRepository.getInventoryReport(
-      pageSize: 6,
+      pageSize: 10,
       pageNumber: pageNumber,
       queryParams: queryParams,
     );

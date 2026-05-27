@@ -15,6 +15,7 @@ class CustomDatePicker extends StatefulWidget {
   final DateTime? endDate;
   final bool readOnly;
   final FormFieldValidator<DateTime>? validator;
+  final bool removeBottomMargin;
 
   const CustomDatePicker({
     required this.setValue,
@@ -28,6 +29,7 @@ class CustomDatePicker extends StatefulWidget {
     this.endDate,
     this.readOnly = false,
     this.validator,
+    this.removeBottomMargin = false,
   });
 
   @override
@@ -198,6 +200,8 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                         ],
                       ),
                     )
+                    : widget.removeBottomMargin
+                    ? const SizedBox.shrink()
                     : const SizedBox(height: 18),
               ],
             );

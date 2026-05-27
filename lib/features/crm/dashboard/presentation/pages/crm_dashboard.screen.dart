@@ -1356,6 +1356,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(alerts.title, style: AppTextStyle.ts14M()),
+                        verticalSpacing(),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
