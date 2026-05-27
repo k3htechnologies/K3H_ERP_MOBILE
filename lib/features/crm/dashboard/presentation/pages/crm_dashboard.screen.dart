@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -13,6 +15,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CrmDashboardScreen extends StatefulWidget {
@@ -29,6 +32,13 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
   late TabController _tabController;
 
   late ProjectModel _selectedProject;
+
+  DateTime? fromDate;
+  DateTime? toDate;
+
+  final ValueNotifier<DateTime?> fromDateNotifier = ValueNotifier(null);
+  final ValueNotifier<DateTime?> toDateNotifier = ValueNotifier(null);
+
   @override
   void initState() {
     super.initState();
@@ -46,6 +56,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
   // HANDLE TAB CHANGE
   void _handleTabChange() {
     if (_tabController.indexIsChanging) return;
+
     String filterType = "TODAY";
 
     switch (_tabController.index) {
@@ -69,6 +80,12 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
         filterType = "OVERALL";
         break;
     }
+    if (filterType == "DATEWISE") {
+      _crmDashboardCubit.emit(
+        _crmDashboardCubit.state.copyWith(selectedFilterType: "DATEWISE"),
+      );
+      return;
+    }
 
     _crmDashboardCubit.getCrmDashboardList(
       context,
@@ -79,6 +96,14 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
 
   String selectedSummaryType = "Agreement";
   @override
+  void dispose() {
+    fromDateNotifier.dispose();
+    toDateNotifier.dispose();
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
@@ -88,7 +113,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
       ),
       body: BlocBuilder<CrmDashboardCubit, CrmDashboardState>(
         builder: (context, state) {
-          if (state.isLoading ?? false) {
+          if ((state.isLoading ?? false) && state.crmDashboardList.isEmpty) {
             return Center(child: loader());
           }
           return Column(
@@ -99,13 +124,82 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                 controller: _tabController,
                 tabs: ["Today", "Weekly", "Monthly", "Datewise", "Overall"],
               ),
-              verticalSpacing(),
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (state.selectedFilterType == "DATEWISE") ...[
+                        verticalSpacing(),
+
+                        ValueListenableBuilder<DateTime?>(
+                          valueListenable: fromDateNotifier,
+                          builder: (context, fromDate, _) {
+                            return ValueListenableBuilder<DateTime?>(
+                              valueListenable: toDateNotifier,
+                              builder: (context, toDate, _) {
+                                return Row(
+                                  children: [
+                                    Expanded(
+                                      child: CustomDatePicker(
+                                        hint: "Select From Date",
+                                        title: "From Date",
+                                        initialDate: fromDate,
+                                        setValue: (value) {
+                                          fromDateNotifier.value = value;
+                                          toDateNotifier.value = null;
+                                        },
+                                      ),
+                                    ),
+                                    horizontalSpacing(),
+                                    Expanded(
+                                      child: CustomDatePicker(
+                                        hint: "Select To Date",
+                                        title: "To Date",
+                                        initialDate: toDate,
+                                        startDate: fromDate,
+                                        endDate:
+                                            fromDate != null
+                                                ? DateTime(
+                                                  fromDate.year,
+                                                  fromDate.month + 1,
+                                                  fromDate.day,
+                                                )
+                                                : DateTime.now(),
+
+                                        setValue: (value) async {
+                                          toDateNotifier.value = value;
+
+                                          if (fromDateNotifier.value != null &&
+                                              toDateNotifier.value != null) {
+                                            await _crmDashboardCubit
+                                                .getCrmDashboardList(
+                                                  context,
+                                                  filterType: "DATEWISE",
+                                                  projectId:
+                                                      _selectedProject
+                                                          .projectId,
+
+                                                  fromDate:
+                                                      formatDateTimeForApi(
+                                                        fromDateNotifier.value!,
+                                                      ),
+                                                  toDate: formatDateTimeForApi(
+                                                    toDateNotifier.value!,
+                                                  ),
+                                                );
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
                       _projectWiseCollectionWidget(context, state),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
