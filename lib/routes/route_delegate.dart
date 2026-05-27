@@ -65,9 +65,9 @@ import 'package:k3h_erp_app/features/inventory/presentation/pages/add_unit_speci
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_dashboard.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/unit_distribution_status_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/unit_specification_view_screen.dart';
-import 'package:k3h_erp_app/features/inventory/reports/presentation/cubit/inventory_report_cubit.dart';
-import 'package:k3h_erp_app/features/inventory/reports/presentation/pages/inventory_overall_report.dart';
-import 'package:k3h_erp_app/features/inventory/reports/presentation/pages/inventory_report_overview.dart';
+import 'package:k3h_erp_app/features/inventory_reports/presentation/cubit/inventory_report_cubit.dart';
+import 'package:k3h_erp_app/features/inventory_reports/presentation/pages/inventory_overall_report.dart';
+import 'package:k3h_erp_app/features/inventory_reports/presentation/pages/inventory_report_overview.dart';
 import 'package:k3h_erp_app/features/legal/dashboard/presentation/cubit/litigation_dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/legal/dashboard/presentation/pages/litigation_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';

@@ -1,6 +1,6 @@
 import 'package:k3h_erp_app/core/base_state.dart';
-import 'package:k3h_erp_app/features/inventory/reports/data/model/inventory_parking_details.model.dart';
-import 'package:k3h_erp_app/features/inventory/reports/data/model/inventory_parking_overall_report.model.dart';
+import 'package:k3h_erp_app/features/inventory_reports/data/model/inventory_parking_details.model.dart';
+import 'package:k3h_erp_app/features/inventory_reports/data/model/inventory_parking_overall_report.model.dart';
 
 class InventoryReportState extends BaseState {
   final List<InventoryParkingDetailsModel> reportList;

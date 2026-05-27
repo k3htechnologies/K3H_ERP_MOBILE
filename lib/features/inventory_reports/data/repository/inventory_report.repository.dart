@@ -1,10 +1,15 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
-import 'package:k3h_erp_app/features/inventory/reports/data/datasource/inventory_report.datasource.dart';
+import 'package:k3h_erp_app/features/inventory_reports/data/datasource/inventory_report.datasource.dart';
 
 abstract interface class InventoryReportRepository {
   Future<Either<Failure, Map<String, dynamic>>> getInventoryReport({
+    required int pageSize,
+    required int pageNumber,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Either<Failure, Map<String, dynamic>>> getInventoryReportForExport({
     required int pageSize,
     required int pageNumber,
     Map<String, dynamic>? queryParams,
@@ -31,6 +36,25 @@ class InventoryReportRepositoryImpl implements InventoryReportRepository {
     try {
       var result = await inventoryReportDatasource
           .apicallPullProjectInventoryParkingDetails(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            queryParams: queryParams,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getInventoryReportForExport({
+    required int pageSize,
+    required int pageNumber,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await inventoryReportDatasource
+          .apicallPullProjectInventoryParkingDetailsForExport(
             pageNumber: pageNumber,
             pageSize: pageSize,
             queryParams: queryParams,

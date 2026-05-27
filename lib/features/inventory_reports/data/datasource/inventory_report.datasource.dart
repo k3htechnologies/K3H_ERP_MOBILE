@@ -1,5 +1,5 @@
-import 'package:k3h_erp_app/features/inventory/reports/data/model/inventory_parking_details.model.dart';
-import 'package:k3h_erp_app/features/inventory/reports/data/model/inventory_parking_overall_report.model.dart';
+import 'package:k3h_erp_app/features/inventory_reports/data/model/inventory_parking_details.model.dart';
+import 'package:k3h_erp_app/features/inventory_reports/data/model/inventory_parking_overall_report.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -10,6 +10,13 @@ abstract interface class InventoryReportDatasource {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>>
+  apicallPullProjectInventoryParkingDetailsForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+
   Future<Map<String, dynamic>> apicallPullInventoryParkingOverallReport({
     required int pageNumber,
     required int pageSize,
@@ -57,6 +64,45 @@ class InventoryReportDatasourceImpl implements InventoryReportDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         apicallPullProjectInventoryParkingDetails(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>>
+  apicallPullProjectInventoryParkingDetailsForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullInventoryUrl({
+      required int pageNumber,
+      required int pageSize,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "InventoryParkingOverallReport/PullProjectInventoryParkingDetails?PageNumber=$pageNumber&PageSize=$pageSize";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullInventoryUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: queryParams,
+        ),
+      );
+      return {'data': networkResponse["data"]};
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullProjectInventoryParkingDetailsForExport(
           pageNumber: pageNumber,
           pageSize: pageSize,
           queryParams: queryParams,

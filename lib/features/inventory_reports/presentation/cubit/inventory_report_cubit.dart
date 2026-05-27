@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/inventory/reports/data/model/inventory_parking_details.model.dart';
-import 'package:k3h_erp_app/features/inventory/reports/data/model/inventory_parking_overall_report.model.dart';
-import 'package:k3h_erp_app/features/inventory/reports/data/repository/inventory_report.repository.dart';
+import 'package:k3h_erp_app/features/inventory_reports/data/model/inventory_parking_details.model.dart';
+import 'package:k3h_erp_app/features/inventory_reports/data/model/inventory_parking_overall_report.model.dart';
+import 'package:k3h_erp_app/features/inventory_reports/data/repository/inventory_report.repository.dart';
 
-import 'package:k3h_erp_app/features/inventory/reports/presentation/cubit/inventory_report_state.dart';
+import 'package:k3h_erp_app/features/inventory_reports/presentation/cubit/inventory_report_state.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 class InventoryReportCubit extends Cubit<InventoryReportState> {
   InventoryReportCubit() : super(InventoryReportState.initial());
   final InventoryReportRepository inventoryReportRepository =
       serviceLocator<InventoryReportRepository>();
+
+  void resetState() {
+    emit(InventoryReportState.initial());
+  }
 
   void search(BuildContext context, String query) {
     emit(state.copyWith(searchText: query));
@@ -104,5 +110,35 @@ class InventoryReportCubit extends Cubit<InventoryReportState> {
   /// Clear State
   void clearReport() {
     emit(InventoryReportState.initial());
+  }
+
+  Future exportExcelPdf(BuildContext context, String exportType) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await inventoryReportRepository.getInventoryReportForExport(
+      pageNumber: 1,
+      pageSize: state.totalNumberOfRecord,
+      queryParams:
+          state.searchText != ""
+              ? {"ProjectName": state.searchText, "ExportType": exportType}
+              : {"ExportType": exportType},
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "Inventory and Parking Overall Report ${DateTime.now()}.pdf"
+              : "Inventory and Parking Overall Report ${DateTime.now()}.xlsx",
+        );
+      },
+    );
   }
 }
