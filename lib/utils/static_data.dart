@@ -389,3 +389,13 @@ List<Map<String, dynamic>> callStatus = [
   {"zAttributesId": 7, "DisplayName": "Disconnected"},
   {"zAttributesId": 8, "DisplayName": "Rescheduled"},
 ];
+
+// ACHIEVEMENT TABS
+final List<String> achievementTimelineTabs = [
+  'Today',
+  'Weekly',
+  'Monthly',
+  'Datewise',
+  'Overall',
+];
+final List<String> achievementTabs = ['Project', 'Closing', 'Sourcing'];

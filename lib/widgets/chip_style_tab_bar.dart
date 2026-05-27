@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 
@@ -24,7 +25,7 @@ class ChipStyleTabBar extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Container(
         margin: margin,
-        height: 50,
+        height: 50.h,
         child:
             isSecondaryStyle
                 ? TabBar(

@@ -505,7 +505,7 @@ class InventoryCubit extends Cubit<InventoryState> {
     emit(state.copyWith(isLoading: true));
     final result = await _inventoryRepository.getPaginatedFlats(
       pageNumber: pageNumber,
-      pageSize: 15,
+      pageSize: 10,
       projectId: projectId,
       queryParams: queryParams,
     );

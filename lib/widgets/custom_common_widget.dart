@@ -234,25 +234,32 @@ Widget approvalStatusWidget(String status) {
 
 Widget showSiteSelectedWidget() {
   String projectName = getProject().projectName;
-  return Container(
-    decoration: commonCardDecoration(),
-    padding: EdgeInsets.all(16),
-    margin: EdgeInsets.only(bottom: 10),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("Project : ", style: AppTextStyle.ts14M(color: AppColor.grey)),
-        Flexible(
-          child: Text(
-            projectName.isEmpty ? "No Project Selected" : projectName,
-            style:
-                projectName.isEmpty
-                    ? AppTextStyle.ts14R(color: AppColor.black)
-                    : AppTextStyle.ts14SB(color: AppColor.black),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Container(
+        decoration: commonCardDecoration(),
+        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 10),
+        child: RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: "Project : ",
+                style: AppTextStyle.ts14M(color: AppColor.grey),
+              ),
+              TextSpan(
+                text: projectName.isEmpty ? "No Project Selected" : projectName,
+                style:
+                    projectName.isEmpty
+                        ? AppTextStyle.ts14R(color: AppColor.black)
+                        : AppTextStyle.ts14SB(color: AppColor.black),
+              ),
+            ],
           ),
         ),
-      ],
-    ),
+      ),
+    ],
   );
 }
 

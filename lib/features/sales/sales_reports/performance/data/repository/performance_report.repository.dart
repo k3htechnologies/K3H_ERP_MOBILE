@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
-import 'package:k3h_erp_app/features/sales/performance/data/datasource/performance_report.datatsource.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/performance/data/datasource/performance_report.datatsource.dart';
 
 abstract interface class PerformanceReportRepository {
   Future<Either<Failure, Map<String, dynamic>>> getPerformanceSourcingReport({
