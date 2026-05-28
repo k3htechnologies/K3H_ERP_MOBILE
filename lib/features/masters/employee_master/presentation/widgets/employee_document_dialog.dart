@@ -12,8 +12,8 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class EmployeeDocumentDialog extends StatefulWidget {
   final List<String> urls;
@@ -244,24 +244,30 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
         fileData = widget.fileBytes![index];
       }
 
-      // IF NETWORK FILE (DOWNLOAD BYTES)
+      // DOWNLOAD FROM NETWORK
       if (url.startsWith("http")) {
         final response = await HttpClient().getUrl(Uri.parse(url));
         final httpResponse = await response.close();
+
         fileData = await consolidateHttpClientResponseBytes(httpResponse);
       }
 
       if (fileData == null) return;
 
-      final directory = await getApplicationDocumentsDirectory();
+      final directory = await getTemporaryDirectory();
+
       final fileName = getFileName(url);
+
       final filePath = "${directory.path}/$fileName";
 
       final file = File(filePath);
+
       await file.writeAsBytes(fileData);
 
-      // OPEN FILE
-      await OpenFilex.open(filePath);
+      // SHARE / SAVE / OPEN OPTIONS
+      await SharePlus.instance.share(
+        ShareParams(files: [XFile(filePath)], text: fileName),
+      );
     } catch (e) {
       debugPrint("Download error: $e");
 
@@ -477,7 +483,6 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
       ],
     );
   }
-
 
   // ───────────────── ARROW BUTTON ─────────────────
   Widget _arrowButton({
