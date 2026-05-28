@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 
 class CustomFromToDatePicker extends StatefulWidget {
@@ -8,7 +7,6 @@ class CustomFromToDatePicker extends StatefulWidget {
   final bool isRequired;
   final bool removeBottomMargin;
 
-  /// Callback only when To Date changes
   final Function(DateTime? fromDate, DateTime? toDate) onToDateChanged;
 
   const CustomFromToDatePicker({
@@ -67,6 +65,7 @@ class _CustomFromToDatePickerState extends State<CustomFromToDatePicker> {
             initialDate: toDate,
             isRequired: widget.isRequired,
             startDate: fromDate,
+            readOnly: fromDate == null,
             removeBottomMargin: widget.removeBottomMargin,
             setValue: (value) {
               setState(() {

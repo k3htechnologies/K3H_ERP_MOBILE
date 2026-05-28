@@ -17,6 +17,8 @@ class AchievementCubit extends Cubit<AchievementState> {
     emit(
       state.copyWith(
         searchText: '',
+        currentSortColumn: '',
+        currentSortDirection: '',
         projectAchievementReportList: [],
         closingAchievementReportList: [],
         sourcingAchievementReportList: [],
@@ -80,6 +82,7 @@ class AchievementCubit extends Cubit<AchievementState> {
       'ProjectName': state.searchText.trim(),
       'FromDate': fromDate?.toIso8601String(),
       'ToDate': toDate?.toIso8601String(),
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     var result = await _achievementRepository.getProjectAchievementReport(
       pageNumber: pageNumber,
@@ -126,6 +129,7 @@ class AchievementCubit extends Cubit<AchievementState> {
       'EmployeeName': state.searchText.trim(),
       'FromDate': fromDate?.toIso8601String(),
       'ToDate': toDate?.toIso8601String(),
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     var result = await _achievementRepository.getClosingAchievementReport(
       pageNumber: pageNumber,
@@ -172,6 +176,7 @@ class AchievementCubit extends Cubit<AchievementState> {
       'EmployeeName': state.searchText.trim(),
       'FromDate': fromDate?.toIso8601String(),
       'ToDate': toDate?.toIso8601String(),
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     var result = await _achievementRepository.getSourcingAchievementReport(
       pageNumber: pageNumber,
@@ -210,7 +215,8 @@ class AchievementCubit extends Cubit<AchievementState> {
     emit(
       state.copyWith(
         managerSearchText: '',
-
+        managerCurrentSortColumn: '',
+        managerCurrentSortDirection: '',
         managerClosingAchievementReportList: [],
         managerSourcingAchievementReportList: [],
 
@@ -263,7 +269,7 @@ class AchievementCubit extends Cubit<AchievementState> {
   Future<void> getManagerClosingAchievementReport({
     required BuildContext context,
     required int pageNumber,
-    String? filterType,
+    required String filterType,
     DateTime? fromDate,
     DateTime? toDate,
     int? projectId,
@@ -275,12 +281,14 @@ class AchievementCubit extends Cubit<AchievementState> {
       'FromDate': fromDate?.toIso8601String(),
       'ToDate': toDate?.toIso8601String(),
       'ProjectId': projectId,
+      'SortBy':
+          "${state.managerCurrentSortColumn} ${state.managerCurrentSortDirection}",
     };
 
     var result = await _achievementRepository.getClosingAchievementReport(
       pageNumber: pageNumber,
       pageSize: 10,
-      filterType: filterType ?? '',
+      filterType: filterType,
       queryParams: queryParams,
     );
 
@@ -317,7 +325,7 @@ class AchievementCubit extends Cubit<AchievementState> {
   Future<void> getManagerSourcingAchievementReport({
     required BuildContext context,
     required int pageNumber,
-    String? filterType,
+    required String filterType,
     DateTime? fromDate,
     DateTime? toDate,
     int? projectId,
@@ -329,12 +337,14 @@ class AchievementCubit extends Cubit<AchievementState> {
       'FromDate': fromDate?.toIso8601String(),
       'ToDate': toDate?.toIso8601String(),
       'ProjectId': projectId,
+      'SortBy':
+          "${state.managerCurrentSortColumn} ${state.managerCurrentSortDirection}",
     };
 
     var result = await _achievementRepository.getSourcingAchievementReport(
       pageNumber: pageNumber,
       pageSize: 10,
-      filterType: filterType ?? '',
+      filterType: filterType,
       queryParams: queryParams,
     );
 
@@ -366,5 +376,92 @@ class AchievementCubit extends Cubit<AchievementState> {
         );
       },
     );
+  }
+
+  Future applyAchievementFilterAndSort({
+    required BuildContext context,
+    String? sortColumn,
+    String? sortDirection,
+    required int activeSecondaryTabIndex,
+  }) async {
+    emit(
+      state.copyWith(
+        currentSortColumn: sortColumn ?? '',
+        currentSortDirection: sortDirection ?? '',
+        currentProjectAchievementReportPageNumber: 1,
+        currentClosingAchievementReportPageNumber: 1,
+        currentSourcingAchievementReportPageNumber: 1,
+      ),
+    );
+
+    switch (activeSecondaryTabIndex) {
+      case 0:
+        await getProjectAchievementReport(
+          context: context,
+          pageNumber: 1,
+          filterType: '',
+        );
+        break;
+
+      case 1:
+        await getClosingAchievementReport(
+          context: context,
+          pageNumber: 1,
+          filterType: '',
+        );
+        break;
+
+      case 2:
+        await getSourcingAchievementReport(
+          context: context,
+          pageNumber: 1,
+          filterType: '',
+        );
+        break;
+    }
+  }
+
+  Future applyManagerAchievementFilterAndSort({
+    required BuildContext context,
+    String? sortColumn,
+    String? sortDirection,
+    required int activeSecondaryTabIndex,
+    required int projectId,
+    required DateTime? fromDate,
+    required DateTime? toDate,
+    required String filterType,
+  }) async {
+    emit(
+      state.copyWith(
+        managerCurrentSortColumn: sortColumn ?? '',
+        managerCurrentSortDirection: sortDirection ?? '',
+        managerClosingAchievementReportPageNumber: 1,
+        managerSourcingAchievementReportPageNumber: 1,
+      ),
+    );
+
+    switch (activeSecondaryTabIndex) {
+      case 0:
+        await getManagerClosingAchievementReport(
+          context: context,
+          pageNumber: 1,
+          projectId: projectId,
+          fromDate: fromDate,
+          toDate: toDate,
+          filterType: filterType,
+        );
+        break;
+
+      case 1:
+        await getManagerSourcingAchievementReport(
+          context: context,
+          pageNumber: 1,
+          projectId: projectId,
+          fromDate: fromDate,
+          toDate: toDate,
+          filterType: filterType,
+        );
+        break;
+    }
   }
 }
