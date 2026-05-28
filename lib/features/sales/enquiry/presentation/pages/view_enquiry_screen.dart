@@ -251,7 +251,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                     style: AppTextStyle.ts16SB(color: AppColor.primary),
                   ),
                   if (enquiry.finalStage.isNotEmpty)
-                    statusWidget(enquiry.finalStage),
+                    enquiryStatusWidget(enquiry.finalStage),
                 ],
               ),
 
@@ -1195,7 +1195,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                                 ],
                                               ),
                                               verticalSpacing(),
-                                              statusWidget(item.status),
+                                              enquiryStatusWidget(item.status),
                                               if (item
                                                   .lostReason
                                                   .isNotEmpty) ...[
@@ -1247,60 +1247,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       padding: const EdgeInsets.only(top: 8, bottom: 8),
       child: Text(title, style: AppTextStyle.ts14SB(color: AppColor.black)),
     );
-  }
-
-  // ── STATUS HELPER WIDGETS ───────────────────────────────────────────
-  Widget statusWidget(String status) {
-    final trimmed = status.trim();
-
-    if (trimmed.isEmpty) {
-      return statusChip("-", AppColor.lightGreyBackground, AppColor.black);
-    }
-
-    final s = trimmed.toLowerCase();
-
-    switch (s) {
-      case 'booking done':
-        return statusChip(status, AppColor.lightGreen, AppColor.green);
-
-      case 'blocked':
-        return statusChip(status, AppColor.purple20, AppColor.purple);
-
-      case 'cancelled':
-        return statusChip(status, AppColor.black10, AppColor.darkGrey);
-
-      case 'negotiation':
-        return statusChip(status, AppColor.lightYellow, AppColor.brown);
-
-      case 'lost':
-        return statusChip(status, AppColor.lightRed, AppColor.red);
-
-      case 'retention':
-        return statusChip(status, AppColor.lightBlue2, AppColor.info);
-
-      case 're - visit scheduled':
-        return statusChip(status, AppColor.lightGreen, AppColor.darkGreen);
-
-      case 're - visit proposed':
-        return statusChip(status, AppColor.lightOrangenBg, AppColor.orange);
-
-      case 'site visit':
-        return statusChip(
-          status,
-          AppColor.lightRed,
-          AppColor.priorityHighColor,
-        );
-
-      case 'unit selection / blocked':
-        return statusChip(
-          status,
-          AppColor.lightRed,
-          AppColor.priorityHighColor,
-        );
-
-      default:
-        return statusChip(status, AppColor.lightGreyBackground, AppColor.black);
-    }
   }
 
   // ADD UPDATE ENQUIRY FOLLOW UP BOTTOM SHEET

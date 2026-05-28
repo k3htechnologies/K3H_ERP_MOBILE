@@ -103,7 +103,13 @@ Widget buildColumnTitleValueNormal({
 }
 
 // STATUS CHIP
-Widget statusChip(String text, Color bg, Color txt, {bool expand = false}) {
+Widget statusChip(
+  String text,
+  Color bg,
+  Color txt, {
+  bool expand = false,
+  TextStyle? textStyle,
+}) {
   final chip = Container(
     padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
     decoration: BoxDecoration(
@@ -113,7 +119,7 @@ Widget statusChip(String text, Color bg, Color txt, {bool expand = false}) {
     child: Text(
       text,
       textAlign: TextAlign.center,
-      style: AppTextStyle.ts10M(color: txt),
+      style: textStyle ?? AppTextStyle.ts10M(color: txt),
     ),
   );
 
@@ -327,4 +333,127 @@ Widget infoCard(
       ],
     ),
   );
+}
+
+// ENQUIRY STATUS WIDGET
+Widget enquiryStatusWidget(String status, {TextStyle? textStyle}) {
+  final trimmed = status.trim();
+
+  // IF STATUS IS EMPTY THEN SHOW DASH WITH DEFAULT STYLE
+  final defaultStyle = AppTextStyle.ts12M();
+
+  // SHOW DASH IF STATUS IS EMPTY
+  if (trimmed.isEmpty) {
+    return statusChip(
+      "-",
+      AppColor.lightGreyBackground,
+      AppColor.black,
+      textStyle: textStyle ?? defaultStyle,
+    );
+  }
+
+  final s = trimmed.toLowerCase();
+
+  switch (s) {
+    case 'booking done':
+      return statusChip(
+        status,
+        const Color(0xFF51E551).withValues(alpha: 0.29),
+        const Color(0xFF48C848),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFF48C848),
+        ),
+      );
+
+    case 'blocked':
+      return statusChip(
+        status,
+        const Color(0xFFCC00FF).withValues(alpha: 0.29),
+        const Color(0xFF561F64),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFF561F64),
+        ),
+      );
+
+    case 'cancelled':
+      return statusChip(
+        status,
+        const Color(0xFF1D1D1D).withValues(alpha: 0.15),
+        const Color(0xFF333333),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFF333333),
+        ),
+      );
+
+    case 'negotiation':
+      return statusChip(
+        status,
+        const Color(0xFFFBFF00).withValues(alpha: 0.15),
+        const Color(0xFF7B6B28),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFF7B6B28),
+        ),
+      );
+
+    case 'lost':
+      return statusChip(
+        status,
+        const Color(0xFFFF0037).withValues(alpha: 0.15),
+        const Color(0xFFFF0037),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFFFF0037),
+        ),
+      );
+
+    case 'retention':
+      return statusChip(
+        status,
+        const Color(0xFF1AA0DB).withValues(alpha: 0.15),
+        const Color(0xFF1AA0DB),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFF1AA0DB),
+        ),
+      );
+
+    case 're-visit scheduled':
+    case 're - visit scheduled':
+      return statusChip(
+        status,
+        const Color(0xFFD1FAE5),
+        const Color(0xFF065F46),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFF065F46),
+        ),
+      );
+
+    case 're-visit proposed':
+    case 're - visit proposed':
+      return statusChip(
+        status,
+        const Color(0xFFFFA500).withValues(alpha: 0.29),
+        const Color(0xFFFF6600),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFFFF6600),
+        ),
+      );
+
+    case 'site visit':
+    case 'unit selection / blocked':
+      return statusChip(
+        status,
+        const Color(0xFFFECACA),
+        const Color(0xFF7F1D1D),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFF7F1D1D),
+        ),
+      );
+
+    default:
+      return statusChip(
+        status,
+        AppColor.lightGreyBackground,
+        AppColor.black,
+        textStyle: textStyle ?? defaultStyle,
+      );
+  }
 }

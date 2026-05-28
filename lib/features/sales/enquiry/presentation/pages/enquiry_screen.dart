@@ -941,7 +941,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                         value: enquiry.finalStage,
                         customValueWidget:
                             enquiry.finalStage.isNotEmpty
-                                ? statusWidget(enquiry.finalStage)
+                                ? enquiryStatusWidget(enquiry.finalStage)
                                 : null,
                       ),
                     ],
@@ -955,62 +955,4 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     );
   }
 
-  // Helper Widget
-  Widget statusWidget(String status) {
-    final trimmed = status.trim();
-
-    // If empty → show dash
-    if (trimmed.isEmpty) {
-      return statusChip("-", AppColor.lightGreyBackground, AppColor.black);
-    }
-
-    final s = trimmed.toLowerCase();
-
-    switch (s) {
-      case 'booking done':
-        return statusChip(
-          status,
-          AppColor.green20.withValues(alpha: 0.1),
-          AppColor.green,
-        );
-
-      case 'blocked':
-        return statusChip(status, AppColor.purple20, AppColor.purple);
-
-      case 'cancelled':
-        return statusChip(status, AppColor.black10, AppColor.darkGrey);
-
-      case 'negotiation':
-        return statusChip(status, AppColor.lightYellow, AppColor.brown);
-
-      case 'lost':
-        return statusChip(status, AppColor.lightRed, AppColor.red);
-
-      case 'retention':
-        return statusChip(status, AppColor.lightBlue2, AppColor.info);
-
-      case 're - visit scheduled':
-        return statusChip(status, AppColor.lightGreenBg, AppColor.darkGreen);
-
-      case 're - visit proposed':
-        return statusChip(status, AppColor.lightOrangenBg, AppColor.orange);
-
-      case 'site visit':
-        return statusChip(
-          status,
-          AppColor.lightRed,
-          AppColor.priorityHighColor,
-        );
-
-      case 'unit selection / blocked':
-        return statusChip(
-          status,
-          AppColor.lightRed,
-          AppColor.priorityHighColor,
-        );
-
-      default:
-        return statusChip(status, AppColor.lightGreyBackground, AppColor.black);
-    }
-  }
 }
