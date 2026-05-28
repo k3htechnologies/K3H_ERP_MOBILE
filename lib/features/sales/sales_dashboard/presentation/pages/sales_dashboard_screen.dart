@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
@@ -24,6 +25,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class SalesDashboardScreen extends StatefulWidget {
@@ -112,75 +114,6 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
         projectId: item.projectId,
       );
     }
-  }
-
-  List<StatusColor> _getActiveFollowUpData() {
-    return [
-      StatusColor(
-        bg: AppColor.green,
-        text: "Booking Done",
-        textColor: AppColor.green,
-      ),
-      StatusColor(
-        bg: Color(0xff7B6B28),
-        text: "Blocked",
-        textColor: Color(0xff7B6B28),
-      ),
-      StatusColor(
-        bg: Color(0xff333333),
-        text: "Cancelled",
-        textColor: Color(0xff333333),
-      ),
-      StatusColor(
-        bg: Color(0xff7B6B28),
-        text: "Negotiation",
-        textColor: Color(0xff7B6B28),
-      ),
-      StatusColor(
-        bg: Color(0xffFF0037),
-        text: "Lost",
-        textColor: Color(0xffFF0037),
-      ),
-      StatusColor(
-        bg: Color(0xff1AA0DB),
-        text: "Retention",
-        textColor: Color(0xff1AA0DB),
-      ),
-      StatusColor(
-        bg: Color(0xff065F46),
-        text: "Re-Visit Scheduled",
-        textColor: Color(0xff065F46),
-      ),
-      StatusColor(
-        bg: Color(0xffFFF2E9),
-        text: "Re-Visit Proposed",
-        textColor: Color(0xffFF6600),
-      ),
-      StatusColor(
-        bg: Color(0xff7F1D1D).withValues(alpha: 0.3),
-        text: "Site Visit",
-        textColor: Color(0xff7F1D1D),
-      ),
-      StatusColor(
-        bg: AppColor.darkBackground,
-        text: "Unit Selection / Blocked",
-        textColor: AppColor.black,
-      ),
-    ];
-  }
-
-  StatusColor getStatusColor(String status) {
-    final list = _getActiveFollowUpData();
-
-    return list.firstWhere(
-      (e) => e.text.toLowerCase() == status.toLowerCase(),
-      orElse:
-          () => StatusColor(
-            bg: AppColor.lightGreyBackground,
-            text: status,
-            textColor: AppColor.black,
-          ),
-    );
   }
 
   @override
@@ -302,122 +235,131 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
               ),
               verticalSpacing(height: 10.0),
               if (data.isNotEmpty) ...[
-                Column(
-                  children:
-                      List.generate(data.length, (index) {
-                        final item = data[index];
-                        final isLast = index == data.length - 1;
-                        return Container(
-                          margin:
-                              !isLast
-                                  ? EdgeInsets.only(bottom: 12)
-                                  : EdgeInsets.zero,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12.0,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: AppColor.lightGreyBackground,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: _infoColumn(
-                                      "Project Name",
-                                      item.projectName,
-                                    ),
-                                  ),
-                                  horizontalSpacing(),
-                                  Expanded(
-                                    child: _infoColumn(
-                                      "Client Name",
-                                      item.name,
-                                    ),
-                                  ),
-                                ],
+                SizedBox(
+                  height: data.length > 3 ? 0.4.sh : null,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children:
+                          List.generate(data.length, (index) {
+                            final item = data[index];
+                            final isLast = index == data.length - 1;
+                            return Container(
+                              margin:
+                                  !isLast
+                                      ? EdgeInsets.only(bottom: 12)
+                                      : EdgeInsets.zero,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12.0,
                               ),
-                              verticalSpacing(),
-                              Row(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: AppColor.lightGreyBackground,
+                              ),
+                              child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Expanded(
-                                    child: _infoColumn(
-                                      "Date",
-                                      formatDateTimeAsDDMMMYYYY(
-                                        item.enquiryDate,
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: _infoColumn(
+                                          "Project Name",
+                                          item.projectName,
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                  horizontalSpacing(),
-                                  Expanded(
-                                    child: _infoColumn(
-                                      "Mobile Number",
-                                      item.mobileNumber,
-                                      customWidget: CustomClickToContactText(
-                                        value:
-                                            "${item.mobileNumberCountryCode} ${item.mobileNumber}",
+                                      horizontalSpacing(),
+                                      Expanded(
+                                        child: _infoColumn(
+                                          "Client Name",
+                                          item.name,
+                                        ),
                                       ),
-                                    ),
+                                    ],
+                                  ),
+                                  verticalSpacing(),
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: _infoColumn(
+                                          "Date",
+                                          formatDateTimeAsDDMMMYYYY(
+                                            item.enquiryDate,
+                                          ),
+                                        ),
+                                      ),
+                                      horizontalSpacing(),
+                                      Expanded(
+                                        child: _infoColumn(
+                                          "Mobile Number",
+                                          item.mobileNumber,
+                                          customWidget: CustomClickToContactText(
+                                            value:
+                                                "${item.mobileNumberCountryCode} ${item.mobileNumber}",
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  verticalSpacing(),
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: _infoColumn(
+                                          "Customer Time In",
+                                          item.enquiryTimeIn,
+                                        ),
+                                      ),
+                                      horizontalSpacing(),
+                                      Expanded(
+                                        child: _infoColumn(
+                                          "Sales Advisor",
+                                          item.salesAdvisor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  verticalSpacing(),
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: _infoColumn(
+                                          "Sourcing Manager",
+                                          item.sourcingManager.isEmpty
+                                              ? "-"
+                                              : item.sourcingManager,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  verticalSpacing(),
+                                  CustomButton(
+                                    text: "Time Out",
+                                    onPressed: () {
+                                      _showMarkAsTimeOutPopup(context, item);
+                                    },
                                   ),
                                 ],
                               ),
-                              verticalSpacing(),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: _infoColumn(
-                                      "Customer Time In",
-                                      item.enquiryTimeIn,
-                                    ),
-                                  ),
-                                  horizontalSpacing(),
-                                  Expanded(
-                                    child: _infoColumn(
-                                      "Sales Advisor",
-                                      item.salesAdvisor,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              verticalSpacing(),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: _infoColumn(
-                                      "Sourcing Manager",
-                                      item.sourcingManager.isEmpty
-                                          ? "-"
-                                          : item.sourcingManager,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              verticalSpacing(),
-                              CustomButton(
-                                text: "Time Out",
-                                onPressed: () {
-                                  _showMarkAsTimeOutPopup(context, item);
-                                },
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
+                            );
+                          }).toList(),
+                    ),
+                  ),
                 ),
               ] else ...[
                 Center(
@@ -484,7 +426,6 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                             : NeverScrollableScrollPhysics(),
                     separatorBuilder: (context, index) => SizedBox(height: 12),
                     itemBuilder: (context, int index) {
-                      var activeData = getStatusColor(data[index].finalStage);
                       final activeFollowUps = data[index];
                       final bool isLast = index == data.length - 1;
                       return Container(
@@ -514,6 +455,39 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                                   child: _infoColumn(
                                     "Enquiry Code",
                                     activeFollowUps.systemGeneratedCode,
+                                    customWidget: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            activeFollowUps.systemGeneratedCode,
+                                            style: AppTextStyle.ts14M(),
+                                          ),
+                                        ),
+                                        horizontalSpacing(width: 2),
+                                        InkWell(
+                                          onTap: () {
+                                            copy(
+                                              context: context,
+                                              text:
+                                                  activeFollowUps
+                                                      .systemGeneratedCode,
+                                            );
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: 2,
+                                            ),
+                                            child: Icon(
+                                              Icons.copy,
+                                              size: 16,
+                                              color: AppColor.primary,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
@@ -632,28 +606,15 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                                 ),
                                 horizontalSpacing(width: 20),
                                 Expanded(
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 10.0,
-                                      vertical: 4.0,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(6.0),
-                                      color: activeData.bg.withValues(
-                                        alpha: 0.1,
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        activeData.text.isEmpty
-                                            ? '-'
-                                            : activeData.text,
-                                        style: AppTextStyle.ts14M(
-                                          color: activeData.textColor,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                                  child:
+                                      activeFollowUps.finalStage.isEmpty
+                                          ? Text(
+                                            "-",
+                                            style: AppTextStyle.ts12M(),
+                                          )
+                                          : enquiryStatusWidget(
+                                            activeFollowUps.finalStage,
+                                          ),
                                 ),
                                 !isLast ? SizedBox.shrink() : SizedBox.shrink(),
                               ],
@@ -1344,16 +1305,4 @@ class SourceProgressBar extends StatelessWidget {
       ),
     );
   }
-}
-
-class StatusColor {
-  final Color bg;
-  final String text;
-  final Color textColor;
-
-  const StatusColor({
-    required this.bg,
-    required this.text,
-    required this.textColor,
-  });
 }

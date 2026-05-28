@@ -494,7 +494,7 @@ class InventoryCubit extends Cubit<InventoryState> {
   }
 
   void updateStatusFilter(String? status) {
-    emit(state.copyWith(selectedStatusFilter: status));
+    emit(state.copyWith(selectedFlatStatus: status));
   }
 
   Future<void> fetchUnitsByProjectId(

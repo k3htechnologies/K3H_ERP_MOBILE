@@ -23,6 +23,8 @@ class EmployeeDocumentDialog extends StatefulWidget {
 
   final Function(List<PlatformFile>) addDocument;
 
+  final Function(String url)? deleteDocument;
+
   final bool isFreshAdd;
 
   const EmployeeDocumentDialog({
@@ -31,6 +33,7 @@ class EmployeeDocumentDialog extends StatefulWidget {
     this.fileBytes,
     this.title = "Document",
     required this.addDocument,
+    this.deleteDocument,
     this.isFreshAdd = false,
   });
 
@@ -392,6 +395,27 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
                     },
                     icon: Icon(Icons.add, size: 16, color: AppColor.primary),
                   ),
+                  if (widget.deleteDocument != null) ...[
+                    horizontalSpacing(),
+                    // DELETE
+                    CustomIconButton(
+                      onPressed: () async {
+                        await widget.deleteDocument!(
+                          widget.urls[_currentIndex.value],
+                        );
+                        if (context.mounted) Navigator.pop(context);
+                      },
+                      icon: SvgPicture.asset(
+                        AppAssets.deleteIcon2,
+                        height: 16,
+                        colorFilter: ColorFilter.mode(
+                          AppColor.error,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                      backgroundColor: AppColor.lightRed,
+                    ),
+                  ],
                 ],
               ],
             ),

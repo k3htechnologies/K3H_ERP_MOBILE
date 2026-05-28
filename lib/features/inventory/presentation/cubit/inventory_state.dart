@@ -10,7 +10,7 @@ class InventoryState extends BaseState {
   final List<BuildingModel> originalBuildingList;
   final int wingCurrentPage;
   final String? wingCurrentPageKey;
-  final String? selectedStatusFilter;
+  final String? selectedFlatStatus;
   final List<FlatModel> flatList;
   final int currentUnitPage;
   final int unitTotalRecords;
@@ -26,7 +26,7 @@ class InventoryState extends BaseState {
     required this.originalBuildingList,
     this.wingCurrentPageKey,
     this.wingCurrentPage = 0,
-    this.selectedStatusFilter = 'total',
+    this.selectedFlatStatus = 'total',
     this.flatList = const [],
     this.currentUnitPage = 0,
     this.unitTotalRecords = 0,
@@ -60,7 +60,7 @@ class InventoryState extends BaseState {
     Map<String, Map<String, int>>? wingCounts,
     String? wingCurrentPageKey,
     int? wingCurrentPage,
-    String? selectedStatusFilter,
+    String? selectedFlatStatus,
     List<FlatModel>? flatList,
     int? currentUnitPage,
     int? unitTotalRecords,
@@ -78,7 +78,7 @@ class InventoryState extends BaseState {
       originalBuildingList: originalBuildingList ?? this.originalBuildingList,
       wingCurrentPageKey: wingCurrentPageKey ?? this.wingCurrentPageKey,
       wingCurrentPage: wingCurrentPage ?? this.wingCurrentPage,
-      selectedStatusFilter: selectedStatusFilter ?? this.selectedStatusFilter,
+      selectedFlatStatus: selectedFlatStatus ?? this.selectedFlatStatus,
       flatList: flatList ?? this.flatList,
       currentUnitPage: currentUnitPage ?? this.currentUnitPage,
       unitTotalRecords: unitTotalRecords ?? this.unitTotalRecords,
@@ -97,7 +97,7 @@ class InventoryState extends BaseState {
     wingCurrentPageKey,
     wingCurrentPage,
     wingCurrentPageKey,
-    selectedStatusFilter,
+    selectedFlatStatus,
     flatList,
     currentUnitPage,
     unitTotalRecords,
