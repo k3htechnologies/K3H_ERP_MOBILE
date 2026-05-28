@@ -631,7 +631,7 @@ class _ManagerAchievementReportState extends State<ManagerAchievementReport> {
         _achievementCubit.managerSearch(
           context: context,
           searchText: value,
-          activeSecondaryTabIndex:
+          reportTabIndex:
               widget.type.toLowerCase() == "closing"
                   ? 0
                   : widget.type.toLowerCase() == "sourcing"

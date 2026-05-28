@@ -219,10 +219,8 @@ class AchievementCubit extends Cubit<AchievementState> {
         managerCurrentSortDirection: '',
         managerClosingAchievementReportList: [],
         managerSourcingAchievementReportList: [],
-
         managerClosingAchievementTotalNumberOfRecord: 0,
         managerSourcingAchievementTotalNumberOfRecord: 0,
-
         managerClosingAchievementReportPageNumber: 1,
         managerSourcingAchievementReportPageNumber: 1,
       ),
@@ -232,14 +230,14 @@ class AchievementCubit extends Cubit<AchievementState> {
   void managerSearch({
     required BuildContext context,
     required String searchText,
-    required int activeSecondaryTabIndex,
+    required int reportTabIndex,
     DateTime? fromDate,
     DateTime? toDate,
     int? projectId,
   }) {
     emit(state.copyWith(managerSearchText: searchText));
 
-    switch (activeSecondaryTabIndex) {
+    switch (reportTabIndex) {
       case 0:
         getManagerClosingAchievementReport(
           context: context,
@@ -309,12 +307,9 @@ class AchievementCubit extends Cubit<AchievementState> {
         emit(
           state.copyWith(
             managerClosingAchievementReportList: updatedList,
-
             managerClosingAchievementTotalNumberOfRecord:
                 response['totalNumberOfRecord'],
-
             managerClosingAchievementReportPageNumber: pageNumber,
-
             isLoading: false,
           ),
         );
