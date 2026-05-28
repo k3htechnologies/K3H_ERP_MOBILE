@@ -437,8 +437,6 @@ class _AchievementScreenState extends State<AchievementScreen>
                     _fromDateNotifier.value = fromDate;
                     _toDateNotifier.value = toDate;
                     _secondaryTabListener(isIndexChangeCheck: false);
-                    debugPrint("From Date: $fromDate");
-                    debugPrint("To Date: $toDate");
                   },
                 ),
               );
