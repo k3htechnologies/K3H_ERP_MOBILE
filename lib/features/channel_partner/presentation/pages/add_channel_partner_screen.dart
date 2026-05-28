@@ -579,7 +579,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         selectedCityId: selectedCityVN.value!["zAttributesId"],
         selectedVillageId: selectedVillageVN.value!["zAttributesId"],
         reraNumber: _reraNumberC.text.trim(),
-        companyName: companyName,
+        companyName: _companyNameC.text.trim(),
         firmsType: firmsTypeValue,
         type: selectedType.value?["DisplayName"] ?? "",
         designation: selectedDesignation.value?["DisplayName"] ?? "",

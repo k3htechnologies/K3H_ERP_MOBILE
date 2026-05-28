@@ -270,6 +270,8 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
 
       //  MIME TYPE
       final mimeType = lookupMimeType(filePath);
+      debugPrint("Mime : $mimeType");
+      debugPrint("file : $file");
 
       // SHARE / SAVE / OPEN
       await SharePlus.instance.share(

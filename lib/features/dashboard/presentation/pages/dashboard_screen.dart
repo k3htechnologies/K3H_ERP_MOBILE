@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -41,7 +42,8 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends State<DashboardScreen>
+    with TickerProviderStateMixin {
   // CUBIT
   late DashboardCubit _dashboardCubit;
 
@@ -67,6 +69,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   final ValueNotifier<bool> isDayCompletedNotifier = ValueNotifier(false);
   Timer? _routeTimer;
+  late AnimationController _swipeController;
+  late Animation<double> _swipeAnimation;
+
+  double dragPosition = 0.0;
+
+  bool isAnimating = false;
+  final ValueNotifier<bool> isSwipeDisabledNotifier = ValueNotifier(false);
   @override
   void initState() {
     super.initState();
@@ -81,6 +90,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _routeTimer = Timer.periodic(const Duration(seconds: 5), (_) {
       loadSavedRoute();
     });
+    _swipeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
   }
 
   Future<void> initialise() async {
@@ -99,6 +112,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     workedDuration.dispose();
     _timer?.cancel();
     _routeTimer?.cancel();
+    _swipeController.dispose();
+    isSwipeDisabledNotifier.dispose();
     super.dispose();
   }
 
@@ -198,60 +213,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   LatLng? startLatLng;
   LatLng? lastPoint;
   double totalDistance = 0.0;
-  // Future<void> punchIn(BuildContext context) async {
-  //   try {
-  //     Position pos = await Geolocator.getCurrentPosition(
-  //       desiredAccuracy: LocationAccuracy.bestForNavigation,
-  //     );
-  //     debugPrint("📍 Accuracy: ${pos.accuracy} meters");
-  //     final address = await _getAddressFromGPS();
-  //     if (address == null) {
-  //       showErrorMessage(context, "Error", "Unable to fetch location");
-  //       return;
-  //     }
-
-  //     // ✅ Save initial point
-  //     await storage.setString(
-  //       "route_points",
-  //       jsonEncode([
-  //         {"lat": pos.latitude, "lng": pos.longitude},
-  //       ]),
-  //     );
-
-  //     startLatLng = LatLng(pos.latitude, pos.longitude);
-  //     routePoints = [startLatLng!];
-  //     lastPoint = startLatLng;
-  //     totalDistance = 0.0;
-
-  //     if (Platform.isAndroid) {
-  //       final service = FlutterBackgroundService();
-  //       final isRunning = await service.isRunning();
-
-  //       if (!isRunning) {
-  //         await service.startService();
-  //       }
-  //     }
-  //     final int attendanceIdToSend = currentAttendanceId ?? 0;
-  //     final result = await _dashboardCubit.addAttendance(
-  //       context,
-  //       attendanceId: attendanceIdToSend,
-  //       punchAddress: address,
-  //       startLatitude: pos.latitude,
-  //       startLongitude: pos.longitude,
-  //       endLatitude: 0,
-  //       endLongitude: 0,
-  //       polyline: "",
-  //       distance: 0,
-  //     );
-
-  //     if (result != null) {
-  //       currentAttendanceId = result['AttendanceId'];
-  //       currentUniquekey = result['Uniquekey'];
-  //     }
-  //   } catch (e) {
-  //     debugPrint("Punch In GPS Error: $e");
-  //   }
-  // }
 
   Future<void> punchIn(BuildContext context) async {
     try {
@@ -272,8 +233,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           {"lat": pos.latitude, "lng": pos.longitude},
         ]),
       );
-      // await FlutterBackgroundService().startService();
-
       //  START FOREGROUND TRACKING
       _startLocationTracking();
       startLatLng = LatLng(pos.latitude, pos.longitude);
@@ -317,6 +276,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       currentPosition.latitude,
       currentPosition.longitude,
     );
+    routePoints.add(endPoint);
 
     final finalDistance =
         routePoints.length > 1 ? _calculateDistance(routePoints) : 0.0;
@@ -358,7 +318,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
 
     workedDuration.value = DateTime.now().difference(punchInTime);
-
+    await loadSavedRoute();
     _timer?.cancel();
   }
 
@@ -390,30 +350,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     positionStream = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.bestForNavigation,
+        accuracy: LocationAccuracy.high,
         distanceFilter: 5,
       ),
     ).listen((Position position) async {
-      if (position.accuracy > 50.0) return;
+      if (position.accuracy > 30) return;
+
       final currentPoint = LatLng(position.latitude, position.longitude);
-      if (routePoints.isEmpty) {
-        if (startLatLng != null) {
-          routePoints.add(startLatLng!);
-          lastPoint = startLatLng;
-          totalDistance = 0.0;
-          return;
-        }
-        debugPrint("POINT => ${position.latitude}, ${position.longitude}");
 
-        debugPrint("Accuracy => ${position.accuracy}");
-
-        debugPrint("Route Count => ${routePoints.length}");
-
-        startLatLng = currentPoint;
-        routePoints.add(currentPoint);
-        lastPoint = currentPoint;
-        return;
-      }
       if (lastPoint == null) {
         lastPoint = currentPoint;
         routePoints.add(currentPoint);
@@ -427,17 +371,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
         currentPoint.longitude,
       );
 
-      if (segmentDistance < 2) return;
+      /// IGNORE GPS JITTER
+      if (segmentDistance < 10) return;
+
+      /// IGNORE IMPOSSIBLE SPEED
+      final speedKmph = position.speed * 3.6;
+
+      if (speedKmph > 140) return;
 
       routePoints.add(currentPoint);
+
       totalDistance += segmentDistance;
+
       lastPoint = currentPoint;
-
-      List points = jsonDecode(storage.getString("route_points") ?? "[]");
-
-      points.add({"lat": position.latitude, "lng": position.longitude});
-
-      await storage.setString("route_points", jsonEncode(points));
     }, onError: (e) {});
   }
 
@@ -479,6 +425,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  void animateSlider(double target) {
+    isAnimating = true;
+
+    _swipeAnimation = Tween<double>(begin: dragPosition, end: target).animate(
+      CurvedAnimation(parent: _swipeController, curve: Curves.easeOutCubic),
+    )..addListener(() {
+      setState(() {
+        dragPosition = _swipeAnimation.value;
+      });
+    });
+
+    _swipeController.forward(from: 0).whenComplete(() {
+      isAnimating = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<DashboardCubit, DashboardState>(
@@ -502,25 +464,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         currentAttendanceId = record.attendanceId;
         currentUniquekey = record.uniquekey;
-
         if (record.punchOut == null) {
           isPunchedInNotifier.value = true;
           isDayCompletedNotifier.value = false;
+          isSwipeDisabledNotifier.value = false;
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
             dragPositionNotifier.value = maxWidth;
           });
+
           if (_timer == null) {
             _startTimerFrom(record.punchIn!);
           }
         } else {
           _timer?.cancel();
 
-          isPunchedInNotifier.value = true;
+          isPunchedInNotifier.value = false;
+
+          /// COMPLETELY LOCK SLIDER
+          isSwipeDisabledNotifier.value = true;
+
           isDayCompletedNotifier.value = true;
 
+          /// DISABLE FOREVER
+          isSwipeDisabledNotifier.value = true;
+
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            dragPositionNotifier.value = maxWidth;
+            dragPositionNotifier.value = 0;
           });
 
           workedDuration.value = record.punchOut!.difference(record.punchIn!);
@@ -682,128 +652,223 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     },
                   ),
                 ),
-                ValueListenableBuilder2<bool, double>(
+                ValueListenableBuilder2<bool, bool>(
                   first: isPunchedInNotifier,
-                  second: dragPositionNotifier,
-                  builder: (context, isPunchedIn, dragPosition, _) {
+                  second: isSwipeDisabledNotifier,
+                  builder: (context, isPunchedIn, isSwipeDisabled, _) {
                     return LayoutBuilder(
                       builder: (context, constraints) {
-                        maxWidth = constraints.maxWidth - 42;
+                        final sliderWidth = constraints.maxWidth;
+                        final thumbWidth = 52.0;
 
-                        return Container(
-                          margin: const EdgeInsets.symmetric(vertical: 24.0),
-                          height: 50,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: AppColor.primary.withValues(alpha: 0.16),
-                          ),
-                          child: Stack(
-                            children: [
-                              Center(
-                                child: Text(
-                                  isPunchedIn
-                                      ? "Swipe to Punch Out"
-                                      : "Swipe to Punch In",
-                                  style: AppTextStyle.ts12M(),
-                                ),
+                        maxWidth = sliderWidth - thumbWidth;
+
+                        return StatefulBuilder(
+                          builder: (context, setInnerState) {
+                            return Container(
+                              margin: const EdgeInsets.symmetric(
+                                vertical: 24.0,
                               ),
-                              AnimatedPositioned(
-                                duration: const Duration(milliseconds: 200),
-                                left: dragPosition,
-                                top: 0,
-                                bottom: 0,
-                                child: GestureDetector(
-                                  onHorizontalDragUpdate: (details) {
-                                    double newPos =
-                                        dragPositionNotifier.value +
-                                        details.delta.dx;
-                                    dragPositionNotifier.value = newPos.clamp(
-                                      0,
-                                      maxWidth,
-                                    );
-                                  },
-
-                                  onHorizontalDragEnd: (_) async {
-                                    if (isProcessing) return;
-
-                                    final currentPos =
-                                        dragPositionNotifier.value;
-
-                                    // PUNCH IN (only once)
-                                    if (!isPunchedInNotifier.value &&
-                                        currentPos > maxWidth * 0.7) {
-                                      // Block re-punch-in after day completed
-                                      if (isDayCompletedNotifier.value ||
-                                          currentAttendanceId != null) {
-                                        dragPositionNotifier.value = 0;
-                                        return;
-                                      }
-                                      final hasPermission =
-                                          await _ensureLocationPermission(
-                                            context,
-                                          );
-                                      if (!hasPermission) {
-                                        dragPositionNotifier.value = 0;
-                                        return;
-                                      }
-
-                                      isProcessing = true;
-
-                                      dragPositionNotifier.value = maxWidth;
-                                      isPunchedInNotifier.value = true;
-
-                                      await punchIn(context);
-
-                                      _startLocationTracking();
-                                      _startTimerFrom(DateTime.now());
-
-                                      isProcessing = false;
-                                    }
-                                    // PUNCH OUT (allow multiple times)
-                                    else if (isPunchedInNotifier.value &&
-                                        currentPos < maxWidth * 0.3) {
-                                      isProcessing = true;
-
-                                      await punchOut(context);
-
-                                      // move slider RIGHT after UI builds
-                                      WidgetsBinding.instance
-                                          .addPostFrameCallback((_) {
-                                            dragPositionNotifier.value =
-                                                maxWidth;
-                                          });
-
-                                      // keep in punch-out mode
-                                      isPunchedInNotifier.value = true;
-                                      isDayCompletedNotifier.value = true;
-
-                                      isProcessing = false;
-                                    }
-                                    // RESET
-                                    else {
-                                      dragPositionNotifier.value =
-                                          isPunchedInNotifier.value
-                                              ? maxWidth
-                                              : 0;
-                                    }
-                                  },
-                                  child: Container(
-                                    width: 42,
-                                    decoration: BoxDecoration(
-                                      color: AppColor.primary,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Icon(
-                                      isPunchedIn
-                                          ? Icons.arrow_back_ios_new_outlined
-                                          : Icons.arrow_forward_ios_outlined,
-                                      color: Colors.white,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                color: AppColor.primary.withValues(alpha: 0.12),
+                              ),
+                              child: Stack(
+                                alignment: Alignment.centerLeft,
+                                children: [
+                                  Center(
+                                    child: AnimatedSwitcher(
+                                      duration: const Duration(
+                                        milliseconds: 200,
+                                      ),
+                                      child: Text(
+                                        isPunchedIn
+                                            ? "Swipe to Punch Out"
+                                            : "Swipe to Punch In",
+                                        key: ValueKey(isPunchedIn),
+                                        style: AppTextStyle.ts12M(),
+                                      ),
                                     ),
                                   ),
-                                ),
+
+                                  TweenAnimationBuilder<double>(
+                                    tween: Tween(
+                                      begin: 0,
+                                      end: dragPositionNotifier.value,
+                                    ),
+                                    duration: const Duration(milliseconds: 120),
+                                    curve: Curves.easeOut,
+                                    builder: (
+                                      context,
+                                      animatedPosition,
+                                      child,
+                                    ) {
+                                      return Positioned(
+                                        left: animatedPosition,
+                                        top: 2,
+                                        bottom: 2,
+                                        child: GestureDetector(
+                                          behavior: HitTestBehavior.translucent,
+
+                                          onHorizontalDragUpdate:
+                                              isSwipeDisabled
+                                                  ? null
+                                                  : (details) {
+                                                    if (isProcessing) return;
+
+                                                    final updated =
+                                                        dragPositionNotifier
+                                                            .value +
+                                                        details.delta.dx;
+
+                                                    dragPositionNotifier
+                                                        .value = updated.clamp(
+                                                      0.0,
+                                                      maxWidth,
+                                                    );
+                                                  },
+
+                                          onHorizontalDragEnd:
+                                              isSwipeDisabled
+                                                  ? null
+                                                  : (details) async {
+                                                    if (isProcessing) return;
+
+                                                    final velocity =
+                                                        details
+                                                            .primaryVelocity ??
+                                                        0;
+
+                                                    final current =
+                                                        dragPositionNotifier
+                                                            .value;
+
+                                                    final shouldComplete =
+                                                        current >
+                                                            maxWidth * 0.55 ||
+                                                        velocity > 700;
+
+                                                    // PUNCH IN
+                                                    if (!isPunchedIn &&
+                                                        shouldComplete &&
+                                                        !isDayCompletedNotifier
+                                                            .value &&
+                                                        currentAttendanceId ==
+                                                            null) {
+                                                      final hasPermission =
+                                                          await _ensureLocationPermission(
+                                                            context,
+                                                          );
+
+                                                      if (!hasPermission) {
+                                                        dragPositionNotifier
+                                                            .value = 0;
+                                                        return;
+                                                      }
+
+                                                      isProcessing = true;
+
+                                                      dragPositionNotifier
+                                                          .value = maxWidth;
+
+                                                      await Future.delayed(
+                                                        const Duration(
+                                                          milliseconds: 150,
+                                                        ),
+                                                      );
+
+                                                      isPunchedInNotifier
+                                                          .value = true;
+
+                                                      await punchIn(context);
+
+                                                      // _startLocationTracking();
+
+                                                      _startTimerFrom(
+                                                        DateTime.now(),
+                                                      );
+
+                                                      HapticFeedback.mediumImpact();
+
+                                                      isProcessing = false;
+                                                    }
+                                                    // PUNCH OUT
+                                                    else if (isPunchedIn) {
+                                                      final shouldPunchOut =
+                                                          current <
+                                                              maxWidth * 0.45 ||
+                                                          velocity < -700;
+
+                                                      if (shouldPunchOut) {
+                                                        isProcessing = true;
+
+                                                        dragPositionNotifier
+                                                            .value = 0;
+
+                                                        await Future.delayed(
+                                                          const Duration(
+                                                            milliseconds: 150,
+                                                          ),
+                                                        );
+
+                                                        await punchOut(context);
+
+                                                        isDayCompletedNotifier
+                                                            .value = true;
+
+                                                        isPunchedInNotifier
+                                                            .value = false;
+
+                                                        HapticFeedback.mediumImpact();
+
+                                                        isProcessing = false;
+                                                      } else {
+                                                        dragPositionNotifier
+                                                            .value = maxWidth;
+                                                      }
+                                                    }
+                                                    // RESET
+                                                    else {
+                                                      dragPositionNotifier
+                                                          .value = isPunchedIn
+                                                              ? maxWidth
+                                                              : 0;
+                                                    }
+                                                  },
+
+                                          child: Container(
+                                            width: thumbWidth,
+                                            decoration: BoxDecoration(
+                                              color: AppColor.primary,
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  blurRadius: 10,
+                                                  offset: Offset(0, 4),
+                                                  color: AppColor.black
+                                                      .withValues(alpha: 0.15),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Icon(
+                                              isPunchedIn
+                                                  ? Icons
+                                                      .keyboard_double_arrow_left
+                                                  : Icons
+                                                      .keyboard_double_arrow_right,
+                                              color: AppColor.white,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            );
+                          },
                         );
                       },
                     );

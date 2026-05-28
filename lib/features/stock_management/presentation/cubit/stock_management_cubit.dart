@@ -23,10 +23,6 @@ class StockManagementCubit extends Cubit<StockManagementState> {
     await getStockList(context, 1, projectId);
   }
 
-  void changeHistoryTab(int index) {
-    emit(state.copyWith(selectedHistoryTab: index));
-  }
-
   // <---- GET STOCK LIST ---->
   Future getStockList(
     BuildContext context,
@@ -70,12 +66,16 @@ class StockManagementCubit extends Cubit<StockManagementState> {
     BuildContext context,
     int pageNumber,
     int projectId,
-    int subMaterialMasterId,
-  ) async {
+    int subMaterialMasterId, {
+    String? type,
+  }) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
       "SubMaterialMasterId": subMaterialMasterId,
     };
+    if (type != null && type.isNotEmpty) {
+      queryParams["type"] = type;
+    }
     var result = await _stockManagementRepository.getStockHistoryList(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -112,13 +112,9 @@ class StockManagementCubit extends Cubit<StockManagementState> {
     int pageNumber,
     int projectId,
     int subMaterialId,
-    int subMaterialMasterId,
   ) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {
-      "SubMaterialId": subMaterialId,
-      "SubMaterialMasterId": subMaterialMasterId,
-    };
+    Map<String, dynamic> queryParams = {"SubMaterialId": subMaterialId};
     var result = await _stockManagementRepository.getStockSummaryList(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -144,6 +140,96 @@ class StockManagementCubit extends Cubit<StockManagementState> {
             totalNumberOfRecord: response["totalNumberOfRecord"],
             currentPage: pageNumber,
           ),
+        );
+      },
+    );
+  }
+
+  Future addUpdateStock(
+    BuildContext context, {
+    required int projectId,
+    required int subMaterialMasterId,
+    required String reason,
+    required String inwardOutwardType,
+    required String partyName,
+    required double materialQuantityInwardOutward,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+
+    final body = {
+      "SubMaterialMasterId": subMaterialMasterId,
+      "ProjectId": projectId,
+      "Reason": reason,
+      "InwardOutwardType": inwardOutwardType,
+      "PartyName": partyName,
+      "MaterialQuantityInwardOutward": materialQuantityInwardOutward,
+    };
+
+    var result = await _stockManagementRepository.addUpdateStock(body: body);
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) async {
+        emit(state.copyWith(isLoading: false));
+
+        showSuccessMessage(
+          context,
+          subTitle: response["message"] ?? "Stock added successfully",
+        );
+
+        /// REFRESH STOCK LIST
+        await getStockList(context, 1, projectId);
+      },
+    );
+  }
+
+  Future addUpdateUsedUnusedStock(
+    BuildContext context, {
+    required int projectId,
+    required int subMaterialMasterId,
+    required int materialRequisitionGRNStockId,
+    required double usedQuantity,
+    required double unusedQuantity,
+    String? type,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+
+    final body = {
+      "ProjectId": projectId,
+      "MaterialRequisitionGRNStockId": materialRequisitionGRNStockId,
+      "UsedQuantity": usedQuantity,
+      "UnusedQuantity": unusedQuantity,
+    };
+
+    var result = await _stockManagementRepository.addUpdateStockUsage(
+      body: body,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) async {
+        emit(state.copyWith(isLoading: false));
+
+        showSuccessMessage(
+          context,
+          subTitle: response["message"] ?? "Updated successfully",
+        );
+
+        /// REFRESH LIST
+        await getStockHistoryList(
+          context,
+          1,
+          projectId,
+          subMaterialMasterId,
+          type: type,
         );
       },
     );

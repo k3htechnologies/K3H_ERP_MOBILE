@@ -23,12 +23,14 @@ class StockManagementSummaryModel {
       StockManagementSummaryModel(
         materialName: parseValue<String>(json, "MaterialName"),
         subMaterialName: parseValue<String>(json, "SubMaterialName"),
-        subMaterialMasterId: json["SubMaterialMasterId"],
-        uomCode: json["UomCode"],
-        systemGeneratedCode: json["SystemGeneratedCode"],
-        totalMaterialQuantityInStock:
-            json["TotalMaterialQuantityInStock"]?.toDouble(),
-        availableMaterial: json["AvailableMaterial"],
+        subMaterialMasterId: parseValue<int>(json, "SubMaterialMasterId"),
+        uomCode: parseValue<String>(json, "UomCode"),
+        systemGeneratedCode: parseValue<String>(json, "SystemGeneratedCode"),
+        totalMaterialQuantityInStock: parseValue<double>(
+          json,
+          "TotalMaterialQuantityInStock",
+        ),
+        availableMaterial: parseValue<int>(json, "AvailableMaterial"),
       );
 
   Map<String, dynamic> toJson() => {

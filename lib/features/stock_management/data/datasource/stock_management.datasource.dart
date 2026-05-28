@@ -27,6 +27,10 @@ abstract interface class StockManagementDatasource {
     required Map<String, dynamic> body,
   });
 
+  Future<Map<String, dynamic>> addUpdateUsedUnusedStock({
+    required Map<String, dynamic> body,
+  });
+
   Future<Map<String, dynamic>> apicallPullStockForExport({
     required int pageNumber,
     required int pageSize,
@@ -198,6 +202,30 @@ class StockManagementDatasourceImpl implements StockManagementDatasource {
         'data': List<StockManagementModel>.from(
           networkResponse["data"].map((e) => StockManagementModel.fromJson(e)),
         ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallAddUpdateStock(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> addUpdateUsedUnusedStock({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      String addUpdateDepartmentUrl = "Stock/AddUpdateStockUsage";
+
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addUpdateDepartmentUrl,
+        body,
+      );
+      return {
+        'data': networkResponse["data"],
+        'message': networkResponse["message"],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

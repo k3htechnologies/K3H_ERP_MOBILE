@@ -17,7 +17,7 @@ class AttendanceModel {
   final double endLatitude;
   final double endLongitude;
   final String polyline;
-  final num distance;
+  final double distance;
   int createdById;
   String createdBy;
   DateTime? createdDate;
@@ -69,7 +69,7 @@ class AttendanceModel {
         endLatitude: parseValue<double>(json, "EndLatitude").toDouble(),
         endLongitude: parseValue<double>(json, "EndLongitude").toDouble(),
         polyline: parseValue<String>(json, "Polyline"),
-        distance: parseValue<num>(json, "Distance"),
+        distance: parseValue<double>(json, "Distance"),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
         createdDate:
