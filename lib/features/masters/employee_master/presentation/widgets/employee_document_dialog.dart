@@ -12,6 +12,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:mime/mime.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -231,6 +232,7 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
   }
 
   // DOWNLOAD DOCUMENT
+
   Future<void> downloadCurrentDocument() async {
     if (widget.urls.isEmpty) return;
 
@@ -240,13 +242,15 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
     Uint8List? fileData;
 
     try {
+      // LOCAL BYTES
       if (_hasBytes(index)) {
         fileData = widget.fileBytes![index];
       }
 
-      // DOWNLOAD FROM NETWORK
+      // NETWORK DOWNLOAD
       if (url.startsWith("http")) {
-        final response = await HttpClient().getUrl(Uri.parse(url));
+        final response = await HttpClient().getUrl(Uri.parse(url.trim()));
+
         final httpResponse = await response.close();
 
         fileData = await consolidateHttpClientResponseBytes(httpResponse);
@@ -256,7 +260,7 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
 
       final directory = await getTemporaryDirectory();
 
-      final fileName = getFileName(url);
+      final fileName = Uri.parse(url.trim()).pathSegments.last;
 
       final filePath = "${directory.path}/$fileName";
 
@@ -264,9 +268,15 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
 
       await file.writeAsBytes(fileData);
 
-      // SHARE / SAVE / OPEN OPTIONS
+      //  MIME TYPE
+      final mimeType = lookupMimeType(filePath);
+
+      // SHARE / SAVE / OPEN
       await SharePlus.instance.share(
-        ShareParams(files: [XFile(filePath)], text: fileName),
+        ShareParams(
+          text: fileName,
+          files: [XFile(filePath, name: fileName, mimeType: mimeType)],
+        ),
       );
     } catch (e) {
       debugPrint("Download error: $e");
