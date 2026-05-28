@@ -4,6 +4,7 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/stock_management/data/model/stock_management.model.dart';
 import 'package:k3h_erp_app/features/stock_management/data/model/stock_management_history.model.dart';
+import 'package:k3h_erp_app/features/stock_management/data/model/stock_management_summary.model.dart';
 import 'package:k3h_erp_app/features/stock_management/data/repository/stock_management.repository.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 
@@ -96,6 +97,49 @@ class StockManagementCubit extends Cubit<StockManagementState> {
         emit(
           state.copyWith(
             stockHistoryList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord: response["totalNumberOfRecord"],
+            currentPage: pageNumber,
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- GET STOCK SUMMARY LIST ---->
+  Future getStockSummaryList(
+    BuildContext context,
+    int pageNumber,
+    int projectId,
+    int subMaterialId,
+    int subMaterialMasterId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+    Map<String, dynamic> queryParams = {
+      "SubMaterialId": subMaterialId,
+      "SubMaterialMasterId": subMaterialMasterId,
+    };
+    var result = await _stockManagementRepository.getStockSummaryList(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      projectId: projectId,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<StockManagementSummaryModel> newData =
+            List<StockManagementSummaryModel>.from(response['data'] ?? []);
+
+        final List<StockManagementSummaryModel> updatedList =
+            pageNumber == 1 ? newData : [...state.stockSummaryList, ...newData];
+        emit(
+          state.copyWith(
+            stockSummaryList: updatedList,
             isLoading: false,
             totalNumberOfRecord: response["totalNumberOfRecord"],
             currentPage: pageNumber,

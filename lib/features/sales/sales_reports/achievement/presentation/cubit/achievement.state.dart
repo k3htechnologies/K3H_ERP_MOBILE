@@ -33,6 +33,11 @@ class AchievementState extends BaseState {
   final String searchText;
   final String managerSearchText;
 
+  final String currentSortColumn;
+  final String currentSortDirection;
+  final String managerCurrentSortColumn;
+  final String managerCurrentSortDirection;
+
   const AchievementState({
     super.isLoading,
 
@@ -59,6 +64,10 @@ class AchievementState extends BaseState {
 
     this.searchText = '',
     this.managerSearchText = '',
+    this.currentSortColumn = '',
+    this.currentSortDirection = '',
+    this.managerCurrentSortColumn = '',
+    this.managerCurrentSortDirection = '',
   });
 
   factory AchievementState.initial() => AchievementState(
@@ -87,6 +96,10 @@ class AchievementState extends BaseState {
 
     searchText: '',
     managerSearchText: '',
+    currentSortColumn: '',
+    currentSortDirection: '',
+    managerCurrentSortColumn: '',
+    managerCurrentSortDirection: '',
   );
 
   AchievementState copyWith({
@@ -118,6 +131,10 @@ class AchievementState extends BaseState {
 
     String? searchText,
     String? managerSearchText,
+    String? currentSortColumn,
+    String? currentSortDirection,
+    String? managerCurrentSortColumn,
+    String? managerCurrentSortDirection,
   }) {
     return AchievementState(
       isLoading: isLoading ?? this.isLoading,
@@ -182,6 +199,13 @@ class AchievementState extends BaseState {
       searchText: searchText ?? this.searchText,
 
       managerSearchText: managerSearchText ?? this.managerSearchText,
+
+      currentSortColumn: currentSortColumn ?? this.currentSortColumn,
+      currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      managerCurrentSortColumn:
+          managerCurrentSortColumn ?? this.managerCurrentSortColumn,
+      managerCurrentSortDirection:
+          managerCurrentSortDirection ?? this.managerCurrentSortDirection,
     );
   }
 
@@ -212,5 +236,9 @@ class AchievementState extends BaseState {
 
     searchText,
     managerSearchText,
+    currentSortColumn,
+    currentSortDirection,
+    managerCurrentSortColumn,
+    managerCurrentSortDirection,
   ];
 }

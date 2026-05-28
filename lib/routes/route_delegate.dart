@@ -4234,7 +4234,27 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.managerAchievementReport,
                   builder: (context, state) {
                     final type = state.uri.queryParameters['type'] ?? '';
-
+                    final filterType =
+                        state.uri.queryParameters['filterType'] ?? '';
+                    final fromDate =
+                        state.uri.queryParameters['fromDate'] ?? '';
+                    final toDate = state.uri.queryParameters['toDate'] ?? '';
+                    final parseFromDate =
+                        fromDate.isNotEmpty
+                            ? DateTime.parse(
+                              EncryptionManager.decryptData(
+                                Uri.decodeComponent(fromDate),
+                              ),
+                            )
+                            : null;
+                    final parseToDate =
+                        toDate.isNotEmpty
+                            ? DateTime.parse(
+                              EncryptionManager.decryptData(
+                                Uri.decodeComponent(toDate),
+                              ),
+                            )
+                            : null;
                     final projectParam =
                         state.uri.queryParameters['projectAchievement'];
 
@@ -4253,6 +4273,9 @@ final GoRouter goRouter = GoRouter(
 
                     return ManagerAchievementReport(
                       type: type,
+                      filterType: filterType,
+                      fromDate: parseFromDate,
+                      toDate: parseToDate,
                       projectAchievementReportModel: projectAchievement!,
                     );
                   },

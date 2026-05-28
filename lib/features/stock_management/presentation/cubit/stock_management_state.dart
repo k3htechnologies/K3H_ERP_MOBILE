@@ -3,6 +3,7 @@ part of 'stock_management_cubit.dart';
 class StockManagementState extends BaseState {
   final List<StockManagementModel> stockList;
   final List<StockManagementHistoryModel> stockHistoryList;
+  final List<StockManagementSummaryModel> stockSummaryList;
   final String searchText;
   final int totalNumberOfRecord;
   final int currentPage;
@@ -11,6 +12,7 @@ class StockManagementState extends BaseState {
     super.isLoading,
     required this.stockList,
     required this.stockHistoryList,
+    required this.stockSummaryList,
     required this.searchText,
     required this.totalNumberOfRecord,
     required this.currentPage,
@@ -19,6 +21,7 @@ class StockManagementState extends BaseState {
   factory StockManagementState.initial() => StockManagementState(
     stockList: [],
     stockHistoryList: [],
+    stockSummaryList: [],
     isLoading: true,
     searchText: "",
     totalNumberOfRecord: 0,
@@ -29,10 +32,12 @@ class StockManagementState extends BaseState {
   StockManagementState copyWith({
     bool? isLoading,
     List<StockManagementModel>? stockList,
+
     String? searchText,
     int? totalNumberOfRecord,
     int? currentPage,
     List<StockManagementHistoryModel>? stockHistoryList,
+    List<StockManagementSummaryModel>? stockSummaryList,
     int? selectedHistoryTab,
   }) {
     return StockManagementState(
@@ -42,6 +47,7 @@ class StockManagementState extends BaseState {
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
       stockHistoryList: stockHistoryList ?? this.stockHistoryList,
+      stockSummaryList: stockSummaryList ?? this.stockSummaryList,
       selectedHistoryTab: selectedHistoryTab ?? this.selectedHistoryTab,
     );
   }
@@ -54,6 +60,7 @@ class StockManagementState extends BaseState {
     totalNumberOfRecord,
     currentPage,
     stockHistoryList,
+    stockSummaryList,
     selectedHistoryTab,
   ];
 }

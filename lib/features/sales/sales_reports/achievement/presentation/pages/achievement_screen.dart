@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/static_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
@@ -256,6 +257,145 @@ class _AchievementScreenState extends State<AchievementScreen>
     });
   }
 
+  Future<void> _showBottomSheetToFilterAchievement(BuildContext context) async {
+    final state = _achievementCubit.state;
+
+    String? selectedDirection =
+        _secondaryTabController?.index == 0
+            ? state.currentSortColumn == "Project Name"
+                ? state.currentSortDirection
+                : null
+            : state.currentSortColumn == "Employee Name"
+            ? state.currentSortDirection
+            : null;
+
+    final String? initialDirection = selectedDirection;
+
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+
+    bool applied = false;
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        applyEnabled.value = selectedDirection != initialDirection;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter - Achievement",
+
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+
+            updateApplyState(innerState);
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(right: 15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _secondaryTabController?.index == 0
+                      ? "Sort By Project Name"
+                      : "Sort By Employee Name",
+                  style: AppTextStyle.ts14M(),
+                ),
+
+                verticalSpacing(),
+
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+
+                    horizontalSpacing(),
+
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+
+      onClear: () {
+        selectedDirection = null;
+
+        _achievementCubit.applyAchievementFilterAndSort(
+          context: context,
+
+          sortColumn: '',
+          sortDirection: '',
+          activeSecondaryTabIndex: _secondaryTabController?.index ?? 0,
+        );
+      },
+
+      onApply: () {
+        applied = true;
+
+        _achievementCubit.applyAchievementFilterAndSort(
+          context: context,
+          sortColumn:
+              selectedDirection != null
+                  ? (_secondaryTabController?.index == 0
+                      ? "Project Name"
+                      : "Employee Name")
+                  : null,
+          sortDirection: selectedDirection,
+          activeSecondaryTabIndex: _secondaryTabController?.index ?? 0,
+        );
+      },
+
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
+    if (!applied) {
+      selectedDirection = initialDirection;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -297,8 +437,6 @@ class _AchievementScreenState extends State<AchievementScreen>
                     _fromDateNotifier.value = fromDate;
                     _toDateNotifier.value = toDate;
                     _secondaryTabListener(isIndexChangeCheck: false);
-                    debugPrint("From Date: $fromDate");
-                    debugPrint("To Date: $toDate");
                   },
                 ),
               );
@@ -385,6 +523,26 @@ class _AchievementScreenState extends State<AchievementScreen>
                                         AppRoutes.managerAchievementReport,
                                         queryParameters: {
                                           'type': 'closing',
+                                          'filterType':
+                                              _filterTypeNotifier.value,
+                                          'fromDate':
+                                              _fromDateNotifier.value != null
+                                                  ? Uri.encodeComponent(
+                                                    EncryptionManager.encryptData(
+                                                      _fromDateNotifier.value!
+                                                          .toIso8601String(),
+                                                    ),
+                                                  )
+                                                  : '',
+                                          'toDate':
+                                              _toDateNotifier.value != null
+                                                  ? Uri.encodeComponent(
+                                                    EncryptionManager.encryptData(
+                                                      _toDateNotifier.value!
+                                                          .toIso8601String(),
+                                                    ),
+                                                  )
+                                                  : '',
                                           'projectAchievement':
                                               Uri.encodeComponent(
                                                 EncryptionManager.encryptData(
@@ -790,6 +948,8 @@ class _AchievementScreenState extends State<AchievementScreen>
         return SearchWidget(
           textController: _searchTextC,
           hintText: _searchTextNotifier.value,
+          isFilterOn: true,
+          onFilterTap: () => _showBottomSheetToFilterAchievement(context),
           onSubmit: (String value) {
             _achievementCubit.search(
               context: context,

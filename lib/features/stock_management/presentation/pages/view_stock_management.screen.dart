@@ -37,7 +37,7 @@ class _ViewStockManagementScreenState extends State<ViewStockManagementScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _stockManagementCubit = context.read<StockManagementCubit>();
     _selectedProject = getProject();
     _stockManagementCubit.getStockHistoryList(
@@ -60,118 +60,79 @@ class _ViewStockManagementScreenState extends State<ViewStockManagementScreen>
         screenTitle: "Stock Management",
         authorization: AuthorizationModel(),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Text(
-              "${widget.materialName} > ${widget.subMaterialName}",
-              style: AppTextStyle.ts14M(),
-            ),
-          ),
+      body: BlocBuilder<StockManagementCubit, StockManagementState>(
+        builder: (context, state) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Text(
+                  "${widget.materialName} > ${widget.subMaterialName}",
+                  style: AppTextStyle.ts14M(),
+                ),
+              ),
 
-          ChipStyleTabBar(
-            isSecondaryStyle: false,
-            controller: _tabController,
-            tabs: const ["History", "Material In", "Material Out"],
-          ),
+              ChipStyleTabBar(
+                isSecondaryStyle: false,
+                controller: _tabController,
+                tabs: const [
+                  "Summary",
+                  "History",
+                  "Material In",
+                  "Material Out",
+                ],
+              ),
 
-          Expanded(
-            child: BlocBuilder<StockManagementCubit, StockManagementState>(
-              builder: (context, state) {
-                if ((state.isLoading ?? false)) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final historyList = state.stockHistoryList;
-
-                List<StockManagementHistoryModel> filteredList = historyList;
-
-                /// MATERIAL IN
-                if (state.selectedHistoryTab == 1) {
-                  filteredList =
-                      historyList
-                          .where(
-                            (e) =>
-                                e.inwardOutwardType.toUpperCase() == "INWARD",
-                          )
-                          .toList();
-                }
-
-                /// MATERIAL OUT
-                if (state.selectedHistoryTab == 2) {
-                  filteredList =
-                      historyList
-                          .where(
-                            (e) =>
-                                e.inwardOutwardType.toUpperCase() == "OUTWARD",
-                          )
-                          .toList();
-                }
-
-                if (filteredList.isEmpty) {
-                  return Center(child: noDataWidget());
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.all(20),
-                  itemCount: filteredList.length,
-                  itemBuilder: (context, index) {
-                    final stock = filteredList[index];
-
-                    final isInward =
-                        stock.inwardOutwardType.toUpperCase() == "INWARD";
-
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(16),
-                      decoration: commonCardDecoration(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          buildRowTitleValue(
-                            title: isInward ? "Material In" : "Material Out",
-
-                            value:
-                                "${isInward ? '+' : '-'} "
-                                "${stock.materialQuantityInwardOutward} "
-                                "${stock.uomCode}",
-                            valueTextStyle: AppTextStyle.ts14M(
-                              color:
-                                  isInward
-                                      ? AppColor.green
-                                      : AppColor.missingInformationRed,
-                            ),
-                          ),
-                          if (isInward)
-                            buildRowTitleValue(
-                              title: "PO No.",
-                              value: stock.systemGeneratedCode,
-                            ),
-
-                          buildRowTitleValue(
-                            title: "Created By",
-                            value: stock.createdBy,
-                          ),
-                          buildRowTitleValue(
-                            title: "Created Date",
-                            value: formatDateTimeAsDDMMMYYYY(stock.createdDate),
-                          ),
-                          buildRowTitleValue(
-                            title: "Remark",
-                            value: stock.reason,
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-        ],
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _summaryWidget(context, state),
+                    Container(),
+                    Container(),
+                    Container(),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
+    );
+  }
+
+  Widget _summaryWidget(BuildContext context, StockManagementState state) {
+    return ListView.builder(
+      itemCount: state.stockSummaryList.length,
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.all(20.0),
+      itemBuilder: (context, index) {
+        final summary = state.stockList[index];
+        return Container(
+          margin: EdgeInsets.only(bottom: 10.0),
+          padding: EdgeInsets.all(12.0),
+          decoration: commonCardDecoration(),
+          child: Column(
+            spacing: 6.0,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildRowTitleValue(
+                title: "Material Name",
+                value: summary.materialName,
+              ),
+              buildRowTitleValue(
+                title: "Sub Material Name",
+                value: summary.subMaterialName,
+              ),
+              buildRowTitleValue(title: "UOM", value: summary.uomCode),
+              buildRowTitleValue(title: "PO No.", value: summary.uomCode),
+            ],
+          ),
+        );
+      },
     );
   }
 }

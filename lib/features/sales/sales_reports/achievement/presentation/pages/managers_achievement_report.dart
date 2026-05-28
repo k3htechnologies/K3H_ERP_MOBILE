@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/project_achievement_report.model.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -17,10 +18,16 @@ import '../cubit/achievement_cubit.dart';
 
 class ManagerAchievementReport extends StatefulWidget {
   final String type;
+  final String filterType;
+  final DateTime? fromDate;
+  final DateTime? toDate;
   final ProjectAchievementReportModel projectAchievementReportModel;
   const ManagerAchievementReport({
     super.key,
     required this.type,
+    required this.filterType,
+    required this.fromDate,
+    required this.toDate,
     required this.projectAchievementReportModel,
   });
 
@@ -53,12 +60,18 @@ class _ManagerAchievementReportState extends State<ManagerAchievementReport> {
         context: context,
         pageNumber: 1,
         projectId: widget.projectAchievementReportModel.projectId,
+        filterType: widget.filterType,
+        fromDate: widget.fromDate,
+        toDate: widget.toDate,
       );
     } else if (widget.type.toLowerCase() == "sourcing") {
       _achievementCubit.getManagerSourcingAchievementReport(
         context: context,
         pageNumber: 1,
         projectId: widget.projectAchievementReportModel.projectId,
+        filterType: widget.filterType,
+        fromDate: widget.fromDate,
+        toDate: widget.toDate,
       );
     }
   }
@@ -84,6 +97,9 @@ class _ManagerAchievementReportState extends State<ManagerAchievementReport> {
                     .managerClosingAchievementReportPageNumber +
                 1,
             projectId: widget.projectAchievementReportModel.projectId,
+            fromDate: widget.fromDate,
+            toDate: widget.toDate,
+            filterType: widget.filterType,
           );
         });
       }
@@ -102,16 +118,166 @@ class _ManagerAchievementReportState extends State<ManagerAchievementReport> {
         _sourcingDebounce = Timer(const Duration(milliseconds: 300), () {
           _achievementCubit.getManagerSourcingAchievementReport(
             context: context,
+
             pageNumber:
                 _achievementCubit
                     .state
                     .managerSourcingAchievementReportPageNumber +
                 1,
             projectId: widget.projectAchievementReportModel.projectId,
+            filterType: widget.filterType,
+            fromDate: widget.fromDate,
           );
         });
       }
     });
+  }
+
+  Future<void> _showBottomSheetToFilterManagerAchievement(
+    BuildContext context,
+  ) async {
+    final state = _achievementCubit.state;
+
+    String? selectedDirection =
+        state.managerCurrentSortColumn == "Employee Name"
+            ? state.managerCurrentSortDirection.isNotEmpty
+                ? state.managerCurrentSortDirection
+                : null
+            : null;
+
+    final String? initialDirection = selectedDirection;
+
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+
+    bool applied = false;
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        applyEnabled.value = selectedDirection != initialDirection;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter - Achievement",
+
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+
+            updateApplyState(innerState);
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(right: 15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Sort By Employee Name", style: AppTextStyle.ts14M()),
+
+                verticalSpacing(),
+
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+
+                    horizontalSpacing(),
+
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+
+      onClear: () {
+        selectedDirection = null;
+
+        _achievementCubit.applyManagerAchievementFilterAndSort(
+          context: context,
+          projectId: widget.projectAchievementReportModel.projectId,
+          sortColumn: '',
+          sortDirection: '',
+
+          activeSecondaryTabIndex:
+              widget.type.toLowerCase() == "closing"
+                  ? 0
+                  : widget.type.toLowerCase() == "sourcing"
+                  ? 1
+                  : 0,
+          fromDate: widget.fromDate,
+          toDate: widget.toDate,
+          filterType: widget.filterType,
+        );
+      },
+
+      onApply: () {
+        applied = true;
+
+        _achievementCubit.applyManagerAchievementFilterAndSort(
+          context: context,
+          sortColumn: "Employee Name",
+          sortDirection: selectedDirection,
+          activeSecondaryTabIndex:
+              widget.type.toLowerCase() == "closing"
+                  ? 0
+                  : widget.type.toLowerCase() == "sourcing"
+                  ? 1
+                  : 0,
+          filterType: widget.filterType,
+          fromDate: widget.fromDate,
+          toDate: widget.toDate,
+          projectId: widget.projectAchievementReportModel.projectId,
+        );
+      },
+
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
+    if (!applied) {
+      selectedDirection = initialDirection;
+    }
   }
 
   @override
@@ -459,11 +625,13 @@ class _ManagerAchievementReportState extends State<ManagerAchievementReport> {
     return SearchWidget(
       textController: _searchTextC,
       hintText: "Search By Employee Name",
+      isFilterOn: true,
+      onFilterTap: () => _showBottomSheetToFilterManagerAchievement(context),
       onSubmit: (String value) {
         _achievementCubit.managerSearch(
           context: context,
           searchText: value,
-          activeSecondaryTabIndex:
+          reportTabIndex:
               widget.type.toLowerCase() == "closing"
                   ? 0
                   : widget.type.toLowerCase() == "sourcing"

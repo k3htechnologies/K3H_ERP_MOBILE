@@ -42,7 +42,7 @@ dependencies:
   # LAUNCH URLS
   url_launcher: ^6.3.1
   # SHARE FUNCTIONALITY
-  share_plus: ^10.1.2
+  share_plus: 12.0.2
   # LOCAL STORAGE
   shared_preferences: ^2.5.3
   # OTP FIELDS

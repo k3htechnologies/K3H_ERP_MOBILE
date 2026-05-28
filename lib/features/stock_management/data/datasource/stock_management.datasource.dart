@@ -1,5 +1,6 @@
 import 'package:k3h_erp_app/features/stock_management/data/model/stock_management.model.dart';
 import 'package:k3h_erp_app/features/stock_management/data/model/stock_management_history.model.dart';
+import 'package:k3h_erp_app/features/stock_management/data/model/stock_management_summary.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
@@ -16,7 +17,12 @@ abstract interface class StockManagementDatasource {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-
+  Future<Map<String, dynamic>> apicallPullStockSummary({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
   Future<Map<String, dynamic>> apicallAddUpdateStock({
     required Map<String, dynamic> body,
   });
@@ -118,6 +124,55 @@ class StockManagementDatasourceImpl implements StockManagementDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         return apicallPullStockHistory(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          projectId: projectId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullStockSummary({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullStockSummaryUrl({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "Stock/PullStockSummary?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullStockSummaryUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': List<StockManagementSummaryModel>.from(
+          networkResponse["data"].map(
+            (e) => StockManagementSummaryModel.fromJson(e),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallPullStockSummary(
           pageNumber: pageNumber,
           pageSize: pageSize,
           projectId: projectId,

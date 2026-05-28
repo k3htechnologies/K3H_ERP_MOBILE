@@ -156,7 +156,6 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
         },
       );
     } catch (error) {
-      debugPrint("Pull Channel Partner Error: $error");
       _teamMembersNotifier.value = <ChannelPartnerModel>[];
     } finally {
       _isLoadingNotifier.value = false;
