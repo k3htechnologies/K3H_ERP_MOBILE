@@ -678,7 +678,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                           Expanded(
                             child: buildColumnTitleValueNormal(
                               title: "Amount",
-                              value: addCommasToInteger(value.agreementValue),
+                              value: value.agreementValue.toIndianCurrency(),
                             ),
                           ),
                           horizontalSpacing(),
