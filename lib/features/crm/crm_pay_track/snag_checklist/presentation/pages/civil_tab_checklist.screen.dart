@@ -52,7 +52,7 @@ class _CivilTabChecklistScreenState extends State<CivilTabChecklistScreen> {
         final groupedData = <String, List<SnagChecklistModel>>{};
 
         for (var item in state.snagChecklist) {
-          final key = item.subCategoryName;
+          final key = "${item.subCategoryName}__${item.title}";
 
           if (groupedData.containsKey(key)) {
             groupedData[key]!.add(item);
@@ -75,10 +75,13 @@ class _CivilTabChecklistScreenState extends State<CivilTabChecklistScreen> {
                         itemCount: groupedList.length,
                         itemBuilder: (context, groupIndex) {
                           final group = groupedList[groupIndex];
+                          final splitData = group.key.split("__");
 
-                          final subCategoryName = group.key;
+                          final subCategoryName = splitData[0];
+                          final checklistTitle = splitData[1];
                           final items = group.value;
-
+                          final pendingCount =
+                              items.where((e) => e.isCheck == false).length;
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -96,14 +99,29 @@ class _CivilTabChecklistScreenState extends State<CivilTabChecklistScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    buildColumnTitleValueNormal(
-                                      title: "Sub-Category",
-                                      value: subCategoryName,
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: buildColumnTitleValueNormal(
+                                            title: "Sub-Category",
+                                            value: subCategoryName,
+                                          ),
+                                        ),
+                                        horizontalSpacing(),
+                                        buildColumnTitleValueNormal(
+                                          title: "Pending",
+                                          value: pendingCount.toString(),
+                                        ),
+                                      ],
                                     ),
                                     verticalSpacing(),
                                     buildColumnTitleValueNormal(
                                       title: "Checklist Title",
-                                      value: items.first.title,
+                                      value: checklistTitle,
                                     ),
                                     verticalSpacing(),
                                     buildColumnTitleValueNormal(
@@ -161,14 +179,16 @@ class _CivilTabChecklistScreenState extends State<CivilTabChecklistScreen> {
                                       itemBuilder: (context, index) {
                                         final snag = items[index];
                                         final uniqueIndex =
-                                            (groupIndex * 1000) + index;
-
-                                        _checkboxNotifiers.putIfAbsent(
+                                            snag.snagCheckListId;
+                                        if (_checkboxNotifiers.containsKey(
                                           uniqueIndex,
-                                          () =>
-                                              ValueNotifier<bool>(snag.isCheck),
-                                        );
-
+                                        )) {
+                                          _checkboxNotifiers[uniqueIndex]!
+                                              .value = snag.isCheck;
+                                        } else {
+                                          _checkboxNotifiers[uniqueIndex] =
+                                              ValueNotifier<bool>(snag.isCheck);
+                                        }
                                         return Padding(
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 12.0,

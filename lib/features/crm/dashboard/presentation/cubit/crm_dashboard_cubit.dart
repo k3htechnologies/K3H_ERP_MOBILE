@@ -11,11 +11,9 @@ part 'crm_dashboard_state.dart';
 class CrmDashboardCubit extends Cubit<CrmDashboardState> {
   CrmDashboardCubit() : super(CrmDashboardState.initial());
 
-  // REPOSITORY
   final CrmDashboardRepository _crmDashboardRepository =
       serviceLocator<CrmDashboardRepository>();
 
-  // <---- GET CRM Dashboard LIST ---->
   Future getCrmDashboardList(
     BuildContext context, {
     required String filterType,
@@ -28,13 +26,14 @@ class CrmDashboardCubit extends Cubit<CrmDashboardState> {
     var result = await _crmDashboardRepository.getDashboardList(
       filterType: filterType,
       projectId: projectId,
-      fromDate: fromDate.toString(),
-      toDate: toDate.toString(),
+      fromDate: fromDate,
+      toDate: toDate,
     );
 
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
+
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {

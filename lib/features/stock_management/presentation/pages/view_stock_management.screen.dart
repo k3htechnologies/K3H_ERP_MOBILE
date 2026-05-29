@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
@@ -7,10 +9,13 @@ import 'package:k3h_erp_app/features/stock_management/presentation/cubit/stock_m
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ViewStockManagementScreen extends StatefulWidget {
@@ -34,23 +39,236 @@ class _ViewStockManagementScreenState extends State<ViewStockManagementScreen>
   late TabController _tabController;
   late StockManagementCubit _stockManagementCubit;
   late ProjectModel _selectedProject;
+  late ScrollController scrollController;
+  Timer? _debounce;
+  late TextEditingController _unusedQuantityC;
+  final GlobalKey<FormState> _statusFormKey = GlobalKey<FormState>();
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _stockManagementCubit = context.read<StockManagementCubit>();
     _selectedProject = getProject();
-    _stockManagementCubit.getStockHistoryList(
+    _stockManagementCubit.getStockSummaryList(
       context,
       1,
       _selectedProject.projectId,
       widget.subMaterialMasterId,
     );
-    _tabController.addListener(() {
-      if (!_tabController.indexIsChanging) {
-        _stockManagementCubit.changeHistoryTab(_tabController.index);
+    _tabController.addListener(_handleTabChange);
+    scrollController = ScrollController();
+    scrollController.addListener(_onScroll);
+    _unusedQuantityC = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _unusedQuantityC.dispose();
+    scrollController.dispose();
+    _debounce?.cancel();
+  }
+
+  Future<void> _handleTabChange() async {
+    if (_tabController.indexIsChanging) return;
+
+    switch (_tabController.index) {
+      case 0:
+        await _stockManagementCubit.getStockSummaryList(
+          context,
+          1,
+          _selectedProject.projectId,
+          widget.subMaterialMasterId,
+        );
+        break;
+      case 1:
+        await _stockManagementCubit.getStockHistoryList(
+          context,
+          1,
+          _selectedProject.projectId,
+          widget.subMaterialMasterId,
+        );
+        break;
+      case 2:
+        await _stockManagementCubit.getStockHistoryList(
+          context,
+          1,
+          _selectedProject.projectId,
+          widget.subMaterialMasterId,
+          type: "INWARD",
+        );
+        break;
+      case 3:
+        await _stockManagementCubit.getStockHistoryList(
+          context,
+          1,
+          _selectedProject.projectId,
+          widget.subMaterialMasterId,
+          type: "OUTWARD",
+        );
+        break;
+    }
+  }
+
+  void _onScroll() {
+    scrollController = ScrollController();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+              scrollController.position.maxScrollExtent - 100 &&
+          !_stockManagementCubit.state.isLoading! &&
+          _stockManagementCubit.state.stockHistoryList.length <
+              _stockManagementCubit.state.totalNumberOfRecord) {
+        // TO HANDLE MULTIPLE TIME API CALLS
+        if (_debounce?.isActive ?? false) _debounce?.cancel();
+        _debounce = Timer(const Duration(milliseconds: 300), () {
+          _stockManagementCubit.getStockHistoryList(
+            context,
+            _stockManagementCubit.state.currentPage + 1,
+            _selectedProject.projectId,
+            widget.subMaterialMasterId,
+          );
+        });
       }
     });
+  }
+
+  Future<void> _showAddUpdateMaterialUsageBottomSheet(
+    BuildContext context, {
+    StockManagementHistoryModel? historyModel,
+    int? index,
+  }) async {
+    if (historyModel != null) {
+      _unusedQuantityC.text = historyModel.unUsedMaterial.toString();
+    }
+
+    final totalQuantity = historyModel?.materialQuantityInwardOutward ?? 0;
+
+    await DialogHelper.showCustomBottomSheet(
+      context,
+      "Material Usage",
+      StatefulBuilder(
+        builder: (context, innerBottomsheetState) {
+          final unusedQty = double.tryParse(_unusedQuantityC.text) ?? 0;
+
+          final usedQty = totalQuantity - unusedQty;
+
+          return Form(
+            key: _statusFormKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        verticalSpacing(),
+                        CustomTextField(
+                          title: "Total Quantity",
+                          hint: "$totalQuantity ${historyModel?.uomCode ?? ''}",
+                          textController: TextEditingController(
+                            text:
+                                "$totalQuantity ${historyModel?.uomCode ?? ''}",
+                          ),
+                          readOnly: true,
+                        ),
+                        CustomTextField(
+                          title: "Unused Quantity",
+                          hint: "Enter Quantity",
+                          textController: _unusedQuantityC,
+                          isRequired: true,
+                          keyboardType: TextInputType.number,
+
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Please enter unused quantity";
+                            }
+
+                            final unused = double.tryParse(value);
+
+                            if (unused == null) {
+                              return "Invalid quantity";
+                            }
+
+                            if (unused > totalQuantity) {
+                              return "Unused quantity cannot exceed total quantity";
+                            }
+
+                            return null;
+                          },
+
+                          onChangeFunction: (value) {
+                            innerBottomsheetState(() {});
+                          },
+                        ),
+                        CustomTextField(
+                          title: "Used Quantity",
+                          hint:
+                              "${usedQty.toStringAsFixed(2)} ${historyModel?.uomCode ?? ''}",
+                          textController: TextEditingController(
+                            text:
+                                "${usedQty.toStringAsFixed(2)} ${historyModel?.uomCode ?? ''}",
+                          ),
+                          readOnly: true,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: CustomButton(
+                        text: "Cancel",
+                        backgroundColor: AppColor.white,
+                        titleTextStyle: AppTextStyle.ts14M(),
+                        borderColor: AppColor.grey.withValues(alpha: 0.25),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+
+                    horizontalSpacing(),
+
+                    Expanded(
+                      child: CustomButton(
+                        text: "Save",
+                        onPressed: () {
+                          if (!_statusFormKey.currentState!.validate()) {
+                            return;
+                          }
+
+                          _stockManagementCubit.addUpdateUsedUnusedStock(
+                            context,
+                            projectId: _selectedProject.projectId,
+                            materialRequisitionGRNStockId:
+                                historyModel!.materialRequisitionGrnStockId,
+                            usedQuantity: usedQty,
+                            unusedQuantity: unusedQty,
+                            subMaterialMasterId: widget.subMaterialMasterId,
+                          );
+
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+
+    _clearStatusSheet();
+  }
+
+  void _clearStatusSheet() {
+    _unusedQuantityC.clear();
   }
 
   @override
@@ -60,118 +278,255 @@ class _ViewStockManagementScreenState extends State<ViewStockManagementScreen>
         screenTitle: "Stock Management",
         authorization: AuthorizationModel(),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Text(
-              "${widget.materialName} > ${widget.subMaterialName}",
-              style: AppTextStyle.ts14M(),
-            ),
-          ),
+      body: BlocBuilder<StockManagementCubit, StockManagementState>(
+        builder: (context, state) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Text(
+                  "${widget.materialName} > ${widget.subMaterialName}",
+                  style: AppTextStyle.ts14M(),
+                ),
+              ),
 
-          ChipStyleTabBar(
-            isSecondaryStyle: false,
-            controller: _tabController,
-            tabs: const ["History", "Material In", "Material Out"],
-          ),
+              ChipStyleTabBar(
+                isSecondaryStyle: false,
+                controller: _tabController,
+                tabs: const [
+                  "Summary",
+                  "History",
+                  "Material In",
+                  "Material Issued",
+                ],
+              ),
 
-          Expanded(
-            child: BlocBuilder<StockManagementCubit, StockManagementState>(
-              builder: (context, state) {
-                if ((state.isLoading ?? false)) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final historyList = state.stockHistoryList;
-
-                List<StockManagementHistoryModel> filteredList = historyList;
-
-                /// MATERIAL IN
-                if (state.selectedHistoryTab == 1) {
-                  filteredList =
-                      historyList
-                          .where(
-                            (e) =>
-                                e.inwardOutwardType.toUpperCase() == "INWARD",
-                          )
-                          .toList();
-                }
-
-                /// MATERIAL OUT
-                if (state.selectedHistoryTab == 2) {
-                  filteredList =
-                      historyList
-                          .where(
-                            (e) =>
-                                e.inwardOutwardType.toUpperCase() == "OUTWARD",
-                          )
-                          .toList();
-                }
-
-                if (filteredList.isEmpty) {
-                  return Center(child: noDataWidget());
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.all(20),
-                  itemCount: filteredList.length,
-                  itemBuilder: (context, index) {
-                    final stock = filteredList[index];
-
-                    final isInward =
-                        stock.inwardOutwardType.toUpperCase() == "INWARD";
-
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(16),
-                      decoration: commonCardDecoration(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          buildRowTitleValue(
-                            title: isInward ? "Material In" : "Material Out",
-
-                            value:
-                                "${isInward ? '+' : '-'} "
-                                "${stock.materialQuantityInwardOutward} "
-                                "${stock.uomCode}",
-                            valueTextStyle: AppTextStyle.ts14M(
-                              color:
-                                  isInward
-                                      ? AppColor.green
-                                      : AppColor.missingInformationRed,
-                            ),
-                          ),
-                          if (isInward)
-                            buildRowTitleValue(
-                              title: "PO No.",
-                              value: stock.systemGeneratedCode,
-                            ),
-
-                          buildRowTitleValue(
-                            title: "Created By",
-                            value: stock.createdBy,
-                          ),
-                          buildRowTitleValue(
-                            title: "Created Date",
-                            value: formatDateTimeAsDDMMMYYYY(stock.createdDate),
-                          ),
-                          buildRowTitleValue(
-                            title: "Remark",
-                            value: stock.reason,
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-        ],
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _summaryWidget(context, state),
+                    _historyTabWidget(context, state),
+                    _materialInWidget(context, state),
+                    _materialOutWidget(context, state),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
+    );
+  }
+
+  Widget _summaryWidget(BuildContext context, StockManagementState state) {
+    return ListView.builder(
+      itemCount: state.stockSummaryList.length,
+      shrinkWrap: true,
+      padding: EdgeInsets.all(20.0),
+      itemBuilder: (context, index) {
+        final summary = state.stockSummaryList[index];
+        return Container(
+          margin: EdgeInsets.only(bottom: 10.0),
+          padding: EdgeInsets.all(12.0),
+          decoration: commonCardDecoration(),
+          child: Column(
+            spacing: 6.0,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildRowTitleValue(
+                title: "Material Name",
+                value: summary.materialName,
+              ),
+              buildRowTitleValue(
+                title: "Sub Material Name",
+                value: summary.subMaterialName,
+              ),
+              buildRowTitleValue(title: "UOM", value: summary.uomCode),
+              buildRowTitleValue(
+                title: "PO No.",
+                value: summary.systemGeneratedCode,
+              ),
+              buildRowTitleValue(
+                title: "Total Material Quantity in Stock",
+                value: summary.totalMaterialQuantityInStock.toString(),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _historyTabWidget(BuildContext context, StockManagementState state) {
+    return ListView.builder(
+      controller: scrollController,
+      itemCount: state.stockHistoryList.length,
+      shrinkWrap: true,
+      padding: EdgeInsets.all(20.0),
+      itemBuilder: (context, index) {
+        if (index == state.stockHistoryList.length) {
+          return state.stockHistoryList.length < state.totalNumberOfRecord
+              ? Padding(
+                padding: const EdgeInsets.all(16),
+                child: Center(child: CircularProgressIndicator()),
+              )
+              : const SizedBox.shrink();
+        }
+        final history = state.stockHistoryList[index];
+        return Container(
+          margin: EdgeInsets.only(bottom: 10.0),
+          padding: EdgeInsets.all(12.0),
+          decoration: commonCardDecoration(),
+          child: Column(
+            spacing: 6.0,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildRowTitleValue(
+                title: "Material In/Out",
+                value:
+                    "${history.materialQuantityInwardOutward.toString()} ${history.uomCode}",
+                valueTextStyle: AppTextStyle.ts14M(
+                  color:
+                      history.inwardOutwardType.toLowerCase() == 'outward'
+                          ? AppColor.missingInformationRed
+                          : AppColor.green,
+                ),
+              ),
+              buildRowTitleValue(title: "Remark", value: history.reason),
+              buildRowTitleValue(title: "Created By", value: history.createdBy),
+              buildRowTitleValue(
+                title: "Created Date",
+                value: formatDateTimeAsDDMMMYYYY(history.createdDate),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _materialInWidget(BuildContext context, StockManagementState state) {
+    return ListView.builder(
+      controller: scrollController,
+      itemCount: state.stockHistoryList.length,
+      shrinkWrap: true,
+      padding: EdgeInsets.all(20.0),
+      itemBuilder: (context, index) {
+        if (index == state.stockHistoryList.length) {
+          return state.stockHistoryList.length < state.totalNumberOfRecord
+              ? Padding(
+                padding: const EdgeInsets.all(16),
+                child: Center(child: CircularProgressIndicator()),
+              )
+              : const SizedBox.shrink();
+        }
+        final history = state.stockHistoryList[index];
+        return Container(
+          margin: EdgeInsets.only(bottom: 10.0),
+          padding: EdgeInsets.all(12.0),
+          decoration: commonCardDecoration(),
+          child: Column(
+            spacing: 6.0,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildRowTitleValue(
+                title: "Material In/Out",
+                value:
+                    "${history.materialQuantityInwardOutward.toString()} ${history.uomCode}",
+                valueTextStyle: AppTextStyle.ts14M(
+                  color:
+                      history.inwardOutwardType.toLowerCase() == 'outward'
+                          ? AppColor.missingInformationRed
+                          : AppColor.green,
+                ),
+              ),
+              buildRowTitleValue(title: "Remark", value: history.reason),
+              buildRowTitleValue(title: "Created By", value: history.createdBy),
+              buildRowTitleValue(
+                title: "Created Date",
+                value: formatDateTimeAsDDMMMYYYY(history.createdDate),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _materialOutWidget(BuildContext context, StockManagementState state) {
+    return ListView.builder(
+      controller: scrollController,
+      itemCount: state.stockHistoryList.length,
+      shrinkWrap: true,
+      padding: EdgeInsets.all(20.0),
+      itemBuilder: (context, index) {
+        if (index == state.stockHistoryList.length) {
+          return state.stockHistoryList.length < state.totalNumberOfRecord
+              ? Padding(
+                padding: const EdgeInsets.all(16),
+                child: Center(child: CircularProgressIndicator()),
+              )
+              : const SizedBox.shrink();
+        }
+        final history = state.stockHistoryList[index];
+        return Container(
+          margin: EdgeInsets.only(bottom: 10.0),
+          padding: EdgeInsets.all(12.0),
+          decoration: commonCardDecoration(),
+          child: Column(
+            spacing: 6.0,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildRowTitleValue(
+                title: "Material In/Out",
+                value:
+                    "${history.materialQuantityInwardOutward.toString()} ${history.uomCode}",
+                valueTextStyle: AppTextStyle.ts14M(
+                  color:
+                      history.inwardOutwardType.toLowerCase() == 'outward'
+                          ? AppColor.missingInformationRed
+                          : AppColor.green,
+                ),
+              ),
+              buildRowTitleValue(
+                title: "Used Material",
+                value: history.usedMaterial.toString(),
+              ),
+              buildRowTitleValue(
+                title: "Unused Material",
+                value: history.unUsedMaterial.toString(),
+              ),
+              buildRowTitleValue(title: "Remark", value: history.reason),
+              buildRowTitleValue(title: "Created By", value: history.createdBy),
+              buildRowTitleValue(
+                title: "Created Date",
+                value: formatDateTimeAsDDMMMYYYY(history.createdDate),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  CustomButton(
+                    isDisable:
+                        history.materialQuantityInwardOutward ==
+                        history.usedMaterial,
+                    text: "Material Usage",
+                    onPressed: () {
+                      _showAddUpdateMaterialUsageBottomSheet(
+                        context,
+                        historyModel: history,
+                        index: index,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

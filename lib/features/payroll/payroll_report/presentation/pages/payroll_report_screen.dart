@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -1347,8 +1346,6 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                     alignment: Alignment.centerRight,
                     child: InkWell(
                       onTap: () {
-                        log("📍 POLYLINE: ${attendance.polyline}");
-                        log("📍 DISTANCE: ${attendance.distance}");
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -1359,7 +1356,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                                   endLatitude: attendance.endLatitude,
                                   endLongitude: attendance.endLongitude,
                                   polyline: attendance.polyline,
-                                  distance: attendance.distance.toDouble(),
+                                  distance: attendance.distance,
                                   attendanceDataModel: attendance,
                                 ),
                           ),

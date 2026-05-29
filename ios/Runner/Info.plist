@@ -48,6 +48,8 @@
 	<string>Your location is used for attendance marking and work-related field activity while using the app.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Your location may be used to support attendance-related and work-related features while using the app.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Location is required for field tracking.</string>	
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Microphone access required</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>

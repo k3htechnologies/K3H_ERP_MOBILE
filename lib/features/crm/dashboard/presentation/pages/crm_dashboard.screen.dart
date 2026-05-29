@@ -105,18 +105,26 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBarWithBackButton(
-        screenTitle: "Crm Dashbaord",
-        authorization: AuthorizationModel(),
-        isMenuButton: true,
-      ),
-      body: BlocBuilder<CrmDashboardCubit, CrmDashboardState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? false) && state.crmDashboardList.isEmpty) {
-            return Center(child: loader());
-          }
-          return Column(
+    return BlocBuilder<CrmDashboardCubit, CrmDashboardState>(
+      builder: (context, state) {
+        if ((state.isLoading ?? false) && state.crmDashboardList.isEmpty) {
+          return Center(child: loader());
+        }
+        return Scaffold(
+          appBar: CustomAppBarWithBackButton(
+            screenTitle: "Crm Dashbaord",
+            authorization: AuthorizationModel(),
+            isMenuButton: true,
+            onProjectChangeCallback: (value) {
+              _selectedProject = value;
+              _crmDashboardCubit.getCrmDashboardList(
+                context,
+                filterType: state.selectedFilterType,
+                projectId: _selectedProject.projectId,
+              );
+            },
+          ),
+          body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ChipStyleTabBar(
@@ -202,14 +210,12 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                       ],
                       _projectWiseCollectionWidget(context, state),
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: _totalValue(
                               context,
                               state,
-                              "Total Agreement Value",
+                              "Total Agreement\nValue",
                               formattedAmount(
                                 state
                                     .crmDashboardList
@@ -220,12 +226,14 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                               ),
                             ),
                           ),
+
                           horizontalSpacing(),
+
                           Expanded(
                             child: _totalValue(
                               context,
                               state,
-                              "Total Received Amount",
+                              "Total Received\nAmount",
                               formattedAmount(
                                 state
                                     .crmDashboardList
@@ -238,15 +246,16 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                           ),
                         ],
                       ),
+
+                      verticalSpacing(),
+
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: _totalValue(
                               context,
                               state,
-                              "Total Outstanding",
+                              "Total\nOutstanding",
                               formattedAmount(
                                 state
                                     .crmDashboardList
@@ -257,7 +266,9 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                               ),
                             ),
                           ),
+
                           horizontalSpacing(),
+
                           Expanded(
                             child: _totalValue(
                               context,
@@ -275,20 +286,23 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                           ),
                         ],
                       ),
+                      verticalSpacing(height: 16.0),
                       _collectionSummaryWidget(context, state),
                       _bookingSummaryWidget(context, state),
                       _recentBookingSummaryWidget(context, state),
                       _brokerageSummaryWidget(context, state),
                       _accountSummaryWidget(context, state),
                       _modifiedRequestsWidget(context, state),
+                      _recentTransactionWidget(context, state),
+                      _alertsWidget(context, state),
                     ],
                   ),
                 ),
               ),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -359,20 +373,27 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
     String value,
   ) {
     return Container(
-      margin: EdgeInsets.only(bottom: 10.0),
-      padding: EdgeInsets.all(16.0),
+      height: 140,
+      padding: const EdgeInsets.all(16.0),
       decoration: commonCardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: AppTextStyle.ts14M(
-              color: AppColor.black.withValues(alpha: 0.5),
+              color: AppColor.black.withValues(alpha: 0.45),
             ),
           ),
-          verticalSpacing(),
-          Text(value, style: AppTextStyle.ts20SB()),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyle.ts20SB(color: AppColor.black),
+          ),
         ],
       ),
     );
@@ -390,14 +411,14 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
         table0.collectionGst +
         table0.collectionTds;
     return Container(
-      margin: EdgeInsets.only(bottom: 10.0),
+      margin: EdgeInsets.only(bottom: 16.0),
       padding: EdgeInsets.all(16.0),
       decoration: commonCardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Collection Summary ( Last 3 Days )",
+            "Collection Summary",
             style: AppTextStyle.ts14M(
               color: AppColor.black.withValues(alpha: 0.5),
             ),
@@ -406,7 +427,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
           Container(
             padding: EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: AppColor.darkBlue,
+              color: Color(0xff002B81),
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: Column(
@@ -524,7 +545,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
     final table0 = list.first;
 
     return Container(
-      margin: EdgeInsets.only(bottom: 10.0),
+      margin: EdgeInsets.only(bottom: 16.0),
       padding: EdgeInsets.all(16.0),
       decoration: commonCardDecoration(),
       child: Column(
@@ -557,6 +578,8 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
               ),
             ],
           ),
+          verticalSpacing(),
+          Divider(thickness: 0.2, color: AppColor.black.withValues(alpha: 0.5)),
           verticalSpacing(),
           RichText(
             text: TextSpan(
@@ -592,7 +615,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
     final list = state.crmDashboardList.first.table2;
 
     return Container(
-      margin: EdgeInsets.only(bottom: 10.0),
+      margin: EdgeInsets.only(bottom: 16.0),
       padding: EdgeInsets.all(16.0),
       decoration: commonCardDecoration(),
       child: Column(
@@ -605,70 +628,83 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
             ),
           ),
           verticalSpacing(),
-          ListView.builder(
-            itemCount: list.length,
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemBuilder: (context, index) {
-              final value = list[index];
-              return Container(
-                margin: EdgeInsets.only(bottom: 10.0),
-                padding: EdgeInsets.all(12.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6.0),
-                  border: Border.all(
-                    width: 0.8,
-                    color: AppColor.black.withValues(alpha: 0.2),
+          if (list.isNotEmpty) ...[
+            ListView.builder(
+              itemCount: list.length,
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                final value = list[index];
+                final bool isLast = index == list.length - 1;
+                return Container(
+                  margin:
+                      isLast ? EdgeInsets.zero : EdgeInsets.only(bottom: 10.0),
+                  padding: EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6.0),
+                    border: Border.all(
+                      width: 0.8,
+                      color: AppColor.black.withValues(alpha: 0.2),
+                    ),
+                    color: AppColor.lightGreyBackground,
                   ),
-                  color: AppColor.lightGreyBackground,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: buildColumnTitleValueNormal(
+                              title: "Unit No.",
+                              value: value.flat,
+                            ),
+                          ),
+                          horizontalSpacing(),
+                          Expanded(
+                            child: buildColumnTitleValueNormal(
+                              title: "Applicant Name",
+                              value: value.applicantName,
+                            ),
+                          ),
+                        ],
+                      ),
+                      verticalSpacing(),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: buildColumnTitleValueNormal(
+                              title: "Amount",
+                              value: addCommasToInteger(value.agreementValue),
+                            ),
+                          ),
+                          horizontalSpacing(),
+                          Expanded(
+                            child: buildColumnTitleValueNormal(
+                              title: "Date",
+                              value: formatDateTimeReadable(value.createdDate),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ] else ...[
+            Center(
+              child: Text(
+                "No Data Found",
+                style: AppTextStyle.ts12M(
+                  color: AppColor.black.withValues(alpha: 0.50),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Unit No.",
-                            value: value.flat,
-                          ),
-                        ),
-                        horizontalSpacing(),
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Applicant Name",
-                            value: value.applicantName,
-                          ),
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Amount",
-                            value: value.agreementValue.toIndianCurrency(),
-                          ),
-                        ),
-                        horizontalSpacing(),
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Date",
-                            value: formatDateTimeReadable(value.createdDate),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -678,12 +714,11 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
     BuildContext context,
     CrmDashboardState state,
   ) {
-    final list = state.crmDashboardList.first.table0;
-    final table0 = list.first;
+    final table0 = state.crmDashboardList.first.table0.first;
 
     return Container(
-      margin: EdgeInsets.only(bottom: 10.0),
-      padding: EdgeInsets.all(16.0),
+      margin: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.all(16.0),
       decoration: commonCardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -696,44 +731,124 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
           ),
           verticalSpacing(),
           Container(
-            margin: EdgeInsets.only(bottom: 10.0),
-            padding: EdgeInsets.all(12.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 18.0,
+            ),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(6.0),
-              border: Border.all(
-                width: 0.8,
-                color: AppColor.black.withValues(alpha: 0.2),
-              ),
+              borderRadius: BorderRadius.circular(10.0),
+              color: AppColor.lightGreyBackground,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Total Channel Partner",
+                  style: AppTextStyle.ts14M(
+                    color: AppColor.black.withValues(alpha: 0.5),
+                  ),
+                ),
+                Text(
+                  table0.totalChannelPartner.toString(),
+                  style: AppTextStyle.ts12M(color: AppColor.black),
+                ),
+              ],
+            ),
+          ),
+          verticalSpacing(),
+          _brokerRow(
+            title: "Total Brokerage Amount",
+            value: formattedAmount(table0.totalBrokerageAmount),
+            titleColor: AppColor.black,
+            valueColor: AppColor.black,
+          ),
+          Divider(
+            height: 28,
+            thickness: 0.5,
+            color: AppColor.black.withValues(alpha: 0.12),
+          ),
+          _brokerRow(
+            title: "Paid Amount",
+            value: formattedAmount(table0.paidBrokerageAmount),
+            titleColor: Colors.green,
+            valueColor: Colors.green,
+          ),
+          Divider(
+            height: 28,
+            thickness: 0.5,
+            color: AppColor.black.withValues(alpha: 0.12),
+          ),
+          _brokerRow(
+            title: "Outstanding Amount",
+            value: formattedAmount(table0.outstandingBrokerageAmount),
+            titleColor: Colors.red,
+            valueColor: Colors.red,
+          ),
+          verticalSpacing(),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 18.0,
+            ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10.0),
               color: AppColor.lightGreyBackground,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                buildRowTitleValue(
-                  title: "Total Channel Partners",
-                  value: formattedAmount(table0.totalChannelPartner).toString(),
+                Row(
+                  children: [
+                    Text(
+                      "Top Brokers",
+                      style: AppTextStyle.ts14M(
+                        color: AppColor.black.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ],
                 ),
-                buildRowTitleValue(
-                  title: "Total Brokerage Amount",
-                  value: formattedAmount(table0.totalBrokerageAmount),
-                ),
-                buildRowTitleValue(
-                  title: "Paid Amount",
-                  value: formattedAmount(table0.paidBrokerageAmount),
-                  valueTextStyle: AppTextStyle.ts12SB(color: AppColor.green),
-                ),
-                buildRowTitleValue(
-                  title: "Outstanding Amount",
-                  value: formattedAmount(table0.outstandingBrokerageAmount),
-                  valueTextStyle: AppTextStyle.ts12SB(
-                    color: AppColor.missingInformationRed,
-                  ),
+                verticalSpacing(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "Rajesh Kumar & Assoc.",
+                        style: AppTextStyle.ts14M(color: AppColor.black),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    Text(
+                      formattedAmount(2400005760),
+                      style: AppTextStyle.ts14M(color: AppColor.black),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _brokerRow({
+    required String title,
+    required String value,
+    required Color titleColor,
+    required Color valueColor,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Text(title, style: AppTextStyle.ts14M(color: titleColor)),
+        ),
+        horizontalSpacing(),
+        Text(value, style: AppTextStyle.ts14M(color: valueColor)),
+      ],
     );
   }
 
@@ -770,7 +885,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
         totalAmount <= 0 ? 0.0 : (totalReceived / totalAmount).clamp(0.0, 1.0);
 
     return Container(
-      margin: EdgeInsets.only(bottom: 10.0),
+      margin: EdgeInsets.only(bottom: 16.0),
       padding: EdgeInsets.all(16.0),
       decoration: commonCardDecoration(),
       child: Column(
@@ -828,14 +943,14 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                   children: [
                     Text(
                       "Total Received",
-                      style: AppTextStyle.ts14M(
+                      style: AppTextStyle.ts14R(
                         color: AppColor.black.withValues(alpha: 0.5),
                       ),
                     ),
                     verticalSpacing(height: 4),
                     Text(
                       formattedAmount(totalReceived),
-                      style: AppTextStyle.ts16SB(color: AppColor.green),
+                      style: AppTextStyle.ts14SB(color: AppColor.green),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
@@ -848,14 +963,14 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                   children: [
                     Text(
                       "Total Pending",
-                      style: AppTextStyle.ts14M(
+                      style: AppTextStyle.ts14R(
                         color: AppColor.black.withValues(alpha: 0.5),
                       ),
                     ),
                     verticalSpacing(height: 4),
                     Text(
                       formattedAmount(totalPending),
-                      style: AppTextStyle.ts16SB(color: AppColor.red),
+                      style: AppTextStyle.ts14SB(color: AppColor.red),
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.end,
                     ),
@@ -904,11 +1019,11 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
   ) {
     final list = state.crmDashboardList.first.table6;
     return Container(
-      margin: EdgeInsets.only(bottom: 10.0),
+      margin: EdgeInsets.only(bottom: 16.0),
       padding: EdgeInsets.all(16.0),
       decoration: commonCardDecoration(),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
             "Modified Requests",
@@ -923,11 +1038,9 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
               borderRadius: BorderRadius.circular(6.0),
               color: AppColor.lightGreyBackground,
             ),
-            child: Center(
-              child: Text(
-                "${list.first.totalCount} Total",
-                style: AppTextStyle.ts14M(),
-              ),
+            child: Text(
+              "${list.first.totalCount} Total",
+              style: AppTextStyle.ts14M(),
             ),
           ),
           verticalSpacing(),
@@ -936,49 +1049,46 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
             children: [
               Expanded(
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
+                  padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 6.0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6.0),
                     color: AppColor.green.withValues(alpha: 0.25),
                   ),
-                  child: Center(
-                    child: Text(
-                      "${list.first.approvedCount} Approved",
-                      style: AppTextStyle.ts14M(color: AppColor.green),
-                    ),
+                  child: Text(
+                    "${list.first.approvedCount} Approved",
+                    style: AppTextStyle.ts14M(color: AppColor.green),
                   ),
                 ),
               ),
               horizontalSpacing(),
               Expanded(
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
+                  padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 6.0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6.0),
                     color: AppColor.lightYellow,
                   ),
-                  child: Center(
-                    child: Text(
-                      "${list.first.pendingCount} Pending",
-                      style: AppTextStyle.ts14M(color: AppColor.brown),
-                    ),
+                  child: Text(
+                    "${list.first.pendingCount} Pending",
+                    style: AppTextStyle.ts14M(color: AppColor.brown),
                   ),
                 ),
               ),
             ],
           ),
-          verticalSpacing(),
+          verticalSpacing(height: 20.0),
           ListView.builder(
             itemCount: list.length,
             shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
+            physics: AlwaysScrollableScrollPhysics(),
             itemBuilder: (context, index) {
               final requests = list[index];
               final bool isLast = index == list.length - 1;
               return Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: isLast ? 0.0 : 10.0,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -995,7 +1105,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                           children: [
                             Text(
                               list[index].approvedCount.toString(),
-                              style: AppTextStyle.ts16M(),
+                              style: AppTextStyle.ts14M(),
                             ),
                           ],
                         ),
@@ -1012,6 +1122,289 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
               );
             },
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _recentTransactionWidget(
+    BuildContext context,
+    CrmDashboardState state,
+  ) {
+    final list = state.crmDashboardList.first.table3;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Recent Transaction",
+            style: AppTextStyle.ts14M(
+              color: AppColor.black.withValues(alpha: 0.5),
+            ),
+          ),
+
+          verticalSpacing(height: 16),
+          if (list.isNotEmpty && list != []) ...[
+            SizedBox(
+              height: 200.0,
+              child: ListView.builder(
+                itemCount: list.length,
+                shrinkWrap: true,
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  final item = list[index];
+                  final isLast = index == list.length - 1;
+                  Color statusBgColor;
+                  Color statusTextColor;
+                  switch (item.approvalStatus) {
+                    case "Approved":
+                      statusBgColor = AppColor.green20.withValues(alpha: 0.1);
+                      statusTextColor = AppColor.green20;
+                      break;
+
+                    case "Pending":
+                      statusBgColor = AppColor.lightYellow.withValues(
+                        alpha: 0.12,
+                      );
+                      statusTextColor = AppColor.yellow;
+                      break;
+
+                    case "Rejected":
+                      statusBgColor = AppColor.lightRed;
+                      statusTextColor = AppColor.missingInformationRed;
+                      break;
+
+                    default:
+                      statusBgColor = AppColor.grey.withValues(alpha: 0.12);
+                      statusTextColor = AppColor.grey;
+                  }
+                  return IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          children: [
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: AppColor.primary,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            if (!isLast)
+                              Expanded(
+                                child: Container(
+                                  width: 2,
+                                  color: AppColor.primary,
+                                ),
+                              ),
+                          ],
+                        ),
+                        horizontalSpacing(),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 24.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      RichText(
+                                        text: TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text:
+                                                  "${formattedAmount(item.receivedAmount)} : ",
+                                              style: AppTextStyle.ts16M(
+                                                color: AppColor.black,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: item.flat,
+                                              style: AppTextStyle.ts18M(
+                                                color: AppColor.black,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Text(
+                                        item.applicantName.isEmpty
+                                            ? '-'
+                                            : item.applicantName,
+                                        style: AppTextStyle.ts14R(
+                                          color: AppColor.black.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        item.paymentMode,
+                                        style: AppTextStyle.ts14R(
+                                          color: AppColor.black.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                horizontalSpacing(),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: statusBgColor,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        item.approvalStatus,
+                                        style: AppTextStyle.ts12SB(
+                                          color: statusTextColor,
+                                        ),
+                                      ),
+                                    ),
+                                    verticalSpacing(height: 10),
+                                    Text(
+                                      formatDateTimeAsDDMMMYYYY(
+                                        item.createdDate,
+                                      ),
+                                      style: AppTextStyle.ts14R(),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ] else ...[
+            Center(
+              child: Text(
+                "No Data Found",
+                style: AppTextStyle.ts12M(
+                  color: AppColor.black.withValues(alpha: 0.50),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _alertsWidget(BuildContext context, CrmDashboardState state) {
+    final list = state.crmDashboardList.first.table7;
+    return Container(
+      margin: EdgeInsets.only(bottom: 16.0),
+      padding: EdgeInsets.all(16.0),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Alerts",
+            style: AppTextStyle.ts14M(
+              color: AppColor.black.withValues(alpha: 0.5),
+            ),
+          ),
+          verticalSpacing(),
+          if (list.isNotEmpty) ...[
+            SizedBox(
+              height: 200.0,
+              child: ListView.builder(
+                itemCount: list.length,
+                shrinkWrap: true,
+                itemBuilder: (context, int index) {
+                  final isLast = index == list.length - 1;
+                  final alerts = list[index];
+                  return Container(
+                    margin: EdgeInsets.only(bottom: isLast ? 0.0 : 10.0),
+                    padding: EdgeInsets.symmetric(
+                      vertical: 12.0,
+                      horizontal: 16.0,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6.0),
+                      color: Color(0xffFFF7F7),
+                      border: Border(
+                        left: BorderSide(
+                          width: 4,
+                          color: AppColor.missingInformationRed,
+                        ),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(alerts.title, style: AppTextStyle.ts14M()),
+                        verticalSpacing(),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                alerts.content,
+                                style: AppTextStyle.ts14R(),
+                              ),
+                            ),
+                            horizontalSpacing(),
+                            Align(
+                              alignment: Alignment.bottomRight,
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 5,
+                                  horizontal: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                  color: AppColor.lightRed,
+                                ),
+                                child: Text(
+                                  alerts.subContent,
+                                  style: AppTextStyle.ts10B(
+                                    color: AppColor.priorityHighColor,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ] else ...[
+            Center(
+              child: Text(
+                "No Data Found",
+                style: AppTextStyle.ts12M(
+                  color: AppColor.black.withValues(alpha: 0.50),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -1088,7 +1481,7 @@ class WeeklyCollectionChart extends StatelessWidget {
 
         final barHeight =
             maxValue == 0
-                ? 20.0
+                ? 50.0
                 : ((value / maxValue) * 120).clamp(20.0, 120.0);
         DateTime? parsedDate;
 
@@ -1106,59 +1499,61 @@ class WeeklyCollectionChart extends StatelessWidget {
         return Container(
           width: 110,
           margin: const EdgeInsets.only(right: 16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Container(
-                height: 160,
-                alignment: Alignment.bottomCenter,
-                child: Stack(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  height: 160,
                   alignment: Alignment.bottomCenter,
-                  children: [
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      height: barHeight,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors:
-                              isToday
-                                  ? [Colors.orange.shade200, Colors.orange]
-                                  : [
-                                    AppColor.primary.withValues(alpha: 0.85),
-                                    AppColor.primary,
-                                  ],
-                        ),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(14),
-                          topRight: Radius.circular(14),
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        height: barHeight,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors:
+                                isToday
+                                    ? [Colors.orange.shade200, Colors.orange]
+                                    : [
+                                      AppColor.primary.withValues(alpha: 0.85),
+                                      AppColor.primary,
+                                    ],
+                          ),
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(14),
+                            topRight: Radius.circular(14),
+                          ),
                         ),
                       ),
-                    ),
 
-                    if (value > 0)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: Text(
-                          formattedAmount(value, showRupeeSymbol: true),
-                          style: AppTextStyle.ts14SB(color: AppColor.white),
-                          textAlign: TextAlign.center,
+                      if (value > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Text(
+                            formattedAmount(value, showRupeeSymbol: true),
+                            style: AppTextStyle.ts14SB(color: AppColor.white),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
 
-              verticalSpacing(height: 12),
+                verticalSpacing(height: 12),
 
-              Text(
-                _formatLabel(item.label),
-                style: AppTextStyle.ts14M(),
-                textAlign: TextAlign.center,
-              ),
-            ],
+                Text(
+                  _formatLabel(item.label),
+                  style: AppTextStyle.ts14M(),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         );
       }),

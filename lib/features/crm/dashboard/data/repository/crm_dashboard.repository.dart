@@ -7,8 +7,8 @@ abstract interface class CrmDashboardRepository {
   Future<Either<Failure, Map<String, dynamic>>> getDashboardList({
     required int projectId,
     required String filterType,
-    required String fromDate,
-    required String toDate,
+    String? fromDate,
+    String? toDate,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -22,8 +22,8 @@ class CrmDashboardRepositoryImpl implements CrmDashboardRepository {
   Future<Either<Failure, Map<String, dynamic>>> getDashboardList({
     required int projectId,
     required String filterType,
-    required String fromDate,
-    required String toDate,
+    String? fromDate,
+    String? toDate,
     Map<String, dynamic>? queryParams,
   }) async {
     try {
@@ -32,11 +32,11 @@ class CrmDashboardRepositoryImpl implements CrmDashboardRepository {
         "FilterType": filterType,
       };
 
-      if (fromDate.isNotEmpty) {
+      if (fromDate != null && fromDate.isNotEmpty) {
         queryParams["FromDate"] = fromDate;
       }
 
-      if (toDate.isNotEmpty) {
+      if (toDate != null && toDate.isNotEmpty) {
         queryParams["ToDate"] = toDate;
       }
       var result = await crmDashboardDatasource.apiCallPullDashboard(

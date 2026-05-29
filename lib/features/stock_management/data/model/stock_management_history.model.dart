@@ -5,9 +5,12 @@ class StockManagementHistoryModel {
   String subMaterialName;
   int subMaterialMasterId;
   String uomCode;
-  int materialQuantityInwardOutward;
+  double materialQuantityInwardOutward;
   String inwardOutwardType;
   String reason;
+  int usedMaterial;
+  int unUsedMaterial;
+  int materialRequisitionGrnStockId;
   String systemGeneratedCode;
   int createdById;
   String createdBy;
@@ -21,7 +24,10 @@ class StockManagementHistoryModel {
     required this.materialQuantityInwardOutward,
     required this.inwardOutwardType,
     required this.reason,
+    required this.usedMaterial,
+    required this.unUsedMaterial,
     required this.systemGeneratedCode,
+    required this.materialRequisitionGrnStockId,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -33,13 +39,19 @@ class StockManagementHistoryModel {
         subMaterialName: parseValue<String>(json, "SubMaterialName"),
         subMaterialMasterId: parseValue<int>(json, "SubMaterialMasterId"),
         uomCode: parseValue<String>(json, "UomCode"),
-        materialQuantityInwardOutward: parseValue<int>(
+        materialQuantityInwardOutward: parseValue<double>(
           json,
           "MaterialQuantityInwardOutward",
         ),
         inwardOutwardType: parseValue<String>(json, "InwardOutwardType"),
         reason: parseValue<String>(json, "Reason"),
+        usedMaterial: parseValue<int>(json, "UsedMaterial"),
+        unUsedMaterial: parseValue<int>(json, "UnUsedMaterial"),
         systemGeneratedCode: parseValue<String>(json, "SystemGeneratedCode"),
+        materialRequisitionGrnStockId: parseValue<int>(
+          json,
+          "MaterialRequisitionGRNStockId",
+        ),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
         createdDate:
@@ -56,7 +68,10 @@ class StockManagementHistoryModel {
     "MaterialQuantityInwardOutward": materialQuantityInwardOutward,
     "InwardOutwardType": inwardOutwardType,
     "Reason": reason,
+    "UsedMaterial": usedMaterial,
+    "UnUsedMaterial": unUsedMaterial,
     "SystemGeneratedCode": systemGeneratedCode,
+    "MaterialRequisitionGRNStockId": materialRequisitionGrnStockId,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

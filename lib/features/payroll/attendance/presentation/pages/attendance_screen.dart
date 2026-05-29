@@ -431,12 +431,6 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                         if (_hasValidLocation(item)) ...[
                                           InkWell(
                                             onTap: () {
-                                              debugPrint(
-                                                "📍 POLYLINE: ${item.polyline}",
-                                              );
-                                              debugPrint(
-                                                "📍 DISTANCE: ${item.distance}",
-                                              );
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
