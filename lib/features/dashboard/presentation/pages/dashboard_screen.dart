@@ -304,7 +304,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Future<void> punchOut(BuildContext context) async {
+  Future<void> punchOut(BuildContext context, {DateTime? punchInTime}) async {
     final address = await _getAddressFromGPS();
 
     await positionStream?.cancel();
@@ -357,7 +357,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       distance: finalDistance,
     );
 
-    workedDuration.value = DateTime.now().difference(punchInTime);
+    workedDuration.value = DateTime.now().difference(
+      punchInTime ?? this.punchInTime,
+    );
 
     _timer?.cancel();
   }
@@ -479,6 +481,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  void showComingSoonDialog(BuildContext context) {
+    DialogHelper.showCustomDialogue(
+      context,
+      icon: CustomIconButton(
+        onPressed: () {},
+        icon: Icon(
+          Icons.warning_amber_outlined,
+          color: AppColor.yellow,
+          size: 16,
+        ),
+        backgroundColor: AppColor.yellow.withValues(alpha: .2),
+      ),
+      title: "COMING SOON",
+      childContent: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Divider(
+            color: AppColor.black.withValues(alpha: 0.50),
+            thickness: 0.5,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Text(
+              "This feature is currently under development and will be available soon.",
+              style: AppTextStyle.ts14SB(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<DashboardCubit, DashboardState>(
@@ -543,10 +577,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 return Center(child: loader());
               }
               return SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20.0,
-                  vertical: 20.0,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -559,36 +590,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     verticalSpacing(),
                     // PUNCH IN - PUNCH OUT WIDGET
                     _buildWordayOverviewWidget(state, context),
-                    verticalSpacing(),
+                    verticalSpacing(height: 16),
+                    // PENDING APPROVAL WIDGET
                     _pendingApprovalWidget(),
-                    verticalSpacing(),
+                    verticalSpacing(height: 16),
                     _buildDailyActivitiesWidget(context),
-                    verticalSpacing(),
+                    verticalSpacing(height: 16),
                     //  SCHEDULED TASK WIDGET
                     _buildScheduledTaskWidget(context),
-                    verticalSpacing(),
+                    verticalSpacing(height: 16),
                     //  QUICK ACTIONS WIDGET
                     _buildQuickActionsWidget(context),
-                    verticalSpacing(),
+                    verticalSpacing(height: 16),
                     // ATTENDANCE SUMMARY WIGET
                     _buildAttendanceSummaryWidget(context),
-                    verticalSpacing(),
+                    verticalSpacing(height: 16),
                     // WORKING HOUR SUMMARY WIGET
                     _buildWorkingHourSummaryWidget(context),
-                    verticalSpacing(),
+                    verticalSpacing(height: 16),
                     // TEAM ATTENDANCE WIDGET
                     _buildTeamAttendanceSummaryWidget(context),
-                    verticalSpacing(),
+                    verticalSpacing(height: 16),
                     _buildLeaveBalanceSummaryWidget(context),
-                    verticalSpacing(),
+                    verticalSpacing(height: 16),
                     // HOLIDAY WIDGET
                     _buildHolidaySummaryWidget(context),
-                    verticalSpacing(),
+                    verticalSpacing(height: 16),
                     // EVENTS WIDGET (BIRTHDAY'S AND EVENTS)
                     _buildEventsAndMoreWidget(context),
-                    verticalSpacing(),
+                    verticalSpacing(height: 16),
                     // REPORTING MANAGER WIDGET
                     _buildReportingManagerWidget(context),
+                    verticalSpacing(height: 16),
                   ],
                 ),
               );
@@ -764,7 +797,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         currentPos < maxWidth * 0.3) {
                                       isProcessing = true;
 
-                                      await punchOut(context);
+                                      await punchOut(
+                                        context,
+                                        punchInTime: state.data!.punchIn,
+                                      );
 
                                       // move slider RIGHT after UI builds
                                       WidgetsBinding.instance
@@ -823,23 +859,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
       builder: (context, state) {
         final table13 = state.userData?.table13 ?? [];
 
-        /// Inventory Data
+        /// INVENTORY DATA
         final inventoryList =
             table13
                 .where((i) => i.moduleName.toLowerCase().contains('inventory'))
                 .toList();
 
-        /// Parking Data
+        /// PARKING DATA
         final parkingList =
             table13
                 .where((i) => i.moduleName.toLowerCase().contains('parking'))
                 .toList();
 
-        /// Booking Data
+        /// BOOKING DATA
         final bookingList =
             table13
                 .where((i) => i.moduleName.toLowerCase().contains('booking'))
                 .toList();
+
         final pendingInventory = inventoryList.length;
         final pendingParking = parkingList.length;
         final pendingBooking = bookingList.length;
@@ -847,251 +884,196 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return Container(
           decoration: commonCardDecoration(),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  return Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      /// Inventory
-                      if (pendingInventory > 0)
-                        SizedBox(
-                          width: (constraints.maxWidth - 10) / 2,
-                          child: InkWell(
-                            onTap: () {
-                              final inventoryData =
-                                  inventoryList.map((e) {
-                                    return [
-                                      {
-                                        "title": "Project",
-                                        "value": e.projectName,
-                                      },
-                                      {
-                                        "title": "Building",
-                                        "value": e.buildingNumber,
-                                      },
-                                      {"title": "Wing", "value": e.wing},
-                                    ];
-                                  }).toList();
+              Text("Pending Approvals", style: AppTextStyle.ts16M()),
 
-                              goRouter.pushNamed(
-                                AppRoutes.pendingApprovalScreen,
+              verticalSpacing(height: 12),
 
-                                queryParameters: {
-                                  "title": "Inventory",
-
-                                  "onViewRoute": AppRoutes.inventory,
-
-                                  "pendingApproval": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(inventoryData),
-                                    ),
-                                  ),
-                                },
-                              );
-                            },
-
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: AppColor.grey10),
-                              ),
-                              child: Row(
-                                spacing: 10,
-                                children: [
-                                  CustomIconButton(
-                                    onPressed: () {},
-                                    size: 22,
-                                    backgroundColor: AppColor.lightBlue,
-                                    icon: SvgPicture.asset(
-                                      AppAssets.boxIcon,
-                                      height: 20,
-                                      width: 20,
-                                      color: AppColor.primary,
-                                    ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Inventory",
-                                        style: AppTextStyle.ts12R(),
-                                      ),
-                                      Text(pendingInventory.toString()),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-
-                      /// Parking
-                      if (pendingParking > 0)
-                        SizedBox(
-                          width: (constraints.maxWidth - 10) / 2,
-                          child: InkWell(
-                            onTap: () {
-                              final parkingData =
-                                  parkingList.map((e) {
-                                    return [
-                                      {
-                                        "title": "Project",
-                                        "value": e.projectName,
-                                      },
-                                      {
-                                        "title": "Building",
-                                        "value": e.buildingNumber,
-                                      },
-                                      {"title": "Wing", "value": e.wing},
-                                      {"title": "Floor", "value": e.floor},
-                                    ];
-                                  }).toList();
-
-                              goRouter.pushNamed(
-                                AppRoutes.pendingApprovalScreen,
-
-                                queryParameters: {
-                                  "title": "Parking",
-
-                                  "onViewRoute": AppRoutes.parking,
-
-                                  "pendingApproval": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(parkingData),
-                                    ),
-                                  ),
-                                },
-                              );
-                            },
-
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: AppColor.grey10),
-                              ),
-                              child: Row(
-                                spacing: 10,
-                                children: [
-                                  CustomIconButton(
-                                    onPressed: () {},
-                                    size: 22,
-                                    backgroundColor: AppColor.lightGreen
-                                        .withValues(alpha: 0.4),
-                                    icon: SvgPicture.asset(
-                                      AppAssets.car,
-                                      height: 20,
-                                      width: 20,
-                                      color: AppColor.darkGreen.withValues(
-                                        alpha: 0.6,
-                                      ),
-                                    ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Parking",
-                                        style: AppTextStyle.ts12R(),
-                                      ),
-                                      Text(pendingParking.toString()),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-
-                      /// Booking
-                      if (pendingBooking > 0)
-                        SizedBox(
-                          width: (constraints.maxWidth - 10) / 2,
-                          child: InkWell(
-                            onTap: () {
-                              final bookingData =
-                                  bookingList.map((e) {
-                                    return [
-                                      {
-                                        "title": "Project",
-                                        "value": e.projectName,
-                                      },
-                                      {"title": "Flat", "value": e.flat},
-                                      {
-                                        "title": "Applicant",
-                                        "value": e.applicantName,
-                                      },
-                                    ];
-                                  }).toList();
-
-                              goRouter.pushNamed(
-                                AppRoutes.pendingApprovalScreen,
-
-                                queryParameters: {
-                                  "title": "Booking",
-
-                                  "onViewRoute": AppRoutes.booking,
-
-                                  "pendingApproval": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(bookingData),
-                                    ),
-                                  ),
-                                },
-                              );
-                            },
-
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: AppColor.grey10),
-                              ),
-                              child: Row(
-                                spacing: 10,
-                                children: [
-                                  CustomIconButton(
-                                    onPressed: () {},
-                                    size: 22,
-                                    backgroundColor: AppColor.lightOrangenBg,
-                                    icon: Icon(
-                                      Icons.assignment_turned_in_outlined,
-                                      size: 20,
-                                      color: AppColor.orange,
-                                    ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Booking",
-                                        style: AppTextStyle.ts12R(),
-                                      ),
-                                      Text(pendingBooking.toString()),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  );
-                },
+              /// Header
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Row(
+                  children: [
+                    Expanded(child: Text("Type", style: AppTextStyle.ts12R())),
+                    Text("Count", style: AppTextStyle.ts12R()),
+                  ],
+                ),
               ),
+
+              /// INVENTORY
+              if (pendingInventory > 0)
+                _approvalTile(
+                  title: "Inventory",
+                  count: pendingInventory,
+                  icon: AppAssets.boxIcon,
+                  iconBg: AppColor.lightBluebg,
+                  iconColor: AppColor.primary,
+                  onTap: () {
+                    final inventoryData =
+                        inventoryList.map((e) {
+                          return [
+                            {"title": "Project", "value": e.projectName},
+                            {"title": "Building", "value": e.buildingNumber},
+                            {"title": "Wing", "value": e.wing},
+                          ];
+                        }).toList();
+
+                    goRouter.pushNamed(
+                      AppRoutes.pendingApprovalScreen,
+                      queryParameters: {
+                        "title": "Inventory",
+                        "onViewRoute": AppRoutes.inventory,
+                        "pendingApproval": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(
+                            jsonEncode(inventoryData),
+                          ),
+                        ),
+                      },
+                    );
+                  },
+                ),
+
+              /// PARKING
+              if (pendingParking > 0)
+                _approvalTile(
+                  title: "Parking",
+                  count: pendingParking,
+                  icon: AppAssets.car,
+                  iconBg: AppColor.lightGreen.withValues(alpha: 0.3),
+                  iconColor: AppColor.darkGreen,
+                  onTap: () {
+                    final parkingData =
+                        parkingList.map((e) {
+                          return [
+                            {"title": "Project", "value": e.projectName},
+                            {"title": "Building", "value": e.buildingNumber},
+                            {"title": "Wing", "value": e.wing},
+                            {"title": "Floor", "value": e.floor},
+                          ];
+                        }).toList();
+
+                    goRouter.pushNamed(
+                      AppRoutes.pendingApprovalScreen,
+                      queryParameters: {
+                        "title": "Parking",
+                        "onViewRoute": AppRoutes.parking,
+                        "pendingApproval": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(
+                            jsonEncode(parkingData),
+                          ),
+                        ),
+                      },
+                    );
+                  },
+                ),
+
+              /// BOOKING
+              if (pendingBooking > 0)
+                _approvalTile(
+                  title: "Booking",
+                  count: pendingBooking,
+                  iconData: Icons.assignment_turned_in_outlined,
+                  iconBg: AppColor.lightOrange,
+                  iconColor: AppColor.rustOrange,
+                  removeBorder: true,
+                  onTap: () {
+                    final bookingData =
+                        bookingList.map((e) {
+                          return [
+                            {"title": "Project", "value": e.projectName},
+                            {"title": "Flat", "value": e.flat},
+                            {"title": "Applicant", "value": e.applicantName},
+                          ];
+                        }).toList();
+
+                    goRouter.pushNamed(
+                      AppRoutes.pendingApprovalScreen,
+                      queryParameters: {
+                        "title": "Booking",
+                        "onViewRoute": AppRoutes.booking,
+                        "pendingApproval": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(
+                            jsonEncode(bookingData),
+                          ),
+                        ),
+                      },
+                    );
+                  },
+                ),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _approvalTile({
+    required String title,
+    required int count,
+    required VoidCallback onTap,
+    required Color iconBg,
+    required Color iconColor,
+    bool removeBorder = false,
+    String? icon,
+    IconData? iconData,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          border:
+              !removeBorder
+                  ? Border(bottom: BorderSide(color: AppColor.grey10))
+                  : null,
+        ),
+        child: Row(
+          children: [
+            /// Icon
+            Container(
+              height: 38,
+              width: 38,
+              decoration: BoxDecoration(
+                color: iconBg,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              alignment: Alignment.center,
+              child:
+                  icon != null
+                      ? SvgPicture.asset(
+                        icon,
+                        height: 20,
+                        width: 20,
+                        color: iconColor,
+                      )
+                      : Icon(iconData, size: 20, color: iconColor),
+            ),
+
+            horizontalSpacing(width: 14),
+
+            /// TITLE
+            Expanded(child: Text(title, style: AppTextStyle.ts14M())),
+
+            /// COUNT
+            Text(count.toString(), style: AppTextStyle.ts14M()),
+
+            horizontalSpacing(width: 14),
+
+            /// ARROW
+            Container(
+              height: 24.h,
+              width: 24.w,
+              decoration: BoxDecoration(
+                color: AppColor.lightBluebg,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Icon(Icons.chevron_right, size: 18),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -1316,79 +1298,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         icon: SvgPicture.asset(AppAssets.raiseTaskIcon),
         text: "Raise Task",
         backgroundColor: AppColor.purple20.withValues(alpha: .08),
-        onTap: () {
-          DialogHelper.showCustomDialogue(
-            context,
-            icon: CustomIconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.warning_amber_outlined,
-                color: AppColor.yellow,
-                size: 16,
-              ),
-              backgroundColor: AppColor.yellow.withValues(alpha: .2),
-            ),
-            title: "COMING SOON",
-            childContent: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Divider(
-                  color: AppColor.black.withValues(alpha: 0.50),
-                  thickness: 0.5,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 16,
-                  ),
-                  child: Text(
-                    "This feature is currently under development and will be available soon.",
-                    style: AppTextStyle.ts14SB(),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+        onTap: () => showComingSoonDialog(context),
       ),
       QuickActionItem(
         icon: SvgPicture.asset(AppAssets.applyAdvanceIcon),
         text: "Apply Advance",
         backgroundColor: AppColor.lightYellow.withValues(alpha: .5),
-        onTap: () {
-          DialogHelper.showCustomDialogue(
-            context,
-            icon: CustomIconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.warning_amber_outlined,
-                color: AppColor.yellow,
-                size: 16,
-              ),
-              backgroundColor: AppColor.yellow.withValues(alpha: .2),
-            ),
-            title: "COMING SOON",
-            childContent: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Divider(
-                  color: AppColor.black.withValues(alpha: 0.50),
-                  thickness: 0.5,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 16,
-                  ),
-                  child: Text(
-                    "This feature is currently under development and will be available soon.",
-                    style: AppTextStyle.ts14SB(),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+        onTap: () => showComingSoonDialog(context),
       ),
       QuickActionItem(
         icon: SvgPicture.asset(AppAssets.regularizeIcon),
@@ -1401,80 +1317,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       QuickActionItem(
         icon: SvgPicture.asset(AppAssets.requestAssetIcon),
         text: "Request Asset",
-        backgroundColor: AppColor.lightOrangenBg.withValues(alpha: .5),
-        onTap: () {
-          DialogHelper.showCustomDialogue(
-            context,
-            icon: CustomIconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.warning_amber_outlined,
-                color: AppColor.yellow,
-                size: 16,
-              ),
-              backgroundColor: AppColor.yellow.withValues(alpha: .2),
-            ),
-            title: "COMING SOON",
-            childContent: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Divider(
-                  color: AppColor.black.withValues(alpha: 0.50),
-                  thickness: 0.5,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 16,
-                  ),
-                  child: Text(
-                    "This feature is currently under development and will be available soon.",
-                    style: AppTextStyle.ts14SB(),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+        backgroundColor: AppColor.lightOrangeBg.withValues(alpha: .5),
+        onTap: () => showComingSoonDialog(context),
       ),
       QuickActionItem(
         icon: SvgPicture.asset(AppAssets.payslipIcon),
         text: "Payslip",
         backgroundColor: AppColor.red.withValues(alpha: .08),
-        onTap: () {
-          DialogHelper.showCustomDialogue(
-            context,
-            icon: CustomIconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.warning_amber_outlined,
-                color: AppColor.yellow,
-                size: 16,
-              ),
-              backgroundColor: AppColor.yellow.withValues(alpha: .2),
-            ),
-            title: "COMING SOON",
-            childContent: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Divider(
-                  color: AppColor.black.withValues(alpha: 0.50),
-                  thickness: 0.5,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 16,
-                  ),
-                  child: Text(
-                    "This feature is currently under development and will be available soon.",
-                    style: AppTextStyle.ts14SB(),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+        onTap: () => showComingSoonDialog(context),
       ),
     ];
 
@@ -1533,6 +1383,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         CustomIconButton(
           onPressed: onTap,
           icon: icon,
+          size: 24,
           backgroundColor: backgroundColor ?? AppColor.lightBlue,
         ),
         Text(text, style: AppTextStyle.ts12M(), textAlign: TextAlign.center),
@@ -1648,7 +1499,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              verticalSpacing(height: 12.0),
 
               if (table2?.isNotEmpty == true) ...[
                 Row(
@@ -1669,7 +1520,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 30),
+                verticalSpacing(height: 12.0),
                 _buildDayWiseProgress(),
               ] else ...[
                 Center(
@@ -1957,7 +1808,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              verticalSpacing(height: 12.0),
               if (table6List != null) ...[
                 ListView.builder(
                   itemCount: table6List.length,
@@ -2211,8 +2062,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             )
                             : Text(
                               table10List.first.managerName.isNotEmpty
-                                  ? table10List.first.managerName[0]
-                                      .toUpperCase()
+                                  ? getInitials(table10List.first.managerName)
                                   : 'U',
                               style: AppTextStyle.ts24B(color: AppColor.white),
                             ),
@@ -2317,6 +2167,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget summaryOverallWidget({String? title, String? subTitle, Color? color}) {
     return Column(
+      spacing: 4,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title!, style: AppTextStyle.ts14M()),

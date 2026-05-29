@@ -641,35 +641,57 @@ class _BookingScreenState extends State<BookingScreen> {
                           buildRowTitleValue(
                             title: "Enquiry Code",
                             value: booking.systemGeneratedCode,
-                            fixesWidth: 170,
                             singleLine: false,
+                            customValueWidget: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    booking.systemGeneratedCode,
+                                    style: AppTextStyle.ts14M(),
+                                  ),
+                                ),
+                                horizontalSpacing(width: 2),
+                                InkWell(
+                                  onTap: () {
+                                    copy(
+                                      context: context,
+                                      text: booking.systemGeneratedCode,
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(5),
+                                    child: Icon(
+                                      Icons.copy,
+                                      size: 16,
+                                      color: AppColor.primary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                           buildRowTitleValue(
                             title: "Flat",
                             value: booking.flat,
-                            fixesWidth: 170,
                           ),
                           buildRowTitleValue(
                             title: "Category",
                             value: booking.flatType,
-                            fixesWidth: 170,
                           ),
                           buildRowTitleValue(
                             title: "Flat Configuration:",
                             value: booking.flatConfiguration,
-                            fixesWidth: 170,
                           ),
                           buildRowTitleValue(
                             title: "Agreement Value (₹)",
                             value: addCommasToInteger(booking.agreementValue),
-                            fixesWidth: 170,
                           ),
                           buildRowTitleValue(
                             title: "Expected Registration",
                             value: formatDateTimeAsDDMMMYYYY(
                               booking.registrationDate,
                             ),
-                            fixesWidth: 170,
                           ),
                           verticalSpacing(),
                           ApproveRejectWidget(

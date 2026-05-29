@@ -65,10 +65,12 @@ class AppColor {
   static const Color slightDarkBlue = Color(0xFF5A82E8); // LIGHT BLUE
   static const Color yellow = Color(0xFFF59E0B);
   static const Color yellow10 = Color(0x1AF59E0B);
+  static const Color rustOrange = Color(0xFFD97706);
   static const Color lightYellow = Color(0xFFFEF3C7);
   static const Color lightBlue2 = Color(0xFFE7EEFF);
   static const Color lightGreenBg = Color(0xFFBBF7D0);
-  static const Color lightOrangenBg = Color(0xFFFED7AA);
+  static const Color lightOrange = Color(0xFFFEF3C7);
+  static const Color lightOrangeBg = Color(0xFFFED7AA);
   static const Color lightPurple = Color(0xFFFAF5FF);
   static const Color holdYellowColor = Color(0xffFFBF00);
 
