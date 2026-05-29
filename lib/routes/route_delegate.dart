@@ -513,30 +513,6 @@ final GoRouter goRouter = GoRouter(
         return const LoginScreen();
       },
     ),
-    // PROJECT LIST SCREEN
-    /*    GoRoute(
-      path: AppRoutes.projectList,
-      name: AppRoutes.projectList,
-      pageBuilder: (context, state) {
-        final queryParameter = state.uri.queryParameters['projects'];
-        if (queryParameter == null) {
-          // NAVIGATE TO DEFAULT SCREEN
-          return MaterialPage(child: Scaffold());
-        }
-
-        final List<dynamic> projects = jsonDecode(
-          EncryptionManager.decryptData(Uri.decodeComponent(queryParameter)),
-        );
-
-        return MaterialPage(
-          child: ProjectListScreen(
-            projectList: List.from(
-              projects.map((e) => ProjectModel.fromJson(e)),
-            ),
-          ),
-        );
-      },
-    ),*/
     // SCREENS
     ShellRoute(
       navigatorKey: shellNavigatorKey,

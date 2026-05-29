@@ -17,6 +17,7 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
   final LocalStorageManager localStorage = LocalStorageManager();
   final baseClient = BaseClient();
+
   Future requestNotificationPermission() async {
     NotificationSettings settings = await messaging.requestPermission(
       alert: true,
@@ -128,6 +129,13 @@ class NotificationService {
   }
 
   Future initializeLocalNotification(RemoteMessage message) async {
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'high_importance_channel',
+      'High Importance Notifications',
+      description: 'This channel is used for important notifications.',
+      importance: Importance.max,
+      playSound: true,
+    );
     var androidInitializationSetting = const AndroidInitializationSettings(
       "@mipmap/ic_launcher",
     );
@@ -144,15 +152,24 @@ class NotificationService {
         }
       },
     );
+    final androidPlugin =
+        _flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin
+            >();
+
+    await androidPlugin?.createNotificationChannel(channel);
   }
 
   Future showNotification(RemoteMessage message) async {
     AndroidNotificationDetails androidDetails =
         const AndroidNotificationDetails(
-          'channel_id',
-          'channel_name',
-          importance: Importance.high,
+          'high_importance_channel',
+          'High Importance Notifications',
+          importance: Importance.max,
           priority: Priority.high,
+          playSound: true,
+          enableVibration: true,
         );
 
     DarwinNotificationDetails iosDetails = const DarwinNotificationDetails(

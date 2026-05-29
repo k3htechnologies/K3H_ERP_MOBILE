@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
@@ -144,97 +145,94 @@ class _ProfileScreenState extends State<ProfileScreen>
       isUpdate ? "Update Education Details" : "Add Education Details",
       Builder(
         builder: (bottomSheetContext) {
-          return SingleChildScrollView(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: Form(
-              key: _educationFormKey,
-              child: Column(
-                children: [
-                  CustomTextField(
-                    title: "Qualification",
-                    isRequired: true,
-                    hint: "Enter Qualification",
-                    textController: _qualificationC,
-                    inputFormatterList: [LengthLimitingTextInputFormatter(250)],
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Qualification is required';
-                      }
-                      return null;
-                    },
+          return Form(
+            key: _educationFormKey,
+            child: Column(
+              children: [
+                verticalSpacing(),
+                CustomTextField(
+                  title: "Qualification",
+                  isRequired: true,
+                  hint: "Enter Qualification",
+                  textController: _qualificationC,
+                  inputFormatterList: [LengthLimitingTextInputFormatter(250)],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Qualification is required';
+                    }
+                    return null;
+                  },
+                ),
+                CustomTextField(
+                  title: "School/College Name",
+                  isRequired: true,
+                  hint: "Enter College Name",
+                  inputFormatterList: [LengthLimitingTextInputFormatter(250)],
+                  textController: _collageNameC,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'College Name is required';
+                    }
+                    return null;
+                  },
+                ),
+                CustomTextField(
+                  title: "Passing Year",
+                  isRequired: true,
+                  hint: "Enter Passing Year",
+                  keyboardType: TextInputType.number,
+                  inputFormatterList: InputValidator.digit(4),
+                  textController: _passingC,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Passing Year is required';
+                    }
+                    return null;
+                  },
+                ),
+                CustomButton(
+                  leading: Icon(
+                    isUpdate ? Icons.edit : Icons.add,
+                    size: 18,
+                    color: AppColor.white,
                   ),
-                  CustomTextField(
-                    title: "School/College Name",
-                    isRequired: true,
-                    hint: "Enter College Name",
-                    inputFormatterList: [LengthLimitingTextInputFormatter(250)],
-                    textController: _collageNameC,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'College Name is required';
-                      }
-                      return null;
-                    },
-                  ),
-                  CustomTextField(
-                    title: "Passing Year",
-                    isRequired: true,
-                    hint: "Enter Passing Year",
-                    keyboardType: TextInputType.number,
-                    inputFormatterList: InputValidator.digit(4),
-                    textController: _passingC,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Passing Year is required';
-                      }
-                      return null;
-                    },
-                  ),
-                  verticalSpacing(height: 10),
-                  CustomButton(
-                    leading: Icon(
-                      isUpdate ? Icons.edit : Icons.add,
-                      size: 18,
-                      color: AppColor.white,
-                    ),
-                    text: isUpdate ? "Update" : "Add",
-                    onPressed: () async {
-                      if (_educationFormKey.currentState?.validate() != true) {
-                        return;
-                      }
-                      if (!context.mounted) return;
-                      Navigator.pop(bottomSheetContext);
-                      final qualification = _qualificationC.text.trim();
-                      final collegeName = _collageNameC.text.trim();
-                      final passing = _passingC.text.trim();
-                      final employeeId =
-                          _profileCubit.state.user?.employeeId.toString() ?? '';
-                      if (employeeId.isEmpty) return;
-                      if (isUpdate) {
-                        await _profileCubit.updateEmployeeEducationDetails(
-                          context: context,
-                          employeeEducationDetailsId:
-                              education.employeeEducationDetailsId,
-                          uniqueKey: education.uniquekey,
-                          employeeId: employeeId,
-                          qualification: qualification,
-                          collegeName: collegeName,
-                          passing: passing,
-                          index: index,
-                        );
-                      } else {
-                        await _profileCubit.addEmployeeEducationDetails(
-                          context: context,
-                          employeeId: employeeId,
-                          qualification: qualification,
-                          collegeName: collegeName,
-                          passing: passing,
-                        );
-                      }
-                    },
-                  ),
-                ],
-              ),
+                  text: isUpdate ? "Update" : "Add",
+                  onPressed: () async {
+                    if (_educationFormKey.currentState?.validate() != true) {
+                      return;
+                    }
+                    if (!context.mounted) return;
+                    Navigator.pop(bottomSheetContext);
+                    final qualification = _qualificationC.text.trim();
+                    final collegeName = _collageNameC.text.trim();
+                    final passing = _passingC.text.trim();
+                    final employeeId =
+                        _profileCubit.state.user?.employeeId.toString() ?? '';
+                    if (employeeId.isEmpty) return;
+                    if (isUpdate) {
+                      await _profileCubit.updateEmployeeEducationDetails(
+                        context: context,
+                        employeeEducationDetailsId:
+                            education.employeeEducationDetailsId,
+                        uniqueKey: education.uniquekey,
+                        employeeId: employeeId,
+                        qualification: qualification,
+                        collegeName: collegeName,
+                        passing: passing,
+                        index: index,
+                      );
+                    } else {
+                      await _profileCubit.addEmployeeEducationDetails(
+                        context: context,
+                        employeeId: employeeId,
+                        qualification: qualification,
+                        collegeName: collegeName,
+                        passing: passing,
+                      );
+                    }
+                  },
+                ),
+              ],
             ),
           );
         },
@@ -285,94 +283,92 @@ class _ProfileScreenState extends State<ProfileScreen>
       isUpdate ? "Update Experience Details" : "Add Experience Details",
       Builder(
         builder: (bottomSheetContext) {
-          return SingleChildScrollView(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: Form(
-              key: _experienceFormKey,
-              child: Column(
-                children: [
-                  CustomTextField(
-                    title: "Company Name",
-                    isRequired: true,
-                    hint: "Enter Company Name",
-                    textController: _companyNameC,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Company Name is required';
-                      }
-                      return null;
-                    },
+          return Form(
+            key: _experienceFormKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                verticalSpacing(),
+                CustomTextField(
+                  title: "Company Name",
+                  isRequired: true,
+                  hint: "Enter Company Name",
+                  textController: _companyNameC,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Company Name is required';
+                    }
+                    return null;
+                  },
+                ),
+                CustomTextField(
+                  title: "Role",
+                  isRequired: true,
+                  hint: "Enter Role",
+                  textController: _roleC,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Role is required';
+                    }
+                    return null;
+                  },
+                ),
+                CustomTextField(
+                  title: "Tenure",
+                  isRequired: true,
+                  hint: "Enter Tenure (e.g. 2 years)",
+                  inputFormatterList: [LengthLimitingTextInputFormatter(20)],
+                  textController: _tenureC,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Tenure is required';
+                    }
+                    return null;
+                  },
+                ),
+                CustomButton(
+                  leading: Icon(
+                    isUpdate ? Icons.edit : Icons.add,
+                    size: 18,
+                    color: AppColor.white,
                   ),
-                  CustomTextField(
-                    title: "Role",
-                    isRequired: true,
-                    hint: "Enter Role",
-                    textController: _roleC,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Role is required';
-                      }
-                      return null;
-                    },
-                  ),
-                  CustomTextField(
-                    title: "Tenure",
-                    isRequired: true,
-                    hint: "Enter Tenure (e.g. 2 years)",
-                    inputFormatterList: [LengthLimitingTextInputFormatter(20)],
-                    textController: _tenureC,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Tenure is required';
-                      }
-                      return null;
-                    },
-                  ),
-                  verticalSpacing(height: 10),
-                  CustomButton(
-                    leading: Icon(
-                      isUpdate ? Icons.edit : Icons.add,
-                      size: 18,
-                      color: AppColor.white,
-                    ),
-                    text: isUpdate ? "Update" : "Add",
-                    onPressed: () async {
-                      if (_experienceFormKey.currentState?.validate() != true) {
-                        return;
-                      }
-                      if (!context.mounted) return;
-                      Navigator.pop(bottomSheetContext);
-                      final companyName = _companyNameC.text.trim();
-                      final role = _roleC.text.trim();
-                      final tenure = _tenureC.text.trim();
-                      final employeeId =
-                          _profileCubit.state.user?.employeeId.toString() ?? '';
-                      if (employeeId.isEmpty) return;
-                      if (isUpdate) {
-                        await _profileCubit.updateEmployeeExperienceDetails(
-                          context: context,
-                          employeeExperienceDetailsId:
-                              experience.employeeExperienceDetailsId,
-                          uniqueKey: experience.uniquekey,
-                          employeeId: employeeId,
-                          companyName: companyName,
-                          role: role,
-                          tenure: tenure,
-                          index: index,
-                        );
-                      } else {
-                        await _profileCubit.addEmployeeExperienceDetails(
-                          context: context,
-                          employeeId: employeeId,
-                          companyName: companyName,
-                          role: role,
-                          tenure: tenure,
-                        );
-                      }
-                    },
-                  ),
-                ],
-              ),
+                  text: isUpdate ? "Update" : "Add",
+                  onPressed: () async {
+                    if (_experienceFormKey.currentState?.validate() != true) {
+                      return;
+                    }
+                    if (!context.mounted) return;
+                    Navigator.pop(bottomSheetContext);
+                    final companyName = _companyNameC.text.trim();
+                    final role = _roleC.text.trim();
+                    final tenure = _tenureC.text.trim();
+                    final employeeId =
+                        _profileCubit.state.user?.employeeId.toString() ?? '';
+                    if (employeeId.isEmpty) return;
+                    if (isUpdate) {
+                      await _profileCubit.updateEmployeeExperienceDetails(
+                        context: context,
+                        employeeExperienceDetailsId:
+                            experience.employeeExperienceDetailsId,
+                        uniqueKey: experience.uniquekey,
+                        employeeId: employeeId,
+                        companyName: companyName,
+                        role: role,
+                        tenure: tenure,
+                        index: index,
+                      );
+                    } else {
+                      await _profileCubit.addEmployeeExperienceDetails(
+                        context: context,
+                        employeeId: employeeId,
+                        companyName: companyName,
+                        role: role,
+                        tenure: tenure,
+                      );
+                    }
+                  },
+                ),
+              ],
             ),
           );
         },
@@ -407,7 +403,9 @@ class _ProfileScreenState extends State<ProfileScreen>
       context,
       title: "Set MPIN",
       childContent: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          verticalSpacing(),
           Form(
             key: _mpinFormKey,
             child: CustomTextField(
@@ -424,7 +422,6 @@ class _ProfileScreenState extends State<ProfileScreen>
               },
             ),
           ),
-          verticalSpacing(),
           CustomButton(
             text: "Set",
             onPressed: () {
@@ -628,15 +625,17 @@ class _ProfileScreenState extends State<ProfileScreen>
             ? user.profilePhotoURL
             : (apiUser?.profilePhotoURL ?? "");
 
-    return GestureDetector(
-      onTap: _showProfilePhotoOptions,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        margin: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: commonCardDecoration(),
-        child: Row(
-          children: [
-            Stack(
+    return Container(
+      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: commonCardDecoration(),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+            onTap: _showProfilePhotoOptions,
+            child: Stack(
               clipBehavior: Clip.none,
               children: [
                 // AVATAR
@@ -661,7 +660,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                             style: AppTextStyle.ts24B(color: AppColor.white),
                           ),
                 ),
-
                 // LIGHT BLACK OVERLAY
                 Positioned.fill(
                   child: Container(
@@ -671,7 +669,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                     ),
                   ),
                 ),
-
                 // EDIT ICON
                 Positioned(
                   bottom: -2,
@@ -688,43 +685,41 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
               ],
             ),
-            horizontalSpacing(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    user.fullName,
-                    style: AppTextStyle.ts16SB(),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+          ),
+          horizontalSpacing(),
+          Expanded(
+            child: Column(
+              spacing: 6.0,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "${user.firstName} ${user.lastName}",
+                  style: AppTextStyle.ts16SB(),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  user.department.isNotEmpty ? user.department : '-',
+                  style: AppTextStyle.ts14M(color: AppColor.grey),
+                ),
+                Text(
+                  user.designation.isNotEmpty ? user.designation : '-',
+                  style: AppTextStyle.ts14M(color: AppColor.grey),
+                ),
+                SizedBox(
+                  width: 140,
+                  child: CustomButton(
+                    text: "Set MPIN",
+                    onPressed: () {
+                      _showPopupToSetMpin(user);
+                    },
+                    backgroundColor: AppColor.primary,
                   ),
-                  verticalSpacing(height: 4),
-                  Text(
-                    user.department.isNotEmpty ? user.department : '-',
-                    style: AppTextStyle.ts14M(color: AppColor.grey),
-                  ),
-                  verticalSpacing(height: 4),
-                  Text(
-                    user.designation.isNotEmpty ? user.designation : '-',
-                    style: AppTextStyle.ts14M(color: AppColor.grey),
-                  ),
-                  verticalSpacing(height: 4),
-                  SizedBox(
-                    width: 140,
-                    child: CustomButton(
-                      text: "Set MPIN",
-                      onPressed: () {
-                        _showPopupToSetMpin(user);
-                      },
-                      backgroundColor: AppColor.primary,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -859,69 +854,111 @@ class _ProfileScreenState extends State<ProfileScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Reporting Structure', style: AppTextStyle.ts16SB()),
-          const SizedBox(height: 16),
-
+          verticalSpacing(),
           // TIMELINE LIST
           Column(
             children: List.generate(employeeReportingCycleData.length, (index) {
               final employee = employeeReportingCycleData[index];
               final bool isLast =
                   index == employeeReportingCycleData.length - 1;
-
+              final profilePhoto =
+                  employee["ProfilePhotoURL"]?.toString().trim() ?? "";
               return IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // TIMELINE INDICATOR
-                    Column(
-                      children: [
-                        // CIRCLE AVATAR
-                        CircleAvatar(
-                          radius: 22,
-                          backgroundColor: AppColor.primary,
-                          child: Text(
-                            (employee['FullName'] ?? '')
-                                .toString()
-                                .substring(0, 1)
-                                .toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
+                    SizedBox(
+                      width: 44,
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            radius: 22,
+                            backgroundColor: AppColor.primary,
+                            child:
+                                profilePhoto.isNotEmpty
+                                    ? ClipOval(
+                                      child: NetworkImageWidget(
+                                        key: ValueKey(profilePhoto),
+                                        imageUrl: profilePhoto,
+                                        fit: BoxFit.fill,
+                                        width: 50.w,
+                                        height: 50.h,
+                                      ),
+                                    )
+                                    : Text(getInitials(employee["FullName"])),
                           ),
-                        ),
-
-                        // VERTICAL LINE
-                        if (!isLast)
-                          Expanded(
-                            child: Container(
-                              width: 1.5,
-                              margin: const EdgeInsets.symmetric(vertical: 4),
-                              color: Colors.grey.shade400,
+                          if (!isLast)
+                            Expanded(
+                              child: Center(
+                                child: Container(
+                                  width: 2,
+                                  margin: const EdgeInsets.only(top: 6),
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
-
-                    const SizedBox(width: 12),
-
-                    // EMPLOYEE DETAILS
+                    horizontalSpacing(),
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 24),
-                        child: Column(
+                        child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    _getDisplayValue(
-                                      employee['FullName']?.toString(),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      _getDisplayValue(
+                                        employee['FullName']?.toString(),
+                                      ),
+                                      style: AppTextStyle.ts14SB(),
                                     ),
-                                    style: AppTextStyle.ts14SB(),
                                   ),
-                                ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _getDisplayValue(
+                                      employee['Designation']?.toString(),
+                                    ),
+                                    style: AppTextStyle.ts12R(
+                                      color: AppColor.grey,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    _getDisplayValue(
+                                      employee['EmailId']?.toString(),
+                                    ),
+                                    style: AppTextStyle.ts12R(
+                                      color: AppColor.grey,
+                                    ),
+                                  ),
+                                  if (employee['PersonalMobileNumber'] !=
+                                          null &&
+                                      employee['PersonalMobileNumber']!
+                                          .isNotEmpty) ...[
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      _getDisplayValue(
+                                        employee['PersonalMobileNumber']
+                                            ?.toString(),
+                                      ),
+                                      style: AppTextStyle.ts12R(
+                                        color: AppColor.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
                                 horizontalSpacing(),
                                 if (employee['EmployeeCode'] != null &&
                                     employee['EmployeeCode']!.isNotEmpty)
@@ -936,29 +973,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                                   ),
                               ],
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _getDisplayValue(
-                                employee['Designation']?.toString(),
-                              ),
-                              style: AppTextStyle.ts12R(color: AppColor.grey),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              _getDisplayValue(employee['EmailId']?.toString()),
-                              style: AppTextStyle.ts12R(color: AppColor.grey),
-                            ),
-                            if (employee['PersonalMobileNumber'] != null &&
-                                employee['PersonalMobileNumber']!
-                                    .isNotEmpty) ...[
-                              const SizedBox(height: 6),
-                              Text(
-                                _getDisplayValue(
-                                  employee['PersonalMobileNumber']?.toString(),
-                                ),
-                                style: AppTextStyle.ts12R(color: AppColor.grey),
-                              ),
-                            ],
                           ],
                         ),
                       ),
@@ -1164,14 +1178,20 @@ class _ProfileScreenState extends State<ProfileScreen>
                   overview.employeeReportingCycleData,
                 ),
               verticalSpacing(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: actionCardWidget(
-                  createdBy: overview.createdBy,
-                  createdDate: overview.createdDate,
-                  modifiedBy: overview.modifiedBy,
-                  modifiedDate: overview.modifiedDate,
-                ),
+              _buildInfoCard(
+                title: 'Action Details',
+                items: [
+                  {'label': 'Created By', 'value': overview.createdBy},
+                  {
+                    'label': 'Created Date',
+                    'value': formatDate(overview.createdDate),
+                  },
+                  {'label': 'Modified By', 'value': overview.modifiedBy},
+                  {
+                    'label': 'Modified Date',
+                    'value': formatDate(overview.modifiedDate),
+                  },
+                ],
               ),
               if (overview.employeeReportingCycleData.isNotEmpty)
                 verticalSpacing(),
@@ -1418,7 +1438,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Basic Details", style: AppTextStyle.ts14SB()),
+                        Text(
+                          "Basic Shift Details",
+                          style: AppTextStyle.ts14SB(),
+                        ),
                         Row(
                           spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1793,56 +1816,57 @@ class _ProfileScreenState extends State<ProfileScreen>
                       padding: EdgeInsets.all(16),
                       decoration: commonCardDecoration(),
                       child: Column(
-                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 6,
                         children: [
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              buildColumnTitleValue(
-                                title: "Qualification",
-                                value: education.qualification,
+                              Expanded(
+                                child: buildColumnTitleValueNormal(
+                                  title: "Qualification",
+                                  value: education.qualification,
+                                ),
                               ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              buildColumnTitleValue(
-                                title: "School / College Name",
-                                value: education.collegeName,
-                              ),
-                            ],
-                          ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Passing Year",
-                                value: education.passing,
-                              ),
+                              horizontalSpacing(),
                               Row(
-                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  CustomIconButton.edit(
-                                    onPressed: () {
-                                      _showBottomSheetToAddUpdateEducation(
-                                        context,
-                                        education: education,
-                                        index: index,
-                                      );
-                                    },
-                                  ),
-                                  horizontalSpacing(),
-                                  CustomIconButton.delete(
-                                    onPressed: () {
-                                      _showPopupToDeleteEmployeeEducationDetails(
-                                        context,
-                                        education,
-                                        index,
-                                      );
-                                    },
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      CustomIconButton.edit(
+                                        onPressed: () {
+                                          _showBottomSheetToAddUpdateEducation(
+                                            context,
+                                            education: education,
+                                            index: index,
+                                          );
+                                        },
+                                      ),
+                                      horizontalSpacing(),
+                                      CustomIconButton.delete(
+                                        onPressed: () {
+                                          _showPopupToDeleteEmployeeEducationDetails(
+                                            context,
+                                            education,
+                                            index,
+                                          );
+                                        },
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
                             ],
+                          ),
+                          buildColumnTitleValueNormal(
+                            title: "School / College Name",
+                            value: education.collegeName,
+                          ),
+                          buildColumnTitleValueNormal(
+                            title: "Passing Year",
+                            value: education.passing,
                           ),
                         ],
                       ),
@@ -1901,30 +1925,19 @@ class _ProfileScreenState extends State<ProfileScreen>
                       padding: EdgeInsets.all(16),
                       decoration: commonCardDecoration(),
                       child: Column(
-                        spacing: 10,
+                        spacing: 6,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              buildColumnTitleValue(
-                                title: "Company",
-                                value: experience.companyName,
+                              Expanded(
+                                child: buildColumnTitleValueNormal(
+                                  title: "Company",
+                                  value: experience.companyName,
+                                ),
                               ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Role",
-                                value: experience.role,
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Tenure",
-                                value: experience.tenure,
-                              ),
+                              horizontalSpacing(),
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -1950,6 +1963,14 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 ],
                               ),
                             ],
+                          ),
+                          buildColumnTitleValueNormal(
+                            title: "Role",
+                            value: experience.role,
+                          ),
+                          buildColumnTitleValueNormal(
+                            title: "Tenure",
+                            value: experience.tenure,
                           ),
                         ],
                       ),
@@ -2036,8 +2057,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 title: doc.documentName,
                                 urls: urls,
                                 isFreshAdd: isFresh,
-
-                                // ➕ ADD / UPLOAD
                                 addDocument: (pickedFiles) async {
                                   final files = MultiFilePickerModel(
                                     fileNameList:

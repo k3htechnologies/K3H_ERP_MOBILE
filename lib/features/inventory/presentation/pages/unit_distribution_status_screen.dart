@@ -83,7 +83,7 @@ class _UnitDistributionStatusScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (widget.subTitle != null)
+            if (widget.subTitle != null) ...[
               Padding(
                 padding: const EdgeInsets.only(bottom: 25),
                 child: Builder(
@@ -138,6 +138,8 @@ class _UnitDistributionStatusScreenState
                   },
                 ),
               ),
+            ] else
+              showSiteSelectedWidget(),
             Expanded(
               child: BlocBuilder<InventoryCubit, InventoryState>(
                 builder: (context, state) {
@@ -177,6 +179,7 @@ class _UnitDistributionStatusScreenState
                               buildRowTitleValue(
                                 title: "Unit Number",
                                 value: flat.flat,
+                                singleLine: false,
                               ),
                               buildRowTitleValue(
                                 title: "Unit Type",

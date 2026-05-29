@@ -5,12 +5,14 @@ class InventoryDashboardModel {
   final List<Table1> table1;
   final List<Table2> table2;
   final List<Table3> table3;
+  final List<Table4> table4;
 
   InventoryDashboardModel({
     required this.table0,
     required this.table1,
     required this.table2,
     required this.table3,
+    required this.table4,
   });
 
   factory InventoryDashboardModel.fromJson(
@@ -20,6 +22,7 @@ class InventoryDashboardModel {
     table1: List<Table1>.from(json["Table1"].map((x) => Table1.fromJson(x))),
     table2: List<Table2>.from(json["Table2"].map((x) => Table2.fromJson(x))),
     table3: List<Table3>.from(json["Table3"].map((x) => Table3.fromJson(x))),
+    table4: List<Table4>.from(json["Table4"].map((x) => Table4.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
@@ -27,6 +30,7 @@ class InventoryDashboardModel {
     "Table1": List<dynamic>.from(table1.map((x) => x.toJson())),
     "Table2": List<dynamic>.from(table2.map((x) => x.toJson())),
     "Table3": List<dynamic>.from(table3.map((x) => x.toJson())),
+    "Table4": List<dynamic>.from(table4.map((x) => x.toJson())),
   };
 }
 
@@ -180,5 +184,77 @@ class Table3 {
     "BuildingName": buildingName,
     "UnitNumber": unitNumber,
     "Issue": issue,
+  };
+}
+
+class Table4 {
+  int projectId;
+  String building;
+  String wing;
+  int floors;
+  int units;
+  int allotedFlats;
+  int availableFlats;
+  int bookedFlats;
+  int holdFlats;
+  int blockedFlats;
+  int totalParking;
+  int availableParking;
+  int bookedParking;
+  int holdParking;
+  int blockedParking;
+
+  Table4({
+    required this.projectId,
+    required this.building,
+    required this.wing,
+    required this.floors,
+    required this.units,
+    required this.allotedFlats,
+    required this.availableFlats,
+    required this.bookedFlats,
+    required this.holdFlats,
+    required this.blockedFlats,
+    required this.totalParking,
+    required this.availableParking,
+    required this.bookedParking,
+    required this.holdParking,
+    required this.blockedParking,
+  });
+
+  factory Table4.fromJson(Map<String, dynamic> json) => Table4(
+    projectId: parseValue<int>(json, "ProjectId"),
+    building: parseValue<String>(json, "Building"),
+    wing: parseValue<String>(json, "Wing"),
+    floors: parseValue<int>(json, "Floors"),
+    units: parseValue<int>(json, "Units"),
+    allotedFlats: parseValue<int>(json, "AllotedFlats"),
+    availableFlats: parseValue<int>(json, "AvailableFlats"),
+    bookedFlats: parseValue<int>(json, "BookedFlats"),
+    holdFlats: parseValue<int>(json, "HoldFlats"),
+    blockedFlats: parseValue<int>(json, "BlockedFlats"),
+    totalParking: parseValue<int>(json, "TotalParking"),
+    availableParking: parseValue<int>(json, "AvailableParking"),
+    bookedParking: parseValue<int>(json, "BookedParking"),
+    holdParking: parseValue<int>(json, "HoldParking"),
+    blockedParking: parseValue<int>(json, "BlockedParking"),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "ProjectId": projectId,
+    "Building": building,
+    "Wing": wing,
+    "Floors": floors,
+    "Units": units,
+    "AllotedFlats": allotedFlats,
+    "AvailableFlats": availableFlats,
+    "BookedFlats": bookedFlats,
+    "HoldFlats": holdFlats,
+    "BlockedFlats": blockedFlats,
+    "TotalParking": totalParking,
+    "AvailableParking": availableParking,
+    "BookedParking": bookedParking,
+    "HoldParking": holdParking,
+    "BlockedParking": blockedParking,
   };
 }

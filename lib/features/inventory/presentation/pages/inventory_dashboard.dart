@@ -33,6 +33,12 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
   // CUBIT
   late InventoryCubit _inventoryCubit;
   late ProjectModel _selectedProject;
+  final ValueNotifier<Map<String, dynamic>?> selectedBuildingNotifier =
+      ValueNotifier(null);
+
+  final ValueNotifier<Map<String, dynamic>?> selectedWingNotifier =
+      ValueNotifier(null);
+  int selectedTab = 1;
   @override
   void initState() {
     super.initState();
@@ -82,357 +88,362 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                 child: noDataWidget(message: "No Data Found", iconSize: 180),
               );
             }
-            return SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // SELECTED PROJECT TEXT PROJECT CUSTOM TEXT FIELD (ONLY DISPLAY)
-                  showSiteSelectedWidget(),
-                  // GENERATE REPORT AND ADD BUTTON
-                  if (_selectedProject.projectId != 0) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: showSiteSelectedWidget(),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (_selectedProject.projectId != 0) ...[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 5.0,
+                                  horizontal: 12.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(6.0),
+                                  color: AppColor.lightBlue,
+                                ),
+                                child: Row(
+                                  children: [
+                                    SvgPicture.asset(
+                                      AppAssets.generateReportIcon,
+                                      width: 16,
+                                      height: 16,
+                                    ),
+                                    horizontalSpacing(),
+                                    Text(
+                                      "Generate Report",
+                                      style: AppTextStyle.ts14M(
+                                        color: AppColor.primary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (_routeAuthorizationModel.isAction) ...[
+                                horizontalSpacing(width: 20.0),
+                                CustomButton(
+                                  leading: Icon(
+                                    Icons.add,
+                                    size: 18,
+                                    color: AppColor.white,
+                                  ),
+                                  text: "Add Inventory",
+                                  onPressed: () {
+                                    goRouter.pushNamed(AppRoutes.inventory);
+                                  },
+                                ),
+                              ],
+                            ],
+                          ),
+                        ] else ...[
+                          SizedBox.shrink(),
+                        ],
+                        verticalSpacing(),
+                        // TOTOAL BUILDING COUNT WIDGET
                         Container(
                           padding: EdgeInsets.symmetric(
-                            vertical: 5.0,
-                            horizontal: 12.0,
+                            horizontal: 16.0,
+                            vertical: 16.0,
                           ),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(6.0),
-                            color: AppColor.lightBlue,
+                            borderRadius: BorderRadius.circular(8.0),
+                            color: AppColor.white,
                           ),
-                          child: Row(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SvgPicture.asset(
-                                AppAssets.generateReportIcon,
-                                width: 16,
-                                height: 16,
-                              ),
-                              horizontalSpacing(),
-                              Text(
-                                "Generate Report",
-                                style: AppTextStyle.ts14M(
-                                  color: AppColor.primary,
-                                ),
+                              Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    AppAssets.totalBuildingsIcon,
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                  horizontalSpacing(width: 16.0),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Total Buildings",
+                                          style: AppTextStyle.ts14M(
+                                            color: AppColor.black.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          table0.totalBuilding.toString(),
+                                          style: AppTextStyle.ts20SB(
+                                            color: AppColor.black,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ),
-                        if (_routeAuthorizationModel.isAction) ...[
-                          horizontalSpacing(width: 20.0),
-                          CustomButton(
-                            leading: Icon(
-                              Icons.add,
-                              size: 18,
-                              color: AppColor.white,
-                            ),
-                            text: "Add Inventory",
-                            onPressed: () {
-                              goRouter.pushNamed(AppRoutes.inventory);
-                            },
-                          ),
-                        ],
-                      ],
-                    ),
-                  ] else ...[
-                    SizedBox.shrink(),
-                  ],
-                  verticalSpacing(),
-                  // TOTOAL BUILDING COUNT WIDGET
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 16.0,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.0),
-                      color: AppColor.white,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                        verticalSpacing(),
+                        // BASEMENT AND PODIUM COUNT WIDGET
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            SvgPicture.asset(
-                              AppAssets.totalBuildingsIcon,
-                              width: 30,
-                              height: 30,
-                            ),
-                            horizontalSpacing(width: 16.0),
                             Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Total Buildings",
-                                    style: AppTextStyle.ts14M(
-                                      color: AppColor.black.withValues(
-                                        alpha: 0.5,
-                                      ),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16.0,
+                                  vertical: 16.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  color: AppColor.white,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        SvgPicture.asset(
+                                          AppAssets.basementIcon,
+                                          width: 30,
+                                          height: 30,
+                                        ),
+                                        horizontalSpacing(width: 16.0),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Basement",
+                                                style: AppTextStyle.ts14M(
+                                                  color: AppColor.black
+                                                      .withValues(alpha: 0.5),
+                                                ),
+                                              ),
+                                              Text(
+                                                inventoryDashboardData
+                                                    .first
+                                                    .table0
+                                                    .first
+                                                    .totalBasement
+                                                    .toString(),
+                                                style: AppTextStyle.ts20SB(
+                                                  color: AppColor.black,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                  Text(
-                                    table0.totalBuilding.toString(),
-                                    style: AppTextStyle.ts20SB(
-                                      color: AppColor.black,
+                                  ],
+                                ),
+                              ),
+                            ),
+                            horizontalSpacing(),
+                            Expanded(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16.0,
+                                  vertical: 16.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  color: AppColor.white,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        SvgPicture.asset(
+                                          AppAssets.podiumIcon,
+                                          width: 30,
+                                          height: 30,
+                                        ),
+                                        horizontalSpacing(width: 16.0),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Podium",
+                                                style: AppTextStyle.ts14M(
+                                                  color: AppColor.black
+                                                      .withValues(alpha: 0.5),
+                                                ),
+                                              ),
+                                              Text(
+                                                inventoryDashboardData
+                                                    .first
+                                                    .table0
+                                                    .first
+                                                    .totalPodium
+                                                    .toString(),
+                                                style: AppTextStyle.ts20SB(
+                                                  color: AppColor.black,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ],
                         ),
+                        verticalSpacing(),
+                        // WINGS AND FLOORS COUNT WIDGET
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16.0,
+                                  vertical: 16.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  color: AppColor.white,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        SvgPicture.asset(
+                                          AppAssets.wingsIcon,
+                                          width: 30,
+                                          height: 30,
+                                        ),
+                                        horizontalSpacing(width: 16.0),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Wings",
+                                                style: AppTextStyle.ts14M(
+                                                  color: AppColor.black
+                                                      .withValues(alpha: 0.5),
+                                                ),
+                                              ),
+                                              Text(
+                                                inventoryDashboardData
+                                                    .first
+                                                    .table0
+                                                    .first
+                                                    .totalWings
+                                                    .toString(),
+                                                style: AppTextStyle.ts20SB(
+                                                  color: AppColor.black,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            horizontalSpacing(),
+                            Expanded(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16.0,
+                                  vertical: 16.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  color: AppColor.white,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        SvgPicture.asset(
+                                          AppAssets.groundIcon,
+                                          width: 30,
+                                          height: 30,
+                                        ),
+                                        horizontalSpacing(width: 16.0),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Ground",
+                                                style: AppTextStyle.ts14M(
+                                                  color: AppColor.black
+                                                      .withValues(alpha: 0.5),
+                                                ),
+                                              ),
+                                              Text(
+                                                inventoryDashboardData
+                                                    .first
+                                                    .table0
+                                                    .first
+                                                    .totalBuilding
+                                                    .toString(),
+                                                style: AppTextStyle.ts20SB(
+                                                  color: AppColor.black,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(height: 16),
+                        // UNIT STATUS DISTRIBUTION WIDGET
+                        _buildUnitStatusDistributionWidget(context),
+                        verticalSpacing(height: 16),
+                        // PARKING DISTRIBUTION WIDGET
+                        _buildParkingDistributionWidget(context),
+                        verticalSpacing(height: 16),
+                        // BUILDING OVERVIEW WIDGET
+                        _buildBuildingOverviewWidget(context),
+                        verticalSpacing(height: 16),
+                        // ATLERT WIDGET
+                        _buildAlertsWidget(context),
                       ],
                     ),
                   ),
-                  verticalSpacing(),
-                  // BASEMENT AND PODIUM COUNT WIDGET
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 16.0,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            color: AppColor.white,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  SvgPicture.asset(
-                                    AppAssets.basementIcon,
-                                    width: 30,
-                                    height: 30,
-                                  ),
-                                  horizontalSpacing(width: 16.0),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Basement",
-                                          style: AppTextStyle.ts14M(
-                                            color: AppColor.black.withValues(
-                                              alpha: 0.5,
-                                            ),
-                                          ),
-                                        ),
-                                        Text(
-                                          inventoryDashboardData
-                                              .first
-                                              .table0
-                                              .first
-                                              .totalBasement
-                                              .toString(),
-                                          style: AppTextStyle.ts20SB(
-                                            color: AppColor.black,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      horizontalSpacing(),
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 16.0,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            color: AppColor.white,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  SvgPicture.asset(
-                                    AppAssets.podiumIcon,
-                                    width: 30,
-                                    height: 30,
-                                  ),
-                                  horizontalSpacing(width: 16.0),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Podium",
-                                          style: AppTextStyle.ts14M(
-                                            color: AppColor.black.withValues(
-                                              alpha: 0.5,
-                                            ),
-                                          ),
-                                        ),
-                                        Text(
-                                          inventoryDashboardData
-                                              .first
-                                              .table0
-                                              .first
-                                              .totalPodium
-                                              .toString(),
-                                          style: AppTextStyle.ts20SB(
-                                            color: AppColor.black,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  verticalSpacing(),
-                  // WINGS AND FLOORS COUNT WIDGET
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 16.0,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            color: AppColor.white,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  SvgPicture.asset(
-                                    AppAssets.wingsIcon,
-                                    width: 30,
-                                    height: 30,
-                                  ),
-                                  horizontalSpacing(width: 16.0),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Wings",
-                                          style: AppTextStyle.ts14M(
-                                            color: AppColor.black.withValues(
-                                              alpha: 0.5,
-                                            ),
-                                          ),
-                                        ),
-                                        Text(
-                                          inventoryDashboardData
-                                              .first
-                                              .table0
-                                              .first
-                                              .totalWings
-                                              .toString(),
-                                          style: AppTextStyle.ts20SB(
-                                            color: AppColor.black,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      horizontalSpacing(),
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 16.0,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            color: AppColor.white,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  SvgPicture.asset(
-                                    AppAssets.groundIcon,
-                                    width: 30,
-                                    height: 30,
-                                  ),
-                                  horizontalSpacing(width: 16.0),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Ground",
-                                          style: AppTextStyle.ts14M(
-                                            color: AppColor.black.withValues(
-                                              alpha: 0.5,
-                                            ),
-                                          ),
-                                        ),
-                                        Text(
-                                          inventoryDashboardData
-                                              .first
-                                              .table0
-                                              .first
-                                              .totalBuilding
-                                              .toString(),
-                                          style: AppTextStyle.ts20SB(
-                                            color: AppColor.black,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  verticalSpacing(),
-                  // UNIT STATUS DISTRIBUTION WIDGET
-                  _buildUnitStatusDistributionWidget(context),
-                  verticalSpacing(),
-                  // PARKING DISTRIBUTION WIDGET
-                  _buildParkingDistributionWidget(context),
-                  verticalSpacing(),
-                  // BUILDING OVERVIEW WIDGET
-                  _buildBuildingOverviewWidget(context),
-                  verticalSpacing(),
-                  // ATLERT WIDGET
-                  _buildAlertsWidget(context),
-                ],
-              ),
+                ),
+              ],
             );
           },
         ),
@@ -459,6 +470,13 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
         final availableUnits =
             state.inventoryDashboardModel!.table0.first.availableFlats;
 
+        final totalUnits =
+            availableUnits +
+            blockedUnits +
+            bookedUnits +
+            holdUnits +
+            allotedUnits;
+
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -480,154 +498,211 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
               ),
               verticalSpacing(height: 20),
               if (table0 != null) ...[
-                Center(
-                  child: CommonRadialChart(
-                    items: [
-                      RadialChartItem(
-                        title: "Blocked Units",
-                        value: blockedUnits,
-                        color: AppColor.black.withValues(alpha: 0.5),
-                        onValueTap:
-                            blockedUnits == 0
-                                ? () {}
-                                : () async {
-                                  final title = "Blocked Units ($blockedUnits)";
-                                  final queryParams = {"FlatStatus": "blocked"};
-                                  await _inventoryCubit.resetUnits();
-                                  await goRouter.pushNamed(
-                                    AppRoutes.unitDistributionStatus,
-                                    queryParameters: {
-                                      'title': Uri.encodeComponent(
-                                        EncryptionManager.encryptData(title),
-                                      ),
-                                      'queryParams': Uri.encodeComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(queryParams),
-                                        ),
-                                      ),
-                                      'projectId':
-                                          _selectedProject.projectId.toString(),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: CommonRadialChart(
+                        items: [
+                          RadialChartItem(
+                            title: "Blocked Units",
+                            value: blockedUnits,
+                            color: AppColor.black.withValues(alpha: 0.5),
+                            onValueTap:
+                                blockedUnits == 0
+                                    ? () {}
+                                    : () async {
+                                      final title =
+                                          "Blocked Units ($blockedUnits)";
+                                      final queryParams = {
+                                        "FlatStatus": "blocked",
+                                      };
+                                      await _inventoryCubit.resetUnits();
+                                      await goRouter.pushNamed(
+                                        AppRoutes.unitDistributionStatus,
+                                        queryParameters: {
+                                          'title': Uri.encodeComponent(
+                                            EncryptionManager.encryptData(
+                                              title,
+                                            ),
+                                          ),
+                                          'queryParams': Uri.encodeComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(queryParams),
+                                            ),
+                                          ),
+                                          'projectId':
+                                              _selectedProject.projectId
+                                                  .toString(),
+                                        },
+                                      );
                                     },
-                                  );
-                                },
-                      ),
-                      RadialChartItem(
-                        title: "Member Units",
-                        value: allotedUnits,
-                        color: AppColor.purple,
-                        onValueTap:
-                            allotedUnits == 0
-                                ? () {}
-                                : () async {
-                                  final title = "Member Units ($allotedUnits)";
-                                  final queryParams = {"FlatStatus": "alloted"};
-                                  await _inventoryCubit.resetUnits();
-                                  await goRouter.pushNamed(
-                                    AppRoutes.unitDistributionStatus,
-                                    queryParameters: {
-                                      'title': Uri.encodeComponent(
-                                        EncryptionManager.encryptData(title),
-                                      ),
-                                      'queryParams': Uri.encodeComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(queryParams),
-                                        ),
-                                      ),
-                                      'projectId':
-                                          _selectedProject.projectId.toString(),
+                          ),
+                          RadialChartItem(
+                            title: "Member Units",
+                            value: allotedUnits,
+                            color: AppColor.purple,
+                            onValueTap:
+                                allotedUnits == 0
+                                    ? () {}
+                                    : () async {
+                                      final title =
+                                          "Member Units ($allotedUnits)";
+                                      final queryParams = {
+                                        "FlatStatus": "alloted",
+                                      };
+                                      await _inventoryCubit.resetUnits();
+                                      await goRouter.pushNamed(
+                                        AppRoutes.unitDistributionStatus,
+                                        queryParameters: {
+                                          'title': Uri.encodeComponent(
+                                            EncryptionManager.encryptData(
+                                              title,
+                                            ),
+                                          ),
+                                          'queryParams': Uri.encodeComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(queryParams),
+                                            ),
+                                          ),
+                                          'projectId':
+                                              _selectedProject.projectId
+                                                  .toString(),
+                                        },
+                                      );
                                     },
-                                  );
-                                },
-                      ),
-                      RadialChartItem(
-                        title: "Booked Units",
-                        value: bookedUnits,
-                        color: AppColor.error,
-                        onValueTap:
-                            bookedUnits == 0
-                                ? () {}
-                                : () async {
-                                  final title = "Booked Units ($bookedUnits)";
-                                  final queryParams = {"FlatStatus": "booked"};
-                                  await _inventoryCubit.resetUnits();
-                                  await goRouter.pushNamed(
-                                    AppRoutes.unitDistributionStatus,
-                                    queryParameters: {
-                                      'title': Uri.encodeComponent(
-                                        EncryptionManager.encryptData(title),
-                                      ),
-                                      'queryParams': Uri.encodeComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(queryParams),
-                                        ),
-                                      ),
-                                      'projectId':
-                                          _selectedProject.projectId.toString(),
+                          ),
+                          RadialChartItem(
+                            title: "Booked Units",
+                            value: bookedUnits,
+                            color: AppColor.error,
+                            onValueTap:
+                                bookedUnits == 0
+                                    ? () {}
+                                    : () async {
+                                      final title =
+                                          "Booked Units ($bookedUnits)";
+                                      final queryParams = {
+                                        "FlatStatus": "booked",
+                                      };
+                                      await _inventoryCubit.resetUnits();
+                                      await goRouter.pushNamed(
+                                        AppRoutes.unitDistributionStatus,
+                                        queryParameters: {
+                                          'title': Uri.encodeComponent(
+                                            EncryptionManager.encryptData(
+                                              title,
+                                            ),
+                                          ),
+                                          'queryParams': Uri.encodeComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(queryParams),
+                                            ),
+                                          ),
+                                          'projectId':
+                                              _selectedProject.projectId
+                                                  .toString(),
+                                        },
+                                      );
                                     },
-                                  );
-                                },
-                      ),
-                      RadialChartItem(
-                        title: "Hold Units",
-                        value: holdUnits,
-                        color: AppColor.yellow,
-                        onValueTap:
-                            holdUnits == 0
-                                ? () {}
-                                : () async {
-                                  final title = "Hold Units ($holdUnits)";
-                                  final queryParams = {"FlatStatus": "hold"};
-                                  await _inventoryCubit.resetUnits();
-                                  await goRouter.pushNamed(
-                                    AppRoutes.unitDistributionStatus,
-                                    queryParameters: {
-                                      'title': Uri.encodeComponent(
-                                        EncryptionManager.encryptData(title),
-                                      ),
-                                      'queryParams': Uri.encodeComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(queryParams),
-                                        ),
-                                      ),
-                                      'projectId':
-                                          _selectedProject.projectId.toString(),
+                          ),
+                          RadialChartItem(
+                            title: "Hold Units",
+                            value: holdUnits,
+                            color: AppColor.yellow,
+                            onValueTap:
+                                holdUnits == 0
+                                    ? () {}
+                                    : () async {
+                                      final title = "Hold Units ($holdUnits)";
+                                      final queryParams = {
+                                        "FlatStatus": "hold",
+                                      };
+                                      await _inventoryCubit.resetUnits();
+                                      await goRouter.pushNamed(
+                                        AppRoutes.unitDistributionStatus,
+                                        queryParameters: {
+                                          'title': Uri.encodeComponent(
+                                            EncryptionManager.encryptData(
+                                              title,
+                                            ),
+                                          ),
+                                          'queryParams': Uri.encodeComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(queryParams),
+                                            ),
+                                          ),
+                                          'projectId':
+                                              _selectedProject.projectId
+                                                  .toString(),
+                                        },
+                                      );
                                     },
-                                  );
-                                },
-                      ),
-                      RadialChartItem(
-                        title: "Available Units",
-                        onValueTap:
-                            availableUnits == 0
-                                ? () {}
-                                : () async {
-                                  final title =
-                                      "Available Units (${state.inventoryDashboardModel!.table0.first.availableFlats})";
-                                  final queryParams = {
-                                    "FlatStatus": "available",
-                                  };
-                                  await _inventoryCubit.resetUnits();
-                                  await goRouter.pushNamed(
-                                    AppRoutes.unitDistributionStatus,
-                                    queryParameters: {
-                                      'title': Uri.encodeComponent(
-                                        EncryptionManager.encryptData(title),
-                                      ),
-                                      'queryParams': Uri.encodeComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(queryParams),
-                                        ),
-                                      ),
-                                      'projectId':
-                                          _selectedProject.projectId.toString(),
+                          ),
+                          RadialChartItem(
+                            title: "Available Units",
+                            onValueTap:
+                                availableUnits == 0
+                                    ? () {}
+                                    : () async {
+                                      final title =
+                                          "Available Units (${state.inventoryDashboardModel!.table0.first.availableFlats})";
+                                      final queryParams = {
+                                        "FlatStatus": "available",
+                                      };
+                                      await _inventoryCubit.resetUnits();
+                                      await goRouter.pushNamed(
+                                        AppRoutes.unitDistributionStatus,
+                                        queryParameters: {
+                                          'title': Uri.encodeComponent(
+                                            EncryptionManager.encryptData(
+                                              title,
+                                            ),
+                                          ),
+                                          'queryParams': Uri.encodeComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(queryParams),
+                                            ),
+                                          ),
+                                          'projectId':
+                                              _selectedProject.projectId
+                                                  .toString(),
+                                        },
+                                      );
                                     },
-                                  );
-                                },
-                        value: availableUnits,
-                        color: AppColor.green,
+                            value: availableUnits,
+                            color: AppColor.green,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    Divider(
+                      thickness: 0.3,
+                      color: AppColor.black.withValues(alpha: 0.5),
+                    ),
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "Total Units",
+                            style: AppTextStyle.ts14M(
+                              color: AppColor.black.withValues(alpha: 0.5),
+                            ),
+                          ),
+                          TextSpan(
+                            text: " : ",
+                            style: AppTextStyle.ts14M(
+                              color: AppColor.black.withValues(alpha: 0.5),
+                            ),
+                          ),
+                          TextSpan(
+                            text: totalUnits.toString(),
+                            style: AppTextStyle.ts14SB(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ] else ...[
                 Center(
@@ -656,7 +731,6 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
         final data = state.inventoryDashboardModel;
         final table1 = data?.table1;
         return Container(
-          height: 300.0,
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
           child: Column(
@@ -695,7 +769,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                           horizontalSpacing(width: 6.0),
                           Text(
                             "Total Parking",
-                            style: AppTextStyle.ts12R(
+                            style: AppTextStyle.ts14R(
                               color: AppColor.black.withValues(alpha: 0.50),
                             ),
                           ),
@@ -717,7 +791,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                           horizontalSpacing(width: 6.0),
                           Text(
                             "Available Parking",
-                            style: AppTextStyle.ts12R(
+                            style: AppTextStyle.ts14R(
                               color: AppColor.black.withValues(alpha: 0.50),
                             ),
                           ),
@@ -727,29 +801,22 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                   ],
                 ),
                 verticalSpacing(height: 20.0),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: table1.length,
-                    shrinkWrap: true,
-                    physics: AlwaysScrollableScrollPhysics(),
-                    itemBuilder: (context, int index) {
-                      final parkingDetails = table1[index];
-                      return _buildParkingRow(
-                        title: parkingDetails.floorName,
-                        used: parkingDetails.availableParking,
-                        total: parkingDetails.totalParking,
-                      );
-                    },
-                  ),
+                ListView.builder(
+                  itemCount: table1.length,
+                  shrinkWrap: true,
+                  physics: BouncingScrollPhysics(),
+                  itemBuilder: (context, int index) {
+                    final parkingDetails = table1[index];
+                    return _buildParkingRow(
+                      title: parkingDetails.floorName,
+                      used: parkingDetails.availableParking,
+                      total: parkingDetails.totalParking,
+                    );
+                  },
                 ),
               ] else ...[
-                Expanded(
-                  child: Center(
-                    child: noDataWidget(
-                      message: "No Data Found",
-                      iconSize: 180,
-                    ),
-                  ),
+                Center(
+                  child: noDataWidget(message: "No Data Found", iconSize: 180),
                 ),
               ],
             ],
@@ -767,7 +834,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
     final double progress = total == 0 ? 0 : used / total;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 18.0),
+      padding: const EdgeInsets.all(8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -775,7 +842,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                title,
+                title.isEmpty ? '-' : title,
                 style: AppTextStyle.ts14M(
                   color: AppColor.black.withValues(alpha: 0.7),
                 ),
@@ -788,9 +855,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
               ),
             ],
           ),
-
-          verticalSpacing(height: 10),
-
+          verticalSpacing(),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
@@ -865,42 +930,55 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  _buildOverviewItem(
-                                    buildingOverview.basement.toString(),
-                                    "Basement",
+                                  Expanded(
+                                    child: buildColumnTitleValueNormal(
+                                      value:
+                                          buildingOverview.basement.toString(),
+                                      title: "Basement",
+                                    ),
                                   ),
                                   horizontalSpacing(),
-                                  _buildOverviewItem(
-                                    buildingOverview.podiums.toString(),
-                                    "Podiums",
+                                  Expanded(
+                                    child: buildColumnTitleValueNormal(
+                                      value:
+                                          buildingOverview.podiums.toString(),
+                                      title: "Podiums",
+                                    ),
                                   ),
                                   horizontalSpacing(),
-                                  _buildOverviewItem(
-                                    buildingOverview.wings.toString(),
-                                    "Wings",
+                                  buildColumnTitleValueNormal(
+                                    value: buildingOverview.wings.toString(),
+                                    title: "Wings",
                                   ),
                                 ],
                               ),
-                              verticalSpacing(height: 20),
+                              verticalSpacing(),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _buildOverviewItem(
-                                    buildingOverview.floors.toString(),
-                                    "Floor",
+                                  Expanded(
+                                    child: buildColumnTitleValueNormal(
+                                      value: buildingOverview.floors.toString(),
+                                      title: "Floor",
+                                    ),
                                   ),
                                   horizontalSpacing(),
-                                  _buildOverviewItem(
-                                    buildingOverview.units.toString(),
-                                    "Units",
+                                  Expanded(
+                                    child: buildColumnTitleValueNormal(
+                                      value: buildingOverview.units.toString(),
+                                      title: "Units",
+                                    ),
                                   ),
                                   horizontalSpacing(),
-                                  _buildOverviewItem(
-                                    buildingOverview.parking.toString(),
-                                    "Parkings",
+                                  buildColumnTitleValueNormal(
+                                    value: buildingOverview.parking.toString(),
+                                    title: "Parkings",
                                   ),
                                 ],
                               ),
@@ -920,24 +998,6 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildOverviewItem(String value, String label) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: AppTextStyle.ts12M(
-              color: AppColor.black.withValues(alpha: 0.50),
-            ),
-          ),
-          verticalSpacing(height: 4),
-          Text(value, style: AppTextStyle.ts14M()),
-        ],
-      ),
     );
   }
 
@@ -996,8 +1056,9 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                           children: [
                             Text(
                               alerts.buildingName,
-                              style: AppTextStyle.ts14M(),
+                              style: AppTextStyle.ts16M(),
                             ),
+                            verticalSpacing(height: 16.0),
                             Text(alerts.issue, style: AppTextStyle.ts14R()),
                           ],
                         ),

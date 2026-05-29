@@ -585,7 +585,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
             text: TextSpan(
               children: [
                 TextSpan(
-                  text: "Total Registeration",
+                  text: "Total Registration",
                   style: AppTextStyle.ts14M(
                     color: AppColor.black.withValues(alpha: 0.5),
                   ),
@@ -678,7 +678,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                           Expanded(
                             child: buildColumnTitleValueNormal(
                               title: "Amount",
-                              value: addCommasToInteger(value.agreementValue),
+                              value: value.agreementValue.addCommas(),
                             ),
                           ),
                           horizontalSpacing(),

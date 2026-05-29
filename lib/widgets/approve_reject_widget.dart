@@ -72,7 +72,7 @@ class ApproveRejectWidget extends StatelessWidget {
                       "Approval Status : ",
                       style: AppTextStyle.ts12M(color: AppColor.grey),
                     ),
-                    approvalStatusWidget(actionTitle),
+                    approvalStatusWidget(actionTitle.toUpperCase()),
                   ],
                 ),
             (isActionAlreadyPerformed && onThirdTap != null)

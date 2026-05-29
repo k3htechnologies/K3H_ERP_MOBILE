@@ -25,15 +25,12 @@ class ChipStyleTabBar extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Container(
         margin: margin,
-        height: 50.h,
+        height: isSecondaryStyle ? 36.h : 50.h,
         child:
             isSecondaryStyle
                 ? TabBar(
                   padding: EdgeInsets.zero,
-                  labelPadding: EdgeInsets.symmetric(
-                    horizontal: 12.0,
-                    vertical: 12.0,
-                  ),
+                  labelPadding: EdgeInsets.symmetric(horizontal: 12),
                   controller: controller,
                   isScrollable: true,
                   labelColor: AppColor.primary,
@@ -42,6 +39,7 @@ class ChipStyleTabBar extends StatelessWidget {
                   unselectedLabelStyle: AppTextStyle.ts14M(),
                   tabAlignment: TabAlignment.start,
                   dividerColor: AppColor.lightBlue,
+                  dividerHeight: 1,
                   indicator: UnderlineTabIndicator(
                     borderRadius: BorderRadius.circular(5),
                     borderSide: BorderSide(width: 2, color: AppColor.primary),
