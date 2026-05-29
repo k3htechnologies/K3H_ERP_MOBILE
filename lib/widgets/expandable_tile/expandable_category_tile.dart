@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/amenity_category.model.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -21,9 +22,7 @@ class ExpandableCategoryTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColor.white,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: AppColor.grey.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,14 +38,11 @@ class ExpandableCategoryTile extends StatelessWidget {
               onCategoryChanged(updatedCategory);
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    category.title,
-                    style: AppTextStyle.ts14M(),
-                  ),
+                  Text(category.title, style: AppTextStyle.ts14M()),
                   Icon(
                     category.isExpanded
                         ? Icons.keyboard_arrow_up
@@ -73,9 +69,8 @@ class ExpandableCategoryTile extends StatelessWidget {
 
                   return InkWell(
                     onTap: () {
-                      final updatedSubCategories = List<AmenitySubCategory>.from(
-                        category.subCategories,
-                      );
+                      final updatedSubCategories =
+                          List<AmenitySubCategory>.from(category.subCategories);
                       updatedSubCategories[index] = AmenitySubCategory(
                         name: subCategory.name,
                         isSelected: !subCategory.isSelected,
@@ -93,14 +88,15 @@ class ExpandableCategoryTile extends StatelessWidget {
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        border: isLast
-                            ? null
-                            : Border(
-                                bottom: BorderSide(
-                                  color: AppColor.grey.withValues(alpha: 0.2),
-                                  width: 1,
+                        border:
+                            isLast
+                                ? null
+                                : Border(
+                                  bottom: BorderSide(
+                                    color: AppColor.grey.withValues(alpha: 0.2),
+                                    width: 1,
+                                  ),
                                 ),
-                              ),
                       ),
                       child: Row(
                         children: [
@@ -109,8 +105,8 @@ class ExpandableCategoryTile extends StatelessWidget {
                             onChanged: (value) {
                               final updatedSubCategories =
                                   List<AmenitySubCategory>.from(
-                                category.subCategories,
-                              );
+                                    category.subCategories,
+                                  );
                               updatedSubCategories[index] = AmenitySubCategory(
                                 name: subCategory.name,
                                 isSelected: value ?? false,

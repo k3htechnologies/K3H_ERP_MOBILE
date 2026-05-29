@@ -32,7 +32,13 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class EnquiryScreen extends StatefulWidget {
-  const EnquiryScreen({super.key});
+  final String? enquiryName;
+  final String? enquiryCode;
+  const EnquiryScreen({
+    super.key,
+    required this.enquiryName,
+    required this.enquiryCode,
+  });
 
   @override
   State<EnquiryScreen> createState() => _EnquiryScreenState();
@@ -76,6 +82,35 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
       ValueNotifier(null);
   final ValueNotifier<Map<String, dynamic>?> _selectedSubSourceNotifier =
       ValueNotifier(null);
+
+  @override
+  void initState() {
+    super.initState();
+    _enquiryCubit = context.read<EnquiryCubit>();
+    _project = getProject();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.enquiry]!;
+    _initializeTextEditingController();
+    _onScroll();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadEnquiry();
+    });
+  }
+
+  void _loadEnquiry() {
+    if (widget.enquiryName?.isEmpty == true &&
+        widget.enquiryCode?.isEmpty == true) {
+      _enquiryCubit.getEnquiryList(context, 1, _project.projectId);
+      return;
+    }
+    _searchC.text = widget.enquiryName!;
+    _enquiryCubit.searchEnquiry(
+      context,
+      widget.enquiryName!,
+      _project.projectId,
+      filterSystemCode: widget.enquiryCode,
+    );
+  }
 
   Future<void> openWhatsApp({
     required String phoneNumber,
@@ -136,20 +171,6 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         context: context,
       );
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _enquiryCubit = context.read<EnquiryCubit>();
-    _project = getProject();
-    _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.enquiry]!;
-    _initializeTextEditingController();
-    _onScroll();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _enquiryCubit.getEnquiryList(context, 1, _project.projectId);
-    });
   }
 
   @override
@@ -683,31 +704,6 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     }
   }
 
-  // GETTER FOR FOLLOWUP STATUS
-  String getFollowUpStatus(DateTime? nextFollowUpDate) {
-    if (nextFollowUpDate == null) return "-";
-
-    final DateTime today = DateTime.now();
-    if (nextFollowUpDate.year == 1970) return "-";
-
-    final DateTime currentDate = DateTime(today.year, today.month, today.day);
-    final DateTime followUpDate = DateTime(
-      nextFollowUpDate.year,
-      nextFollowUpDate.month,
-      nextFollowUpDate.day,
-    );
-
-    final int difference = followUpDate.difference(currentDate).inDays;
-
-    if (difference == 0) {
-      return "Today follow up";
-    } else if (difference > 0) {
-      return "Follow up in $difference day(s)";
-    } else {
-      return "-";
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -918,8 +914,13 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                       ),
                       buildRowTitleValue(
                         title: "Enquiry Follow Up Days",
-                        value: getFollowUpStatus(enquiry.nextFollowUpDate),
+                        value:
+                            enquiry.nextFollowUpDate?.toIso8601String() ??
+                            'No Follow up',
                         singleLine: false,
+                        customValueWidget: followUpStatusTextWidget(
+                          enquiry.nextFollowUpDate,
+                        ),
                       ),
                       buildRowTitleValue(
                         title: "Next Follow-Up Date",

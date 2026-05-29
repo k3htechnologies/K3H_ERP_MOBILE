@@ -22,7 +22,7 @@ Widget noDataWidget({String? message, double? iconSize}) => Container(
     children: [
       Image.asset(
         AppAssets.noDataImage,
-        width: iconSize ?? 200.w,
+        width: iconSize?.w ?? 200.w,
         fit: BoxFit.fitHeight,
       ),
       Text(

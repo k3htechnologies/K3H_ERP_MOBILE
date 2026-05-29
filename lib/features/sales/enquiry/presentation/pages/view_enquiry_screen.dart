@@ -1274,45 +1274,25 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       _nextFollowupDate = followUpModel.nextFollowUpDate;
     }
 
-    // ===================== STATUS IDs THAT REQUIRE NEXT FOLLOWUP DATE =====================
-    final followUpStatusIds = [
-      1, // Site Visit
-      2, // Re-Visit Proposed
-      3, // Re-Visit Scheduled
-      4, // Negotiation
-      5, // Unit Selection / Blocked
-      7, // Blocked
-      9, // Retention
-    ];
-
     await DialogHelper.showCustomBottomSheet(
       context,
       index != null ? "Update Follow Up" : "Add Follow Up",
       StatefulBuilder(
         builder: (context, innerBottomsheetState) {
-          final statusId = _selectedStatus.value?['zAttributesId'];
           final statusName = _selectedStatus.value?['DisplayName'];
 
           // ===================== CONDITIONAL WIDGETS =====================
-          Widget followUpDateWidget() =>
-              ((statusId != null && followUpStatusIds.contains(statusId) ||
-                      statusId == null))
-                  ? CustomDatePicker(
-                    title: "Next Followup Date",
-                    initialDate: _nextFollowupDate,
-                    isRequired: true,
-                    startDate: DateTime.now(),
-                    setValue:
-                        (date) => innerBottomsheetState(
-                          () => _nextFollowupDate = date,
-                        ),
-                    validator:
-                        (value) =>
-                            value == null
-                                ? "Next Followup Date is required"
-                                : null,
-                  )
-                  : const SizedBox.shrink();
+          Widget followUpDateWidget() => CustomDatePicker(
+            title: "Next Followup Date",
+            initialDate: _nextFollowupDate,
+            isRequired: true,
+            startDate: DateTime.now(),
+            setValue:
+                (date) => innerBottomsheetState(() => _nextFollowupDate = date),
+            validator:
+                (value) =>
+                    value == null ? "Next Followup Date is required" : null,
+          );
 
           Widget lostReasonWidget() =>
               (statusName == "Lost")

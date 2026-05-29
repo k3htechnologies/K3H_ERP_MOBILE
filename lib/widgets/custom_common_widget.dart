@@ -428,6 +428,7 @@ Widget enquiryStatusWidget(String status, {TextStyle? textStyle}) {
 
     case 're-visit proposed':
     case 're - visit proposed':
+    case 'follow - up':
       return statusChip(
         status,
         const Color(0xFFFFA500).withValues(alpha: 0.29),
@@ -456,4 +457,55 @@ Widget enquiryStatusWidget(String status, {TextStyle? textStyle}) {
         textStyle: textStyle ?? defaultStyle,
       );
   }
+}
+
+// GETTER FOR FOLLOWUP STATUS
+Widget followUpStatusTextWidget(DateTime? nextFollowUpDate) {
+  String getFollowUpStatus(DateTime? nextFollowUpDate) {
+    if (nextFollowUpDate == null) return "No Follow up";
+
+    final DateTime today = DateTime.now();
+
+    if (nextFollowUpDate.year == 1970) {
+      return "No Follow up";
+    }
+
+    final DateTime currentDate = DateTime(today.year, today.month, today.day);
+
+    final DateTime followUpDate = DateTime(
+      nextFollowUpDate.year,
+      nextFollowUpDate.month,
+      nextFollowUpDate.day,
+    );
+
+    final int difference = followUpDate.difference(currentDate).inDays;
+
+    if (difference == 0) {
+      return "Today";
+    } else if (difference > 0) {
+      return "Follow up in $difference day(s)";
+    } else {
+      return "Follow up overdue by ${difference.abs()} day(s)";
+    }
+  }
+
+  final String status = getFollowUpStatus(nextFollowUpDate);
+
+  Color statusColor;
+
+  switch (status) {
+    case "No Follow up":
+      statusColor = AppColor.black;
+      break;
+    case "Today":
+      statusColor = Color(0xFF1AA0DB);
+      break;
+    case var s when s.toLowerCase().contains("overdue"):
+      statusColor = AppColor.red;
+      break;
+    default:
+      statusColor = AppColor.green;
+  }
+
+  return Text(status, style: AppTextStyle.ts14M(color: statusColor));
 }

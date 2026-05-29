@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
@@ -236,7 +237,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
               verticalSpacing(height: 10.0),
               if (data.isNotEmpty) ...[
                 SizedBox(
-                  height: data.length > 3 ? 0.4.sh : null,
+                  height: data.length > 1 ? 0.4.sh : null,
                   child: SingleChildScrollView(
                     child: Column(
                       children:
@@ -274,8 +275,41 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                                       horizontalSpacing(),
                                       Expanded(
                                         child: _infoColumn(
-                                          "Client Name",
-                                          item.name,
+                                          "Enquiry Code",
+                                          item.systemGeneratedCode,
+                                          customWidget: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  item.systemGeneratedCode,
+                                                  style: AppTextStyle.ts14M(),
+                                                ),
+                                              ),
+                                              horizontalSpacing(width: 2),
+                                              InkWell(
+                                                onTap: () {
+                                                  copy(
+                                                    context: context,
+                                                    text:
+                                                        item.systemGeneratedCode,
+                                                  );
+                                                },
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        top: 2,
+                                                      ),
+                                                  child: Icon(
+                                                    Icons.copy,
+                                                    size: 16,
+                                                    color: AppColor.primary,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -289,10 +323,8 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                                     children: [
                                       Expanded(
                                         child: _infoColumn(
-                                          "Date",
-                                          formatDateTimeAsDDMMMYYYY(
-                                            item.enquiryDate,
-                                          ),
+                                          "Client Name",
+                                          item.name,
                                         ),
                                       ),
                                       horizontalSpacing(),
@@ -317,15 +349,17 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                                     children: [
                                       Expanded(
                                         child: _infoColumn(
-                                          "Customer Time In",
-                                          item.enquiryTimeIn,
+                                          "Date",
+                                          formatDateTimeAsDDMMMYYYY(
+                                            item.enquiryDate,
+                                          ),
                                         ),
                                       ),
                                       horizontalSpacing(),
                                       Expanded(
                                         child: _infoColumn(
-                                          "Sales Advisor",
-                                          item.salesAdvisor,
+                                          "Customer Time-in",
+                                          item.enquiryTimeIn,
                                         ),
                                       ),
                                     ],
@@ -339,6 +373,13 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                                     children: [
                                       Expanded(
                                         child: _infoColumn(
+                                          "Sales Advisor",
+                                          item.salesAdvisor,
+                                        ),
+                                      ),
+                                      horizontalSpacing(),
+                                      Expanded(
+                                        child: _infoColumn(
                                           "Sourcing Manager",
                                           item.sourcingManager.isEmpty
                                               ? "-"
@@ -350,9 +391,19 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                                   verticalSpacing(),
                                   CustomButton(
                                     text: "Time Out",
-                                    onPressed: () {
-                                      _showMarkAsTimeOutPopup(context, item);
-                                    },
+                                    backgroundColor:
+                                        item.canTimeOut == 0
+                                            ? AppColor.grey2
+                                            : AppColor.primary,
+                                    onPressed:
+                                        item.canTimeOut == 0
+                                            ? null
+                                            : () {
+                                              _showMarkAsTimeOutPopup(
+                                                context,
+                                                item,
+                                              );
+                                            },
                                   ),
                                 ],
                               ),
@@ -405,7 +456,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                 children: [
                   Expanded(
                     child: Text(
-                      "Active Follow-Ups",
+                      "Follow Up",
                       style: AppTextStyle.ts14M(
                         color: AppColor.black.withValues(alpha: 0.50),
                       ),
@@ -416,12 +467,12 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
               verticalSpacing(height: 10.0),
               if (data.isNotEmpty) ...[
                 SizedBox(
-                  height: data.length > 3 ? 300 : null,
+                  height: data.length > 1 ? 300 : null,
                   child: ListView.separated(
                     itemCount: data.length,
                     shrinkWrap: true,
                     physics:
-                        data.length > 3
+                        data.length > 1
                             ? AlwaysScrollableScrollPhysics()
                             : NeverScrollableScrollPhysics(),
                     separatorBuilder: (context, index) => SizedBox(height: 12),
@@ -501,6 +552,44 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                                   child: _infoColumn(
                                     "Client Name",
                                     activeFollowUps.name,
+                                    customWidget: InkWell(
+                                      onTap: () async {
+                                        await loadAndSelectProjectById(
+                                          activeFollowUps.projectId,
+                                        );
+                                        goRouter.pushNamed(
+                                          AppRoutes.enquiry,
+                                          queryParameters: {
+                                            "enquiryName":
+                                                Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    activeFollowUps.name,
+                                                  ),
+                                                ),
+                                            "enquiryCode":
+                                                Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    activeFollowUps
+                                                        .systemGeneratedCode,
+                                                  ),
+                                                ),
+                                          },
+                                        );
+                                      },
+                                      child: Text(
+                                        activeFollowUps.name,
+                                        style:
+                                            activeFollowUps.isAction == 1
+                                                ? AppTextStyle.ts14M().copyWith(
+                                                  color: AppColor.primary,
+                                                  decoration:
+                                                      TextDecoration.underline,
+                                                  decorationColor:
+                                                      AppColor.primary,
+                                                )
+                                                : AppTextStyle.ts14M(),
+                                      ),
+                                    ),
                                   ),
                                 ),
                                 horizontalSpacing(),
@@ -524,7 +613,12 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                                 Expanded(
                                   child: _infoColumn(
                                     "Due Day(s)",
-                                    activeFollowUps.enquiryFollowUpDays,
+                                    activeFollowUps.nextFollowUpDate
+                                            ?.toIso8601String() ??
+                                        "-",
+                                    customWidget: followUpStatusTextWidget(
+                                      activeFollowUps.nextFollowUpDate,
+                                    ),
                                   ),
                                 ),
                                 horizontalSpacing(),
@@ -680,6 +774,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
         if (state.isLoading == true) {
           return Center(child: loader());
         }
+
         final closingData =
             (state.salesDashboardList.isNotEmpty)
                 ? state.salesDashboardList.first.table2
@@ -689,6 +784,17 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
             (state.salesDashboardList.isNotEmpty)
                 ? state.salesDashboardList.first.table3
                 : <Table3>[];
+        final userClosingData = getCurrentUserDataClosing(closingData);
+        final userSourcingData = getCurrentUserDataSourcing(sourcingData);
+        final hasClosingData =
+            closingData.isNotEmpty && userClosingData != null;
+
+        final hasSourcingData =
+            sourcingData.isNotEmpty && userSourcingData != null;
+
+        final showViewAll =
+            (state.currentTabIndex == 0 && hasClosingData) ||
+            (state.currentTabIndex == 1 && hasSourcingData);
         return Container(
           padding: const EdgeInsets.only(
             left: 16.0,
@@ -704,26 +810,20 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "Performance Report",
-                    style: AppTextStyle.ts14M(color: AppColor.grey),
+                  RichText(
+                    text: TextSpan(
+                      text: "Performance Report",
+                      style: AppTextStyle.ts14M(),
+                      children: [
+                        TextSpan(
+                          text: "\n(Current Month)",
+                          style: AppTextStyle.ts12M(color: AppColor.grey),
+                        ),
+                      ],
+                    ),
                   ),
                   Visibility(
-                    visible:
-                        ((state.currentTabIndex == 0 &&
-                                state.salesDashboardList.isNotEmpty &&
-                                state
-                                    .salesDashboardList
-                                    .first
-                                    .table2
-                                    .isNotEmpty) ||
-                            (state.currentTabIndex == 1 &&
-                                state.salesDashboardList.isNotEmpty &&
-                                state
-                                    .salesDashboardList
-                                    .first
-                                    .table3
-                                    .isNotEmpty)),
+                    visible: showViewAll,
                     child: CustomButton(
                       text: "View All",
                       titleTextStyle: AppTextStyle.ts12M(color: AppColor.white),
@@ -766,9 +866,29 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
 
     if (data == null) {
       return Center(
-        child: noDataWidget(
-          message: "No Performance Report Data Found",
-          iconSize: 180,
+        child: Column(
+          children: [
+            noDataWidget(
+              message:
+                  list.isEmpty
+                      ? "No Performance Report Data Found"
+                      : "No performance report available for the logged-in user.",
+              iconSize: 180,
+            ),
+            if (list.isNotEmpty) ...[
+              verticalSpacing(),
+              SizedBox(
+                width: 200.w,
+                child: CustomButton(
+                  text: "View Team Report",
+                  titleTextStyle: AppTextStyle.ts12M(color: AppColor.white),
+                  onPressed: () {
+                    goRouter.pushNamed(AppRoutes.salesPerformanceReport);
+                  },
+                ),
+              ),
+            ],
+          ],
         ),
       );
     }
@@ -786,7 +906,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
         _buildExpandableCard(
           title: "Walkins",
           subTitle:
-              "${(data.performanceWalkinsByCP + data.performanceFreshVisits + data.performanceRevisits)}",
+              "${((data.performanceWalkinsByCP + data.performanceFreshVisits + data.performanceRevisits) / 300) * 100}",
           notifier: walkinsExpanded,
           children: [
             _buildTitleRow(),
@@ -835,7 +955,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
 
         _buildExpandableCard(
           title: "Meetings",
-          subTitle: "${(data.performanceTotalMeetings)}",
+          subTitle: "${(data.performanceTotalMeetings) / 500 * 100}",
           notifier: meetingExpanded,
           children: [
             _buildTitleRow(),
@@ -923,9 +1043,29 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
 
     if (data == null) {
       return Center(
-        child: noDataWidget(
-          message: "No Performance Report Data Found",
-          iconSize: 180,
+        child: Column(
+          children: [
+            noDataWidget(
+              message:
+                  list.isEmpty
+                      ? "No Performance Report Data Found"
+                      : "No performance report available for the logged-in user.",
+              iconSize: 180,
+            ),
+            if (list.isNotEmpty) ...[
+              verticalSpacing(),
+              SizedBox(
+                width: 200.w,
+                child: CustomButton(
+                  text: "View Team Report",
+                  titleTextStyle: AppTextStyle.ts12M(color: AppColor.white),
+                  onPressed: () {
+                    goRouter.pushNamed(AppRoutes.salesPerformanceReport);
+                  },
+                ),
+              ),
+            ],
+          ],
         ),
       );
     }
@@ -941,7 +1081,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
         _buildExpandableCard(
           title: "Walkins",
           subTitle:
-              "${(data.performanceWalkinsByCp + data.performanceFreshVisits + data.performanceRevisits + data.performanceWalkinsDirect)}",
+              "${((data.performanceWalkinsByCp + data.performanceFreshVisits + data.performanceRevisits + data.performanceWalkinsDirect) / 400) * 100}",
           notifier: walkinsExpanded,
           children: [
             _buildTitleRow(),
@@ -982,7 +1122,10 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
         _buildExpandableCard(
           title: "Bookings",
           subTitle:
-              "${(data.performanceBookingByCp + data.performanceBookingDirect)}",
+              (((data.performanceBookingByCp + data.performanceBookingDirect) /
+                          200) *
+                      100)
+                  .toString(),
           notifier: bookingsExpanded,
           children: [
             _buildTitleRow(),
@@ -992,7 +1135,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
               "Booking By CP",
               data.bookingByCp,
               data.actualBookingByCp,
-              data.performanceWalkinsByCp,
+              data.performanceBookingByCp,
             ),
             Divider(color: AppColor.grey50),
 

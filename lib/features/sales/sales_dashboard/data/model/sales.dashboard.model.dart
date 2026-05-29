@@ -120,6 +120,8 @@ class Table1 {
   final String sourcingManager;
   final DateTime createdDate;
   final int enquiryId;
+  final int projectId;
+  final int isAction;
 
   Table1({
     required this.systemGeneratedCode,
@@ -134,6 +136,8 @@ class Table1 {
     required this.createdDate,
     required this.enquiryId,
     required this.mobileNumberCountryCode,
+    required this.isAction,
+    required this.projectId,
   });
 
   factory Table1.fromJson(Map<String, dynamic> json) => Table1(
@@ -155,6 +159,8 @@ class Table1 {
     sourcingManager: parseValue<String>(json, "SourcingManager"),
     createdDate: parseValue<DateTime>(json, "CreatedDate"),
     enquiryId: parseValue<int>(json, "EnquiryId"),
+    isAction: parseValue<int>(json, "IsAction"),
+    projectId: parseValue<int>(json, "ProjectId"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -170,6 +176,8 @@ class Table1 {
     "SourcingManager": sourcingManager,
     "CreatedDate": createdDate.toIso8601String(),
     "EnquiryId": enquiryId,
+    "IsAction": isAction,
+    "ProjectId": projectId,
   };
 }
 
@@ -191,7 +199,7 @@ class Table2 {
   final double performanceRevisits;
   final int bookingByCp;
   final int actualBookingByCp;
-  final int performanceBookingByCp;
+  final double performanceBookingByCp;
   final int bookingDirect;
   final int actualBookingDirect;
   final double performanceBookingDirect;
@@ -245,7 +253,7 @@ class Table2 {
     performanceRevisits: parseValue<double>(json, "PerformanceRevisits"),
     bookingByCp: parseValue<int>(json, "BookingByCP"),
     actualBookingByCp: parseValue<int>(json, "ActualBookingByCP"),
-    performanceBookingByCp: parseValue<int>(json, "PerformanceBookingByCP"),
+    performanceBookingByCp: parseValue<double>(json, "PerformanceBookingByCP"),
     bookingDirect: parseValue<int>(json, "BookingDirect"),
     actualBookingDirect: parseValue<int>(json, "ActualBookingDirect"),
     performanceBookingDirect: parseValue<double>(

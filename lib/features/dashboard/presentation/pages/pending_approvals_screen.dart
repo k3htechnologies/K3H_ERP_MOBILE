@@ -38,7 +38,7 @@ class PendingApprovalsScreen extends StatelessWidget {
       ),
 
       body: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         itemCount: data.length,
 
         itemBuilder: (context, index) {

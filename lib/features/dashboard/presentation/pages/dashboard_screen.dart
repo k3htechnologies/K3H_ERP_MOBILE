@@ -1026,7 +1026,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         decoration: BoxDecoration(
           border:
               !removeBorder
-                  ? Border(bottom: BorderSide(color: AppColor.grey10))
+                  ? Border(bottom: BorderSide(color: AppColor.grey30))
                   : null,
         ),
         child: Row(
@@ -1401,7 +1401,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final userData = state.userData;
         final table1 = userData?.table1.first;
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
           decoration: commonCardDecoration(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1419,7 +1419,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ],
               ),
-              verticalSpacing(height: 10.0),
+              verticalSpacing(height: 12.0),
               if (table1 != null) ...[
                 Column(
                   children: [
@@ -1431,31 +1431,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       borderColor: Color(0xFFB7E4C7),
                       valueColor: Color(0xFF2E7D32),
                     ),
-                    verticalSpacing(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: AttendanceStatCard(
-                            title: "Avg Login Time",
-                            value: formatApiTimeToAmPm(table1.avgLoginTime),
-                            bgColor: Color(0xFFFFF6ED),
-                            borderColor: Color(0xFFFFD8B5),
-                            valueColor: Color(0xFFE65100),
+                    verticalSpacing(height: 12.0),
+                    IntrinsicHeight(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: AttendanceStatCard(
+                              title: "Avg Login Time",
+                              value: formatApiTimeToAmPm(table1.avgLoginTime),
+                              bgColor: Color(0xFFFFF6ED),
+                              borderColor: Color(0xFFFFD8B5),
+                              valueColor: Color(0xFFE65100),
+                            ),
                           ),
-                        ),
-                        horizontalSpacing(),
-                        Expanded(
-                          child: AttendanceStatCard(
-                            title: "Shift Pattern",
-                            value:
-                                "${dateFormatterHourOnly(table1.shiftBeginTime)} - ${dateFormatterHourOnly(table1.shiftEndTime)}",
-                            bgColor: Color(0xFFF4F0FF),
-                            borderColor: Color(0xFFD9CCFF),
-                            valueColor: Color(0xFF6A1B9A),
+                          horizontalSpacing(width: 12.0),
+                          Expanded(
+                            child: AttendanceStatCard(
+                              title: "Shift Pattern",
+                              value:
+                                  "${dateFormatterHourOnly(table1.shiftBeginTime)} - ${dateFormatterHourOnly(table1.shiftEndTime)}",
+                              bgColor: Color(0xFFF4F0FF),
+                              borderColor: Color(0xFFD9CCFF),
+                              valueColor: Color(0xFF6A1B9A),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -2339,7 +2342,7 @@ class AttendanceStatCard extends StatelessWidget {
     final formattedValue = _formatValue(value);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(8),
@@ -2347,7 +2350,7 @@ class AttendanceStatCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 4,
         children: [
           Text(
             title,

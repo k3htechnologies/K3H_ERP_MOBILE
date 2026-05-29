@@ -27,9 +27,22 @@ class EnquiryCubit extends Cubit<EnquiryState> {
       serviceLocator<ChannelPartnerRepository>();
 
   final UtilsRepository _utilsRepository = serviceLocator<UtilsRepository>();
+
   // SEARCH
-  void searchEnquiry(BuildContext context, String searchText, int projectId) {
-    emit(state.copyWith(searchText: searchText.trim()));
+  void searchEnquiry(
+    BuildContext context,
+    String searchText,
+    int projectId, {
+    String? filterSystemCode,
+  }) {
+    emit(
+      state.copyWith(
+        searchText: searchText.trim(),
+        filterSystemCode: filterSystemCode ?? '',
+        enquiryList: [],
+        currentPage: 1,
+      ),
+    );
     getEnquiryList(context, 1, projectId);
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/rent_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/data/model/payment_ledger.model.dart';
@@ -97,7 +98,7 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
           return RefreshIndicator(
             onRefresh: () async => _loadPaymentLedger(),
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               itemCount: list.length,
               itemBuilder: (context, index) {
                 return _paymentLedgerCard(list[index], state, index);

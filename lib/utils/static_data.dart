@@ -150,16 +150,17 @@ final List<Map<String, dynamic>> ethnicityList = [
 ];
 
 final List<Map<String, dynamic>> stageTypeList = [
-  {'zAttributesId': 1, 'DisplayName': 'Site Visit'},
-  {'zAttributesId': 2, 'DisplayName': 'Re - Visit Proposed'},
-  {'zAttributesId': 3, 'DisplayName': 'Re - Visit Scheduled'},
-  {'zAttributesId': 4, 'DisplayName': 'Negotiation'},
-  {'zAttributesId': 5, 'DisplayName': 'Unit Selection / Blocked'},
-  {'zAttributesId': 6, 'DisplayName': 'Booking Done'},
-  {'zAttributesId': 7, 'DisplayName': 'Blocked'},
-  {'zAttributesId': 8, 'DisplayName': 'Cancelled'},
-  {'zAttributesId': 9, 'DisplayName': 'Retention'},
-  {'zAttributesId': 10, 'DisplayName': 'Lost'},
+  {'zAttributesId': 1, 'DisplayName': 'Follow - UP'},
+  {'zAttributesId': 2, 'DisplayName': 'Site Visit'},
+  {'zAttributesId': 3, 'DisplayName': 'Re - Visit Proposed'},
+  {'zAttributesId': 4, 'DisplayName': 'Re - Visit Scheduled'},
+  {'zAttributesId': 5, 'DisplayName': 'Negotiation'},
+  {'zAttributesId': 6, 'DisplayName': 'Unit Selection / Blocked'},
+  {'zAttributesId': 7, 'DisplayName': 'Booking Done'},
+  {'zAttributesId': 8, 'DisplayName': 'Blocked'},
+  {'zAttributesId': 9, 'DisplayName': 'Cancelled'},
+  {'zAttributesId': 10, 'DisplayName': 'Retention'},
+  {'zAttributesId': 11, 'DisplayName': 'Lost'},
 ];
 
 final List<Map<String, dynamic>> finalStageDetailsList = [

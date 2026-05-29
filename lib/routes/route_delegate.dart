@@ -4512,7 +4512,22 @@ final GoRouter goRouter = GoRouter(
                   name: AppRoutes.enquiry,
                   path: AppRoutes.enquiry,
                   builder: (context, state) {
-                    return const EnquiryScreen();
+                    final queryParameterEnquiryName =
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(
+                            state.uri.queryParameters['enquiryName'] ?? '',
+                          ),
+                        );
+                    final queryParameterEnquiryCode =
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(
+                            state.uri.queryParameters['enquiryCode'] ?? '',
+                          ),
+                        );
+                    return EnquiryScreen(
+                      enquiryName: queryParameterEnquiryName,
+                      enquiryCode: queryParameterEnquiryCode,
+                    );
                   },
                 ),
                 GoRoute(

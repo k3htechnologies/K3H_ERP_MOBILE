@@ -24,6 +24,8 @@ import 'package:k3h_erp_app/widgets/custom_snack_bar.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../core/models/project.model.dart';
+
 // Function to return width
 double getActualWidth(BuildContext context) {
   return MediaQuery.sizeOf(context).width;
@@ -838,4 +840,35 @@ String queryParamsFormatter({required Map<String, dynamic>? queryParams}) {
     }
   });
   return url;
+}
+
+Future<void> loadAndSelectProjectById(int projectId) async {
+  // GET PROJECT LIST FROM LOCAL STORAGE
+  final projectsJson = LocalStorageManager().getString(StorageKey.projectList);
+
+  if (projectsJson == null || projectsJson.isEmpty) {
+    return;
+  }
+
+  // DECODE JSON TO LIST OF PROJECTS
+  final List<dynamic> decodedList = jsonDecode(projectsJson);
+
+  final List<ProjectModel> projects =
+      decodedList.map((e) => ProjectModel.fromJson(e)).toList();
+
+  // FIND THE PROJECT WITH THE GIVEN ID
+  final ProjectModel? selectedProject = projects
+      .cast<ProjectModel?>()
+      .firstWhere(
+        (project) => project?.projectId == projectId,
+        orElse: () => null,
+      );
+
+  // IF FOUND, SAVE TO LOCAL STORAGE AS SELECTED PROJECT
+  if (selectedProject != null) {
+    LocalStorageManager().setString(
+      StorageKey.selectedProject,
+      jsonEncode(selectedProject.toJson()),
+    );
+  }
 }
