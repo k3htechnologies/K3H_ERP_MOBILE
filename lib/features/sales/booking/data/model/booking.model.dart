@@ -87,6 +87,7 @@ class BookingModel {
   bool bookingApplicantModificationRequestIsApproval;
   String bookingApplicantModificationRequestApprovalStatus;
   int numberOfParking;
+  bool isApplicableOtherCharge;
 
   BookingModel({
     required this.bookingId,
@@ -172,6 +173,7 @@ class BookingModel {
     required this.bookingApplicantModificationRequestIsApproval,
     required this.bookingApplicantModificationRequestApprovalStatus,
     required this.numberOfParking,
+    required this.isApplicableOtherCharge,
   });
   factory BookingModel.fromJson(
     Map<String, dynamic> json, {
@@ -264,7 +266,7 @@ class BookingModel {
     approvalStatus: parseValue<String>(json, "ApprovalStatus"),
     isApproval: parseValue<bool>(json, "IsApproval"),
     bookingType: parseValue<String>(json, "BookingType"),
-
+    isApplicableOtherCharge: parseValue<bool>(json, "IsApplicableOtherCharge"),
     bookingOtherChargesData:
         (json["BookingOtherChargesData"] as List<dynamic>)
             .map(
@@ -401,6 +403,7 @@ class BookingModel {
     "ApprovalStatus": approvalStatus,
     "IsApproval": isApproval,
     "BookingType": bookingType,
+    "IsApplicableOtherCharge": isApplicableOtherCharge.toString(),
     "BookingOtherChargesData":
         bookingOtherChargesData.map((e) => e.toJson()).toList(),
     "BookingPaymentScheduleData":
