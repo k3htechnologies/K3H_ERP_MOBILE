@@ -412,11 +412,11 @@ class _MaterialRequisitionViewScreenState
                       children: [
                         buildColumnTitleValue(
                           title: "Basic Amount",
-                          value: addCommasToInteger(vendor.baseTotal),
+                          value: vendor.baseTotal.toIndianCurrency(),
                         ),
                         buildColumnTitleValue(
                           title: "Total Tax",
-                          value: addCommasToInteger(vendor.taxTotal),
+                          value: vendor.taxTotal.toIndianCurrency(),
                         ),
                       ],
                     ),
@@ -424,7 +424,7 @@ class _MaterialRequisitionViewScreenState
                       children: [
                         buildColumnTitleValue(
                           title: "Grand Total",
-                          value: addCommasToInteger(vendor.grandTotal),
+                          value: vendor.grandTotal.toIndianCurrency(),
                         ),
                         buildColumnTitleValue(
                           title: "Est. Delivery",
@@ -441,11 +441,11 @@ class _MaterialRequisitionViewScreenState
                       children: [
                         buildColumnTitleValue(
                           title: "Paid Amount",
-                          value: addCommasToInteger(vendor.paid),
+                          value: vendor.paid.toIndianCurrency(),
                         ),
                         buildColumnTitleValue(
                           title: "Pending Amount",
-                          value: addCommasToInteger(vendor.pendingAmount),
+                          value: vendor.pendingAmount.toIndianCurrency(),
                         ),
                       ],
                     ),
@@ -484,10 +484,7 @@ class _MaterialRequisitionViewScreenState
                       ),
                       buildColumnTitleValue(
                         title: "Total Quantity",
-                        value: addCommasToInteger(
-                          totalQuantity,
-                          withoutSign: true,
-                        ),
+                        value: totalQuantity.addCommas(),
                       ),
                     ],
                   ),
@@ -513,10 +510,7 @@ class _MaterialRequisitionViewScreenState
                           ),
                           buildRowTitleValue(
                             title: "Quantity",
-                            value: addCommasToInteger(
-                              material.materialQuantity,
-                              withoutSign: true,
-                            ),
+                            value: material.materialQuantity.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Remark",
@@ -565,9 +559,8 @@ class _MaterialRequisitionViewScreenState
                               },
                               {
                                 "title": "Invoice Amount",
-                                "value": addCommasToInteger(
-                                  invoice.invoiceAmount,
-                                ),
+                                "value":
+                                    invoice.invoiceAmount.toIndianCurrency(),
                               },
                               {
                                 "title": "Due Date",
@@ -751,10 +744,7 @@ class _MaterialRequisitionViewScreenState
                       ),
                       buildColumnTitleValue(
                         title: "Total Quantity",
-                        value: addCommasToInteger(
-                          totalQuantity,
-                          withoutSign: true,
-                        ),
+                        value: totalQuantity.addCommas(),
                       ),
                     ],
                   ),
@@ -822,10 +812,7 @@ class _MaterialRequisitionViewScreenState
                                 ),
                                 buildRowTitleValue(
                                   title: "Quantity",
-                                  value: addCommasToInteger(
-                                    material.materialQuantity,
-                                    withoutSign: true,
-                                  ),
+                                  value: material.materialQuantity.addCommas(),
                                 ),
                                 buildRowTitleValue(
                                   title: "Required Date",

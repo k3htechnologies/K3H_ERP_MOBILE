@@ -522,18 +522,16 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                       ),
                       buildRowTitleValue(
                         title: "Brokerage Amount",
-                        value: addCommasToInteger(brokerage.brokerageAmount),
+                        value: brokerage.brokerageAmount.toIndianCurrency(),
                       ),
                       buildRowTitleValue(
                         title: "Raised Invoice Amount",
-                        value: addCommasToInteger(0),
+                        value: 0.toIndianCurrency(),
                       ),
 
                       buildRowTitleValue(
                         title: "Paid Amount",
-                        value: addCommasToInteger(
-                          brokerage.paidBrokerageAmount,
-                        ),
+                        value: brokerage.paidBrokerageAmount.toIndianCurrency(),
                       ),
                     ],
                   ),

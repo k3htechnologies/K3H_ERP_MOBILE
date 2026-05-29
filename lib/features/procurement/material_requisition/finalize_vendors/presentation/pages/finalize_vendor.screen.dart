@@ -432,24 +432,20 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                                 _buildRow("Company Name", vendor.companyName),
                                 _buildRow(
                                   "Base Amount",
-                                  addCommasToInteger(
-                                    vedorQuotationOfSelecetdVendor?.total ?? 0,
-                                  ),
+                                  (vedorQuotationOfSelecetdVendor?.total ?? 0)
+                                      .toIndianCurrency(),
                                 ),
                                 _buildRow(
                                   "Total Tax",
-
-                                  addCommasToInteger(
-                                    _calculateTax(vendor).toDouble(),
-                                  ),
+                                  _calculateTax(vendor).toIndianCurrency(),
                                   valueColor: Colors.orange,
                                 ),
 
                                 _buildRow(
                                   "Grand Total",
-                                  addCommasToInteger(
-                                    _calculateGrandTotal(vendor).toDouble(),
-                                  ),
+                                  _calculateGrandTotal(
+                                    vendor,
+                                  ).toIndianCurrency(),
                                   valueColor: AppColor.primary,
                                 ),
 

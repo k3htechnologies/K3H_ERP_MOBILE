@@ -175,7 +175,7 @@ class _AssetMasterViewScreenState extends State<AssetMasterViewScreen>
                     ),
                     buildColumnTitleValue(
                       title: "Asset Cost",
-                      value: addCommasToInteger(widget.assetMaster.assetCost),
+                      value: widget.assetMaster.assetCost.toIndianCurrency(),
                     ),
                   ],
                 ),

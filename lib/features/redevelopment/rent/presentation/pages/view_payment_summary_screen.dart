@@ -129,7 +129,7 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
               Column(
                 children: [
                   Text(
-                    addCommasToInteger(item.payAmount),
+                    item.payAmount.toIndianCurrency(),
                     style: AppTextStyle.ts18M(color: AppColor.slightDarkBlue),
                   ),
                   Text(

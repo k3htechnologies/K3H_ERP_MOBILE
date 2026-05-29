@@ -149,9 +149,9 @@ class _PaymentScreenState extends State<PaymentScreen>
                             ),
                             buildRowTitleValue(
                               title: "Total Amount",
-                              value: addCommasToInteger(
-                                paymentSchedules.paymentScheduleAmount,
-                              ),
+                              value:
+                                  paymentSchedules.paymentScheduleAmount
+                                      .toIndianCurrency(),
                             ),
                             Divider(
                               thickness: 0.3,
@@ -205,19 +205,18 @@ class _PaymentScreenState extends State<PaymentScreen>
 
                                     buildRowTitleValue(
                                       title: "Total Amount",
-                                      value: addCommasToInteger(totalAmount),
+                                      value: totalAmount.toIndianCurrency(),
                                     ),
 
                                     buildRowTitleValue(
                                       title: "Received Amount",
-                                      value: addCommasToInteger(receivedAmount),
+                                      value: receivedAmount.toIndianCurrency(),
                                     ),
 
                                     buildRowTitleValue(
                                       title: "Outstanding Amount",
-                                      value: addCommasToInteger(
-                                        outstandingAmount,
-                                      ),
+                                      value:
+                                          outstandingAmount.toIndianCurrency(),
                                     ),
                                   ],
                                 );
@@ -286,7 +285,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                       children: [
                         buildRowTitleValue(
                           title: "Total Amount",
-                          value: addCommasToInteger(totalAmount),
+                          value: totalAmount.toIndianCurrency(),
                           valueTextStyle: AppTextStyle.ts14SB(),
                         ),
 
@@ -297,7 +296,7 @@ class _PaymentScreenState extends State<PaymentScreen>
 
                         buildRowTitleValue(
                           title: "Total Outstanding Amount",
-                          value: addCommasToInteger(totalOutstandingAmount),
+                          value: totalOutstandingAmount.toIndianCurrency(),
                           valueTextStyle: AppTextStyle.ts14SB(),
                         ),
 
@@ -308,7 +307,7 @@ class _PaymentScreenState extends State<PaymentScreen>
 
                         buildRowTitleValue(
                           title: "Grand Total",
-                          value: addCommasToInteger(grandTotal),
+                          value: grandTotal.toIndianCurrency(),
                           valueTextStyle: AppTextStyle.ts14SB(
                             color: AppColor.green,
                           ),
@@ -428,19 +427,20 @@ class _PaymentScreenState extends State<PaymentScreen>
                                 ),
                                 buildRowTitleValue(
                                   title: "Total Amount",
-                                  value: addCommasToInteger(ledger.totalAmount),
+                                  value: ledger.totalAmount.toIndianCurrency(),
                                 ),
                                 buildRowTitleValue(
                                   title: "Paid Amount",
-                                  value: addCommasToInteger(
-                                    ledger.receivedAmount,
-                                  ),
+                                  value:
+                                      ledger.receivedAmount.toIndianCurrency(),
                                 ),
+
                                 buildRowTitleValue(
                                   title: "Pending Amount",
-                                  value: addCommasToInteger(
-                                    ledger.totalAmount - ledger.receivedAmount,
-                                  ),
+                                  value:
+                                      (ledger.totalAmount -
+                                              ledger.receivedAmount)
+                                          .toIndianCurrency(),
                                 ),
                                 buildRowTitleValue(
                                   title: "Ledger Count",
@@ -484,7 +484,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                       children: [
                         buildRowTitleValue(
                           title: "Total Amount",
-                          value: addCommasToInteger(totalAmount),
+                          value: totalAmount.toIndianCurrency(),
                           valueTextStyle: AppTextStyle.ts14SB(),
                         ),
 
@@ -495,7 +495,7 @@ class _PaymentScreenState extends State<PaymentScreen>
 
                         buildRowTitleValue(
                           title: "Total Outstanding Amount",
-                          value: addCommasToInteger(totalOutstandingAmount),
+                          value: totalOutstandingAmount.toIndianCurrency(),
                           valueTextStyle: AppTextStyle.ts14SB(),
                         ),
 
@@ -506,7 +506,7 @@ class _PaymentScreenState extends State<PaymentScreen>
 
                         buildRowTitleValue(
                           title: "Grand Total",
-                          value: addCommasToInteger(grandTotal),
+                          value: grandTotal.toIndianCurrency(),
                           valueTextStyle: AppTextStyle.ts14SB(
                             color: AppColor.green,
                           ),

@@ -409,27 +409,23 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                                           Expanded(
                                             child: buildColumnTitleValueNormal(
                                               title: "Total Amount",
-                                              value: addCommasToInteger(
-                                                totalAmount,
-                                              ),
+                                              value:
+                                                  totalAmount
+                                                      .toIndianCurrency(),
                                             ),
                                           ),
                                           horizontalSpacing(),
                                           Expanded(
                                             child: buildColumnTitleValueNormal(
                                               title: "Paid Amount",
-                                              value: addCommasToInteger(
-                                                paidAmount,
-                                              ),
+                                              value: paidAmount.toIndianCurrency(),
                                             ),
                                           ),
                                           horizontalSpacing(),
                                           Expanded(
                                             child: buildColumnTitleValueNormal(
                                               title: "Pending Amount",
-                                              value: addCommasToInteger(
-                                                pendingAmount,
-                                              ),
+                                              value: pendingAmount.toIndianCurrency(),
                                             ),
                                           ),
                                         ],

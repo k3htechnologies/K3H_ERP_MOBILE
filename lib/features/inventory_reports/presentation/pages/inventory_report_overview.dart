@@ -278,10 +278,8 @@ class _InventoryOverallReportOverviewState
 
                                                     _buildRowTitleValue(
                                                       title: "Total",
-                                                      value: addCommasToInteger(
-                                                        totalArea,
-                                                        withoutSign: true,
-                                                      ),
+                                                      value:
+                                                          totalArea.addCommas(),
                                                       valueTextStyle:
                                                           AppTextStyle.ts14SB(
                                                             color:
@@ -314,10 +312,9 @@ class _InventoryOverallReportOverviewState
 
                                                     _buildRowTitleValue(
                                                       title: "Alloted",
-                                                      value: addCommasToInteger(
-                                                        allotedArea,
-                                                        withoutSign: true,
-                                                      ),
+                                                      value:
+                                                          allotedArea
+                                                              .addCommas(),
                                                       valueTextStyle:
                                                           AppTextStyle.ts14SB(
                                                             color:
@@ -352,10 +349,9 @@ class _InventoryOverallReportOverviewState
 
                                                     _buildRowTitleValue(
                                                       title: "Booked",
-                                                      value: addCommasToInteger(
-                                                        bookedArea,
-                                                        withoutSign: true,
-                                                      ),
+                                                      value:
+                                                          bookedArea
+                                                              .addCommas(),
                                                       valueTextStyle:
                                                           AppTextStyle.ts14SB(
                                                             color:
@@ -390,10 +386,8 @@ class _InventoryOverallReportOverviewState
 
                                                     _buildRowTitleValue(
                                                       title: "Hold",
-                                                      value: addCommasToInteger(
-                                                        holdArea,
-                                                        withoutSign: true,
-                                                      ),
+                                                      value:
+                                                          holdArea.addCommas(),
                                                       valueTextStyle:
                                                           AppTextStyle.ts14SB(
                                                             color:
@@ -428,10 +422,9 @@ class _InventoryOverallReportOverviewState
 
                                                     _buildRowTitleValue(
                                                       title: "Available",
-                                                      value: addCommasToInteger(
-                                                        availableArea,
-                                                        withoutSign: true,
-                                                      ),
+                                                      value:
+                                                          availableArea
+                                                              .addCommas(),
                                                       valueTextStyle:
                                                           AppTextStyle.ts14SB(
                                                             color:
@@ -467,10 +460,10 @@ class _InventoryOverallReportOverviewState
 
                                                     _buildRowTitleValue(
                                                       title: "Blocked",
-                                                      value: addCommasToInteger(
-                                                        blockedArea,
-                                                        withoutSign: true,
-                                                      ),
+                                                      value:
+                                                          blockedArea
+                                                              .addCommas(),
+
                                                       valueTextStyle:
                                                           AppTextStyle.ts14SB(
                                                             color:

@@ -368,19 +368,19 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
                       buildRowTitleValue(
                         fixesWidth: 100.w,
                         title: "Invoice Amount",
-                        value: addCommasToInteger(invoice.invoiceAmount),
+                        value: (invoice.invoiceAmount).toIndianCurrency(),
                       ),
                       buildRowTitleValue(
                         fixesWidth: 100.w,
                         title: "Paid Amount",
-                        value: addCommasToInteger(invoice.paymentAmount),
+                        value: (invoice.paymentAmount).toIndianCurrency(),
                       ),
                       buildRowTitleValue(
                         fixesWidth: 100.w,
                         title: "Outstanding Amount",
-                        value: addCommasToInteger(
-                          invoice.invoiceAmount - invoice.paymentAmount,
-                        ),
+                        value:
+                            (invoice.invoiceAmount - invoice.paymentAmount)
+                                .toIndianCurrency(),
                       ),
 
                       AnimatedSwitcher(
@@ -547,7 +547,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
               ),
               buildRowTitleValue(
                 title: "Amount",
-                value: addCommasToInteger(invoice.invoiceAmount),
+                value: invoice.invoiceAmount.toIndianCurrency(),
               ),
               Row(
                 children: [
@@ -781,7 +781,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
                       ),
                       buildRowTitleValue(
                         title: "Invoice Amount",
-                        value: addCommasToInteger(payment.invoiceAmount),
+                        value: payment.invoiceAmount.toIndianCurrency(),
                       ),
 
                       AnimatedSwitcher(
@@ -852,7 +852,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
             children: [
               buildColumnTitleValue(
                 title: "Amount Paid",
-                value: addCommasToInteger(payment.amountPaid),
+                value: payment.amountPaid.toIndianCurrency(),
               ),
             ],
           ),
@@ -860,7 +860,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
             children: [
               buildColumnTitleValue(
                 title: "TDS Amount",
-                value: addCommasToInteger(payment.tdsAmount),
+                value: payment.tdsAmount.toIndianCurrency(),
               ),
             ],
           ),

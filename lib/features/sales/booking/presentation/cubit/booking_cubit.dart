@@ -1035,6 +1035,7 @@ class BookingCubit extends Cubit<BookingState> {
       "InventoryBuildingId": inventoryBuildingId,
       "InventoryFlatFloorBasementPodiumWingId":
           inventoryFlatFloorBasementPodiumWingId,
+      "IsCheckPermission": false,
     };
 
     var result = await _paymentScheduleRepository.getPaymentScheduleMasterList(

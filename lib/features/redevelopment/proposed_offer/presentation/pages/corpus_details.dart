@@ -698,7 +698,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                                           ),
                                           _buildInfoRow(
                                             "Amount",
-                                            addCommasToInteger(corpus.amount),
+                                            (corpus.amount).toIndianCurrency(),
                                           ),
                                         ],
                                       ),

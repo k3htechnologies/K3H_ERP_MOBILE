@@ -497,7 +497,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                       horizontalSpacing(),
                       buildColumnTitleValue(
                         title: "Amount",
-                        value: addCommasToInteger(widget.project.tenderAmount),
+                        value: widget.project.tenderAmount.toIndianCurrency(),
                       ),
                     ],
                   ],
@@ -509,9 +509,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                     children: [
                       buildColumnTitleValue(
                         title: "EMD Amount",
-                        value: addCommasToInteger(
-                          widget.project.tenderEmdAmount,
-                        ),
+                        value: widget.project.tenderEmdAmount.toIndianCurrency(),
                       ),
                       buildColumnTitleValue(
                         title: "Purchase Start Date",

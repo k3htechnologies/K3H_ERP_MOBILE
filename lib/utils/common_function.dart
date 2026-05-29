@@ -706,43 +706,6 @@ Future<bool> importExcel(
   }
 }
 
-String addCommasToInteger(double value, {bool withoutSign = false}) {
-  // Check if decimal part is non-zero
-  bool hasDecimal = value % 1 != 0;
-
-  // Format number string
-  String numberStr =
-      hasDecimal ? value.toStringAsFixed(2) : value.toInt().toString();
-
-  // Split integer and decimal parts
-  List<String> parts = numberStr.split('.');
-  String integerPart = parts[0];
-  String decimalPart = parts.length > 1 ? '.${parts[1]}' : '';
-
-  // If small number
-  if (integerPart.length <= 3) {
-    String result = integerPart + (hasDecimal ? decimalPart : '');
-    return withoutSign ? result : '₹ $result';
-  }
-
-  // Last 3 digits
-  String lastThreeDigits = integerPart.substring(integerPart.length - 3);
-
-  // Remaining digits
-  String remainingDigits = integerPart.substring(0, integerPart.length - 3);
-
-  // Indian grouping (2 digits)
-  String groupedDigits = remainingDigits.replaceAllMapped(
-    RegExp(r'(\d)(?=(\d{2})+(?!\d))'),
-    (match) => '${match[1]},',
-  );
-
-  String result =
-      '$groupedDigits,$lastThreeDigits${hasDecimal ? decimalPart : ''}';
-
-  return withoutSign ? result : '₹ $result';
-}
-
 String formattedAmount(num value, {bool showRupeeSymbol = true}) {
   final symbol = showRupeeSymbol ? "₹ " : "";
 
@@ -870,5 +833,41 @@ Future<void> loadAndSelectProjectById(int projectId) async {
       StorageKey.selectedProject,
       jsonEncode(selectedProject.toJson()),
     );
+  }
+}
+
+extension IndianCurrencyExtension on num {
+  String toIndianCurrency() {
+    return '₹ ${_format()}';
+  }
+
+  String addCommas() {
+    return _format();
+  }
+
+  String _format() {
+    bool hasDecimal = this % 1 != 0;
+
+    String numberStr = hasDecimal ? toStringAsFixed(2) : toInt().toString();
+
+    List<String> parts = numberStr.split('.');
+
+    String integerPart = parts[0];
+    String decimalPart = parts.length > 1 ? '.${parts[1]}' : '';
+
+    if (integerPart.length <= 3) {
+      return '$integerPart$decimalPart';
+    }
+
+    String lastThree = integerPart.substring(integerPart.length - 3);
+
+    String remaining = integerPart.substring(0, integerPart.length - 3);
+
+    String grouped = remaining.replaceAllMapped(
+      RegExp(r'(\d)(?=(\d{2})+(?!\d))'),
+      (match) => '${match[1]},',
+    );
+
+    return '$grouped,$lastThree$decimalPart';
   }
 }

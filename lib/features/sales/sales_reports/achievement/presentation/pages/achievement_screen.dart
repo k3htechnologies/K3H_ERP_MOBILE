@@ -582,89 +582,58 @@ class _AchievementScreenState extends State<AchievementScreen>
                           ),
                           buildRowTitleValue(
                             title: "Walkins By CP",
-                            value: addCommasToInteger(
-                              achievement.walkinsByCp.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.walkinsByCp.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Walkins Direct",
-                            value: addCommasToInteger(
-                              achievement.walkinsDirect.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.walkinsDirect.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Total Walkins",
-                            value: addCommasToInteger(
-                              achievement.totalWalkins.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.totalWalkins.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Fresh Visits",
-                            value: addCommasToInteger(
-                              achievement.totalFreshVisits.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.totalFreshVisits.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Revisits",
-                            value: addCommasToInteger(
-                              achievement.revisits.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.revisits.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Booking By CP",
-                            value: addCommasToInteger(
-                              achievement.bookingByCp.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.bookingByCp.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Booking Direct",
-                            value: addCommasToInteger(
-                              achievement.bookingDirect.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.bookingDirect.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Total Booking",
-                            value: addCommasToInteger(
-                              achievement.totalBooking.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.totalBooking.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Total Revenue",
                             singleLine: false,
-                            value: addCommasToInteger(achievement.totalRevenue),
+                            value:
+                                (achievement.totalRevenue).toIndianCurrency(),
                           ),
                           buildRowTitleValue(
                             title: "IBM",
                             singleLine: false,
-                            value: addCommasToInteger(
-                              achievement.totalIbm.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.totalIbm.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "OBM",
                             singleLine: false,
-                            value: addCommasToInteger(
-                              achievement.totalObm.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.totalObm.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "IBM + OBM",
                             singleLine: false,
-                            value: addCommasToInteger(
-                              (achievement.totalIbm + achievement.totalObm)
-                                  .toDouble(),
-                              withoutSign: true,
-                            ),
+                            value:
+                                (achievement.totalIbm + achievement.totalObm)
+                                    .addCommas(),
                           ),
                         ],
                       ),
@@ -726,65 +695,42 @@ class _AchievementScreenState extends State<AchievementScreen>
                           ),
                           buildRowTitleValue(
                             title: "Walkins By CP",
-                            value: addCommasToInteger(
-                              achievement.walkinsByCp.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.walkinsByCp.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Walkins Direct",
-                            value: addCommasToInteger(
-                              achievement.walkinsDirect.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.walkinsDirect.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Total Walkins",
-                            value: addCommasToInteger(
-                              achievement.totalWalkins.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.totalWalkins.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Revisits",
-                            value: addCommasToInteger(
-                              achievement.revisits.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.revisits.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Total Fresh Visits",
-                            value: addCommasToInteger(
-                              achievement.totalFreshVisits.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.totalFreshVisits.addCommas(),
                           ),
 
                           buildRowTitleValue(
                             title: "Booking By CP",
-                            value: addCommasToInteger(
-                              achievement.bookingByCp.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.bookingByCp.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Booking Direct",
-                            value: addCommasToInteger(
-                              achievement.bookingDirect.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.bookingDirect.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Total Booking",
-                            value: addCommasToInteger(
-                              achievement.totalBooking.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.totalBooking.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Total Revenue",
                             singleLine: false,
-                            value: addCommasToInteger(achievement.totalRevenue),
+                            value:
+                                (achievement.totalRevenue).toIndianCurrency(),
                           ),
                         ],
                       ),
@@ -853,76 +799,50 @@ class _AchievementScreenState extends State<AchievementScreen>
                           ),
                           buildRowTitleValue(
                             title: "Walkins By CP",
-                            value: addCommasToInteger(
-                              achievement.walkinsByCp.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.walkinsByCp.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Walkins Fresh Visits",
-                            value: addCommasToInteger(
-                              achievement.freshVisits.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.freshVisits.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Revisits",
-                            value: addCommasToInteger(
-                              achievement.revisits.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.revisits.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Total Booking",
-                            value: addCommasToInteger(
-                              achievement.bookings.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.bookings.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Total Revenue",
                             singleLine: false,
-                            value: addCommasToInteger(achievement.totalRevenue),
+                            value:
+                                (achievement.totalRevenue).toIndianCurrency(),
                           ),
                           buildRowTitleValue(
                             title: "IBM",
                             singleLine: false,
-                            value: addCommasToInteger(
-                              achievement.totalIbm.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.totalIbm.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "OBM (Fresh Visits)",
                             singleLine: false,
-                            value: addCommasToInteger(
-                              achievement.totalObmFreshVisits.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.totalObmFreshVisits.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "OBM (Revisits)",
                             singleLine: false,
-                            value: addCommasToInteger(
-                              achievement.totalObmRevisits.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.totalObmRevisits.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "Total Meetings",
                             singleLine: false,
-                            value: addCommasToInteger(
-                              achievement.totalMeetings.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.totalMeetings.addCommas(),
                           ),
                           buildRowTitleValue(
                             title: "IBM",
                             singleLine: false,
-                            value: addCommasToInteger(
-                              achievement.totalIbm.toDouble(),
-                              withoutSign: true,
-                            ),
+                            value: achievement.totalIbm.addCommas(),
                           ),
                         ],
                       ),

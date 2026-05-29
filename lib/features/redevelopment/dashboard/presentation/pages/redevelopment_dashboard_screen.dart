@@ -720,7 +720,7 @@ class _RedevelopmentDashboardScreenState
                         ),
                         verticalSpacing(height: 6),
                         Text(
-                          addCommasToInteger(table1[index].amount),
+                          (table1[index].amount).toIndianCurrency(),
                           style: AppTextStyle.ts14M(),
                         ),
                         verticalSpacing(height: 6),

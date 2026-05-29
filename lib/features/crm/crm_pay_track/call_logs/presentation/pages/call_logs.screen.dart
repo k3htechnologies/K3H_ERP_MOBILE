@@ -170,9 +170,8 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                                 ),
                                 buildRowTitleValue(
                                   title: "Promise Amount",
-                                  value: addCommasToInteger(
-                                    callLog.promiseAmount,
-                                  ),
+                                  value:
+                                      callLog.promiseAmount.toIndianCurrency(),
                                 ),
                                 buildRowTitleValue(
                                   title: "Remark",

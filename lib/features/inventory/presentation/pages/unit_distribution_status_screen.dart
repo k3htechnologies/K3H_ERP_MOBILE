@@ -184,10 +184,7 @@ class _UnitDistributionStatusScreenState
                               ),
                               buildRowTitleValue(
                                 title: "Rera Carpet Area",
-                                value: addCommasToInteger(
-                                  flat.reraCarpetAreaSqFt,
-                                  withoutSign: true,
-                                ),
+                                value: flat.reraCarpetAreaSqFt.addCommas(),
                               ),
                               buildRowTitleValue(
                                 title: "Unit Configuration",

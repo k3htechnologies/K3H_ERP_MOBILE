@@ -151,10 +151,7 @@ class _GrnSummaryScreenState extends State<GrnSummaryScreen> {
           ),
           buildColumnTitleValue(
             title: "Quantity",
-            value: addCommasToInteger(
-              grnMaterial.totalReceivedMaterialQuantity,
-              withoutSign: true,
-            ),
+            value: grnMaterial.totalReceivedMaterialQuantity.addCommas(),
           ),
         ],
       ),

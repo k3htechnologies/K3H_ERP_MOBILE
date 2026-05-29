@@ -122,10 +122,7 @@ class _ViewGrnScreenState extends State<ViewGrnScreen> {
           ),
           buildColumnTitleValue(
             title: "Quantity",
-            value: addCommasToInteger(
-              grnMaterial.totalReceivedMaterialQuantity,
-              withoutSign: true,
-            ),
+            value: grnMaterial.totalReceivedMaterialQuantity.addCommas(),
           ),
         ],
       ),

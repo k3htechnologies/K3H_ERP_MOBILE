@@ -607,16 +607,14 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                       buildRowTitleValue(
                         title: "Total PO Amount",
                         fixesWidth: 150,
-                        value: addCommasToInteger(
-                          materialRequisition.totalPoAmount,
-                        ),
+                        value:
+                            materialRequisition.totalPoAmount
+                                .toIndianCurrency(),
                       ),
                       buildRowTitleValue(
                         title: "Invoice Amount",
                         fixesWidth: 150,
-                        value: addCommasToInteger(
-                          materialRequisition.totalInvoice,
-                        ),
+                        value: materialRequisition.totalInvoice.addCommas(),
                       ),
 
                       buildRowTitleValue(

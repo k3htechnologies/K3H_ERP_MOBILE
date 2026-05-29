@@ -98,7 +98,7 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                               Expanded(
                                 child: _buildRow(
                                   "Amount",
-                                  addCommasToInteger(summary.receivedAmount),
+                                  summary.receivedAmount.toIndianCurrency(),
                                 ),
                               ),
                               horizontalSpacing(),

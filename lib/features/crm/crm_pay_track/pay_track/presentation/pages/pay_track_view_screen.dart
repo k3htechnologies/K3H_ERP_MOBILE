@@ -860,13 +860,13 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Agreement Value (₹) With TDS",
-                      value: addCommasToInteger(booking.agreementValue),
+                      value: booking.agreementValue.toIndianCurrency(),
                     ),
                     buildColumnTitleValue(
                       title: "Agreement Value (₹) Without TDS",
-                      value: addCommasToInteger(
-                        booking.agreementValue - booking.agreementValueTDS,
-                      ),
+                      value:
+                          (booking.agreementValue - booking.agreementValueTDS)
+                              .toIndianCurrency(),
                     ),
                   ],
                 ),
@@ -876,7 +876,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "TDS (₹)",
-                      value: addCommasToInteger(booking.agreementValueTDS),
+                      value: booking.agreementValueTDS.toIndianCurrency(),
                     ),
                     buildColumnTitleValue(
                       title: "GST (%)",
@@ -890,9 +890,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "GST (₹)",
-                      value: addCommasToInteger(
-                        booking.agreementValueGSTAmount,
-                      ),
+                      value: booking.agreementValueGSTAmount.toIndianCurrency(),
                     ),
                     buildColumnTitleValue(
                       title: "Stamp Duty (%)",
@@ -906,11 +904,11 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Stamp Duty (₹)",
-                      value: addCommasToInteger(booking.stampDutyAmount),
+                      value: booking.stampDutyAmount.toIndianCurrency(),
                     ),
                     buildColumnTitleValue(
                       title: "Registration Fees (₹)",
-                      value: addCommasToInteger(booking.registrationFees),
+                      value: booking.registrationFees.toIndianCurrency(),
                     ),
                   ],
                 ),
@@ -920,7 +918,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Booking Amount (₹)",
-                      value: addCommasToInteger(booking.bookingAmount),
+                      value: booking.bookingAmount.toIndianCurrency(),
                     ),
                   ],
                 ),
@@ -935,7 +933,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                       ),
                       buildColumnTitleValue(
                         title: "Loyalty Amount (₹)",
-                        value: addCommasToInteger(booking.loyaltyAmount),
+                        value: booking.loyaltyAmount.toIndianCurrency(),
                       ),
                     ],
                   ),
@@ -950,7 +948,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                       ),
                       buildColumnTitleValue(
                         title: "Brokerage Amount (₹)",
-                        value: addCommasToInteger(booking.brokerageAmount),
+                        value: booking.brokerageAmount.toIndianCurrency(),
                       ),
                     ],
                   ),
@@ -965,9 +963,8 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                       ),
                       buildColumnTitleValue(
                         title: "Employee Reference Amount (₹)",
-                        value: addCommasToInteger(
-                          booking.employeeReferenceAmount,
-                        ),
+                        value:
+                            booking.employeeReferenceAmount.toIndianCurrency(),
                       ),
                     ],
                   ),
@@ -1069,9 +1066,9 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                       children: [
                                         buildColumnTitleValue(
                                           title: "Value (In ₹)",
-                                          value: addCommasToInteger(
-                                            extraCharge.value,
-                                          ),
+                                          value:
+                                              extraCharge.value
+                                                  .toIndianCurrency(),
                                         ),
                                         buildColumnTitleValue(
                                           title: "GST (%)",
@@ -1085,9 +1082,9 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                       children: [
                                         buildColumnTitleValue(
                                           title: "GST Value (₹)",
-                                          value: addCommasToInteger(
-                                            extraCharge.gstValue,
-                                          ),
+                                          value:
+                                              extraCharge.gstValue
+                                                  .toIndianCurrency(),
                                         ),
                                       ],
                                     ),
@@ -1173,9 +1170,9 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                 ),
                                 buildColumnTitleValue(
                                   title: "Amount (₹)",
-                                  value: addCommasToInteger(
-                                    payment.paymentScheduleAmount,
-                                  ),
+                                  value:
+                                      payment.paymentScheduleAmount
+                                          .toIndianCurrency(),
                                 ),
                               ],
                             ),
@@ -1185,15 +1182,15 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                               children: [
                                 buildColumnTitleValue(
                                   title: "GST Amount (₹)",
-                                  value: addCommasToInteger(
-                                    payment.paymentScheduleGSTAmount,
-                                  ),
+                                  value:
+                                      payment.paymentScheduleGSTAmount
+                                          .toIndianCurrency(),
                                 ),
                                 buildColumnTitleValue(
                                   title: "TDS Amount (₹)",
-                                  value: addCommasToInteger(
-                                    payment.paymentScheduleTDSAmount,
-                                  ),
+                                  value:
+                                      payment.paymentScheduleTDSAmount
+                                          .toIndianCurrency(),
                                 ),
                               ],
                             ),
@@ -1531,7 +1528,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
 
                                       // PROMISE AMOUNT
                                       Text(
-                                        "Promise Amount: ₹${addCommasToInteger(callLog.promiseAmount)}",
+                                        "Promise Amount: ${callLog.promiseAmount.toIndianCurrency()}",
                                         style: AppTextStyle.ts14SB(
                                           color: Colors.green,
                                         ),

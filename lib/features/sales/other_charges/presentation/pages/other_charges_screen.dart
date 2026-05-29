@@ -234,7 +234,7 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
                     ),
                     buildRowTitleValue(
                       title: "Value",
-                      value: addCommasToInteger(otherCharges.value),
+                      value: otherCharges.value.toIndianCurrency(),
                       fixesWidth: 180,
                     ),
                     buildRowTitleValue(
@@ -249,14 +249,14 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
                     ),
                     buildRowTitleValue(
                       title: "GST Value",
-                      value: addCommasToInteger(otherCharges.gstValue),
+                      value: otherCharges.gstValue.toIndianCurrency(),
                       fixesWidth: 180,
                     ),
                     buildRowTitleValue(
                       title: "Value + GST Value (₹)",
-                      value: addCommasToInteger(
-                        otherCharges.value + otherCharges.gstValue,
-                      ),
+                      value:
+                          (otherCharges.value + otherCharges.gstValue)
+                              .toIndianCurrency(),
                       fixesWidth: 180,
                     ),
                     buildRowTitleValue(

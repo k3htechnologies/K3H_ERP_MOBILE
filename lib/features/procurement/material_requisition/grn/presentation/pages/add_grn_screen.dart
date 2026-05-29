@@ -292,17 +292,14 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                                     {"title": "UOM", "value": material.uomCode},
                                     {
                                       "title": "Total Quantity",
-                                      "value": addCommasToInteger(
-                                        material.materialQuantity,
-                                        withoutSign: true,
-                                      ),
+                                      "value":
+                                          material.materialQuantity.addCommas(),
                                     },
                                     {
                                       "title": "Received Quantity",
-                                      "value": addCommasToInteger(
-                                        material.totalReceivedMaterialQuantity,
-                                        withoutSign: true,
-                                      ),
+                                      "value":
+                                          material.totalReceivedMaterialQuantity
+                                              .addCommas(),
                                     },
                                     {
                                       "title": "Quality Analyst Remark",

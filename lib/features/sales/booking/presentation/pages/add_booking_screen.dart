@@ -438,7 +438,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _calculateStampDuty();
     _calculateRegistrationFees();
     _bookingCubit.onUpdateBookingAmount(
-      agreementValue: _agreementValueNotifier.value,
+      agreementValue:
+          _agreementValueWithoutTdsC.text.isNotEmpty
+              ? double.tryParse(_agreementValueWithoutTdsC.text.trim()) ?? 0.0
+              : 0.0,
       agreementValueGST: _agreementGstAmountNotifier.value,
       agreementValueTds: _tdsNotifier.value,
     );
@@ -1714,11 +1717,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     onChangeFunction: (value) {
                       final parsed = double.tryParse(value) ?? 0.0;
                       _agreementValueNotifier.value = parsed;
-                      _bookingCubit.onUpdateBookingAmount(
-                        agreementValue: _agreementValueNotifier.value,
-                        agreementValueGST: _agreementGstAmountNotifier.value,
-                        agreementValueTds: _tdsNotifier.value,
-                      );
                     },
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -1757,6 +1755,21 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         title: "Agreement Value (Without TDS) (₹)",
                         hint: "Agreement Value (without TDS)",
                         textController: _agreementValueWithoutTdsC,
+                        onChangeFunction: (value) {
+                          _bookingCubit.onUpdateBookingAmount(
+                            agreementValue:
+                                _agreementValueWithoutTdsC.text.isNotEmpty
+                                    ? double.tryParse(
+                                          _agreementValueWithoutTdsC.text
+                                              .trim(),
+                                        ) ??
+                                        0.0
+                                    : 0.0,
+                            agreementValueGST:
+                                _agreementGstAmountNotifier.value,
+                            agreementValueTds: _tdsNotifier.value,
+                          );
+                        },
                       );
                     },
                   ),
@@ -1799,7 +1812,14 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         onChangeFunction: (value) {
                           _calculateGst();
                           _bookingCubit.onUpdateBookingAmount(
-                            agreementValue: _agreementValueNotifier.value,
+                            agreementValue:
+                                _agreementValueWithoutTdsC.text.isNotEmpty
+                                    ? double.tryParse(
+                                          _agreementValueWithoutTdsC.text
+                                              .trim(),
+                                        ) ??
+                                        0.0
+                                    : 0.0,
                             agreementValueGST:
                                 _agreementGstAmountNotifier.value,
                             agreementValueTds: _tdsNotifier.value,
@@ -2393,6 +2413,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
+                                    spacing: 10,
                                     children: [
                                       Row(
                                         mainAxisAlignment:
@@ -2429,7 +2450,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                           ),
                                         ],
                                       ),
-                                      verticalSpacing(),
 
                                       Row(
                                         children: [
@@ -2444,9 +2464,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                           ),
                                         ],
                                       ),
-
-                                      verticalSpacing(),
-
                                       Row(
                                         children: [
                                           buildColumnTitleValue(
@@ -2456,27 +2473,38 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                           ),
                                           buildColumnTitleValue(
                                             title: "Amount (₹)",
-                                            value: addCommasToInteger(
-                                              item.paymentScheduleAmount,
-                                            ),
+                                            value:
+                                                item.paymentScheduleAmount
+                                                    .toIndianCurrency(),
                                           ),
                                         ],
                                       ),
-                                      verticalSpacing(),
                                       Row(
                                         children: [
                                           buildColumnTitleValue(
                                             title: "GST Amount (₹)",
-                                            value: addCommasToInteger(
-                                              item.paymentScheduleGSTAmount,
-                                            ),
+                                            value:
+                                                item.paymentScheduleGSTAmount
+                                                    .toIndianCurrency(),
                                           ),
                                           buildColumnTitleValue(
                                             title: "TDS Amount (₹)",
-                                            value: addCommasToInteger(
-                                              item.paymentScheduleTDSAmount,
-                                            ),
+                                            value:
+                                                item.paymentScheduleTDSAmount
+                                                    .toIndianCurrency(),
                                           ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          buildColumnTitleValue(
+                                            title: "Total Amount With TDS (₹)",
+                                            value:
+                                                (item.paymentScheduleAmount +
+                                                        item.paymentScheduleTDSAmount)
+                                                    .toIndianCurrency(),
+                                          ),
+                                          Spacer(),
                                         ],
                                       ),
                                     ],
@@ -2545,7 +2573,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                             children: [
                               buildColumnTitleValue(
                                 title: "Amount (₹)",
-                                value: addCommasToInteger(oc.value),
+                                value: oc.value.toIndianCurrency(),
                               ),
                               buildColumnTitleValue(
                                 title: "GST(%)",
@@ -2557,13 +2585,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                             children: [
                               buildColumnTitleValue(
                                 title: "GST Value (₹)",
-                                value: addCommasToInteger(oc.gstValue),
+                                value: oc.gstValue.toIndianCurrency(),
                               ),
                               buildColumnTitleValue(
                                 title: "Total Value (₹)",
-                                value: addCommasToInteger(
-                                  oc.value + oc.gstValue,
-                                ),
+                                value:
+                                    (oc.value + oc.gstValue).toIndianCurrency(),
                               ),
                             ],
                           ),

@@ -152,10 +152,7 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
     );
 
     _uomC.text = selectedItem.first.uom;
-    _totalQuantityC.text = addCommasToInteger(
-      selectedItem.first.materialQuantity,
-      withoutSign: true,
-    );
+    _totalQuantityC.text = selectedItem.first.materialQuantity.addCommas();
   }
 
   void _submit() {

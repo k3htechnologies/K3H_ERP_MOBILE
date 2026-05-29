@@ -240,10 +240,8 @@ class _AddMaterialRequisitionScreenState
                                     {"title": "UOM", "value": material.uomCode},
                                     {
                                       "title": "Quantity",
-                                      "value": addCommasToInteger(
-                                        material.materialQuantity,
-                                        withoutSign: true,
-                                      ),
+                                      "value":
+                                          material.materialQuantity.addCommas(),
                                     },
                                     {
                                       "title": "Required Date",

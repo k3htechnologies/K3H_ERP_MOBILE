@@ -452,9 +452,8 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                                           ),
                                           _buildSecurityInfoRow(
                                             "Amount",
-                                            addCommasToInteger(
-                                              securityDeposit.amount,
-                                            ),
+                                            securityDeposit.amount
+                                                .toIndianCurrency(),
                                           ),
                                         ],
                                       ),

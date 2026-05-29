@@ -685,7 +685,7 @@ class _BookingScreenState extends State<BookingScreen> {
                           ),
                           buildRowTitleValue(
                             title: "Agreement Value (₹)",
-                            value: addCommasToInteger(booking.agreementValue),
+                            value: booking.agreementValue.toIndianCurrency(),
                           ),
                           buildRowTitleValue(
                             title: "Expected Registration",
