@@ -46,7 +46,13 @@ class ChipStyleTabBar extends StatelessWidget {
                     borderRadius: BorderRadius.circular(5),
                     borderSide: BorderSide(width: 2, color: AppColor.primary),
                   ),
-                  tabs: tabs.map((title) => Tab(text: title)).toList(),
+                  tabs:
+                      tabs
+                          .map(
+                            (title) =>
+                                Tab(text: title.isEmpty ? 'Unknown' : title),
+                          )
+                          .toList(),
                 )
                 : TabBar(
                   padding: EdgeInsets.zero,
@@ -88,7 +94,7 @@ class ChipStyleTabBar extends StatelessWidget {
                                   color: AppColor.grey.withValues(alpha: 0.4),
                                 ),
                               ),
-                              child: Text(title),
+                              child: Text(title.isEmpty ? 'Unknown' : title),
                             ),
                           ),
                         );

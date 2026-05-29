@@ -15,6 +15,7 @@ class ParkingState extends BaseState {
   final int blockedParking;
   final int holdParking;
   final int allotedParking;
+  final String? selectedFlatStatus;
 
   const ParkingState({
     super.isLoading,
@@ -33,6 +34,7 @@ class ParkingState extends BaseState {
     this.blockedParking = 0,
     this.holdParking = 0,
     this.allotedParking = 0,
+    this.selectedFlatStatus,
   });
 
   factory ParkingState.initial() => ParkingState(
@@ -51,6 +53,7 @@ class ParkingState extends BaseState {
     blockedParking: 0,
     holdParking: 0,
     allotedParking: 0,
+    selectedFlatStatus: null,
   );
   ParkingState copyWith({
     bool? isLoading,
@@ -68,6 +71,7 @@ class ParkingState extends BaseState {
     int? blockedParking,
     int? holdParking,
     int? allotedParking,
+    String? selectedFlatStatus,
   }) => ParkingState(
     isLoading: isLoading ?? this.isLoading,
     parkingList: parkingList ?? this.parkingList,
@@ -86,6 +90,7 @@ class ParkingState extends BaseState {
     blockedParking: blockedParking ?? this.blockedParking,
     holdParking: holdParking ?? this.holdParking,
     allotedParking: allotedParking ?? this.allotedParking,
+    selectedFlatStatus: selectedFlatStatus ?? this.selectedFlatStatus,
   );
 
   @override
@@ -105,5 +110,6 @@ class ParkingState extends BaseState {
     blockedParking,
     holdParking,
     allotedParking,
+    selectedFlatStatus,
   ];
 }

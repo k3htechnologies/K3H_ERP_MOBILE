@@ -570,7 +570,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                                 );
                               },
                               child: Padding(
-                                padding: const EdgeInsets.only(top: 2),
+                                padding: const EdgeInsets.all(5),
                                 child: Icon(
                                   Icons.copy,
                                   size: 16,

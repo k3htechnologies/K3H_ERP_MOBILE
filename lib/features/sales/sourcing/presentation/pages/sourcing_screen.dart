@@ -518,6 +518,34 @@ class _SourcingScreenState extends State<SourcingScreen> {
                       title: "CP Code",
                       value: channelPartner.systemGeneratedCode,
                       singleLine: false,
+                      customValueWidget: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              channelPartner.systemGeneratedCode,
+                              style: AppTextStyle.ts14M(),
+                            ),
+                          ),
+                          horizontalSpacing(width: 2),
+                          InkWell(
+                            onTap: () {
+                              copy(
+                                context: context,
+                                text: channelPartner.systemGeneratedCode,
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: Icon(
+                                Icons.copy,
+                                size: 16,
+                                color: AppColor.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     buildRowTitleValue(
                       title: "Mobile No.",

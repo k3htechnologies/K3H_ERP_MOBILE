@@ -117,15 +117,25 @@ class ParkingCubit extends Cubit<ParkingState> {
           if (wingCurrentPageKey != null) {
             final floorData = wingGroupedData[wingCurrentPageKey]!;
             availableParking =
-                floorData.where((e) => e.parkingStatus == "Available").length;
+                floorData
+                    .where((e) => e.parkingStatus.toLowerCase() == "available")
+                    .length;
             bookedParking =
-                floorData.where((e) => e.parkingStatus == "Booked").length;
+                floorData
+                    .where((e) => e.parkingStatus.toLowerCase() == "booked")
+                    .length;
             blockedParking =
-                floorData.where((e) => e.parkingStatus == "Block").length;
+                floorData
+                    .where((e) => e.parkingStatus.toLowerCase() == "blocked")
+                    .length;
             holdParking =
-                floorData.where((e) => e.parkingStatus == "Hold").length;
+                floorData
+                    .where((e) => e.parkingStatus.toLowerCase() == "hold")
+                    .length;
             memberParking =
-                floorData.where((e) => e.parkingStatus == "Member").length;
+                floorData
+                    .where((e) => e.parkingStatus.toLowerCase() == "alloted")
+                    .length;
           }
 
           emit(
@@ -185,7 +195,7 @@ class ParkingCubit extends Cubit<ParkingState> {
           case "Booked":
             bookedParking++;
             break;
-          case "Block":
+          case "Blocked":
             blockedParking++;
             break;
           case "Hold":
@@ -228,10 +238,10 @@ class ParkingCubit extends Cubit<ParkingState> {
     int bookedParking =
         wingData.where((e) => e.parkingStatus == "Booked").length;
     int blockedParking =
-        wingData.where((e) => e.parkingStatus == "Block").length;
+        wingData.where((e) => e.parkingStatus == "Blocked").length;
     int holdParking = wingData.where((e) => e.parkingStatus == "Hold").length;
     int memberParking =
-        wingData.where((e) => e.parkingStatus == "Member").length;
+        wingData.where((e) => e.parkingStatus == "Alloted").length;
 
     emit(
       state.copyWith(
@@ -333,11 +343,11 @@ class ParkingCubit extends Cubit<ParkingState> {
               bookedParking =
                   wingData.where((e) => e.parkingStatus == "Booked").length;
               blockedParking =
-                  wingData.where((e) => e.parkingStatus == "Block").length;
+                  wingData.where((e) => e.parkingStatus == "Blocked").length;
               holdParking =
                   wingData.where((e) => e.parkingStatus == "Hold").length;
               memberParking =
-                  wingData.where((e) => e.parkingStatus == "Member").length;
+                  wingData.where((e) => e.parkingStatus == "Alloted").length;
             }
 
             emit(
@@ -403,5 +413,9 @@ class ParkingCubit extends Cubit<ParkingState> {
         }
       },
     );
+  }
+
+  void updateStatusFilter(String? status) {
+    emit(state.copyWith(selectedFlatStatus: status));
   }
 }

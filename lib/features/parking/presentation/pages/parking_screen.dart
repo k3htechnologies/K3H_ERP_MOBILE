@@ -46,9 +46,6 @@ class _ParkingScreenState extends State<ParkingScreen>
   TabController? _buildingTabController;
   TabController? _wingTabController;
 
-  // FILTER STATE
-  final Set<String> _selectedParkingFilter = {};
-
   bool _isDisposing = false;
 
   final ValueNotifier<Set<String>> _expandedParking = ValueNotifier({});
@@ -232,7 +229,6 @@ class _ParkingScreenState extends State<ParkingScreen>
             _wingTabController!.dispose();
             _wingTabController = null;
           }
-          _selectedParkingFilter.clear();
           _parkingCubit.getParking(context, value.projectId);
         },
         onExportCallback: (value) {
@@ -373,12 +369,16 @@ class _ParkingScreenState extends State<ParkingScreen>
 
   // PARKING LIST
   Widget _buildParkingList(List<ParkingModel> parkingList) {
+    final selectedFilter =
+        context.watch<ParkingCubit>().state.selectedFlatStatus;
+
     final filteredList =
-        _selectedParkingFilter.isEmpty
+        selectedFilter?.toLowerCase() == 'total'
             ? parkingList
-            : parkingList
-                .where((e) => _selectedParkingFilter.contains(e.parkingStatus))
-                .toList();
+            : parkingList.where((parking) {
+              return parking.parkingStatus.toLowerCase() ==
+                  selectedFilter?.toLowerCase();
+            }).toList();
 
     if (filteredList.isEmpty) {
       return Center(child: noDataWidget());
@@ -751,32 +751,7 @@ class _ParkingScreenState extends State<ParkingScreen>
 
   // COUNTS ROW
   Widget _buildCountsRow(List<ParkingModel> wingList) {
-    int available = 0;
-    int booked = 0;
-    int blocked = 0;
-    int hold = 0;
-    int alloted = 0;
-
-    for (var p in wingList) {
-      switch (p.parkingStatus) {
-        case 'Available':
-          available++;
-          break;
-        case 'Booked':
-          booked++;
-          break;
-        case 'Block':
-        case 'Blocked':
-          blocked++;
-          break;
-        case 'Hold':
-          hold++;
-          break;
-        case 'Alloted':
-          alloted++;
-          break;
-      }
-    }
+    final state = context.read<ParkingCubit>().state;
 
     final total = wingList.length;
 
@@ -789,14 +764,41 @@ class _ParkingScreenState extends State<ParkingScreen>
         border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        spacing: 10,
         children: [
-          _buildCountItem("Total", total, AppColor.primary),
-          _buildCountItem("Available", available, AppColor.darkGreen),
-          _buildCountItem("Booked", booked, AppColor.error),
-          _buildCountItem("Alloted", alloted, AppColor.purple),
-          _buildCountItem("Hold", hold, AppColor.yellow),
-          _buildCountItem("Blocked", blocked, AppColor.black),
+          _buildCountItem("Total", total, AppColor.black),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                spacing: 10,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildCountItem(
+                    "Available",
+                    state.availableParking,
+                    AppColor.darkGreen,
+                  ),
+                  _buildCountItem(
+                    "Booked",
+                    state.bookedParking,
+                    AppColor.error,
+                  ),
+                  _buildCountItem(
+                    "Alloted",
+                    state.allotedParking,
+                    AppColor.purple,
+                  ),
+                  _buildCountItem("Hold", state.holdParking, AppColor.yellow),
+                  _buildCountItem(
+                    "Blocked",
+                    state.blockedParking,
+                    AppColor.black,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -804,18 +806,47 @@ class _ParkingScreenState extends State<ParkingScreen>
 
   // COUNT ITEM
   Widget _buildCountItem(String label, int count, Color color) {
-    return Row(
-      children: [
-        Text(
-          count.toString(),
-          style: AppTextStyle.ts12R().copyWith(fontSize: 10, color: color),
+    final selectedFilter =
+        context.watch<ParkingCubit>().state.selectedFlatStatus;
+
+    final isSelected = selectedFilter?.toLowerCase() == label.toLowerCase();
+
+    return InkWell(
+      onTap: () {
+        final cubit = context.read<ParkingCubit>();
+
+        // Reset filter when same item tapped
+        if (isSelected) {
+          cubit.updateStatusFilter(null);
+        } else {
+          cubit.updateStatusFilter(label);
+        }
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              count.toString(),
+              style: AppTextStyle.ts14SB().copyWith(color: color),
+            ),
+
+            horizontalSpacing(width: 5),
+
+            Text(
+              label,
+              style:
+                  isSelected
+                      ? AppTextStyle.ts14SB().copyWith(color: color)
+                      : AppTextStyle.ts14R().copyWith(color: AppColor.black),
+            ),
+          ],
         ),
-        horizontalSpacing(width: 5),
-        Text(
-          label,
-          style: AppTextStyle.ts12R().copyWith(fontSize: 10, color: color),
-        ),
-      ],
+      ),
     );
   }
 }

@@ -2060,25 +2060,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                                     files: files,
                                   );
                                 },
-
-                                // 🗑 DELETE
-                                deleteDocument: (removeUrl) async {
-                                  final files = MultiFilePickerModel(
-                                    fileNameList: [],
-                                    fileBytesList: [],
-                                    deletedFileList: removeUrl,
-                                  );
-
-                                  await _profileCubit.updateEmployeeDocument(
-                                    context: context,
-                                    employeeDocumentId: doc.employeeDocumentId,
-                                    uniqueKey: doc.uniquekey,
-                                    employeeId: doc.employeeId.toString(),
-                                    documentName: doc.documentName,
-                                    removeDocumentURL: removeUrl,
-                                    files: files,
-                                  );
-                                },
                               ),
                         );
                       },

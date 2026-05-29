@@ -450,7 +450,7 @@ class _InventoryScreenState extends State<InventoryScreen>
     int wingIndex,
   ) {
     final selectedFilter =
-        context.watch<InventoryCubit>().state.selectedStatusFilter;
+        context.watch<InventoryCubit>().state.selectedFlatStatus;
 
     final filteredFloorList =
         selectedFilter?.toLowerCase() == 'total'
@@ -1237,7 +1237,7 @@ class _InventoryScreenState extends State<InventoryScreen>
   // COUNT ITEM
   Widget _buildCountItem(String label, int count, Color color) {
     final selectedFilter =
-        context.watch<InventoryCubit>().state.selectedStatusFilter;
+        context.watch<InventoryCubit>().state.selectedFlatStatus;
 
     final isSelected = selectedFilter?.toLowerCase() == label.toLowerCase();
 
