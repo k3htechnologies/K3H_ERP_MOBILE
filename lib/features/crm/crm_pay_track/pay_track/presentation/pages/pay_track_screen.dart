@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
@@ -26,6 +28,9 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
   late PayTrackCubit _payTrackCubit;
   late ProjectModel _selectedProject;
   late TextEditingController _searchC;
+  // PAGINATION
+  late ScrollController scrollController;
+  Timer? _debounce;
   @override
   void initState() {
     super.initState();
@@ -33,12 +38,37 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
     _selectedProject = getProject();
     _searchC = TextEditingController();
     _payTrackCubit.getPayTrackList(context, 1, _selectedProject.projectId);
+    _onScroll();
   }
 
   @override
   void dispose() {
     _searchC.dispose();
+    scrollController.dispose();
+    _debounce?.cancel();
     super.dispose();
+  }
+
+  // <---- PAGINATION ---->
+  void _onScroll() {
+    scrollController = ScrollController();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+              scrollController.position.maxScrollExtent - 100 &&
+          !(_payTrackCubit.state.isLoading ?? false) &&
+          _payTrackCubit.state.payTrackList.length <
+              _payTrackCubit.state.totalNumberOfRecord) {
+        // TO HANDLE MULTIPLE TIME API CALLS
+        if (_debounce?.isActive ?? false) _debounce?.cancel();
+        _debounce = Timer(const Duration(milliseconds: 300), () {
+          _payTrackCubit.getPayTrackList(
+            context,
+            _payTrackCubit.state.currentPage + 1,
+            _selectedProject.projectId,
+          );
+        });
+      }
+    });
   }
 
   @override
@@ -62,10 +92,19 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
       body: BlocBuilder<PayTrackCubit, PayTrackState>(
         builder: (context, state) {
           return ListView.builder(
+            controller: scrollController,
             itemCount: state.payTrackList.length,
             shrinkWrap: true,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             itemBuilder: (context, index) {
+              if (index == state.payTrackList.length) {
+                return state.payTrackList.length < state.totalNumberOfRecord
+                    ? Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                    : const SizedBox.shrink();
+              }
               final payTrack = state.payTrackList[index];
               final List<Map<String, dynamic>> summaryItems = [
                 {

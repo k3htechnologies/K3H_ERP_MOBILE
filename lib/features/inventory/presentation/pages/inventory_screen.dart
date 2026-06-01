@@ -1136,24 +1136,20 @@ class _InventoryScreenState extends State<InventoryScreen>
           ],
           if (flat.flatStatus.toLowerCase() == "blocked") ...[
             verticalSpacing(),
-            Center(
-              child: Text(
-                "Blocked by ${flat.modifiedBy.isNotEmpty ? flat.modifiedBy : "Unknown"} on\n"
-                "${formatDateTimeReadable(flat.modifiedDate)}",
-                textAlign: TextAlign.center,
-                style: AppTextStyle.ts12M(color: AppColor.black),
-              ),
+            Text(
+              "Blocked by ${flat.modifiedBy.isNotEmpty ? flat.modifiedBy : "Unknown"} on "
+              "${formatDateTimeReadable(flat.modifiedDate)}",
+              textAlign: TextAlign.center,
+              style: AppTextStyle.ts12M(color: AppColor.black),
             ),
           ],
           if (flat.flatStatus.toLowerCase() == "hold") ...[
             verticalSpacing(),
-            Center(
-              child: Text(
-                "Hold by ${flat.modifiedBy.isNotEmpty ? flat.modifiedBy : "Unknown"} on\n"
-                "${formatDateTimeReadable(flat.modifiedDate)}",
-                textAlign: TextAlign.center,
-                style: AppTextStyle.ts12M(color: AppColor.brown),
-              ),
+            Text(
+              "Hold by ${flat.modifiedBy.isNotEmpty ? flat.modifiedBy : "Unknown"} on "
+              "${formatDateTimeReadable(flat.modifiedDate)}",
+              textAlign: TextAlign.center,
+              style: AppTextStyle.ts12M(color: AppColor.brown),
             ),
           ],
         ],
@@ -1207,23 +1203,23 @@ class _InventoryScreenState extends State<InventoryScreen>
                   _buildCountItem(
                     "Available",
                     counts['available'] ?? 0,
-                    AppColor.darkGreen,
+                    Color(0xff28653F),
                   ),
                   _buildCountItem(
                     "Booked",
                     counts['booked'] ?? 0,
-                    AppColor.error,
+                    Color(0xffFF0000),
                   ),
                   _buildCountItem(
                     "Alloted",
                     counts['alloted'] ?? 0,
-                    AppColor.purple,
+                    Color(0xff561F64),
                   ),
-                  _buildCountItem("Hold", counts['hold'] ?? 0, AppColor.yellow),
+                  _buildCountItem("Hold", counts['hold'] ?? 0, AppColor.brown),
                   _buildCountItem(
                     "Blocked",
                     counts['blocked'] ?? 0,
-                    AppColor.black,
+                    Color(0xff1D1D1D),
                   ),
                 ],
               ),
@@ -1262,7 +1258,7 @@ class _InventoryScreenState extends State<InventoryScreen>
           children: [
             Text(
               count.toString(),
-              style: AppTextStyle.ts14SB().copyWith(color: color),
+              style: AppTextStyle.ts12M().copyWith(color: color),
             ),
 
             horizontalSpacing(width: 5),
@@ -1271,8 +1267,8 @@ class _InventoryScreenState extends State<InventoryScreen>
               label,
               style:
                   isSelected
-                      ? AppTextStyle.ts14SB().copyWith(color: color)
-                      : AppTextStyle.ts14R().copyWith(color: AppColor.black),
+                      ? AppTextStyle.ts10M().copyWith(color: color)
+                      : AppTextStyle.ts10R().copyWith(color: AppColor.black),
             ),
           ],
         ),
@@ -1284,17 +1280,17 @@ class _InventoryScreenState extends State<InventoryScreen>
   Color _statusColor(String status) {
     switch (status) {
       case "Available":
-        return AppColor.lightGreen.withValues(alpha: .3);
+        return Color(0xff60D669).withValues(alpha: 0.15);
       case "Blocked":
-        return AppColor.black.withValues(alpha: 0.15);
+        return Color(0xff1D1D1D).withValues(alpha: 0.15);
       case "Booked":
-        return AppColor.lightRed;
+        return Color(0xffFF0000).withValues(alpha: 0.15);
       case "Hold":
         return AppColor.holdYellowColor.withValues(alpha: 0.15);
       case "Alloted":
-        return AppColor.purple.withValues(alpha: .2);
+        return AppColor.purple.withValues(alpha: 0.15);
       default:
-        return AppColor.grey;
+        return Color(0xff1D1D1D).withValues(alpha: 0.15);
     }
   }
 }

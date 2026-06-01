@@ -295,15 +295,15 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
     }
     return Dialog(
       insetPadding: const EdgeInsets.all(20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
-        width: 520,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: AppColor.white,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             // ───── HEADER ─────
@@ -322,16 +322,11 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
 
             verticalSpacing(height: 10),
             Divider(color: AppColor.lightBlue),
-
-            // ───── BODY ─────
             SizedBox(
               height: 260,
               child: widget.isFreshAdd ? const SizedBox() : _buildPreviewUI(),
             ),
-
-            verticalSpacing(height: 12),
-
-            // ───── FOOTER ─────
+            verticalSpacing(),
             Row(
               children: [
                 if (!widget.isFreshAdd)

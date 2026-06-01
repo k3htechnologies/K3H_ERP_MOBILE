@@ -21,18 +21,33 @@ class CrmDashboardModel {
     required this.table7,
   });
 
-  factory CrmDashboardModel.fromJson(
-    Map<String, dynamic> json,
-  ) => CrmDashboardModel(
-    table0: List<Table0>.from(json["Table0"].map((x) => Table0.fromJson(x))),
-    table1: List<Table1>.from(json["Table1"].map((x) => Table1.fromJson(x))),
-    table2: List<Table2>.from(json["Table2"].map((x) => Table2.fromJson(x))),
-    table3: List<Table3>.from(json["Table3"].map((x) => Table3.fromJson(x))),
-    table4: List<Table4>.from(json["Table4"].map((x) => Table4.fromJson(x))),
-    table5: List<Table5>.from(json["Table5"].map((x) => Table5.fromJson(x))),
-    table6: List<Table6>.from(json["Table6"].map((x) => Table6.fromJson(x))),
-    table7: List<Table7>.from(json["Table7"].map((x) => Table7.fromJson(x))),
-  );
+  factory CrmDashboardModel.fromJson(Map<String, dynamic> json) =>
+      CrmDashboardModel(
+        table0: List<Table0>.from(
+          (json["Table0"] ?? []).map((x) => Table0.fromJson(x)),
+        ),
+        table1: List<Table1>.from(
+          (json["Table1"] ?? []).map((x) => Table1.fromJson(x)),
+        ),
+        table2: List<Table2>.from(
+          (json["Table2"] ?? []).map((x) => Table2.fromJson(x)),
+        ),
+        table3: List<Table3>.from(
+          (json["Table3"] ?? []).map((x) => Table3.fromJson(x)),
+        ),
+        table4: List<Table4>.from(
+          (json["Table4"] ?? []).map((x) => Table4.fromJson(x)),
+        ),
+        table5: List<Table5>.from(
+          (json["Table5"] ?? []).map((x) => Table5.fromJson(x)),
+        ),
+        table6: List<Table6>.from(
+          (json["Table6"] ?? []).map((x) => Table6.fromJson(x)),
+        ),
+        table7: List<Table7>.from(
+          (json["Table7"] ?? []).map((x) => Table7.fromJson(x)),
+        ),
+      );
 
   Map<String, dynamic> toJson() => {
     "Table0": List<dynamic>.from(table0.map((x) => x.toJson())),

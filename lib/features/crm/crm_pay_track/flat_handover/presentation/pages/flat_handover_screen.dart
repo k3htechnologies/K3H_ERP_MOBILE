@@ -65,6 +65,8 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
               }
               return ListView.builder(
                 itemCount: state.payTrackBookingFileList.length,
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
                   return Container();
                 },

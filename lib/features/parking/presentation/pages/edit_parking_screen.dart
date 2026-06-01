@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/parking/presentation/cubit/parking_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -492,47 +493,31 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                     );
                   },
                 ),
-                Text('Is Ev Charging Available?', style: AppTextStyle.ts16R()),
-                verticalSpacing(height: 6),
                 ValueListenableBuilder<bool>(
                   valueListenable: isEvChargingAvailable,
                   builder: (context, value, child) {
                     return Row(
                       children: [
-                        Row(
-                          children: [
-                            Radio<bool>(
-                              value: true,
-                              enabled: _routeAuthorizationModel.isAction,
-                              groupValue: isEvChargingAvailable.value,
-                              activeColor: AppColor.primary,
-                              onChanged: (value) {
-                                isEvChargingAvailable.value = value!;
-                              },
-                            ),
-                            Text('Yes', style: AppTextStyle.ts16R()),
-                          ],
+                        CustomCheckBox(
+                          isSelected: value,
+                          onChanged:
+                              !_routeAuthorizationModel.isAction
+                                  ? null
+                                  : (checked) {
+                                    isEvChargingAvailable.value = checked;
+                                  },
                         ),
-                        SizedBox(width: 20),
-                        Row(
-                          children: [
-                            Radio<bool>(
-                              value: false,
-                              enabled: _routeAuthorizationModel.isAction,
-                              groupValue: isEvChargingAvailable.value,
-                              activeColor: AppColor.info,
-                              onChanged: (value) {
-                                isEvChargingAvailable.value = value!;
-                              },
-                            ),
-                            Text('No', style: AppTextStyle.ts16R()),
-                          ],
+                        horizontalSpacing(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Is Ev Charging Available?',
+                            style: AppTextStyle.ts16R(),
+                          ),
                         ),
                       ],
                     );
                   },
-                ),
-                verticalSpacing(height: 20),
+                ), // Text('Is Ev Charging Available?', style: AppTextStyle.ts16R()),
               ],
             ),
           ),

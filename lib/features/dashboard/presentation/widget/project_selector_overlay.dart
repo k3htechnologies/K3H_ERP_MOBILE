@@ -209,7 +209,7 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                         vertical: 14,
                       ),
                       child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           if (selectedProject == null)
                             Text(
