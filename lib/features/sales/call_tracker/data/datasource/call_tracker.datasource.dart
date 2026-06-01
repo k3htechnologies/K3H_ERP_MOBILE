@@ -12,6 +12,10 @@ abstract interface class CallTrackerDataSource {
     Map<String, dynamic>? queryParams,
   });
 
+  Future<Map<String, dynamic>> apicallToAddCallingData({
+    required Map<String, dynamic> body,
+  });
+
   Future<Map<String, dynamic>> apicallPullCallLog({
     required int pageNumber,
     required int pageSize,
@@ -93,6 +97,31 @@ class CallTrackerDataSourceImpl implements CallTrackerDataSource {
           projectId: projectId,
           queryParams: queryParams,
         );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallToAddCallingData({
+    required Map<String, dynamic> body,
+  }) async {
+    String addCallLogUrl = "CallTracker/AddCallingData";
+
+    try {
+      var networkResponse = await _baseClient.postRequestWithAuthentication(
+        addCallLogUrl,
+        body,
+      );
+      return {
+        'data': List<CallingDataModel>.from(
+          networkResponse["data"].map((e) => CallingDataModel.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallToAddCallingData(body: body);
       }
       rethrow;
     }

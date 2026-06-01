@@ -11,6 +11,10 @@ abstract interface class CallTrackerRepository {
     Map<String, dynamic>? queryParams,
   });
 
+  Future<Either<Failure, Map<String, dynamic>>> addCallingData({
+    required Map<String, dynamic> body,
+  });
+
   Future<Either<Failure, Map<String, dynamic>>> getCallLog({
     required int pageNumber,
     required int pageSize,
@@ -65,6 +69,20 @@ class CallTrackerRepositoryImpl implements CallTrackerRepository {
         pageSize: pageSize,
         projectId: projectId,
         queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addCallingData({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await callTrackerDataSource.apicallToAddCallingData(
+        body: body,
       );
       return right(result);
     } catch (error) {

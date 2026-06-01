@@ -566,11 +566,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                     // PENDING APPROVAL WIDGET
                     _pendingApprovalWidget(),
                     verticalSpacing(height: 16),
-                    _buildDailyActivitiesWidget(context),
-                    verticalSpacing(height: 16),
-                    //  SCHEDULED TASK WIDGET
-                    _buildScheduledTaskWidget(context),
-                    verticalSpacing(height: 16),
                     //  QUICK ACTIONS WIDGET
                     _buildQuickActionsWidget(context),
                     verticalSpacing(height: 16),
@@ -955,20 +950,41 @@ class _DashboardScreenState extends State<DashboardScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Pending Approvals", style: AppTextStyle.ts16M()),
+              Text(
+                "Pending Approvals",
+                style: AppTextStyle.ts14M(
+                  color: AppColor.black.withValues(alpha: 0.50),
+                ),
+              ),
 
               verticalSpacing(height: 12),
 
               /// Header
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Row(
+              if (pendingInventory > 0 ||
+                  pendingParking > 0 ||
+                  pendingBooking > 0) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text("Type", style: AppTextStyle.ts12R()),
+                      ),
+                      Text("Count", style: AppTextStyle.ts12R()),
+                    ],
+                  ),
+                ),
+              ] else ...[
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(child: Text("Type", style: AppTextStyle.ts12R())),
-                    Text("Count", style: AppTextStyle.ts12R()),
+                    noDataWidget(
+                      iconSize: 100,
+                      message: "No module approval data",
+                    ),
                   ],
                 ),
-              ),
+              ],
 
               /// INVENTORY
               if (pendingInventory > 0)
@@ -1274,80 +1290,6 @@ class _DashboardScreenState extends State<DashboardScreen>
           ],
         );
       },
-    );
-  }
-
-  Widget _buildDailyActivitiesWidget(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      decoration: commonCardDecoration(),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  "Daily Activities",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.50),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 100.0,
-            child: Center(
-              child: Text(
-                "Coming Soon",
-                style: AppTextStyle.ts14M(
-                  color: AppColor.black.withValues(alpha: 0.5),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildScheduledTaskWidget(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      decoration: commonCardDecoration(),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  "Scheduled Task",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.50),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 100.0,
-            child: Center(
-              child: Text(
-                "Coming Soon",
-                style: AppTextStyle.ts14M(
-                  color: AppColor.black.withValues(alpha: 0.5),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -1705,10 +1647,11 @@ class _DashboardScreenState extends State<DashboardScreen>
             0;
 
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
           decoration: commonCardDecoration(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 12,
             children: [
               Text(
                 "Leave Balance",
@@ -1716,64 +1659,45 @@ class _DashboardScreenState extends State<DashboardScreen>
                   color: AppColor.black.withValues(alpha: 0.50),
                 ),
               ),
-              verticalSpacing(height: 20),
-              if (table4List != null && table4List.isNotEmpty) ...[
-                _leaveRow(title: "Total Leaves", value: "$totalLeaves"),
-                verticalSpacing(),
-                _leaveRow(title: "Used Leaves", value: "$usedLeaves"),
-                verticalSpacing(),
-                _leaveRow(title: "Pending Leaves", value: "$remainingLeaves"),
+              _leaveRow(title: "Total Leaves", value: "$totalLeaves"),
+              _leaveRow(title: "Used Leaves", value: "$usedLeaves"),
+              _leaveRow(title: "Pending Leaves", value: "$remainingLeaves"),
 
-                const SizedBox(height: 20),
-
-                Text(
-                  "Upcoming Approved",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.5),
-                  ),
+              Text(
+                "Upcoming Approved",
+                style: AppTextStyle.ts14M(
+                  color: AppColor.black.withValues(alpha: 0.5),
                 ),
+              ),
 
-                const SizedBox(height: 10),
+              if (table5List != null && table5List.isNotEmpty) ...{
+                ListView.builder(
+                  itemCount: table5List.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    final upcomingLeaves = table5List[index];
+                    final item = upcomingLeaves;
+                    final startDate = DateTime.parse(item.startDate.toString());
+                    final endDate = DateTime.parse(item.endDate.toString());
 
-                if (table5List != null && table5List.isNotEmpty) ...{
-                  ListView.builder(
-                    itemCount: table5List.length,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      final upcomingLeaves = table5List[index];
-                      final item = upcomingLeaves;
-                      final startDate = DateTime.parse(
-                        item.startDate.toString(),
-                      );
-                      final endDate = DateTime.parse(item.endDate.toString());
-
-                      final formattedStart = DateFormat(
-                        'dd MMM',
-                      ).format(startDate);
-                      final formattedEnd = DateFormat(
-                        'dd MMM, yyyy',
-                      ).format(endDate);
-                      return _buildUpcomingAttendanceWidget(
-                        title: upcomingLeaves.leaveTypeName,
-                        value: "",
-                        subtitle:
-                            "$formattedStart - $formattedEnd (${upcomingLeaves.noOfDays} days)",
-                        bgColor: Color(0xFFEFFAF3),
-                        borderColor: Color(0xFFB7E4C7),
-                      );
-                    },
-                  ),
-                } else ...{
-                  Center(
-                    child: Text(
-                      "No Data Found",
-                      style: AppTextStyle.ts12M(
-                        color: AppColor.black.withValues(alpha: 0.50),
-                      ),
-                    ),
-                  ),
-                },
-              ] else ...[
+                    final formattedStart = DateFormat(
+                      'dd MMM',
+                    ).format(startDate);
+                    final formattedEnd = DateFormat(
+                      'dd MMM, yyyy',
+                    ).format(endDate);
+                    return _buildUpcomingAttendanceWidget(
+                      title: upcomingLeaves.leaveTypeName,
+                      value: "",
+                      subtitle:
+                          "$formattedStart - $formattedEnd (${upcomingLeaves.noOfDays} days)",
+                      bgColor: Color(0xFFEFFAF3),
+                      borderColor: Color(0xFFB7E4C7),
+                    );
+                  },
+                ),
+              } else ...{
+                verticalSpacing(height: 2),
                 Center(
                   child: Text(
                     "No Data Found",
@@ -1782,7 +1706,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                     ),
                   ),
                 ),
-              ],
+                verticalSpacing(height: 2),
+              },
             ],
           ),
         );
@@ -1962,7 +1887,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
         final table8List = userData?.table8;
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
           decoration: commonCardDecoration(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1980,12 +1905,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              verticalSpacing(height: 6),
               Divider(
                 thickness: 0.3,
                 color: AppColor.black.withValues(alpha: 0.50),
               ),
-              const SizedBox(height: 12),
+              verticalSpacing(height: 6),
 
               Row(
                 children: [
@@ -2045,14 +1970,14 @@ class _DashboardScreenState extends State<DashboardScreen>
                 ),
               ],
 
-              const SizedBox(height: 12),
+              verticalSpacing(height: 6),
 
               Divider(
                 thickness: 0.3,
                 color: AppColor.black.withValues(alpha: 0.50),
               ),
 
-              const SizedBox(height: 12),
+              verticalSpacing(height: 6),
               Row(
                 children: [
                   Expanded(

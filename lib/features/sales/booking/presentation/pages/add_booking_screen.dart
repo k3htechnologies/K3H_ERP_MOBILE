@@ -546,6 +546,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               applicant: applicant,
               index: index,
               hasPrimaryApplicant: _hasPrimaryApplicant(_applicants.value),
+              disableEditMobileNo: _isEditMode,
             ),
       ),
     );

@@ -139,6 +139,7 @@ class AppRoutes {
   // SALES CALL TRACKER
   static String callTracker = "/callTracker";
   static String updateCallTracker = "/updateCallTracker";
+  static String addCallTracker = "/addCallTracker";
 
   // SALES ENQUIRY
   static String enquiry = "/enquiry";

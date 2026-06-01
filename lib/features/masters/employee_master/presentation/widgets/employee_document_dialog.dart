@@ -307,40 +307,20 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             // ───── HEADER ─────
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(widget.title, style: AppTextStyle.ts16SB()),
-                    ),
-                    horizontalSpacing(),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.close),
-                    ),
-                  ],
+                Expanded(
+                  child: Text(widget.title, style: AppTextStyle.ts16SB()),
                 ),
-
-                verticalSpacing(height: 4),
-
-                if (!widget.isFreshAdd)
-                  ValueListenableBuilder<int>(
-                    valueListenable: _currentIndex,
-                    builder: (_, index, __) {
-                      final totalDocs = widget.urls.length;
-
-                      return Text(
-                        "$totalDocs/$maxDocuments uploaded",
-                        style: AppTextStyle.ts12R(color: AppColor.grey),
-                      );
-                    },
-                  ),
+                horizontalSpacing(),
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: const Icon(Icons.close),
+                ),
               ],
             ),
 
-            verticalSpacing(height: 12),
+            verticalSpacing(height: 10),
             Divider(color: AppColor.lightBlue),
 
             // ───── BODY ─────

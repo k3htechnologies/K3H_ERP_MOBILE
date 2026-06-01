@@ -120,6 +120,43 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
     );
   }
 
+  Future addCallingData({
+    required BuildContext context,
+    required int projectId,
+    required String name,
+    required String emailId,
+    required String mobileNumber,
+    required String address,
+    required String source,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var body = {
+      "CallingDataId": 0,
+      "ProjectId": projectId,
+      "Name": name,
+      "EmailId": emailId,
+      "MobileNumber": mobileNumber,
+      "Address": address,
+      "Source": source,
+    };
+    var addResult = await _callTrackerRepository.addCallingData(body: body);
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+        showSuccessMessage(
+          context,
+          subTitle: 'Calling Data Added Successfully!!!',
+        );
+        getCallingDataList(context, 1, projectId);
+      },
+    );
+  }
+
   // <---- GET CALLING DATA LIST ---->
   Future getCallLogList(
     BuildContext context,

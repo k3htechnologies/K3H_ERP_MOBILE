@@ -344,6 +344,7 @@ import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_sc
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_view_screen.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/data/model/call_log.model.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_tracker_cubit.dart';
+import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/add_call_tracker_screen.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/call_tracker_screen.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/update_call_log_screen.dart';
 import 'package:k3h_erp_app/features/sales/classification_parameters/data/model/classification_paramerter.model.dart';
@@ -4162,6 +4163,13 @@ final GoRouter goRouter = GoRouter(
                       callLogModel: callLog!,
                       index: index,
                     );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addCallTracker,
+                  path: AppRoutes.addCallTracker,
+                  builder: (context, state) {
+                    return AddCallTrackerScreen();
                   },
                 ),
               ],

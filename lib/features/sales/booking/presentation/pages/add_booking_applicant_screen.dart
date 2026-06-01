@@ -19,11 +19,13 @@ class AddBookingApplicantScreen extends StatefulWidget {
   final BookingApplicantData? applicant;
   final int? index;
   final bool hasPrimaryApplicant;
+  final bool disableEditMobileNo;
   const AddBookingApplicantScreen({
     super.key,
     this.applicant,
     this.index,
     this.hasPrimaryApplicant = false,
+    this.disableEditMobileNo = false,
   });
 
   @override
@@ -413,6 +415,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                         keyboardType: TextInputType.phone,
                         isRequired: true,
                         showCountryDropdown: true,
+                        readOnly: widget.disableEditMobileNo,
                         selectedCountry: value,
                         onCountryChanged: (country) {
                           if (country == null) return;

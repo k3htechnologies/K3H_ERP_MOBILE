@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -16,9 +17,11 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_export_button.dart';
+import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
@@ -71,7 +74,6 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     _tabController.addListener(_handleTabChange);
     _onScrollCallingData();
     _onScrollCallLog();
-
     _syncAndLoadCallingData();
   }
 
@@ -358,63 +360,10 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
         preferredSize: const Size.fromHeight(110),
         child: BlocBuilder<CallTrackerCubit, CallTrackerState>(
           builder: (context, state) {
-            return CustomAppBar(
+            return CustomAppBarWithBackButton(
               screenTitle: "Call Tracker",
               authorization: _routhAuthorizationModel,
-              isFilterOn: true,
-              searchHintText:
-                  state.currentTabIndex == 0
-                      ? "Search By Customer Name"
-                      : "Search By Receiver Name",
-
-              onSearchSubmit: (value) {
-                if (state.currentTabIndex == 0) {
-                  _callTrackerCubit.searchCallingData(
-                    context,
-                    value,
-                    _project.projectId,
-                  );
-                } else {
-                  _callTrackerCubit.searchCallingLog(
-                    context,
-                    value,
-                    _project.projectId,
-                  );
-                }
-              },
-              onFilterTap: () {
-                _showBottomSheetToFilter(context);
-              },
-              textController: _searchC,
-
-              onExportCallback: (value) {
-                if (_project.projectId == 0) {
-                  showErrorMessage(context, "Error", "Please Select a Project");
-                  return;
-                }
-                if (state.currentTabIndex == 0) {
-                  if (state.totalNumberOfRecordCallingData == 0) {
-                    showErrorMessage(context, "Error", "Data Not Found");
-                    return;
-                  }
-                  _callTrackerCubit.exportCallingDataExcelPdf(
-                    context,
-                    value,
-                    _project.projectId,
-                  );
-                } else {
-                  if (state.totalNumberOfRecordCallLog == 0) {
-                    showErrorMessage(context, "Error", "Data Not Found");
-                    return;
-                  }
-                  _callTrackerCubit.exportCallLogExcelPdf(
-                    context,
-                    value,
-                    _project.projectId,
-                  );
-                }
-              },
-
+              isMenuButton: true,
               onProjectChangeCallback: (value) async {
                 _project = value;
                 _searchC.clear();
@@ -451,6 +400,101 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     );
   }
 
+  Widget searchWidget() {
+    return BlocBuilder<CallTrackerCubit, CallTrackerState>(
+      builder: (context, state) {
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+          child: Row(
+            spacing: 10,
+            children: [
+              Expanded(
+                child: SearchWidget(
+                  textController: _searchC,
+                  hintText:
+                      state.currentTabIndex == 0
+                          ? "Search By Customer Name"
+                          : "Search By Receiver Name",
+                  isFilterOn: true,
+                  onFilterTap: () {
+                    _showBottomSheetToFilter(context);
+                  },
+
+                  onSubmit: (value) {
+                    if (state.currentTabIndex == 0) {
+                      _callTrackerCubit.searchCallingData(
+                        context,
+                        value,
+                        _project.projectId,
+                      );
+                    } else {
+                      _callTrackerCubit.searchCallingLog(
+                        context,
+                        value,
+                        _project.projectId,
+                      );
+                    }
+                  },
+                ),
+              ),
+              if (_routhAuthorizationModel.isExport)
+                CustomExportButton(
+                  onExport: (value) {
+                    if (_project.projectId == 0) {
+                      showErrorMessage(
+                        context,
+                        "Error",
+                        "Please Select a Project",
+                      );
+                      return;
+                    }
+                    if (state.currentTabIndex == 0) {
+                      if (state.totalNumberOfRecordCallingData == 0) {
+                        showErrorMessage(context, "Error", "Data Not Found");
+                        return;
+                      }
+                      _callTrackerCubit.exportCallingDataExcelPdf(
+                        context,
+                        value,
+                        _project.projectId,
+                      );
+                    } else {
+                      if (state.totalNumberOfRecordCallLog == 0) {
+                        showErrorMessage(context, "Error", "Data Not Found");
+                        return;
+                      }
+                      _callTrackerCubit.exportCallLogExcelPdf(
+                        context,
+                        value,
+                        _project.projectId,
+                      );
+                    }
+                  },
+                ),
+              if (_routhAuthorizationModel.isAction &&
+                  state.currentTabIndex == 0)
+                CustomIconButton(
+                  icon: Icon(Icons.add, color: AppColor.white, size: 16),
+                  backgroundColor: AppColor.primary,
+                  onPressed: () {
+                    if (_project.projectId == 0) {
+                      showErrorMessage(
+                        context,
+                        "Error",
+                        "Please Select a Project",
+                      );
+                      return;
+                    }
+                    goRouter.pushNamed(AppRoutes.addCallTracker);
+                  },
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildCallingData() {
     return BlocBuilder<CallTrackerCubit, CallTrackerState>(
       builder: (context, state) {
@@ -458,101 +502,120 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
           return Center(child: loader());
         }
 
-        return RefreshIndicator(
-          onRefresh: _onRefresh,
-          child:
-              state.callingDataList.isEmpty
-                  ? ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.6,
-                        child: Center(
-                          child: noDataWidget(message: "No Calling Data Found"),
-                        ),
-                      ),
-                    ],
-                  )
-                  : ListView.builder(
-                    controller: scrollController,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    itemCount: state.callingDataList.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index == state.callingDataList.length) {
-                        return state.callingDataList.length <
-                                state.totalNumberOfRecordCallingData
-                            ? const Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Center(child: CircularProgressIndicator()),
-                            )
-                            : const SizedBox.shrink();
-                      }
-
-                      var callingData = state.callingDataList[index];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.all(12),
-                        decoration: commonCardDecoration(),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+        return Column(
+          children: [
+            searchWidget(),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: _onRefresh,
+                child:
+                    state.callingDataList.isEmpty
+                        ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
                           children: [
-                            Row(
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Customer Name",
-                                  value: callingData.name,
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.6,
+                              child: Center(
+                                child: noDataWidget(
+                                  message: "No Calling Data Found",
                                 ),
-                                buildColumnTitleValue(
-                                  title: "Location",
-                                  value: callingData.address,
-                                  customValueWidget:
-                                      callingData.address.isNotEmpty
-                                          ? Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 4,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: AppColor.lightBlue,
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                            ),
-                                            child: Text(callingData.address),
-                                          )
-                                          : const Text("-"),
-                                ),
-                              ],
-                            ),
-                            verticalSpacing(),
-                            Row(
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Mobile No.",
-                                  value: callingData.mobileNumber,
-                                  customValueWidget: CustomClickToContactText(
-                                    value: callingData.mobileNumber,
-                                  ),
-                                ),
-                                buildColumnTitleValue(
-                                  title: "E-Mail ID",
-                                  value: callingData.emailId,
-                                  customValueWidget: CustomClickToContactText(
-                                    value: callingData.emailId,
-                                    type: ContactType.email,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ],
+                        )
+                        : ListView.builder(
+                          controller: scrollController,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          itemCount: state.callingDataList.length + 1,
+                          itemBuilder: (context, index) {
+                            if (index == state.callingDataList.length) {
+                              return state.callingDataList.length <
+                                      state.totalNumberOfRecordCallingData
+                                  ? const Padding(
+                                    padding: EdgeInsets.all(16),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  )
+                                  : const SizedBox.shrink();
+                            }
+
+                            var callingData = state.callingDataList[index];
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              padding: const EdgeInsets.all(12),
+                              decoration: commonCardDecoration(),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "Customer Name",
+                                        value: callingData.name,
+                                      ),
+                                      buildColumnTitleValue(
+                                        title: "Location",
+                                        value: callingData.address,
+                                        customValueWidget:
+                                            callingData.address.isNotEmpty
+                                                ? Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 4,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: AppColor.lightBlue,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          4,
+                                                        ),
+                                                  ),
+                                                  child: Text(
+                                                    callingData.address,
+                                                  ),
+                                                )
+                                                : const Text("-"),
+                                      ),
+                                    ],
+                                  ),
+                                  verticalSpacing(),
+                                  Row(
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "Mobile No.",
+                                        value: callingData.mobileNumber,
+                                        customValueWidget:
+                                            CustomClickToContactText(
+                                              value: callingData.mobileNumber,
+                                            ),
+                                      ),
+                                      buildColumnTitleValue(
+                                        title: "E-Mail ID",
+                                        value: callingData.emailId,
+                                        customValueWidget:
+                                            CustomClickToContactText(
+                                              value: callingData.emailId,
+                                              type: ContactType.email,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -565,81 +628,93 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
           return Center(child: loader());
         }
 
-        return state.callLogList.isEmpty
-            ? ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.6,
-                  child: Center(
-                    child: noDataWidget(message: "No Call Log Found"),
-                  ),
-                ),
-              ],
-            )
-            : NotificationListener<ScrollNotification>(
-              onNotification: (scrollInfo) {
-                if (scrollInfo.metrics.pixels >=
-                        scrollInfo.metrics.maxScrollExtent - 100 &&
-                    !_callTrackerCubit.state.isLoading! &&
-                    _callTrackerCubit.state.callLogList.length <
-                        _callTrackerCubit.state.totalNumberOfRecordCallLog) {
-                  _callTrackerCubit.getCallLogList(
-                    context,
-                    _callTrackerCubit.state.currentPageCallLog + 1,
-                    _project.projectId,
-                  );
-                }
-                return false;
-              },
-              child: ListView.builder(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                itemCount: state.callLogList.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == state.callLogList.length) {
-                    return state.callLogList.length <
-                            state.totalNumberOfRecordCallLog
-                        ? const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Center(child: CircularProgressIndicator()),
-                        )
-                        : const SizedBox.shrink();
-                  }
-
-                  final callLog = state.callLogList[index];
-                  return CallLogExpandableCard(
-                    callLog: callLog,
-                    index: index,
-                    editCallBack: () {
-                      goRouter.pushNamed(
-                        AppRoutes.updateCallTracker,
-                        queryParameters: {
-                          "callLog": Uri.encodeQueryComponent(
-                            EncryptionManager.encryptData(
-                              jsonEncode(callLog.toJson()),
+        return Column(
+          children: [
+            searchWidget(),
+            Expanded(
+              child:
+                  state.callLogList.isEmpty
+                      ? ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        children: [
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.6,
+                            child: Center(
+                              child: noDataWidget(message: "No Call Log Found"),
                             ),
                           ),
-                          "index": index.toString(),
+                        ],
+                      )
+                      : NotificationListener<ScrollNotification>(
+                        onNotification: (scrollInfo) {
+                          if (scrollInfo.metrics.pixels >=
+                                  scrollInfo.metrics.maxScrollExtent - 100 &&
+                              !_callTrackerCubit.state.isLoading! &&
+                              _callTrackerCubit.state.callLogList.length <
+                                  _callTrackerCubit
+                                      .state
+                                      .totalNumberOfRecordCallLog) {
+                            _callTrackerCubit.getCallLogList(
+                              context,
+                              _callTrackerCubit.state.currentPageCallLog + 1,
+                              _project.projectId,
+                            );
+                          }
+                          return false;
                         },
-                      );
-                    },
-                    deleteCallBack: () {
-                      _showPopupToDeleteCallLog(
-                        context,
-                        callLog,
-                        _project.projectId,
-                        index,
-                      );
-                    },
-                    routhAuthorizationModel: _routhAuthorizationModel,
-                  );
-                },
-              ),
-            );
+                        child: ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          itemCount: state.callLogList.length + 1,
+                          itemBuilder: (context, index) {
+                            if (index == state.callLogList.length) {
+                              return state.callLogList.length <
+                                      state.totalNumberOfRecordCallLog
+                                  ? const Padding(
+                                    padding: EdgeInsets.all(16),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  )
+                                  : const SizedBox.shrink();
+                            }
+
+                            final callLog = state.callLogList[index];
+                            return CallLogExpandableCard(
+                              callLog: callLog,
+                              index: index,
+                              editCallBack: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.updateCallTracker,
+                                  queryParameters: {
+                                    "callLog": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(callLog.toJson()),
+                                      ),
+                                    ),
+                                    "index": index.toString(),
+                                  },
+                                );
+                              },
+                              deleteCallBack: () {
+                                _showPopupToDeleteCallLog(
+                                  context,
+                                  callLog,
+                                  _project.projectId,
+                                  index,
+                                );
+                              },
+                              routhAuthorizationModel: _routhAuthorizationModel,
+                            );
+                          },
+                        ),
+                      ),
+            ),
+          ],
+        );
       },
     );
   }
