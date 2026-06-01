@@ -122,6 +122,7 @@ class _AchievementScreenState extends State<AchievementScreen>
         _filterTypeNotifier.value = 'DATEWISE';
         _fromDateNotifier.value = null;
         _toDateNotifier.value = null;
+        _achievementCubit.resetState();
         break;
       case 4:
         _filterTypeNotifier.value = 'OVERALL';
@@ -139,6 +140,13 @@ class _AchievementScreenState extends State<AchievementScreen>
   }
 
   void _secondaryTabListener({bool isIndexChangeCheck = true}) {
+    // TO AVOID API CALL ON PRIMARY TAB CHANGE WHEN DATEWISE IS SELECTED WITHOUT SELECTING DATES
+    if (_primaryTabController?.index == 3 &&
+        _fromDateNotifier.value == null &&
+        _toDateNotifier.value == null) {
+      return;
+    }
+    // TO AVOID API CALL ON SECONDARY TAB CHANGE WHEN PRIMARY TAB CHANGES
     if (isIndexChangeCheck) {
       if (_secondaryTabController?.indexIsChanging ?? false) return;
     }
@@ -478,6 +486,13 @@ class _AchievementScreenState extends State<AchievementScreen>
                     state.projectAchievementReportList.isEmpty) {
                   return const Center(child: CircularProgressIndicator());
                 }
+                if (state.projectAchievementReportList.isEmpty) {
+                  return Center(
+                    child: noDataWidget(
+                      message: "No project achievement data available",
+                    ),
+                  );
+                }
                 return ListView.builder(
                   shrinkWrap: true,
                   controller: _projectScrollController,
@@ -661,6 +676,13 @@ class _AchievementScreenState extends State<AchievementScreen>
                 if ((state.isLoading ?? false) &&
                     state.closingAchievementReportList.isEmpty) {
                   return const Center(child: CircularProgressIndicator());
+                }
+                if (state.closingAchievementReportList.isEmpty) {
+                  return Center(
+                    child: noDataWidget(
+                      message: "No closing achievement data available",
+                    ),
+                  );
                 }
                 return ListView.builder(
                   controller: _closingScrollController,

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -546,7 +547,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               applicant: applicant,
               index: index,
               hasPrimaryApplicant: _hasPrimaryApplicant(_applicants.value),
-              disableEditMobileNo: _isEditMode,
+              disableEditMobileNo:
+                  index != null && index < _applicants.value.length
+                      ? _isEditMode
+                      : false,
             ),
       ),
     );
@@ -2873,7 +2877,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   Widget _buildApplicantCard(BookingApplicantData applicant, int index) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+      padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
       decoration: BoxDecoration(
         color: AppColor.white,
         borderRadius: BorderRadius.circular(8),
@@ -2881,6 +2885,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 12.h,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -2921,9 +2926,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               ),
             ],
           ),
-
-          verticalSpacing(),
-
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -2944,6 +2946,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     applicant.applicantEmailId.isEmpty
                         ? "-"
                         : applicant.applicantEmailId,
+                customValueWidget: CustomClickToContactText(
+                  value: applicant.applicantEmailId,
+                  type: ContactType.email,
+                ),
               ),
             ],
           ),
