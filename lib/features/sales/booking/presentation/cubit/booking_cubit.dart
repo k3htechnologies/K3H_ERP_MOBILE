@@ -246,6 +246,7 @@ class BookingCubit extends Cubit<BookingState> {
       pageNumber: pageNumber,
       pageSize: 500,
       projectId: projectId,
+      queryParams: {"IsCheckPermission": false},
     );
 
     result.fold(
@@ -450,6 +451,7 @@ class BookingCubit extends Cubit<BookingState> {
     int? tenantId,
     required String otp,
     required List<BookingApplicantData> addUpdateBookingApplicant,
+    required bool isApplicableOtherCharge,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
@@ -491,6 +493,7 @@ class BookingCubit extends Cubit<BookingState> {
       "OtherRemark": otherRemark,
       "TermsAndConditionsDescription": termsAndConditionsDescription,
       "BookingType": bookingType,
+      "IsApplicableOtherCharge": isApplicableOtherCharge.toString(),
       "OtherChargesDetailJSON": jsonEncode(
         otherChargesDetailJSON
             .map(
@@ -746,6 +749,7 @@ class BookingCubit extends Cubit<BookingState> {
     int? tenantId,
     required String otp,
     required List<BookingApplicantData> addUpdateBookingApplicant,
+    required bool isApplicableOtherCharge,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -784,6 +788,7 @@ class BookingCubit extends Cubit<BookingState> {
       "OtherRemark": otherRemark,
       "TermsAndConditionsDescription": termsAndConditionsDescription,
       "BookingType": bookingType,
+      "IsApplicableOtherCharge": isApplicableOtherCharge.toString(),
       "OtherChargesDetailJSON": jsonEncode(
         otherChargesDetailJSON
             .map(
@@ -1145,14 +1150,14 @@ class BookingCubit extends Cubit<BookingState> {
 
   // UPDATE BOOKING
   void onUpdateBookingAmount({
-    required double agreementValue,
+    required double agreementValueWithTds,
     required double agreementValueTds,
     required double agreementValueGST,
   }) {
     final List<BookingPaymentScheduleData> newData =
         state.bookingPaymentScheduleList.map((master) {
           final amount =
-              (agreementValue * master.paymentSchedulePercentage) / 100;
+              (agreementValueWithTds * master.paymentSchedulePercentage) / 100;
 
           final gstAmount =
               master.paymentSchedulePercentage * agreementValueGST / 100;

@@ -964,10 +964,16 @@ class _AddInventorySpecificationScreenState
         border: Border.all(color: AppColor.primary, width: 0.5),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        spacing: 6.0,
         children: [
-          buildColumnTitleValue(title: "Building Number", value: building),
-          buildColumnTitleValue(title: "Wing", value: wing),
-          buildColumnTitleValue(title: "Floor", value: floor),
+          buildColumnTitleValueNormal(
+            title: "Building Number",
+            value: building,
+          ),
+          buildColumnTitleValueNormal(title: "Wing", value: wing),
+          buildColumnTitleValueNormal(title: "Floor", value: floor),
         ],
       ),
     );

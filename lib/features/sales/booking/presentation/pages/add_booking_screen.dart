@@ -200,6 +200,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   // MANUAL PAYMENT SCHEDULE HANDLER
   final ValueNotifier<bool> isAutoPaymentSchedule = ValueNotifier(false);
 
+  // OTHER CHARGERS IS APPLICABLE
+  final ValueNotifier<bool> _isOtherChargeApplicable = ValueNotifier(true);
   @override
   void initState() {
     super.initState();
@@ -271,6 +273,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _stampDutyAmountNotifier.dispose();
     _registrationFeesNotifier.dispose();
     _isFetchingEnquiry.dispose();
+    _isOtherChargeApplicable.dispose();
     super.dispose();
   }
 
@@ -381,6 +384,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     isAutoPaymentSchedule.value =
         selectedScheme.value["DisplayName"] != "Other" ? true : false;
     // OTHER CHARGES
+    _isOtherChargeApplicable.value = bm.isApplicableOtherCharge;
     _bookingCubit.updateOtherChargesList(bm.bookingOtherChargesData);
 
     // PAYMENT DETAILS
@@ -438,7 +442,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _calculateStampDuty();
     _calculateRegistrationFees();
     _bookingCubit.onUpdateBookingAmount(
-      agreementValue:
+      agreementValueWithTds:
           _agreementValueWithoutTdsC.text.isNotEmpty
               ? double.tryParse(_agreementValueWithoutTdsC.text.trim()) ?? 0.0
               : 0.0,
@@ -1057,6 +1061,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             _noOfParkingC.text.trim().isNotEmpty
                 ? int.parse(_noOfParkingC.text.trim())
                 : 0,
+        isApplicableOtherCharge: _isOtherChargeApplicable.value,
       );
     } else {
       await _bookingCubit.addBooking(
@@ -1117,6 +1122,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         wingIndex: widget.inventoryObject?[0]["wingIndex"],
         floorIndex: widget.inventoryObject?[0]["floorIndex"],
         flatIndex: widget.inventoryObject?[0]["flatIndex"],
+        isApplicableOtherCharge: _isOtherChargeApplicable.value,
       );
     }
   }
@@ -1757,7 +1763,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         textController: _agreementValueWithoutTdsC,
                         onChangeFunction: (value) {
                           _bookingCubit.onUpdateBookingAmount(
-                            agreementValue:
+                            agreementValueWithTds:
                                 _agreementValueWithoutTdsC.text.isNotEmpty
                                     ? double.tryParse(
                                           _agreementValueWithoutTdsC.text
@@ -1812,7 +1818,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         onChangeFunction: (value) {
                           _calculateGst();
                           _bookingCubit.onUpdateBookingAmount(
-                            agreementValue:
+                            agreementValueWithTds:
                                 _agreementValueWithoutTdsC.text.isNotEmpty
                                     ? double.tryParse(
                                           _agreementValueWithoutTdsC.text
@@ -2541,7 +2547,54 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               verticalSpacing(),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
-                child: _buildAgreementCard(),
+                child: Column(
+                  spacing: 10,
+                  children: [
+                    _buildAgreementCard(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Applicable",
+                          style: AppTextStyle.ts14M(color: AppColor.grey),
+                        ),
+
+                        ValueListenableBuilder<bool>(
+                          valueListenable: _isOtherChargeApplicable,
+                          builder: (context, isApplicable, child) {
+                            return ToggleButtons(
+                              isSelected: [
+                                isApplicable, // Yes
+                                !isApplicable, // No
+                              ],
+                              onPressed: (index) {
+                                _isOtherChargeApplicable.value = index == 0;
+                              },
+                              borderRadius: BorderRadius.circular(8),
+                              constraints: const BoxConstraints(
+                                minHeight: 35,
+                                minWidth: 50,
+                              ),
+                              selectedColor: AppColor.white,
+                              fillColor: AppColor.primary,
+                              color: Colors.black,
+                              children: const [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 12),
+                                  child: Text("Yes"),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 12),
+                                  child: Text("No"),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
               verticalSpacing(),
               Expanded(
@@ -3296,16 +3349,29 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // AGGREMENT CARD
   Widget _buildAgreementCard() {
+    double agreementValueWithTds =
+        double.tryParse(
+          _agreementValueWithTdsC.text.trim().replaceAll(',', ''),
+        ) ??
+        0.0;
+
+    double agreementGstAmount =
+        double.tryParse(_agreementGstAmountC.text.trim().replaceAll(',', '')) ??
+        0.0;
+
+    double tdsAmount =
+        double.tryParse(_tdsC.text.trim().replaceAll(',', '')) ?? 0.0;
+
     return infoCard(title: "Agreement Details", [
       {
         "title": "Agreement Value (With TDS) (₹)",
-        "value": _agreementValueWithTdsC.text.trim(),
+        "value": agreementValueWithTds.toIndianCurrency(),
       },
       {
         "title": "Agreement GST Amount (₹)",
-        "value": _agreementGstAmountC.text.trim(),
+        "value": agreementGstAmount.toIndianCurrency(),
       },
-      {"title": "TDS Amount(₹)", "value": _tdsC.text.trim()},
+      {"title": "TDS Amount(₹)", "value": tdsAmount.toIndianCurrency()},
     ]);
   }
 }

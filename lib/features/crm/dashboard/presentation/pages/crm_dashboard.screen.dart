@@ -110,6 +110,12 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
         if ((state.isLoading ?? false) && state.crmDashboardList.isEmpty) {
           return Center(child: loader());
         }
+
+        final userData = state.crmDashboardModel;
+        final table0 =
+            (userData != null && userData.table0.isNotEmpty)
+                ? userData.table0.first
+                : null;
         return Scaffold(
           appBar: CustomAppBarWithBackButton(
             screenTitle: "Crm Dashbaord",
@@ -138,154 +144,144 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (state.selectedFilterType == "DATEWISE") ...[
+                      if (table0 != null) ...{
+                        if (state.selectedFilterType == "DATEWISE") ...[
+                          verticalSpacing(),
+                          ValueListenableBuilder<DateTime?>(
+                            valueListenable: fromDateNotifier,
+                            builder: (context, fromDate, _) {
+                              return ValueListenableBuilder<DateTime?>(
+                                valueListenable: toDateNotifier,
+                                builder: (context, toDate, _) {
+                                  return Row(
+                                    children: [
+                                      Expanded(
+                                        child: CustomDatePicker(
+                                          hint: "Select From Date",
+                                          title: "From Date",
+                                          initialDate: fromDate,
+                                          setValue: (value) {
+                                            fromDateNotifier.value = value;
+                                            toDateNotifier.value = null;
+                                          },
+                                        ),
+                                      ),
+                                      horizontalSpacing(),
+                                      Expanded(
+                                        child: CustomDatePicker(
+                                          hint: "Select To Date",
+                                          title: "To Date",
+                                          initialDate: toDate,
+                                          startDate: fromDate,
+                                          endDate:
+                                              fromDate != null
+                                                  ? DateTime(
+                                                    fromDate.year,
+                                                    fromDate.month + 1,
+                                                    fromDate.day,
+                                                  )
+                                                  : DateTime.now(),
+
+                                          setValue: (value) async {
+                                            toDateNotifier.value = value;
+
+                                            if (fromDateNotifier.value !=
+                                                    null &&
+                                                toDateNotifier.value != null) {
+                                              await _crmDashboardCubit
+                                                  .getCrmDashboardList(
+                                                    context,
+                                                    filterType: "DATEWISE",
+                                                    projectId:
+                                                        _selectedProject
+                                                            .projectId,
+
+                                                    fromDate:
+                                                        formatDateTimeForApi(
+                                                          fromDateNotifier
+                                                              .value!,
+                                                        ),
+                                                    toDate:
+                                                        formatDateTimeForApi(
+                                                          toDateNotifier.value!,
+                                                        ),
+                                                  );
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ],
+                        _projectWiseCollectionWidget(context, state),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _totalValue(
+                                context,
+                                state,
+                                "Total Agreement\nValue",
+                                formattedAmount(table0.totalAgreementAmount),
+                              ),
+                            ),
+
+                            horizontalSpacing(),
+
+                            Expanded(
+                              child: _totalValue(
+                                context,
+                                state,
+                                "Total Received\nAmount",
+                                formattedAmount(
+                                  table0.totalReceivedAgreementAmount,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
                         verticalSpacing(),
 
-                        ValueListenableBuilder<DateTime?>(
-                          valueListenable: fromDateNotifier,
-                          builder: (context, fromDate, _) {
-                            return ValueListenableBuilder<DateTime?>(
-                              valueListenable: toDateNotifier,
-                              builder: (context, toDate, _) {
-                                return Row(
-                                  children: [
-                                    Expanded(
-                                      child: CustomDatePicker(
-                                        hint: "Select From Date",
-                                        title: "From Date",
-                                        initialDate: fromDate,
-                                        setValue: (value) {
-                                          fromDateNotifier.value = value;
-                                          toDateNotifier.value = null;
-                                        },
-                                      ),
-                                    ),
-                                    horizontalSpacing(),
-                                    Expanded(
-                                      child: CustomDatePicker(
-                                        hint: "Select To Date",
-                                        title: "To Date",
-                                        initialDate: toDate,
-                                        startDate: fromDate,
-                                        endDate:
-                                            fromDate != null
-                                                ? DateTime(
-                                                  fromDate.year,
-                                                  fromDate.month + 1,
-                                                  fromDate.day,
-                                                )
-                                                : DateTime.now(),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _totalValue(
+                                context,
+                                state,
+                                "Total\nOutstanding",
+                                formattedAmount(
+                                  table0.totalOutstandingAgreementValue,
+                                ),
+                              ),
+                            ),
 
-                                        setValue: (value) async {
-                                          toDateNotifier.value = value;
+                            horizontalSpacing(),
 
-                                          if (fromDateNotifier.value != null &&
-                                              toDateNotifier.value != null) {
-                                            await _crmDashboardCubit
-                                                .getCrmDashboardList(
-                                                  context,
-                                                  filterType: "DATEWISE",
-                                                  projectId:
-                                                      _selectedProject
-                                                          .projectId,
-
-                                                  fromDate:
-                                                      formatDateTimeForApi(
-                                                        fromDateNotifier.value!,
-                                                      ),
-                                                  toDate: formatDateTimeForApi(
-                                                    toDateNotifier.value!,
-                                                  ),
-                                                );
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
+                            Expanded(
+                              child: _totalValue(
+                                context,
+                                state,
+                                "Total Booking",
+                                formattedAmount(table0.totalBooking),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                      _projectWiseCollectionWidget(context, state),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _totalValue(
-                              context,
-                              state,
-                              "Total Agreement\nValue",
-                              formattedAmount(
-                                state
-                                    .crmDashboardList
-                                    .first
-                                    .table0
-                                    .first
-                                    .totalAgreementAmount,
-                              ),
+                      } else ...{
+                        Center(
+                          child: Text(
+                            "No Data Found",
+                            style: AppTextStyle.ts12M(
+                              color: AppColor.black.withValues(alpha: 0.50),
                             ),
                           ),
+                        ),
+                      },
 
-                          horizontalSpacing(),
-
-                          Expanded(
-                            child: _totalValue(
-                              context,
-                              state,
-                              "Total Received\nAmount",
-                              formattedAmount(
-                                state
-                                    .crmDashboardList
-                                    .first
-                                    .table0
-                                    .first
-                                    .totalReceivedAgreementAmount,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      verticalSpacing(),
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _totalValue(
-                              context,
-                              state,
-                              "Total\nOutstanding",
-                              formattedAmount(
-                                state
-                                    .crmDashboardList
-                                    .first
-                                    .table0
-                                    .first
-                                    .totalOutstandingAgreementValue,
-                              ),
-                            ),
-                          ),
-
-                          horizontalSpacing(),
-
-                          Expanded(
-                            child: _totalValue(
-                              context,
-                              state,
-                              "Total Booking",
-                              formattedAmount(
-                                state
-                                    .crmDashboardList
-                                    .first
-                                    .table0
-                                    .first
-                                    .totalBooking,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
                       verticalSpacing(height: 16.0),
                       _collectionSummaryWidget(context, state),
                       _bookingSummaryWidget(context, state),
@@ -310,6 +306,11 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
     BuildContext context,
     CrmDashboardState state,
   ) {
+    if (state.crmDashboardList.isEmpty ||
+        state.crmDashboardList.first.table0.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     final list = state.crmDashboardList.first.table0;
     final table0 = list.first;
 
@@ -678,7 +679,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                           Expanded(
                             child: buildColumnTitleValueNormal(
                               title: "Amount",
-                              value: value.agreementValue.addCommas(),
+                              value: value.agreementValue.toIndianCurrency(),
                             ),
                           ),
                           horizontalSpacing(),
@@ -714,7 +715,8 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
     BuildContext context,
     CrmDashboardState state,
   ) {
-    final table0 = state.crmDashboardList.first.table0.first;
+    final list = state.crmDashboardList.first.table0;
+    final table0 = list.first;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16.0),
@@ -853,7 +855,8 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
   }
 
   Widget _accountSummaryWidget(BuildContext context, CrmDashboardState state) {
-    final table0 = state.crmDashboardList.first.table0.first;
+    final list = state.crmDashboardList.first.table0;
+    final table0 = list.first;
 
     double totalAmount = 0;
     double totalReceived = 0;

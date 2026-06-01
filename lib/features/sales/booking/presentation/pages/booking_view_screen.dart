@@ -98,10 +98,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 10,
-                    ),
+                    padding: EdgeInsets.all(20.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -191,13 +188,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 10,
-                    ),
+                    padding: const EdgeInsets.only(left: 20.0, right: 20.0),
                     child: showSiteSelectedWidget(),
                   ),
                   ChipStyleTabBar(
+                    isSecondaryStyle: true,
                     controller: _tabController,
                     tabs: [
                       'Overview',
@@ -325,6 +320,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 children: [
                   infoCard(items, title: "Enquiry Details"),
                   Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (isReference)
                         infoCard([
@@ -415,9 +411,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               );
             },
           ), // APPLICANT SECTION
+          verticalSpacing(),
           Container(
-            height: 450,
-            margin: EdgeInsets.only(bottom: 10),
             decoration: commonCardDecoration(),
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Column(
@@ -425,7 +420,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               children: [
                 Text("Applicant Details", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
-                Expanded(
+                SizedBox(
+                  height: 250.0,
                   child: ListView.builder(
                     padding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
                     shrinkWrap: true,
@@ -717,10 +713,10 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               ],
             ),
           ),
+          verticalSpacing(),
           // PROJECT DETAILS SECTION
           Container(
             decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
             padding: EdgeInsets.all(16),
             child: Column(
               spacing: 10,
@@ -800,10 +796,10 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               ],
             ),
           ),
+          verticalSpacing(),
           // PARKING SECTION
           Container(
             height: 450,
-            margin: EdgeInsets.only(bottom: 10),
             decoration: commonCardDecoration(),
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Column(
@@ -905,10 +901,10 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               ],
             ),
           ),
+          verticalSpacing(),
           // BOOKING DETAILS SECTION
           Container(
             decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
             padding: EdgeInsets.all(16),
             child: Column(
               spacing: 10,
@@ -1059,20 +1055,18 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       ),
                     ],
                   ),
-                if (bookingModel!.employeeReferenceAmount > 0)
+                if (bookingModel!.referelAmount > 0)
                   Row(
                     spacing: 10,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       buildColumnTitleValue(
                         title: "Employee Reference (%)",
-                        value: "${bookingModel!.employeeReferencePercentage} %",
+                        value: "${bookingModel!.referelPercentage} %",
                       ),
                       buildColumnTitleValue(
                         title: "Employee Reference Amount (₹)",
-                        value:
-                            bookingModel!.employeeReferenceAmount
-                                .toIndianCurrency(),
+                        value: bookingModel!.referelAmount.toIndianCurrency(),
                       ),
                     ],
                   ),
@@ -1122,7 +1116,6 @@ class _BookingViewScreenState extends State<BookingViewScreen>
           ),
           // OTHER CHARGES SECTION
           Container(
-            height: 450,
             margin: EdgeInsets.only(bottom: 10),
             decoration: commonCardDecoration(),
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -1131,20 +1124,21 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               children: [
                 Text("Other Charges", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
-                Expanded(
+                SizedBox(
+                  height: 250.0,
                   child:
                       bookingModel!.bookingOtherChargesData.isNotEmpty
                           ? ListView.builder(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 2,
-                              vertical: 10,
-                            ),
                             shrinkWrap: true,
                             itemCount:
                                 bookingModel!.bookingOtherChargesData.length,
                             itemBuilder: (_, index) {
                               final extraCharge =
                                   bookingModel!.bookingOtherChargesData[index];
+                              final bool isLast =
+                                  index ==
+                                  bookingModel!.bookingOtherChargesData.length -
+                                      1;
                               return Container(
                                 decoration: BoxDecoration(
                                   border: Border.all(
@@ -1153,13 +1147,19 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                   ),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                margin: EdgeInsets.only(bottom: 10),
-                                padding: EdgeInsets.all(16),
+                                margin: EdgeInsets.only(
+                                  bottom: isLast ? 0.0 : 10.0,
+                                ),
+                                padding: EdgeInsets.all(10),
                                 child: Column(
                                   spacing: 10,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         buildColumnTitleValue(
                                           title: "Name",
@@ -1172,6 +1172,10 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                       ],
                                     ),
                                     Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         buildColumnTitleValue(
                                           title: "Value (In ₹)",
@@ -1188,6 +1192,10 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                       ],
                                     ),
                                     Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         buildColumnTitleValue(
                                           title: "GST Value (₹)",
@@ -1214,7 +1222,6 @@ class _BookingViewScreenState extends State<BookingViewScreen>
           ),
           // PAYMENT SCHEDULE SECTION
           Container(
-            height: 450,
             margin: EdgeInsets.only(bottom: 10),
             decoration: commonCardDecoration(),
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -1223,7 +1230,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               children: [
                 Text("Payment Schedule", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
-                Expanded(
+                SizedBox(
+                  height: 250.0,
                   child: ListView.builder(
                     padding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
                     shrinkWrap: true,
@@ -1231,6 +1239,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     itemBuilder: (context, index) {
                       final payment =
                           bookingModel!.bookingPaymentScheduleData[index];
+                      final bool isLast =
+                          index ==
+                          bookingModel!.bookingPaymentScheduleData.length - 1;
                       return Container(
                         decoration: BoxDecoration(
                           border: Border.all(
@@ -1239,8 +1250,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                           ),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        margin: EdgeInsets.only(bottom: 10),
-                        padding: EdgeInsets.all(16),
+                        margin: EdgeInsets.only(bottom: isLast ? 0.0 : 10),
+                        padding: EdgeInsets.all(10.0),
                         child: Column(
                           spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1248,6 +1259,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                             Row(
                               spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 buildColumnTitleValue(
                                   title: "Type",
@@ -1272,6 +1284,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                             Row(
                               spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 buildColumnTitleValue(
                                   title: "Percentage (%)",
@@ -1289,6 +1302,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                             Row(
                               spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 buildColumnTitleValue(
                                   title: "GST Amount (₹)",
@@ -1300,6 +1314,19 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                   title: "TDS Amount (₹)",
                                   value:
                                       payment.paymentScheduleTDSAmount
+                                          .toIndianCurrency(),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Amount (₹) Without TDS",
+                                  value:
+                                      payment.paymentScheduleAmount
                                           .toIndianCurrency(),
                                 ),
                               ],

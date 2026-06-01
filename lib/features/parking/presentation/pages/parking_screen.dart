@@ -777,23 +777,23 @@ class _ParkingScreenState extends State<ParkingScreen>
                   _buildCountItem(
                     "Available",
                     state.availableParking,
-                    AppColor.darkGreen,
+                    Color(0xff28653F),
                   ),
                   _buildCountItem(
                     "Booked",
                     state.bookedParking,
-                    AppColor.error,
+                    Color(0xffFF0000),
                   ),
                   _buildCountItem(
                     "Alloted",
                     state.allotedParking,
-                    AppColor.purple,
+                    Color(0xff561F64),
                   ),
-                  _buildCountItem("Hold", state.holdParking, AppColor.yellow),
+                  _buildCountItem("Hold", state.holdParking, AppColor.brown),
                   _buildCountItem(
                     "Blocked",
                     state.blockedParking,
-                    AppColor.black,
+                    Color(0xff1D1D1D),
                   ),
                 ],
               ),
@@ -832,7 +832,7 @@ class _ParkingScreenState extends State<ParkingScreen>
           children: [
             Text(
               count.toString(),
-              style: AppTextStyle.ts14SB().copyWith(color: color),
+              style: AppTextStyle.ts12M().copyWith(color: color),
             ),
 
             horizontalSpacing(width: 5),
@@ -841,8 +841,8 @@ class _ParkingScreenState extends State<ParkingScreen>
               label,
               style:
                   isSelected
-                      ? AppTextStyle.ts14SB().copyWith(color: color)
-                      : AppTextStyle.ts14R().copyWith(color: AppColor.black),
+                      ? AppTextStyle.ts10M().copyWith(color: color)
+                      : AppTextStyle.ts10R().copyWith(color: AppColor.black),
             ),
           ],
         ),

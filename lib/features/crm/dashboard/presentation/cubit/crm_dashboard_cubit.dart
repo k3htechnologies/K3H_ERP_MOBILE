@@ -41,6 +41,7 @@ class CrmDashboardCubit extends Cubit<CrmDashboardState> {
 
         emit(
           state.copyWith(
+            crmDashboardModel: model,
             crmDashboardList: model != null ? [model] : [],
             isLoading: false,
             selectedFilterType: filterType,
