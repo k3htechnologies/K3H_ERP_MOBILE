@@ -373,7 +373,11 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
     return Scaffold(
       appBar: CustomAppBar(
         screenTitle: "Material Requisition",
-        authorization: _routeAuthorizationModel,
+        authorization: AuthorizationModel(
+          isView: _routeAuthorizationModel.isView,
+          isAction: true,
+          isExport: _routeAuthorizationModel.isExport,
+        ),
         textController: _searchC,
         isFilterOn: true,
         onFilterTap: () {
@@ -521,8 +525,7 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                                     (materialRequisition
                                             .materialRequisitionStage
                                             .toLowerCase() !=
-                                        'get quotation') ||
-                                    !_routeAuthorizationModel.isAction,
+                                        'get quotation'),
                                 onPressed: () async {
                                   await _materialRequisitionCubit
                                       .clearMaterialList();
@@ -547,8 +550,7 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                                     (materialRequisition
                                             .materialRequisitionStage
                                             .toLowerCase() !=
-                                        'get quotation') ||
-                                    !_routeAuthorizationModel.isAction,
+                                        'get quotation'),
                                 onPressed: () {
                                   _showPopupToDeleteMaterialRequisition(
                                     context: context,

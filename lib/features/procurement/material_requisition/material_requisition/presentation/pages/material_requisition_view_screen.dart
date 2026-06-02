@@ -62,7 +62,7 @@ class _MaterialRequisitionViewScreenState
   ValueNotifier<List<InvoiceModel>> invoiceList = ValueNotifier([]);
   ValueNotifier<bool> isSplit = ValueNotifier(false);
   late AuthorizationModel _finalizedVendorAuthorizationModel,
-      _generatePurchaseOrderAuthorizationModel,
+      _purchaseOrderAuthorizationModel,
       _addInvoiceAuthorizationModel,
       _makePaymentAuthorizationModel;
   late final List<MaterialRequisitionTab> _tabs;
@@ -76,7 +76,7 @@ class _MaterialRequisitionViewScreenState
       MaterialRequisitionTab.details,
       if (_finalizedVendorAuthorizationModel.isView)
         MaterialRequisitionTab.finalizeVendor,
-      if (_generatePurchaseOrderAuthorizationModel.isView)
+      if (_purchaseOrderAuthorizationModel.isView)
         MaterialRequisitionTab.generateOrder,
       MaterialRequisitionTab.grn,
       if (_addInvoiceAuthorizationModel.isView ||
@@ -96,7 +96,7 @@ class _MaterialRequisitionViewScreenState
   void _initAuth() {
     _finalizedVendorAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.finalizedVendor]!;
-    _generatePurchaseOrderAuthorizationModel =
+    _purchaseOrderAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes
             .generatePurchaseOrderTab]!;
     _addInvoiceAuthorizationModel =
@@ -320,7 +320,7 @@ class _MaterialRequisitionViewScreenState
                           materialRequisitionId: widget.materialRequisitionId,
                           uniquekey: widget.uniquekey,
                         ),
-                      if (_generatePurchaseOrderAuthorizationModel.isView)
+                      if (_purchaseOrderAuthorizationModel.isView)
                         PurchaseOrderScreen(
                           projectId: widget.projectId,
                           materialRequisitionId: widget.materialRequisitionId,

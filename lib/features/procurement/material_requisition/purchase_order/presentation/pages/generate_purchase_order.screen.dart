@@ -51,13 +51,12 @@ class _GeneratePurchaseOrderScreenState
     int pageNumber, {
     String? value,
   }) async {
-    final Map<String, dynamic>? queryParams =
-        (value != null && value.isNotEmpty) ? {"Title": value} : null;
+    final Map<String, dynamic> queryParams = {"Title": value};
 
     var result = await _termsAndConditionsRepository.getTermsAndConditionsList(
       pageNumber: pageNumber,
       pageSize: 10,
-      moduleName: "",
+      moduleName: "MATERIAL REQUISITION",
       queryParams: queryParams,
     );
 

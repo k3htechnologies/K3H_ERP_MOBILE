@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_v
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/service.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -46,6 +47,7 @@ class FinalizeVendorEditScreen extends StatefulWidget {
 
 class _FinalizeVendorEditScreenState extends State<FinalizeVendorEditScreen> {
   late FinalizeVendorCubit _finalizeVendorCubit;
+  late AuthorizationModel _finalizedVendorAuthorizationModel;
   late ProjectModel _selectedProject;
   late TextEditingController _quantityC,
       _unitPriceC,
@@ -71,6 +73,8 @@ class _FinalizeVendorEditScreenState extends State<FinalizeVendorEditScreen> {
   void initState() {
     super.initState();
     _finalizeVendorCubit = context.read<FinalizeVendorCubit>();
+    _finalizedVendorAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.finalizedVendor]!;
     _selectedProject = getProject();
     localVendor = widget.vendor!;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -513,6 +517,8 @@ class _FinalizeVendorEditScreenState extends State<FinalizeVendorEditScreen> {
                         !isViewMode
                             ? CustomButton(
                               text: "Save",
+                              isDisable:
+                                  !_finalizedVendorAuthorizationModel.isAction,
                               onPressed: () {
                                 final termsList =
                                     localVendor

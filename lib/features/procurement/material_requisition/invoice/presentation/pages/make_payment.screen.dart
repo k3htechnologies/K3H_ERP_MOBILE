@@ -243,12 +243,13 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                 final isApproved =
                     invoice.invoiceStatus.toLowerCase() == "approved";
                 final approvalStatus = invoice.invoiceStatus;
-
-                final isAlreadyApproved =
-                    approvalStatus.toLowerCase() == "approved";
-
-                final isRejected = approvalStatus.toLowerCase() == "rejected";
+                final isActionCompleted =
+                    approvalStatus.toLowerCase() == "approved" ||
+                    approvalStatus.toLowerCase() == "rejected" ||
+                    !invoice.isApproval;
                 final hasPayment = invoice.invoiceAmountPaidTillDate > 0;
+                final makePayment =
+                    invoice.invoiceAmountPaidTillDate != invoice.invoiceAmount;
                 return Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 16.0,
@@ -449,32 +450,29 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                                 if (hasPayment) horizontalSpacing(),
 
                                 /// MAKE PAYMENT
-                                Expanded(
-                                  child: CustomButton(
-                                    text: "Make Payment",
-                                    onPressed: () {
-                                      goRouter.pushNamed(
-                                        AppRoutes.makePaymentScreen,
-                                        extra: {
-                                          'systemGeneratedCode':
-                                              widget.systemgeneratedCode,
-                                          "grn": widget.grn,
-                                        },
-                                      );
-                                    },
+                                if (makePayment)
+                                  Expanded(
+                                    child: CustomButton(
+                                      text: "Make Payment",
+                                      onPressed: () {
+                                        goRouter.pushNamed(
+                                          AppRoutes.makePaymentScreen,
+                                          extra: {
+                                            'systemGeneratedCode':
+                                                widget.systemgeneratedCode,
+                                            "grn": widget.grn,
+                                          },
+                                        );
+                                      },
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
                           ],
                           verticalSpacing(),
                           ApproveRejectWidget(
-                            isActionAlreadyPerformed:
-                                isAlreadyApproved || isRejected,
-                            actionTitle:
-                                approvalStatus.isEmpty
-                                    ? "Pending"
-                                    : approvalStatus,
+                            isActionAlreadyPerformed: isActionCompleted,
+                            actionTitle: approvalStatus,
 
                             onApprove: (remark) async {
                               final isSuccess = await context

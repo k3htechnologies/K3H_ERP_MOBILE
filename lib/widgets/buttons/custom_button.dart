@@ -63,7 +63,7 @@ class CustomButton extends StatelessWidget {
               (gradient == null)
                   ? !isDisable
                       ? backgroundColor
-                      : AppColor.grey2
+                      : AppColor.grey2.withValues(alpha: 0.2)
                   : null,
 
           // FOR OUTLINE BUTTONS
@@ -95,7 +95,7 @@ class CustomButton extends StatelessWidget {
                   style:
                       titleTextStyle ??
                       AppTextStyle.ts12SB(
-                        color: isDisable ? AppColor.grey : textColor,
+                        color: isDisable ? AppColor.grey2 : textColor,
                       ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,

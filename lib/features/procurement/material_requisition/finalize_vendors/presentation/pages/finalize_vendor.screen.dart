@@ -251,6 +251,10 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                           if (_vendorComparisonAuthorizationModel.isView)
                             GestureDetector(
                               onTap: () {
+                                if (!_vendorComparisonAuthorizationModel
+                                    .isAction) {
+                                  return;
+                                }
                                 _finalizeVendorCubit.compareVendor(
                                   context,
                                   "exportType",
@@ -263,8 +267,9 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                                 padding: const EdgeInsets.only(top: 4.0),
                                 child: SvgPicture.asset(
                                   AppAssets.compareVendorIcon,
+                                  // ignore: deprecated_member_use
                                   color:
-                                      _finalizedVendorAuthorizationModel
+                                      _vendorComparisonAuthorizationModel
                                               .isAction
                                           ? null
                                           : AppColor.grey2,
@@ -376,6 +381,9 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                                     Row(
                                       children: [
                                         CustomCheckBox(
+                                          isDisabled:
+                                              !_finalizedVendorAuthorizationModel
+                                                  .isAction,
                                           isSelected:
                                               isFinalized || vendor.isSelected,
                                           onChanged: (value) {
@@ -433,6 +441,10 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                                             vendor.vendorName,
                                             style: AppTextStyle.ts16M(
                                               color: AppColor.primary,
+                                            ).copyWith(
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              decorationColor: AppColor.primary,
                                             ),
                                           ),
                                         ),
@@ -464,15 +476,13 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                                 ),
                                 _buildRow(
                                   "Total Tax",
-                                  _calculateTax(vendor).toIndianCurrency(),
+                                  vendor.taxTotal.toIndianCurrency(),
                                   valueColor: Colors.orange,
                                 ),
 
                                 _buildRow(
                                   "Grand Total",
-                                  _calculateGrandTotal(
-                                    vendor,
-                                  ).toIndianCurrency(),
+                                  vendor.grandTotal.toIndianCurrency(),
                                   valueColor: AppColor.primary,
                                 ),
 
@@ -526,24 +536,5 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
         ],
       ),
     );
-  }
-
-  int _calculateTax(FinalizeVendorForComparisonModel vendor) {
-    final terms = vendor.materialRequisitionQuotationTermsData;
-
-    if (terms.isEmpty) return 0;
-
-    final total = terms.first.total;
-    final base = total - 4000;
-
-    return (total - base).toInt();
-  }
-
-  int _calculateGrandTotal(FinalizeVendorForComparisonModel vendor) {
-    final terms = vendor.materialRequisitionQuotationTermsData;
-
-    if (terms.isEmpty) return 0;
-
-    return terms.first.total.toInt();
   }
 }
