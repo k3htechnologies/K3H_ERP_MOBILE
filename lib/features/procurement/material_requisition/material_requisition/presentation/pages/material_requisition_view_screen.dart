@@ -26,6 +26,8 @@ import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
+import '../../../../../../utils/common_enums.dart';
+
 class MaterialRequisitionViewScreen extends StatefulWidget {
   final int materialRequisitionId;
   final int projectId;
@@ -59,27 +61,27 @@ class _MaterialRequisitionViewScreenState
   ValueNotifier<Set<int>> selectedIdsForSplit = ValueNotifier(<int>{});
   ValueNotifier<List<InvoiceModel>> invoiceList = ValueNotifier([]);
   ValueNotifier<bool> isSplit = ValueNotifier(false);
-  late AuthorizationModel _getQuotationAuthorizationModel,
-      _vendorComparisonAuthorizationModel,
-      _finalizedVendorAuthorizationModel,
+  late AuthorizationModel _finalizedVendorAuthorizationModel,
       _generatePurchaseOrderAuthorizationModel,
       _addInvoiceAuthorizationModel,
       _makePaymentAuthorizationModel;
-  late final List<String> _tabs;
+  late final List<MaterialRequisitionTab> _tabs;
 
   @override
   void initState() {
     super.initState();
     _initAuth();
     _tabs = [
-      'Overview',
-      'Details',
-      if (_finalizedVendorAuthorizationModel.isView) 'Finalize Vendor',
-      if (_generatePurchaseOrderAuthorizationModel.isView) 'Purchase Order',
-      'GRN',
+      MaterialRequisitionTab.overview,
+      MaterialRequisitionTab.details,
+      if (_finalizedVendorAuthorizationModel.isView)
+        MaterialRequisitionTab.finalizeVendor,
+      if (_generatePurchaseOrderAuthorizationModel.isView)
+        MaterialRequisitionTab.generateOrder,
+      MaterialRequisitionTab.grn,
       if (_addInvoiceAuthorizationModel.isView ||
           _makePaymentAuthorizationModel.isView)
-        'Invoice',
+        MaterialRequisitionTab.invoice,
     ];
     _tabController = TabController(length: _tabs.length, vsync: this);
     _tabController.addListener(_handleTabChange);
@@ -92,10 +94,6 @@ class _MaterialRequisitionViewScreenState
   }
 
   void _initAuth() {
-    _getQuotationAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.getQuotation]!;
-    _vendorComparisonAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.getCompare]!;
     _finalizedVendorAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.finalizedVendor]!;
     _generatePurchaseOrderAuthorizationModel =
@@ -146,11 +144,16 @@ class _MaterialRequisitionViewScreenState
   // HANDLE TAB CHANGE
   void _handleTabChange() async {
     if (!_tabController.indexIsChanging) {
-      switch (_tabController.index) {
-        case 0:
+      final currentTab = _tabs[_tabController.index];
+      switch (currentTab) {
+        case MaterialRequisitionTab.overview:
           initOverview();
           break;
-        case 2:
+
+        case MaterialRequisitionTab.details:
+          break;
+
+        case MaterialRequisitionTab.finalizeVendor:
           _finalizeVendorCubit.getVendorForEnquiryList(
             context,
             widget.projectId,
@@ -159,7 +162,7 @@ class _MaterialRequisitionViewScreenState
           );
           break;
 
-        case 3:
+        case MaterialRequisitionTab.generateOrder:
           _purchaseOrderCubit.getPurchaseOrder(
             context: context,
             projectId: widget.projectId,
@@ -167,7 +170,8 @@ class _MaterialRequisitionViewScreenState
             uniqueKey: widget.uniquekey,
           );
           break;
-        case 4:
+
+        case MaterialRequisitionTab.grn:
           _grnCubit.getAllGRNList(
             context: context,
             projectId: widget.projectId,
@@ -175,7 +179,8 @@ class _MaterialRequisitionViewScreenState
             uniqueKey: widget.uniquekey,
           );
           break;
-        case 5:
+
+        case MaterialRequisitionTab.invoice:
           _invoiceCubit.getInvoice(
             context: context,
             projectId: widget.projectId,
@@ -292,14 +297,7 @@ class _MaterialRequisitionViewScreenState
             ChipStyleTabBar(
               controller: _tabController,
               isSecondaryStyle: true,
-              tabs: [
-                'Overview',
-                'Details',
-                'Finalize Vendor',
-                'Purchase Order',
-                'GRN',
-                'Invoice',
-              ],
+              tabs: _tabs.map((e) => e.title).toList(),
             ),
             BlocBuilder<MaterialRequisitionCubit, MaterialRequisitionState>(
               builder: (context, state) {
@@ -311,33 +309,37 @@ class _MaterialRequisitionViewScreenState
                     children: [
                       _buildOverviewTab(state),
                       _buildDetailsTab(state),
-                      FinalizeVendorMainscreen(
-                        systemgeneratedCode:
-                            state
-                                .materialRequisitionOverview
-                                ?.systemGeneratedCode ??
-                            "",
-                        projectId: widget.projectId,
-                        materialRequisitionId: widget.materialRequisitionId,
-                        uniquekey: widget.uniquekey,
-                      ),
-                      PurchaseOrderScreen(
-                        projectId: widget.projectId,
-                        materialRequisitionId: widget.materialRequisitionId,
-                        uniquekey: widget.uniquekey,
-                      ),
+                      if (_finalizedVendorAuthorizationModel.isView)
+                        FinalizeVendorMainscreen(
+                          systemgeneratedCode:
+                              state
+                                  .materialRequisitionOverview
+                                  ?.systemGeneratedCode ??
+                              "",
+                          projectId: widget.projectId,
+                          materialRequisitionId: widget.materialRequisitionId,
+                          uniquekey: widget.uniquekey,
+                        ),
+                      if (_generatePurchaseOrderAuthorizationModel.isView)
+                        PurchaseOrderScreen(
+                          projectId: widget.projectId,
+                          materialRequisitionId: widget.materialRequisitionId,
+                          uniquekey: widget.uniquekey,
+                        ),
                       GRNScreen(
                         materialRequisitionId: widget.materialRequisitionId,
                         uniquekey: widget.uniquekey,
                         projectId: widget.projectId,
                       ),
-                      InvoiceScreen(
-                        systemGeneratedCode:
-                            state
-                                .materialRequisitionOverview
-                                ?.systemGeneratedCode ??
-                            "",
-                      ),
+                      if (_addInvoiceAuthorizationModel.isView ||
+                          _makePaymentAuthorizationModel.isView)
+                        InvoiceScreen(
+                          systemGeneratedCode:
+                              state
+                                  .materialRequisitionOverview
+                                  ?.systemGeneratedCode ??
+                              "",
+                        ),
                     ],
                   ),
                 );

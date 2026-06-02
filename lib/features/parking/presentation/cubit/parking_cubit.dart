@@ -285,6 +285,7 @@ class ParkingCubit extends Cubit<ParkingState> {
     );
   }
 
+
   // HANDLE BUILDING TAB CHANGE
   void handleBuildingTabChange(int index, String building) {
     if (state.groupedData == null) return;

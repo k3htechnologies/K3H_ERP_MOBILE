@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
@@ -49,6 +50,9 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
   late UtilsCubit _utilsCubit;
   late MaterialRequisitionCubit _materialCubit;
 
+  late AuthorizationModel _finalizedVendorAuthorizationModel,
+      _getQuotationAuthorizationModel,
+      _vendorComparisonAuthorizationModel;
   final ValueNotifier<List<dynamic>> selectedVendorList = ValueNotifier([]);
   final ValueNotifier<MaterialRequisitionModel?> materialRequisitionOverview =
       ValueNotifier(null);
@@ -59,7 +63,12 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
     _finalizeVendorCubit = context.read<FinalizeVendorCubit>();
     _utilsCubit = context.read<UtilsCubit>();
     _materialCubit = context.read<MaterialRequisitionCubit>();
-
+    _getQuotationAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.getQuotation]!;
+    _vendorComparisonAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.getCompare]!;
+    _finalizedVendorAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.finalizedVendor]!;
     _selectedProject = getProject();
     _loadMaterialData();
   }
@@ -178,72 +187,92 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: CustomButton(
-                              text: "Get Quatation",
-                              backgroundColor: AppColor.green,
-                              onPressed: () {
-                                final systemGeneratedCode = Uri.encodeComponent(
-                                  EncryptionManager.encryptData(
-                                    widget.systemGeneratedCode,
-                                  ),
-                                );
-                                final materialRequisitionId =
-                                    Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        widget.materialRequisitionId.toString(),
-                                      ),
-                                    );
-                                final projectID = Uri.encodeComponent(
-                                  EncryptionManager.encryptData(
-                                    widget.projectId.toString(),
-                                  ),
-                                );
-                                final uniquekey = Uri.encodeComponent(
-                                  EncryptionManager.encryptData(
-                                    widget.uniquekey.toString(),
-                                  ),
-                                );
+                          if (_getQuotationAuthorizationModel.isView) ...[
+                            Expanded(
+                              child: CustomButton(
+                                text: "Get Quatation",
+                                backgroundColor: AppColor.green,
+                                isDisable:
+                                    !_getQuotationAuthorizationModel.isAction,
+                                onPressed: () {
+                                  final systemGeneratedCode =
+                                      Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          widget.systemGeneratedCode,
+                                        ),
+                                      );
+                                  final materialRequisitionId =
+                                      Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          widget.materialRequisitionId
+                                              .toString(),
+                                        ),
+                                      );
+                                  final projectID = Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      widget.projectId.toString(),
+                                    ),
+                                  );
+                                  final uniquekey = Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      widget.uniquekey.toString(),
+                                    ),
+                                  );
 
-                                goRouter.pushNamed(
-                                  AppRoutes.finalizeVendorGetQuotation,
-                                  queryParameters: {
-                                    'systemGeneratedCode': systemGeneratedCode,
-                                    'materialRequisitionId':
-                                        materialRequisitionId,
-                                    'projectId': projectID,
-                                    'uniquekey': uniquekey,
-                                  },
-                                );
-                              },
+                                  goRouter.pushNamed(
+                                    AppRoutes.finalizeVendorGetQuotation,
+                                    queryParameters: {
+                                      'systemGeneratedCode':
+                                          systemGeneratedCode,
+                                      'materialRequisitionId':
+                                          materialRequisitionId,
+                                      'projectId': projectID,
+                                      'uniquekey': uniquekey,
+                                    },
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                          horizontalSpacing(width: 8.h),
+                            horizontalSpacing(width: 8.h),
+                          ] else ...[
+                            Spacer(),
+                          ],
                           Expanded(
                             child: CustomButton(
                               text: "Finalize Vendor",
+                              isDisable:
+                                  !_finalizedVendorAuthorizationModel.isAction,
                               textColor: AppColor.green,
                               backgroundColor: AppColor.lightGreen,
                               onPressed: _onFinalizeVendorTap,
                             ),
                           ),
                           horizontalSpacing(width: 8.h),
-                          GestureDetector(
-                            onTap: () {
-                              _finalizeVendorCubit.compareVendor(
-                                context,
-                                "exportType",
-                                _selectedProject.projectId,
-                                widget.materialRequisitionId,
-                                widget.uniquekey,
-                              );
-                            },
-                            child: SvgPicture.asset(
-                              AppAssets.compareVendorIcon,
-                              height: 24.h,
-                              width: 24.w,
+                          if (_vendorComparisonAuthorizationModel.isView)
+                            GestureDetector(
+                              onTap: () {
+                                _finalizeVendorCubit.compareVendor(
+                                  context,
+                                  "exportType",
+                                  _selectedProject.projectId,
+                                  widget.materialRequisitionId,
+                                  widget.uniquekey,
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
+                                child: SvgPicture.asset(
+                                  AppAssets.compareVendorIcon,
+                                  color:
+                                      _finalizedVendorAuthorizationModel
+                                              .isAction
+                                          ? null
+                                          : AppColor.grey2,
+                                  height: 24.h,
+                                  width: 24.w,
+                                ),
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ],

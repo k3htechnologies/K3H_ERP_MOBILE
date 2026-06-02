@@ -1465,6 +1465,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   "BuildingNumber": selectedWingData.building,
                                   "Wing": selectedWingData.wing,
                                   "FlatStatus": "Available",
+                                  "IsAcessOnlyApprovedParking": false,
                                 },
                               );
                             },
@@ -1486,6 +1487,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   "BuildingNumber": selectedWingData.building,
                                   "Wing": selectedWingData.wing,
                                   "FlatStatus": "Blocked",
+                                  "IsAcessOnlyApprovedParking": false,
                                 },
                               );
                             },
@@ -1507,6 +1509,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   "BuildingNumber": selectedWingData.building,
                                   "Wing": selectedWingData.wing,
                                   "FlatStatus": "Hold",
+                                  "IsAcessOnlyApprovedParking": false,
                                 },
                               );
                             },
@@ -1528,6 +1531,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   "BuildingNumber": selectedWingData.building,
                                   "Wing": selectedWingData.wing,
                                   "FlatStatus": "Booked",
+                                  "IsAcessOnlyApprovedParking": false,
                                 },
                               );
                             },
