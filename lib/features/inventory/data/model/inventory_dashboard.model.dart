@@ -189,6 +189,8 @@ class Table3 {
 
 class Table4 {
   int projectId;
+  int inventoryFlatFloorBasementPodiumWingId;
+  int inventoryBuildingId;
   String building;
   String wing;
   int floors;
@@ -206,6 +208,8 @@ class Table4 {
 
   Table4({
     required this.projectId,
+    required this.inventoryFlatFloorBasementPodiumWingId,
+    required this.inventoryBuildingId,
     required this.building,
     required this.wing,
     required this.floors,
@@ -224,6 +228,11 @@ class Table4 {
 
   factory Table4.fromJson(Map<String, dynamic> json) => Table4(
     projectId: parseValue<int>(json, "ProjectId"),
+    inventoryFlatFloorBasementPodiumWingId: parseValue<int>(
+      json,
+      "InventoryFlatFloorBasementPodiumWingId",
+    ),
+    inventoryBuildingId: parseValue<int>(json, "InventoryBuildingId"),
     building: parseValue<String>(json, "Building"),
     wing: parseValue<String>(json, "Wing"),
     floors: parseValue<int>(json, "Floors"),
@@ -242,6 +251,9 @@ class Table4 {
 
   Map<String, dynamic> toJson() => {
     "ProjectId": projectId,
+    "InventoryFlatFloorBasementPodiumWingId":
+        inventoryFlatFloorBasementPodiumWingId,
+    "InventoryBuildingId": inventoryBuildingId,
     "Building": building,
     "Wing": wing,
     "Floors": floors,

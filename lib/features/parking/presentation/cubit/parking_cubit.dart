@@ -164,6 +164,127 @@ class ParkingCubit extends Cubit<ParkingState> {
     );
   }
 
+  Future getParkingWithPagination(
+    BuildContext context, {
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    emit(state.copyWith(isLoading: true, parkingList: []));
+    if (projectId == 0) {
+      showErrorMessage(context, "Error", "Project Not Selected");
+      ParkingCubit();
+      emit(state.copyWith(isLoading: false));
+
+      return;
+    }
+    final result = await _parkingRepository.getParkingWithPagination(
+      pageNumber: pageNumber,
+      projectId: projectId,
+      queryParams: queryParams,
+      pageSize: 10,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (result) {
+        var parkingList = result["data"] as List<ParkingModel>;
+        var groupedData =
+            parkingList.isNotEmpty
+                ? groupBy(parkingList, (element) => element.buildingNumber)
+                : null;
+        if (groupedData != null) {
+          //  Preserve building
+          String buildingCurrentPageKey =
+              state.buildingCurrentPageKey != null &&
+                      groupedData.containsKey(state.buildingCurrentPageKey)
+                  ? state.buildingCurrentPageKey!
+                  : groupedData.keys.first;
+
+          int buildingCurrentPage = groupedData.keys.toList().indexOf(
+            buildingCurrentPageKey,
+          );
+
+          //  Create wing grouped data
+          var wingGroupedData = groupBy(
+            groupedData[buildingCurrentPageKey]!,
+            (element) => "${element.wing} / ${element.floor}",
+          );
+
+          //  Preserve wing
+          String? wingCurrentPageKey =
+              state.wingCurrentPageKey != null &&
+                      wingGroupedData.containsKey(state.wingCurrentPageKey)
+                  ? state.wingCurrentPageKey
+                  : wingGroupedData.isNotEmpty
+                  ? wingGroupedData.keys.first
+                  : null;
+
+          int wingCurrentPage =
+              wingCurrentPageKey != null
+                  ? wingGroupedData.keys.toList().indexOf(wingCurrentPageKey)
+                  : 0;
+          // Calculate parking counts
+          int availableParking = 0;
+          int bookedParking = 0;
+          int blockedParking = 0;
+          int holdParking = 0;
+          int memberParking = 0;
+
+          if (wingCurrentPageKey != null) {
+            final floorData = wingGroupedData[wingCurrentPageKey]!;
+            availableParking =
+                floorData
+                    .where((e) => e.parkingStatus.toLowerCase() == "available")
+                    .length;
+            bookedParking =
+                floorData
+                    .where((e) => e.parkingStatus.toLowerCase() == "booked")
+                    .length;
+            blockedParking =
+                floorData
+                    .where((e) => e.parkingStatus.toLowerCase() == "blocked")
+                    .length;
+            holdParking =
+                floorData
+                    .where((e) => e.parkingStatus.toLowerCase() == "hold")
+                    .length;
+            memberParking =
+                floorData
+                    .where((e) => e.parkingStatus.toLowerCase() == "alloted")
+                    .length;
+          }
+
+          emit(
+            state.copyWith(
+              isLoading: false,
+              parkingList: parkingList,
+              groupedData: groupedData,
+              buildingCurrentPageKey: buildingCurrentPageKey,
+              buildingCurrentPage: buildingCurrentPage,
+              wingCurrentPage: wingCurrentPage,
+              wingCurrentPageKey: wingCurrentPageKey,
+              wingGroupedData: wingGroupedData,
+              originalWingGroupedData: wingGroupedData,
+              availableParking: availableParking,
+              bookedParking: bookedParking,
+              blockedParking: blockedParking,
+              holdParking: holdParking,
+              allotedParking: memberParking,
+            ),
+          );
+          return;
+        } else {
+          emit(state.copyWith(isLoading: false, parkingList: parkingList));
+        }
+      },
+    );
+  }
+
   // HANDLE BUILDING TAB CHANGE
   void handleBuildingTabChange(int index, String building) {
     if (state.groupedData == null) return;

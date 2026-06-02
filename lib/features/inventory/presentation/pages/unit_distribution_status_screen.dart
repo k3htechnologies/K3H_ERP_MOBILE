@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
+import 'package:k3h_erp_app/features/parking/presentation/cubit/parking_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -12,12 +13,14 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class UnitDistributionStatusScreen extends StatefulWidget {
+  final String type;
   final String title;
   final String? subTitle;
   final Map<String, dynamic> queryParams;
   final int projectId;
   const UnitDistributionStatusScreen({
     super.key,
+    required this.type,
     required this.title,
     this.subTitle,
     required this.queryParams,
@@ -32,6 +35,7 @@ class UnitDistributionStatusScreen extends StatefulWidget {
 class _UnitDistributionStatusScreenState
     extends State<UnitDistributionStatusScreen> {
   late InventoryCubit _inventoryCubit;
+  late ParkingCubit _parkingCubit;
 
   // PAGINATION
   late ScrollController scrollController;
@@ -61,14 +65,45 @@ class _UnitDistributionStatusScreenState
 
   @override
   void initState() {
-    _inventoryCubit = context.read<InventoryCubit>();
     super.initState();
+    _inventoryCubit = context.read<InventoryCubit>();
+    _parkingCubit = context.read<ParkingCubit>();
+    if (widget.type == "Parking") {
+      _parkingCubit = context.read<ParkingCubit>();
+
+      _parkingCubit.getParkingWithPagination(
+        context,
+        pageNumber: 1,
+        pageSize: 10,
+        queryParams: widget.queryParams,
+        projectId: widget.projectId,
+      );
+    } else {
+      _inventoryCubit.fetchUnitsByProjectId(
+        1,
+        queryParams: widget.queryParams,
+        projectId: widget.projectId,
+      );
+    }
+
     _onScroll();
-    _inventoryCubit.fetchUnitsByProjectId(
-      1,
-      queryParams: widget.queryParams,
-      projectId: widget.projectId,
-    );
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      if (widget.type == "Parking") {
+        _parkingCubit.getParkingWithPagination(
+          context,
+          pageNumber: _parkingCubit.state.wingCurrentPage + 1,
+          pageSize: 10,
+          projectId: widget.projectId,
+          queryParams: widget.queryParams,
+        );
+      } else {
+        _inventoryCubit.fetchUnitsByProjectId(
+          _inventoryCubit.state.currentUnitPage + 1,
+          queryParams: widget.queryParams,
+          projectId: widget.projectId,
+        );
+      }
+    });
   }
 
   @override
@@ -141,85 +176,128 @@ class _UnitDistributionStatusScreenState
             ] else
               showSiteSelectedWidget(),
             Expanded(
-              child: BlocBuilder<InventoryCubit, InventoryState>(
-                builder: (context, state) {
-                  if ((state.isLoading ?? false) && state.flatList.isEmpty) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (state.flatList.isEmpty) {
-                    return Center(
-                      child: noDataWidget(message: "No units found"),
-                    );
-                  } else {
-                    return ListView.builder(
-                      controller: scrollController,
-                      itemCount: state.flatList.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index == state.flatList.length) {
-                          return state.flatList.length < state.unitTotalRecords
-                              ? Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              )
-                              : const SizedBox.shrink();
-                        }
-
-                        final flat = state.flatList[index];
-                        return Container(
-                          decoration: commonCardDecoration(),
-                          margin: EdgeInsets.only(bottom: 10),
-                          padding: EdgeInsets.all(12),
-                          child: Column(
-                            children: [
-                              buildRowTitleValue(
-                                title: "Floor",
-                                value: flat.floor,
-                              ),
-                              buildRowTitleValue(
-                                title: "Unit Number",
-                                value: flat.flat,
-                                singleLine: false,
-                              ),
-                              buildRowTitleValue(
-                                title: "Unit Type",
-                                value: flat.flatType,
-                              ),
-                              buildRowTitleValue(
-                                title: "Rera Carpet Area",
-                                value: flat.reraCarpetAreaSqFt.addCommas(),
-                              ),
-                              buildRowTitleValue(
-                                title: "Unit Configuration",
-                                value: flat.flatConfiguration,
-                              ),
-                              buildRowTitleValue(
-                                title: "Unit Facing",
-                                value: flat.flatFacing,
-                              ),
-                              buildRowTitleValue(
-                                title: "Owner / Alloted / Blocked / Hold By",
-                                singleLine: false,
-                                value:
-                                    (flat.flatStatus.toLowerCase() ==
-                                                "blocked" ||
-                                            flat.flatStatus.toLowerCase() ==
-                                                "hold")
-                                        ? "${flat.flatStatus} BY ${flat.modifiedBy} on ${formatDate(flat.modifiedDate ?? DateTime.now())}"
-                                        : flat.ownerName,
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  }
-                },
-              ),
+              child:
+                  widget.type == "Parking"
+                      ? _buildParkingList()
+                      : _buildUnitList(),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildUnitList() {
+    return BlocBuilder<InventoryCubit, InventoryState>(
+      builder: (context, state) {
+        if ((state.isLoading ?? false) && state.flatList.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state.flatList.isEmpty) {
+          return Center(child: noDataWidget(message: "No units found"));
+        } else {
+          return ListView.builder(
+            controller: scrollController,
+            itemCount: state.flatList.length + 1,
+            itemBuilder: (context, index) {
+              if (index == state.flatList.length) {
+                return state.flatList.length < state.unitTotalRecords
+                    ? Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                    : const SizedBox.shrink();
+              }
+
+              final flat = state.flatList[index];
+              return Container(
+                decoration: commonCardDecoration(),
+                margin: EdgeInsets.only(bottom: 10),
+                padding: EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    buildRowTitleValue(title: "Floor", value: flat.floor),
+                    buildRowTitleValue(
+                      title: "Unit Number",
+                      value: flat.flat,
+                      singleLine: false,
+                    ),
+                    buildRowTitleValue(
+                      title: "Unit Type",
+                      value: flat.flatType,
+                    ),
+                    buildRowTitleValue(
+                      title: "Rera Carpet Area",
+                      value: flat.reraCarpetAreaSqFt.addCommas(),
+                    ),
+                    buildRowTitleValue(
+                      title: "Unit Configuration",
+                      value: flat.flatConfiguration,
+                    ),
+                    buildRowTitleValue(
+                      title: "Unit Facing",
+                      value: flat.flatFacing,
+                    ),
+                    buildRowTitleValue(
+                      title: "Owner / Alloted / Blocked / Hold By",
+                      singleLine: false,
+                      value:
+                          (flat.flatStatus.toLowerCase() == "blocked" ||
+                                  flat.flatStatus.toLowerCase() == "hold")
+                              ? "${flat.flatStatus} BY ${flat.modifiedBy} on ${formatDate(flat.modifiedDate ?? DateTime.now())}"
+                              : flat.ownerName,
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildParkingList() {
+    return BlocBuilder<ParkingCubit, ParkingState>(
+      builder: (context, state) {
+        if ((state.isLoading ?? false) && state.parkingList.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state.parkingList.isEmpty) {
+          return Center(child: noDataWidget(message: "No parking found"));
+        }
+
+        return ListView.builder(
+          itemCount: state.parkingList.length,
+          itemBuilder: (context, index) {
+            final parking = state.parkingList[index];
+
+            return Container(
+              decoration: commonCardDecoration(),
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                children: [
+                  buildRowTitleValue(
+                    title: "Parking Number",
+                    value: parking.parkingNumber,
+                  ),
+                  buildRowTitleValue(title: "Floor", value: parking.floor),
+                  buildRowTitleValue(
+                    title: "Building",
+                    value: parking.buildingNumber,
+                  ),
+                  buildRowTitleValue(title: "Wing", value: parking.wing),
+                  buildRowTitleValue(
+                    title: "Status",
+                    value: parking.parkingStatus,
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
