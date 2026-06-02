@@ -5,10 +5,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/booking_applicant_modification_request.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
-import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -34,12 +34,12 @@ class RequestTabScreen extends StatefulWidget {
 
 class _RequestTabScreenState extends State<RequestTabScreen> {
   late RequestManagementCubit _requestManagementCubit;
-  late LoginCubit _loginCubit;
+  late UtilsCubit _utilsCubit;
   @override
   void initState() {
     super.initState();
     _requestManagementCubit = context.read<RequestManagementCubit>();
-    _loginCubit = context.read<LoginCubit>();
+    _utilsCubit = context.read<UtilsCubit>();
     _initiate();
   }
 
@@ -191,7 +191,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                       actionTitle:
                           applicant.isApproval ? "Approval" : "History",
                       onApprove: (remark) async {
-                        final isSuccess = await _loginCubit
+                        final isSuccess = await _utilsCubit
                             .updateModulesWorkflowApproval(
                               context: context,
                               moduleName:
@@ -217,7 +217,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                         }
                       },
                       onReject: (remark) async {
-                        final isSuccess = await _loginCubit
+                        final isSuccess = await _utilsCubit
                             .updateModulesWorkflowApproval(
                               context: context,
                               moduleName:
@@ -243,7 +243,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                         }
                       },
                       onThirdTap: () async {
-                        final approvalLogHistoryList = await _loginCubit
+                        final approvalLogHistoryList = await _utilsCubit
                             .getApprovalLogHistory(
                               context: context,
                               id: widget.bookingId,

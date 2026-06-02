@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
 import 'package:k3h_erp_app/features/project_document/document/presentation/cubit/document_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -39,7 +39,7 @@ class ViewDocumentScreen extends StatefulWidget {
 
 class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
   //CUBIT
-  late LoginCubit _loginCubit;
+  late UtilsCubit _utilsCubit;
   late DocumentCubit _documentCubit;
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
@@ -53,7 +53,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
     super.initState();
     _onScroll();
     _documentCubit = context.read<DocumentCubit>();
-    _loginCubit = context.read<LoginCubit>();
+    _utilsCubit = context.read<UtilsCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.document]!;
 
@@ -361,7 +361,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
             popupTitle:
                 "${document.projectDocumentCategory} > ${document.projectDocumentName}",
             onApprove: (val) async {
-              await _loginCubit.updateModulesWorkflowApproval(
+              await _utilsCubit.updateModulesWorkflowApproval(
                 context: context,
                 moduleName: 'DOCUMENT APPROVAL',
                 id: document.projectDocumentId,
@@ -378,7 +378,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
               }
             },
             onReject: (val) async {
-              await _loginCubit.updateModulesWorkflowApproval(
+              await _utilsCubit.updateModulesWorkflowApproval(
                 context: context,
                 moduleName: 'DOCUMENT APPROVAL',
                 id: document.projectDocumentId,
@@ -395,7 +395,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
               }
             },
             onThirdTap: () async {
-              final approvalLogHistoryList = await _loginCubit
+              final approvalLogHistoryList = await _utilsCubit
                   .getApprovalLogHistory(
                     context: context,
                     projectId: document.projectId,

@@ -18,6 +18,7 @@ import 'package:k3h_erp_app/features/masters/project_master/presentation/cubit/p
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_enums.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -70,8 +71,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
 
   // TEXT CONTROLLER
   late TextEditingController _searchEmployeeC;
-  late final List<String> _tabs;
-
+  late final List<ProjectDetailsTab> _tabs;
   @override
   void initState() {
     super.initState();
@@ -79,15 +79,21 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     _projectMasterCubit = context.read<ProjectMasterCubit>();
 
     _tabs = [
-      if (_projectDetailsRouteAuthorizationModel.isView) "Overview",
-      if (_employeeRouteAuthorizationModel.isView) "Employee",
-      if (_bankDetailsRouteAuthorizationModel.isView) "Bank Details",
-      if (_companyRouteAuthorizationModel.isView) "Company",
-      if (_approvalRouteAuthorizationModel.isView) "Approval",
-    ];
+      if (_projectDetailsRouteAuthorizationModel.isView)
+        ProjectDetailsTab.overview,
 
+      if (_employeeRouteAuthorizationModel.isView) ProjectDetailsTab.employee,
+
+      if (_bankDetailsRouteAuthorizationModel.isView)
+        ProjectDetailsTab.bankDetails,
+
+      if (_companyRouteAuthorizationModel.isView) ProjectDetailsTab.company,
+
+      if (_approvalRouteAuthorizationModel.isView) ProjectDetailsTab.approval,
+    ];
     _tabController = TabController(length: _tabs.length, vsync: this);
     _tabController.addListener(_handleTabChange);
+    _loadInitialTabData();
 
     _delayFuture = Future.delayed(const Duration(seconds: 2));
 
@@ -128,6 +134,16 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
             .projectMasterApprovalSetup]!;
   }
 
+  void _loadInitialTabData() {
+    final initialTab = _tabs[_tabController.index];
+    context.read<ProjectMasterCubit>().onTabChanged(
+      context,
+      initialTab,
+      projectId: widget.project.projectId,
+      employeeId: 0,
+    );
+  }
+
   @override
   void dispose() {
     pageController.dispose();
@@ -145,13 +161,14 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
   // <---- TAB CHANGE ---->
   void _handleTabChange() {
     final index = _tabController.index;
+    final selectedTab = _tabs[index];
     context.read<ProjectMasterCubit>().onTabChanged(
       context,
-      index,
+      selectedTab,
       projectId: widget.project.projectId,
       employeeId: 0,
     );
-    if (index != 4) {
+    if (selectedTab != ProjectDetailsTab.approval) {
       if (_approvalTabController != null) {
         _approvalTabController!.index = 0;
       }
@@ -251,7 +268,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
             verticalSpacing(),
             ChipStyleTabBar(
               controller: _tabController,
-              tabs: _tabs,
+              tabs: _tabs.map((e) => e.title).toList(),
               onTabChanged: (_) {
                 _searchEmployeeC.clear();
               },
@@ -509,7 +526,8 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                     children: [
                       buildColumnTitleValue(
                         title: "EMD Amount",
-                        value: widget.project.tenderEmdAmount.toIndianCurrency(),
+                        value:
+                            widget.project.tenderEmdAmount.toIndianCurrency(),
                       ),
                       buildColumnTitleValue(
                         title: "Purchase Start Date",

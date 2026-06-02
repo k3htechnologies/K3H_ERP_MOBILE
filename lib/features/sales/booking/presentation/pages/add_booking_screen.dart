@@ -8,7 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/features/masters/bank_list_master/data/model/bank_list_master.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
@@ -57,7 +57,7 @@ class AddBookingScreen extends StatefulWidget {
 class _AddBookingScreenState extends State<AddBookingScreen>
     with SingleTickerProviderStateMixin {
   // CUBIT
-  late LoginCubit _loginCubit;
+  late UtilsCubit _utilsCubit;
   late BookingCubit _bookingCubit;
 
   // TAB CONTROLLER
@@ -208,7 +208,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     super.initState();
     _initializeTextControllers();
     _bookingCubit = context.read<BookingCubit>();
-    _loginCubit = context.read<LoginCubit>();
+    _utilsCubit = context.read<UtilsCubit>();
     _project = getProject();
 
     _tabController = TabController(length: 6, vsync: this);
@@ -547,10 +547,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               applicant: applicant,
               index: index,
               hasPrimaryApplicant: _hasPrimaryApplicant(_applicants.value),
-              disableEditMobileNo:
-                  index != null && index < _applicants.value.length
-                      ? _isEditMode
-                      : false,
             ),
       ),
     );
@@ -938,10 +934,16 @@ class _AddBookingScreenState extends State<AddBookingScreen>
           _selectedBankNotifier.value.isNotEmpty;
       bool isOtherDetails = _bookingCubit.state.otherChargesList.isNotEmpty;
       // TRIGGER OTP SEND FIST TIME
-      _loginCubit.sendOTPModuleBased(
+      _utilsCubit.sendOTPModuleBased(
         context: context,
         mobileNumber: applicantMobile,
         module: "BOOKING",
+        name:
+            _applicants.value
+                .firstWhere((a) => a.applicantType == "Applicant")
+                .applicantName,
+        projectName: _project.projectName,
+        source: _bookingCubit.state.enquiryList.first.source,
       );
       showCompleteVerificationDialog(
         context,

@@ -6,11 +6,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/paid_brokerage_booking.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/cubit/brokerage_cubit.dart';
-import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -37,7 +37,7 @@ class ViewBrokerageScreen extends StatefulWidget {
 class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
-  late LoginCubit _loginCubit;
+  late UtilsCubit _utilsCubit;
   late BrokerageCubit _brokerageCubit;
   late TextEditingController _searchC;
   late AuthorizationModel _routeAuthorizationModel;
@@ -54,7 +54,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
     _tabController = TabController(length: 2, vsync: this);
     _searchC = TextEditingController();
     _brokerageCubit = context.read<BrokerageCubit>();
-    _loginCubit = context.read<LoginCubit>();
+    _utilsCubit = context.read<UtilsCubit>();
     _brokerageCubit.getBrokerageInvoiceList(
       context,
       1,
@@ -437,7 +437,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
                                           ? "Approval"
                                           : "History",
                                   onApprove: (remark) async {
-                                    final isSuccess = await _loginCubit
+                                    final isSuccess = await _utilsCubit
                                         .updateModulesWorkflowApproval(
                                           context: context,
                                           moduleName:
@@ -458,7 +458,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
                                     }
                                   },
                                   onReject: (remark) async {
-                                    final isSuccess = await _loginCubit
+                                    final isSuccess = await _utilsCubit
                                         .updateModulesWorkflowApproval(
                                           context: context,
                                           moduleName:
@@ -480,7 +480,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
                                   },
                                   onThirdTap: () async {
                                     final approvalLogHistoryList =
-                                        await _loginCubit.getApprovalLogHistory(
+                                        await _utilsCubit.getApprovalLogHistory(
                                           context: context,
                                           id: invoice.brokerageInvoiceId,
                                           projectId: invoice.projectId,
@@ -628,7 +628,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
             isActionAlreadyPerformed: true,
             actionTitle: invoice.isApproval ? "Approval" : "History",
             onApprove: (remark) async {
-              final isSuccess = await _loginCubit.updateModulesWorkflowApproval(
+              final isSuccess = await _utilsCubit.updateModulesWorkflowApproval(
                 context: context,
                 moduleName: 'BROKERAGE INVOICE APPROVAL',
                 id: invoice.brokerageInvoiceId,
@@ -647,7 +647,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
               }
             },
             onReject: (remark) async {
-              final isSuccess = await _loginCubit.updateModulesWorkflowApproval(
+              final isSuccess = await _utilsCubit.updateModulesWorkflowApproval(
                 context: context,
                 moduleName: 'BROKERAGE INVOICE APPROVAL',
                 id: invoice.brokerageInvoiceId,
@@ -666,7 +666,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
               }
             },
             onThirdTap: () async {
-              final approvalLogHistoryList = await _loginCubit
+              final approvalLogHistoryList = await _utilsCubit
                   .getApprovalLogHistory(
                     context: context,
                     id: invoice.brokerageInvoiceId,

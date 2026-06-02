@@ -37,6 +37,10 @@ abstract interface class UtilsRepository {
   Future<Either<Failure, Map<String, dynamic>>> sendOTPModuleBased({
     required String mobileNumber,
     required String module,
+    required String name,
+    String? companyName,
+    String? projectName,
+    String? source,
   });
   Future<Either<Failure, Map<String, dynamic>>> updateModulesWorkflowApproval({
     required String moduleName,
@@ -201,11 +205,19 @@ class UtilsRepositoryImpl implements UtilsRepository {
   Future<Either<Failure, Map<String, dynamic>>> sendOTPModuleBased({
     required String mobileNumber,
     required String module,
+    required String name,
+    String? companyName,
+    String? projectName,
+    String? source,
   }) async {
     try {
       var result = await _utilsDatasource.apiCallSendOTPModuleBased(
         mobileNumber: mobileNumber,
         module: module,
+        name: name,
+        companyName: companyName,
+        projectName: projectName,
+        source: source,
       );
       return right(result);
     } catch (error) {

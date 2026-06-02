@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/models/village.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 
 import 'local_storage_manager.dart';
@@ -37,6 +38,10 @@ abstract interface class UtilsDatasource {
   Future<Map<String, dynamic>> apiCallSendOTPModuleBased({
     required String mobileNumber,
     required String module,
+    String? name,
+    String? companyName,
+    String? projectName,
+    String? source,
   });
   Future<Map<String, dynamic>> apiCallUpdateModulesWorkflowApproval({
     required String moduleName,
@@ -249,20 +254,42 @@ class UtilsDatasourceImpl implements UtilsDatasource {
   Future<Map<String, dynamic>> apiCallSendOTPModuleBased({
     required String mobileNumber,
     required String module,
+    String? name,
+    String? companyName,
+    String? projectName,
+    String? source,
   }) async {
     try {
       String sendOTPUrl({
         required String mobileNumber,
         required String module,
+        String? name,
+        String? companyName,
+        String? projectName,
+        String? source,
       }) {
         String url =
             "/Authentication/SendOTPMobileNumberAndModule?MobileNumber=$mobileNumber&Module=$module";
 
+        var queryParams = {
+          "Name": name,
+          "CompanyName": companyName,
+          "ProjectName": projectName,
+          "Source": source,
+        };
+        url += queryParamsFormatter(queryParams: queryParams);
         return url;
       }
 
       var networkResponse = await client.getRequestWithAuthentication(
-        sendOTPUrl(mobileNumber: mobileNumber, module: module),
+        sendOTPUrl(
+          mobileNumber: mobileNumber,
+          module: module,
+          name: name,
+          companyName: companyName,
+          projectName: projectName,
+          source: source,
+        ),
       );
 
       return {

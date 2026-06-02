@@ -10,9 +10,9 @@ import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
-import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -39,7 +39,7 @@ class _InventoryScreenState extends State<InventoryScreen>
     with TickerProviderStateMixin {
   // CUBIT
   late InventoryCubit _inventoryCubit;
-  late LoginCubit _loginCubit;
+  late UtilsCubit _utilsCubit;
 
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
@@ -71,7 +71,7 @@ class _InventoryScreenState extends State<InventoryScreen>
     user = getCurrentUser();
     _initControllers();
     _inventoryCubit = context.read<InventoryCubit>();
-    _loginCubit = context.read<LoginCubit>();
+    _utilsCubit = context.read<UtilsCubit>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         if (_inventoryCubit.state.buildingList.isEmpty) {
@@ -496,7 +496,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                     isMaster: true,
                     popupTitle: "${building.buildingNumber} > ${wing.wing}",
                     onApprove: (val) async {
-                      await _loginCubit.updateModulesWorkflowApproval(
+                      await _utilsCubit.updateModulesWorkflowApproval(
                         context: context,
                         moduleName: 'INVENTORY APPROVAL',
                         id: building.inventoryBuildingId,
@@ -513,7 +513,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                       }
                     },
                     onReject: (val) async {
-                      await _loginCubit.updateModulesWorkflowApproval(
+                      await _utilsCubit.updateModulesWorkflowApproval(
                         context: context,
                         moduleName: 'INVENTORY APPROVAL',
                         id: building.inventoryBuildingId,
@@ -530,7 +530,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                       }
                     },
                     onThirdTap: () async {
-                      final approvalLogHistoryList = await _loginCubit
+                      final approvalLogHistoryList = await _utilsCubit
                           .getApprovalLogHistory(
                             context: context,
                             projectId: _project.projectId,

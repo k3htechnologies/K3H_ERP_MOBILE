@@ -8,12 +8,12 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/repository/channel_partner.repository.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/data/repository/inventory.repository.dart';
-import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
@@ -49,7 +49,7 @@ class AddEnquiryScreen extends StatefulWidget {
 class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   // CUBIT
   late EnquiryCubit _enquiryCubit;
-  late LoginCubit _loginCubit;
+  late UtilsCubit _utilsCubit;
 
   // REPOSITORY
   final EmployeeMasterRepository _employeeMasterRepository =
@@ -163,7 +163,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   void initState() {
     super.initState();
     _enquiryCubit = context.read<EnquiryCubit>();
-    _loginCubit = context.read<LoginCubit>();
+    _utilsCubit = context.read<UtilsCubit>();
     _initControllers();
     _enquiryCubit.clearChannelPartner();
     _selectedEmployeeNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
@@ -584,10 +584,13 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     // VERIFY OTP ONLY IN FIRST ONBOARDING STAGE AND USER IS INDIAN
     if (!_isEditMode && selectedMobileNoCountry.value.countryCode == "IN") {
       //  SEND OTP FIRST
-      _loginCubit.sendOTPModuleBased(
+      _utilsCubit.sendOTPModuleBased(
         context: context,
         mobileNumber: _mobileC.text.trim(),
         module: "ENQUIRY",
+        name: _nameC.text.trim(),
+        projectName: _project.projectName,
+        source: getDisplayOrEmpty(_selectedSourceNotifier.value),
       );
       bool isEnquiryCompleted =
           _nameC.text.isNotEmpty &&

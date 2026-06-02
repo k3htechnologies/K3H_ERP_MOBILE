@@ -72,10 +72,6 @@ class AppRoutes {
   static String materialMaster = "/materialMaster";
   static String addMaterialMaster = "/addMaterialMaster";
   static String viewMaterialMaster = "/viewMaterialMaster";
-  static String finalizeVendorGetQuotation = "/finalizeVendorGetQuotation";
-  static String finalizeVendor = "/finalizeVendor";
-  static String finalizeEditVendor = "/finalizeEditVendor";
-  static String generatePurchaseOrder = "/generatePurchaseOrder";
 
   // UOM MASTER
   static String uomMaster = "/uomMaster";
@@ -101,6 +97,18 @@ class AppRoutes {
   static String makePayment = "/makePayment";
   static String makePaymentScreen = "/makePaymentScreen";
   static String viewPayment = "/viewPayment";
+  static String finalizeVendorGetQuotation = "/finalizeVendorGetQuotation";
+  static String finalizeVendor = "/finalizeVendor";
+  static String finalizeEditVendor = "/finalizeEditVendor";
+  static String generatePurchaseOrder = "/generatePurchaseOrder";
+
+  // TAB ACCESS ROUTES (MATERIAL MASTER VIEW TABS)
+  static String getQuotation = 'Get Quotation';
+  static String getCompare = 'Get Compare';
+  static String finalizedVendor = 'Finalized Vendor';
+  static String generatePurchaseOrderTab = 'Generate Purchase Order';
+  static String addInvoiceTab = 'Add Invoice';
+  static String makePayments = 'Make Payments';
 
   // STOCK MANAGEMENT
   static String stockManagement = "/stock";

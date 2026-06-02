@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
@@ -518,8 +519,13 @@ final GoRouter goRouter = GoRouter(
     ShellRoute(
       navigatorKey: shellNavigatorKey,
       builder: (context, state, child) {
-        return BlocProvider(
-          create: (context) => MainScreenCubit(),
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider<MainScreenCubit>(
+              create: (context) => MainScreenCubit(),
+            ),
+            BlocProvider<UtilsCubit>(create: (context) => UtilsCubit()),
+          ],
           child: MainScreen(child: child),
         );
       },

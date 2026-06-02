@@ -19,13 +19,11 @@ class AddBookingApplicantScreen extends StatefulWidget {
   final BookingApplicantData? applicant;
   final int? index;
   final bool hasPrimaryApplicant;
-  final bool disableEditMobileNo;
   const AddBookingApplicantScreen({
     super.key,
     this.applicant,
     this.index,
     this.hasPrimaryApplicant = false,
-    this.disableEditMobileNo = false,
   });
 
   @override
@@ -340,6 +338,8 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final disableMobileNo =
+        widget.applicant != null && widget.applicant!.bookingApplicantId != 0;
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: "Booking Form",
@@ -415,7 +415,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                         keyboardType: TextInputType.phone,
                         isRequired: true,
                         showCountryDropdown: true,
-                        readOnly: widget.disableEditMobileNo,
+                        readOnly: disableMobileNo,
                         selectedCountry: value,
                         onCountryChanged: (country) {
                           if (country == null) return;

@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/parking/presentation/cubit/parking_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -31,7 +31,7 @@ class _ParkingScreenState extends State<ParkingScreen>
     with TickerProviderStateMixin {
   // CUBIT
   late ParkingCubit _parkingCubit;
-  late LoginCubit _loginCubit;
+  late UtilsCubit _utilsCubit;
 
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
@@ -59,7 +59,7 @@ class _ParkingScreenState extends State<ParkingScreen>
     _project = getProject();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.parking]!;
-    _loginCubit = context.read<LoginCubit>();
+    _utilsCubit = context.read<UtilsCubit>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final state = _parkingCubit.state;
@@ -410,7 +410,7 @@ class _ParkingScreenState extends State<ParkingScreen>
                           "${parking.buildingNumber} > ${parking.wing} / ${parking.floor}",
                       isMaster: true,
                       onApprove: (val) async {
-                        final isSuccess = await _loginCubit
+                        final isSuccess = await _utilsCubit
                             .updateModulesWorkflowApproval(
                               context: context,
                               moduleName: 'PARKING APPROVAL',
@@ -433,7 +433,7 @@ class _ParkingScreenState extends State<ParkingScreen>
                         }
                       },
                       onReject: (val) async {
-                        final isSuccess = await _loginCubit
+                        final isSuccess = await _utilsCubit
                             .updateModulesWorkflowApproval(
                               context: context,
                               moduleName: 'PARKING APPROVAL',
@@ -452,7 +452,7 @@ class _ParkingScreenState extends State<ParkingScreen>
                         }
                       },
                       onThirdTap: () async {
-                        final approvalLogHistoryList = await _loginCubit
+                        final approvalLogHistoryList = await _utilsCubit
                             .getApprovalLogHistory(
                               context: context,
                               projectId: _project.projectId,

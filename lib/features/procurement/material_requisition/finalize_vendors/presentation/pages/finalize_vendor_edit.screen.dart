@@ -109,6 +109,7 @@ class _FinalizeVendorEditScreenState extends State<FinalizeVendorEditScreen> {
       }
 
       model.addListeners();
+      model.calculate();
       return model;
     });
     final servicesOnly =
@@ -150,6 +151,7 @@ class _FinalizeVendorEditScreenState extends State<FinalizeVendorEditScreen> {
       model.gst.text = serviceData.tgst.toString();
 
       model.addListeners();
+      model.calculate();
       return model;
     });
   }

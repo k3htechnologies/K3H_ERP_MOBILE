@@ -65,14 +65,6 @@ class Authorization {
     AppRoutes.weekOffMaster: AuthorizationModel(),
     AppRoutes.weekOffMappingMaster: AuthorizationModel(),
     AppRoutes.leaveEncashmentMaster: AuthorizationModel(),
-
-    // ACTIONS
-    // ModuleAction.getQuotation: AuthorizationModel(),
-    // ModuleAction.getCompare: AuthorizationModel(),
-    // ModuleAction.finalizeVendor: AuthorizationModel(),
-    // ModuleAction.generatePurchaseOrder: AuthorizationModel(),
-    // ModuleAction.addInvoice: AuthorizationModel(),
-    // ModuleAction.makePayments: AuthorizationModel(),
   };
 
   static Map<String, AuthorizationModel> getDefaultAuthorizationMap() {

@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/material_r
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/cubit/purchase_order_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/pages/purchase_order.screen.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -58,11 +59,29 @@ class _MaterialRequisitionViewScreenState
   ValueNotifier<Set<int>> selectedIdsForSplit = ValueNotifier(<int>{});
   ValueNotifier<List<InvoiceModel>> invoiceList = ValueNotifier([]);
   ValueNotifier<bool> isSplit = ValueNotifier(false);
+  late AuthorizationModel _getQuotationAuthorizationModel,
+      _vendorComparisonAuthorizationModel,
+      _finalizedVendorAuthorizationModel,
+      _generatePurchaseOrderAuthorizationModel,
+      _addInvoiceAuthorizationModel,
+      _makePaymentAuthorizationModel;
+  late final List<String> _tabs;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _initAuth();
+    _tabs = [
+      'Overview',
+      'Details',
+      if (_finalizedVendorAuthorizationModel.isView) 'Finalize Vendor',
+      if (_generatePurchaseOrderAuthorizationModel.isView) 'Purchase Order',
+      'GRN',
+      if (_addInvoiceAuthorizationModel.isView ||
+          _makePaymentAuthorizationModel.isView)
+        'Invoice',
+    ];
+    _tabController = TabController(length: _tabs.length, vsync: this);
     _tabController.addListener(_handleTabChange);
     _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
     _finalizeVendorCubit = context.read<FinalizeVendorCubit>();
@@ -70,6 +89,22 @@ class _MaterialRequisitionViewScreenState
     _grnCubit = context.read<GrnCubit>();
     _invoiceCubit = context.read<InvoiceCubit>();
     initOverview();
+  }
+
+  void _initAuth() {
+    _getQuotationAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.getQuotation]!;
+    _vendorComparisonAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.getCompare]!;
+    _finalizedVendorAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.finalizedVendor]!;
+    _generatePurchaseOrderAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes
+            .generatePurchaseOrderTab]!;
+    _addInvoiceAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.addInvoiceTab]!;
+    _makePaymentAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.makePayments]!;
   }
 
   void initOverview() async {

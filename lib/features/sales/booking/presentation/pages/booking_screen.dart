@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -35,7 +35,7 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   // CUBIT
-  late LoginCubit _loginCubit;
+  late UtilsCubit _utilsCubit;
   late BookingCubit _bookingCubit;
 
   // AUTHORIZATION
@@ -68,7 +68,7 @@ class _BookingScreenState extends State<BookingScreen> {
   @override
   void initState() {
     super.initState();
-    _loginCubit = context.read<LoginCubit>();
+    _utilsCubit = context.read<UtilsCubit>();
     _bookingCubit = context.read<BookingCubit>();
     _project = getProject();
     _routhAuthorizationModel =
@@ -704,7 +704,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
                             isActionAlreadyPerformed: !isActionAllowed,
                             onApprove: (val) async {
-                              await _loginCubit.updateModulesWorkflowApproval(
+                              await _utilsCubit.updateModulesWorkflowApproval(
                                 context: context,
                                 moduleName: 'BOOKING APPROVAL',
                                 id: booking.bookingId,
@@ -721,7 +721,7 @@ class _BookingScreenState extends State<BookingScreen> {
                               }
                             },
                             onReject: (val) async {
-                              await _loginCubit.updateModulesWorkflowApproval(
+                              await _utilsCubit.updateModulesWorkflowApproval(
                                 context: context,
                                 moduleName: 'BOOKING APPROVAL',
                                 id: booking.bookingId,
@@ -738,7 +738,7 @@ class _BookingScreenState extends State<BookingScreen> {
                               }
                             },
                             onThirdTap: () async {
-                              final approvalLogHistoryList = await _loginCubit
+                              final approvalLogHistoryList = await _utilsCubit
                                   .getApprovalLogHistory(
                                     context: context,
                                     projectId: _project.projectId,
