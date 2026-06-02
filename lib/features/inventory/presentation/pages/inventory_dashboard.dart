@@ -1,4 +1,7 @@
+// ignore_for_file: unused_local_variable
+
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +9,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/inventory/data/model/inventory_dashboard.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -18,6 +22,8 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class InventoryDashboard extends StatefulWidget {
@@ -50,6 +56,73 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
       context,
       _selectedProject.projectId,
     );
+  }
+
+  Future<void> _navigateToDistribution({
+    required String type,
+    required String projectName,
+    required String buildingNumber,
+    required String wing,
+    required Map<String, dynamic> queryParams,
+    String? status,
+    int? count,
+  }) async {
+    if (count == null || count == 0) {
+      return;
+    }
+
+    final title = _buildTitle(type: type, status: status, count: count);
+
+    final subTitle = _buildSubTitle(
+      projectName: projectName,
+      buildingNumber: buildingNumber,
+      wing: wing,
+    );
+
+    /// REMOVE WING FROM QUERY PARAMS IF TOTAL
+    final updatedQueryParams = Map<String, dynamic>.from(queryParams);
+
+    if (wing.toLowerCase() == "total") {
+      updatedQueryParams.remove('Wing');
+    }
+
+    await _inventoryCubit.resetUnits();
+
+    await goRouter.pushNamed(
+      AppRoutes.unitDistributionStatus,
+      queryParameters: {
+        'type': Uri.encodeComponent(EncryptionManager.encryptData(type)),
+        'title': Uri.encodeComponent(EncryptionManager.encryptData(title)),
+
+        'subTitle': Uri.encodeComponent(
+          EncryptionManager.encryptData(subTitle),
+        ),
+
+        'queryParams': Uri.encodeComponent(
+          EncryptionManager.encryptData(jsonEncode(updatedQueryParams)),
+        ),
+
+        'projectId': _selectedProject.projectId.toString(),
+      },
+    );
+  }
+
+  String _buildTitle({required String type, String? status, int? count}) {
+    final statusText = (status != null && status.isNotEmpty) ? status : "";
+
+    final countText = count != null ? " ($count)" : "";
+
+    return "$statusText $type$countText";
+  }
+
+  String _buildSubTitle({
+    required String projectName,
+    required String buildingNumber,
+    required String wing,
+  }) {
+    final base = "$projectName | Bldg: $buildingNumber | Wing: $wing";
+
+    return base;
   }
 
   @override
@@ -439,6 +512,8 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                         verticalSpacing(height: 16),
                         // ATLERT WIDGET
                         _buildAlertsWidget(context),
+                        verticalSpacing(height: 16.0),
+                        _wingDetailsWidget(context),
                       ],
                     ),
                   ),
@@ -1075,6 +1150,454 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
           ),
         );
       },
+    );
+  }
+
+  Widget _wingDetailsWidget(BuildContext context) {
+    return BlocBuilder<InventoryCubit, InventoryState>(
+      builder: (context, state) {
+        if (state.isLoading == true) {
+          return Center(child: loader());
+        }
+
+        final data = state.inventoryDashboardModel;
+        final table4 = data?.table4;
+        final buildings =
+            table4
+                ?.map((e) => e.building)
+                .toSet()
+                .map((e) => {"zAttributesId": e, "DisplayName": e})
+                .toList();
+        Table4? selectedWingData;
+        List<Map<String, dynamic>> getWings(String? building) {
+          return table4!
+              .where((e) => building == null || e.building == building)
+              .map(
+                (e) => {
+                  "zAttributesId": e.inventoryFlatFloorBasementPodiumWingId,
+                  "DisplayName": e.wing,
+                },
+              )
+              .toList();
+        }
+
+        if (selectedWingNotifier.value != null) {
+          selectedWingData = table4?.firstWhere(
+            (e) =>
+                e.inventoryFlatFloorBasementPodiumWingId ==
+                selectedWingNotifier.value!["zAttributesId"],
+          );
+        }
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          decoration: commonCardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Wing Details",
+                      style: AppTextStyle.ts14M(
+                        color: AppColor.black.withValues(alpha: 0.50),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              verticalSpacing(),
+              if (table4 != null && table4.isNotEmpty) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: ValueListenableBuilder<Map<String, dynamic>?>(
+                        valueListenable: selectedBuildingNotifier,
+                        builder: (_, selectedBuilding, __) {
+                          return CustomDropDownWidget(
+                            title: "Building",
+                            hintText: "Select Building",
+                            dataList: buildings!,
+                            initialValue: selectedBuilding,
+                            onSelected: (value) {
+                              selectedBuildingNotifier.value = value;
+                              selectedWingNotifier.value = null;
+                            },
+                          );
+                        },
+                      ),
+                    ),
+
+                    horizontalSpacing(),
+
+                    Expanded(
+                      child: ValueListenableBuilder<Map<String, dynamic>?>(
+                        valueListenable: selectedBuildingNotifier,
+                        builder: (_, building, __) {
+                          return ValueListenableBuilder<Map<String, dynamic>?>(
+                            valueListenable: selectedWingNotifier,
+                            builder: (_, wing, __) {
+                              return CustomDropDownWidget(
+                                title: "Wing",
+                                hintText: "Select Wing",
+                                dataList: getWings(building?["DisplayName"]),
+                                initialValue: wing,
+                                onSelected: (value) {
+                                  selectedWingNotifier.value = value;
+                                },
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                ValueListenableBuilder<Map<String, dynamic>?>(
+                  valueListenable: selectedWingNotifier,
+                  builder: (context, selectedWing, _) {
+                    if (selectedWing == null) {
+                      return const SizedBox.shrink();
+                    }
+                    final selectedWingData = table4.firstWhere(
+                      (e) =>
+                          e.inventoryFlatFloorBasementPodiumWingId ==
+                          selectedWing["zAttributesId"],
+                    );
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomTextField(
+                          title: "Total Floors",
+                          textController: TextEditingController(
+                            text: selectedWingData.floors.toString(),
+                          ),
+                          readOnly: true,
+                        ),
+                        Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColor.primary),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      selectedTab = 0;
+                                    });
+                                  },
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color:
+                                          selectedTab == 0
+                                              ? AppColor.lightBlue
+                                              : Colors.transparent,
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(8),
+                                        bottomLeft: Radius.circular(8),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      "Unit",
+                                      style: AppTextStyle.ts14M(
+                                        color:
+                                            selectedTab == 0
+                                                ? AppColor.primary
+                                                : AppColor.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      selectedTab = 1;
+                                    });
+                                  },
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color:
+                                          selectedTab == 1
+                                              ? AppColor.lightBlue
+                                              : Colors.transparent,
+                                      borderRadius: const BorderRadius.only(
+                                        topRight: Radius.circular(8),
+                                        bottomRight: Radius.circular(8),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      "Parking",
+                                      style: AppTextStyle.ts14M(
+                                        color:
+                                            selectedTab == 1
+                                                ? AppColor.primary
+                                                : AppColor.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        verticalSpacing(),
+                        buildRowTitleValue(
+                          title:
+                              selectedTab == 0
+                                  ? "Total Units"
+                                  : "Total Parking",
+                          value:
+                              selectedTab == 0
+                                  ? selectedWingData.units.toString()
+                                  : selectedWingData.totalParking.toString(),
+                        ),
+                        verticalSpacing(),
+                        if (selectedTab == 0) ...[
+                          buildProgressRow(
+                            title: "Available",
+                            value: selectedWingData.availableFlats,
+                            total: selectedWingData.units,
+                            color: Colors.green,
+                            onTap: () {
+                              _navigateToDistribution(
+                                type: "Unit",
+                                status: "Available",
+                                count: selectedWingData.availableFlats,
+                                projectName: _selectedProject.projectName,
+                                buildingNumber: selectedWingData.building,
+                                wing: selectedWingData.wing,
+                                queryParams: {
+                                  "BuildingNumber": selectedWingData.building,
+                                  "Wing": selectedWingData.wing,
+                                  "FlatStatus": "Available",
+                                },
+                              );
+                            },
+                          ),
+                          buildProgressRow(
+                            title: "Blocked",
+                            value: selectedWingData.blockedFlats,
+                            total: selectedWingData.units,
+                            color: Colors.grey,
+                            onTap: () {
+                              _navigateToDistribution(
+                                type: "Unit",
+                                status: "Blocked",
+                                count: selectedWingData.availableFlats,
+                                projectName: _selectedProject.projectName,
+                                buildingNumber: selectedWingData.building,
+                                wing: selectedWingData.wing,
+                                queryParams: {
+                                  "BuildingNumber": selectedWingData.building,
+                                  "Wing": selectedWingData.wing,
+                                  "FlatStatus": "Blocked",
+                                },
+                              );
+                            },
+                          ),
+                          buildProgressRow(
+                            title: "Hold",
+                            value: selectedWingData.holdFlats,
+                            total: selectedWingData.units,
+                            color: Colors.orange,
+                            onTap: () {
+                              _navigateToDistribution(
+                                type: "Unit",
+                                status: "Hold",
+                                count: selectedWingData.availableFlats,
+                                projectName: _selectedProject.projectName,
+                                buildingNumber: selectedWingData.building,
+                                wing: selectedWingData.wing,
+                                queryParams: {
+                                  "BuildingNumber": selectedWingData.building,
+                                  "Wing": selectedWingData.wing,
+                                  "FlatStatus": "Hold",
+                                },
+                              );
+                            },
+                          ),
+                          buildProgressRow(
+                            title: "Booked",
+                            value: selectedWingData.bookedFlats,
+                            total: selectedWingData.units,
+                            color: Colors.red,
+                            onTap: () {
+                              _navigateToDistribution(
+                                type: "Unit",
+                                status: "Booked",
+                                count: selectedWingData.availableFlats,
+                                projectName: _selectedProject.projectName,
+                                buildingNumber: selectedWingData.building,
+                                wing: selectedWingData.wing,
+                                queryParams: {
+                                  "BuildingNumber": selectedWingData.building,
+                                  "Wing": selectedWingData.wing,
+                                  "FlatStatus": "Booked",
+                                },
+                              );
+                            },
+                          ),
+                        ] else ...[
+                          buildProgressRow(
+                            title: "Available",
+                            value: selectedWingData.availableParking,
+                            total: selectedWingData.totalParking,
+                            color: Colors.green,
+                            onTap: () {
+                              log("message");
+                              _navigateToDistribution(
+                                type: "Parking",
+                                status: "Available",
+                                count: selectedWingData.availableParking,
+                                projectName: _selectedProject.projectName,
+                                buildingNumber: selectedWingData.building,
+                                wing: selectedWingData.wing,
+                                queryParams: {
+                                  "BuildingNumber": selectedWingData.building,
+                                  "Wing": selectedWingData.wing,
+                                  "FlatStatus": "Available",
+                                },
+                              );
+                            },
+                          ),
+                          buildProgressRow(
+                            title: "Blocked",
+                            value: selectedWingData.blockedParking,
+                            total: selectedWingData.totalParking,
+                            color: Colors.grey,
+                            onTap: () {
+                              _navigateToDistribution(
+                                type: "Parking",
+                                status: "Blocked",
+                                count: selectedWingData.availableParking,
+                                projectName: _selectedProject.projectName,
+                                buildingNumber: selectedWingData.building,
+                                wing: selectedWingData.wing,
+                                queryParams: {
+                                  "BuildingNumber": selectedWingData.building,
+                                  "Wing": selectedWingData.wing,
+                                  "FlatStatus": "Blocked",
+                                },
+                              );
+                            },
+                          ),
+                          buildProgressRow(
+                            title: "Hold",
+                            value: selectedWingData.holdParking,
+                            total: selectedWingData.totalParking,
+                            color: Colors.orange,
+                            onTap: () {
+                              _navigateToDistribution(
+                                type: "Parking",
+                                status: "Hold",
+                                count: selectedWingData.availableParking,
+                                projectName: _selectedProject.projectName,
+                                buildingNumber: selectedWingData.building,
+                                wing: selectedWingData.wing,
+                                queryParams: {
+                                  "BuildingNumber": selectedWingData.building,
+                                  "Wing": selectedWingData.wing,
+                                  "FlatStatus": "Hold",
+                                },
+                              );
+                            },
+                          ),
+                          buildProgressRow(
+                            title: "Booked",
+                            value: selectedWingData.bookedParking,
+                            total: selectedWingData.totalParking,
+                            color: Colors.red,
+                            onTap: () {
+                              _navigateToDistribution(
+                                type: "Parking",
+                                status: "Booked",
+                                count: selectedWingData.availableParking,
+                                projectName: _selectedProject.projectName,
+                                buildingNumber: selectedWingData.building,
+                                wing: selectedWingData.wing,
+                                queryParams: {
+                                  "BuildingNumber": selectedWingData.building,
+                                  "Wing": selectedWingData.wing,
+                                  "FlatStatus": "Booked",
+                                },
+                              );
+                            },
+                          ),
+                        ],
+                      ],
+                    );
+                  },
+                ),
+              ] else ...[
+                Center(
+                  child: noDataWidget(message: "No Data Found", iconSize: 180),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildProgressRow({
+    required String title,
+    required int value,
+    required int total,
+    required Color color,
+    Color? valueColor,
+    VoidCallback? onTap,
+  }) {
+    final progress = total == 0 ? 0.0 : value / total;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 90,
+            child: Text(
+              title,
+              style: AppTextStyle.ts14M(
+                color: AppColor.black.withValues(alpha: .5),
+              ),
+            ),
+          ),
+          horizontalSpacing(),
+          Expanded(
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 17,
+              borderRadius: BorderRadius.circular(4),
+              backgroundColor: AppColor.grey.withValues(alpha: 0.2),
+              valueColor: AlwaysStoppedAnimation(color),
+            ),
+          ),
+          horizontalSpacing(),
+          SizedBox(
+            width: 30.0,
+            child: InkWell(
+              onTap: value > 0 ? onTap : null,
+              child: Text(
+                value.toString(),
+                style: AppTextStyle.ts14M(
+                  color: value > 0 ? AppColor.primary : AppColor.grey,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

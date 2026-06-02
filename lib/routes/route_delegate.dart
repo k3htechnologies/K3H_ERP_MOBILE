@@ -2914,6 +2914,7 @@ final GoRouter goRouter = GoRouter(
                 BlocProvider<InventoryReportCubit>(
                   create: (_) => InventoryReportCubit(),
                 ),
+                BlocProvider(create: (_) => ParkingCubit()),
               ],
               child: child,
             );
@@ -2943,7 +2944,14 @@ final GoRouter goRouter = GoRouter(
                     ),
                   );
                 }
-
+                final type =
+                    state.uri.queryParameters['type'] != null
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeQueryComponent(
+                            state.uri.queryParameters['type']!,
+                          ),
+                        )
+                        : '';
                 final title =
                     state.uri.queryParameters['title'] != null
                         ? EncryptionManager.decryptData(
@@ -2967,6 +2975,7 @@ final GoRouter goRouter = GoRouter(
                     0;
 
                 return UnitDistributionStatusScreen(
+                  type: type,
                   title: title,
                   subTitle: subTitle,
                   queryParams: queryParams,
