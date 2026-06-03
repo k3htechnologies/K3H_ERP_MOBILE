@@ -123,16 +123,9 @@ class _MaterialRequisitionViewScreenState
       );
       if (!mounted) return;
     }
+
     if (mounted) {
-      invoiceList.value = await _materialRequisitionCubit.getInvoiceForOverview(
-        context: context,
-        projectId: widget.projectId,
-        materialRequisitionId: widget.materialRequisitionId,
-        uniqueKey: widget.uniquekey,
-      );
-    }
-    if (mounted) {
-      await _invoiceCubit.getInvoice(
+      invoiceList.value = await _invoiceCubit.getInvoice(
         projectId: widget.projectId,
         materialRequisitionId: widget.materialRequisitionId,
         uniqueKey: widget.uniquekey,

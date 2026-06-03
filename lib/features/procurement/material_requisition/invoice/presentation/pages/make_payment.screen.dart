@@ -39,6 +39,7 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
   late InvoiceCubit _invoiceCubit;
   late MaterialRequisitionCubit _materialRequisitionCubit;
   late ProjectModel _selectedProject;
+  
   @override
   void initState() {
     super.initState();
@@ -249,7 +250,7 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                     !invoice.isApproval;
                 final hasPayment = invoice.invoiceAmountPaidTillDate > 0;
                 final makePayment =
-                    invoice.invoiceAmountPaidTillDate != invoice.invoiceAmount;
+                    (invoice.invoiceAmountPaidTillDate != invoice.invoiceAmount);
                 return Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 16.0,

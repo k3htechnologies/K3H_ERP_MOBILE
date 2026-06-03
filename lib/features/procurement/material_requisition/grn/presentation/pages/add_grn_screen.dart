@@ -207,11 +207,11 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                               text: "Add Material",
                               onPressed: () async {
                                 await _materialRequisitionCubit
-                                    .getFinalizedVendor(
+                                    .getMaterialRequisitionDetailsById(
                                       context,
+                                      1,
                                       widget.projectId,
                                       widget.materialRequisitionId,
-                                      widget.uniquekey,
                                     );
                                 await goRouter.pushNamed(
                                   AppRoutes.addGrnMaterial,
@@ -247,14 +247,13 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                                           CustomIconButton.edit(
                                             onPressed: () async {
                                               await _materialRequisitionCubit
-                                                  .getFinalizedVendor(
+                                                  .getMaterialRequisitionDetailsById(
                                                     context,
+                                                    1,
                                                     widget.projectId,
                                                     widget
                                                         .materialRequisitionId,
-                                                    widget.uniquekey,
                                                   );
-
                                               goRouter.pushNamed(
                                                 AppRoutes.addGrnMaterial,
                                                 queryParameters: {
@@ -267,6 +266,7 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                                                         ),
                                                       ),
                                                   'index': index.toString(),
+                                                  'isEdit': true.toString(),
                                                 },
                                               );
                                             },

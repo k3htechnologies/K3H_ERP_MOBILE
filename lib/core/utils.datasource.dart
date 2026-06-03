@@ -23,7 +23,10 @@ abstract interface class UtilsDatasource {
   });
 
   Future<Map<String, dynamic>>
-  apicallPullMaterialMasterSubMaterialMasterUOMMaster({required int projectId});
+  apicallPullMaterialMasterSubMaterialMasterUOMMaster({
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 
   Future<Map<String, dynamic>> apicalPullExcelSample({
     required String tableName,
@@ -161,16 +164,24 @@ class UtilsDatasourceImpl implements UtilsDatasource {
   Future<Map<String, dynamic>>
   apicallPullMaterialMasterSubMaterialMasterUOMMaster({
     required int projectId,
+    Map<String, dynamic>? queryParams,
   }) async {
     try {
       String pullMaterialMasterSubMaterialMasterUOMMaster({
         required int projectId,
+        Map<String, dynamic>? queryParams,
       }) {
-        return "Static/PullMaterialMasterSubMaterialMasterUOMMaster?ProjectId=$projectId";
+        String url =
+            "Static/PullMaterialMasterSubMaterialMasterUOMMaster?ProjectId=$projectId";
+        url += queryParamsFormatter(queryParams: queryParams);
+        return url;
       }
 
       var networkResponse = await client.getRequestWithAuthentication(
-        pullMaterialMasterSubMaterialMasterUOMMaster(projectId: projectId),
+        pullMaterialMasterSubMaterialMasterUOMMaster(
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
       );
       // networkResponse["data"] contains the Data object from API response
       final data = networkResponse["data"] as Map<String, dynamic>;

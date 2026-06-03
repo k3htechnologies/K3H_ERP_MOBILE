@@ -150,7 +150,7 @@ class MaterialRequisitionDetailGrnDatum {
     uom: json["Uom"],
     requiredDate: DateTime.parse(json["RequiredDate"]),
     totalReceivedMaterialQuantity: json["TotalReceivedMaterialQuantity"],
-    qualityAnalysisRemarks: json["QualityAnalysisRemarks"],
+    qualityAnalysisRemarks: json["QualityAnalystRemark"],
     createdById: json["CreatedById"],
     createdBy: json["CreatedBy"],
     createdDate: DateTime.parse(json["CreatedDate"]),
@@ -174,7 +174,7 @@ class MaterialRequisitionDetailGrnDatum {
     "Uom": uom,
     "RequiredDate": requiredDate.toIso8601String(),
     "TotalReceivedMaterialQuantity": totalReceivedMaterialQuantity,
-    "QualityAnalysisRemarks": qualityAnalysisRemarks,
+    "QualityAnalystRemark": qualityAnalysisRemarks,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),
@@ -187,5 +187,6 @@ class MaterialRequisitionDetailGrnDatum {
     "MaterialRequisitionDetailGRNId": materialRequisitionDetailGrnId,
     "MaterialRequisitionDetailId": materialRequisitionDetailId,
     "TotalReceivedMaterialQuantity": totalReceivedMaterialQuantity,
+    "QualityAnalystRemark": qualityAnalysisRemarks,
   };
 }

@@ -22,7 +22,10 @@ abstract interface class UtilsRepository {
   });
 
   Future<Either<Failure, Map<String, dynamic>>>
-  getMaterialMasterSubMaterialMasterUOMMaster({required int projectId});
+  getMaterialMasterSubMaterialMasterUOMMaster({
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 
   Future<Either<Failure, Map<String, dynamic>>> pullExcelSample({
     required String tableName,
@@ -147,11 +150,15 @@ class UtilsRepositoryImpl implements UtilsRepository {
   // PULL MATERIAL MASTER SUB MATERIAL MASTER UOM MASTER
   @override
   Future<Either<Failure, Map<String, dynamic>>>
-  getMaterialMasterSubMaterialMasterUOMMaster({required int projectId}) async {
+  getMaterialMasterSubMaterialMasterUOMMaster({
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
     try {
       var result = await _utilsDatasource
           .apicallPullMaterialMasterSubMaterialMasterUOMMaster(
             projectId: projectId,
+            queryParams: queryParams,
           );
       return right(result);
     } catch (error) {

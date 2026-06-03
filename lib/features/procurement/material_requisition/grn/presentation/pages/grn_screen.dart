@@ -168,7 +168,9 @@ class _GRNScreenState extends State<GRNScreen> {
                                 spacing: 10.w,
                                 children: [
                                   CustomIconButton.edit(
-                                    isDisabled: (index != 0),
+                                    isDisabled:
+                                        (grn.isInvoicePaymentCompleted ??
+                                            false),
                                     onPressed: () async {
                                       goRouter.pushNamed(
                                         AppRoutes.addGrn,

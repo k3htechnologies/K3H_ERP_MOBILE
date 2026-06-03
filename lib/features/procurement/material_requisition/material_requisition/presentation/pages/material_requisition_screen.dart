@@ -193,8 +193,6 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                 hintText: "Select Stage",
                 initialValue: selectedMaterialRequisitionStage,
                 dataList: materialRequisitionStagesList,
-                isRequired: true,
-
                 onSelected: (v) {
                   selectedMaterialRequisitionStage = v;
 
@@ -213,8 +211,6 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                 hintText: "Select Status",
                 initialValue: selectedMaterialRequisitionStatus,
                 dataList: materialRequisitionStatusList,
-                isRequired: true,
-
                 onSelected: (v) {
                   selectedMaterialRequisitionStatus = v;
 

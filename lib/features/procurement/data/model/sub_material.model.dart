@@ -9,6 +9,8 @@ class SubMaterialModel {
   int uomMasterId;
   String uomCode;
   String uom;
+  bool? isTolerant;
+  int? materialTolerant;
 
   SubMaterialModel({
     required this.materialMasterId,
@@ -19,6 +21,8 @@ class SubMaterialModel {
     required this.uomMasterId,
     required this.uomCode,
     required this.uom,
+    this.isTolerant,
+    this.materialTolerant,
   });
 
   factory SubMaterialModel.fromJson(Map<String, dynamic> json) =>
@@ -31,6 +35,8 @@ class SubMaterialModel {
         uomMasterId: parseValue<int>(json, "UomMasterId"),
         uomCode: parseValue<String>(json, "UomCode"),
         uom: parseValue<String>(json, "Uom"),
+        isTolerant: parseValue<bool>(json, "IsTolerant"),
+        materialTolerant: parseValue<int>(json, "MaterialTolerant"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -42,5 +48,7 @@ class SubMaterialModel {
     "UomMasterId": uomMasterId,
     "UomCode": uomCode,
     "Uom": uom,
+    "IsTolerant": isTolerant,
+    "MaterialTolerant": materialTolerant,
   };
 }

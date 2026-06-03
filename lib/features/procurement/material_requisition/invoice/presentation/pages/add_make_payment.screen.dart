@@ -322,40 +322,33 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
                                   : null,
                           dataList: getPaymentTypeList(),
                           onSelected: (value) {
-                            final wasFull = _isFullPaymentNotifier.value;
-
                             _selectedPaymentTypeNotifier.value = [value];
-
-                            final isFull =
+                            final paymentType =
                                 value["DisplayName"]
                                     .toString()
                                     .trim()
-                                    .toLowerCase() ==
-                                "full";
-
+                                    .toLowerCase();
+                            final isFull = paymentType == "full";
                             _isFullPaymentNotifier.value = isFull;
-
                             final invoice =
                                 _invoiceCubit.state.invoiceList.first;
                             final invoiceAmount =
-                                invoice.invoiceAmount -
-                                invoice.invoiceAmountPaidTillDate;
+                                (invoice.invoiceAmount -
+                                    invoice.invoiceAmountPaidTillDate);
 
                             _pendingAmountC.text = invoiceAmount
                                 .toStringAsFixed(2);
-
                             if (isFull) {
                               _amountPaidC.text = invoiceAmount.toStringAsFixed(
                                 2,
                               );
-                            } else if (wasFull) {
+                            } else {
                               _amountPaidC.clear();
                             }
                           },
                           onValueClear: () {
                             _selectedPaymentTypeNotifier.value = [];
                             _isFullPaymentNotifier.value = false;
-                            _pendingAmountC.clear();
                             _amountPaidC.clear();
                           },
                           validator: (value) {
@@ -400,7 +393,7 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
 
                             // cannot exceed pending
                             if (enteredAmount > pendingAmount) {
-                              return "Amount cannot exceed ${pendingAmount.toIndianCurrency()}";
+                              return "Amount should not exceed pending amount";
                             }
 
                             final selectedType =
@@ -414,8 +407,7 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
 
                             // partial payment validation
                             if (paymentType == "partial" &&
-                                enteredAmount == pendingAmount &&
-                                getPaymentTypeList().length > 1) {
+                                enteredAmount == pendingAmount) {
                               return "Select Full payment type";
                             }
 

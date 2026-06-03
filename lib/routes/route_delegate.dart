@@ -5400,7 +5400,11 @@ final GoRouter goRouter = GoRouter(
                           state.uri.queryParameters['index'] ?? '',
                         ) ??
                         0;
-
+                    final parentEditMode =
+                        bool.tryParse(
+                          state.uri.queryParameters['isEdit'] ?? '',
+                        ) ??
+                        false;
                     final MaterialRequisitionDetailGrnDatum? materialDetails =
                         queryParameterMaterialDetails != null
                             ? MaterialRequisitionDetailGrnDatum.fromJson(
@@ -5417,6 +5421,7 @@ final GoRouter goRouter = GoRouter(
                     return AddGrnMaterialScreen(
                       materialDetails: materialDetails,
                       index: index,
+                      isParentEditMode: parentEditMode,
                     );
                   },
                 ),

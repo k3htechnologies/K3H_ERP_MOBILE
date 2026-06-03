@@ -317,7 +317,7 @@ class LoginCubit extends Cubit<LoginState> {
           // Fallback to login user data if fetch fails
           await localStorage.setString(
             StorageKey.currentUser,
-            jsonEncode(loginUser),
+            jsonEncode(loginUser.toJson()),
           );
         },
         (response) async {
@@ -325,27 +325,20 @@ class LoginCubit extends Cubit<LoginState> {
           if (employeeList.isNotEmpty) {
             final completeEmployee = employeeList.first;
 
-            final mergedUserData = {
-              ...completeEmployee.toJson(),
-              "Token": loginUser.token, // Preserve token from login
-              "ModuleData":
-                  loginUser.moduleData
-                      .map((e) => e.toJson())
-                      .toList(), // Preserve module data
-              "ProjectData":
-                  loginUser.projectData
-                      .map((e) => e.toJson())
-                      .toList(), // Preserve project data
-            };
+            final mergedUser = completeEmployee.copyWith(
+              token: loginUser.token,
+              moduleData: loginUser.moduleData,
+              projectData: loginUser.projectData,
+            );
 
             await localStorage.setString(
               StorageKey.currentUser,
-              jsonEncode(mergedUserData),
+              jsonEncode(mergedUser.toJson()),
             );
           } else {
             await localStorage.setString(
               StorageKey.currentUser,
-              jsonEncode(loginUser),
+              jsonEncode(loginUser.toJson()),
             );
           }
         },

@@ -7,7 +7,6 @@ import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/repository/finalize_vendor.repository.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/data/model/invoice.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/data/repository/invoice.repository.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/repository/material_requisition.repository.dart';
@@ -193,27 +192,6 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
         return finalizedVendorList.isNotEmpty
             ? finalizedVendorList.first
             : null;
-      },
-    );
-  }
-
-  Future<List<InvoiceModel>> getInvoiceForOverview({
-    required int projectId,
-    required int materialRequisitionId,
-    required String uniqueKey,
-    required BuildContext context,
-  }) async {
-    var result = await invoiceRepository.getRequisitionInvoice(
-      projectId: projectId,
-      materialRequisitionId: materialRequisitionId,
-      uniqueKey: uniqueKey,
-    );
-    return result.fold(
-      (failure) {
-        return [];
-      },
-      (response) {
-        return response["data"] as List<InvoiceModel>;
       },
     );
   }
