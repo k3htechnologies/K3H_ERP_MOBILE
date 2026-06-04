@@ -38,6 +38,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     _grnCubit = context.read<GrnCubit>();
     _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
     _invoiceCubit = context.read<InvoiceCubit>();
+
     _addInvoiceAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.addInvoiceTab]!;
     _makePaymentAuthorizationModel =
@@ -138,6 +139,12 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                                 : !hasPayment
                                 ? !_makePaymentAuthorizationModel.isAction
                                 : false;
+                        final canView =
+                            !hasInvoice
+                                ? _addInvoiceAuthorizationModel.isView
+                                : !hasPayment
+                                ? _makePaymentAuthorizationModel.isView
+                                : true;
                         return Container(
                           padding: const EdgeInsets.all(16),
                           margin: const EdgeInsets.only(bottom: 10),
@@ -217,51 +224,52 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                                     ],
                                   )
                                   : const SizedBox.shrink(),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  CustomButton(
-                                    text: buttonText,
-                                    isDisable: disable,
-                                    onPressed: () {
-                                      if (!hasInvoice) {
+                              if (canView)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    CustomButton(
+                                      text: buttonText,
+                                      isDisable: disable,
+                                      onPressed: () {
+                                        if (!hasInvoice) {
+                                          goRouter.pushNamed(
+                                            AppRoutes.addInvoice,
+                                            extra: {
+                                              'systemGeneratedCode':
+                                                  widget.systemGeneratedCode,
+                                              "grn": grn,
+                                            },
+                                          );
+                                          return;
+                                        }
+                                        if (hasPayment) {
+                                          goRouter.pushNamed(
+                                            AppRoutes.viewPayment,
+                                            extra: {
+                                              'systemGeneratedCode':
+                                                  widget.systemGeneratedCode,
+                                              'invoiceNumber':
+                                                  invoiceState
+                                                      .invoiceList
+                                                      .first
+                                                      .invoiceNumber,
+                                            },
+                                          );
+                                          return;
+                                        }
                                         goRouter.pushNamed(
-                                          AppRoutes.addInvoice,
+                                          AppRoutes.makePayment,
                                           extra: {
                                             'systemGeneratedCode':
                                                 widget.systemGeneratedCode,
                                             "grn": grn,
                                           },
                                         );
-                                        return;
-                                      }
-                                      if (hasPayment) {
-                                        goRouter.pushNamed(
-                                          AppRoutes.viewPayment,
-                                          extra: {
-                                            'systemGeneratedCode':
-                                                widget.systemGeneratedCode,
-                                            'invoiceNumber':
-                                                invoiceState
-                                                    .invoiceList
-                                                    .first
-                                                    .invoiceNumber,
-                                          },
-                                        );
-                                        return;
-                                      }
-                                      goRouter.pushNamed(
-                                        AppRoutes.makePayment,
-                                        extra: {
-                                          'systemGeneratedCode':
-                                              widget.systemGeneratedCode,
-                                          "grn": grn,
-                                        },
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
+                                      },
+                                    ),
+                                  ],
+                                ),
                             ],
                           ),
                         );

@@ -251,44 +251,6 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
     _pendingQuantityC.text = remainingQty.toString();
   }
 
-  void _submit() {
-    if (!_formKey.currentState!.validate()) return;
-
-    final material = MaterialRequisitionDetailGrnDatum(
-      materialRequisitionDetailId: getMaterialRequisitionDetailId(
-        materialName: _selectedMaterial.value?['DisplayName'],
-      ),
-      uniquekey: _isEditMode ? widget.materialDetails!.uniquekey : '',
-      materialRequisitionGrnId:
-          _isEditMode ? widget.materialDetails!.materialRequisitionGrnId : 0,
-      materialRequisitionDetailGrnId:
-          _isEditMode
-              ? widget.materialDetails!.materialRequisitionDetailGrnId
-              : 0,
-      materialName: _selectedMaterial.value?['DisplayName'] ?? '',
-      subMaterialName: _selectedSubMaterial.value?['DisplayName'] ?? '',
-      materialQuantity: _totalQuantity.value,
-      uomCode: _uomC.text,
-      uom: _uomC.text,
-      requiredDate: _requiredDate.value ?? DateTime.now(),
-      qualityAnalysisRemarks: _remarkC.text.trim(),
-      createdById: _isEditMode ? widget.materialDetails!.createdById : 0,
-      createdBy: _isEditMode ? widget.materialDetails!.createdBy : '',
-      createdDate:
-          _isEditMode ? widget.materialDetails!.createdDate : DateTime.now(),
-      modifiedById: _isEditMode ? widget.materialDetails!.modifiedById : 0,
-      modifiedBy: _isEditMode ? widget.materialDetails!.modifiedBy : "",
-      modifiedDate: _isEditMode ? widget.materialDetails!.modifiedDate : null,
-      totalReceivedMaterialQuantity: double.parse(_receivedQuantity.text),
-    );
-    if (_isEditMode) {
-      _grnCubit.updateMaterialList(material, widget.index);
-    } else {
-      _grnCubit.addMaterial(material);
-    }
-    goRouter.pop();
-  }
-
   Future<void> getMaterialSubMaterialUOMMaster() async {
     DialogHelper.showProcessingOverlay(context);
     var result = await utilsRepository
@@ -341,6 +303,44 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
 
     final detail = requisitionList.where((e) => e.materialName == materialName);
     return detail.first.materialRequisitionDetailId;
+  }
+
+  void _submit() {
+    if (!_formKey.currentState!.validate()) return;
+
+    final material = MaterialRequisitionDetailGrnDatum(
+      materialRequisitionDetailId: getMaterialRequisitionDetailId(
+        materialName: _selectedMaterial.value?['DisplayName'],
+      ),
+      uniquekey: _isEditMode ? widget.materialDetails!.uniquekey : '',
+      materialRequisitionGrnId:
+          _isEditMode ? widget.materialDetails!.materialRequisitionGrnId : 0,
+      materialRequisitionDetailGrnId:
+          _isEditMode
+              ? widget.materialDetails!.materialRequisitionDetailGrnId
+              : 0,
+      materialName: _selectedMaterial.value?['DisplayName'] ?? '',
+      subMaterialName: _selectedSubMaterial.value?['DisplayName'] ?? '',
+      materialQuantity: _totalQuantity.value,
+      uomCode: _uomC.text,
+      uom: _uomC.text,
+      requiredDate: _requiredDate.value ?? DateTime.now(),
+      qualityAnalysisRemarks: _remarkC.text.trim(),
+      createdById: _isEditMode ? widget.materialDetails!.createdById : 0,
+      createdBy: _isEditMode ? widget.materialDetails!.createdBy : '',
+      createdDate:
+          _isEditMode ? widget.materialDetails!.createdDate : DateTime.now(),
+      modifiedById: _isEditMode ? widget.materialDetails!.modifiedById : 0,
+      modifiedBy: _isEditMode ? widget.materialDetails!.modifiedBy : "",
+      modifiedDate: _isEditMode ? widget.materialDetails!.modifiedDate : null,
+      totalReceivedMaterialQuantity: double.parse(_receivedQuantity.text),
+    );
+    if (_isEditMode) {
+      _grnCubit.updateMaterialList(material, widget.index);
+    } else {
+      _grnCubit.addMaterial(material);
+    }
+    goRouter.pop();
   }
 
   @override
@@ -469,7 +469,9 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
                           keyboardType: TextInputType.numberWithOptions(),
                           textController: _receivedQuantity,
                           validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
+                            if (value == null ||
+                                value.trim().isEmpty ||
+                                value == '0') {
                               return "Received Quantity is required";
                             }
 

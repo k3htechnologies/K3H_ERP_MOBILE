@@ -50,6 +50,8 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
   ValueNotifier<Map<String, dynamic>?> selectedProjectSubSchemeNotifier =
       ValueNotifier(null);
   ValueNotifier<bool?> isRedevelopement = ValueNotifier(false);
+  late AuthorizationModel _routeAuthorizationModel;
+
   // STATIC LISTS
   List<Map<String, dynamic>> projectSchemeList = [
     {"zAttributesId": 1, "DisplayName": "BMC"},
@@ -83,6 +85,8 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
   void initState() {
     super.initState();
     _initialiseTextController();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.projectMaster]!;
     _projectMasterCubit = BlocProvider.of<ProjectMasterCubit>(context);
     _projectMasterCubit.getProjectList(context: context, pageNumber: 1);
     _onScroll();
@@ -379,7 +383,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
     return Scaffold(
       appBar: CustomAppBar(
         screenTitle: "Project Management",
-        authorization: AuthorizationModel(),
+        authorization: _routeAuthorizationModel,
         onSearchSubmit: (value) {
           _projectMasterCubit.searchProject(context, value);
         },
@@ -478,6 +482,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                             ),
                           ),
                           CustomIconButton.edit(
+                            isDisabled: !_routeAuthorizationModel.isAction,
                             onPressed: () async {
                               await goRouter.pushNamed(
                                 AppRoutes.addProjectMaster,

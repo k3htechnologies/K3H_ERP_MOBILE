@@ -166,6 +166,8 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
   @override
   void dispose() {
     _remarkC.dispose();
+    _vehicleNumberC.dispose();
+    _challanNumberC.dispose();
     super.dispose();
   }
 
@@ -398,7 +400,6 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                       },
                     ),
 
-                    /// Remark
                     CustomTextField(
                       title: "Remark",
                       hint: "Enter Remark",

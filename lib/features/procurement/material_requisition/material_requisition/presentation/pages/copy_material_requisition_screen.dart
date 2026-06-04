@@ -162,6 +162,7 @@ class _CopyMaterialRequisitionScreenState
                         CustomDatePicker(
                           isRequired: true,
                           title: "Required Date",
+                          startDate: DateTime.now(),
                           initialDate: _selectedRequiredDates[index],
                           setValue: (DateTime p1) {
                             _selectedRequiredDates[index] = p1;

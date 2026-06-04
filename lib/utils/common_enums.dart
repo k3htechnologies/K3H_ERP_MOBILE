@@ -28,7 +28,7 @@ enum MaterialRequisitionTab {
   overview,
   details,
   finalizeVendor,
-  generateOrder,
+  purchaseOrder,
   grn,
   invoice,
 }
@@ -45,8 +45,8 @@ extension MaterialRequisitionTabExtension on MaterialRequisitionTab {
       case MaterialRequisitionTab.finalizeVendor:
         return "Finalize Vendor";
 
-      case MaterialRequisitionTab.generateOrder:
-        return "Generate Order";
+      case MaterialRequisitionTab.purchaseOrder:
+        return "Purchase Order";
 
       case MaterialRequisitionTab.grn:
         return "GRN";

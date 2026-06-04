@@ -77,7 +77,7 @@ class _MaterialRequisitionViewScreenState
       if (_finalizedVendorAuthorizationModel.isView)
         MaterialRequisitionTab.finalizeVendor,
       if (_purchaseOrderAuthorizationModel.isView)
-        MaterialRequisitionTab.generateOrder,
+        MaterialRequisitionTab.purchaseOrder,
       MaterialRequisitionTab.grn,
       if (_addInvoiceAuthorizationModel.isView ||
           _makePaymentAuthorizationModel.isView)
@@ -155,7 +155,7 @@ class _MaterialRequisitionViewScreenState
           );
           break;
 
-        case MaterialRequisitionTab.generateOrder:
+        case MaterialRequisitionTab.purchaseOrder:
           _purchaseOrderCubit.getPurchaseOrder(
             context: context,
             projectId: widget.projectId,
@@ -222,28 +222,58 @@ class _MaterialRequisitionViewScreenState
     required MaterialRequisitionModel? materialRequisition,
   }) {
     if (isSplit.value && selectedIdsForSplit.value.isNotEmpty) {
-      // Show popup
+      final selectedMaterials =
+          materialList!
+              .where(
+                (e) => selectedIdsForSplit.value.contains(
+                  e.materialRequisitionDetailId,
+                ),
+              )
+              .toList();
+
+      final scrollController = ScrollController();
+
       DialogHelper.showCustomDialogue(
         context,
         title: "Split Material Entry",
         childContent: Column(
-          spacing: 10,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            ...materialList!
-                .where(
-                  (e) => selectedIdsForSplit.value.contains(
-                    e.materialRequisitionDetailId,
+            if (selectedMaterials.isNotEmpty)
+              ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: 200.h),
+                child: Scrollbar(
+                  controller: scrollController,
+                  thumbVisibility: true,
+                  radius: Radius.circular(10.r),
+                  thickness: 3.w,
+                  child: ListView.separated(
+                    controller: scrollController,
+                    shrinkWrap: true,
+                    itemCount: selectedMaterials.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      final material = selectedMaterials[index];
+
+                      return Row(
+                        children: [
+                          const CustomCheckBox(isSelected: true),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              material.subMaterialName,
+                              style: AppTextStyle.ts12M(),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
-                )
-                .map((e) {
-                  return Row(
-                    spacing: 10,
-                    children: [
-                      CustomCheckBox(isSelected: true),
-                      Text(e.materialName, style: AppTextStyle.ts12M()),
-                    ],
-                  );
-                }),
+                ),
+              ),
+
+            const SizedBox(height: 12),
+
             CustomButton(
               text: "Move To New Entry",
               onPressed: () {
@@ -256,6 +286,7 @@ class _MaterialRequisitionViewScreenState
                   selectedIds: selectedIdsForSplit.value,
                   materialRequisitionDetailJSON: materialList,
                 );
+
                 isSplit.value = false;
                 selectedIdsForSplit.value = {};
               },
@@ -264,7 +295,6 @@ class _MaterialRequisitionViewScreenState
         ),
       );
     } else {
-      // Normal toggle
       isSplit.value = !isSplit.value;
     }
   }

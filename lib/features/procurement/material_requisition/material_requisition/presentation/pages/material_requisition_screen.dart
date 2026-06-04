@@ -369,11 +369,7 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
     return Scaffold(
       appBar: CustomAppBar(
         screenTitle: "Material Requisition",
-        authorization: AuthorizationModel(
-          isView: _routeAuthorizationModel.isView,
-          isAction: true,
-          isExport: _routeAuthorizationModel.isExport,
-        ),
+        authorization: _routeAuthorizationModel,
         textController: _searchC,
         isFilterOn: true,
         onFilterTap: () {
