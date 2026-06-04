@@ -55,8 +55,10 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
   void initState() {
     super.initState();
     _searchC = TextEditingController();
+
     _brokerageCubit = context.read<BrokerageCubit>();
     _utilsCubit = context.read<UtilsCubit>();
+
     _invoiceRouteAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.brokerageInvoice]!;
     _makePaymentRouteAuthorizationModel =
