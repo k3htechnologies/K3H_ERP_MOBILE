@@ -147,7 +147,7 @@ Map<String, AuthorizationModel> _processRouteAuthorizationModules(
   for (var module in modules) {
     for (var subModule in module.subModuleData) {
       updatedMap[subModule.path] = AuthorizationModel(
-        isAccess: subModule.isAction || subModule.isExport || subModule.isView,
+        isAccess: true,
         isAction: subModule.isAction,
         isExport: subModule.isExport,
         isView: subModule.isView,

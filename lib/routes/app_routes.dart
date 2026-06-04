@@ -220,6 +220,7 @@ class AppRoutes {
 
   /// BROKERAGE
   static String brokerage = "/brokerage";
+  static String bookingBrokerage = "/bookingBrokerage";
   static String viewBrokerage = "/viewBrokerage";
   static String addBrokerageInvoice = "/addBrokerageInvoice";
   static String addBrokeragePayment = "/addBrokeragePayment";
