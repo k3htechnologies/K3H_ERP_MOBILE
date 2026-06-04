@@ -657,7 +657,7 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
   Widget statusWidget(String status) {
     final trimmed = status.trim();
 
-    // If empty → show dash
+    // IF EMPTY SHOW TEXT
     if (trimmed.isEmpty) {
       return statusChip("-", AppColor.lightGreyBackground, AppColor.black);
     }

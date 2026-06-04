@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_enums.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -40,31 +41,56 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
   late UtilsCubit _utilsCubit;
   late BrokerageCubit _brokerageCubit;
   late TextEditingController _searchC;
-  late AuthorizationModel _routeAuthorizationModel;
+  late AuthorizationModel _invoiceRouteAuthorizationModel,
+      _makePaymentRouteAuthorizationModel;
   final List<ValueNotifier<bool>> _invoiceExpandList = [];
   final List<ValueNotifier<bool>> _paymentExpandList = [];
   late ScrollController _invoiceScrollController;
   Timer? _invoiceDebounce;
   late ScrollController _paymentScrollController;
   Timer? _paymentDebounce;
+  late List<BrokerageTab> _tabs;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
     _searchC = TextEditingController();
     _brokerageCubit = context.read<BrokerageCubit>();
     _utilsCubit = context.read<UtilsCubit>();
-    _brokerageCubit.getBrokerageInvoiceList(
-      context,
-      1,
-      widget.brokerageModel.projectId,
-      widget.brokerageModel.bookingId,
-    );
+    _invoiceRouteAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.brokerageInvoice]!;
+    _makePaymentRouteAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.brokerageMakePayment]!;
+    _tabs = [
+      if (_invoiceRouteAuthorizationModel.isView) BrokerageTab.invoice,
+      if (_makePaymentRouteAuthorizationModel.isView) BrokerageTab.payment,
+    ];
+    _tabController = TabController(length: _tabs.length, vsync: this);
+    _loadInitialTabData();
     _tabController.addListener(_onTabChanged);
     _onScroll();
-    _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.brokerage]!;
+  }
+
+  void _loadInitialTabData() {
+    final initialTab = _tabs[_tabController.index];
+    switch (initialTab) {
+      case (BrokerageTab.invoice):
+        _brokerageCubit.getBrokerageInvoiceList(
+          context,
+          1,
+          widget.brokerageModel.projectId,
+          widget.brokerageModel.bookingId,
+        );
+
+        break;
+      case (BrokerageTab.payment):
+        _brokerageCubit.getBrokeragePaidList(
+          context,
+          1,
+          widget.brokerageModel.projectId,
+          widget.brokerageModel.bookingId,
+        );
+    }
   }
 
   void _onTabChanged() {
@@ -182,7 +208,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
             ChipStyleTabBar(
               margin: EdgeInsets.zero,
               controller: _tabController,
-              tabs: ["Invoice", "Payment"],
+              tabs: _tabs.map((m) => m.title).toList(),
             ),
             Row(
               spacing: 10,
@@ -205,9 +231,9 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
                 AnimatedBuilder(
                   animation: _tabController,
                   builder: (context, _) {
-                    return (_tabController.index == 0 &&
-                            _routeAuthorizationModel.isAction)
+                    return (_tabController.index == 0)
                         ? CustomIconButton(
+                          isDisable: !_invoiceRouteAuthorizationModel.isAction,
                           onPressed: () {
                             goRouter.pushNamed(
                               AppRoutes.addBrokerageInvoice,
@@ -228,7 +254,10 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
                           icon: Icon(
                             Icons.add,
                             size: 16,
-                            color: AppColor.primary,
+                            color:
+                                _invoiceRouteAuthorizationModel.isAction
+                                    ? AppColor.primary
+                                    : AppColor.grey,
                           ),
                         )
                         : SizedBox.shrink();
@@ -239,7 +268,12 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
             Expanded(
               child: TabBarView(
                 controller: _tabController,
-                children: [_buildInvoiceView(), _buildPaymentView()],
+                children: [
+                  if (_invoiceRouteAuthorizationModel.isView)
+                    _buildInvoiceView(),
+                  if (_makePaymentRouteAuthorizationModel.isView)
+                    _buildPaymentView(),
+                ],
               ),
             ),
           ],
@@ -271,8 +305,11 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
             final invoice = state.brokerageInvoiceList[index];
             final notifier = _invoiceExpandList[index];
             final disabled =
-                !_routeAuthorizationModel.isAction ||
+                !_invoiceRouteAuthorizationModel.isAction ||
                 invoice.approvalStatus.toLowerCase().contains('approved');
+            final disableMakePayment =
+                !_makePaymentRouteAuthorizationModel.isAction ||
+                invoice.invoiceAmount == invoice.paymentAmount;
             if (index == state.brokerageInvoiceList.length) {
               return state.brokerageInvoiceList.length <
                       state.totalNumberOfRecordInvoice
@@ -395,19 +432,10 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     CustomButton(
-                                      backgroundColor:
-                                          invoice.invoiceAmount ==
-                                                  invoice.paymentAmount
-                                              ? AppColor.grey10
-                                              : AppColor.green,
+                                      isDisable: disableMakePayment,
+                                      backgroundColor: AppColor.green,
                                       text: "Make Payment",
-                                      textColor:
-                                          invoice.invoiceAmount ==
-                                                  invoice.paymentAmount
-                                              ? AppColor.grey.withValues(
-                                                alpha: 0.5,
-                                              )
-                                              : AppColor.white,
+                                      textColor: AppColor.white,
                                       onPressed: () {
                                         if (invoice.invoiceAmount !=
                                             invoice.paymentAmount) {
@@ -756,7 +784,8 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
                               children: [
                                 CustomIconButton.delete(
                                   isDisabled:
-                                      !_routeAuthorizationModel.isAction,
+                                      !_makePaymentRouteAuthorizationModel
+                                          .isAction,
                                   onPressed: () {
                                     _showPopupToDeletePayment(
                                       context,

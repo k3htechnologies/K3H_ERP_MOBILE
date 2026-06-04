@@ -224,6 +224,10 @@ class AppRoutes {
   static String addBrokerageInvoice = "/addBrokerageInvoice";
   static String addBrokeragePayment = "/addBrokeragePayment";
 
+  // TAB ACCESS
+  static String brokerageInvoice = '/invoice';
+  static String brokerageMakePayment = '/makePayment';
+
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// PAYROLL MASTER
 

@@ -39,7 +39,10 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _amountC, _tdsAmountC, _transactionNumberC;
+  late TextEditingController _pendingAmountC,
+      _amountC,
+      _tdsAmountC,
+      _transactionNumberC;
 
   // DROPDOWNS
   late ValueNotifier<List<Map<String, dynamic>>> _selectedPaymentModeNotifier;
@@ -97,6 +100,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
 
   // INITIALISING TEXT CONTROLLERS
   void _initializeTextEditingControllers() {
+    _pendingAmountC = TextEditingController();
     _amountC = TextEditingController();
     _tdsAmountC = TextEditingController();
     _transactionNumberC = TextEditingController();
@@ -229,6 +233,8 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                               widget.invoiceModel.invoiceAmount.toString();
                           _tdsAmountC.clear();
                         } else {
+                          _pendingAmountC.text =
+                              widget.invoiceModel.invoiceAmount.toString();
                           _amountC.clear();
                           _tdsAmountC.clear();
                         }
@@ -245,6 +251,14 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                     );
                   },
                 ),
+                CustomTextField(
+                  textController: _pendingAmountC,
+                  readOnly: true,
+                  title: "Pending Amount",
+                  hint: "0",
+                  keyboardType: TextInputType.numberWithOptions(),
+                  inputFormatterList: InputValidator.decimal(2),
+                ),
                 ValueListenableBuilder(
                   valueListenable: _selectedPaymentTypeNotifier,
                   builder: (context, value, child) {
@@ -257,6 +271,17 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                               : value.first['DisplayName'] == 'Full Payment',
                       title: "Amount",
                       hint: "Enter Amount",
+                      onChangeFunction: (v) {
+                        final enteredAmount = double.tryParse(v ?? '') ?? 0.0;
+
+                        final calculatedPendingAmount =
+                            widget.invoiceModel.invoiceAmount - enteredAmount;
+
+                        _pendingAmountC.text = (calculatedPendingAmount >= 0
+                                ? calculatedPendingAmount
+                                : 0.0)
+                            .toStringAsFixed(2);
+                      },
                       keyboardType: TextInputType.numberWithOptions(),
                       inputFormatterList: InputValidator.decimal(2),
 

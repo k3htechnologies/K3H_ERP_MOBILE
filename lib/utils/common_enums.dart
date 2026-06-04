@@ -1,4 +1,4 @@
-// Project Details Tabs ------------------------------------
+// PROJECT DETAILS TABS  ------------------------------------
 enum ProjectDetailsTab { overview, employee, bankDetails, company, approval }
 
 extension ProjectDetailsTabExtension on ProjectDetailsTab {
@@ -22,7 +22,7 @@ extension ProjectDetailsTabExtension on ProjectDetailsTab {
   }
 }
 
-// Material Requisition Tabs ------------------------------------
+// MATERIAL REQUISITION TABS ------------------------------------
 
 enum MaterialRequisitionTab {
   overview,
@@ -53,6 +53,21 @@ extension MaterialRequisitionTabExtension on MaterialRequisitionTab {
 
       case MaterialRequisitionTab.invoice:
         return "Invoice";
+    }
+  }
+}
+
+// CRM : BROKERAGE TABS -----------------------------------
+
+enum BrokerageTab { invoice, payment }
+
+extension BrokerageTabExtension on BrokerageTab {
+  String get title {
+    switch (this) {
+      case BrokerageTab.invoice:
+        return "Invoice";
+      case BrokerageTab.payment:
+        return "Payment";
     }
   }
 }
