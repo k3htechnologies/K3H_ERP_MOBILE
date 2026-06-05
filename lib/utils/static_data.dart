@@ -400,3 +400,35 @@ final List<String> achievementTimelineTabs = [
   'Overall',
 ];
 final List<String> achievementTabs = ['Project', 'Closing', 'Sourcing'];
+
+final List<Map<String, dynamic>> statusModeList = [
+  {"zAttributesId": 1, "DisplayName": "Open"},
+  {"zAttributesId": 2, "DisplayName": "Assigned"},
+  {"zAttributesId": 3, "DisplayName": "In Progress"},
+  {"zAttributesId": 4, "DisplayName": "Resolved"},
+  {"zAttributesId": 5, "DisplayName": "ReOpen"},
+  {"zAttributesId": 6, "DisplayName": "Closed"},
+];
+
+final List<Map<String, dynamic>> platformTypeList = [
+  {"zAttributesId": 1, "DisplayName": "ERP"},
+  {"zAttributesId": 2, "DisplayName": "Application"},
+  {"zAttributesId": 3, "DisplayName": "Website"},
+];
+final List<Map<String, dynamic>> moduleTypeList = [
+  {"zAttributesId": 1, "DisplayName": "Dashboard"},
+  {"zAttributesId": 2, "DisplayName": "Inventory"},
+  {"zAttributesId": 3, "DisplayName": "Project Document"},
+  {"zAttributesId": 4, "DisplayName": "Legal"},
+  {"zAttributesId": 5, "DisplayName": "Marketing"},
+  {"zAttributesId": 6, "DisplayName": "Procurement"},
+  {"zAttributesId": 7, "DisplayName": "Project"},
+  {"zAttributesId": 8, "DisplayName": "Stock Management"},
+  {"zAttributesId": 9, "DisplayName": "Channel Partner"},
+  {"zAttributesId": 10, "DisplayName": "Sale"},
+  {"zAttributesId": 11, "DisplayName": "CRM"},
+  {"zAttributesId": 12, "DisplayName": "Setting"},
+  {"zAttributesId": 13, "DisplayName": "Payroll"},
+  {"zAttributesId": 14, "DisplayName": "Redevelopment"},
+  {"zAttributesId": 15, "DisplayName": "Operation"},
+];

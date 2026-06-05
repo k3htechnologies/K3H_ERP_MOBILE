@@ -19,6 +19,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/material_requisition/grn.dep
 import 'package:k3h_erp_app/di/feature_dependencies/material_requisition/invoice.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/material_requisition/material_requisition.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/material_requisition/purchase_order.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/more/ticket/ticket.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/notification/notification.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/payroll/resignation/resignation.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/profile/profile.dependencies.dart';
@@ -140,6 +141,8 @@ void initDependencies() {
   registerApprovedBankDependencies(serviceLocator);
   // CALENDAR DEPENDENCIES
   registerCalendarDependencies(serviceLocator);
+  // TICKET DEPENDENCIES
+  registerTicketDependencies(serviceLocator);
   // REDEVELOPMENT DEPENDENCIES
   registerRedevelopmentDependencies(serviceLocator);
   // LEAVE ENCASHMENT MASTER DEPENDENCIES

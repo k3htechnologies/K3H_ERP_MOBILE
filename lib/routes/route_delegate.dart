@@ -77,6 +77,12 @@ import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/add_lit
 import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/add_litigation_screen.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/litigation_screen.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/litigation_view_screen.dart';
+import 'package:k3h_erp_app/features/more/ticket/data/model/ticket.model.dart';
+import 'package:k3h_erp_app/features/more/ticket/presentation/cubit/ticket_cubit.dart';
+import 'package:k3h_erp_app/features/more/ticket/presentation/pages/add_ticket.screen.dart';
+import 'package:k3h_erp_app/features/more/ticket/presentation/pages/assign_ticket.screen.dart';
+import 'package:k3h_erp_app/features/more/ticket/presentation/pages/ticket.screen.dart';
+import 'package:k3h_erp_app/features/more/ticket/presentation/pages/ticket_view.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/model/grn.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/add_grn_material_screen.dart';
@@ -2594,7 +2600,13 @@ final GoRouter goRouter = GoRouter(
         // CALENDAR
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider(create: (_) => CalendarCubit(), child: child);
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => CalendarCubit(), child: child),
+                BlocProvider(create: (_) => TicketCubit(), child: child),
+              ],
+              child: child,
+            );
           },
           routes: [
             GoRoute(
@@ -2648,6 +2660,58 @@ final GoRouter goRouter = GoRouter(
                     events: const [],
                   );
                 }
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.ticket,
+              name: AppRoutes.ticket,
+              builder: (context, state) => const TicketScreen(),
+            ),
+            GoRoute(
+              path: AppRoutes.viewTicket,
+              name: AppRoutes.viewTicket,
+              builder: (context, state) {
+                final ticket = state.extra as TicketModel?;
+                final ticketId =
+                    int.tryParse(
+                      state.uri.queryParameters["ticketId"] ?? "0",
+                    ) ??
+                    0;
+                final queryParameterSystemGeneratedCode =
+                    state.uri.queryParameters['systemGeneratedCode'];
+                final systemGeneratedCode =
+                    queryParameterSystemGeneratedCode != null &&
+                            queryParameterSystemGeneratedCode.isNotEmpty
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeComponent(
+                            queryParameterSystemGeneratedCode,
+                          ),
+                        )
+                        : "";
+                return TicketViewScreen(
+                  ticket: ticket,
+                  ticketId: ticketId,
+                  systemGeneratedCode: systemGeneratedCode,
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.assignTicket,
+              name: AppRoutes.assignTicket,
+              builder: (context, state) {
+                final ticket = state.extra as TicketModel?;
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return AssignTicketMaster(ticket: ticket, index: index);
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addTicket,
+              name: AppRoutes.addTicket,
+              builder: (context, state) {
+                final ticket = state.extra as TicketModel?;
+                return AddTicketScreen(ticket: ticket);
               },
             ),
           ],

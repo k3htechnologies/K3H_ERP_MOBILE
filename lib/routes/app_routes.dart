@@ -419,6 +419,11 @@ class AppRoutes {
   static String addDetailsCalendar = "/addDetailsCalendar";
   // TASK
   static String taskTransferHistory = "/taskTransferHistory";
+  // TICKET
+  static String ticket = "/ticket";
+  static String viewTicket = "/viewTicket";
+  static String assignTicket = "/assignTicket";
+  static String addTicket = "/addTicket";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
 

@@ -11,6 +11,7 @@ xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
     <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
     <application android:label="HRR ERP 2.0" android:name="${applicationName}" android:icon="@mipmap/launcher_icon">
          <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCfAIfnEkkYssEkOXdPBDPCTdtmPUvtXz0"/>

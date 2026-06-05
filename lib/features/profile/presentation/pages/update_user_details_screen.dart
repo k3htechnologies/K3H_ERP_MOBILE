@@ -81,7 +81,6 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
     super.initState();
     _profileCubit = context.read<ProfileCubit>();
     initializeControllers();
-    _initializeDropdowns();
     if (widget.userData != null) {
       _populateForm(widget.userData!);
     }
@@ -128,13 +127,6 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
     super.dispose();
   }
 
-  // INITIALIZE DROPDOWNS
-  void _initializeDropdowns() {
-    // BASIC EMPLOYEE DETAILS
-    // selectedGender = genderList.first;
-    // selectedMaritalStatus = maritalStatusList.first;
-    // selectedBloodGroup = bloodGroupList.first;
-  }
   // PREFILL
   void _populateForm(UserModel model) async {
     // TEXT CONTROLLER
