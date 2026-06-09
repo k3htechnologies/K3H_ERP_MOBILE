@@ -1,17 +1,23 @@
+import 'dart:math';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/legal/dashboard/data/model/litigation_dashboard.model.dart';
 import 'package:k3h_erp_app/features/legal/dashboard/presentation/cubit/litigation_dashboard_cubit.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class LitigationDashboardScreen extends StatefulWidget {
@@ -25,22 +31,22 @@ class LitigationDashboardScreen extends StatefulWidget {
 class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
   // CUBIT
   late LitigationDashboardCubit _litigationDashboardCubit;
-  // PROJECT MODEL
-  late ProjectModel _selectedProject;
 
   // FOR INTERNAL SCROLL
   final ScrollController _scrollController = ScrollController();
+  final ProjectMasterRepository _projectMasterRepository =
+      serviceLocator<ProjectMasterRepository>();
+  late UserModel _userModel;
+  final ValueNotifier<List<Map<String, dynamic>>> _selectedProjectNotifier =
+      ValueNotifier([]);
 
   int tempRangeIndex = 0;
   @override
   void initState() {
     super.initState();
+    _userModel = getCurrentUser();
     _litigationDashboardCubit = context.read<LitigationDashboardCubit>();
-    _selectedProject = getProject();
-    _litigationDashboardCubit.getLitigationDashboardList(
-      context,
-      _selectedProject.projectId,
-    );
+    _litigationDashboardCubit.getLitigationDashboardList(context, 0);
   }
 
   List<FlSpot> _mapToSpots(List<int> values) {
@@ -116,6 +122,42 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
     );
   }
 
+  //  FETCH PROJECTS
+  Future<Map<String, dynamic>> _fetchProjects(
+    int pageNumber, {
+    String? value,
+  }) async {
+    final result = await _projectMasterRepository.getProjectList(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      queryParams:
+          value != null && value.isNotEmpty
+              ? {"ProjectName": value, "EmployeeId": _userModel.employeeId}
+              : {"EmployeeId": _userModel.employeeId},
+    );
+
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final project = response['data'] as List<ProjectModel>;
+
+        return {
+          "itemList":
+              project.map((pr) {
+                return {
+                  "zAttributesId": pr.projectId,
+                  "DisplayName": pr.projectName,
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
+        };
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LitigationDashboardCubit, LitigationDashboardState>(
@@ -143,41 +185,36 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
             isMenuButton: true,
             showNotification: true,
             authorization: AuthorizationModel(),
-            onProjectChangeCallback: (value) {
-              _selectedProject = value;
-              _litigationDashboardCubit.getLitigationDashboardList(
-                context,
-                _selectedProject.projectId,
-              );
-            },
           ),
           body: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    decoration: commonCardDecoration(),
-                    padding: EdgeInsets.all(16),
-                    margin: EdgeInsets.only(bottom: 20),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Project : ",
-                          style: AppTextStyle.ts14M(color: AppColor.grey),
-                        ),
-                        Flexible(
-                          child: Text(
-                            _selectedProject.projectId == 0
-                                ? 'All Project'
-                                : _selectedProject.projectName,
-                            style: AppTextStyle.ts14SB(color: AppColor.black),
-                          ),
-                        ),
-                      ],
-                    ),
+                  ValueListenableBuilder(
+                    valueListenable: _selectedProjectNotifier,
+                    builder: (context, value, child) {
+                      return CustomMultipleSelectPopup(
+                        title: 'Project',
+                        isMultiSelect: false,
+                        hintText: "Select Project",
+                        initialValue: value,
+                        dataList: const [],
+                        onSelected: (value) {
+                          _selectedProjectNotifier.value = value;
+                          _litigationDashboardCubit.getLitigationDashboardList(
+                            context,
+                            (_selectedProjectNotifier.value.isNotEmpty)
+                                ? _selectedProjectNotifier
+                                    .value
+                                    .first['zAttributesId']
+                                : 0,
+                          );
+                        },
+                        dataFetchCallBack: _fetchProjects,
+                      );
+                    },
                   ),
                   _buildTotalCasesWidget(
                     context,
@@ -410,15 +447,21 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
               ),
               verticalSpacing(),
               if (table3 != null && table3.isNotEmpty) ...[
-                Column(
-                  children:
-                      table3.map((court) {
-                        return _courtDistributionItem(
-                          court.courtType,
-                          court.totalCases,
-                          court.openCases,
-                        );
-                      }).toList(),
+                SizedBox(
+                  height: table3.length > 1 ? 0.3.sh : null,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: table3.length,
+                    itemBuilder: (context, index) {
+                      final court = table3[index];
+
+                      return _courtDistributionItem(
+                        court.courtType,
+                        court.totalCases,
+                        court.openCases,
+                      );
+                    },
+                  ),
                 ),
               ] else ...[
                 Center(
@@ -947,19 +990,19 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
   ) {
     final allValues = [...closedData, ...openedData];
 
-    double maxY =
-        allValues.isNotEmpty
-            ? (allValues.reduce((a, b) => a > b ? a : b) * 1.5)
-            : 10;
-    if (maxY <= 0) {
-      maxY = 10;
-    }
-    final interval = maxY / 5;
+    double maxY = allValues.isNotEmpty ? (allValues.reduce(max) * 1.5) : 10;
+
+    // Minimum chart height for better scaling
+    maxY = max(maxY, 5);
+
+    final interval = (maxY / 5).ceilToDouble();
+
     return LineChartData(
       minY: 0,
       maxY: maxY,
 
       gridData: FlGridData(show: true),
+
       borderData: FlBorderData(
         show: true,
         border: Border(
@@ -988,12 +1031,10 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
             showTitles: true,
             interval: 1,
             getTitlesWidget: (value, meta) {
-              if (value % 1 != 0) return const SizedBox();
-
-              int index = value.toInt();
+              final index = value.toInt();
 
               if (index < 0 || index >= months.length) {
-                return const SizedBox();
+                return const SizedBox.shrink();
               }
 
               return Padding(

@@ -191,8 +191,8 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
   Future<void> _showBottomSheetToFilter(BuildContext context) async {
     final state = _callTrackerCubit.state;
 
+    _searchC.text = state.searchText;
     _filterMobileNoC.text = state.filterMobileNo;
-
     _startDateNotifier.value = state.filterRescheduleFromDate;
     _endDateNotifier.value = state.filterRescheduleToDate;
 
@@ -203,6 +203,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
+            _searchC.text.trim() != state.searchText ||
             _filterMobileNoC.text.trim() != state.filterMobileNo ||
             _startDateNotifier.value != state.filterRescheduleFromDate ||
             _endDateNotifier.value != state.filterRescheduleToDate;
@@ -222,7 +223,18 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 verticalSpacing(),
-
+                CustomTextField(
+                  textController: _searchC,
+                  title:
+                      _tabController.index == 0
+                          ? "Customer Name"
+                          : "Receiver Name",
+                  hint:
+                      _tabController.index == 0
+                          ? "Enter Customer Name"
+                          : "Enter Receiver Name",
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
                 CustomTextField(
                   textController: _filterMobileNoC,
                   title: "Mobile Number",
@@ -235,7 +247,10 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                   valueListenable: _startDateNotifier,
                   builder: (context, startDate, child) {
                     return CustomDatePicker(
-                      title: "Reschedule From Date",
+                      title:
+                          _tabController.index == 0
+                              ? "From Date"
+                              : "Reschedule From Date",
                       initialDate: startDate,
                       setValue: (value) {
                         _startDateNotifier.value = value;
@@ -254,12 +269,14 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                       valueListenable: _startDateNotifier,
                       builder: (context, startDate, child) {
                         return CustomDatePicker(
-                          title: "Reschedule To Date",
+                          title:
+                              _tabController.index == 0
+                                  ? "To Date"
+                                  : "Reschedule To Date",
                           isRequired: false,
                           initialDate: endDate,
                           setValue: (value) {
                             _endDateNotifier.value = value;
-
                             updateApplyState(innerState);
                           },
                           validator: (value) {
@@ -303,12 +320,13 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
 
         _startDateNotifier.value = null;
         _endDateNotifier.value = null;
-
+        _searchC.clear();
         _callTrackerCubit.applyFilterAndSort(
           context: context,
           mobileNumber: '',
           rescheduleFromDate: null,
           rescheduleToDate: null,
+          name: "",
           projectId: _project.projectId,
         );
       },
@@ -340,6 +358,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
 
         _callTrackerCubit.applyFilterAndSort(
           context: context,
+          name: _searchC.text.trim(),
           projectId: _project.projectId,
           mobileNumber: _filterMobileNoC.text.trim(),
           rescheduleFromDate: startDate,
@@ -366,7 +385,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
               onProjectChangeCallback: (value) async {
                 _project = value;
                 _searchC.clear();
-
+                _callTrackerCubit.resetState();
                 if (state.currentTabIndex == 0) {
                   await _syncAndLoadCallingData();
                 } else {
@@ -473,8 +492,8 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
               if (_routhAuthorizationModel.isAction &&
                   state.currentTabIndex == 0)
                 CustomIconButton(
-                  icon: Icon(Icons.add, color: AppColor.white, size: 16),
-                  backgroundColor: AppColor.primary,
+                  icon: Icon(Icons.add, color: AppColor.primary, size: 16),
+                  backgroundColor: AppColor.lightBlue,
                   onPressed: () {
                     if (_project.projectId == 0) {
                       showErrorMessage(
@@ -484,7 +503,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                       );
                       return;
                     }
-                    goRouter.pushNamed(AppRoutes.addCallTracker);
+                    goRouter.pushNamed(AppRoutes.addCallingData);
                   },
                 ),
             ],
@@ -552,40 +571,41 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.start,
+                                  spacing: 10.h,
                                   children: [
                                     Row(
                                       children: [
-                                        buildColumnTitleValue(
-                                          title: "Customer Name",
-                                          value: callingData.name,
+                                        Expanded(
+                                          child: Text(
+                                            callingData.name,
+                                            style: AppTextStyle.ts14M(
+                                              color: AppColor.primary,
+                                            ),
+                                          ),
                                         ),
-                                        buildColumnTitleValue(
-                                          title: "Location",
-                                          value: callingData.address,
-                                          customValueWidget:
-                                              callingData.address.isNotEmpty
-                                                  ? Container(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                          horizontal: 12,
-                                                          vertical: 4,
+                                        CustomIconButton.edit(
+                                          isDisabled:
+                                              !_routhAuthorizationModel
+                                                  .isAction,
+                                          onPressed: () {
+                                            goRouter.pushNamed(
+                                              AppRoutes.addCallingData,
+                                              queryParameters: {
+                                                "callingData":
+                                                    Uri.encodeQueryComponent(
+                                                      EncryptionManager.encryptData(
+                                                        jsonEncode(
+                                                          callingData.toJson(),
                                                         ),
-                                                    decoration: BoxDecoration(
-                                                      color: AppColor.lightBlue,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            4,
-                                                          ),
+                                                      ),
                                                     ),
-                                                    child: Text(
-                                                      callingData.address,
-                                                    ),
-                                                  )
-                                                  : const Text("-"),
+                                                "index": index.toString(),
+                                              },
+                                            );
+                                          },
                                         ),
                                       ],
                                     ),
-                                    verticalSpacing(),
                                     Row(
                                       children: [
                                         buildColumnTitleValue(
@@ -604,6 +624,49 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                                                 value: callingData.emailId,
                                                 type: ContactType.email,
                                               ),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Source ",
+                                          value: callingData.source,
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "No. of Time Calling",
+                                          value:
+                                              callingData.noOfTimeCalling
+                                                  .toString(),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Last Modified By",
+                                          value: callingData.modifiedBy,
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Last Modified Date",
+                                          value:
+                                              callingData.modifiedDate != null
+                                                  ? formatDate(
+                                                    callingData.modifiedDate!,
+                                                  )
+                                                  : "-",
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Address",
+                                          value: callingData.address,
                                         ),
                                       ],
                                     ),
@@ -801,7 +864,7 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
           Row(
             children: [
               buildColumnTitleValue(
-                title: "Call Rescheduled Date",
+                title: "Rescheduled Date",
                 value:
                     callLog.rescheduleDate != null
                         ? formatDateTimeAsDDMMMYYYY(callLog.rescheduleDate!)
@@ -867,10 +930,58 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
-                title: "Call Date",
-                value: formatDateTimeAsDDMMMYYYY(callLog.callDate),
+                title: "Call DateTime",
+                value: formatDate(callLog.callDate),
               ),
               buildColumnTitleValue(title: "Duration", value: callLog.duration),
+            ],
+          ),
+          Row(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Location",
+                value: callLog.villageName,
+              ),
+              buildColumnTitleValue(
+                title: "Budget (In CR)",
+                value: callLog.budget,
+              ),
+            ],
+          ),
+          Row(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Requirement",
+                value: callLog.requirement,
+              ),
+              buildColumnTitleValue(
+                title: "Requirement Type",
+                value: callLog.requirementType,
+              ),
+            ],
+          ),
+          Row(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Site Visit Proposed Date",
+                value:
+                    callLog.siteVisitProposedDate != null
+                        ? formatDateTimeAsDDMMMYYYY(
+                          callLog.siteVisitProposedDate!,
+                        )
+                        : "-",
+              ),
+              buildColumnTitleValue(
+                title: "Status",
+                value: callLog.status,
+                customValueWidget: callLogStatusWidget(callLog.status),
+              ),
             ],
           ),
           Row(

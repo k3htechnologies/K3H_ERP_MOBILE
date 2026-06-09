@@ -144,6 +144,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
 
     _filterCTSNumberC.text = state.filterCTSNumber;
     _filterProjectLocationC.text = state.filterProjectLocation;
+    final String initialProjectName = state.searchText;
     final String initialProjectLocation = state.filterProjectLocation;
     final String initialCTSNumber = state.filterCTSNumber;
     final String? initialProjectScheme = state.filterProjectScheme;
@@ -161,6 +162,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
+            (_searchC.text.trim() != initialProjectName) ||
             (_filterProjectLocationC.text.trim() != initialProjectLocation) ||
             (_filterCTSNumberC.text.trim() != initialCTSNumber) ||
             (getDisplayOrEmpty(selectedProjectSchemeNotifier.value) !=
@@ -224,6 +226,12 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                   },
                 ),
                 verticalSpacing(),
+                CustomTextField(
+                  title: "Project Name",
+                  hint: "Enter Project Name",
+                  textController: _searchC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
                 CustomTextField(
                   title: "Project Location",
                   hint: "Enter Project Location",
@@ -334,12 +342,14 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
         selectedProjectSubSchemeNotifier.value = null;
         selectedProjectStatus.value = null;
         isRedevelopement.value = false;
+        _searchC.clear();
         _projectMasterCubit.sortProject(context: context, isClear: true);
       },
       onApply: () {
         applied = true;
         _projectMasterCubit.sortProject(
           context: context,
+          projectName: _searchC.text.trim(),
           ctsNumber: _filterCTSNumberC.text.trim(),
           projectLocation: _filterProjectLocationC.text.trim(),
           village: _filterVillageC.text.trim(),
@@ -524,7 +534,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                           project.projectStatus.isNotEmpty
                               ?
                               // VALUE
-                              _buildProjectStatusWidget(project.projectStatus)
+                              projectStatusWidget(project.projectStatus)
                               : Text("-"),
                         ],
                       ),
@@ -549,43 +559,5 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
         ),
       ),
     );
-  }
-
-  // BUILD PROJECT STATUS WIDGET
-  Widget _buildProjectStatusWidget(String projectStatus) {
-    if (projectStatus.isEmpty) return const SizedBox.shrink();
-
-    Color bgColor;
-    Color textColor;
-
-    switch (projectStatus) {
-      case 'Completed':
-        bgColor = AppColor.lightGreen;
-        textColor = AppColor.darkGreen;
-        break;
-
-      case 'On-Going':
-        bgColor = AppColor.lightBlue;
-        textColor = AppColor.primary;
-        break;
-
-      case 'On-Hold':
-        bgColor = AppColor.lightRed;
-        textColor = AppColor.error;
-        break;
-      case 'Cancelled':
-        bgColor = AppColor.lightRed;
-        textColor = AppColor.error;
-        break;
-      case 'Planning':
-        bgColor = AppColor.lightRed;
-        textColor = AppColor.error;
-        break;
-
-      default:
-        return const SizedBox.shrink();
-    }
-
-    return statusChip(projectStatus, bgColor, textColor);
   }
 }

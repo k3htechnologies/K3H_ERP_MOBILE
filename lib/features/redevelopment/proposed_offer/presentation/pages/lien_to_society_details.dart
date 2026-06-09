@@ -169,211 +169,205 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
     await DialogHelper.showCustomBottomSheet(
       context,
       "Add Lien to Society Details",
-      SingleChildScrollView(
-        child: ValueListenableBuilder<Map<String, dynamic>?>(
-          valueListenable: _selectedLienType,
-          builder: (context, selectedLienType, _) {
-            return ValueListenableBuilder<bool>(
-              valueListenable: _isRelease,
-              builder: (context, isRelease, __) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
-                  ),
-                  child: Form(
-                    key: _lienFormKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
+      contentWidget: ValueListenableBuilder<Map<String, dynamic>?>(
+        valueListenable: _selectedLienType,
+        builder: (context, selectedLienType, _) {
+          return ValueListenableBuilder<bool>(
+            valueListenable: _isRelease,
+            builder: (context, isRelease, __) {
+              return Form(
+                key: _lienFormKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    /// TYPE
+                    CustomDropDownWidget(
+                      isRequired: true,
+                      initialValue: selectedLienType,
+                      dataList: _lienTypeList,
+                      onSelected: (value) {
+                        _selectedLienType.value = value;
+                      },
+                      title: "Type",
+                      validator: (value) {
+                        if (value == null) {
+                          return "Type is required";
+                        }
+                        return null;
+                      },
+                      onValueClear: () => _selectedLienType.value = null,
+                    ),
+
+                    /// STAGE
+                    CustomTextField(
+                      title: "Stage",
+                      isRequired: true,
+                      hint: "Enter Stage",
+                      textController: _stageController,
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(150),
+                      ],
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Stage is required";
+                        }
+                        return null;
+                      },
+                    ),
+
+                    // CARPET AREA
+                    CustomTextField(
+                      title: "Carpet Area (Sq Ft)",
+                      isRequired: true,
+                      hint: "Enter Carpet Area",
+                      textController: _carpetAreaController,
+                      keyboardType: TextInputType.number,
+                      inputFormatterList:
+                          inputFormatterListForDecimalValuesFixedToTwo(10),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Carpet area is required";
+                        }
+                        if (double.parse(value) <= 0) {
+                          return "Carpet area should be greater than 0";
+                        }
+
+                        final selectedType = selectedLienType?['DisplayName'];
+                        if (selectedType == null) {
+                          return "Type is required";
+                        }
+
+                        final newArea = double.tryParse(value) ?? 0;
+
+                        double existingTotal = _lienList
+                            .where(
+                              (l) =>
+                                  l.type.toLowerCase() ==
+                                  selectedType.toLowerCase(),
+                            )
+                            .fold(
+                              0.0,
+                              (sum, item) => sum + item.carpetAreaSqFt,
+                            );
+
+                        if (lien != null &&
+                            lien.type.toLowerCase() ==
+                                selectedType.toLowerCase()) {
+                          existingTotal -= lien.carpetAreaSqFt;
+                        }
+
+                        double allowedArea = 0;
+                        if (selectedType.toLowerCase() == 'residential') {
+                          allowedArea =
+                              double.tryParse(
+                                _residentialAreaController.text,
+                              ) ??
+                              0;
+                        } else if (selectedType.toLowerCase() == 'commercial') {
+                          allowedArea =
+                              double.tryParse(_commercialAreaController.text) ??
+                              0;
+                        }
+
+                        if (existingTotal + newArea > allowedArea) {
+                          return "$selectedType carpet area exceeds allowed total of "
+                              "${allowedArea.toStringAsFixed(2)} Sq Ft.";
+                        }
+
+                        return null;
+                      },
+                    ),
+
+                    // RELEASE CHECKBOX
+                    Row(
                       children: [
-                        /// TYPE
-                        CustomDropDownWidget(
-                          isRequired: true,
-                          initialValue: selectedLienType,
-                          dataList: _lienTypeList,
-                          onSelected: (value) {
-                            _selectedLienType.value = value;
-                          },
-                          title: "Type",
-                          validator: (value) {
-                            if (value == null) {
-                              return "Type is required";
-                            }
-                            return null;
-                          },
-                          onValueClear: () => _selectedLienType.value = null,
-                        ),
-
-                        /// STAGE
-                        CustomTextField(
-                          title: "Stage",
-                          isRequired: true,
-                          hint: "Enter Stage",
-                          textController: _stageController,
-                          inputFormatterList: [
-                            LengthLimitingTextInputFormatter(150),
-                          ],
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return "Stage is required";
-                            }
-                            return null;
+                        Checkbox(
+                          activeColor: AppColor.green,
+                          value: isRelease,
+                          onChanged: (value) {
+                            _isRelease.value = value ?? false;
                           },
                         ),
-
-                        // CARPET AREA
-                        CustomTextField(
-                          title: "Carpet Area (Sq Ft)",
-                          isRequired: true,
-                          hint: "Enter Carpet Area",
-                          textController: _carpetAreaController,
-                          keyboardType: TextInputType.number,
-                          inputFormatterList:
-                              inputFormatterListForDecimalValuesFixedToTwo(10),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return "Carpet area is required";
-                            }
-                            if (double.parse(value) <= 0) {
-                              return "Carpet area should be greater than 0";
-                            }
-
-                            final selectedType =
-                                selectedLienType?['DisplayName'];
-                            if (selectedType == null) {
-                              return "Type is required";
-                            }
-
-                            final newArea = double.tryParse(value) ?? 0;
-
-                            double existingTotal = _lienList
-                                .where(
-                                  (l) =>
-                                      l.type.toLowerCase() ==
-                                      selectedType.toLowerCase(),
-                                )
-                                .fold(
-                                  0.0,
-                                  (sum, item) => sum + item.carpetAreaSqFt,
-                                );
-
-                            if (lien != null &&
-                                lien.type.toLowerCase() ==
-                                    selectedType.toLowerCase()) {
-                              existingTotal -= lien.carpetAreaSqFt;
-                            }
-
-                            double allowedArea = 0;
-                            if (selectedType.toLowerCase() == 'residential') {
-                              allowedArea =
-                                  double.tryParse(
-                                    _residentialAreaController.text,
-                                  ) ??
-                                  0;
-                            } else if (selectedType.toLowerCase() ==
-                                'commercial') {
-                              allowedArea =
-                                  double.tryParse(
-                                    _commercialAreaController.text,
-                                  ) ??
-                                  0;
-                            }
-
-                            if (existingTotal + newArea > allowedArea) {
-                              return "$selectedType carpet area exceeds allowed total of "
-                                  "${allowedArea.toStringAsFixed(2)} Sq Ft.";
-                            }
-
-                            return null;
-                          },
-                        ),
-
-                        // RELEASE CHECKBOX
-                        Row(
-                          children: [
-                            Checkbox(
-                              activeColor: AppColor.green,
-                              value: isRelease,
-                              onChanged: (value) {
-                                _isRelease.value = value ?? false;
-                              },
-                            ),
-                            const Text("Is Release"),
-                          ],
-                        ),
-
-                        verticalSpacing(height: 15),
-
-                        // SAVE
-                        CustomButton(
-                          text: "Save",
-                          onPressed: () {
-                            if (_lienFormKey.currentState!.validate()) {
-                              final newList = List<
-                                ProposedOfferLienToSocietyDetailsWithPaymentStageData
-                              >.from(_lienList);
-                              if (lien == null) {
-                                newList.add(
-                                  ProposedOfferLienToSocietyDetailsWithPaymentStageData(
-                                    proposedOfferLienToSocietyDetailsWithPaymentStageId:
-                                        0,
-                                    uniquekey: '',
-                                    buildingId: widget.buildingId,
-                                    projectId: widget.projectId,
-                                    type: selectedLienType!['DisplayName'],
-                                    stage: _stageController.text,
-                                    carpetAreaSqFt: double.parse(
-                                      _carpetAreaController.text,
-                                    ),
-                                    isRelease: isRelease,
-                                    createdById: 1,
-                                    createdBy: 'Current User',
-                                    createdDate: DateTime.now(),
-                                    modifiedById: 0,
-                                    modifiedBy: '',
-                                    modifiedDate: null,
-                                  ),
-                                );
-                              } else {
-                                newList[index!] =
-                                    ProposedOfferLienToSocietyDetailsWithPaymentStageData(
-                                      proposedOfferLienToSocietyDetailsWithPaymentStageId:
-                                          lien.proposedOfferLienToSocietyDetailsWithPaymentStageId,
-                                      uniquekey: lien.uniquekey,
-                                      buildingId: lien.buildingId,
-                                      projectId: lien.projectId,
-                                      type: selectedLienType!['DisplayName'],
-                                      stage: _stageController.text,
-                                      carpetAreaSqFt: double.parse(
-                                        _carpetAreaController.text,
-                                      ),
-                                      isRelease: isRelease,
-                                      createdById: lien.createdById,
-                                      createdBy: lien.createdBy,
-                                      createdDate: lien.createdDate,
-                                      modifiedById: lien.modifiedById,
-                                      modifiedBy: lien.modifiedBy,
-                                      modifiedDate: lien.modifiedDate,
-                                    );
-                              }
-
-                              _lienListNotifier.value = newList;
-                              _updateLienUnitCounts();
-
-                              Navigator.pop(context);
-                            }
-                          },
-                        ),
-
-                        verticalSpacing(height: 20),
+                        const Text("Is Release"),
                       ],
                     ),
-                  ),
-                );
-              },
-            );
-          },
-        ),
+
+                    verticalSpacing(height: 15),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
+      bottomActions: ValueListenableBuilder<Map<String, dynamic>?>(
+        valueListenable: _selectedLienType,
+        builder: (context, selectedLienType, _) {
+          return ValueListenableBuilder<bool>(
+            valueListenable: _isRelease,
+            builder: (context, isRelease, __) {
+              return CustomButton(
+                text: "Save",
+                onPressed: () {
+                  if (_lienFormKey.currentState!.validate()) {
+                    final newList = List<
+                      ProposedOfferLienToSocietyDetailsWithPaymentStageData
+                    >.from(_lienList);
+                    if (lien == null) {
+                      newList.add(
+                        ProposedOfferLienToSocietyDetailsWithPaymentStageData(
+                          proposedOfferLienToSocietyDetailsWithPaymentStageId:
+                              0,
+                          uniquekey: '',
+                          buildingId: widget.buildingId,
+                          projectId: widget.projectId,
+                          type: selectedLienType!['DisplayName'],
+                          stage: _stageController.text,
+                          carpetAreaSqFt: double.parse(
+                            _carpetAreaController.text,
+                          ),
+                          isRelease: isRelease,
+                          createdById: 1,
+                          createdBy: 'Current User',
+                          createdDate: DateTime.now(),
+                          modifiedById: 0,
+                          modifiedBy: '',
+                          modifiedDate: null,
+                        ),
+                      );
+                    } else {
+                      newList[index!] =
+                          ProposedOfferLienToSocietyDetailsWithPaymentStageData(
+                            proposedOfferLienToSocietyDetailsWithPaymentStageId:
+                                lien.proposedOfferLienToSocietyDetailsWithPaymentStageId,
+                            uniquekey: lien.uniquekey,
+                            buildingId: lien.buildingId,
+                            projectId: lien.projectId,
+                            type: selectedLienType!['DisplayName'],
+                            stage: _stageController.text,
+                            carpetAreaSqFt: double.parse(
+                              _carpetAreaController.text,
+                            ),
+                            isRelease: isRelease,
+                            createdById: lien.createdById,
+                            createdBy: lien.createdBy,
+                            createdDate: lien.createdDate,
+                            modifiedById: lien.modifiedById,
+                            modifiedBy: lien.modifiedBy,
+                            modifiedDate: lien.modifiedDate,
+                          );
+                    }
+
+                    _lienListNotifier.value = newList;
+                    _updateLienUnitCounts();
+
+                    Navigator.pop(context);
+                  }
+                },
+              );
+            },
+          );
+        },
       ),
     );
 

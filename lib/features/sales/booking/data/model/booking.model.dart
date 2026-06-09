@@ -1,7 +1,7 @@
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_data.model.dart';
-import 'package:k3h_erp_app/features/sales/other_charges/data/model/other_charges.model.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/other_charges/data/model/other_charges.model.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 
 class BookingModel {

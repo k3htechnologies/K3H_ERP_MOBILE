@@ -737,6 +737,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                           hint: "Enter Mobile Number",
                           keyboardType: TextInputType.phone,
                           isRequired: true,
+                          readOnly: _isEditMode,
                           showCountryDropdown: true,
                           selectedCountry: value,
                           onCountryChanged: (country) {

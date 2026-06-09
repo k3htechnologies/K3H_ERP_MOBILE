@@ -81,7 +81,7 @@ class CallTrackerRepositoryImpl implements CallTrackerRepository {
     required Map<String, dynamic> body,
   }) async {
     try {
-      var result = await callTrackerDataSource.apicallToAddCallingData(
+      var result = await callTrackerDataSource.apicallToAddUpdateCallingData(
         body: body,
       );
       return right(result);

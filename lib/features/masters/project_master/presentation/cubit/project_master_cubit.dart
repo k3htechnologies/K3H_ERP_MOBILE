@@ -101,6 +101,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   // <--- SORT VENDOR ---->
   Future sortProject({
     required BuildContext context,
+    String? projectName,
     String? ctsNumber,
     String? projectLocation,
     String? projectStatus,
@@ -115,6 +116,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     if (isClear ?? false) {
       emit(
         state.copyWith(
+          searchText: "",
           filterCTSNumber: "",
           filterProjectLocation: "",
           currentPage: 1,
@@ -131,6 +133,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     } else {
       emit(
         state.copyWith(
+          searchText: projectName ?? state.searchText,
           filterCTSNumber: ctsNumber ?? state.filterCTSNumber,
           filterProjectLocation: projectLocation ?? state.filterProjectLocation,
           currentPage: 1,
@@ -171,7 +174,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         "ProjectScheme": state.filterProjectScheme,
         "ProjectSubScheme": state.filterProjectSubScheme,
         if (state.isRedevelopment != null)
-          "IsRedevelopment": state.isRedevelopment.toString(),
+          "IsRedevelopment": state.isRedevelopment! ? 1 : 0,
       },
     );
 
@@ -269,7 +272,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       "TenderPurchaseStartDate": tenderPurchaseStartDate,
       "TenderPurchaseEndDate": tenderPurchaseEndDate,
       "TenderChequeNumber": tenderChequeNumber,
-      "TenderSubmissionDate": tenderPurchaseStartDate,
+      "TenderSubmissionDate": tenderSubmissionDate,
       "TenderIssueDate": tenderIssueDate,
       "TenderPayorderRemark": tenderPayorderRemark,
       "IsRedevelopment": isRedevelopment ? '1' : '0',
@@ -412,7 +415,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       "TenderPurchaseStartDate": tenderPurchaseStartDate,
       "TenderPurchaseEndDate": tenderPurchaseEndDate,
       "TenderChequeNumber": tenderChequeNumber,
-      "TenderSubmissionDate": tenderPurchaseStartDate,
+      "TenderSubmissionDate": tenderSubmissionDate,
       "TenderIssueDate": tenderIssueDate,
       "TenderPayorderRemark": tenderPayorderRemark,
       "CountryMasterId": "1",

@@ -29,16 +29,10 @@ class EnquiryCubit extends Cubit<EnquiryState> {
   final UtilsRepository _utilsRepository = serviceLocator<UtilsRepository>();
 
   // SEARCH
-  void searchEnquiry(
-    BuildContext context,
-    String searchText,
-    int projectId, {
-    String? filterSystemCode,
-  }) {
+  void searchEnquiry(BuildContext context, String searchText, int projectId) {
     emit(
       state.copyWith(
         searchText: searchText.trim(),
-        filterSystemCode: filterSystemCode ?? '',
         enquiryList: [],
         currentPage: 1,
       ),
@@ -84,6 +78,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
       emit(state.copyWith(isLoading: false));
       return;
     }
+
     Map<String, dynamic> queryParams = {
       "Name": state.searchText.trim(),
       "SystemGeneratedCode": state.filterSystemCode,
@@ -152,6 +147,55 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     );
   }
 
+  Future getEnquiry({
+    required BuildContext context,
+    required int projectId,
+    required String enquiryName,
+    required String enquiryCode,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
+
+    Map<String, dynamic> queryParams = {
+      "Name": enquiryName.trim(),
+      "SystemGeneratedCode": enquiryCode,
+    };
+    var result = await _enquiryRepository.getEnquiryList(
+      pageNumber: 1,
+      pageSize: 10,
+      projectId: projectId,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<EnquiryModel> newData = List<EnquiryModel>.from(
+          response['data'] ?? [],
+        );
+        final List<EnquiryModel> updatedList = newData;
+
+        emit(
+          state.copyWith(
+            enquiryList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord: response["totalNumberOfRecord"],
+            currentPage: 1,
+          ),
+        );
+      },
+    );
+  }
+
   // <---- ADD / UPDATE ENQUIRY ---->
 
   Future addUpdateEnquiry({
@@ -178,6 +222,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
 
         if (index != null) {
           updatedList[index] = newItem;
+          getEnquiryList(context, 1, projectId);
         } else {
           // CLOSE VERIFICATION DIALOG
           goRouter.pop();
@@ -484,6 +529,8 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     required String filterAccommodation,
     required String filterFollowUpDays,
     required String filterFinalStage,
+    required String filterEnquiryName,
+    required int projectId,
     String? sortColumn,
     String? sortDirection,
   }) async {
@@ -507,12 +554,14 @@ class EnquiryCubit extends Cubit<EnquiryState> {
         filterAccommodation: filterAccommodation,
         filterFollowUpDays: filterFollowUpDays,
         filterFinalStage: filterFinalStage,
+        searchText: filterEnquiryName,
         currentSortColumn: sortColumn ?? state.currentSortColumn,
         currentSortDirection: sortDirection ?? state.currentSortDirection,
         enquiryList: [],
         currentPage: 1,
       ),
     );
+    getEnquiryList(context, 1, projectId);
   }
 
   // <---- GET SINGLE ENQUIRY BY ID ---->

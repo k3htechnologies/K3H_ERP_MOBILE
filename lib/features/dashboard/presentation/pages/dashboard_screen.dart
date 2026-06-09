@@ -686,13 +686,23 @@ class _DashboardScreenState extends State<DashboardScreen>
                   first: isPunchedInNotifier,
                   second: isSwipeDisabledNotifier,
                   builder: (context, isPunchedIn, isSwipeDisabled, _) {
+                    final isCurrentlyPunchedIn =
+                        isPunchedInNotifier.value &&
+                        !isDayCompletedNotifier.value;
                     return LayoutBuilder(
                       builder: (context, constraints) {
                         final sliderWidth = constraints.maxWidth;
                         final thumbWidth = 52.0;
 
                         maxWidth = sliderWidth - thumbWidth;
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          final targetPosition =
+                              isCurrentlyPunchedIn ? maxWidth : 0.0;
 
+                          if (dragPositionNotifier.value != targetPosition) {
+                            dragPositionNotifier.value = targetPosition;
+                          }
+                        });
                         return StatefulBuilder(
                           builder: (context, setInnerState) {
                             return Container(
@@ -713,29 +723,24 @@ class _DashboardScreenState extends State<DashboardScreen>
                                         milliseconds: 200,
                                       ),
                                       child: Text(
-                                        isPunchedIn
+                                        isCurrentlyPunchedIn
                                             ? "Swipe to Punch Out"
                                             : "Swipe to Punch In",
-                                        key: ValueKey(isPunchedIn),
+                                        key: ValueKey(isCurrentlyPunchedIn),
                                         style: AppTextStyle.ts12B(),
                                       ),
                                     ),
                                   ),
 
-                                  TweenAnimationBuilder<double>(
-                                    tween: Tween(
-                                      begin: 0,
-                                      end: dragPositionNotifier.value,
-                                    ),
-                                    duration: const Duration(milliseconds: 120),
-                                    curve: Curves.easeOut,
-                                    builder: (
-                                      context,
-                                      animatedPosition,
-                                      child,
-                                    ) {
-                                      return Positioned(
-                                        left: animatedPosition,
+                                  ValueListenableBuilder<double>(
+                                    valueListenable: dragPositionNotifier,
+                                    builder: (context, dragPosition, _) {
+                                      return AnimatedPositioned(
+                                        duration: const Duration(
+                                          milliseconds: 120,
+                                        ),
+                                        curve: Curves.easeOut,
+                                        left: dragPosition,
                                         top: 2,
                                         bottom: 2,
                                         child: GestureDetector(
@@ -780,7 +785,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                                         velocity > 700;
 
                                                     // PUNCH IN
-                                                    if (!isPunchedIn &&
+                                                    if (!isCurrentlyPunchedIn &&
                                                         shouldComplete &&
                                                         !isDayCompletedNotifier
                                                             .value &&
@@ -815,8 +820,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                                                         await punchIn(context);
                                                       }
 
-                                                      // _startLocationTracking();
-
                                                       _startTimerFrom(
                                                         DateTime.now(),
                                                       );
@@ -826,7 +829,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                                       isProcessing = false;
                                                     }
                                                     // PUNCH OUT
-                                                    else if (isPunchedIn) {
+                                                    else if (isCurrentlyPunchedIn) {
                                                       final shouldPunchOut =
                                                           current <
                                                               maxWidth * 0.45 ||
@@ -867,7 +870,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                                                     // RESET
                                                     else {
                                                       dragPositionNotifier
-                                                          .value = isPunchedIn
+                                                              .value =
+                                                          isCurrentlyPunchedIn
                                                               ? maxWidth
                                                               : 0;
                                                     }
@@ -882,16 +886,17 @@ class _DashboardScreenState extends State<DashboardScreen>
                                               boxShadow: [
                                                 BoxShadow(
                                                   blurRadius: 10,
-                                                  offset: Offset(0, 4),
+                                                  offset: const Offset(0, 4),
                                                   color: AppColor.black
                                                       .withValues(alpha: 0.15),
                                                 ),
                                               ],
                                             ),
                                             child: Icon(
-                                              isPunchedIn
+                                              isCurrentlyPunchedIn
                                                   ? Icons.arrow_back_ios_new
-                                                  : Icons.arrow_back_ios_new,
+                                                  : Icons
+                                                      .arrow_forward_ios_sharp,
                                               color: AppColor.white,
                                             ),
                                           ),

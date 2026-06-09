@@ -422,7 +422,13 @@ class InventoryCubit extends Cubit<InventoryState> {
   }
 
   void updateWingSelection(int index, String wing) {
-    emit(state.copyWith(wingCurrentPage: index, wingCurrentPageKey: wing));
+    emit(
+      state.copyWith(
+        wingCurrentPage: index,
+        wingCurrentPageKey: wing,
+        selectedFlatStatus: "total",
+      ),
+    );
   }
 
   Map<String, int> calculateWingCounts(WingModel wing) {

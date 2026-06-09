@@ -169,72 +169,63 @@ class _ApprovedBankFieScreenState extends State<ApprovedBankFieScreen> {
     await DialogHelper.showCustomBottomSheet(
       context,
       "Add document",
-      Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Form(
-              key: _formKey,
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    CustomTextField(
-                      title: 'Title',
-                      textController: _titleC,
-                      isRequired: true,
-                      inputFormatterList: [
-                        LengthLimitingTextInputFormatter(100),
-                      ],
-                      validator: (string) {
-                        if (string == null || string.trim().isEmpty) {
-                          return 'Title is required';
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomMultiFilePicker(
-                      title: 'Attachment',
-                      isRequired: true,
-                      initialFileList: documentFile.fileNameList,
-                      onFilePickedCallback: (bytesList, fileNameList) {
-                        documentFile.fileNameList = fileNameList;
-                        documentFile.fileBytesList = bytesList;
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Attachment* is required";
-                        }
-                        return null;
-                      },
-                      onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deletedFile,
-                      ) {
-                        documentFile.fileNameList = fileNameList;
-                        documentFile.fileBytesList = fileBytesList;
-                        documentFile.deletedFileList = deletedFile;
-                      },
-                    ),
-                  ],
+      contentWidget: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                CustomTextField(
+                  title: 'Title',
+                  textController: _titleC,
+                  isRequired: true,
+                  inputFormatterList: [LengthLimitingTextInputFormatter(100)],
+                  validator: (string) {
+                    if (string == null || string.trim().isEmpty) {
+                      return 'Title is required';
+                    }
+                    return null;
+                  },
                 ),
-              ),
+                CustomMultiFilePicker(
+                  title: 'Attachment',
+                  isRequired: true,
+                  initialFileList: documentFile.fileNameList,
+                  onFilePickedCallback: (bytesList, fileNameList) {
+                    documentFile.fileNameList = fileNameList;
+                    documentFile.fileBytesList = bytesList;
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Attachment* is required";
+                    }
+                    return null;
+                  },
+                  onFileDeleteCallback: (
+                    fileBytesList,
+                    fileNameList,
+                    deletedFile,
+                  ) {
+                    documentFile.fileNameList = fileNameList;
+                    documentFile.fileBytesList = fileBytesList;
+                    documentFile.deletedFileList = deletedFile;
+                  },
+                ),
+              ],
             ),
-            Spacer(),
-            CustomButton.save(
-              onPressed: () {
-                _addUpdateApprovedBankFile(
-                  context,
-                  approvedBankFileModel,
-                  state,
-                  index ?? 0,
-                );
-              },
-            ),
-          ],
-        ),
+          ),
+        ],
+      ),
+      bottomActions: CustomButton.save(
+        onPressed: () {
+          _addUpdateApprovedBankFile(
+            context,
+            approvedBankFileModel,
+            state,
+            index ?? 0,
+          );
+        },
       ),
     );
     _clearDialogue();

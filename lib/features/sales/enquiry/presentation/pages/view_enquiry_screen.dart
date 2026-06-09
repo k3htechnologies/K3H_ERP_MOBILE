@@ -1274,25 +1274,47 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       _nextFollowupDate = followUpModel.nextFollowUpDate;
     }
 
+    // ===================== STATUS NAMES THAT REQUIRE NEXT FOLLOWUP DATE =====================
+
+    final List<String> followUpStatusNames = [
+      'Follow - Up',
+      'Site Visit',
+      'Re - Visit Proposed',
+      'Re - Visit Scheduled',
+      'Negotiation',
+      'Unit Selection / Blocked',
+      'Blocked',
+      'Retention',
+    ];
+
     await DialogHelper.showCustomBottomSheet(
       context,
       index != null ? "Update Follow Up" : "Add Follow Up",
-      StatefulBuilder(
+      contentWidget: StatefulBuilder(
         builder: (context, innerBottomsheetState) {
+          final statusId = _selectedStatus.value?['zAttributesId'];
           final statusName = _selectedStatus.value?['DisplayName'];
 
           // ===================== CONDITIONAL WIDGETS =====================
-          Widget followUpDateWidget() => CustomDatePicker(
-            title: "Next Followup Date",
-            initialDate: _nextFollowupDate,
-            isRequired: true,
-            startDate: DateTime.now(),
-            setValue:
-                (date) => innerBottomsheetState(() => _nextFollowupDate = date),
-            validator:
-                (value) =>
-                    value == null ? "Next Followup Date is required" : null,
-          );
+          Widget followUpDateWidget() =>
+              ((statusId != null && followUpStatusNames.contains(statusName) ||
+                      statusId == null))
+                  ? CustomDatePicker(
+                    title: "Next Followup Date",
+                    initialDate: _nextFollowupDate,
+                    isRequired: true,
+                    startDate: DateTime.now(),
+                    setValue:
+                        (date) => innerBottomsheetState(
+                          () => _nextFollowupDate = date,
+                        ),
+                    validator:
+                        (value) =>
+                            value == null
+                                ? "Next Followup Date is required"
+                                : null,
+                  )
+                  : const SizedBox.shrink();
 
           Widget lostReasonWidget() =>
               (statusName == "Lost")
@@ -1318,63 +1340,59 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
 
           return Form(
             key: _statusFormKey,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CustomDropDownWidget(
-                    title: "Status",
-                    isRequired: true,
-                    hintText: "Select Status",
-                    dataList: stageTypeList,
-                    initialValue: _selectedStatus.value,
-                    onSelected:
-                        (val) => innerBottomsheetState(() {
-                          _selectedStatus.value = val;
-                          _selectedLostReason.value = null;
-                          _nextFollowupDate = null;
-                        }),
-                    validator:
-                        (val) => val == null ? "Status is required" : null,
-                    onValueClear: () {
-                      innerBottomsheetState(() {
-                        _selectedStatus.value = null;
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CustomDropDownWidget(
+                  title: "Status",
+                  isRequired: true,
+                  hintText: "Select Status",
+                  dataList: stageTypeList,
+                  initialValue: _selectedStatus.value,
+                  onSelected:
+                      (val) => innerBottomsheetState(() {
+                        _selectedStatus.value = val;
                         _selectedLostReason.value = null;
                         _nextFollowupDate = null;
-                      });
-                    },
-                  ),
+                      }),
+                  validator: (val) => val == null ? "Status is required" : null,
+                  onValueClear: () {
+                    innerBottomsheetState(() {
+                      _selectedStatus.value = null;
+                      _selectedLostReason.value = null;
+                      _nextFollowupDate = null;
+                    });
+                  },
+                ),
 
-                  followUpDateWidget(),
-                  lostReasonWidget(),
-                  CustomTextField(
-                    title: 'Remark',
-                    hint: "Enter remark",
-                    isRequired: true,
+                followUpDateWidget(),
+                lostReasonWidget(),
+                CustomTextField(
+                  title: 'Remark',
+                  hint: "Enter remark",
+                  isRequired: true,
 
-                    textController: _remarkC,
-                    maxLines: 3,
-                    minLines: 3,
-                    validator:
-                        (val) =>
-                            val == null || val.trim().isEmpty
-                                ? "Remark is required"
-                                : null,
-                  ),
-                  CustomButton(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    text: index != null ? "Update" : "Save",
-                    onPressed: () {
-                      if (!_statusFormKey.currentState!.validate()) return;
-
-                      _submitForm(followUpModel: followUpModel, index: index);
-                    },
-                  ),
-                ],
-              ),
+                  textController: _remarkC,
+                  maxLines: 3,
+                  minLines: 3,
+                  validator:
+                      (val) =>
+                          val == null || val.trim().isEmpty
+                              ? "Remark is required"
+                              : null,
+                ),
+              ],
             ),
           );
+        },
+      ),
+      bottomActions: CustomButton(
+        text: index != null ? "Update" : "Save",
+        onPressed: () {
+          if (!_statusFormKey.currentState!.validate()) return;
+
+          _submitForm(followUpModel: followUpModel, index: index);
         },
       ),
     );

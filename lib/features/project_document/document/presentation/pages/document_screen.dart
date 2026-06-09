@@ -177,48 +177,39 @@ class _DocumentScreenState extends State<DocumentScreen>
     await DialogHelper.showCustomBottomSheet(
       context,
       documentModel != null ? 'Update Document Name' : 'Add Document Name',
-      Form(
+      contentWidget: Form(
         key: _formKey,
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 16),
-
-          child: Column(
-            children: [
-              CustomTextField(
-                title: "Document Name",
-                hint: "Enter Document Name",
-                textController: _documentC,
-                isRequired: true,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Document Name is required";
-                  }
-                  return null;
-                },
-              ),
-              Spacer(),
-              Container(
-                height: 70,
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: CustomButton(
-                  leading: Icon(
-                    documentModel != null ? Icons.edit : Icons.add,
-                    size: 16,
-                    color: AppColor.white,
-                  ),
-                  text:
-                      documentModel != null
-                          ? "Update Document Name"
-                          : "Add Document Name",
-                  onPressed: () {
-                    _submitForm(documentModel: documentModel, index: index);
-                    _searchC.clear();
-                  },
-                ),
-              ),
-            ],
-          ),
+        child: Column(
+          children: [
+            CustomTextField(
+              title: "Document Name",
+              hint: "Enter Document Name",
+              textController: _documentC,
+              isRequired: true,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Document Name is required";
+                }
+                return null;
+              },
+            ),
+          ],
         ),
+      ),
+      bottomActions: CustomButton(
+        leading: Icon(
+          documentModel != null ? Icons.edit : Icons.add,
+          size: 16,
+          color: AppColor.white,
+        ),
+        text:
+            documentModel != null
+                ? "Update Document Name"
+                : "Add Document Name",
+        onPressed: () {
+          _submitForm(documentModel: documentModel, index: index);
+          _searchC.clear();
+        },
       ),
     );
     _clearDialogueToAddUpdateDocument();

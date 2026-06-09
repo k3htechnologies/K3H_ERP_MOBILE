@@ -35,7 +35,7 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
   late AuthorizationModel _routeAuthorizationModel;
 
   //TEXT EDITING CONTROLLER
-  late TextEditingController _remarkC;
+  late TextEditingController _documentNameC, _remarkC;
 
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
@@ -83,11 +83,13 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
   @override
   void dispose() {
     super.dispose();
+    _documentNameC.dispose();
     _remarkC.dispose();
   }
 
   // INITIALIZE TEXT EDITING CONTROLLER
   void _initializeTextEditingController() {
+    _documentNameC = TextEditingController();
     _remarkC = TextEditingController();
   }
 
@@ -147,7 +149,7 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
         document.projectRERADocumentRemark.isNotEmpty
             ? document.projectRERADocumentRemark
             : "";
-
+    _documentNameC.text = document.projectRERADocumentName;
     selectedDocumentFile.fileNameList =
         document.projectRERADocumentURL.isEmpty
             ? []
@@ -170,6 +172,13 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
+                if (_isEditMode)
+                  CustomTextField(
+                    title: "Document",
+                    textController: _documentNameC,
+                    isRequired: true,
+                    readOnly: true,
+                  ),
                 CustomDropDownWidget(
                   title: "Status",
                   dataList: statusList,

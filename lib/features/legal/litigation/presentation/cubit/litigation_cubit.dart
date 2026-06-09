@@ -20,6 +20,8 @@ class LitigationCubit extends Cubit<LitigationState> {
   // <---- FILTER COMPANY ---->
   Future applyLitigationFilterAndSort({
     required BuildContext context,
+    String? title,
+    String? projectName,
     String? caseNumber,
     String? courtName,
     String? sortColumn,
@@ -29,15 +31,19 @@ class LitigationCubit extends Cubit<LitigationState> {
     if (isClear ?? false) {
       emit(
         state.copyWith(
+          searchText: "",
+          filterByProjectName: "",
           filterCaseNumber: "",
           filterByCourtName: "",
-          currentSortColumn: "Created Date",
-          currentSortDirection: "DESC",
+          currentSortColumn: "",
+          currentSortDirection: "",
         ),
       );
     } else {
       emit(
         state.copyWith(
+          searchText: title ?? state.searchText,
+          filterByProjectName: projectName ?? state.filterByProjectName,
           filterCaseNumber: caseNumber ?? state.filterCaseNumber,
           filterByCourtName: courtName ?? state.filterByCourtName,
           currentSortColumn: sortColumn ?? state.currentSortColumn,
@@ -79,10 +85,11 @@ class LitigationCubit extends Cubit<LitigationState> {
       "CaseNumber": state.filterCaseNumber,
       "CourtName": state.filterByCourtName,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+      "ProjectName": state.filterByProjectName,
     };
     final result = await _litigationRepository.pullLitigation(
       pageNumber: pageNumber,
-      pageSize: 4,
+      pageSize: 10,
       queryParams: queryParams,
     );
 
@@ -165,7 +172,7 @@ class LitigationCubit extends Cubit<LitigationState> {
       },
       (response) {
         goRouter.pop();
-
+        goRouter.pop();
         showSuccessMessage(context, subTitle: 'Litigation Added Successfully');
       },
     );
@@ -701,6 +708,7 @@ class LitigationCubit extends Cubit<LitigationState> {
           context,
           subTitle: 'Litigation Closure added successfully',
         );
+        getLitigationList(context: context, pageNumber: 1);
       },
     );
   }
@@ -768,6 +776,7 @@ class LitigationCubit extends Cubit<LitigationState> {
           context,
           subTitle: 'Litigation Closure updated successfully',
         );
+        getLitigationList(context: context, pageNumber: 1);
       },
     );
   }

@@ -5,6 +5,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
@@ -378,6 +379,13 @@ class _InventoryScreenState extends State<InventoryScreen>
               final selectedBuilding = state.buildingList[safeTabIndex];
 
               final wingList = selectedBuilding.wingList;
+              final selectedWing =
+                  wingList.isNotEmpty &&
+                          state.wingCurrentPage >= 0 &&
+                          state.wingCurrentPage < wingList.length
+                      ? wingList[state.wingCurrentPage]
+                      : null;
+              final bool isActionAllowed = selectedWing?.isApproval ?? false;
 
               if (state.buildingList.isNotEmpty &&
                   (_buildingTabController == null ||
@@ -394,6 +402,99 @@ class _InventoryScreenState extends State<InventoryScreen>
                   // WING TAB
                   if (wingList.isNotEmpty) _buildWingTab(wingList),
                   // COUNTS
+                  verticalSpacing(),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: ApproveRejectWidget(
+                      actionTitle: selectedWing?.approvalStatus ?? "",
+                      isActionAlreadyPerformed: !isActionAllowed,
+                      isMaster: true,
+                      popupTitle:
+                          "${selectedBuilding.buildingNumber} > ${selectedWing?.wing ?? ''}",
+
+                      onApprove: (val) async {
+                        await _utilsCubit.updateModulesWorkflowApproval(
+                          context: context,
+                          moduleName: 'INVENTORY APPROVAL',
+                          id: selectedBuilding.inventoryBuildingId,
+                          subId:
+                              selectedWing
+                                  ?.inventoryFlatFloorBasementPodiumWingId,
+                          projectId: _project.projectId,
+                          isApproved: true,
+                          remark: val.trim(),
+                        );
+                        if (context.mounted) {
+                          _inventoryCubit.getInventory(
+                            context,
+                            _project.projectId,
+                          );
+                        }
+                      },
+
+                      onReject: (val) async {
+                        await _utilsCubit.updateModulesWorkflowApproval(
+                          context: context,
+                          moduleName: 'INVENTORY APPROVAL',
+                          id: selectedBuilding.inventoryBuildingId,
+                          subId:
+                              selectedWing
+                                  ?.inventoryFlatFloorBasementPodiumWingId,
+                          projectId: _project.projectId,
+                          isApproved: false,
+                          remark: val.trim(),
+                        );
+                        if (context.mounted) {
+                          _inventoryCubit.getInventory(
+                            context,
+                            _project.projectId,
+                          );
+                        }
+                      },
+                      onThirdTap:
+                          selectedWing == null
+                              ? null
+                              : () async {
+                                final approvalLogHistoryList = await _utilsCubit
+                                    .getApprovalLogHistory(
+                                      context: context,
+                                      projectId: _project.projectId,
+                                      id: selectedBuilding.inventoryBuildingId,
+                                      subId:
+                                          selectedWing
+                                              .inventoryFlatFloorBasementPodiumWingId,
+                                      moduleName: "INVENTORY APPROVAL",
+                                    );
+
+                                if (context.mounted) {
+                                  goRouter.pushNamed(
+                                    AppRoutes.approvalLogHistory,
+                                    queryParameters: {
+                                      "subTitle": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          "${selectedBuilding.buildingNumber} > ${selectedWing.wing}",
+                                        ),
+                                      ),
+                                      "title": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          "Inventory Log History",
+                                        ),
+                                      ),
+                                      "approvalList": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(
+                                            approvalLogHistoryList
+                                                .map((e) => e.toJson())
+                                                .toList(),
+                                          ),
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                }
+                              },
+                    ),
+                  ),
                   verticalSpacing(),
                   if (wingList.isNotEmpty &&
                       _wingTabController != null &&
@@ -466,7 +567,6 @@ class _InventoryScreenState extends State<InventoryScreen>
     if (filteredFloorList.isEmpty) {
       return Center(child: noDataWidget(message: "No floors found"));
     }
-    final bool isActionAllowed = wing.isApproval;
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -486,328 +586,233 @@ class _InventoryScreenState extends State<InventoryScreen>
             final floorKey = "$buildingIndex-$wingIndex-$index";
             final isExpanded = expandedSet.contains(floorKey);
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (index == 0) ...[
-                  ApproveRejectWidget(
-                    actionTitle: wing.approvalStatus,
-                    isActionAlreadyPerformed: !isActionAllowed,
-                    isMaster: true,
-                    popupTitle: "${building.buildingNumber} > ${wing.wing}",
-                    onApprove: (val) async {
-                      await _utilsCubit.updateModulesWorkflowApproval(
-                        context: context,
-                        moduleName: 'INVENTORY APPROVAL',
-                        id: building.inventoryBuildingId,
-                        subId: wing.inventoryFlatFloorBasementPodiumWingId,
-                        projectId: _project.projectId,
-                        isApproved: true,
-                        remark: val.trim(),
-                      );
-                      if (context.mounted) {
-                        _inventoryCubit.getInventory(
-                          context,
-                          _project.projectId,
-                        );
-                      }
-                    },
-                    onReject: (val) async {
-                      await _utilsCubit.updateModulesWorkflowApproval(
-                        context: context,
-                        moduleName: 'INVENTORY APPROVAL',
-                        id: building.inventoryBuildingId,
-                        subId: wing.inventoryFlatFloorBasementPodiumWingId,
-                        projectId: _project.projectId,
-                        isApproved: false,
-                        remark: val.trim(),
-                      );
-                      if (context.mounted) {
-                        _inventoryCubit.getInventory(
-                          context,
-                          _project.projectId,
-                        );
-                      }
-                    },
-                    onThirdTap: () async {
-                      final approvalLogHistoryList = await _utilsCubit
-                          .getApprovalLogHistory(
-                            context: context,
-                            projectId: _project.projectId,
-                            id: building.inventoryBuildingId,
-                            subId: wing.inventoryFlatFloorBasementPodiumWingId,
-                            moduleName: "INVENTORY APPROVAL",
-                          );
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: AppColor.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
+              ),
+              child: Column(
+                children: [
+                  // Header - Clickable
+                  InkWell(
+                    onTap: () {
+                      final newSet = Set<String>.from(expandedSet);
 
-                      if (context.mounted) {
-                        goRouter.pushNamed(
-                          AppRoutes.approvalLogHistory,
-                          queryParameters: {
-                            "subTitle": Uri.encodeComponent(
-                              EncryptionManager.encryptData(
-                                "${building.buildingNumber} > ${wing.wing}",
-                              ),
-                            ),
-                            "title": Uri.encodeComponent(
-                              EncryptionManager.encryptData(
-                                "Inventory Log History",
-                              ),
-                            ),
-                            "approvalList": Uri.encodeComponent(
-                              EncryptionManager.encryptData(
-                                jsonEncode(
-                                  approvalLogHistoryList
-                                      .map((e) => e.toJson())
-                                      .toList(),
-                                ),
-                              ),
-                            ),
-                          },
-                        );
+                      if (isExpanded) {
+                        newSet.remove(floorKey);
+                      } else {
+                        newSet.add(floorKey);
                       }
+                      _expandedFloors.value = newSet;
                     },
-                  ),
-                  verticalSpacing(),
-                ],
-                Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: AppColor.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: AppColor.grey.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      // Header - Clickable
-                      InkWell(
-                        onTap: () {
-                          final newSet = Set<String>.from(expandedSet);
-
-                          if (isExpanded) {
-                            newSet.remove(floorKey);
-                          } else {
-                            newSet.add(floorKey);
-                          }
-                          _expandedFloors.value = newSet;
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            floor.floor,
-                                            style: AppTextStyle.ts14M(),
-                                          ),
-                                        ),
-                                        Row(
-                                          children: [
-                                            if (_routeAuthorizationModel
-                                                .isAction)
-                                              if (wing.approvalStatus !=
-                                                      "Approved" &&
-                                                  wing.approvalStatus !=
-                                                      "Partial Approved")
-                                                GestureDetector(
-                                                  onTap: () async {
-                                                    await goRouter.pushNamed(
-                                                      AppRoutes
-                                                          .addInventorySpecification,
-                                                      queryParameters: {
-                                                        "flatModel": Uri.encodeQueryComponent(
-                                                          EncryptionManager.encryptData(
-                                                            jsonEncode(
-                                                              FlatModel(
-                                                                inventoryFlatId:
-                                                                    0,
-                                                                uniquekey: "",
-                                                                inventoryBuildingId:
-                                                                    floor
-                                                                        .inventoryBuildingId,
-                                                                buildingNumber:
-                                                                    building
-                                                                        .buildingNumber,
-                                                                inventoryFlatFloorBasementPodiumWingId:
-                                                                    floor
-                                                                        .inventoryFlatFloorBasementPodiumWingId,
-                                                                wing: wing.wing,
-                                                                inventoryFloorId:
-                                                                    floor
-                                                                        .inventoryFloorId,
-                                                                floor:
-                                                                    floor.floor,
-                                                                slabHeight:
-                                                                    floor
-                                                                        .slabHeight,
-                                                                parkingCount:
-                                                                    floor
-                                                                        .parkingCount,
-                                                                flat: "",
-                                                                reraCarpetAreaSqFt:
-                                                                    0,
-                                                                flatType: "",
-                                                                flatConfiguration:
-                                                                    "",
-                                                                flatStatus: "",
-                                                                ownerName: "",
-                                                                flatFacing: "",
-                                                                createdBy: "",
-                                                                createdById: 0,
-                                                                modifiedBy: "",
-                                                                modifiedById: 0,
-                                                                createdDate:
-                                                                    DateTime.now(),
-                                                                modifiedDate:
-                                                                    DateTime.now(),
-                                                                bookingId: 0,
-                                                                bookingCreatedById:
-                                                                    0,
-                                                                bookingCreatedBy:
-                                                                    "",
-                                                                bookingCreatedDate:
-                                                                    DateTime.now(),
-                                                                specificationList:
-                                                                    [],
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        "floorModel":
-                                                            Uri.encodeQueryComponent(
-                                                              EncryptionManager.encryptData(
-                                                                jsonEncode(
-                                                                  floor,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                      },
-                                                    );
-                                                    if (context.mounted) {
-                                                      await _inventoryCubit
-                                                          .getInventory(
-                                                            context,
-                                                            _project.projectId,
-                                                          );
-                                                    }
-                                                  },
-                                                  child: Icon(
-                                                    Icons.add,
-                                                    size: 18,
-                                                    color: AppColor.darkGreen,
-                                                  ),
-                                                ),
-                                            Icon(
-                                              isExpanded
-                                                  ? Icons.keyboard_arrow_up
-                                                  : Icons.keyboard_arrow_down,
-                                              color: AppColor.grey,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    Text(
-                                      "Total Flats : ${floor.flatList.length}",
-                                      style: AppTextStyle.ts12R(
-                                        color: AppColor.grey,
+                                    Expanded(
+                                      child: Text(
+                                        floor.floor,
+                                        style: AppTextStyle.ts14M(),
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        const SizedBox(height: 4),
-                                        Expanded(
-                                          child: Text(
-                                            "Slab Height: ${floor.slabHeight} ft",
-                                            style: AppTextStyle.ts12R(
-                                              color: AppColor.grey,
-                                            ),
-                                          ),
-                                        ),
-                                        horizontalSpacing(),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            SvgPicture.asset(
-                                              AppAssets.car,
-                                              height: 20.0,
-                                              width: 20.0,
-                                              color: AppColor.black.withValues(
-                                                alpha: 0.4,
+                                        if (_routeAuthorizationModel.isAction)
+                                          if (wing.approvalStatus !=
+                                                  "Approved" &&
+                                              wing.approvalStatus !=
+                                                  "Partial Approved")
+                                            GestureDetector(
+                                              onTap: () async {
+                                                await goRouter.pushNamed(
+                                                  AppRoutes
+                                                      .addInventorySpecification,
+                                                  queryParameters: {
+                                                    "flatModel": Uri.encodeQueryComponent(
+                                                      EncryptionManager.encryptData(
+                                                        jsonEncode(
+                                                          FlatModel(
+                                                            inventoryFlatId: 0,
+                                                            uniquekey: "",
+                                                            inventoryBuildingId:
+                                                                floor
+                                                                    .inventoryBuildingId,
+                                                            buildingNumber:
+                                                                building
+                                                                    .buildingNumber,
+                                                            inventoryFlatFloorBasementPodiumWingId:
+                                                                floor
+                                                                    .inventoryFlatFloorBasementPodiumWingId,
+                                                            wing: wing.wing,
+                                                            inventoryFloorId:
+                                                                floor
+                                                                    .inventoryFloorId,
+                                                            floor: floor.floor,
+                                                            slabHeight:
+                                                                floor
+                                                                    .slabHeight,
+                                                            parkingCount:
+                                                                floor
+                                                                    .parkingCount,
+                                                            flat: "",
+                                                            reraCarpetAreaSqFt:
+                                                                0,
+                                                            flatType: "",
+                                                            flatConfiguration:
+                                                                "",
+                                                            flatStatus: "",
+                                                            ownerName: "",
+                                                            flatFacing: "",
+                                                            createdBy: "",
+                                                            createdById: 0,
+                                                            modifiedBy: "",
+                                                            modifiedById: 0,
+                                                            createdDate:
+                                                                DateTime.now(),
+                                                            modifiedDate:
+                                                                DateTime.now(),
+                                                            bookingId: 0,
+                                                            bookingCreatedById:
+                                                                0,
+                                                            bookingCreatedBy:
+                                                                "",
+                                                            bookingCreatedDate:
+                                                                DateTime.now(),
+                                                            specificationList:
+                                                                [],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    "floorModel":
+                                                        Uri.encodeQueryComponent(
+                                                          EncryptionManager.encryptData(
+                                                            jsonEncode(floor),
+                                                          ),
+                                                        ),
+                                                  },
+                                                );
+                                                if (context.mounted) {
+                                                  await _inventoryCubit
+                                                      .getInventory(
+                                                        context,
+                                                        _project.projectId,
+                                                      );
+                                                }
+                                              },
+                                              child: Icon(
+                                                Icons.add,
+                                                size: 18,
+                                                color: AppColor.darkGreen,
                                               ),
                                             ),
-                                            horizontalSpacing(width: 3),
-                                            Text(
-                                              ":",
-                                              style: AppTextStyle.ts12R(),
-                                            ),
-                                            horizontalSpacing(width: 3),
-                                            Text(
-                                              "${floor.parkingCount}",
-                                              style: AppTextStyle.ts12R(),
-                                            ),
-                                          ],
+                                        Icon(
+                                          isExpanded
+                                              ? Icons.keyboard_arrow_up
+                                              : Icons.keyboard_arrow_down,
+                                          color: AppColor.grey,
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // EXPANDABLE CONTENT
-                      ClipRect(
-                        child: AnimatedSize(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                          alignment: Alignment.topCenter,
-                          child:
-                              isExpanded
-                                  ? Padding(
-                                    padding: const EdgeInsets.only(
-                                      left: 16,
-                                      right: 16,
-                                      bottom: 16,
-                                    ),
-                                    child: SizedBox(
-                                      width: double.infinity,
-                                      child: _buildFlatList(
-                                        filteredFlats,
-                                        floor,
-                                        buildingIndex,
-                                        wingIndex,
-                                        index,
-                                        wing.approvalStatus,
+                                Text(
+                                  "Total Flats : ${floor.flatList.length}",
+                                  style: AppTextStyle.ts12R(
+                                    color: AppColor.grey,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const SizedBox(height: 4),
+                                    Expanded(
+                                      child: Text(
+                                        "Slab Height: ${floor.slabHeight} ft",
+                                        style: AppTextStyle.ts12R(
+                                          color: AppColor.grey,
+                                        ),
                                       ),
                                     ),
-                                  )
-                                  : const SizedBox.shrink(),
-                        ),
+                                    horizontalSpacing(),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SvgPicture.asset(
+                                          AppAssets.car,
+                                          height: 20.0,
+                                          width: 20.0,
+                                          color: AppColor.black.withValues(
+                                            alpha: 0.4,
+                                          ),
+                                        ),
+                                        horizontalSpacing(width: 3),
+                                        Text(":", style: AppTextStyle.ts12R()),
+                                        horizontalSpacing(width: 3),
+                                        Text(
+                                          "${floor.parkingCount}",
+                                          style: AppTextStyle.ts12R(),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ],
+
+                  // EXPANDABLE CONTENT
+                  ClipRect(
+                    child: AnimatedSize(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                      alignment: Alignment.topCenter,
+                      child:
+                          isExpanded
+                              ? Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 16,
+                                  right: 16,
+                                  bottom: 16,
+                                ),
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: _buildFlatList(
+                                    filteredFlats,
+                                    floor,
+                                    buildingIndex,
+                                    wingIndex,
+                                    index,
+                                    wing.approvalStatus,
+                                  ),
+                                ),
+                              )
+                              : const SizedBox.shrink(),
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         );
@@ -1258,7 +1263,7 @@ class _InventoryScreenState extends State<InventoryScreen>
           children: [
             Text(
               count.toString(),
-              style: AppTextStyle.ts12M().copyWith(color: color),
+              style: AppTextStyle.ts12SB().copyWith(color: color),
             ),
 
             horizontalSpacing(width: 5),
@@ -1267,8 +1272,8 @@ class _InventoryScreenState extends State<InventoryScreen>
               label,
               style:
                   isSelected
-                      ? AppTextStyle.ts10M().copyWith(color: color)
-                      : AppTextStyle.ts10R().copyWith(color: AppColor.black),
+                      ? AppTextStyle.ts12SB().copyWith(color: color)
+                      : AppTextStyle.ts12R().copyWith(color: AppColor.black),
             ),
           ],
         ),

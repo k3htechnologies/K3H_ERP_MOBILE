@@ -19,7 +19,7 @@ import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 class AddBookingPaymentScheduleScreen extends StatefulWidget {
   final int inventoryBuildingId;
   final int inventoryFlatFloorBasementPodiumWingId;
-  final double agreementValue;
+  final double agreementValueWithoutTDS;
   final double agreementValueGST;
   final double agreementValueTds;
   final int? index;
@@ -28,7 +28,7 @@ class AddBookingPaymentScheduleScreen extends StatefulWidget {
     super.key,
     required this.inventoryBuildingId,
     required this.inventoryFlatFloorBasementPodiumWingId,
-    required this.agreementValue,
+    required this.agreementValueWithoutTDS,
     required this.agreementValueGST,
     required this.agreementValueTds,
     this.index,
@@ -189,7 +189,7 @@ class _AddBookingPaymentScheduleScreenState
     }
 
     /// CALCULATIONS
-    final amount = (widget.agreementValue * percentage) / 100;
+    final amount = (widget.agreementValueWithoutTDS * percentage) / 100;
     final gstAmount = (widget.agreementValueGST * percentage) / 100;
     final tdsAmount = (widget.agreementValueTds * percentage) / 100;
 
@@ -207,7 +207,7 @@ class _AddBookingPaymentScheduleScreenState
       type: isDateTab ? "Date" : "Stage",
       name:
           isDateTab
-              ? _selectedDate.value!.toIso8601String()
+              ? _selectedDate.value!.toIso8601String().split("T")[0]
               : (_selectedStage.value?["DisplayName"] == "Other"
                   ? _otherStageC.text.trim()
                   : _selectedStage.value?["DisplayName"] ?? "Stage"),

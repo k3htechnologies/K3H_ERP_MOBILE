@@ -21,6 +21,11 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
       serviceLocator<CallTrackerRepository>();
 
   final UtilsRepository _utilsRepository = serviceLocator<UtilsRepository>();
+
+  void resetState() {
+    emit(CallTrackerState.initial());
+  }
+
   // HELPER ON TAB CHANGED
   void onTabChanged(int index, BuildContext context) {
     emit(state.copyWith(currentTabIndex: index, searchText: ""));
@@ -47,6 +52,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
 
   Future<void> applyFilterAndSort({
     required BuildContext context,
+    String? name,
     String? mobileNumber,
     DateTime? rescheduleFromDate,
     DateTime? rescheduleToDate,
@@ -54,6 +60,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
   }) async {
     emit(
       state.copyWith(
+        searchText: name,
         filterMobileNo: mobileNumber,
         filterRescheduleFromDate: rescheduleFromDate,
         filterRescheduleToDate: rescheduleToDate,
@@ -148,10 +155,58 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
       },
       (response) {
         goRouter.pop();
-        showSuccessMessage(
-          context,
-          subTitle: 'Calling Data Added Successfully!!!',
-        );
+        showSuccessMessage(context, subTitle: response['message']);
+        getCallingDataList(context, 1, projectId);
+      },
+    );
+  }
+
+  Future updateCallingData({
+    required BuildContext context,
+    required int projectId,
+    required String name,
+    required String emailId,
+    required String mobileNumber,
+    required String address,
+    required String source,
+    required int callingDataId,
+    required String uniquekey,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var body = {
+      "CallingDataId": callingDataId,
+      "ProjectId": projectId,
+      "Name": name,
+      "EmailId": emailId,
+      "MobileNumber": mobileNumber,
+      "Address": address,
+      "Source": source,
+      "Uniquekey": uniquekey,
+    };
+    var addResult = await _callTrackerRepository.addCallingData(body: body);
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+        final updatedCallingData =
+            (response['data'] as List<CallingDataModel>).first;
+
+        if (state.callingDataList.isNotEmpty &&
+            index < state.callingDataList.length) {
+          final updatedList = List<CallingDataModel>.from(
+            state.callingDataList,
+          );
+
+          updatedList[index] = updatedCallingData;
+
+          emit(state.copyWith(isLoading: false, callingDataList: updatedList));
+        }
+        showSuccessMessage(context, subTitle: response['message']);
         getCallingDataList(context, 1, projectId);
       },
     );
@@ -260,10 +315,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
           emit(state.copyWith(callLogList: updatedList, isLoading: false));
         }
 
-        showSuccessMessage(
-          context,
-          subTitle: 'Call Log Updated Successfully!!!',
-        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -289,7 +341,6 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
         return;
       },
       (response) {
-        showSuccessMessage(context);
         if (index != null) {
           final updatedList = List<CallLogModel>.from(state.callLogList);
           updatedList.removeAt(index);
@@ -297,6 +348,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
         } else {
           getCallLogList(context, state.currentPageCallLog, projectId);
         }
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }

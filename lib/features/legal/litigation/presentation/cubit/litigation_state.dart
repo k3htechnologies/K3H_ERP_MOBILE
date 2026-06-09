@@ -9,7 +9,6 @@ class LitigationState extends BaseState {
   final int litigationCurrentPage;
   final int litigationTotalRecords;
 
-
   // ---- Hearing ----
   final List<LitigationHearingModel> litigationHearingList;
   final int hearingCurrentPage;
@@ -29,6 +28,7 @@ class LitigationState extends BaseState {
   final String currentSortDirection;
   final String filterCaseNumber;
   final String filterByCourtName;
+  final String filterByProjectName;
 
   const LitigationState({
     super.isLoading,
@@ -43,10 +43,11 @@ class LitigationState extends BaseState {
     required this.documentTotalRecords,
     required this.currentTabIndex,
     this.searchText = "",
-    this.currentSortColumn = "Created Date",
-    this.currentSortDirection = "DESC",
+    this.currentSortColumn = "",
+    this.currentSortDirection = "",
     this.filterCaseNumber = "",
     this.filterByCourtName = "",
+    this.filterByProjectName = "",
   });
 
   // ---------------- INITIAL ----------------
@@ -69,10 +70,11 @@ class LitigationState extends BaseState {
       currentTabIndex: 0,
       searchText: "",
 
-      currentSortColumn: "Created Date",
-      currentSortDirection: "DESC",
+      currentSortColumn: "",
+      currentSortDirection: "",
       filterCaseNumber: "",
       filterByCourtName: "",
+      filterByProjectName: "",
     );
   }
 
@@ -99,6 +101,7 @@ class LitigationState extends BaseState {
     String? currentSortDirection,
     String? filterCaseNumber,
     String? filterByCourtName,
+    String? filterByProjectName,
   }) {
     return LitigationState(
       isLoading: isLoading ?? this.isLoading,
@@ -126,6 +129,7 @@ class LitigationState extends BaseState {
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
       filterCaseNumber: filterCaseNumber ?? this.filterCaseNumber,
       filterByCourtName: filterByCourtName ?? this.filterByCourtName,
+      filterByProjectName: filterByProjectName ?? this.filterByProjectName,
     );
   }
 
@@ -152,5 +156,6 @@ class LitigationState extends BaseState {
     currentSortDirection,
     filterCaseNumber,
     filterByCourtName,
+    filterByProjectName,
   ];
 }

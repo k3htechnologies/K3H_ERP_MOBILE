@@ -5,7 +5,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CustomDatePicker extends StatefulWidget {
-  final Function(DateTime) setValue;
+  final Function(DateTime?) setValue;
   final bool? isRequired;
   final String? hint;
   final String? label;
@@ -57,11 +57,24 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
   }
 
   _showDatePicker(BuildContext context, FormFieldState<DateTime> state) {
+    final firstDate = widget.startDate ?? DateTime(1900);
+    final lastDate = widget.endDate ?? DateTime(3000);
+
+    DateTime initialDate = date ?? DateTime.now();
+
+    if (initialDate.isBefore(firstDate)) {
+      initialDate = firstDate;
+    }
+
+    if (initialDate.isAfter(lastDate)) {
+      initialDate = lastDate;
+    }
+
     showDatePicker(
       context: context,
-      initialDate: date ?? DateTime.now(),
-      firstDate: widget.startDate ?? DateTime(1900),
-      lastDate: widget.endDate ?? DateTime(3000),
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
       initialEntryMode: DatePickerEntryMode.calendarOnly,
       builder: (BuildContext context, Widget? child) {
         return Theme(
@@ -80,11 +93,13 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
     ).then((value) {
       if (value != null) {
         widget.setValue(value);
+
         setState(() {
           date = value;
           finalDate = formatDateTimeAsDDMMMYYYY(value);
-          state.didChange(date);
         });
+
+        state.didChange(value);
       }
     });
   }
@@ -158,15 +173,41 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            finalDate ?? "DD-MM-YYYY",
-                            style: AppTextStyle.ts14R().copyWith(
-                              color:
-                                  finalDate != null
-                                      ? AppColor.black
-                                      : AppColor.grey,
+                          Expanded(
+                            child: Text(
+                              finalDate ?? "DD-MM-YYYY",
+                              style: AppTextStyle.ts14R().copyWith(
+                                color:
+                                    finalDate != null
+                                        ? AppColor.black
+                                        : AppColor.grey,
+                              ),
                             ),
                           ),
+
+                          // CLEAR BUTTON
+                          if (finalDate != null && !widget.readOnly)
+                            GestureDetector(
+                              onTap: () {
+                                widget.setValue(null);
+
+                                setState(() {
+                                  date = null;
+                                  finalDate = null;
+                                });
+
+                                formFieldState.didChange(null);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: Icon(
+                                  Icons.close,
+                                  size: 18,
+                                  color: AppColor.grey,
+                                ),
+                              ),
+                            ),
+
                           Icon(
                             Icons.calendar_month_outlined,
                             color: AppColor.grey,

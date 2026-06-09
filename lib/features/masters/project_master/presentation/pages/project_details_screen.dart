@@ -6,6 +6,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/bank_details.model.dart';
@@ -118,20 +119,26 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
 
   void _initAuth() {
     _projectDetailsRouteAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.projectDetails]!;
+        Authorization.routeAuthorizationMap[AppRoutes.projectDetails] ??
+        AuthorizationModel();
 
     _employeeRouteAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes
-            .projectMasterAssignEmployee]!;
+            .projectMasterAssignEmployee] ??
+        AuthorizationModel();
 
     _bankDetailsRouteAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes
-            .projectMasterBankDetails]!;
+            .projectMasterBankDetails] ??
+        AuthorizationModel();
     _companyRouteAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.projectMasterSetCompany]!;
+        Authorization.routeAuthorizationMap[AppRoutes
+            .projectMasterSetCompany] ??
+        AuthorizationModel();
     _approvalRouteAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes
-            .projectMasterApprovalSetup]!;
+            .projectMasterApprovalSetup] ??
+        AuthorizationModel();
   }
 
   void _loadInitialTabData() {
@@ -877,6 +884,10 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                               )
                               : "-",
                     ),
+                    buildColumnTitleValue(
+                      title: "APF Number",
+                      value: widget.project.apfNumber.toString(),
+                    ),
                   ],
                 ),
               ],
@@ -1185,7 +1196,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                 children: [
                                   Text(
                                     "E-mail ID",
-                                    style: AppTextStyle.ts14M(
+                                    style: AppTextStyle.ts14R(
                                       color: AppColor.grey,
                                     ),
                                   ),
@@ -1203,7 +1214,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                 children: [
                                   Text(
                                     "Mobile Number",
-                                    style: AppTextStyle.ts14M(
+                                    style: AppTextStyle.ts14R(
                                       color: AppColor.grey,
                                     ),
                                   ),
@@ -1454,13 +1465,21 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                   customValueWidget:
                                       company.panNumber.isNotEmpty
                                           ? Row(
-                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               Flexible(
-                                                child: Text(company.panNumber),
+                                                child: Text(
+                                                  company.panNumber,
+                                                  style: AppTextStyle.ts14M(),
+                                                ),
                                               ),
-                                              horizontalSpacing(),
+                                              horizontalSpacing(width: 5),
                                               CustomIconButton(
+                                                isDisable:
+                                                    company.panCardURL.isEmpty,
                                                 onPressed: () {
                                                   showFilePreviewDialog(
                                                     context,
@@ -1472,11 +1491,15 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                                 icon: Icon(
                                                   Icons.remove_red_eye_outlined,
                                                   size: 16,
-                                                  color: AppColor.primary,
+                                                  color:
+                                                      company.panCardURL.isEmpty
+                                                          ? AppColor.grey2
+                                                          : AppColor.primary,
                                                 ),
                                                 backgroundColor:
                                                     AppColor.lightBlue,
                                               ),
+                                              horizontalSpacing(width: 5),
                                             ],
                                           )
                                           : Text("-"),
@@ -1490,13 +1513,23 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                   customValueWidget:
                                       company.gstNumber.isNotEmpty
                                           ? Row(
-                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               Flexible(
-                                                child: Text(company.gstNumber),
+                                                child: Text(
+                                                  company.gstNumber,
+                                                  style: AppTextStyle.ts14M(),
+                                                ),
                                               ),
-                                              horizontalSpacing(),
+                                              horizontalSpacing(width: 5),
                                               CustomIconButton(
+                                                isDisable:
+                                                    company
+                                                        .gstCertificateURL
+                                                        .isEmpty,
                                                 onPressed: () {
                                                   showFilePreviewDialog(
                                                     context,
@@ -1507,7 +1540,12 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                                 icon: Icon(
                                                   Icons.remove_red_eye_outlined,
                                                   size: 16,
-                                                  color: AppColor.primary,
+                                                  color:
+                                                      company
+                                                              .gstCertificateURL
+                                                              .isEmpty
+                                                          ? AppColor.grey2
+                                                          : AppColor.primary,
                                                 ),
                                                 backgroundColor:
                                                     AppColor.lightBlue,
@@ -1529,13 +1567,21 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                   customValueWidget:
                                       company.cinNumber.isNotEmpty
                                           ? Row(
-                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               Flexible(
-                                                child: Text(company.cinNumber),
+                                                child: Text(
+                                                  company.cinNumber,
+                                                  style: AppTextStyle.ts14M(),
+                                                ),
                                               ),
-                                              horizontalSpacing(),
+                                              horizontalSpacing(width: 5),
                                               CustomIconButton(
+                                                isDisable:
+                                                    company.cinURL.isEmpty,
                                                 onPressed: () {
                                                   showFilePreviewDialog(
                                                     context,
@@ -1545,11 +1591,15 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                                 icon: Icon(
                                                   Icons.remove_red_eye_outlined,
                                                   size: 16,
-                                                  color: AppColor.primary,
+                                                  color:
+                                                      company.cinURL.isEmpty
+                                                          ? AppColor.grey2
+                                                          : AppColor.primary,
                                                 ),
                                                 backgroundColor:
                                                     AppColor.lightBlue,
                                               ),
+                                              horizontalSpacing(width: 5),
                                             ],
                                           )
                                           : Text("-"),
@@ -1560,13 +1610,21 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                   customValueWidget:
                                       company.tanNumber.isNotEmpty
                                           ? Row(
-                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               Flexible(
-                                                child: Text(company.tanNumber),
+                                                child: Text(
+                                                  company.tanNumber,
+                                                  style: AppTextStyle.ts14M(),
+                                                ),
                                               ),
-                                              horizontalSpacing(),
+                                              horizontalSpacing(width: 5),
                                               CustomIconButton(
+                                                isDisable:
+                                                    company.tanURL.isEmpty,
                                                 onPressed: () {
                                                   showFilePreviewDialog(
                                                     context,
@@ -1576,7 +1634,10 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                                 icon: Icon(
                                                   Icons.remove_red_eye_outlined,
                                                   size: 16,
-                                                  color: AppColor.primary,
+                                                  color:
+                                                      company.tanURL.isEmpty
+                                                          ? AppColor.grey2
+                                                          : AppColor.primary,
                                                 ),
                                                 backgroundColor:
                                                     AppColor.lightBlue,
@@ -1959,7 +2020,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                         ),
                         verticalSpacing(),
                         Row(
-                          spacing: 10,
+                          spacing: 10.w,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             buildColumnTitleValue(
@@ -1974,7 +2035,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                         ),
                         verticalSpacing(),
                         Row(
-                          spacing: 10,
+                          spacing: 10.w,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             buildColumnTitleValue(
@@ -1990,6 +2051,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                         verticalSpacing(),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 10.w,
                           children: [
                             buildColumnTitleValue(
                               title: "Account Type",

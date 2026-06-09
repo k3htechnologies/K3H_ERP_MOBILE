@@ -444,7 +444,11 @@ class _AchievementScreenState extends State<AchievementScreen>
                   onToDateChanged: (fromDate, toDate) {
                     _fromDateNotifier.value = fromDate;
                     _toDateNotifier.value = toDate;
-                    _secondaryTabListener(isIndexChangeCheck: false);
+                    if (fromDate == null || toDate == null) {
+                      _achievementCubit.resetState();
+                    } else {
+                      _secondaryTabListener(isIndexChangeCheck: false);
+                    }
                   },
                 ),
               );
@@ -918,10 +922,6 @@ class _AchievementScreenState extends State<AchievementScreen>
     return AnimatedBuilder(
       animation: Listenable.merge([_searchTextNotifier, _primaryTabController]),
       builder: (context, child) {
-        // HIDE SEARCH BAR IF PRIMARY TAB IS DATEWISE
-        if (_primaryTabController?.index == 3) {
-          return const SizedBox.shrink();
-        }
         return SearchWidget(
           textController: _searchTextC,
           hintText: _searchTextNotifier.value,

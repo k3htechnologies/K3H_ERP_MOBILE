@@ -174,7 +174,6 @@ class EnquiryState extends BaseState {
           filterEndDate == _noChange
               ? this.filterEndDate
               : filterEndDate as DateTime?,
-
       filterSystemCode: filterSystemCode ?? this.filterSystemCode,
 
       filterMobileNumber: filterMobileNumber ?? this.filterMobileNumber,

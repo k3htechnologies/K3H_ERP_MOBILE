@@ -48,10 +48,8 @@ class _CustomFromToDatePickerState extends State<CustomFromToDatePicker> {
             setValue: (value) {
               setState(() {
                 fromDate = value;
-
-                if (toDate != null && toDate!.isBefore(value)) {
-                  toDate = null;
-                }
+                toDate = null;
+                widget.onToDateChanged(fromDate, toDate);
               });
             },
           ),
@@ -71,7 +69,6 @@ class _CustomFromToDatePickerState extends State<CustomFromToDatePicker> {
               setState(() {
                 toDate = value;
               });
-
               widget.onToDateChanged(fromDate, toDate);
             },
           ),

@@ -134,6 +134,7 @@ class ProjectMasterState extends BaseState {
 
     isLoading: true,
   );
+  static const _noChange = Object();
 
   ProjectMasterState copyWith({
     bool? isEmployeeLoading,
@@ -154,7 +155,7 @@ class ProjectMasterState extends BaseState {
     String? filterRERANumber,
     String? filterProjectScheme,
     String? filterProjectSubScheme,
-    bool? isRedevelopment,
+    Object? isRedevelopment = _noChange,
 
     StateType? stateType,
     bool? isLoading,
@@ -239,7 +240,10 @@ class ProjectMasterState extends BaseState {
       filterProjectScheme: filterProjectScheme ?? this.filterProjectScheme,
       filterProjectSubScheme:
           filterProjectSubScheme ?? this.filterProjectSubScheme,
-      isRedevelopment: isRedevelopment,
+      isRedevelopment:
+          isRedevelopment == _noChange
+              ? this.isRedevelopment
+              : isRedevelopment as bool?,
     );
   }
 

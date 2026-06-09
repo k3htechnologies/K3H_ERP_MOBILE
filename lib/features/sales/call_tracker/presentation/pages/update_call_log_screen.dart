@@ -125,10 +125,12 @@ class _UpdateCallLogScreenState extends State<UpdateCallLogScreen> {
         orElse: () => budgetInCrList.first,
       );
     }
-    _selectedCallStatus.value = callStatus.firstWhere(
-      (e) => e["DisplayName"].toString() == callLog.status,
-      orElse: () => callStatus.first,
-    );
+    if (callLog.status.isNotEmpty) {
+      _selectedCallStatus.value = callStatus.firstWhere(
+        (e) => e["DisplayName"].toString() == callLog.status,
+        orElse: () => callStatus.first,
+      );
+    }
 
     _remarkC.text = callLog.remark;
     selectedRescheduleDate = callLog.rescheduleDate;

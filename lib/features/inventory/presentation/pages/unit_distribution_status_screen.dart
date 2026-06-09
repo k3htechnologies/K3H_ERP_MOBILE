@@ -87,23 +87,6 @@ class _UnitDistributionStatusScreenState
     }
 
     _onScroll();
-    _debounce = Timer(const Duration(milliseconds: 300), () {
-      if (widget.type == "Parking") {
-        _parkingCubit.getParkingWithPagination(
-          context,
-          pageNumber: _parkingCubit.state.wingCurrentPage + 1,
-          pageSize: 10,
-          projectId: widget.projectId,
-          queryParams: widget.queryParams,
-        );
-      } else {
-        _inventoryCubit.fetchUnitsByProjectId(
-          _inventoryCubit.state.currentUnitPage + 1,
-          queryParams: widget.queryParams,
-          projectId: widget.projectId,
-        );
-      }
-    });
   }
 
   @override

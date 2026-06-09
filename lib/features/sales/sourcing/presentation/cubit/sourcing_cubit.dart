@@ -65,7 +65,7 @@ class SourcingCubit extends Cubit<SourcingState> {
     String? speciality,
     String? city,
     String? village,
-
+    String? name,
     String? sortColumn,
     String? sortDirection,
     bool? isClear,
@@ -86,7 +86,7 @@ class SourcingCubit extends Cubit<SourcingState> {
           filterBySpeciality: "",
           filterByCity: "",
           filterByVillage: "",
-
+          searchText: "",
           currentSortColumn: "Created Date",
           currentSortDirection: "DESC",
           currentPageCp: 1,
@@ -95,11 +95,13 @@ class SourcingCubit extends Cubit<SourcingState> {
     } else {
       emit(
         state.copyWith(
+          searchText: mobileNumber ?? state.searchText,
+
           filterByCompanyName: companyName ?? state.filterByCompanyName,
           filterByDesignation: designation ?? state.filterByDesignation,
           filterByFirmType: firmType ?? state.filterByFirmType,
           filterByType: type ?? state.filterByType,
-          filterByCPName: mobileNumber ?? state.filterByCPName,
+          filterByCPName: name ?? state.filterByCPName,
           filterByOfficeAddress: officeAddress ?? state.filterByOfficeAddress,
           filterByGSTNumber: gstNumber ?? state.filterByGSTNumber,
           filterByRERANumber: reraNumber ?? state.filterByRERANumber,

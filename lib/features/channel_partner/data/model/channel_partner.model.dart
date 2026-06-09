@@ -40,7 +40,7 @@ class ChannelPartnerModel {
   final DateTime? modifiedDate;
   final int noOfEnquiry;
   final int noOfBooking;
-  final int brokeragePercentage;
+  final double brokeragePercentage;
   final double brokerageAmount;
   final double paidBrokerageAmount;
   final String websiteURL;
@@ -159,7 +159,7 @@ class ChannelPartnerModel {
                 : parseValue<DateTime>(json, "ModifiedDate"),
         noOfEnquiry: parseValue<int>(json, "NoOfEnquiry"),
         noOfBooking: parseValue<int>(json, "NoOfBooking"),
-        brokeragePercentage: parseValue<int>(json, "BrokeragePercentage"),
+        brokeragePercentage: parseValue<double>(json, "BrokeragePercentage"),
         brokerageAmount: parseValue<double>(json, "BrokerageAmount").toDouble(),
         paidBrokerageAmount:
             parseValue<double>(json, "PaidBrokerageAmount").toDouble(),

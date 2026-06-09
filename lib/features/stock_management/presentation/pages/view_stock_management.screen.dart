@@ -146,7 +146,7 @@ class _ViewStockManagementScreenState extends State<ViewStockManagementScreen>
     await DialogHelper.showCustomBottomSheet(
       context,
       "Material Usage",
-      StatefulBuilder(
+      contentWidget: StatefulBuilder(
         builder: (context, innerBottomsheetState) {
           final unusedQty = double.tryParse(_unusedQuantityC.text) ?? 0;
 
@@ -155,110 +155,107 @@ class _ViewStockManagementScreenState extends State<ViewStockManagementScreen>
           return Form(
             key: _statusFormKey,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        verticalSpacing(),
-                        CustomTextField(
-                          title: "Total Quantity",
-                          hint: "$totalQuantity ${historyModel?.uomCode ?? ''}",
-                          textController: TextEditingController(
-                            text:
-                                "$totalQuantity ${historyModel?.uomCode ?? ''}",
-                          ),
-                          readOnly: true,
-                        ),
-                        CustomTextField(
-                          title: "Unused Quantity",
-                          hint: "Enter Quantity",
-                          textController: _unusedQuantityC,
-                          isRequired: true,
-                          keyboardType: TextInputType.number,
-
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return "Please enter unused quantity";
-                            }
-
-                            final unused = double.tryParse(value);
-
-                            if (unused == null) {
-                              return "Invalid quantity";
-                            }
-
-                            if (unused > totalQuantity) {
-                              return "Unused quantity cannot exceed total quantity";
-                            }
-
-                            return null;
-                          },
-
-                          onChangeFunction: (value) {
-                            innerBottomsheetState(() {});
-                          },
-                        ),
-                        CustomTextField(
-                          title: "Used Quantity",
-                          hint:
-                              "${usedQty.toStringAsFixed(2)} ${historyModel?.uomCode ?? ''}",
-                          textController: TextEditingController(
-                            text:
-                                "${usedQty.toStringAsFixed(2)} ${historyModel?.uomCode ?? ''}",
-                          ),
-                          readOnly: true,
-                        ),
-                      ],
-                    ),
+                verticalSpacing(),
+                CustomTextField(
+                  title: "Total Quantity",
+                  hint: "$totalQuantity ${historyModel?.uomCode ?? ''}",
+                  textController: TextEditingController(
+                    text: "$totalQuantity ${historyModel?.uomCode ?? ''}",
                   ),
+                  readOnly: true,
                 ),
+                CustomTextField(
+                  title: "Unused Quantity",
+                  hint: "Enter Quantity",
+                  textController: _unusedQuantityC,
+                  isRequired: true,
+                  keyboardType: TextInputType.number,
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: CustomButton(
-                        text: "Cancel",
-                        backgroundColor: AppColor.white,
-                        titleTextStyle: AppTextStyle.ts14M(),
-                        borderColor: AppColor.grey.withValues(alpha: 0.25),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Please enter unused quantity";
+                    }
 
-                    horizontalSpacing(),
+                    final unused = double.tryParse(value);
 
-                    Expanded(
-                      child: CustomButton(
-                        text: "Save",
-                        onPressed: () {
-                          if (!_statusFormKey.currentState!.validate()) {
-                            return;
-                          }
+                    if (unused == null) {
+                      return "Invalid quantity";
+                    }
 
-                          _stockManagementCubit.addUpdateUsedUnusedStock(
-                            context,
-                            projectId: _selectedProject.projectId,
-                            materialRequisitionGRNStockId:
-                                historyModel!.materialRequisitionGrnStockId,
-                            usedQuantity: usedQty,
-                            unusedQuantity: unusedQty,
-                            subMaterialMasterId: widget.subMaterialMasterId,
-                          );
+                    if (unused > totalQuantity) {
+                      return "Unused quantity cannot exceed total quantity";
+                    }
 
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
-                  ],
+                    return null;
+                  },
+
+                  onChangeFunction: (value) {
+                    innerBottomsheetState(() {});
+                  },
+                ),
+                CustomTextField(
+                  title: "Used Quantity",
+                  hint:
+                      "${usedQty.toStringAsFixed(2)} ${historyModel?.uomCode ?? ''}",
+                  textController: TextEditingController(
+                    text:
+                        "${usedQty.toStringAsFixed(2)} ${historyModel?.uomCode ?? ''}",
+                  ),
+                  readOnly: true,
                 ),
               ],
             ),
+          );
+        },
+      ),
+      bottomActions: StatefulBuilder(
+        builder: (context, innerBottomsheetState) {
+          final unusedQty = double.tryParse(_unusedQuantityC.text) ?? 0;
+
+          final usedQty = totalQuantity - unusedQty;
+
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: CustomButton(
+                  text: "Cancel",
+                  backgroundColor: AppColor.white,
+                  titleTextStyle: AppTextStyle.ts14M(),
+                  borderColor: AppColor.grey.withValues(alpha: 0.25),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+
+              horizontalSpacing(),
+
+              Expanded(
+                child: CustomButton(
+                  text: "Save",
+                  onPressed: () {
+                    if (!_statusFormKey.currentState!.validate()) {
+                      return;
+                    }
+
+                    _stockManagementCubit.addUpdateUsedUnusedStock(
+                      context,
+                      projectId: _selectedProject.projectId,
+                      materialRequisitionGRNStockId:
+                          historyModel!.materialRequisitionGrnStockId,
+                      usedQuantity: usedQty,
+                      unusedQuantity: unusedQty,
+                      subMaterialMasterId: widget.subMaterialMasterId,
+                    );
+
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+            ],
           );
         },
       ),

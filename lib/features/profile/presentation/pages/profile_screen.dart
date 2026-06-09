@@ -143,7 +143,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     DialogHelper.showCustomBottomSheet(
       context,
       isUpdate ? "Update Education Details" : "Add Education Details",
-      Builder(
+      contentWidget: Builder(
         builder: (bottomSheetContext) {
           return Form(
             key: _educationFormKey,
@@ -281,7 +281,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     DialogHelper.showCustomBottomSheet(
       context,
       isUpdate ? "Update Experience Details" : "Add Experience Details",
-      Builder(
+      contentWidget: Builder(
         builder: (bottomSheetContext) {
           return Form(
             key: _experienceFormKey,

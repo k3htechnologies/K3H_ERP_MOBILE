@@ -92,7 +92,7 @@ class CustomClickToContactText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (value.isEmpty) {
+    if (value.trim().isEmpty) {
       return Text("-");
     }
     return InkWell(

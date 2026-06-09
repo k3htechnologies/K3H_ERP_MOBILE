@@ -120,6 +120,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
   ) async {
     final state = _channelPartnerCubit.state;
 
+    _searchC.text = state.searchText;
     _filterCompanyNameC.text = state.filterByCompanyName;
     _filterDesignationC.text = state.filterByDesignation;
     _filterFirmTypeC.text = state.filterByFirmType;
@@ -139,6 +140,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
             ? state.currentSortDirection
             : null;
 
+    final String initialFullNameName = _searchC.text;
     final String initialCompanyName = _filterCompanyNameC.text;
     final String initialDesignation = _filterDesignationC.text;
     final String initialFirmType = _filterFirmTypeC.text;
@@ -161,6 +163,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
+            (_searchC.text.trim() != initialFullNameName) ||
             (_filterCompanyNameC.text.trim() != initialCompanyName) ||
             (_filterDesignationC.text.trim() != initialDesignation) ||
             (_filterFirmTypeC.text.trim() != initialFirmType) ||
@@ -246,6 +249,12 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
 
                 verticalSpacing(height: 20),
 
+                CustomTextField(
+                  title: "Full Name",
+                  hint: "Enter Full Name",
+                  textController: _searchC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
                 CustomTextField(
                   title: "Company Name",
                   hint: "Enter Company Name",
@@ -357,7 +366,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
         _filterSpecialityC.clear();
         _filterCityC.clear();
         _filterVillageC.clear();
-
+        _searchC.clear();
         _channelPartnerCubit.applyChannelPartnerFilterAndSort(
           context: context,
           isClear: true,
@@ -369,6 +378,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
 
         _channelPartnerCubit.applyChannelPartnerFilterAndSort(
           context: context,
+          fullName: _searchC.text.trim(),
           companyName: _filterCompanyNameC.text.trim(),
           designation: _filterDesignationC.text.trim(),
           firmType: _filterFirmTypeC.text.trim(),

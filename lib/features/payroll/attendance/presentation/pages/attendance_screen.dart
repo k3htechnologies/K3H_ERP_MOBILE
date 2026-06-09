@@ -680,130 +680,95 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                       DialogHelper.showCustomBottomSheet(
                         context,
                         "Regularize",
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 5,
-                          ),
+                        contentWidget: Form(
+                          key: formKey,
                           child: Column(
-                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Expanded(
-                                child: SingleChildScrollView(
-                                  child: Form(
-                                    key: formKey,
-                                    child: Column(
-                                      children: [
-                                        CustomTextField(
-                                          title: "Date",
-                                          readOnly: true,
-                                          textController: TextEditingController(
-                                            text: formatDateTimeAsDDMMMYYYY(
-                                              attendance.attendanceDate,
-                                            ),
-                                          ),
-                                        ),
-
-                                        CustomTimePicker(
-                                          title: 'Punch In Time',
-                                          readOnly: attendance.punchIn != null,
-                                          initialTime:
-                                              attendance.punchIn != null
-                                                  ? TimeOfDay(
-                                                    hour:
-                                                        attendance
-                                                            .punchIn!
-                                                            .hour,
-                                                    minute:
-                                                        attendance
-                                                            .punchIn!
-                                                            .minute,
-                                                  )
-                                                  : null,
-                                          setValue: (value) {
-                                            punchInTime = formatTimeOfDayHHmm(
-                                              value,
-                                            );
-                                          },
-                                          validator: (value) {
-                                            if (value == null) {
-                                              return "Punch In Time Required";
-                                            }
-                                            return null;
-                                          },
-                                        ),
-
-                                        CustomTimePicker(
-                                          title: 'Punch Out Time',
-                                          readOnly: attendance.punchOut != null,
-                                          initialTime:
-                                              attendance.punchOut != null
-                                                  ? TimeOfDay(
-                                                    hour:
-                                                        attendance
-                                                            .punchOut!
-                                                            .hour,
-                                                    minute:
-                                                        attendance
-                                                            .punchOut!
-                                                            .minute,
-                                                  )
-                                                  : null,
-                                          setValue: (value) {
-                                            punchOutTime = formatTimeOfDayHHmm(
-                                              value,
-                                            );
-                                          },
-                                          validator: (value) {
-                                            if (value == null) {
-                                              return "Punch Out Time Required";
-                                            }
-                                            return null;
-                                          },
-                                        ),
-
-                                        CustomTextField(
-                                          title: "Reason",
-                                          minLines: 3,
-                                          maxLines: 3,
-                                          textController: reasonC,
-                                          validator: (value) {
-                                            if (value == null ||
-                                                value.isEmpty) {
-                                              return "Reason Required";
-                                            }
-                                            return null;
-                                          },
-                                        ),
-                                      ],
-                                    ),
+                              CustomTextField(
+                                title: "Date",
+                                readOnly: true,
+                                textController: TextEditingController(
+                                  text: formatDateTimeAsDDMMMYYYY(
+                                    attendance.attendanceDate,
                                   ),
                                 ),
                               ),
 
-                              const SizedBox(height: 10),
+                              CustomTimePicker(
+                                title: 'Punch In Time',
+                                readOnly: attendance.punchIn != null,
+                                initialTime:
+                                    attendance.punchIn != null
+                                        ? TimeOfDay(
+                                          hour: attendance.punchIn!.hour,
+                                          minute: attendance.punchIn!.minute,
+                                        )
+                                        : null,
+                                setValue: (value) {
+                                  punchInTime = formatTimeOfDayHHmm(value);
+                                },
+                                validator: (value) {
+                                  if (value == null) {
+                                    return "Punch In Time Required";
+                                  }
+                                  return null;
+                                },
+                              ),
 
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: CustomButton(
-                                      backgroundColor: AppColor.grey30,
-                                      textColor: AppColor.black,
-                                      text: "Clear",
-                                      onPressed: () => goRouter.pop(),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: CustomButton(
-                                      text: "Apply",
-                                      onPressed: submitAttendanceRegularize,
-                                    ),
-                                  ),
-                                ],
+                              CustomTimePicker(
+                                title: 'Punch Out Time',
+                                readOnly: attendance.punchOut != null,
+                                initialTime:
+                                    attendance.punchOut != null
+                                        ? TimeOfDay(
+                                          hour: attendance.punchOut!.hour,
+                                          minute: attendance.punchOut!.minute,
+                                        )
+                                        : null,
+                                setValue: (value) {
+                                  punchOutTime = formatTimeOfDayHHmm(value);
+                                },
+                                validator: (value) {
+                                  if (value == null) {
+                                    return "Punch Out Time Required";
+                                  }
+                                  return null;
+                                },
+                              ),
+
+                              CustomTextField(
+                                title: "Reason",
+                                minLines: 3,
+                                maxLines: 3,
+                                textController: reasonC,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Reason Required";
+                                  }
+                                  return null;
+                                },
                               ),
                             ],
                           ),
+                        ),
+                        bottomActions: Row(
+                          children: [
+                            Expanded(
+                              child: CustomButton(
+                                backgroundColor: AppColor.grey30,
+                                textColor: AppColor.black,
+                                text: "Clear",
+                                onPressed: () => goRouter.pop(),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: CustomButton(
+                                text: "Apply",
+                                onPressed: submitAttendanceRegularize,
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     } else {

@@ -184,6 +184,7 @@ class _BookingScreenState extends State<BookingScreen> {
     String? selectedDirection = initialDirection;
 
     bool applied = false;
+    bool manualClose = false;
 
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
 
@@ -203,7 +204,7 @@ class _BookingScreenState extends State<BookingScreen> {
               ? ''
               : _selectedSubSourceNotifier.value?['DisplayName'] ?? '';
 
-      final bool manualChange =
+      manualClose =
           (_startDateNotifier.value != initialStartDate) ||
           (_endDateNotifier.value != initialEndDate) ||
           (_wingC.text.trim() != initialWing) ||
@@ -226,7 +227,7 @@ class _BookingScreenState extends State<BookingScreen> {
               _endDateNotifier.value != null &&
               _startDateNotifier.value!.isAfter(_endDateNotifier.value!));
 
-      applyEnabled.value = manualChange && !onlyOneDateSet && !invalidRange;
+      applyEnabled.value = manualClose && !onlyOneDateSet && !invalidRange;
     }
 
     DialogHelper.showCustomFilterBottomSheet(
@@ -496,10 +497,21 @@ class _BookingScreenState extends State<BookingScreen> {
       applyEnabledNotifier: applyEnabled,
     );
 
-    if (!applied) {
-      _startDateNotifier.value = initialStartDate;
-      _endDateNotifier.value = initialEndDate;
-      selectedDirection = initialDirection;
+    if (!applied && manualClose) {
+      _startDateNotifier.value = null;
+      _endDateNotifier.value = null;
+
+      _wingC.clear();
+      _mobileNumberC.clear();
+      _flatC.clear();
+      _floorC.clear();
+      _agreementValueC.clear();
+      _bookingTypeC.clear();
+
+      _selectedSourceNotifier.value = null;
+      _selectedSubSourceNotifier.value = null;
+
+      selectedDirection = null;
     }
   }
 

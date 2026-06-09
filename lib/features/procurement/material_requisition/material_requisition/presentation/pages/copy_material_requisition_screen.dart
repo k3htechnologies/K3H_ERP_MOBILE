@@ -32,7 +32,7 @@ class _CopyMaterialRequisitionScreenState
   late MaterialRequisitionCubit _materialRequisitionCubit;
   late List<TextEditingController> _quantityControllers;
   late List<TextEditingController> _remarkControllers;
-  late List<DateTime> _selectedRequiredDates;
+  late List<DateTime?> _selectedRequiredDates;
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -72,7 +72,7 @@ class _CopyMaterialRequisitionScreenState
                 uomMasterId: m.uomMasterId,
                 uomCode: m.uomCode,
                 uom: m.uom,
-                requiredDate: _selectedRequiredDates[index],
+                requiredDate: _selectedRequiredDates[index]!,
                 materialReceivedQuantityTillDate: 0,
                 remark: _remarkControllers[index].text,
                 createdById: 0,
@@ -164,7 +164,7 @@ class _CopyMaterialRequisitionScreenState
                           title: "Required Date",
                           startDate: DateTime.now(),
                           initialDate: _selectedRequiredDates[index],
-                          setValue: (DateTime p1) {
+                          setValue: (DateTime? p1) {
                             _selectedRequiredDates[index] = p1;
                           },
                         ),

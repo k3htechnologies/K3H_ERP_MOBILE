@@ -275,7 +275,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                       title: "Amount",
                       hint: "Enter Amount",
                       onChangeFunction: (v) {
-                        final enteredAmount = double.tryParse(v ?? '') ?? 0.0;
+                        final enteredAmount = double.tryParse(v) ?? 0.0;
 
                         final calculatedPendingAmount =
                             (widget.invoiceModel.invoiceAmount -

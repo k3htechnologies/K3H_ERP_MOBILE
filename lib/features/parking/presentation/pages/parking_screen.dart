@@ -63,9 +63,8 @@ class _ParkingScreenState extends State<ParkingScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final state = _parkingCubit.state;
-        if (state.parkingList.isEmpty) {
-          _parkingCubit.getParking(context, _project.projectId);
-        } else {
+        _parkingCubit.getParking(context, _project.projectId);
+        if (state.parkingList.isNotEmpty) {
           _initializeControllersIfNeeded(state);
         }
       }
@@ -826,13 +825,12 @@ class _ParkingScreenState extends State<ParkingScreen>
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 2),
-
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               count.toString(),
-              style: AppTextStyle.ts12M().copyWith(color: color),
+              style: AppTextStyle.ts12SB().copyWith(color: color),
             ),
 
             horizontalSpacing(width: 5),
@@ -841,8 +839,8 @@ class _ParkingScreenState extends State<ParkingScreen>
               label,
               style:
                   isSelected
-                      ? AppTextStyle.ts10M().copyWith(color: color)
-                      : AppTextStyle.ts10R().copyWith(color: AppColor.black),
+                      ? AppTextStyle.ts12SB().copyWith(color: color)
+                      : AppTextStyle.ts12R().copyWith(color: AppColor.black),
             ),
           ],
         ),

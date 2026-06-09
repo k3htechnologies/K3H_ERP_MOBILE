@@ -18,7 +18,6 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -94,8 +93,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
 
     _litigationCubit = context.read<LitigationCubit>();
     _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.litigation] ??
-        AuthorizationModel();
+        Authorization.routeAuthorizationMap[AppRoutes.litigation]!;
     _documentNameC = TextEditingController();
     _remarkC = TextEditingController();
     _conclusionC = TextEditingController();
@@ -347,7 +345,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                       Text("Parties Details", style: AppTextStyle.ts16SB()),
                       _buildRowWrapper(
                         child: buildColumnTitleValue(
-                          title: "Plaintiff / Complaint / Petition",
+                          title: "Plaintiff / Complaint / Petitioner",
                           value: litigation.plantiff,
                         ),
                       ),
@@ -421,6 +419,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                 /// ================= CLOSE / REOPEN BUTTON =================
                 CustomButton(
                   text: status == 'closed' ? "Reopen" : "Close Case",
+                  isDisable: !_routeAuthorizationModel.isAction,
                   onPressed: () async {
                     if (status == 'open') {
                       _showClosurePopup();
@@ -504,6 +503,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
               // only latest litigation can be edit
               if (status.toLowerCase() != 'reopen' && index == 0)
                 CustomIconButton.edit(
+                  isDisabled: !_routeAuthorizationModel.isAction,
                   onPressed: () {
                     _prefillClosureDate(closure: closure);
                     _showClosurePopup(closure: closure, index: index);
@@ -668,6 +668,10 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
 
                     final hearing = state.litigationHearingList[index];
                     final status = state.litigationList[widget.index].status;
+                    final disable =
+                        !(index == 0 &&
+                            status.toLowerCase() != 'closed' &&
+                            _routeAuthorizationModel.isAction);
                     return Container(
                       padding: EdgeInsets.all(16),
                       margin: EdgeInsets.only(bottom: 10),
@@ -697,52 +701,50 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                                   ),
                                 ],
                               ),
+
                               //Only Lastest Hearing can be Update and Delete but make sure Api return data by date and Time
-                              if (index == 0 &&
-                                  status.toLowerCase() != 'closed' &&
-                                  _routeAuthorizationModel.isAction)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    CustomIconButton.edit(
-                                      onPressed: () async {
-                                        await goRouter.pushNamed(
-                                          AppRoutes.addLitigationHearing,
-                                          queryParameters: {
-                                            "litigationHearing":
-                                                Uri.encodeQueryComponent(
-                                                  EncryptionManager.encryptData(
-                                                    jsonEncode(
-                                                      hearing.toJson(),
-                                                    ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  CustomIconButton.edit(
+                                    isDisabled: disable,
+                                    onPressed: () async {
+                                      await goRouter.pushNamed(
+                                        AppRoutes.addLitigationHearing,
+                                        queryParameters: {
+                                          "litigationHearing":
+                                              Uri.encodeQueryComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(hearing.toJson()),
+                                                ),
+                                              ),
+                                          'index': index.toString(),
+                                          "litigation":
+                                              Uri.encodeQueryComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(
+                                                    widget.litigationModel
+                                                        .toJson(),
                                                   ),
                                                 ),
-                                            'index': index.toString(),
-                                            "litigation":
-                                                Uri.encodeQueryComponent(
-                                                  EncryptionManager.encryptData(
-                                                    jsonEncode(
-                                                      widget.litigationModel
-                                                          .toJson(),
-                                                    ),
-                                                  ),
-                                                ),
-                                          },
-                                        );
-                                      },
-                                    ),
-                                    horizontalSpacing(width: 8),
-                                    CustomIconButton.delete(
-                                      onPressed: () {
-                                        _showPopupToDeleteHearing(
-                                          context,
-                                          hearing,
-                                          index,
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
+                                              ),
+                                        },
+                                      );
+                                    },
+                                  ),
+                                  horizontalSpacing(width: 8),
+                                  CustomIconButton.delete(
+                                    isDisabled: disable,
+                                    onPressed: () {
+                                      _showPopupToDeleteHearing(
+                                        context,
+                                        hearing,
+                                        index,
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                           verticalSpacing(height: 5),
@@ -754,6 +756,8 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                           Row(
                             children: [
                               CustomButton.documentOutline(
+                                isDisable:
+                                    hearing.hearingAttachementUrl.isEmpty,
                                 onPressed: () {
                                   if (hearing
                                       .hearingAttachementUrl
@@ -1102,73 +1106,69 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
       documentModel != null
           ? 'Update Litigation Document'
           : 'Add Litigation Document',
-      Form(
+      contentWidget: Form(
         key: _formKeyDocument,
-        child: Padding(
-          padding: EdgeInsets.all(16),
-
-          child: Column(
-            children: [
-              CustomTextField(
-                title: "Document Name",
-                hint: "Enter Document Name",
-                textController: _documentNameC,
-                isRequired: true,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Document Name is required";
-                  }
-                  if (value.length < 3) {
-                    return "Document Name must be at least 3 characters long";
-                  }
-                  return null;
-                },
-              ),
-              CustomMultiFilePicker(
-                title: "Files",
-                initialFileList: litigationDocument.fileNameList,
-                maxFiles: 5,
-                onFilePickedCallback: (bytesList, fileNameList) {
-                  litigationDocument.fileNameList = fileNameList;
-                  litigationDocument.fileBytesList = bytesList;
-                },
-                isRequired: true,
-                onFileDeleteCallback: (fileBytesList, fileNameList, deleted) {
-                  litigationDocument.fileBytesList = fileBytesList;
-                  litigationDocument.fileNameList = fileNameList;
-                  litigationDocument.deletedFileList = deleted;
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "File is required.";
-                  }
-                  return null;
-                },
-              ),
-              Spacer(),
-              Container(
-                height: 70,
-                padding: EdgeInsets.all(16),
-                child: CustomButton(
-                  text:
-                      documentModel != null
-                          ? "Update Document"
-                          : "Add Document",
-                  onPressed: () {
-                    _submitForm(documentModel: documentModel, index: index);
-                  },
-                ),
-              ),
-            ],
-          ),
+        child: Column(
+          children: [
+            CustomTextField(
+              title: "Document Name",
+              hint: "Enter Document Name",
+              textController: _documentNameC,
+              isRequired: true,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Document Name is required";
+                }
+                if (value.length < 3) {
+                  return "Document Name must be at least 3 characters long";
+                }
+                return null;
+              },
+            ),
+            CustomMultiFilePicker(
+              title: "Files",
+              initialFileList: litigationDocument.fileNameList,
+              maxFiles: 5,
+              onFilePickedCallback: (bytesList, fileNameList) {
+                litigationDocument.fileNameList = fileNameList;
+                litigationDocument.fileBytesList = bytesList;
+              },
+              isRequired: true,
+              onFileDeleteCallback: (fileBytesList, fileNameList, deleted) {
+                litigationDocument.fileBytesList = fileBytesList;
+                litigationDocument.fileNameList = fileNameList;
+                litigationDocument.deletedFileList = deleted;
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return "File is required.";
+                }
+                return null;
+              },
+            ),
+          ],
         ),
+      ),
+      bottomActions: CustomButton(
+        text: documentModel != null ? "Update Document" : "Add Document",
+        onPressed: () {
+          _submitForm(
+            documentModel: documentModel,
+            index: index,
+            projectId: widget.litigationModel.projectId,
+          );
+        },
       ),
     );
     _clearDialogueToAddUpdateDocument();
   }
 
   // SUBMIT DOCUMENT
-  void _submitForm({LitigationDocumentModel? documentModel, int? index}) {
+  void _submitForm({
+    LitigationDocumentModel? documentModel,
+    int? index,
+    required int projectId,
+  }) {
     if (!_formKeyDocument.currentState!.validate()) {
       return;
     }
@@ -1178,7 +1178,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
               ? 0.toString()
               : documentModel.litigationDocumentId.toString(),
       if (documentModel != null) "Uniquekey": documentModel.uniquekey,
-      "ProjectId": getProject().projectId.toString(),
+      "ProjectId": projectId.toString(),
       "LitigationId": widget.litigationModel.litigationId.toString(),
       "DocumentName": _documentNameC.text.trim(),
       "RemoveDocumentURL": litigationDocument.deletedFileList,

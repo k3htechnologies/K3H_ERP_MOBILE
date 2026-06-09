@@ -131,139 +131,131 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     await DialogHelper.showCustomBottomSheet(
       context,
       "Add Security Deposit Details",
-      SingleChildScrollView(
-        child: ValueListenableBuilder<Map<String, dynamic>?>(
-          valueListenable: _selectedSecurityDepositType,
-          builder: (context, selectedSecurityDepositType, _) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Form(
-                key: _securityDepositFormKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    /// TYPE
-                    CustomDropDownWidget(
-                      isRequired: true,
-                      initialValue: selectedSecurityDepositType,
-                      dataList: _securityDepositTypeList,
-                      onSelected: (value) {
-                        _selectedSecurityDepositType.value = value;
-                      },
-                      title: "Type",
-                      hintText: "Select Type",
-                      validator: (value) {
-                        if (value == null || value['zAttributesId'] == -1) {
-                          return "Type is required";
-                        }
-                        return null;
-                      },
-                      onValueClear:
-                          () => _selectedSecurityDepositType.value = null,
-                    ),
-
-                    /// STAGE
-                    CustomTextField(
-                      title: "Stage",
-                      isRequired: true,
-                      hint: "Enter Stage",
-                      textController: _stageController,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Stage is required";
-                        }
-                        return null;
-                      },
-                    ),
-
-                    /// AMOUNT
-                    CustomTextField(
-                      title: "Amount (₹)",
-                      isRequired: true,
-                      hint: "Enter Amount",
-                      textController: _amountController,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(10),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Amount is required";
-                        }
-
-                        if (_isSecurityAmountExceeding(index)) {
-                          return "Total amount cannot exceed "
-                              "${_securityDepositAmountController.text}";
-                        }
-
-                        return null;
-                      },
-                    ),
-
-                    verticalSpacing(height: 25),
-
-                    /// SAVE
-                    CustomButton(
-                      text: "Save",
-                      onPressed: () {
-                        if (_securityDepositFormKey.currentState!.validate()) {
-                          final newList = List<
-                            ProposedOfferSecurityDepositDetailsWithPaymentStageData
-                          >.from(_securityDepositList);
-                          if (securityDeposit == null) {
-                            newList.add(
-                              ProposedOfferSecurityDepositDetailsWithPaymentStageData(
-                                proposedOfferSecurityDepositDetailsWithPaymentStageId:
-                                    0,
-                                uniquekey: '',
-                                buildingId: widget.buildingId,
-                                projectId: widget.projectId,
-                                type:
-                                    selectedSecurityDepositType!['DisplayName'],
-                                stage: _stageController.text,
-                                amount: double.parse(_amountController.text),
-                                createdById: 1,
-                                createdBy: 'Current User',
-                                createdDate: DateTime.now(),
-                                modifiedById: 0,
-                                modifiedBy: '',
-                                modifiedDate: null,
-                              ),
-                            );
-                          } else {
-                            newList[index!] =
-                                ProposedOfferSecurityDepositDetailsWithPaymentStageData(
-                                  proposedOfferSecurityDepositDetailsWithPaymentStageId:
-                                      securityDeposit
-                                          .proposedOfferSecurityDepositDetailsWithPaymentStageId,
-                                  uniquekey: securityDeposit.uniquekey,
-                                  buildingId: securityDeposit.buildingId,
-                                  projectId: securityDeposit.projectId,
-                                  type:
-                                      selectedSecurityDepositType!['DisplayName'],
-                                  stage: _stageController.text,
-                                  amount: double.parse(_amountController.text),
-                                  createdById: securityDeposit.createdById,
-                                  createdBy: securityDeposit.createdBy,
-                                  createdDate: securityDeposit.createdDate,
-                                  modifiedById: securityDeposit.modifiedById,
-                                  modifiedBy: securityDeposit.modifiedBy,
-                                  modifiedDate: securityDeposit.modifiedDate,
-                                );
-                          }
-
-                          _securityDepositListNotifier.value = newList;
-                          Navigator.pop(context);
-                        }
-                      },
-                    ),
-
-                    verticalSpacing(height: 20),
-                  ],
+      contentWidget: ValueListenableBuilder<Map<String, dynamic>?>(
+        valueListenable: _selectedSecurityDepositType,
+        builder: (context, selectedSecurityDepositType, _) {
+          return Form(
+            key: _securityDepositFormKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                /// TYPE
+                CustomDropDownWidget(
+                  isRequired: true,
+                  initialValue: selectedSecurityDepositType,
+                  dataList: _securityDepositTypeList,
+                  onSelected: (value) {
+                    _selectedSecurityDepositType.value = value;
+                  },
+                  title: "Type",
+                  hintText: "Select Type",
+                  validator: (value) {
+                    if (value == null || value['zAttributesId'] == -1) {
+                      return "Type is required";
+                    }
+                    return null;
+                  },
+                  onValueClear: () => _selectedSecurityDepositType.value = null,
                 ),
-              ),
-            );
-          },
-        ),
+
+                /// STAGE
+                CustomTextField(
+                  title: "Stage",
+                  isRequired: true,
+                  hint: "Enter Stage",
+                  textController: _stageController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Stage is required";
+                    }
+                    return null;
+                  },
+                ),
+
+                /// AMOUNT
+                CustomTextField(
+                  title: "Amount (₹)",
+                  isRequired: true,
+                  hint: "Enter Amount",
+                  textController: _amountController,
+                  keyboardType: TextInputType.number,
+                  inputFormatterList:
+                      inputFormatterListForDecimalValuesFixedToTwo(10),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Amount is required";
+                    }
+
+                    if (_isSecurityAmountExceeding(index)) {
+                      return "Total amount cannot exceed "
+                          "${_securityDepositAmountController.text}";
+                    }
+
+                    return null;
+                  },
+                ),
+
+                verticalSpacing(height: 15),
+              ],
+            ),
+          );
+        },
+      ),
+      bottomActions: ValueListenableBuilder<Map<String, dynamic>?>(
+        valueListenable: _selectedSecurityDepositType,
+        builder: (context, selectedSecurityDepositType, _) {
+          return CustomButton(
+            text: "Save",
+            onPressed: () {
+              if (_securityDepositFormKey.currentState!.validate()) {
+                final newList = List<
+                  ProposedOfferSecurityDepositDetailsWithPaymentStageData
+                >.from(_securityDepositList);
+                if (securityDeposit == null) {
+                  newList.add(
+                    ProposedOfferSecurityDepositDetailsWithPaymentStageData(
+                      proposedOfferSecurityDepositDetailsWithPaymentStageId: 0,
+                      uniquekey: '',
+                      buildingId: widget.buildingId,
+                      projectId: widget.projectId,
+                      type: selectedSecurityDepositType!['DisplayName'],
+                      stage: _stageController.text,
+                      amount: double.parse(_amountController.text),
+                      createdById: 1,
+                      createdBy: 'Current User',
+                      createdDate: DateTime.now(),
+                      modifiedById: 0,
+                      modifiedBy: '',
+                      modifiedDate: null,
+                    ),
+                  );
+                } else {
+                  newList[index!] =
+                      ProposedOfferSecurityDepositDetailsWithPaymentStageData(
+                        proposedOfferSecurityDepositDetailsWithPaymentStageId:
+                            securityDeposit
+                                .proposedOfferSecurityDepositDetailsWithPaymentStageId,
+                        uniquekey: securityDeposit.uniquekey,
+                        buildingId: securityDeposit.buildingId,
+                        projectId: securityDeposit.projectId,
+                        type: selectedSecurityDepositType!['DisplayName'],
+                        stage: _stageController.text,
+                        amount: double.parse(_amountController.text),
+                        createdById: securityDeposit.createdById,
+                        createdBy: securityDeposit.createdBy,
+                        createdDate: securityDeposit.createdDate,
+                        modifiedById: securityDeposit.modifiedById,
+                        modifiedBy: securityDeposit.modifiedBy,
+                        modifiedDate: securityDeposit.modifiedDate,
+                      );
+                }
+
+                _securityDepositListNotifier.value = newList;
+                Navigator.pop(context);
+              }
+            },
+          );
+        },
       ),
     );
 

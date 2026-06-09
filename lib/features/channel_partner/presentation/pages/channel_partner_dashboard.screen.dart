@@ -406,15 +406,26 @@ class _ChannelPartnerDashboardScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 2,
                 children: [
-                  Expanded(
-                    child: Text(
-                      "Recently Added Channel Partner",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.black.withValues(alpha: 0.50),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "Recently Added Channel Partner",
+                          style: AppTextStyle.ts14M(
+                            color: AppColor.black.withValues(alpha: 0.50),
+                          ),
+                        ),
                       ),
+                    ],
+                  ),
+                  Text(
+                    "(Last 7 Days)",
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: 0.50),
                     ),
                   ),
                 ],
@@ -451,6 +462,34 @@ class _ChannelPartnerDashboardScreenState
                             _infoColumn(
                               "Channel Partner Code",
                               addedChannelPartner.systemGeneratedCode,
+                              customValueWidge: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    addedChannelPartner.systemGeneratedCode,
+                                    style: AppTextStyle.ts14M(),
+                                  ),
+                                  horizontalSpacing(width: 2),
+                                  InkWell(
+                                    onTap: () {
+                                      copy(
+                                        context: context,
+                                        text:
+                                            addedChannelPartner
+                                                .systemGeneratedCode,
+                                      );
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(5),
+                                      child: Icon(
+                                        Icons.copy,
+                                        size: 16,
+                                        color: AppColor.primary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                             verticalSpacing(height: 16),
                             Row(
@@ -583,7 +622,12 @@ class _ChannelPartnerDashboardScreenState
     );
   }
 
-  Widget _infoColumn(String title, String value, {Color? valueColor}) {
+  Widget _infoColumn(
+    String title,
+    String value, {
+    Color? valueColor,
+    Widget? customValueWidge,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -596,10 +640,11 @@ class _ChannelPartnerDashboardScreenState
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          value,
-          style: AppTextStyle.ts14M(color: valueColor ?? AppColor.black),
-        ),
+        customValueWidge ??
+            Text(
+              value,
+              style: AppTextStyle.ts14M(color: valueColor ?? AppColor.black),
+            ),
       ],
     );
   }
