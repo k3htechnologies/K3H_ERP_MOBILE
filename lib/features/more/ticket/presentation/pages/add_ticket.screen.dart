@@ -32,7 +32,7 @@ class _AddTicketScreenState extends State<AddTicketScreen> {
   late ValueNotifier<Map<String, dynamic>?> selectedPlatformType;
   late ValueNotifier<Map<String, dynamic>?> selectedModuleType;
 
-  late TextEditingController _descriptionC, _remarkC;
+  late TextEditingController _descriptionC, _remarkC, _moduleC;
   MultiFilePickerModel selectedDocument = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
@@ -53,6 +53,7 @@ class _AddTicketScreenState extends State<AddTicketScreen> {
     selectedModuleType = ValueNotifier(null);
     _descriptionC = TextEditingController();
     _remarkC = TextEditingController();
+    _moduleC = TextEditingController();
     selectedPriority = ValueNotifier<String?>(null);
     if (_isEditMode) {
       _prefillTicketMaster(widget.ticket!);
@@ -66,6 +67,7 @@ class _AddTicketScreenState extends State<AddTicketScreen> {
     selectedModuleType.dispose();
     _descriptionC.dispose();
     _remarkC.dispose();
+    _moduleC.dispose();
     selectedPriority.dispose();
   }
 
@@ -76,6 +78,7 @@ class _AddTicketScreenState extends State<AddTicketScreen> {
     selectedModuleType.value = moduleTypeList.firstWhere(
       (e) => e['DisplayName'] == ticketModel.module,
     );
+    _moduleC.text = ticketModel.module;
     selectedDocument.fileNameList =
         ticketModel.attachmentUrl.isEmpty
             ? []
@@ -96,10 +99,14 @@ class _AddTicketScreenState extends State<AddTicketScreen> {
         selectedPlatformType.value?["zAttributesId"] == null
             ? ""
             : selectedPlatformType.value!["DisplayName"];
+    final bool isWebsite =
+        selectedPlatformType.value?["DisplayName"]?.toString().toLowerCase() ==
+        "website";
+
     final String moduleTypeValue =
-        selectedModuleType.value?["zAttributesId"] == null
-            ? ""
-            : selectedModuleType.value!["DisplayName"];
+        isWebsite
+            ? _moduleC.text.trim()
+            : (selectedModuleType.value?["DisplayName"] ?? "");
 
     if (!_isEditMode && widget.ticket == null) {
       _ticketCubit.addTask(
@@ -164,6 +171,8 @@ class _AddTicketScreenState extends State<AddTicketScreen> {
                           dataList: platformTypeList,
                           onSelected: (value) {
                             selectedPlatformType.value = value;
+                            selectedModuleType.value = null;
+                            _moduleC.clear();
                           },
                           validator: (value) {
                             if ((value == null ||
@@ -179,26 +188,54 @@ class _AddTicketScreenState extends State<AddTicketScreen> {
                       },
                     ),
                     ValueListenableBuilder(
-                      valueListenable: selectedModuleType,
-                      builder: (context, moduleValue, child) {
-                        return CustomDropDownWidget(
-                          title: "Module",
-                          hintText: "Select Module",
-                          isRequired: true,
-                          initialValue: moduleValue,
-                          dataList: moduleTypeList,
-                          onSelected: (value) {
-                            selectedModuleType.value = value;
-                          },
-                          validator: (value) {
-                            if ((value == null ||
-                                value['zAttributesId'] == -1)) {
-                              return "Module is required";
-                            }
-                            return null;
-                          },
-                          onValueClear: () {
-                            selectedModuleType.value = null;
+                      valueListenable: selectedPlatformType,
+                      builder: (context, platformValue, child) {
+                        final bool isWebsite =
+                            platformValue?["DisplayName"]
+                                ?.toString()
+                                .toLowerCase() ==
+                            "website";
+
+                        if (isWebsite) {
+                          return CustomTextField(
+                            title: "Module",
+                            hint: "Enter Module Name",
+                            isRequired: true,
+                            textController: _moduleC,
+                            inputFormatterList: [
+                              LengthLimitingTextInputFormatter(250),
+                            ],
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return "Module is required";
+                              }
+                              return null;
+                            },
+                          );
+                        }
+                        return ValueListenableBuilder(
+                          valueListenable: selectedModuleType,
+                          builder: (context, moduleValue, child) {
+                            return CustomDropDownWidget(
+                              title: "Module",
+                              hintText: "Select Module",
+                              isRequired: true,
+                              initialValue: moduleValue,
+                              dataList: moduleTypeList,
+                              onSelected: (value) {
+                                selectedModuleType.value = value;
+                              },
+                              validator: (value) {
+                                if ((value == null ||
+                                    value['zAttributesId'] == -1)) {
+                                  return "Module is required";
+                                }
+                                return null;
+                              },
+                              onValueClear: () {
+                                selectedModuleType.value = null;
+                              },
+                            );
                           },
                         );
                       },
@@ -222,8 +259,9 @@ class _AddTicketScreenState extends State<AddTicketScreen> {
                       },
                     ),
                     CustomMultiFilePicker(
-                      title: "Upload Document",
+                      title: "Document",
                       isRequired: true,
+                      maxFiles: 5,
                       initialFileList: selectedDocument.fileNameList,
                       onFilePickedCallback: (bytes, fileName) {
                         selectedDocument.fileBytesList = bytes;
@@ -236,7 +274,7 @@ class _AddTicketScreenState extends State<AddTicketScreen> {
                       },
                       validator: (fileList) {
                         if (fileList == null || fileList.isEmpty) {
-                          return "Document is required";
+                          return "File is required";
                         }
                         return null;
                       },
@@ -252,7 +290,22 @@ class _AddTicketScreenState extends State<AddTicketScreen> {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Set Priority", style: AppTextStyle.ts14M()),
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: "Set Priority",
+                                    style: AppTextStyle.ts14M(),
+                                  ),
+                                  TextSpan(
+                                    text: "*",
+                                    style: AppTextStyle.ts14R(
+                                      color: AppColor.error,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
 
                             ValueListenableBuilder(
                               valueListenable: selectedPriority,
@@ -308,6 +361,7 @@ class _AddTicketScreenState extends State<AddTicketScreen> {
                       maxLines: 10,
                       isRequired: true,
                       textController: _remarkC,
+                      suffixWidget: SpeechToTextIcon(controller: _remarkC),
                       inputFormatterList: [
                         LengthLimitingTextInputFormatter(500),
                       ],

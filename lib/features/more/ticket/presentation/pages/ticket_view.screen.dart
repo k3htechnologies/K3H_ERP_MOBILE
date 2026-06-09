@@ -111,6 +111,11 @@ class _TicketViewScreenState extends State<TicketViewScreen>
             .map((e) => e.trim())
             .where((e) => e.isNotEmpty)
             .toList();
+    final urls =
+        widget.ticket!.attachmentUrl
+            .split(",")
+            .where((e) => e.trim().isNotEmpty)
+            .toList();
     return SingleChildScrollView(
       padding: EdgeInsets.all(20.0),
       child: Column(
@@ -129,6 +134,7 @@ class _TicketViewScreenState extends State<TicketViewScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("Ticketing Details", style: AppTextStyle.ts16SB()),
+                verticalSpacing(height: 8.5),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -139,28 +145,42 @@ class _TicketViewScreenState extends State<TicketViewScreen>
                         value: widget.ticket!.module,
                       ),
                     ),
-                    horizontalSpacing(),
-                    buildColumnTitleValueNormal(
-                      title: "Attachment",
-                      value: widget.ticket!.attachmentUrl,
-                      customValueWidget: CustomButton.documentOutline(
-                        onPressed: () {
-                          if (widget.ticket!.attachmentUrl.isNotEmpty) {
-                            showFilePreviewDialog(
-                              context,
-                              widget.ticket!.attachmentUrl.split(","),
-                            );
-                          }
-                        },
-                        isDisable: widget.ticket!.attachmentUrl.isEmpty,
+                    horizontalSpacing(width: 16.0),
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Platform",
+                        value: widget.ticket!.platform,
                       ),
                     ),
                   ],
                 ),
                 verticalSpacing(height: 16.0),
-                buildColumnTitleValueNormal(
-                  title: "Description",
-                  value: widget.ticket!.ticketDescription,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Attachment",
+                        value: widget.ticket!.attachmentUrl,
+                        customValueWidget: CustomButton.documentOutline(
+                          onPressed: () {
+                            if (widget.ticket!.attachmentUrl.isNotEmpty) {
+                              showFilePreviewDialog(context, urls);
+                            }
+                          },
+                          isDisable: widget.ticket!.attachmentUrl.isEmpty,
+                        ),
+                      ),
+                    ),
+                    horizontalSpacing(width: 16.0),
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Description",
+                        value: widget.ticket!.ticketDescription,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -178,6 +198,7 @@ class _TicketViewScreenState extends State<TicketViewScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("Request Information ", style: AppTextStyle.ts16SB()),
+                verticalSpacing(height: 8.5),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -188,7 +209,7 @@ class _TicketViewScreenState extends State<TicketViewScreen>
                         value: widget.ticket!.createdBy,
                       ),
                     ),
-                    horizontalSpacing(),
+                    horizontalSpacing(width: 16.0),
                     Expanded(
                       child: buildColumnTitleValueNormal(
                         title: "Department",
@@ -205,10 +226,12 @@ class _TicketViewScreenState extends State<TicketViewScreen>
                     Expanded(
                       child: buildColumnTitleValueNormal(
                         title: "Date",
-                        value: formatDate(widget.ticket!.createdDate!),
+                        value: formatDateTimeAsDDMMMYYYY(
+                          widget.ticket!.createdDate!,
+                        ),
                       ),
                     ),
-                    horizontalSpacing(),
+                    horizontalSpacing(width: 16.0),
                     Expanded(
                       child: buildColumnTitleValueNormal(
                         title: "Priority",
@@ -228,95 +251,111 @@ class _TicketViewScreenState extends State<TicketViewScreen>
               ],
             ),
           ),
-          Container(
-            padding: EdgeInsets.only(
-              top: 16.0,
-              left: 16.0,
-              bottom: 8.0,
-              right: 16.0,
-            ),
-            margin: EdgeInsets.only(bottom: 16.0),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Assignee Details", style: AppTextStyle.ts16SB()),
-                Row(
+          widget.ticket!.ticketStatus.toLowerCase() != 'open'
+              ? Container(
+                padding: EdgeInsets.only(
+                  top: 16.0,
+                  left: 16.0,
+                  bottom: 8.0,
+                  right: 16.0,
+                ),
+                margin: EdgeInsets.only(bottom: 16.0),
+                decoration: commonCardDecoration(),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Primary Assignee",
-                        value: widget.ticket!.employeeName,
-                      ),
-                    ),
-                    horizontalSpacing(),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Collaborators",
-                            style: AppTextStyle.ts14R(color: AppColor.grey),
+                    Text("Assignee Details", style: AppTextStyle.ts16SB()),
+                    verticalSpacing(height: 8.5),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: buildColumnTitleValueNormal(
+                            title: "Primary Assignee",
+                            value: widget.ticket!.employeeName,
                           ),
-                          const SizedBox(height: 4),
-                          ...collaborators.map(
-                            (name) => Padding(
-                              padding: const EdgeInsets.only(bottom: 4),
-                              child: Text(name, style: AppTextStyle.ts14M()),
-                            ),
+                        ),
+                        horizontalSpacing(width: 16.0),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Collaborators",
+                                style: AppTextStyle.ts14R(color: AppColor.grey),
+                              ),
+                              const SizedBox(height: 4),
+                              ...collaborators.map(
+                                (name) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 4),
+                                  child: Text(
+                                    name.isEmpty ? "-" : name,
+                                    style: AppTextStyle.ts14M(),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        buildColumnTitleValueNormal(
+                          title: "Assigned By",
+                          value: widget.ticket!.assignedBy,
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: buildColumnTitleValueNormal(
+                            title: "Assigned Date",
+                            value:
+                                widget.ticket!.assignedDate == null
+                                    ? "-"
+                                    : formatDateTimeAsDDMMMYYYY(
+                                      widget.ticket!.assignedDate!,
+                                    ),
+                          ),
+                        ),
+                        horizontalSpacing(width: 16.0),
+                        Expanded(
+                          child: buildColumnTitleValueNormal(
+                            title: "Estimated Completion Date",
+                            value:
+                                widget.ticket!.resolvedTillDate == null
+                                    ? "-"
+                                    : formatDateTimeAsDDMMMYYYY(
+                                      widget.ticket!.resolvedTillDate!,
+                                    ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        buildColumnTitleValueNormal(
+                          title: "Remark",
+                          value: widget.ticket!.assignedRemark,
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                verticalSpacing(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    buildColumnTitleValueNormal(
-                      title: "Assigned By",
-                      value: widget.ticket!.assignedBy,
-                    ),
-                  ],
-                ),
-                verticalSpacing(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Assigned Date",
-                        value: formatDate(widget.ticket!.assignedDate),
-                      ),
-                    ),
-                    horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Estimated Completion Date",
-                        value: formatDate(widget.ticket!.resolvedTillDate),
-                      ),
-                    ),
-                  ],
-                ),
-                verticalSpacing(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    buildColumnTitleValueNormal(
-                      title: "Remark",
-                      value: widget.ticket!.assignedRemark,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+              )
+              : SizedBox.shrink(),
           Container(
             padding: EdgeInsets.only(
               top: 16.0,
@@ -330,6 +369,7 @@ class _TicketViewScreenState extends State<TicketViewScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("Action Details", style: AppTextStyle.ts16SB()),
+                verticalSpacing(height: 8.5),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -340,11 +380,16 @@ class _TicketViewScreenState extends State<TicketViewScreen>
                         value: widget.ticket!.createdBy,
                       ),
                     ),
-                    horizontalSpacing(),
+                    horizontalSpacing(width: 16.0),
                     Expanded(
                       child: buildColumnTitleValueNormal(
                         title: "Created Date",
-                        value: formatDate(widget.ticket!.createdDate),
+                        value:
+                            widget.ticket!.createdDate == null
+                                ? "-"
+                                : formatDateTimeAsDDMMMYYYY(
+                                  widget.ticket!.createdDate!,
+                                ),
                       ),
                     ),
                   ],
@@ -360,11 +405,16 @@ class _TicketViewScreenState extends State<TicketViewScreen>
                         value: widget.ticket!.modifiedBy,
                       ),
                     ),
-                    horizontalSpacing(),
+                    horizontalSpacing(width: 16.0),
                     Expanded(
                       child: buildColumnTitleValueNormal(
                         title: "Modified Date",
-                        value: formatDate(widget.ticket!.modifiedDate),
+                        value:
+                            widget.ticket!.modifiedDate == null
+                                ? "_"
+                                : formatDateTimeAsDDMMMYYYY(
+                                  widget.ticket!.modifiedDate!,
+                                ),
                       ),
                     ),
                   ],
@@ -473,7 +523,21 @@ class _TicketViewScreenState extends State<TicketViewScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(child: Text(date, style: AppTextStyle.ts12M())),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(date, style: AppTextStyle.ts12M()),
+                            verticalSpacing(height: 12.0),
+                            Text(
+                              remark,
+                              style: AppTextStyle.ts12M(
+                                color: AppColor.greyTitleAndValueColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       horizontalSpacing(),
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -493,8 +557,6 @@ class _TicketViewScreenState extends State<TicketViewScreen>
                       ),
                     ],
                   ),
-                  verticalSpacing(),
-                  Text(remark, style: AppTextStyle.ts12M()),
                 ],
               ),
             ),
@@ -548,7 +610,7 @@ class _TicketViewScreenState extends State<TicketViewScreen>
     if (value == null) return "-";
 
     if (value is DateTime) {
-      return formatDate(value);
+      return formatDateTimeAsDDMMMYYYY(value);
     }
 
     return "-";

@@ -83,48 +83,54 @@ class _ChannelPartnerDashboardScreenState
                     context,
                     bgColor: AppColor.blueBgColor,
                     title: "Total Channel Partner",
-                    titleColor: AppColor.white,
+                    titleColor: AppColor.lightBlue,
                     value: table0?.totalChannelPartner ?? 0,
-                    valueColor: AppColor.white,
+                    valueColor: AppColor.lightBlue,
                   ),
-                  verticalSpacing(),
+                  verticalSpacing(height: 16.0),
                   _buildTotalCasesWidget(
                     context,
                     bgColor: AppColor.white,
                     title: "Enquiry By CP",
-                    titleColor: AppColor.black.withValues(alpha: 0.5),
+                    titleColor: AppColor.greyTitleAndValueColor.withValues(
+                      alpha: 0.5,
+                    ),
                     value: table0?.activeChannelPartner ?? 0,
                     subText: "this month",
                     valueColor: AppColor.black,
                   ),
-                  verticalSpacing(),
+                  verticalSpacing(height: 16.0),
                   _buildTotalCasesWidget(
                     context,
                     bgColor: AppColor.white,
                     title: "CP Onboard",
-                    titleColor: AppColor.black.withValues(alpha: 0.5),
+                    titleColor: AppColor.greyTitleAndValueColor.withValues(
+                      alpha: 0.5,
+                    ),
                     value: table0?.thisMonthAddedChannelPartner ?? 0,
                     valueColor: AppColor.black,
                     subText: "this month",
                     valuesubTextColor: AppColor.green,
                   ),
-                  verticalSpacing(),
+                  verticalSpacing(height: 16.0),
                   _buildTotalCasesWidget(
                     context,
                     bgColor: AppColor.priorityHighColor.withValues(alpha: 0.1),
                     title: "Missing Information",
-                    titleColor: AppColor.black.withValues(alpha: 0.5),
+                    titleColor: AppColor.greyTitleAndValueColor.withValues(
+                      alpha: 0.5,
+                    ),
                     value: table0?.missingInfoChannelPartner ?? 0,
                     valueColor: AppColor.priorityHighColor,
                     borderColor: AppColor.priorityHighColor,
                   ),
-                  verticalSpacing(),
+                  verticalSpacing(height: 16.0),
                   // CHANNEL PARTNER DISTRIBUTION WIDGET
                   _buildChannelPartnerDistributionWidget(context),
-                  verticalSpacing(),
+                  verticalSpacing(height: 16.0),
                   // RECENTLY ADDED CHANNEL PARTNER WIDGET
                   _buildRecentlyAddedChannelPartnerWidget(context),
-                  verticalSpacing(),
+                  verticalSpacing(height: 16.0),
                   // MISSING DETAILS WIDGET
                   _buildMissingDetailsWidget(context),
                 ],
@@ -161,12 +167,8 @@ class _ChannelPartnerDashboardScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: AppTextStyle.ts14M(color: titleColor.withValues(alpha: 0.7)),
-          ),
-          const SizedBox(height: 8),
-
+          Text(title, style: AppTextStyle.ts14M(color: titleColor)),
+          verticalSpacing(height: 6),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -175,7 +177,7 @@ class _ChannelPartnerDashboardScreenState
                 style: AppTextStyle.ts20SB(color: valueColor),
               ),
               if (subText != null) ...[
-                const SizedBox(width: 8),
+                horizontalSpacing(width: 6),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 2),
                   child: Text(
@@ -221,18 +223,13 @@ class _ChannelPartnerDashboardScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      "Channel Partner Distribution",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.black.withValues(alpha: 0.50),
-                      ),
-                    ),
+              Text(
+                "Channel Partner Distribution",
+                style: AppTextStyle.ts14M(
+                  color: AppColor.greyTitleAndValueColor.withValues(
+                    alpha: 0.50,
                   ),
-                ],
+                ),
               ),
               Divider(
                 thickness: 0.3,
@@ -406,18 +403,13 @@ class _ChannelPartnerDashboardScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      "Recently Added Channel Partner",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.black.withValues(alpha: 0.50),
-                      ),
-                    ),
+              Text(
+                "Recently Added Channel Partner",
+                style: AppTextStyle.ts14M(
+                  color: AppColor.greyTitleAndValueColor.withValues(
+                    alpha: 0.50,
                   ),
-                ],
+                ),
               ),
               verticalSpacing(),
               if (table4 != null && table4.isNotEmpty) ...[
@@ -513,18 +505,13 @@ class _ChannelPartnerDashboardScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      "Missing Details",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.black.withValues(alpha: 0.50),
-                      ),
-                    ),
+              Text(
+                "Missing Details",
+                style: AppTextStyle.ts14M(
+                  color: AppColor.greyTitleAndValueColor.withValues(
+                    alpha: 0.50,
                   ),
-                ],
+                ),
               ),
               verticalSpacing(),
               if (table5 != null && table5.isNotEmpty) ...[

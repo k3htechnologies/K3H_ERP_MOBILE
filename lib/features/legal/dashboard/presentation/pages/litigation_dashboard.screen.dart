@@ -131,7 +131,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
             child: Text(
               "No Data Found",
               style: AppTextStyle.ts12M(
-                color: AppColor.black.withValues(alpha: .5),
+                color: AppColor.greyTitleAndValueColor.withValues(alpha: .5),
               ),
             ),
           );
@@ -183,9 +183,9 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                     context,
                     bgColor: AppColor.blueBgColor,
                     title: "Total Cases",
-                    titleColor: AppColor.white,
+                    titleColor: AppColor.lightBlue,
                     value: table0?.totalCases ?? 0,
-                    valueColor: AppColor.white,
+                    valueColor: AppColor.lightBlue,
                   ),
                   verticalSpacing(),
                   Row(
@@ -196,7 +196,8 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                           context,
                           bgColor: AppColor.white,
                           title: "Open Cases",
-                          titleColor: AppColor.black.withValues(alpha: 0.5),
+                          titleColor: AppColor.greyTitleAndValueColor
+                              .withValues(alpha: 0.5),
                           value: table0?.openCases ?? 0,
                           valueColor: AppColor.black,
                         ),
@@ -207,7 +208,8 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                           context,
                           bgColor: AppColor.white,
                           title: "Closed Cases",
-                          titleColor: AppColor.black.withValues(alpha: 0.5),
+                          titleColor: AppColor.greyTitleAndValueColor
+                              .withValues(alpha: 0.5),
                           value: table0?.closedCases ?? 0,
                           valueColor: AppColor.black,
                         ),
@@ -223,7 +225,8 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                           context,
                           bgColor: AppColor.white,
                           title: "Reopened Cases",
-                          titleColor: AppColor.black.withValues(alpha: 0.5),
+                          titleColor: AppColor.greyTitleAndValueColor
+                              .withValues(alpha: 0.5),
                           value: table0?.reOpenCases ?? 0,
                           valueColor: AppColor.black,
                         ),
@@ -234,30 +237,30 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                           context,
                           bgColor: AppColor.white,
                           title: "Total Hearings",
-                          titleColor: AppColor.black.withValues(alpha: 0.5),
+                          titleColor: AppColor.greyTitleAndValueColor
+                              .withValues(alpha: 0.5),
                           value: table1?.totalHearings ?? 0,
                           valueColor: AppColor.black,
                         ),
                       ),
                     ],
                   ),
-                  verticalSpacing(),
+                  verticalSpacing(height: 16),
                   // CASE TYPE DISTRIBUTION WIDGET
                   _buildCaseTypeDistributionWidget(context),
-                  verticalSpacing(),
+                  verticalSpacing(height: 16),
                   // COURT DISTRIBUTION WIDGET
                   _buildCourtDistributionWidget(context),
-                  verticalSpacing(),
+                  verticalSpacing(height: 16),
                   // ACTIVE CASES WIDGET
                   _buildActiveCasesWidget(context),
-                  verticalSpacing(),
+                  verticalSpacing(height: 16),
                   // HEARING WIDGET
                   _buildHearingsWidget(context),
-                  verticalSpacing(),
+                  verticalSpacing(height: 16),
                   // CASE ANALYSIS WIDGET
                   _buildCaseAnalysisWidget(context),
-                  verticalSpacing(),
-                  // _buildRecentlyUploadedDocumentsWidget(context),
+                  verticalSpacing(height: 16),
                 ],
               ),
             ),
@@ -287,7 +290,10 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
         children: [
           Text(title!, style: AppTextStyle.ts14M(color: titleColor)),
           verticalSpacing(height: 6.0),
-          Text(value!.toString(), style: AppTextStyle.ts14M(color: valueColor)),
+          Text(
+            value!.toString(),
+            style: AppTextStyle.ts20SB(color: valueColor),
+          ),
         ],
       ),
     );
@@ -327,20 +333,15 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      "Case Type Distribution",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.black.withValues(alpha: 0.50),
-                      ),
-                    ),
+              Text(
+                "Case Type Distribution",
+                style: AppTextStyle.ts14M(
+                  color: AppColor.greyTitleAndValueColor.withValues(
+                    alpha: 0.50,
                   ),
-                ],
+                ),
               ),
-              verticalSpacing(),
+              verticalSpacing(height: 6.0),
               if (table2List != null) ...[
                 CommonRadialChart(
                   items: [
@@ -361,7 +362,9 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                   child: Text(
                     "No Data Found",
                     style: AppTextStyle.ts12M(
-                      color: AppColor.black.withValues(alpha: 0.50),
+                      color: AppColor.greyTitleAndValueColor.withValues(
+                        alpha: 0.50,
+                      ),
                     ),
                   ),
                 ),
@@ -394,7 +397,9 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                     child: Text(
                       "Court Distribution",
                       style: AppTextStyle.ts14M(
-                        color: AppColor.black.withValues(alpha: 0.50),
+                        color: AppColor.greyTitleAndValueColor.withValues(
+                          alpha: 0.50,
+                        ),
                       ),
                     ),
                   ),
@@ -402,7 +407,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       _legendItem("Closed", Colors.blue),
-                      const SizedBox(width: 16),
+                      horizontalSpacing(width: 16),
                       _legendItem("Opened", Colors.red),
                     ],
                   ),
@@ -425,7 +430,9 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                   child: Text(
                     "No Data Found",
                     style: AppTextStyle.ts12M(
-                      color: AppColor.black.withValues(alpha: .5),
+                      color: AppColor.greyTitleAndValueColor.withValues(
+                        alpha: .5,
+                      ),
                     ),
                   ),
                 ),
@@ -457,12 +464,12 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
           children: [
             Expanded(
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(4.0),
                 child: LinearProgressIndicator(
                   borderRadius: BorderRadius.circular(4.0),
                   value: totalPercent,
                   minHeight: 12,
-                  backgroundColor: const Color(0xffAFC1DD),
+                  backgroundColor: AppColor.primary.withValues(alpha: 0.25),
                   valueColor: const AlwaysStoppedAnimation(AppColor.primary),
                 ),
               ),
@@ -485,11 +492,11 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                   value: openPercent,
                   minHeight: 12,
                   backgroundColor: const Color(0xffAFC1DD),
-                  valueColor: const AlwaysStoppedAnimation(AppColor.error),
+                  valueColor: const AlwaysStoppedAnimation(Color(0xffFF1044)),
                 ),
               ),
             ),
-            horizontalSpacing(width: 10),
+            horizontalSpacing(width: 6),
             Text(open.toString(), style: AppTextStyle.ts14M()),
           ],
         ),
@@ -514,18 +521,13 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      "Active Cases",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.black.withValues(alpha: 0.50),
-                      ),
-                    ),
+              Text(
+                "Active Cases",
+                style: AppTextStyle.ts14M(
+                  color: AppColor.greyTitleAndValueColor.withValues(
+                    alpha: 0.50,
                   ),
-                ],
+                ),
               ),
               verticalSpacing(),
               if (table4 != null && table4.isNotEmpty) ...[
@@ -613,7 +615,9 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                   child: Text(
                     "No Data Found",
                     style: AppTextStyle.ts12M(
-                      color: AppColor.black.withValues(alpha: .5),
+                      color: AppColor.greyTitleAndValueColor.withValues(
+                        alpha: .5,
+                      ),
                     ),
                   ),
                 ),
@@ -658,18 +662,13 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      "Upcoming Hearings",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.black.withValues(alpha: 0.50),
-                      ),
-                    ),
+              Text(
+                "Upcoming Hearings",
+                style: AppTextStyle.ts14M(
+                  color: AppColor.greyTitleAndValueColor.withValues(
+                    alpha: 0.50,
                   ),
-                ],
+                ),
               ),
               verticalSpacing(),
               if (table5 != null && table5.isNotEmpty) ...[
@@ -800,7 +799,9 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                   child: Text(
                     "No Data Found",
                     style: AppTextStyle.ts12M(
-                      color: AppColor.black.withValues(alpha: .5),
+                      color: AppColor.greyTitleAndValueColor.withValues(
+                        alpha: .5,
+                      ),
                     ),
                   ),
                 ),
@@ -873,7 +874,9 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                     child: Text(
                       "Case Analysis",
                       style: AppTextStyle.ts14M(
-                        color: AppColor.black.withValues(alpha: 0.50),
+                        color: AppColor.greyTitleAndValueColor.withValues(
+                          alpha: 0.50,
+                        ),
                       ),
                     ),
                   ),
@@ -918,7 +921,9 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                   child: Text(
                     "No Data Found",
                     style: AppTextStyle.ts12M(
-                      color: AppColor.black.withValues(alpha: .5),
+                      color: AppColor.greyTitleAndValueColor.withValues(
+                        alpha: 0.5,
+                      ),
                     ),
                   ),
                 ),

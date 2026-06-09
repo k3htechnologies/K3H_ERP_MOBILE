@@ -21,6 +21,15 @@ abstract interface class TicketDatasource {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
+  Future<Map<String, dynamic>> apicallDeleteTicket({
+    required int ticketId,
+    required String uniqueKey,
+  });
+  Future<Map<String, dynamic>> apicallPullTicketForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class TicketDatasourceImpl implements TicketDatasource {
@@ -132,6 +141,72 @@ class TicketDatasourceImpl implements TicketDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         apicallAddUpdateTicket(body: body, fileList: fileList);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeleteTicket({
+    required int ticketId,
+    required String uniqueKey,
+  }) async {
+    String deleteTicketUrl({required int ticketId, required String uniqueKey}) {
+      return "Ticket/DeleteTicket?TicketId=$ticketId&Uniquekey=$uniqueKey";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteTicketUrl(ticketId: ticketId, uniqueKey: uniqueKey),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['TotalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallDeleteTicket(ticketId: ticketId, uniqueKey: uniqueKey);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullTicketForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullTicketExportUrl({
+      required int pageSize,
+      required int pageNumber,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "Ticket/PullTicket?PageSize=$pageSize&PageNumber=$pageNumber";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullTicketExportUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullTicketForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
+        );
       }
       rethrow;
     }

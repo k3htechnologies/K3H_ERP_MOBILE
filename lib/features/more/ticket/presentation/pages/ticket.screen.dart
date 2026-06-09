@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/more/ticket/data/model/ticket.model.dart';
 import 'package:k3h_erp_app/features/more/ticket/presentation/cubit/ticket_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -28,6 +29,7 @@ class _TicketScreenState extends State<TicketScreen> {
   late AuthorizationModel _routeAuthorizationModel;
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC,
+      _filterTicketId,
       _filterPlatform,
       _filterModule,
       _filterPriority,
@@ -52,6 +54,7 @@ class _TicketScreenState extends State<TicketScreen> {
     super.dispose();
     scrollController.dispose();
     _searchC.dispose();
+    _filterTicketId.dispose();
     _filterPlatform.dispose();
     _filterModule.dispose();
     _filterPriority.dispose();
@@ -61,6 +64,7 @@ class _TicketScreenState extends State<TicketScreen> {
 
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _filterTicketId = TextEditingController();
     _filterPlatform = TextEditingController();
     _filterModule = TextEditingController();
     _filterPriority = TextEditingController();
@@ -89,11 +93,11 @@ class _TicketScreenState extends State<TicketScreen> {
     });
   }
 
-  // DEPARTMENT FILTER
-  Future<void> _showBottomSheetToFilterDepartmentMaster(
-    BuildContext context,
-  ) async {
+  // TICKET FILTER
+  Future<void> _showBottomSheetToTicket(BuildContext context) async {
     final state = _ticketCubit.state;
+    _searchC.text = state.searchText;
+    _filterTicketId.text = state.filterTicketId;
     _filterPlatform.text = state.filterPlatform;
     _filterModule.text = state.filterModule;
     _filterPriority.text = state.filterPriority;
@@ -104,6 +108,7 @@ class _TicketScreenState extends State<TicketScreen> {
             ? state.currentSortDirection
             : null;
 
+    final String initialTicketId = _filterTicketId.text;
     final String initialPlatform = _filterPlatform.text;
     final String initialModule = _filterModule.text;
     final String initialPriority = _filterPriority.text;
@@ -117,6 +122,7 @@ class _TicketScreenState extends State<TicketScreen> {
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
+            (_filterTicketId.text.trim() != initialTicketId) ||
             (_filterPlatform.text.trim() != initialPlatform) ||
             (_filterModule.text.trim() != initialModule) ||
             (_filterPriority.text.trim() != initialPriority) ||
@@ -133,63 +139,18 @@ class _TicketScreenState extends State<TicketScreen> {
       title: "Filter Ticket",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
-          void selectDirection(String direction) {
-            innerState(() {
-              selectedDirection = direction;
-            });
-            updateApplyState(innerState);
-          }
-
           return Form(
             key: filterFormKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Sort By Platform", style: AppTextStyle.ts14M()),
-                verticalSpacing(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      onTap: () => selectDirection("ASC"),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 6,
-                          horizontal: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color:
-                              selectedDirection == "ASC"
-                                  ? AppColor.lightBlue
-                                  : Colors.transparent,
-                          border: Border.all(color: AppColor.grey, width: .5),
-                        ),
-                        child: Text("A-Z", style: AppTextStyle.ts12R()),
-                      ),
-                    ),
-                    horizontalSpacing(),
-                    GestureDetector(
-                      onTap: () => selectDirection("DESC"),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 6,
-                          horizontal: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color:
-                              selectedDirection == "DESC"
-                                  ? AppColor.lightBlue
-                                  : Colors.transparent,
-                          border: Border.all(color: AppColor.grey, width: .5),
-                        ),
-                        child: Text("Z-A", style: AppTextStyle.ts12R()),
-                      ),
-                    ),
-                  ],
+                CustomTextField(
+                  title: "Ticket ID",
+                  hint: "Enter Ticket ID",
+                  textController: _filterTicketId,
+                  onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                verticalSpacing(height: 20),
+                verticalSpacing(height: 5),
                 CustomTextField(
                   title: "Platform",
                   hint: "Enter Platform",
@@ -231,6 +192,7 @@ class _TicketScreenState extends State<TicketScreen> {
         },
       ),
       onClear: () {
+        _filterTicketId.clear();
         _filterPlatform.clear();
         _filterModule.clear();
         _filterPriority.clear();
@@ -238,6 +200,7 @@ class _TicketScreenState extends State<TicketScreen> {
         _filterStatus.clear();
         _ticketCubit.applyFilterAndSort(
           context: context,
+          ticketId: '',
           platform: '',
           module: '',
           priority: '',
@@ -249,6 +212,7 @@ class _TicketScreenState extends State<TicketScreen> {
         if (filterFormKey.currentState?.validate() ?? false) {
           _ticketCubit.applyFilterAndSort(
             context: context,
+            ticketId: _filterTicketId.text.trim(),
             platform: _filterPlatform.text.trim(),
             module: _filterModule.text.trim(),
             priority: _filterPriority.text.trim(),
@@ -270,6 +234,29 @@ class _TicketScreenState extends State<TicketScreen> {
     }
   }
 
+  // <---- DELETE TICKET ---->
+  Future<void> _showPopupToDeleteDepartmentMaster(
+    BuildContext context,
+    TicketModel obj,
+    int currentPage,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a ticket?',
+      'Deleting this department will permanently remove its contents.',
+    );
+    if (result && context.mounted) {
+      _ticketCubit.deleteTicket(
+        context: context,
+        ticketId: obj.ticketId,
+        uniqueKey: obj.uniquekey,
+        pageNumber: currentPage,
+        index: index,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<TicketCubit, TicketState>(
@@ -283,7 +270,7 @@ class _TicketScreenState extends State<TicketScreen> {
 
         return Scaffold(
           appBar: CustomAppBar(
-            screenTitle: "Ticket Master",
+            screenTitle: "Ticket",
             authorization: _routeAuthorizationModel,
             searchHintText: "Search by Ticket ID",
             onSearchSubmit: (value) {
@@ -293,15 +280,19 @@ class _TicketScreenState extends State<TicketScreen> {
             onAddCallback:
                 showAddButton
                     ? () {
-                      goRouter.pushNamed(
-                        AppRoutes.addTicket,
-                        extra: context.read<TicketCubit>().state.ticketModel,
-                      );
+                      goRouter.pushNamed(AppRoutes.addTicket);
                     }
                     : null,
+            onExportCallback: (value) {
+              if (_ticketCubit.state.totalNumberOfRecord == 0) {
+                showErrorMessage(context, "Error", "No Data Found");
+                return;
+              }
+              _ticketCubit.exportExcelPdf(context, value);
+            },
             isFilterOn: true,
             onFilterTap: () {
-              _showBottomSheetToFilterDepartmentMaster(context);
+              _showBottomSheetToTicket(context);
             },
           ),
           body:
@@ -439,7 +430,16 @@ class _TicketScreenState extends State<TicketScreen> {
 
                                       horizontalSpacing(),
 
-                                      CustomIconButton.delete(onPressed: () {}),
+                                      CustomIconButton.delete(
+                                        onPressed: () {
+                                          _showPopupToDeleteDepartmentMaster(
+                                            context,
+                                            tickets,
+                                            state.currentPage,
+                                            index,
+                                          );
+                                        },
+                                      ),
                                     ],
                                   ],
                                 ),

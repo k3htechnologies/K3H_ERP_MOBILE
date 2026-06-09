@@ -81,7 +81,15 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
                 Container(height: 20, width: 20, color: Colors.grey[300]),
       );
     } else {
-      return Image.asset(finalPath, height: 20, width: 20, fit: BoxFit.contain);
+      return Image.asset(
+        finalPath,
+        height: 20,
+        width: 20,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          return Icon(Icons.home, size: 20);
+        },
+      );
     }
   }
 
@@ -112,6 +120,7 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
                 title: InkWell(
                   onTap: widget.onTapCallback,
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _buildIcon(widget.imagePath),
                       horizontalSpacing(),

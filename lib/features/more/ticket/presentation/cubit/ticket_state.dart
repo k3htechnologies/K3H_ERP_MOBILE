@@ -9,6 +9,7 @@ class TicketState extends BaseState {
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
+  final String filterTicketId;
   final String filterPlatform;
   final String filterModule;
   final String filterPriority;
@@ -24,6 +25,7 @@ class TicketState extends BaseState {
     required this.searchText,
     required this.currentSortColumn,
     required this.currentSortDirection,
+    required this.filterTicketId,
     required this.filterPlatform,
     required this.filterModule,
     required this.filterPriority,
@@ -41,6 +43,7 @@ class TicketState extends BaseState {
     searchText: "",
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
+    filterTicketId: '',
     filterPlatform: '',
     filterModule: '',
     filterPriority: '',
@@ -58,6 +61,7 @@ class TicketState extends BaseState {
     String? searchText,
     String? currentSortColumn,
     String? currentSortDirection,
+    String? filterTicketId,
     String? filterPlatform,
     String? filterModule,
     String? filterPriority,
@@ -74,6 +78,7 @@ class TicketState extends BaseState {
       searchText: searchText ?? this.searchText,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      filterTicketId: filterTicketId ?? this.filterTicketId,
       filterPlatform: filterPlatform ?? this.filterPlatform,
       filterModule: filterModule ?? this.filterModule,
       filterPriority: filterPriority ?? this.filterPriority,
@@ -93,6 +98,7 @@ class TicketState extends BaseState {
     searchText,
     currentSortColumn,
     currentSortDirection,
+    filterTicketId,
     filterPlatform,
     filterModule,
     filterPriority,

@@ -21,6 +21,17 @@ abstract interface class TicketRepository {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> deleteTicket({
+    required int ticketId,
+    required String uniqueKey,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> exportTicket({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class TicketRepositoryImpl implements TicketRepository {
@@ -88,6 +99,40 @@ class TicketRepositoryImpl implements TicketRepository {
       var result = await ticketDatasource.apicallAddUpdateTicket(
         body: body,
         fileList: fileList,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteTicket({
+    required int ticketId,
+    required String uniqueKey,
+  }) async {
+    try {
+      var result = await ticketDatasource.apicallDeleteTicket(
+        ticketId: ticketId,
+        uniqueKey: uniqueKey,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> exportTicket({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await ticketDatasource.apicallPullTicketForExport(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        queryParams: queryParams,
       );
       return right(result);
     } catch (error) {

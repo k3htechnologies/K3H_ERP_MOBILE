@@ -257,10 +257,14 @@ bool isValidMobileNumber(String value) {
 }
 
 // DATE FORMATTERS (MOSTLY USED)
-String formatDateTimeAsDDMMMYYYY(DateTime d, {String? separator}) {
+String formatDateTimeAsDDMMMYYYY(DateTime? date, {String? separator}) {
+  if (date == null) return "-";
+
+  if (date.year == 1970) return "-";
+
   return DateFormat(
     'dd${separator ?? '-'}MMM${separator ?? '-'}yyyy',
-  ).format(d);
+  ).format(date);
 }
 
 // DATE FORMATTERS

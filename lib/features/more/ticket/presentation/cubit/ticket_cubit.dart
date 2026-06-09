@@ -25,6 +25,7 @@ class TicketCubit extends Cubit<TicketState> {
 
   Future applyFilterAndSort({
     required BuildContext context,
+    required String ticketId,
     required String platform,
     required String module,
     required String priority,
@@ -35,6 +36,7 @@ class TicketCubit extends Cubit<TicketState> {
   }) async {
     emit(
       state.copyWith(
+        filterTicketId: ticketId,
         filterPlatform: platform,
         filterModule: module,
         filterPriority: priority,
@@ -61,6 +63,9 @@ class TicketCubit extends Cubit<TicketState> {
       "Priority": state.filterPriority,
       "TicketStatus": state.filterStatus,
     };
+    if (state.filterTicketId.isNotEmpty) {
+      queryParams["SystemGeneratedCode"] = state.filterTicketId;
+    }
     var result = await _ticketRepository.getTicketList(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -345,6 +350,112 @@ class TicketCubit extends Cubit<TicketState> {
         showSuccessMessage(context, subTitle: response['message']);
         goRouter.pop();
         getTicketList(context, 1);
+      },
+    );
+  }
+
+  // <---- DELETE DEPARTMENT ---->
+  Future deleteTicket({
+    required BuildContext context,
+    required int ticketId,
+    required String uniqueKey,
+    required int pageNumber,
+    int? index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _ticketRepository.deleteTicket(
+      ticketId: ticketId,
+      uniqueKey: uniqueKey,
+    );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Department Deleted Successfully',
+        );
+        if (index != null) {
+          final updatedList = List<TicketModel>.from(state.ticketList);
+          updatedList.removeAt(index);
+
+          emit(
+            state.copyWith(
+              ticketList: updatedList,
+              totalNumberOfRecord:
+                  state.totalNumberOfRecord > 0
+                      ? state.totalNumberOfRecord - 1
+                      : 0,
+            ),
+          );
+        } else {
+          getTicketList(context, state.currentPage);
+        }
+      },
+    );
+  }
+
+  // <---- EXPORT EXCEL PDF ---->
+  Future exportExcelPdf(BuildContext context, String exportType) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    Map<String, dynamic> queryParams = {"ExportType": exportType};
+
+    if (state.searchText.isNotEmpty) {
+      queryParams["TicketId"] = state.searchText;
+    }
+
+    if (state.filterPlatform.isNotEmpty) {
+      queryParams["Platform"] = state.filterPlatform;
+    }
+
+    if (state.filterModule.isNotEmpty) {
+      queryParams["Module"] = state.filterModule;
+    }
+
+    if (state.filterPriority.isNotEmpty) {
+      queryParams["Priority"] = state.filterPriority;
+    }
+
+    if (state.filterDepartment.isNotEmpty) {
+      queryParams["DepartmentName"] = state.filterDepartment;
+    }
+
+    if (state.filterStatus.isNotEmpty) {
+      queryParams["TicketStatus"] = state.filterStatus;
+    }
+
+    if (state.currentSortDirection.isNotEmpty) {
+      queryParams["SortBy"] = state.currentSortDirection;
+    }
+
+    var result = await _ticketRepository.exportTicket(
+      pageNumber: 1,
+      pageSize: state.totalNumberOfRecord,
+      queryParams: queryParams,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "Ticket_${DateTime.now().millisecondsSinceEpoch}.pdf"
+              : "Ticket_${DateTime.now().millisecondsSinceEpoch}.xlsx",
+        );
       },
     );
   }
