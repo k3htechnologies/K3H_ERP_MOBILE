@@ -150,17 +150,18 @@ final List<Map<String, dynamic>> ethnicityList = [
 ];
 
 final List<Map<String, dynamic>> stageTypeList = [
-  {'zAttributesId': 1, 'DisplayName': 'Follow - UP'},
+  {'zAttributesId': 1, 'DisplayName': 'Follow - Up'},
   {'zAttributesId': 2, 'DisplayName': 'Site Visit'},
   {'zAttributesId': 3, 'DisplayName': 'Re - Visit Proposed'},
   {'zAttributesId': 4, 'DisplayName': 'Re - Visit Scheduled'},
-  {'zAttributesId': 5, 'DisplayName': 'Negotiation'},
-  {'zAttributesId': 6, 'DisplayName': 'Unit Selection / Blocked'},
-  {'zAttributesId': 7, 'DisplayName': 'Booking Done'},
-  {'zAttributesId': 8, 'DisplayName': 'Blocked'},
-  {'zAttributesId': 9, 'DisplayName': 'Cancelled'},
-  {'zAttributesId': 10, 'DisplayName': 'Retention'},
-  {'zAttributesId': 11, 'DisplayName': 'Lost'},
+  {'zAttributesId': 5, 'DisplayName': 'Re - Visit'},
+  {'zAttributesId': 6, 'DisplayName': 'Negotiation'},
+  {'zAttributesId': 7, 'DisplayName': 'Unit Selection / Blocked'},
+  {'zAttributesId': 8, 'DisplayName': 'Booking Done'},
+  {'zAttributesId': 9, 'DisplayName': 'Blocked'},
+  {'zAttributesId': 10, 'DisplayName': 'Cancelled'},
+  {'zAttributesId': 11, 'DisplayName': 'Retention'},
+  {'zAttributesId': 12, 'DisplayName': 'Lost'},
 ];
 
 final List<Map<String, dynamic>> finalStageDetailsList = [
@@ -320,18 +321,16 @@ List<Map<String, dynamic>> flatStatusListWithOtherOptions = [
 ];
 
 // STATIC LISTS FOR FLAT FACING
-
 List<Map<String, dynamic>> flatFacingList = [
-  {'zAttributesId': 1, 'DisplayName': 'City View – Includes roads'},
+  {'zAttributesId': 1, 'DisplayName': 'City View'},
   {'zAttributesId': 2, 'DisplayName': 'Forest / Mangrove View'},
   {'zAttributesId': 3, 'DisplayName': 'Building View'},
   {'zAttributesId': 4, 'DisplayName': 'Internal Amenity View'},
   {'zAttributesId': 5, 'DisplayName': 'Garden View'},
-  {'zAttributesId': 6, 'DisplayName': 'Club-house View'},
+  {'zAttributesId': 6, 'DisplayName': 'Club - House View'},
   {'zAttributesId': 7, 'DisplayName': 'Sea View'},
   {'zAttributesId': 8, 'DisplayName': 'Open View'},
-  {'zAttributesId': 9, 'DisplayName': 'SOUTH'},
-  {'zAttributesId': 10, 'DisplayName': 'Others'},
+  {'zAttributesId': 9, 'DisplayName': 'Others'},
 ];
 
 // Legal

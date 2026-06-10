@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
-import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
@@ -318,7 +317,7 @@ class LoginCubit extends Cubit<LoginState> {
           // Fallback to login user data if fetch fails
           await localStorage.setString(
             StorageKey.currentUser,
-            jsonEncode(loginUser),
+            jsonEncode(loginUser.toJson()),
           );
         },
         (response) async {
@@ -326,27 +325,20 @@ class LoginCubit extends Cubit<LoginState> {
           if (employeeList.isNotEmpty) {
             final completeEmployee = employeeList.first;
 
-            final mergedUserData = {
-              ...completeEmployee.toJson(),
-              "Token": loginUser.token, // Preserve token from login
-              "ModuleData":
-                  loginUser.moduleData
-                      .map((e) => e.toJson())
-                      .toList(), // Preserve module data
-              "ProjectData":
-                  loginUser.projectData
-                      .map((e) => e.toJson())
-                      .toList(), // Preserve project data
-            };
+            final mergedUser = completeEmployee.copyWith(
+              token: loginUser.token,
+              moduleData: loginUser.moduleData,
+              projectData: loginUser.projectData,
+            );
 
             await localStorage.setString(
               StorageKey.currentUser,
-              jsonEncode(mergedUserData),
+              jsonEncode(mergedUser.toJson()),
             );
           } else {
             await localStorage.setString(
               StorageKey.currentUser,
-              jsonEncode(loginUser),
+              jsonEncode(loginUser.toJson()),
             );
           }
         },
@@ -365,115 +357,5 @@ class LoginCubit extends Cubit<LoginState> {
     final result = await utilsRepository.pullEmployeeWithMenuList();
 
     return result.fold((failure) => null, (res) => res);
-  }
-
-  // <---- SEND MODULE BASED OTP FOR VERIFICATION ---->
-  Future<void> sendOTPModuleBased({
-    required BuildContext context,
-    String? mobileNumber,
-    required String module,
-  }) async {
-    final result = await loginRepository.sendOTPModuleBased(
-      mobileNumber: mobileNumber,
-      module: module,
-    );
-
-    result.fold(
-      (failure) {
-        showErrorMessage(context, 'OTP Error', failure.message);
-      },
-      (response) {
-        showSuccessMessage(
-          context,
-          subTitle: response['message'] ?? 'OTP sent successfully',
-        );
-      },
-    );
-  }
-
-  // <----MODULES WORKFLOW APPROVAL  ---->
-  Future<bool> updateModulesWorkflowApproval({
-    required BuildContext context,
-    required String moduleName,
-    required int id,
-    required int projectId,
-    required bool isApproved,
-    required String remark,
-    int? subId,
-    int? subSubId,
-    int? subSubSubId,
-  }) async {
-    DialogHelper.showProcessingOverlay(context);
-
-    final result = await utilsRepository.updateModulesWorkflowApproval(
-      moduleName: moduleName,
-      id: id,
-      projectId: projectId,
-      isApproved: isApproved,
-      remark: remark,
-      subId: subId,
-      subSubId: subSubId,
-      subSubSubId: subSubSubId,
-    );
-
-    goRouter.pop();
-
-    final isSuccess = result.fold(
-      (failure) {
-        showErrorMessage(context, "Approval Failed", failure.message);
-        return false;
-      },
-      (response) {
-        showSuccessMessage(
-          context,
-          subTitle: response['message'] ?? "Updated Successfully",
-        );
-        return true;
-      },
-    );
-
-    return isSuccess;
-  }
-
-  //  GET APPROVAL LOG HISTORY LIST
-  Future<List<ApprovalLogHistory>> getApprovalLogHistory({
-    required BuildContext context,
-    required int projectId,
-    required int id,
-    required String moduleName,
-    int? subId,
-    int? subSubId,
-    int? subSubSubId,
-  }) async {
-    DialogHelper.showProcessingOverlay(context);
-    emit(state.copyWith(isLoading: true));
-
-    var result = await utilsRepository.pullModuleApprovalStatus(
-      projectId: projectId,
-      moduleName: moduleName,
-      id: id,
-      subId: subId,
-      subSubId: subSubId,
-      subSubSubId: subSubSubId,
-    );
-
-    goRouter.pop();
-
-    return result.fold(
-      (failure) {
-        emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, 'Error', failure.message);
-        return [];
-      },
-      (response) {
-        final List<ApprovalLogHistory> newData = List<ApprovalLogHistory>.from(
-          response['data'] ?? [],
-        );
-
-        emit(state.copyWith(isLoading: false));
-
-        return newData;
-      },
-    );
   }
 }

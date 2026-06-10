@@ -307,7 +307,6 @@ Widget infoCard(
               padding: const EdgeInsets.only(bottom: 12),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 10,
                 children: [
                   buildColumnTitleValue(
                     title: first["title"] ?? "",
@@ -315,16 +314,15 @@ Widget infoCard(
                     customValueWidget: first["widget"],
                   ),
 
-                  second != null
-                      ? buildColumnTitleValue(
-                        title: second["title"] ?? "",
-                        value:
-                            second["widget"] != null
-                                ? ""
-                                : second["value"] ?? "",
-                        customValueWidget: second["widget"],
-                      )
-                      : const Spacer(),
+                  if (second != null) ...[
+                    const SizedBox(width: 10),
+                    buildColumnTitleValue(
+                      title: second["title"] ?? "",
+                      value:
+                          second["widget"] != null ? "" : second["value"] ?? "",
+                      customValueWidget: second["widget"],
+                    ),
+                  ],
                 ],
               ),
             );
@@ -438,6 +436,16 @@ Widget enquiryStatusWidget(String status, {TextStyle? textStyle}) {
         ),
       );
 
+    case 're - visit':
+      return statusChip(
+        status,
+        const Color(0xFFC6E7F6),
+        const Color(0xFF087DB0),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFF087DB0),
+        ),
+      );
+
     case 'site visit':
     case 'unit selection / blocked':
       return statusChip(
@@ -452,6 +460,198 @@ Widget enquiryStatusWidget(String status, {TextStyle? textStyle}) {
     default:
       return statusChip(
         status,
+        AppColor.lightGreyBackground,
+        AppColor.black,
+        textStyle: textStyle ?? defaultStyle,
+      );
+  }
+}
+
+// PROJECT STATUS WIDGET
+Widget projectStatusWidget(String projectStatus, {TextStyle? textStyle}) {
+  final trimmed = projectStatus.trim();
+
+  final defaultStyle = AppTextStyle.ts12M();
+
+  // SHOW DASH IF STATUS IS EMPTY
+  if (trimmed.isEmpty) {
+    return statusChip(
+      "-",
+      AppColor.lightGreyBackground,
+      AppColor.black,
+      textStyle: textStyle ?? defaultStyle,
+    );
+  }
+
+  final s = trimmed.toLowerCase();
+
+  switch (s) {
+    case 'up-coming':
+      return statusChip(
+        projectStatus,
+        const Color(0xFFFFEDD5).withValues(alpha: 0.6),
+        const Color(0xFFC2410C),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFFC2410C),
+        ),
+      );
+
+    case 'completed':
+      return statusChip(
+        projectStatus,
+        const Color(0xFFDCFCE7).withValues(alpha: 0.6),
+        const Color(0xFF15803D),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFF15803D),
+        ),
+      );
+
+    case 'on-going':
+      return statusChip(
+        projectStatus,
+        const Color(0xFFDBEAFE).withValues(alpha: 0.6),
+        const Color(0xFF1D4ED8),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFF1D4ED8),
+        ),
+      );
+
+    case 'on-hold':
+      return statusChip(
+        projectStatus,
+        const Color(0xFFFEF3C7).withValues(alpha: 0.6),
+        const Color(0xFFA16207),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFFA16207),
+        ),
+      );
+
+    case 'cancelled':
+      return statusChip(
+        projectStatus,
+        const Color(0xFFFEE2E2).withValues(alpha: 0.6),
+        const Color(0xFFB91C1C),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFFB91C1C),
+        ),
+      );
+
+    case 'planning':
+      return statusChip(
+        projectStatus,
+        const Color(0xFFEDE9FE).withValues(alpha: 0.6),
+        const Color(0xFF6D28D9),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFF6D28D9),
+        ),
+      );
+
+    default:
+      return statusChip(
+        projectStatus,
+        AppColor.lightGreyBackground,
+        AppColor.black,
+        textStyle: textStyle ?? defaultStyle,
+      );
+  }
+}
+
+Widget callLogStatusWidget(String callLogStatus, {TextStyle? textStyle}) {
+  final trimmed = callLogStatus.trim();
+
+  final defaultStyle = AppTextStyle.ts12M();
+
+  // SHOW DASH IF STATUS IS EMPTY
+  if (trimmed.isEmpty) {
+    return Text("-", style: textStyle ?? defaultStyle);
+  }
+
+  final s = trimmed.toLowerCase();
+
+  switch (s) {
+    case 'connected':
+      return statusChip(
+        callLogStatus,
+        const Color(0x4A51E551),
+        const Color(0xFF48C848),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFF48C848),
+        ),
+      );
+
+    case 'not connected':
+      return statusChip(
+        callLogStatus,
+        const Color(0x4ACC00FF),
+        const Color(0xFF561F64),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFF561F64),
+        ),
+      );
+
+    case 'wrong number':
+      return statusChip(
+        callLogStatus,
+        const Color(0x1D1D1D26),
+        const Color(0xFF333333),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFF333333),
+        ),
+      );
+
+    case 'switched off':
+      return statusChip(
+        callLogStatus,
+        const Color(0x26FBFF00),
+        const Color(0xFF7B6B28),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFF7B6B28),
+        ),
+      );
+
+    case 'busy':
+      return statusChip(
+        callLogStatus,
+        const Color(0x407E4604),
+        const Color(0xFF7E4604),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFF7E4604),
+        ),
+      );
+
+    case 'no answer':
+      return statusChip(
+        callLogStatus,
+        const Color(0x261AA0DB),
+        const Color(0xFF1AA0DB),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFF1AA0DB),
+        ),
+      );
+
+    case 'disconnected':
+      return statusChip(
+        callLogStatus,
+        const Color(0x26FF0037),
+        const Color(0xFFFF0037),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFFFF0037),
+        ),
+      );
+
+    case 'rescheduled':
+      return statusChip(
+        callLogStatus,
+        const Color(0x33121258),
+        const Color(0xFF243965),
+        textStyle: (textStyle ?? defaultStyle).copyWith(
+          color: const Color(0xFF243965),
+        ),
+      );
+
+    default:
+      return statusChip(
+        callLogStatus,
         AppColor.lightGreyBackground,
         AppColor.black,
         textStyle: textStyle ?? defaultStyle,

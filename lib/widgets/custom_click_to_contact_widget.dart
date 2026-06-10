@@ -1,9 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/services/app_call_tracker_service.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -89,7 +92,7 @@ class CustomClickToContactText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (value.isEmpty) {
+    if (value.trim().isEmpty) {
       return Text("-");
     }
     return InkWell(
@@ -98,13 +101,19 @@ class CustomClickToContactText extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 3.0),
-            child: Icon(
-              type == ContactType.phone ? Icons.phone : Icons.email,
-              size: iconSize,
-              color: iconColor,
-            ),
+          SizedBox(
+            child:
+                type == ContactType.phone
+                    ? SvgPicture.asset(
+                      AppAssets.phoneIcon,
+                      height: 16.h,
+                      width: 16.w,
+                    )
+                    : SvgPicture.asset(
+                      AppAssets.mailIcon,
+                      height: 16.h,
+                      width: 16.w,
+                    ),
           ),
           const SizedBox(width: 6),
           Flexible(

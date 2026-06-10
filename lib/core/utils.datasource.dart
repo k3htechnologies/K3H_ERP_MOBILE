@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/models/village.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 
 import 'local_storage_manager.dart';
@@ -22,7 +23,10 @@ abstract interface class UtilsDatasource {
   });
 
   Future<Map<String, dynamic>>
-  apicallPullMaterialMasterSubMaterialMasterUOMMaster({required int projectId});
+  apicallPullMaterialMasterSubMaterialMasterUOMMaster({
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 
   Future<Map<String, dynamic>> apicalPullExcelSample({
     required String tableName,
@@ -37,6 +41,10 @@ abstract interface class UtilsDatasource {
   Future<Map<String, dynamic>> apiCallSendOTPModuleBased({
     required String mobileNumber,
     required String module,
+    String? name,
+    String? companyName,
+    String? projectName,
+    String? source,
   });
   Future<Map<String, dynamic>> apiCallUpdateModulesWorkflowApproval({
     required String moduleName,
@@ -156,16 +164,24 @@ class UtilsDatasourceImpl implements UtilsDatasource {
   Future<Map<String, dynamic>>
   apicallPullMaterialMasterSubMaterialMasterUOMMaster({
     required int projectId,
+    Map<String, dynamic>? queryParams,
   }) async {
     try {
       String pullMaterialMasterSubMaterialMasterUOMMaster({
         required int projectId,
+        Map<String, dynamic>? queryParams,
       }) {
-        return "Static/PullMaterialMasterSubMaterialMasterUOMMaster?ProjectId=$projectId";
+        String url =
+            "Static/PullMaterialMasterSubMaterialMasterUOMMaster?ProjectId=$projectId";
+        url += queryParamsFormatter(queryParams: queryParams);
+        return url;
       }
 
       var networkResponse = await client.getRequestWithAuthentication(
-        pullMaterialMasterSubMaterialMasterUOMMaster(projectId: projectId),
+        pullMaterialMasterSubMaterialMasterUOMMaster(
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
       );
       // networkResponse["data"] contains the Data object from API response
       final data = networkResponse["data"] as Map<String, dynamic>;
@@ -249,20 +265,42 @@ class UtilsDatasourceImpl implements UtilsDatasource {
   Future<Map<String, dynamic>> apiCallSendOTPModuleBased({
     required String mobileNumber,
     required String module,
+    String? name,
+    String? companyName,
+    String? projectName,
+    String? source,
   }) async {
     try {
       String sendOTPUrl({
         required String mobileNumber,
         required String module,
+        String? name,
+        String? companyName,
+        String? projectName,
+        String? source,
       }) {
         String url =
             "/Authentication/SendOTPMobileNumberAndModule?MobileNumber=$mobileNumber&Module=$module";
 
+        var queryParams = {
+          "Name": name,
+          "CompanyName": companyName,
+          "ProjectName": projectName,
+          "Source": source,
+        };
+        url += queryParamsFormatter(queryParams: queryParams);
         return url;
       }
 
       var networkResponse = await client.getRequestWithAuthentication(
-        sendOTPUrl(mobileNumber: mobileNumber, module: module),
+        sendOTPUrl(
+          mobileNumber: mobileNumber,
+          module: module,
+          name: name,
+          companyName: companyName,
+          projectName: projectName,
+          source: source,
+        ),
       );
 
       return {

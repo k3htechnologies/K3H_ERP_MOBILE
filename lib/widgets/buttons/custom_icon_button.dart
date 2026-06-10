@@ -8,6 +8,7 @@ class CustomIconButton extends StatelessWidget {
   final Widget icon; // <--- changed
   final Color? backgroundColor;
   final double? size;
+  final bool isDisable;
 
   const CustomIconButton({
     super.key,
@@ -15,6 +16,7 @@ class CustomIconButton extends StatelessWidget {
     required this.icon, // <--- widget now
     this.backgroundColor = AppColor.lightBlue,
     this.size = 16,
+    this.isDisable = false,
   });
 
   // === Named Constructor for Edit Icon Button ===
@@ -94,10 +96,13 @@ class CustomIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onPressed,
+      onTap: isDisable ? null : onPressed,
       child: Container(
         decoration: BoxDecoration(
-          color: backgroundColor,
+          color:
+              isDisable
+                  ? AppColor.grey2.withValues(alpha: 0.2)
+                  : backgroundColor,
           borderRadius: BorderRadius.circular(8),
         ),
         padding: const EdgeInsets.all(6),

@@ -3,6 +3,7 @@ import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_docu
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hearing.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 abstract interface class LitigationDatasource {
   Future<Map<String, dynamic>> apicallPullLitigation({
@@ -100,7 +101,8 @@ class LitigationDatasourceImpl extends LitigationDatasource {
     String pullLitigationUrl({Map<String, dynamic>? queryParams}) {
       String url =
           "Litigation/PullLitigation?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
+
       return url;
     }
 

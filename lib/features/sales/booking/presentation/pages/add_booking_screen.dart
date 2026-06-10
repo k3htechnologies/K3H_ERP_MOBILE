@@ -4,17 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/features/masters/bank_list_master/data/model/bank_list_master.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/add_booking_applicant_screen.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/add_booking_payment_schedule_screen.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/repository/payment_schedule_scheme.repository.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/data/repository/payment_schedule_scheme.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -56,7 +57,7 @@ class AddBookingScreen extends StatefulWidget {
 class _AddBookingScreenState extends State<AddBookingScreen>
     with SingleTickerProviderStateMixin {
   // CUBIT
-  late LoginCubit _loginCubit;
+  late UtilsCubit _utilsCubit;
   late BookingCubit _bookingCubit;
 
   // TAB CONTROLLER
@@ -201,13 +202,13 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   final ValueNotifier<bool> isAutoPaymentSchedule = ValueNotifier(false);
 
   // OTHER CHARGERS IS APPLICABLE
-  final ValueNotifier<bool> _isOtherChargeApplicable = ValueNotifier(true);
+  final ValueNotifier<bool> _isOtherChargeApplicable = ValueNotifier(false);
   @override
   void initState() {
     super.initState();
     _initializeTextControllers();
     _bookingCubit = context.read<BookingCubit>();
-    _loginCubit = context.read<LoginCubit>();
+    _utilsCubit = context.read<UtilsCubit>();
     _project = getProject();
 
     _tabController = TabController(length: 6, vsync: this);
@@ -221,12 +222,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       _initEditMode();
     } else {
       loadPaymentScheduleSchemes();
-      _bookingCubit.getOtherChargesList(
-        context,
-        1,
-        _project.projectId,
-        widget.inventoryObject?[0]["reraCarpetAreaSqFt"],
-      );
     }
   }
 
@@ -286,10 +281,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       _agreementValueWithTdsC = TextEditingController(),
       _tdsC = TextEditingController(),
       _agreementValueWithoutTdsC = TextEditingController(),
-      _agreementGstPercentageC = TextEditingController(),
-      _agreementGstAmountC = TextEditingController(),
-      _stampDutyPercentageC = TextEditingController(),
-      _stampDutyAmountC = TextEditingController(),
+      _agreementGstPercentageC = TextEditingController(text: "0"),
+      _agreementGstAmountC = TextEditingController(text: "0"),
+      _stampDutyPercentageC = TextEditingController(text: "0"),
+      _stampDutyAmountC = TextEditingController(text: "0"),
       _registrationFeesC = TextEditingController(),
       _otherRemarkC = TextEditingController(),
       _unitModCustomizationRemarkC = TextEditingController(),
@@ -661,7 +656,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   widget
                       .inventoryObject?[0]["inventoryFlatFloorBasementPodiumWingId"] ??
                   widget.bookingModel!.inventoryFlatFloorBasementPodiumWingId,
-              agreementValue: _agreementValueNotifier.value,
+              agreementValueWithoutTDS: double.parse(
+                _agreementValueWithoutTdsC.text,
+              ),
               agreementValueGST: _agreementGstAmountNotifier.value,
               agreementValueTds: _tdsNotifier.value,
               index: index,
@@ -848,7 +845,13 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       return false;
     }
 
-    // STEP 5: REMARK
+    // STEP 3 : TERMS AND CONDITIONS
+    if (!(_termsFormKey.currentState?.validate() ?? false)) {
+      _bookingCubit.onTabChangedAddForm(4, context);
+      _tabController.animateTo(4);
+      return false;
+    }
+    // STEP 4: REMARK
     if (!(_remarkFormKey.currentState?.validate() ?? false)) {
       _bookingCubit.onTabChangedAddForm(5, context);
       _tabController.animateTo(5);
@@ -933,10 +936,16 @@ class _AddBookingScreenState extends State<AddBookingScreen>
           _selectedBankNotifier.value.isNotEmpty;
       bool isOtherDetails = _bookingCubit.state.otherChargesList.isNotEmpty;
       // TRIGGER OTP SEND FIST TIME
-      _loginCubit.sendOTPModuleBased(
+      _utilsCubit.sendOTPModuleBased(
         context: context,
         mobileNumber: applicantMobile,
         module: "BOOKING",
+        name:
+            _applicants.value
+                .firstWhere((a) => a.applicantType == "Applicant")
+                .applicantName,
+        projectName: _project.projectName,
+        source: _bookingCubit.state.enquiryList.first.source,
       );
       showCompleteVerificationDialog(
         context,
@@ -1320,7 +1329,19 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                 "title": "Enquiry Code",
                                 "value": enquiry.systemGeneratedCode,
                               },
+                              {
+                                "title": "E-Mail ID",
+                                "value": enquiry.emailId,
+                                "widget": CustomClickToContactText(
+                                  value: enquiry.emailId,
+                                  type: ContactType.email,
+                                ),
+                              },
                               {"title": "Name", "value": enquiry.name},
+                              {
+                                "title": "Nationality",
+                                "value": enquiry.nationality,
+                              },
                               {
                                 "title": "Mobile No",
                                 "value": enquiry.mobileNumber,
@@ -1404,6 +1425,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                 if (enquiry.source == "Channel Partner")
                                   infoCard([
                                     {
+                                      "title": "CP Code",
+                                      "value": enquiry.channelPartnerCode,
+                                    },
+                                    {
                                       "title": "Channel Partner",
                                       "value": enquiry.channelPartnerName,
                                     },
@@ -1414,6 +1439,14 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                       "widget": CustomClickToContactText(
                                         value:
                                             "${enquiry.channelPartnerMobileNumberCountryCode} ${enquiry.channelPartnerMobileNumber}",
+                                      ),
+                                    },
+                                    {
+                                      "title": "CP E-Mail ID",
+                                      "value": enquiry.channelPartnerEmailId,
+                                      "widget": CustomClickToContactText(
+                                        value: enquiry.channelPartnerEmailId,
+                                        type: ContactType.email,
                                       ),
                                     },
                                     {
@@ -2229,8 +2262,17 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                       inventoryFlatFloorBasementPodiumWingId:
                                           selectedScheme
                                               .value["inventoryFlatFloorBasementPodiumWingId"],
-                                      agreementValue:
-                                          _agreementValueNotifier.value,
+                                      agreementValueWithoutTds:
+                                          _agreementValueWithoutTdsC
+                                                  .text
+                                                  .isNotEmpty
+                                              ? double.tryParse(
+                                                    _agreementValueWithoutTdsC
+                                                        .text
+                                                        .trim(),
+                                                  ) ??
+                                                  0.0
+                                              : 0.0,
                                       agreementValueGST:
                                           _agreementGstAmountNotifier.value,
                                       agreementValueTds: _tdsNotifier.value,
@@ -2478,7 +2520,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                                 "${item.paymentSchedulePercentage}",
                                           ),
                                           buildColumnTitleValue(
-                                            title: "Amount (₹)",
+                                            title: "Amount Without TDS (₹)",
                                             value:
                                                 item.paymentScheduleAmount
                                                     .toIndianCurrency(),
@@ -2538,9 +2580,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       key: _otherChargesFormKey,
       child: BlocBuilder<BookingCubit, BookingState>(
         builder: (context, state) {
-          if (state.otherChargesList.isEmpty ||
-              _agreementValueNotifier.value == 0) {
-            return Center(child: noDataWidget(message: "No Charges Available"));
+          if (_agreementValueNotifier.value == 0) {
+            return Center(
+              child: noDataWidget(message: "No Other Charges Found"),
+            );
           }
           return Column(
             children: [
@@ -2569,6 +2612,17 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                               ],
                               onPressed: (index) {
                                 _isOtherChargeApplicable.value = index == 0;
+                                if (_isOtherChargeApplicable.value) {
+                                  _bookingCubit.getOtherChargesList(
+                                    context,
+                                    1,
+                                    _project.projectId,
+                                    widget.inventoryObject?[0]["reraCarpetAreaSqFt"] ??
+                                        widget.bookingModel?.reraCarpetAreaSqFt,
+                                  );
+                                } else {
+                                  _bookingCubit.updateOtherChargesList([]);
+                                }
                               },
                               borderRadius: BorderRadius.circular(8),
                               constraints: const BoxConstraints(
@@ -2597,61 +2651,83 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 ),
               ),
               verticalSpacing(),
-              Expanded(
-                child: ListView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  shrinkWrap: true,
-                  itemCount: state.otherChargesList.length,
-                  itemBuilder: (_, index) {
-                    final oc = state.otherChargesList[index];
 
-                    return Container(
-                      decoration: commonCardDecoration(),
-                      margin: EdgeInsets.only(bottom: 10),
-                      padding: EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 10,
-                        children: [
-                          Text(oc.chargeName, style: AppTextStyle.ts14M()),
-                          Row(
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Calculated On",
-                                value: oc.calculatedOn,
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Amount (₹)",
-                                value: oc.value.toIndianCurrency(),
-                              ),
-                              buildColumnTitleValue(
-                                title: "GST(%)",
-                                value: "${oc.gstPercentage} %",
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              buildColumnTitleValue(
-                                title: "GST Value (₹)",
-                                value: oc.gstValue.toIndianCurrency(),
-                              ),
-                              buildColumnTitleValue(
-                                title: "Total Value (₹)",
-                                value:
-                                    (oc.value + oc.gstValue).toIndianCurrency(),
-                              ),
-                            ],
-                          ),
-                        ],
+              ValueListenableBuilder(
+                valueListenable: _isOtherChargeApplicable,
+                builder: (context, isOcApplicable, child) {
+                  if (!isOcApplicable &&
+                      ((state.isLoading == false) &&
+                          state.otherChargesList.isEmpty)) {
+                    return Expanded(
+                      child: Center(
+                        child: noDataWidget(
+                          iconSize: 120,
+                          message: "No Other Charges Found",
+                        ),
                       ),
                     );
-                  },
-                ),
+                  }
+                  return Expanded(
+                    child: ListView.builder(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      shrinkWrap: true,
+                      itemCount: state.otherChargesList.length,
+                      itemBuilder: (_, index) {
+                        final oc = state.otherChargesList[index];
+
+                        return Container(
+                          decoration: commonCardDecoration(),
+                          margin: EdgeInsets.only(bottom: 10),
+                          padding: EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 10,
+                            children: [
+                              Text(oc.chargeName, style: AppTextStyle.ts14M()),
+                              Row(
+                                children: [
+                                  buildColumnTitleValue(
+                                    title: "Calculated On",
+                                    value: oc.calculatedOn,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  buildColumnTitleValue(
+                                    title: "Amount (₹)",
+                                    value: oc.value.toIndianCurrency(),
+                                  ),
+                                  buildColumnTitleValue(
+                                    title: "GST(%)",
+                                    value: "${oc.gstPercentage} %",
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  buildColumnTitleValue(
+                                    title: "GST Value (₹)",
+                                    value: oc.gstValue.toIndianCurrency(),
+                                  ),
+                                  buildColumnTitleValue(
+                                    title: "Total Value (₹)",
+                                    value:
+                                        (oc.value + oc.gstValue)
+                                            .toIndianCurrency(),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
               ),
             ],
           );
@@ -2747,7 +2823,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   builder: (context, selectedTerms, child) {
                     return CustomMultipleSelectPopup(
                       title: "Terms & Conditions",
-                      isRequired: false,
+                      isRequired: true,
                       isMultiSelect: false,
                       initialValue: selectedTerms,
                       dataList: const [],
@@ -2766,6 +2842,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         }
                       },
                       dataFetchCallBack: _fetchTerms,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Terms & Conditions is required";
+                        }
+                        return null;
+                      },
                     );
                   },
                 );
@@ -2872,7 +2954,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   Widget _buildApplicantCard(BookingApplicantData applicant, int index) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+      padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
       decoration: BoxDecoration(
         color: AppColor.white,
         borderRadius: BorderRadius.circular(8),
@@ -2880,6 +2962,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 12.h,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -2920,9 +3003,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               ),
             ],
           ),
-
-          verticalSpacing(),
-
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -2943,6 +3023,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     applicant.applicantEmailId.isEmpty
                         ? "-"
                         : applicant.applicantEmailId,
+                customValueWidget: CustomClickToContactText(
+                  value: applicant.applicantEmailId,
+                  type: ContactType.email,
+                ),
               ),
             ],
           ),

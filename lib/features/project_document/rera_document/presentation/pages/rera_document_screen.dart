@@ -158,41 +158,30 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     await DialogHelper.showCustomBottomSheet(
       context,
       documentModel != null ? 'Update Document Name' : 'Add Document Name',
-      Form(
+      contentWidget: Form(
         key: _formKey,
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 16),
-          child: Column(
-            children: [
-              CustomTextField(
-                title: "Document Name",
-                hint: "Enter Document Name",
-                isRequired: true,
-                textController: _reraDocumentC,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Document Name is required";
-                  }
-                  return null;
-                },
-              ),
-              Spacer(),
-              Container(
-                height: 70,
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: CustomButton(
-                  text:
-                      documentModel != null
-                          ? "Update Document"
-                          : "Add Document",
-                  onPressed: () {
-                    _submitForm(documentModel: documentModel, index: index);
-                  },
-                ),
-              ),
-            ],
-          ),
+        child: Column(
+          children: [
+            CustomTextField(
+              title: "Document Name",
+              hint: "Enter Document Name",
+              isRequired: true,
+              textController: _reraDocumentC,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Document Name is required";
+                }
+                return null;
+              },
+            ),
+          ],
         ),
+      ),
+      bottomActions: CustomButton(
+        text: documentModel != null ? "Update Document" : "Add Document",
+        onPressed: () {
+          _submitForm(documentModel: documentModel, index: index);
+        },
       ),
     );
     _clearDialogueToAddUpdateDocument();

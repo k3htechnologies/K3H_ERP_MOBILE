@@ -67,7 +67,7 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
     _initializeTextEditingController();
     _project = getProject();
     _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.brokerage]!;
+        Authorization.routeAuthorizationMap[AppRoutes.bookingBrokerage]!;
     _onScroll();
     _brokerageCubit.getBrokerageBookingList(context, 1, _project.projectId);
   }

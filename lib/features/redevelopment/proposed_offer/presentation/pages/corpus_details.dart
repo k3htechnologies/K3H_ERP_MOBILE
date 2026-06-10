@@ -245,244 +245,227 @@ class _CorpusDetailsState extends State<CorpusDetails> {
     await DialogHelper.showCustomBottomSheet(
       context,
       "Corpus Details",
-      SingleChildScrollView(
-        child: ValueListenableBuilder<Map<String, dynamic>?>(
-          valueListenable: _selectedCorpusType,
-          builder: (context, selectedCorpusType, _) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Form(
-                key: _corpusFormKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    /// TYPE
-                    CustomDropDownWidget(
-                      isRequired: true,
-                      initialValue: selectedCorpusType,
-                      dataList: _litigationTypeList,
-                      onSelected: (value) {
-                        _selectedCorpusType.value = value;
-                        _amountController.text = '0.0';
-                        _stagePercentageController.text = '0.0';
-                      },
-                      title: "Type",
-                      hintText: "Select Type",
-                      validator: (value) {
-                        if (value == null || value['zAttributesId'] == -1) {
-                          return "Type is required";
-                        }
-                        return null;
-                      },
-                      onValueClear: () {
-                        _selectedCorpusType.value = null;
-                      },
-                    ),
+      contentWidget: ValueListenableBuilder<Map<String, dynamic>?>(
+        valueListenable: _selectedCorpusType,
+        builder: (context, selectedCorpusType, _) {
+          return Form(
+            key: _corpusFormKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                /// TYPE
+                CustomDropDownWidget(
+                  isRequired: true,
+                  initialValue: selectedCorpusType,
+                  dataList: _litigationTypeList,
+                  onSelected: (value) {
+                    _selectedCorpusType.value = value;
+                    _amountController.text = '0.0';
+                    _stagePercentageController.text = '0.0';
+                  },
+                  title: "Type",
+                  hintText: "Select Type",
+                  validator: (value) {
+                    if (value == null || value['zAttributesId'] == -1) {
+                      return "Type is required";
+                    }
+                    return null;
+                  },
+                  onValueClear: () {
+                    _selectedCorpusType.value = null;
+                  },
+                ),
 
-                    // STAGE
-                    CustomTextField(
-                      title: "Stage",
-                      isRequired: true,
-                      hint: "Enter Stage",
-                      textController: _stageController,
-                      inputFormatterList: [
-                        LengthLimitingTextInputFormatter(150),
-                      ],
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Stage is required";
-                        }
-                        return null;
-                      },
-                    ),
+                // STAGE
+                CustomTextField(
+                  title: "Stage",
+                  isRequired: true,
+                  hint: "Enter Stage",
+                  textController: _stageController,
+                  inputFormatterList: [LengthLimitingTextInputFormatter(150)],
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Stage is required";
+                    }
+                    return null;
+                  },
+                ),
 
-                    // STAGE %
-                    CustomTextField(
-                      title: "Stage Percentage (%)",
-                      isRequired: true,
-                      hint: "Enter Stage Percentage",
-                      textController: _stagePercentageController,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(3),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Amount is required";
-                        }
+                // STAGE %
+                CustomTextField(
+                  title: "Stage Percentage (%)",
+                  isRequired: true,
+                  hint: "Enter Stage Percentage",
+                  textController: _stagePercentageController,
+                  keyboardType: TextInputType.number,
+                  inputFormatterList:
+                      inputFormatterListForDecimalValuesFixedToTwo(3),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Amount is required";
+                    }
 
-                        if (_isAmountExceedingForSelectedType(index)) {
-                          return "Amount exceeds allocated limit";
-                        }
-                        return null;
-                      },
-                      onChangeFunction: (value) {
-                        if (selectedCorpusType == null) {
-                          return;
-                        }
+                    if (_isAmountExceedingForSelectedType(index)) {
+                      return "Amount exceeds allocated limit";
+                    }
+                    return null;
+                  },
+                  onChangeFunction: (value) {
+                    if (selectedCorpusType == null) {
+                      return;
+                    }
 
-                        double percentage = double.tryParse(value) ?? 0;
+                    double percentage = double.tryParse(value) ?? 0;
 
-                        if (selectedCorpusType['zAttributesId'] == 1) {
-                          _amountController.text =
-                              ((double.tryParse(
-                                            _residentialAmountController.text,
-                                          ) ??
-                                          0) *
-                                      percentage /
-                                      100)
-                                  .toString();
-                        } else if (selectedCorpusType['zAttributesId'] == 2) {
-                          _amountController.text =
-                              ((double.tryParse(
-                                            _commercialAmountController.text,
-                                          ) ??
-                                          0) *
-                                      percentage /
-                                      100)
-                                  .toString();
-                        }
-                      },
-                    ),
-
-                    // AMOUNT
-                    CustomTextField(
-                      title: "Amount (₹)",
-                      textController: _amountController,
-                      hint: "Enter Amount",
-                      keyboardType: TextInputType.number,
-                      readOnly: true,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Amount is required";
-                        }
-
-                        double amount = double.tryParse(value) ?? 0;
-
-                        if (selectedCorpusType == null) {
-                          return "Type must be selected first";
-                        }
-
-                        if (selectedCorpusType['zAttributesId'] == 1 &&
-                            (double.tryParse(
-                                      _residentialAmountController.text,
-                                    ) ??
-                                    0) ==
-                                0) {
-                          return "Residential amount is required";
-                        }
-
-                        if (selectedCorpusType['zAttributesId'] == 2 &&
-                            (double.tryParse(
-                                      _commercialAmountController.text,
-                                    ) ??
-                                    0) ==
-                                0) {
-                          return "Commercial amount is required";
-                        }
-
-                        if (amount == 0) {
-                          return "Amount cannot be zero";
-                        }
-
-                        return null;
-                      },
-                    ),
-
-                    verticalSpacing(height: 15),
-
-                    // SAVE BUTTON
-                    CustomButton(
-                      text: "Save",
-                      onPressed: () {
-                        if (_corpusFormKey.currentState!.validate()) {
-                          if (selectedCorpusType!['zAttributesId'] == 1 &&
-                              (double.tryParse(
+                    if (selectedCorpusType['zAttributesId'] == 1) {
+                      _amountController.text =
+                          ((double.tryParse(
                                         _residentialAmountController.text,
                                       ) ??
-                                      0) ==
-                                  0) {
-                            showErrorMessage(
-                              context,
-                              'Error',
-                              'Residential amount is required.',
-                            );
-                            return;
-                          }
-
-                          if (selectedCorpusType['zAttributesId'] == 2 &&
-                              (double.tryParse(
-                                        _commercialAmountController.text,
-                                      ) ??
-                                      0) ==
-                                  0) {
-                            showErrorMessage(
-                              context,
-                              'Error',
-                              'Commercial amount is required.',
-                            );
-                            return;
-                          }
-
-                          final newList = List<
-                            ProposedOfferCorpusDetailsWithPaymentStageData
-                          >.from(_corpusList);
-                          if (corpus == null) {
-                            newList.add(
-                              ProposedOfferCorpusDetailsWithPaymentStageData(
-                                proposedOfferCorpusDetailsWithPaymentStageId: 0,
-                                uniquekey: '',
-                                buildingId: widget.buildingId,
-                                projectId: widget.projectId,
-                                type: selectedCorpusType['DisplayName'],
-                                stage: _stageController.text,
-                                stagePercentage: double.parse(
-                                  _stagePercentageController.text,
-                                ),
-                                amount: double.parse(_amountController.text),
-                                createdById: 1,
-                                createdBy: 'Current User',
-                                createdDate: DateTime.now(),
-                                modifiedById: 0,
-                                modifiedBy: '',
-                                modifiedDate: null,
-                              ),
-                            );
-                          } else {
-                            newList[index!] =
-                                ProposedOfferCorpusDetailsWithPaymentStageData(
-                                  proposedOfferCorpusDetailsWithPaymentStageId:
-                                      corpus
-                                          .proposedOfferCorpusDetailsWithPaymentStageId,
-                                  uniquekey: corpus.uniquekey,
-                                  buildingId: corpus.buildingId,
-                                  projectId: corpus.projectId,
-                                  type: selectedCorpusType['DisplayName'],
-                                  stage: _stageController.text,
-                                  stagePercentage: double.parse(
-                                    _stagePercentageController.text,
-                                  ),
-                                  amount: double.parse(_amountController.text),
-                                  createdById: corpus.createdById,
-                                  createdBy: corpus.createdBy,
-                                  createdDate: corpus.createdDate,
-                                  modifiedById: corpus.modifiedById,
-                                  modifiedBy: corpus.modifiedBy,
-                                  modifiedDate: corpus.modifiedDate,
-                                );
-                          }
-
-                          _corpusListNotifier.value = newList;
-                          Navigator.pop(context);
-                        }
-                      },
-                    ),
-                    verticalSpacing(height: 20),
-                  ],
+                                      0) *
+                                  percentage /
+                                  100)
+                              .toString();
+                    } else if (selectedCorpusType['zAttributesId'] == 2) {
+                      _amountController.text =
+                          ((double.tryParse(_commercialAmountController.text) ??
+                                      0) *
+                                  percentage /
+                                  100)
+                              .toString();
+                    }
+                  },
                 ),
-              ),
-            );
-          },
-        ),
+
+                // AMOUNT
+                CustomTextField(
+                  title: "Amount (₹)",
+                  textController: _amountController,
+                  hint: "Enter Amount",
+                  keyboardType: TextInputType.number,
+                  readOnly: true,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Amount is required";
+                    }
+
+                    double amount = double.tryParse(value) ?? 0;
+
+                    if (selectedCorpusType == null) {
+                      return "Type must be selected first";
+                    }
+
+                    if (selectedCorpusType['zAttributesId'] == 1 &&
+                        (double.tryParse(_residentialAmountController.text) ??
+                                0) ==
+                            0) {
+                      return "Residential amount is required";
+                    }
+
+                    if (selectedCorpusType['zAttributesId'] == 2 &&
+                        (double.tryParse(_commercialAmountController.text) ??
+                                0) ==
+                            0) {
+                      return "Commercial amount is required";
+                    }
+
+                    if (amount == 0) {
+                      return "Amount cannot be zero";
+                    }
+
+                    return null;
+                  },
+                ),
+
+                verticalSpacing(height: 15),
+              ],
+            ),
+          );
+        },
+      ),
+      bottomActions: ValueListenableBuilder<Map<String, dynamic>?>(
+        valueListenable: _selectedCorpusType,
+        builder: (context, selectedCorpusType, _) {
+          return CustomButton(
+            text: "Save",
+            onPressed: () {
+              if (_corpusFormKey.currentState!.validate()) {
+                if (selectedCorpusType!['zAttributesId'] == 1 &&
+                    (double.tryParse(_residentialAmountController.text) ?? 0) ==
+                        0) {
+                  showErrorMessage(
+                    context,
+                    'Error',
+                    'Residential amount is required.',
+                  );
+                  return;
+                }
+
+                if (selectedCorpusType['zAttributesId'] == 2 &&
+                    (double.tryParse(_commercialAmountController.text) ?? 0) ==
+                        0) {
+                  showErrorMessage(
+                    context,
+                    'Error',
+                    'Commercial amount is required.',
+                  );
+                  return;
+                }
+
+                final newList =
+                    List<ProposedOfferCorpusDetailsWithPaymentStageData>.from(
+                      _corpusList,
+                    );
+                if (corpus == null) {
+                  newList.add(
+                    ProposedOfferCorpusDetailsWithPaymentStageData(
+                      proposedOfferCorpusDetailsWithPaymentStageId: 0,
+                      uniquekey: '',
+                      buildingId: widget.buildingId,
+                      projectId: widget.projectId,
+                      type: selectedCorpusType['DisplayName'],
+                      stage: _stageController.text,
+                      stagePercentage: double.parse(
+                        _stagePercentageController.text,
+                      ),
+                      amount: double.parse(_amountController.text),
+                      createdById: 1,
+                      createdBy: 'Current User',
+                      createdDate: DateTime.now(),
+                      modifiedById: 0,
+                      modifiedBy: '',
+                      modifiedDate: null,
+                    ),
+                  );
+                } else {
+                  newList[index!] =
+                      ProposedOfferCorpusDetailsWithPaymentStageData(
+                        proposedOfferCorpusDetailsWithPaymentStageId:
+                            corpus.proposedOfferCorpusDetailsWithPaymentStageId,
+                        uniquekey: corpus.uniquekey,
+                        buildingId: corpus.buildingId,
+                        projectId: corpus.projectId,
+                        type: selectedCorpusType['DisplayName'],
+                        stage: _stageController.text,
+                        stagePercentage: double.parse(
+                          _stagePercentageController.text,
+                        ),
+                        amount: double.parse(_amountController.text),
+                        createdById: corpus.createdById,
+                        createdBy: corpus.createdBy,
+                        createdDate: corpus.createdDate,
+                        modifiedById: corpus.modifiedById,
+                        modifiedBy: corpus.modifiedBy,
+                        modifiedDate: corpus.modifiedDate,
+                      );
+                }
+
+                _corpusListNotifier.value = newList;
+                Navigator.pop(context);
+              }
+            },
+          );
+        },
       ),
     );
 

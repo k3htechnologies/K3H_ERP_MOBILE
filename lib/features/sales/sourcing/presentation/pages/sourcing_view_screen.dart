@@ -141,103 +141,91 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
     await DialogHelper.showCustomBottomSheet(
       context,
       "Update Remark",
-      StatefulBuilder(
+      contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           return Form(
             key: _formKey,
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // IBM/OBM RADIO BUTTONS
+                Row(
                   children: [
-                    // IBM/OBM RADIO BUTTONS
-                    Row(
-                      children: [
-                        Radio<bool>(
-                          value: true,
-                          groupValue: isIBM,
-                          onChanged: (value) {
-                            if (value == null) return;
-                            innerState(() {
-                              isIBM = value;
-                            });
-                          },
-                        ),
-                        Text("IBM", style: AppTextStyle.ts14M()),
-                        const SizedBox(width: 16),
-                        Radio<bool>(
-                          value: false,
-                          groupValue: isIBM,
-                          onChanged: (value) {
-                            if (value == null) return;
-                            innerState(() {
-                              isIBM = value;
-                            });
-                          },
-                        ),
-                        Text("OBM", style: AppTextStyle.ts14M()),
-                      ],
-                    ),
-                    verticalSpacing(height: 12),
-
-                    // REMARK
-                    CustomTextField(
-                      title: "Remark",
-                      hint: "Enter remark",
-                      isRequired: true,
-                      textController: _remarkC,
-                      inputFormatterList: [
-                        LengthLimitingTextInputFormatter(500),
-                      ],
-                      minLines: 3,
-                      maxLines: 3,
-                      validator: (value) {
-                        final text = value?.trim() ?? "";
-
-                        if (text.isEmpty) {
-                          return "Please enter remark";
-                        }
-                        if (text.length < 25) {
-                          return "Remark must be at least 25 characters";
-                        }
-
-                        return null;
+                    Radio<bool>(
+                      value: true,
+                      groupValue: isIBM,
+                      onChanged: (value) {
+                        if (value == null) return;
+                        innerState(() {
+                          isIBM = value;
+                        });
                       },
                     ),
-
-                    // SUPPORT
-                    CustomDropDownWidget(
-                      title: "Support",
-                      hintText: "Select Support",
-                      dataList: supportList,
-                      initialValue: selectedSupport,
-                      onSelected: (value) {
-                        selectedSupport = value;
-                      },
-                      onValueClear: () {
-                        selectedSupport = supportList.first;
+                    Text("IBM", style: AppTextStyle.ts14M()),
+                    const SizedBox(width: 16),
+                    Radio<bool>(
+                      value: false,
+                      groupValue: isIBM,
+                      onChanged: (value) {
+                        if (value == null) return;
+                        innerState(() {
+                          isIBM = value;
+                        });
                       },
                     ),
-
-                    // Update button
-                    SizedBox(
-                      width: double.infinity,
-                      child: CustomButton(
-                        text: "Update",
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            _submitForm(isIBM, obj);
-                          }
-                        },
-                      ),
-                    ),
+                    Text("OBM", style: AppTextStyle.ts14M()),
                   ],
                 ),
-              ),
+                verticalSpacing(height: 12),
+
+                // REMARK
+                CustomTextField(
+                  title: "Remark",
+                  hint: "Enter remark",
+                  isRequired: true,
+                  textController: _remarkC,
+                  inputFormatterList: [LengthLimitingTextInputFormatter(500)],
+                  minLines: 3,
+                  maxLines: 3,
+                  validator: (value) {
+                    final text = value?.trim() ?? "";
+
+                    if (text.isEmpty) {
+                      return "Please enter remark";
+                    }
+                    if (text.length < 25) {
+                      return "Remark must be at least 25 characters";
+                    }
+
+                    return null;
+                  },
+                ),
+
+                // SUPPORT
+                CustomDropDownWidget(
+                  title: "Support",
+                  hintText: "Select Support",
+                  dataList: supportList,
+                  initialValue: selectedSupport,
+                  onSelected: (value) {
+                    selectedSupport = value;
+                  },
+                  onValueClear: () {
+                    selectedSupport = supportList.first;
+                  },
+                ),
+              ],
             ),
           );
+        },
+      ),
+      bottomActions: CustomButton(
+        text: "Update",
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            _submitForm(isIBM, obj);
+          }
         },
       ),
     );
@@ -259,99 +247,89 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
     await DialogHelper.showCustomBottomSheet(
       context,
       "Add Remark",
-      StatefulBuilder(
+      contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           return Form(
             key: _formKey,
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // IBM/OBM RADIO BUTTONS
+                Row(
                   children: [
-                    // IBM/OBM RADIO BUTTONS
-                    Row(
-                      children: [
-                        Radio<bool>(
-                          value: true,
-                          groupValue: isIBM,
-                          onChanged: (value) {
-                            if (value == null) return;
-                            innerState(() {
-                              isIBM = value;
-                            });
-                          },
-                        ),
-                        Text("IBM", style: AppTextStyle.ts14M()),
-                        const SizedBox(width: 16),
-                        Radio<bool>(
-                          value: false,
-                          groupValue: isIBM,
-                          onChanged: (value) {
-                            if (value == null) return;
-                            innerState(() {
-                              isIBM = value;
-                            });
-                          },
-                        ),
-                        Text("OBM", style: AppTextStyle.ts14M()),
-                      ],
-                    ),
-                    verticalSpacing(height: 12),
-
-                    // REMARK
-                    CustomTextField(
-                      title: "Remark",
-                      hint: "Enter remark",
-                      isRequired: true,
-                      textController: _remarkC,
-                      minLines: 3,
-                      maxLines: 3,
-                      validator: (value) {
-                        final text = value?.trim() ?? "";
-
-                        if (text.isEmpty) {
-                          return "Please enter remark";
-                        }
-
-                        if (text.length < 25) {
-                          return "Remark must be at least 25 characters";
-                        }
-                        return null;
+                    Radio<bool>(
+                      value: true,
+                      groupValue: isIBM,
+                      onChanged: (value) {
+                        if (value == null) return;
+                        innerState(() {
+                          isIBM = value;
+                        });
                       },
                     ),
-
-                    // SUPPORT
-                    CustomDropDownWidget(
-                      title: "Support",
-                      hintText: "Select Support",
-                      dataList: supportList,
-                      onSelected: (value) {
-                        selectedSupport = value;
-                      },
-                      onValueClear: () {
-                        selectedSupport = supportList.first;
+                    Text("IBM", style: AppTextStyle.ts14M()),
+                    const SizedBox(width: 16),
+                    Radio<bool>(
+                      value: false,
+                      groupValue: isIBM,
+                      onChanged: (value) {
+                        if (value == null) return;
+                        innerState(() {
+                          isIBM = value;
+                        });
                       },
                     ),
-
-                    // Save button
-                    SizedBox(
-                      width: double.infinity,
-                      child: CustomButton(
-                        text: "Save",
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            _submitForm(isIBM, null);
-                          }
-                        },
-                      ),
-                    ),
+                    Text("OBM", style: AppTextStyle.ts14M()),
                   ],
                 ),
-              ),
+                verticalSpacing(height: 12),
+
+                // REMARK
+                CustomTextField(
+                  title: "Remark",
+                  hint: "Enter remark",
+                  isRequired: true,
+                  textController: _remarkC,
+                  minLines: 3,
+                  maxLines: 3,
+                  validator: (value) {
+                    final text = value?.trim() ?? "";
+
+                    if (text.isEmpty) {
+                      return "Please enter remark";
+                    }
+
+                    if (text.length < 25) {
+                      return "Remark must be at least 25 characters";
+                    }
+                    return null;
+                  },
+                ),
+
+                // SUPPORT
+                CustomDropDownWidget(
+                  title: "Support",
+                  hintText: "Select Support",
+                  dataList: supportList,
+                  onSelected: (value) {
+                    selectedSupport = value;
+                  },
+                  onValueClear: () {
+                    selectedSupport = supportList.first;
+                  },
+                ),
+              ],
             ),
           );
+        },
+      ),
+      bottomActions: CustomButton(
+        text: "Save",
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            _submitForm(isIBM, null);
+          }
         },
       ),
     );

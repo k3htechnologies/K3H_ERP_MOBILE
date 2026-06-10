@@ -591,11 +591,13 @@ class CustomCheckBox extends StatefulWidget {
   final bool isSelected;
   final String? title;
   final Function(bool)? onChanged;
+  final bool isDisabled;
   const CustomCheckBox({
     super.key,
     required this.isSelected,
     this.title,
     this.onChanged,
+    this.isDisabled = false,
   });
 
   @override
@@ -621,6 +623,9 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
         GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () {
+            if (widget.isDisabled) {
+              return;
+            }
             if (widget.onChanged != null) {
               widget.onChanged!(!widget.isSelected);
             }
@@ -630,16 +635,28 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
             height: 22,
             margin: EdgeInsets.all(2),
             decoration: BoxDecoration(
-              color: widget.isSelected ? AppColor.lightBlue : AppColor.white,
-              border:
+              color:
                   widget.isSelected
+                      ? widget.isDisabled
+                          ? AppColor.grey2.withValues(alpha: 0.2)
+                          : AppColor.lightBlue
+                      : AppColor.white,
+              border:
+                  widget.isDisabled
+                      ? Border.all(color: AppColor.grey2, width: 1.0)
+                      : widget.isSelected
                       ? Border.all(color: AppColor.primary, width: 1.0)
                       : Border.all(color: AppColor.grey, width: 1.0),
               borderRadius: BorderRadius.circular(2),
             ),
             child:
                 widget.isSelected
-                    ? Icon(Icons.check, size: 18, color: AppColor.primary)
+                    ? Icon(
+                      Icons.check,
+                      size: 18,
+                      color:
+                          widget.isDisabled ? AppColor.grey2 : AppColor.primary,
+                    )
                     : null,
           ),
         ),

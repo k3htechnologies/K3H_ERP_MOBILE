@@ -224,7 +224,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
           Text(
             title,
             style: AppTextStyle.ts14M(
-              color: AppColor.black.withValues(alpha: 0.5),
+              color: AppColor.greyTitleAndValueColor.withValues(alpha: 0.5),
             ),
           ),
           verticalSpacing(),
@@ -232,7 +232,12 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(value.padLeft(2, '0'), style: AppTextStyle.ts20SB()),
+              Text(
+                value.padLeft(2, '0'),
+                style: AppTextStyle.ts20SB(
+                  color: AppColor.greyTitleAndValueColor,
+                ),
+              ),
               horizontalSpacing(),
               Container(
                 height: 24,

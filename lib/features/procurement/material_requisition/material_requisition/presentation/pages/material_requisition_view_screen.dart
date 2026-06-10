@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/material_r
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/cubit/purchase_order_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/pages/purchase_order.screen.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -24,6 +25,8 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
+import '../../../../../../utils/common_enums.dart';
 
 class MaterialRequisitionViewScreen extends StatefulWidget {
   final int materialRequisitionId;
@@ -58,11 +61,29 @@ class _MaterialRequisitionViewScreenState
   ValueNotifier<Set<int>> selectedIdsForSplit = ValueNotifier(<int>{});
   ValueNotifier<List<InvoiceModel>> invoiceList = ValueNotifier([]);
   ValueNotifier<bool> isSplit = ValueNotifier(false);
+  late AuthorizationModel _finalizedVendorAuthorizationModel,
+      _purchaseOrderAuthorizationModel,
+      _addInvoiceAuthorizationModel,
+      _makePaymentAuthorizationModel;
+  late final List<MaterialRequisitionTab> _tabs;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _initAuth();
+    _tabs = [
+      MaterialRequisitionTab.overview,
+      MaterialRequisitionTab.details,
+      if (_finalizedVendorAuthorizationModel.isView)
+        MaterialRequisitionTab.finalizeVendor,
+      if (_purchaseOrderAuthorizationModel.isView)
+        MaterialRequisitionTab.purchaseOrder,
+      MaterialRequisitionTab.grn,
+      if (_addInvoiceAuthorizationModel.isView ||
+          _makePaymentAuthorizationModel.isView)
+        MaterialRequisitionTab.invoice,
+    ];
+    _tabController = TabController(length: _tabs.length, vsync: this);
     _tabController.addListener(_handleTabChange);
     _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
     _finalizeVendorCubit = context.read<FinalizeVendorCubit>();
@@ -70,6 +91,18 @@ class _MaterialRequisitionViewScreenState
     _grnCubit = context.read<GrnCubit>();
     _invoiceCubit = context.read<InvoiceCubit>();
     initOverview();
+  }
+
+  void _initAuth() {
+    _finalizedVendorAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.finalizedVendor]!;
+    _purchaseOrderAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes
+            .generatePurchaseOrderTab]!;
+    _addInvoiceAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.addInvoiceTab]!;
+    _makePaymentAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.makePayments]!;
   }
 
   void initOverview() async {
@@ -90,16 +123,9 @@ class _MaterialRequisitionViewScreenState
       );
       if (!mounted) return;
     }
+
     if (mounted) {
-      invoiceList.value = await _materialRequisitionCubit.getInvoiceForOverview(
-        context: context,
-        projectId: widget.projectId,
-        materialRequisitionId: widget.materialRequisitionId,
-        uniqueKey: widget.uniquekey,
-      );
-    }
-    if (mounted) {
-      await _invoiceCubit.getInvoice(
+      invoiceList.value = await _invoiceCubit.getInvoice(
         projectId: widget.projectId,
         materialRequisitionId: widget.materialRequisitionId,
         uniqueKey: widget.uniquekey,
@@ -111,11 +137,16 @@ class _MaterialRequisitionViewScreenState
   // HANDLE TAB CHANGE
   void _handleTabChange() async {
     if (!_tabController.indexIsChanging) {
-      switch (_tabController.index) {
-        case 0:
+      final currentTab = _tabs[_tabController.index];
+      switch (currentTab) {
+        case MaterialRequisitionTab.overview:
           initOverview();
           break;
-        case 2:
+
+        case MaterialRequisitionTab.details:
+          break;
+
+        case MaterialRequisitionTab.finalizeVendor:
           _finalizeVendorCubit.getVendorForEnquiryList(
             context,
             widget.projectId,
@@ -124,7 +155,7 @@ class _MaterialRequisitionViewScreenState
           );
           break;
 
-        case 3:
+        case MaterialRequisitionTab.purchaseOrder:
           _purchaseOrderCubit.getPurchaseOrder(
             context: context,
             projectId: widget.projectId,
@@ -132,7 +163,8 @@ class _MaterialRequisitionViewScreenState
             uniqueKey: widget.uniquekey,
           );
           break;
-        case 4:
+
+        case MaterialRequisitionTab.grn:
           _grnCubit.getAllGRNList(
             context: context,
             projectId: widget.projectId,
@@ -140,7 +172,8 @@ class _MaterialRequisitionViewScreenState
             uniqueKey: widget.uniquekey,
           );
           break;
-        case 5:
+
+        case MaterialRequisitionTab.invoice:
           _invoiceCubit.getInvoice(
             context: context,
             projectId: widget.projectId,
@@ -189,28 +222,58 @@ class _MaterialRequisitionViewScreenState
     required MaterialRequisitionModel? materialRequisition,
   }) {
     if (isSplit.value && selectedIdsForSplit.value.isNotEmpty) {
-      // Show popup
+      final selectedMaterials =
+          materialList!
+              .where(
+                (e) => selectedIdsForSplit.value.contains(
+                  e.materialRequisitionDetailId,
+                ),
+              )
+              .toList();
+
+      final scrollController = ScrollController();
+
       DialogHelper.showCustomDialogue(
         context,
         title: "Split Material Entry",
         childContent: Column(
-          spacing: 10,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            ...materialList!
-                .where(
-                  (e) => selectedIdsForSplit.value.contains(
-                    e.materialRequisitionDetailId,
+            if (selectedMaterials.isNotEmpty)
+              ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: 200.h),
+                child: Scrollbar(
+                  controller: scrollController,
+                  thumbVisibility: true,
+                  radius: Radius.circular(10.r),
+                  thickness: 3.w,
+                  child: ListView.separated(
+                    controller: scrollController,
+                    shrinkWrap: true,
+                    itemCount: selectedMaterials.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      final material = selectedMaterials[index];
+
+                      return Row(
+                        children: [
+                          const CustomCheckBox(isSelected: true),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              material.subMaterialName,
+                              style: AppTextStyle.ts12M(),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
-                )
-                .map((e) {
-                  return Row(
-                    spacing: 10,
-                    children: [
-                      CustomCheckBox(isSelected: true),
-                      Text(e.materialName, style: AppTextStyle.ts12M()),
-                    ],
-                  );
-                }),
+                ),
+              ),
+
+            const SizedBox(height: 12),
+
             CustomButton(
               text: "Move To New Entry",
               onPressed: () {
@@ -223,6 +286,7 @@ class _MaterialRequisitionViewScreenState
                   selectedIds: selectedIdsForSplit.value,
                   materialRequisitionDetailJSON: materialList,
                 );
+
                 isSplit.value = false;
                 selectedIdsForSplit.value = {};
               },
@@ -231,7 +295,6 @@ class _MaterialRequisitionViewScreenState
         ),
       );
     } else {
-      // Normal toggle
       isSplit.value = !isSplit.value;
     }
   }
@@ -257,14 +320,7 @@ class _MaterialRequisitionViewScreenState
             ChipStyleTabBar(
               controller: _tabController,
               isSecondaryStyle: true,
-              tabs: [
-                'Overview',
-                'Details',
-                'Finalize Vendor',
-                'Purchase Order',
-                'GRN',
-                'Invoice',
-              ],
+              tabs: _tabs.map((e) => e.title).toList(),
             ),
             BlocBuilder<MaterialRequisitionCubit, MaterialRequisitionState>(
               builder: (context, state) {
@@ -276,33 +332,37 @@ class _MaterialRequisitionViewScreenState
                     children: [
                       _buildOverviewTab(state),
                       _buildDetailsTab(state),
-                      FinalizeVendorMainscreen(
-                        systemgeneratedCode:
-                            state
-                                .materialRequisitionOverview
-                                ?.systemGeneratedCode ??
-                            "",
-                        projectId: widget.projectId,
-                        materialRequisitionId: widget.materialRequisitionId,
-                        uniquekey: widget.uniquekey,
-                      ),
-                      PurchaseOrderScreen(
-                        projectId: widget.projectId,
-                        materialRequisitionId: widget.materialRequisitionId,
-                        uniquekey: widget.uniquekey,
-                      ),
+                      if (_finalizedVendorAuthorizationModel.isView)
+                        FinalizeVendorMainscreen(
+                          systemgeneratedCode:
+                              state
+                                  .materialRequisitionOverview
+                                  ?.systemGeneratedCode ??
+                              "",
+                          projectId: widget.projectId,
+                          materialRequisitionId: widget.materialRequisitionId,
+                          uniquekey: widget.uniquekey,
+                        ),
+                      if (_purchaseOrderAuthorizationModel.isView)
+                        PurchaseOrderScreen(
+                          projectId: widget.projectId,
+                          materialRequisitionId: widget.materialRequisitionId,
+                          uniquekey: widget.uniquekey,
+                        ),
                       GRNScreen(
                         materialRequisitionId: widget.materialRequisitionId,
                         uniquekey: widget.uniquekey,
                         projectId: widget.projectId,
                       ),
-                      InvoiceScreen(
-                        systemGeneratedCode:
-                            state
-                                .materialRequisitionOverview
-                                ?.systemGeneratedCode ??
-                            "",
-                      ),
+                      if (_addInvoiceAuthorizationModel.isView ||
+                          _makePaymentAuthorizationModel.isView)
+                        InvoiceScreen(
+                          systemGeneratedCode:
+                              state
+                                  .materialRequisitionOverview
+                                  ?.systemGeneratedCode ??
+                              "",
+                        ),
                     ],
                   ),
                 );

@@ -48,6 +48,11 @@ class _UpdateCallLogScreenState extends State<UpdateCallLogScreen> {
   late TextEditingController _remarkC;
   final _formKey = GlobalKey<FormState>();
 
+  String get selectedVillages => _selectedLocations
+      .map((v) => v["zAttributesId"].toString())
+      .toSet()
+      .join(",");
+
   @override
   void initState() {
     _callTrackerCubit = context.read<CallTrackerCubit>();
@@ -120,20 +125,38 @@ class _UpdateCallLogScreenState extends State<UpdateCallLogScreen> {
         orElse: () => budgetInCrList.first,
       );
     }
-    _selectedCallStatus.value = callStatus.firstWhere(
-      (e) => e["DisplayName"].toString() == callLog.status,
-      orElse: () => callStatus.first,
-    );
+    if (callLog.status.isNotEmpty) {
+      _selectedCallStatus.value = callStatus.firstWhere(
+        (e) => e["DisplayName"].toString() == callLog.status,
+        orElse: () => callStatus.first,
+      );
+    }
 
     _remarkC.text = callLog.remark;
     selectedRescheduleDate = callLog.rescheduleDate;
     siteVisitProposedDate = callLog.siteVisitProposedDate;
   }
 
-  String get selectedVillages => _selectedLocations
-      .map((v) => v["zAttributesId"].toString())
-      .toSet()
-      .join(",");
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      _callTrackerCubit.updateCallLog(
+        context: context,
+        callLogId: widget.callLogModel.callLogId,
+        projectId: widget.callLogModel.projectId,
+        uniqueKey: widget.callLogModel.uniquekey,
+        remark: _remarkC.text,
+        villageIds: selectedVillages,
+        rescheduleDate: selectedRescheduleDate,
+        status: _selectedCallStatus.value!['DisplayName'],
+        budget: _selectedBudgetInCr.value?['DisplayName'] ?? "",
+        requirement: _selectedRequirementNotifier.value?['DisplayName'] ?? "",
+        residentialType:
+            _selectedResidentialTypeNotifier.value?['DisplayName'] ?? "",
+        siteVisitProposedDate: siteVisitProposedDate,
+        index: widget.index,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -349,31 +372,7 @@ class _UpdateCallLogScreenState extends State<UpdateCallLogScreen> {
           height: 70,
           color: AppColor.white,
           padding: EdgeInsets.all(16),
-          child: CustomButton(
-            text: "Save",
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                _callTrackerCubit.updateCallLog(
-                  context: context,
-                  callLogId: widget.callLogModel.callLogId,
-                  projectId: widget.callLogModel.projectId,
-                  uniqueKey: widget.callLogModel.uniquekey,
-                  remark: _remarkC.text,
-                  villageIds: selectedVillages,
-                  rescheduleDate: selectedRescheduleDate,
-                  status: _selectedCallStatus.value!['DisplayName'],
-                  budget: _selectedBudgetInCr.value?['DisplayName'] ?? "",
-                  requirement:
-                      _selectedRequirementNotifier.value?['DisplayName'] ?? "",
-                  residentialType:
-                      _selectedResidentialTypeNotifier.value?['DisplayName'] ??
-                      "",
-                  siteVisitProposedDate: siteVisitProposedDate,
-                  index: widget.index,
-                );
-              }
-            },
-          ),
+          child: CustomButton(text: "Save", onPressed: _submitForm),
         ),
       ),
     );

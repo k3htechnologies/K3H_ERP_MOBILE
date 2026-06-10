@@ -5,7 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
-import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
@@ -46,9 +47,12 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
   // CUBIT
   late FinalizeVendorCubit _finalizeVendorCubit;
   late ProjectModel _selectedProject;
-  late LoginCubit _loginCubit;
+  late UtilsCubit _utilsCubit;
   late MaterialRequisitionCubit _materialCubit;
 
+  late AuthorizationModel _finalizedVendorAuthorizationModel,
+      _getQuotationAuthorizationModel,
+      _vendorComparisonAuthorizationModel;
   final ValueNotifier<List<dynamic>> selectedVendorList = ValueNotifier([]);
   final ValueNotifier<MaterialRequisitionModel?> materialRequisitionOverview =
       ValueNotifier(null);
@@ -57,9 +61,14 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
   void initState() {
     super.initState();
     _finalizeVendorCubit = context.read<FinalizeVendorCubit>();
-    _loginCubit = context.read<LoginCubit>();
+    _utilsCubit = context.read<UtilsCubit>();
     _materialCubit = context.read<MaterialRequisitionCubit>();
-
+    _getQuotationAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.getQuotation]!;
+    _vendorComparisonAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.getCompare]!;
+    _finalizedVendorAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.finalizedVendor]!;
     _selectedProject = getProject();
     _loadMaterialData();
   }
@@ -173,89 +182,112 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                         ),
                       ],
                     ),
-                    verticalSpacing(height: 10.h),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: CustomButton(
-                            text: "Get Quatation",
-                            backgroundColor: AppColor.green,
-                            onPressed: () {
-                              final systemGeneratedCode = Uri.encodeComponent(
-                                EncryptionManager.encryptData(
-                                  widget.systemGeneratedCode,
-                                ),
-                              );
-                              final materialRequisitionId = Uri.encodeComponent(
-                                EncryptionManager.encryptData(
-                                  widget.materialRequisitionId.toString(),
-                                ),
-                              );
-                              final projectID = Uri.encodeComponent(
-                                EncryptionManager.encryptData(
-                                  widget.projectId.toString(),
-                                ),
-                              );
-                              final uniquekey = Uri.encodeComponent(
-                                EncryptionManager.encryptData(
-                                  widget.uniquekey.toString(),
-                                ),
-                              );
+                    if (finalizedVendor == null) ...[
+                      verticalSpacing(height: 10.h),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (_getQuotationAuthorizationModel.isView) ...[
+                            Expanded(
+                              child: CustomButton(
+                                text: "Get Quatation",
+                                backgroundColor: AppColor.green,
+                                isDisable:
+                                    !_getQuotationAuthorizationModel.isAction,
+                                onPressed: () {
+                                  final systemGeneratedCode =
+                                      Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          widget.systemGeneratedCode,
+                                        ),
+                                      );
+                                  final materialRequisitionId =
+                                      Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          widget.materialRequisitionId
+                                              .toString(),
+                                        ),
+                                      );
+                                  final projectID = Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      widget.projectId.toString(),
+                                    ),
+                                  );
+                                  final uniquekey = Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      widget.uniquekey.toString(),
+                                    ),
+                                  );
 
-                              goRouter.pushNamed(
-                                AppRoutes.finalizeVendorGetQuotation,
-                                queryParameters: {
-                                  'systemGeneratedCode': systemGeneratedCode,
-                                  'materialRequisitionId':
-                                      materialRequisitionId,
-                                  'projectId': projectID,
-                                  'uniquekey': uniquekey,
+                                  goRouter.pushNamed(
+                                    AppRoutes.finalizeVendorGetQuotation,
+                                    queryParameters: {
+                                      'systemGeneratedCode':
+                                          systemGeneratedCode,
+                                      'materialRequisitionId':
+                                          materialRequisitionId,
+                                      'projectId': projectID,
+                                      'uniquekey': uniquekey,
+                                    },
+                                  );
                                 },
-                              );
-                            },
+                              ),
+                            ),
+                            horizontalSpacing(width: 8.h),
+                          ] else ...[
+                            Spacer(),
+                          ],
+                          Expanded(
+                            child: CustomButton(
+                              text: "Finalize Vendor",
+                              isDisable:
+                                  !_finalizedVendorAuthorizationModel.isAction,
+                              textColor: AppColor.green,
+                              backgroundColor: AppColor.lightGreen,
+                              onPressed: _onFinalizeVendorTap,
+                            ),
                           ),
-                        ),
-                        horizontalSpacing(width: 8.h),
-                        Expanded(
-                          child: CustomButton(
-                            text: "Finalize Vendor",
-                            textColor: AppColor.green,
-                            backgroundColor: AppColor.lightGreen,
-                            onPressed: _onFinalizeVendorTap,
-                          ),
-                        ),
-                        horizontalSpacing(width: 8.h),
-                        GestureDetector(
-                          onTap: () {
-                            _finalizeVendorCubit.compareVendor(
-                              context,
-                              "exportType",
-                              _selectedProject.projectId,
-                              widget.materialRequisitionId,
-                              widget.uniquekey,
-                            );
-                          },
-                          child: SvgPicture.asset(
-                            AppAssets.compareVendorIcon,
-                            height: 24.h,
-                            width: 24.w,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if ((vendorForFinalize
-                            .where((v) => v.isFinalized)
-                            .isNotEmpty) ||
-                        (vendorForFinalize
-                            .where((v) => v.isSelected)
-                            .isNotEmpty)) ...[
+                          horizontalSpacing(width: 8.h),
+                          if (_vendorComparisonAuthorizationModel.isView)
+                            GestureDetector(
+                              onTap: () {
+                                if (!_vendorComparisonAuthorizationModel
+                                    .isAction) {
+                                  return;
+                                }
+                                _finalizeVendorCubit.compareVendor(
+                                  context,
+                                  "exportType",
+                                  _selectedProject.projectId,
+                                  widget.materialRequisitionId,
+                                  widget.uniquekey,
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
+                                child: SvgPicture.asset(
+                                  AppAssets.compareVendorIcon,
+                                  // ignore: deprecated_member_use
+                                  color:
+                                      _vendorComparisonAuthorizationModel
+                                              .isAction
+                                          ? null
+                                          : AppColor.grey2,
+                                  height: 24.h,
+                                  width: 24.w,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                    if (finalizedVendor != null) ...[
                       verticalSpacing(),
                       ApproveRejectWidget(
                         isActionAlreadyPerformed: isApproved,
                         actionTitle: isApproved ? "Approved" : "Pending",
                         onApprove: (remark) async {
-                          final isSuccess = await _loginCubit
+                          final isSuccess = await _utilsCubit
                               .updateModulesWorkflowApproval(
                                 context: context,
                                 moduleName: 'MATERIAL REQUISITION',
@@ -271,7 +303,7 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                         },
                         isMaster: true,
                         onReject: (remark) async {
-                          final isSuccess = await _loginCubit
+                          final isSuccess = await _utilsCubit
                               .updateModulesWorkflowApproval(
                                 context: context,
                                 moduleName: 'MATERIAL REQUISITION',
@@ -286,7 +318,7 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                           }
                         },
                         onThirdTap: () async {
-                          final approvalLogHistoryList = await _loginCubit
+                          final approvalLogHistoryList = await _utilsCubit
                               .getApprovalLogHistory(
                                 context: context,
                                 projectId: widget.projectId,
@@ -349,6 +381,9 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                                     Row(
                                       children: [
                                         CustomCheckBox(
+                                          isDisabled:
+                                              !_finalizedVendorAuthorizationModel
+                                                  .isAction,
                                           isSelected:
                                               isFinalized || vendor.isSelected,
                                           onChanged: (value) {
@@ -406,6 +441,10 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                                             vendor.vendorName,
                                             style: AppTextStyle.ts16M(
                                               color: AppColor.primary,
+                                            ).copyWith(
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              decorationColor: AppColor.primary,
                                             ),
                                           ),
                                         ),
@@ -437,15 +476,13 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                                 ),
                                 _buildRow(
                                   "Total Tax",
-                                  _calculateTax(vendor).toIndianCurrency(),
+                                  vendor.taxTotal.toIndianCurrency(),
                                   valueColor: Colors.orange,
                                 ),
 
                                 _buildRow(
                                   "Grand Total",
-                                  _calculateGrandTotal(
-                                    vendor,
-                                  ).toIndianCurrency(),
+                                  vendor.grandTotal.toIndianCurrency(),
                                   valueColor: AppColor.primary,
                                 ),
 
@@ -499,24 +536,5 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
         ],
       ),
     );
-  }
-
-  int _calculateTax(FinalizeVendorForComparisonModel vendor) {
-    final terms = vendor.materialRequisitionQuotationTermsData;
-
-    if (terms.isEmpty) return 0;
-
-    final total = terms.first.total;
-    final base = total - 4000;
-
-    return (total - base).toInt();
-  }
-
-  int _calculateGrandTotal(FinalizeVendorForComparisonModel vendor) {
-    final terms = vendor.materialRequisitionQuotationTermsData;
-
-    if (terms.isEmpty) return 0;
-
-    return terms.first.total.toInt();
   }
 }

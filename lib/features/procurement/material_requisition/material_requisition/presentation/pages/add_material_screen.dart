@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -42,6 +43,7 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
   late MaterialRequisitionCubit _materialRequisitionCubit;
 
   late ProjectModel _project;
+  late UserModel user;
   final ValueNotifier<List<SubMaterialModel>> rawMaterialList = ValueNotifier(
     [],
   );
@@ -64,7 +66,7 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
     _project = getProject();
     initializeTextEditingController();
     _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
-
+    user = getCurrentUser();
     _prefill();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getMaterialSubMaterialUOMMaster();
@@ -102,6 +104,7 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
     var result = await utilsRepository
         .getMaterialMasterSubMaterialMasterUOMMaster(
           projectId: _project.projectId,
+          queryParams: {"ClientRegistrationId": user.clientRegistrationId},
         );
 
     try {

@@ -135,14 +135,32 @@ class _AddLitigationHearingScreenState
                   startDate: DateTime.now(),
                   setValue: (value) => hearingDate = value,
                   validator: (value) {
-                    if (value == null) return "Hearing Date is required";
-                    if (!value.isAfter(widget.litigationModel.dateOfFilling) ||
-                        (widget.litigationModel.hearingDate != null &&
-                            !value.isAfter(
-                              widget.litigationModel.hearingDate!,
-                            ))) {
-                      return 'Hearing Date cannot be in the past.';
+                    if (value == null) {
+                      return "Hearing Date is required";
                     }
+
+                    final filingDate = DateUtils.dateOnly(
+                      widget.litigationModel.dateOfFilling,
+                    );
+
+                    final selectedDate = DateUtils.dateOnly(value);
+
+                    if (!(selectedDate.isAfter(filingDate) ||
+                        selectedDate == filingDate)) {
+                      return "Hearing Date cannot be in the past.";
+                    }
+
+                    if (!_isEditMode &&
+                        widget.litigationModel.hearingDate != null) {
+                      final previousHearingDate = DateUtils.dateOnly(
+                        widget.litigationModel.hearingDate!,
+                      );
+
+                      if (!selectedDate.isAfter(previousHearingDate)) {
+                        return "Hearing date must be greater than previous hearing date.";
+                      }
+                    }
+
                     return null;
                   },
                 ),

@@ -383,68 +383,82 @@ class DialogHelper {
     return result ?? false;
   }
 
-  // BOTTOM SHEET
+  // BOTTOM SHEE
   static Future showCustomBottomSheet(
     BuildContext context,
-    String title,
-    Widget contentWidget,
-  ) async {
+    String title, {
+    required Widget contentWidget,
+    Widget? bottomActions,
+  }) async {
+    final scrollController = ScrollController();
+
     return await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder:
-          (BuildContext context) => SafeArea(
-            child: Container(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Container(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            width: getActualWidth(context),
+            height: getActualHeight(context) * 0.50,
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
               ),
-              width: getActualWidth(context),
-              height: getActualHeight(context) * 0.50,
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20.0),
-                  topRight: Radius.circular(20.0),
+            ),
+            child: Column(
+              children: [
+                // DRAG HANDLE
+                Container(
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.symmetric(vertical: 6),
+                  height: 5,
+                  width: 60,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: AppColor.grey,
+                  ),
                 ),
-              ),
-              child: Column(
-                children: [
-                  /// DRAG HANDLE
-                  Container(
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.symmetric(vertical: 6),
-                    height: 5,
-                    width: 60,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: AppColor.grey,
-                    ),
+
+                // TITLE
+                Container(
+                  margin: const EdgeInsets.only(top: 10),
+                  padding: const EdgeInsets.only(bottom: 10, left: 16),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(title, style: AppTextStyle.ts16SB()),
                   ),
+                ),
 
-                  /// TITLE
-                  Container(
-                    margin: const EdgeInsets.only(top: 10),
-                    padding: const EdgeInsets.only(bottom: 16, left: 16),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(title, style: AppTextStyle.ts16SB()),
-                    ),
-                  ),
+                Divider(color: AppColor.grey, thickness: .3),
 
-                  Divider(color: AppColor.grey, thickness: .3),
-
-                  /// CONTENT (let child handle scrolling)
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                // CONTENT WITH SCROLLBAR
+                Expanded(
+                  child: Scrollbar(
+                    controller: scrollController,
+                    thumbVisibility: true,
+                    child: SingleChildScrollView(
+                      controller: scrollController,
+                      padding: EdgeInsets.symmetric(horizontal: 16.h),
                       child: contentWidget,
                     ),
                   ),
+                ),
 
-                  verticalSpacing(height: 10.0),
-                ],
-              ),
+                // FIXED BUTTON
+                if (bottomActions != null)
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: bottomActions,
+                  ),
+              ],
             ),
           ),
+        );
+      },
     );
   }
 

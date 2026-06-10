@@ -45,6 +45,7 @@ class InventoryState extends BaseState {
     wingCurrentPage: 0,
     currentUnitPage: 0,
     unitTotalRecords: 0,
+    selectedFlatStatus: "total",
   );
 
   InventoryState copyWith({

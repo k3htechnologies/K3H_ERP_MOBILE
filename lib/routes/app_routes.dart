@@ -72,10 +72,6 @@ class AppRoutes {
   static String materialMaster = "/materialMaster";
   static String addMaterialMaster = "/addMaterialMaster";
   static String viewMaterialMaster = "/viewMaterialMaster";
-  static String finalizeVendorGetQuotation = "/finalizeVendorGetQuotation";
-  static String finalizeVendor = "/finalizeVendor";
-  static String finalizeEditVendor = "/finalizeEditVendor";
-  static String generatePurchaseOrder = "/generatePurchaseOrder";
 
   // UOM MASTER
   static String uomMaster = "/uomMaster";
@@ -101,6 +97,18 @@ class AppRoutes {
   static String makePayment = "/makePayment";
   static String makePaymentScreen = "/makePaymentScreen";
   static String viewPayment = "/viewPayment";
+  static String finalizeVendorGetQuotation = "/finalizeVendorGetQuotation";
+  static String finalizeVendor = "/finalizeVendor";
+  static String finalizeEditVendor = "/finalizeEditVendor";
+  static String generatePurchaseOrder = "/generatePurchaseOrder";
+
+  // TAB ACCESS ROUTES (MATERIAL MASTER VIEW TABS)
+  static String getQuotation = 'Get Quotation';
+  static String getCompare = 'Get Compare';
+  static String finalizedVendor = 'Finalized Vendor';
+  static String generatePurchaseOrderTab = 'Generate Purchase Order';
+  static String addInvoiceTab = 'Add Invoice';
+  static String makePayments = 'Make Payments';
 
   // STOCK MANAGEMENT
   static String stockManagement = "/stock";
@@ -139,6 +147,7 @@ class AppRoutes {
   // SALES CALL TRACKER
   static String callTracker = "/callTracker";
   static String updateCallTracker = "/updateCallTracker";
+  static String addCallingData = "/addCallingData";
 
   // SALES ENQUIRY
   static String enquiry = "/enquiry";
@@ -211,9 +220,14 @@ class AppRoutes {
 
   /// BROKERAGE
   static String brokerage = "/brokerage";
+  static String bookingBrokerage = "/bookingBrokerage";
   static String viewBrokerage = "/viewBrokerage";
   static String addBrokerageInvoice = "/addBrokerageInvoice";
   static String addBrokeragePayment = "/addBrokeragePayment";
+
+  // TAB ACCESS
+  static String brokerageInvoice = '/invoice';
+  static String brokerageMakePayment = '/makePayment';
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// PAYROLL MASTER

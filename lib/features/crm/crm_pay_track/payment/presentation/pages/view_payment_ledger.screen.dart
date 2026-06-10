@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger_summary.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_state.dart';
-import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -155,7 +155,7 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                   approveIcon: Icons.check,
                                   onApprove: (remark) async {
                                     final isSuccess = await context
-                                        .read<LoginCubit>()
+                                        .read<UtilsCubit>()
                                         .updateModulesWorkflowApproval(
                                           context: context,
                                           moduleName:
@@ -178,7 +178,7 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                   },
                                   onReject: (remark) async {
                                     await context
-                                        .read<LoginCubit>()
+                                        .read<UtilsCubit>()
                                         .updateModulesWorkflowApproval(
                                           context: context,
                                           moduleName:
@@ -191,7 +191,7 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                   },
                                   onThirdTap: () async {
                                     final approvalLogHistoryList = await context
-                                        .read<LoginCubit>()
+                                        .read<UtilsCubit>()
                                         .getApprovalLogHistory(
                                           context: context,
                                           projectId: summary.projectId,

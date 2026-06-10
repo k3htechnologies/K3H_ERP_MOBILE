@@ -230,24 +230,15 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
             Row(
               children: [
                 Expanded(
-                  child: ValueListenableBuilder<int>(
-                    valueListenable: _currentPageNotifier,
-                    builder: (_, index, __) {
-                      return RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: widget.title,
-                              style: AppTextStyle.ts20B(), // title style
-                            ),
-                            TextSpan(
-                              text: " (${index + 1}/${widget.urls.length})",
-                              style: AppTextStyle.ts14R(color: AppColor.grey),
-                            ),
-                          ],
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: widget.title,
+                          style: AppTextStyle.ts20B(), // title style
                         ),
-                      );
-                    },
+                      ],
+                    ),
                   ),
                 ),
                 GestureDetector(
@@ -359,27 +350,39 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
                 ],
               ),
             ),
-            // DOWNLOAD BUTTON
-            Align(
-              alignment: Alignment.centerRight,
-              child: CustomIconButton(
-                backgroundColor: AppColor.lightGreen,
-                onPressed: () async {
-                  final url = widget.urls[_currentPageNotifier.value];
-                  final bytes =
-                      widget.fileBytes != null &&
-                              widget.fileBytes!.length >
-                                  _currentPageNotifier.value
-                          ? widget.fileBytes![_currentPageNotifier.value]
-                          : null;
-                  await downloadFile(url, bytes: bytes);
-                },
-                icon: Icon(
-                  Icons.file_download_outlined,
-                  size: 16,
-                  color: AppColor.darkGreen,
-                ),
-              ),
+            ValueListenableBuilder<int>(
+              valueListenable: _currentPageNotifier,
+              builder: (_, index, __) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Document ${index + 1} of ${widget.urls.length}",
+                      style: AppTextStyle.ts14R(color: AppColor.grey),
+                    ),
+
+                    CustomIconButton(
+                      backgroundColor: AppColor.lightGreen,
+                      onPressed: () async {
+                        final url = widget.urls[_currentPageNotifier.value];
+                        final bytes =
+                            widget.fileBytes != null &&
+                                    widget.fileBytes!.length >
+                                        _currentPageNotifier.value
+                                ? widget.fileBytes![_currentPageNotifier.value]
+                                : null;
+
+                        await downloadFile(url, bytes: bytes);
+                      },
+                      icon: Icon(
+                        Icons.file_download_outlined,
+                        size: 16,
+                        color: AppColor.darkGreen,
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ],
         ),

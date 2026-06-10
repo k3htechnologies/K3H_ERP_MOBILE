@@ -122,6 +122,7 @@ class _AchievementScreenState extends State<AchievementScreen>
         _filterTypeNotifier.value = 'DATEWISE';
         _fromDateNotifier.value = null;
         _toDateNotifier.value = null;
+        _achievementCubit.resetState();
         break;
       case 4:
         _filterTypeNotifier.value = 'OVERALL';
@@ -139,6 +140,13 @@ class _AchievementScreenState extends State<AchievementScreen>
   }
 
   void _secondaryTabListener({bool isIndexChangeCheck = true}) {
+    // TO AVOID API CALL ON PRIMARY TAB CHANGE WHEN DATEWISE IS SELECTED WITHOUT SELECTING DATES
+    if (_primaryTabController?.index == 3 &&
+        _fromDateNotifier.value == null &&
+        _toDateNotifier.value == null) {
+      return;
+    }
+    // TO AVOID API CALL ON SECONDARY TAB CHANGE WHEN PRIMARY TAB CHANGES
     if (isIndexChangeCheck) {
       if (_secondaryTabController?.indexIsChanging ?? false) return;
     }
@@ -436,7 +444,11 @@ class _AchievementScreenState extends State<AchievementScreen>
                   onToDateChanged: (fromDate, toDate) {
                     _fromDateNotifier.value = fromDate;
                     _toDateNotifier.value = toDate;
-                    _secondaryTabListener(isIndexChangeCheck: false);
+                    if (fromDate == null || toDate == null) {
+                      _achievementCubit.resetState();
+                    } else {
+                      _secondaryTabListener(isIndexChangeCheck: false);
+                    }
                   },
                 ),
               );
@@ -478,167 +490,184 @@ class _AchievementScreenState extends State<AchievementScreen>
                     state.projectAchievementReportList.isEmpty) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                return ListView.builder(
-                  shrinkWrap: true,
-                  controller: _projectScrollController,
-                  itemCount: state.projectAchievementReportList.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == state.projectAchievementReportList.length) {
-                      return state.projectAchievementReportList.length <
-                              state.projectAchievementTotalNumberOfRecord
-                          ? Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Center(child: CircularProgressIndicator()),
-                          )
-                          : const SizedBox.shrink();
-                    }
-                    final achievement =
-                        state.projectAchievementReportList[index];
-                    return Container(
-                      decoration: commonCardDecoration(),
-                      margin: const EdgeInsets.only(bottom: 12.0),
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  achievement.projectName,
-                                  style: AppTextStyle.ts16M(
-                                    color: AppColor.primary,
-                                  ),
-                                ),
-                              ),
-                              Row(
-                                spacing: 5,
-                                children: [
-                                  CustomButton(
-                                    text: "CM",
-                                    onPressed: () async {
-                                      await _achievementCubit
-                                          .resetManagerAchievementReportState();
-                                      goRouter.pushNamed(
-                                        AppRoutes.managerAchievementReport,
-                                        queryParameters: {
-                                          'type': 'closing',
-                                          'filterType':
-                                              _filterTypeNotifier.value,
-                                          'fromDate':
-                                              _fromDateNotifier.value != null
-                                                  ? Uri.encodeComponent(
-                                                    EncryptionManager.encryptData(
-                                                      _fromDateNotifier.value!
-                                                          .toIso8601String(),
-                                                    ),
-                                                  )
-                                                  : '',
-                                          'toDate':
-                                              _toDateNotifier.value != null
-                                                  ? Uri.encodeComponent(
-                                                    EncryptionManager.encryptData(
-                                                      _toDateNotifier.value!
-                                                          .toIso8601String(),
-                                                    ),
-                                                  )
-                                                  : '',
-                                          'projectAchievement':
-                                              Uri.encodeComponent(
-                                                EncryptionManager.encryptData(
-                                                  jsonEncode(
-                                                    achievement.toJson(),
-                                                  ),
-                                                ),
-                                              ),
-                                        },
-                                      );
-                                    },
-                                  ),
-                                  CustomButton(
-                                    text: "SM",
-                                    onPressed: () async {
-                                      await _achievementCubit
-                                          .resetManagerAchievementReportState();
-                                      goRouter.pushNamed(
-                                        AppRoutes.managerAchievementReport,
-                                        queryParameters: {
-                                          'type': 'sourcing',
-                                          'projectAchievement':
-                                              Uri.encodeComponent(
-                                                EncryptionManager.encryptData(
-                                                  jsonEncode(
-                                                    achievement.toJson(),
-                                                  ),
-                                                ),
-                                              ),
-                                        },
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          buildRowTitleValue(
-                            title: "Walkins By CP",
-                            value: achievement.walkinsByCp.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Walkins Direct",
-                            value: achievement.walkinsDirect.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Total Walkins",
-                            value: achievement.totalWalkins.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Fresh Visits",
-                            value: achievement.totalFreshVisits.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Revisits",
-                            value: achievement.revisits.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Booking By CP",
-                            value: achievement.bookingByCp.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Booking Direct",
-                            value: achievement.bookingDirect.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Total Booking",
-                            value: achievement.totalBooking.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Total Revenue",
-                            singleLine: false,
-                            value:
-                                (achievement.totalRevenue).toIndianCurrency(),
-                          ),
-                          buildRowTitleValue(
-                            title: "IBM",
-                            singleLine: false,
-                            value: achievement.totalIbm.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "OBM",
-                            singleLine: false,
-                            value: achievement.totalObm.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "IBM + OBM",
-                            singleLine: false,
-                            value:
-                                (achievement.totalIbm + achievement.totalObm)
-                                    .addCommas(),
-                          ),
-                        ],
-                      ),
+                if (state.projectAchievementReportList.isEmpty) {
+                  return Center(
+                    child: noDataWidget(
+                      message: "No project achievement data available",
+                    ),
+                  );
+                }
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    _searchTextC.clear();
+                    _achievementCubit.getProjectAchievementReport(
+                      context: context,
+                      pageNumber: 1,
+                      filterType: _filterTypeNotifier.value,
                     );
                   },
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    controller: _projectScrollController,
+                    itemCount: state.projectAchievementReportList.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == state.projectAchievementReportList.length) {
+                        return state.projectAchievementReportList.length <
+                                state.projectAchievementTotalNumberOfRecord
+                            ? Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                            : const SizedBox.shrink();
+                      }
+                      final achievement =
+                          state.projectAchievementReportList[index];
+                      return Container(
+                        decoration: commonCardDecoration(),
+                        margin: const EdgeInsets.only(bottom: 12.0),
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    achievement.projectName,
+                                    style: AppTextStyle.ts16M(
+                                      color: AppColor.primary,
+                                    ),
+                                  ),
+                                ),
+                                Row(
+                                  spacing: 5,
+                                  children: [
+                                    CustomButton(
+                                      text: "CM",
+                                      onPressed: () async {
+                                        await _achievementCubit
+                                            .resetManagerAchievementReportState();
+                                        goRouter.pushNamed(
+                                          AppRoutes.managerAchievementReport,
+                                          queryParameters: {
+                                            'type': 'closing',
+                                            'filterType':
+                                                _filterTypeNotifier.value,
+                                            'fromDate':
+                                                _fromDateNotifier.value != null
+                                                    ? Uri.encodeComponent(
+                                                      EncryptionManager.encryptData(
+                                                        _fromDateNotifier.value!
+                                                            .toIso8601String(),
+                                                      ),
+                                                    )
+                                                    : '',
+                                            'toDate':
+                                                _toDateNotifier.value != null
+                                                    ? Uri.encodeComponent(
+                                                      EncryptionManager.encryptData(
+                                                        _toDateNotifier.value!
+                                                            .toIso8601String(),
+                                                      ),
+                                                    )
+                                                    : '',
+                                            'projectAchievement':
+                                                Uri.encodeComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(
+                                                      achievement.toJson(),
+                                                    ),
+                                                  ),
+                                                ),
+                                          },
+                                        );
+                                      },
+                                    ),
+                                    CustomButton(
+                                      text: "SM",
+                                      onPressed: () async {
+                                        await _achievementCubit
+                                            .resetManagerAchievementReportState();
+                                        goRouter.pushNamed(
+                                          AppRoutes.managerAchievementReport,
+                                          queryParameters: {
+                                            'type': 'sourcing',
+                                            'projectAchievement':
+                                                Uri.encodeComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(
+                                                      achievement.toJson(),
+                                                    ),
+                                                  ),
+                                                ),
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            buildRowTitleValue(
+                              title: "Walkins By CP",
+                              value: achievement.walkinsByCp.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Walkins Direct",
+                              value: achievement.walkinsDirect.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Total Walkins",
+                              value: achievement.totalWalkins.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Fresh Visits",
+                              value: achievement.totalFreshVisits.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Revisits",
+                              value: achievement.revisits.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Booking By CP",
+                              value: achievement.bookingByCp.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Booking Direct",
+                              value: achievement.bookingDirect.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Total Booking",
+                              value: achievement.totalBooking.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Total Revenue",
+                              singleLine: false,
+                              value:
+                                  (achievement.totalRevenue).toIndianCurrency(),
+                            ),
+                            buildRowTitleValue(
+                              title: "IBM",
+                              singleLine: false,
+                              value: achievement.totalIbm.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "OBM",
+                              singleLine: false,
+                              value: achievement.totalObm.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "IBM + OBM",
+                              singleLine: false,
+                              value:
+                                  (achievement.totalIbm + achievement.totalObm)
+                                      .addCommas(),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 );
               },
             ),
@@ -662,80 +691,99 @@ class _AchievementScreenState extends State<AchievementScreen>
                     state.closingAchievementReportList.isEmpty) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                return ListView.builder(
-                  controller: _closingScrollController,
-                  shrinkWrap: true,
-                  itemCount: state.closingAchievementReportList.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == state.closingAchievementReportList.length) {
-                      return state.closingAchievementReportList.length <
-                              state.closingAchievementTotalNumberOfRecord
-                          ? Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Center(child: CircularProgressIndicator()),
-                          )
-                          : const SizedBox.shrink();
-                    }
-                    final achievement =
-                        state.closingAchievementReportList[index];
-                    return Container(
-                      decoration: commonCardDecoration(),
-                      margin: const EdgeInsets.only(bottom: 12.0),
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            achievement.employeeName,
-                            style: AppTextStyle.ts16M(color: AppColor.primary),
-                          ),
-                          buildRowTitleValue(
-                            title: "Designation ",
-                            value: achievement.designationName,
-                          ),
-                          buildRowTitleValue(
-                            title: "Walkins By CP",
-                            value: achievement.walkinsByCp.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Walkins Direct",
-                            value: achievement.walkinsDirect.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Total Walkins",
-                            value: achievement.totalWalkins.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Revisits",
-                            value: achievement.revisits.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Total Fresh Visits",
-                            value: achievement.totalFreshVisits.addCommas(),
-                          ),
-
-                          buildRowTitleValue(
-                            title: "Booking By CP",
-                            value: achievement.bookingByCp.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Booking Direct",
-                            value: achievement.bookingDirect.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Total Booking",
-                            value: achievement.totalBooking.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Total Revenue",
-                            singleLine: false,
-                            value:
-                                (achievement.totalRevenue).toIndianCurrency(),
-                          ),
-                        ],
-                      ),
+                if (state.closingAchievementReportList.isEmpty) {
+                  return Center(
+                    child: noDataWidget(
+                      message: "No closing achievement data available",
+                    ),
+                  );
+                }
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    _searchTextC.clear();
+                    _achievementCubit.getClosingAchievementReport(
+                      context: context,
+                      pageNumber: 1,
+                      filterType: _filterTypeNotifier.value,
                     );
                   },
+                  child: ListView.builder(
+                    controller: _closingScrollController,
+                    shrinkWrap: true,
+                    itemCount: state.closingAchievementReportList.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == state.closingAchievementReportList.length) {
+                        return state.closingAchievementReportList.length <
+                                state.closingAchievementTotalNumberOfRecord
+                            ? Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                            : const SizedBox.shrink();
+                      }
+                      final achievement =
+                          state.closingAchievementReportList[index];
+                      return Container(
+                        decoration: commonCardDecoration(),
+                        margin: const EdgeInsets.only(bottom: 12.0),
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              achievement.employeeName,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ),
+                            ),
+                            buildRowTitleValue(
+                              title: "Designation ",
+                              value: achievement.designationName,
+                            ),
+                            buildRowTitleValue(
+                              title: "Walkins By CP",
+                              value: achievement.walkinsByCp.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Walkins Direct",
+                              value: achievement.walkinsDirect.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Total Walkins",
+                              value: achievement.totalWalkins.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Revisits",
+                              value: achievement.revisits.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Total Fresh Visits",
+                              value: achievement.totalFreshVisits.addCommas(),
+                            ),
+
+                            buildRowTitleValue(
+                              title: "Booking By CP",
+                              value: achievement.bookingByCp.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Booking Direct",
+                              value: achievement.bookingDirect.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Total Booking",
+                              value: achievement.totalBooking.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Total Revenue",
+                              singleLine: false,
+                              value:
+                                  (achievement.totalRevenue).toIndianCurrency(),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 );
               },
             ),
@@ -766,88 +814,101 @@ class _AchievementScreenState extends State<AchievementScreen>
                     ),
                   );
                 }
-                return ListView.builder(
-                  shrinkWrap: true,
-                  controller: _sourcingScrollController,
-                  itemCount: state.sourcingAchievementReportList.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == state.sourcingAchievementReportList.length) {
-                      return state.sourcingAchievementReportList.length <
-                              state.sourcingAchievementTotalNumberOfRecord
-                          ? Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Center(child: CircularProgressIndicator()),
-                          )
-                          : const SizedBox.shrink();
-                    }
-                    final achievement =
-                        state.sourcingAchievementReportList[index];
-                    return Container(
-                      decoration: commonCardDecoration(),
-                      margin: const EdgeInsets.only(bottom: 12.0),
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            achievement.employeeName,
-                            style: AppTextStyle.ts16M(color: AppColor.primary),
-                          ),
-                          buildRowTitleValue(
-                            title: "Designation ",
-                            value: achievement.designationName,
-                          ),
-                          buildRowTitleValue(
-                            title: "Walkins By CP",
-                            value: achievement.walkinsByCp.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Walkins Fresh Visits",
-                            value: achievement.freshVisits.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Revisits",
-                            value: achievement.revisits.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Total Booking",
-                            value: achievement.bookings.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Total Revenue",
-                            singleLine: false,
-                            value:
-                                (achievement.totalRevenue).toIndianCurrency(),
-                          ),
-                          buildRowTitleValue(
-                            title: "IBM",
-                            singleLine: false,
-                            value: achievement.totalIbm.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "OBM (Fresh Visits)",
-                            singleLine: false,
-                            value: achievement.totalObmFreshVisits.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "OBM (Revisits)",
-                            singleLine: false,
-                            value: achievement.totalObmRevisits.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Total Meetings",
-                            singleLine: false,
-                            value: achievement.totalMeetings.addCommas(),
-                          ),
-                          buildRowTitleValue(
-                            title: "IBM",
-                            singleLine: false,
-                            value: achievement.totalIbm.addCommas(),
-                          ),
-                        ],
-                      ),
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    _searchTextC.clear();
+                    _achievementCubit.getSourcingAchievementReport(
+                      context: context,
+                      pageNumber: 1,
+                      filterType: _filterTypeNotifier.value,
                     );
                   },
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    controller: _sourcingScrollController,
+                    itemCount: state.sourcingAchievementReportList.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == state.sourcingAchievementReportList.length) {
+                        return state.sourcingAchievementReportList.length <
+                                state.sourcingAchievementTotalNumberOfRecord
+                            ? Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                            : const SizedBox.shrink();
+                      }
+                      final achievement =
+                          state.sourcingAchievementReportList[index];
+                      return Container(
+                        decoration: commonCardDecoration(),
+                        margin: const EdgeInsets.only(bottom: 12.0),
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              achievement.employeeName,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ),
+                            ),
+                            buildRowTitleValue(
+                              title: "Designation ",
+                              value: achievement.designationName,
+                            ),
+                            buildRowTitleValue(
+                              title: "Walkins By CP",
+                              value: achievement.walkinsByCp.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Walkins Fresh Visits",
+                              value: achievement.freshVisits.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Revisits",
+                              value: achievement.revisits.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Total Booking",
+                              value: achievement.bookings.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Total Revenue",
+                              singleLine: false,
+                              value:
+                                  (achievement.totalRevenue).toIndianCurrency(),
+                            ),
+                            buildRowTitleValue(
+                              title: "IBM",
+                              singleLine: false,
+                              value: achievement.totalIbm.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "OBM (Fresh Visits)",
+                              singleLine: false,
+                              value:
+                                  achievement.totalObmFreshVisits.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "OBM (Revisits)",
+                              singleLine: false,
+                              value: achievement.totalObmRevisits.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Total Meetings",
+                              singleLine: false,
+                              value: achievement.totalMeetings.addCommas(),
+                            ),
+                            buildRowTitleValue(
+                              title: "IBM",
+                              singleLine: false,
+                              value: achievement.totalIbm.addCommas(),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 );
               },
             ),
@@ -861,10 +922,6 @@ class _AchievementScreenState extends State<AchievementScreen>
     return AnimatedBuilder(
       animation: Listenable.merge([_searchTextNotifier, _primaryTabController]),
       builder: (context, child) {
-        // HIDE SEARCH BAR IF PRIMARY TAB IS DATEWISE
-        if (_primaryTabController?.index == 3) {
-          return const SizedBox.shrink();
-        }
         return SearchWidget(
           textController: _searchTextC,
           hintText: _searchTextNotifier.value,

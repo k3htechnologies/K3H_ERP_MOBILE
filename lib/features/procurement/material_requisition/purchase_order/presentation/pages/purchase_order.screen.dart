@@ -2,6 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/cubit/purchase_order_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -29,10 +30,14 @@ class PurchaseOrderScreen extends StatefulWidget {
 
 class _PurchaseOrderScreenState extends State<PurchaseOrderScreen> {
   late PurchaseOrderCubit _purchaseOrderCubit;
+  late AuthorizationModel _purchaseOrderAuthorizationModel;
 
   @override
   void initState() {
     _purchaseOrderCubit = context.read<PurchaseOrderCubit>();
+    _purchaseOrderAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes
+            .generatePurchaseOrderTab]!;
     super.initState();
   }
 
@@ -98,6 +103,7 @@ class _PurchaseOrderScreenState extends State<PurchaseOrderScreen> {
                     ),
                     CustomButton(
                       text: "Delete",
+                      isDisable: !_purchaseOrderAuthorizationModel.isAction,
                       backgroundColor: AppColor.error,
                       onPressed: () {
                         _showPopupToDeletePurchaseOrder(
@@ -128,6 +134,7 @@ class _PurchaseOrderScreenState extends State<PurchaseOrderScreen> {
                   Expanded(
                     child: CustomButton(
                       text: "Generate PO",
+                      isDisable: !_purchaseOrderAuthorizationModel.isAction,
                       onPressed: () {
                         goRouter.pushNamed(
                           AppRoutes.generatePurchaseOrder,
@@ -152,6 +159,7 @@ class _PurchaseOrderScreenState extends State<PurchaseOrderScreen> {
                   ),
                   Expanded(
                     child: CustomButton(
+                      isDisable: !_purchaseOrderAuthorizationModel.isAction,
                       text: "Upload PO",
                       onPressed: () {
                         _pickFile().then((file) {

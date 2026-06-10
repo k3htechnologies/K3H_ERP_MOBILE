@@ -90,70 +90,68 @@ class _FlatHandoverChecklistScreenState
     await DialogHelper.showCustomBottomSheet(
       context,
       index != null ? "Update Follow Up" : "Add Follow Up",
-      StatefulBuilder(
+      contentWidget: StatefulBuilder(
         builder: (context, innerBottomsheetState) {
           return Form(
             key: _statusFormKey,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ValueListenableBuilder(
-                    valueListenable: _selectedStatusNotifier,
-                    builder: (context, selectedStatus, child) {
-                      return CustomDropDownWidget(
-                        title: "Status",
-                        hintText: "Select Status",
-                        isRequired: true,
-                        dataList: _statusList,
-                        initialValue:
-                            selectedStatus.isNotEmpty
-                                ? selectedStatus.first
-                                : null,
-                        onSelected: (value) {
-                          _selectedStatusNotifier.value = [value];
-                        },
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Status is required";
-                          }
-                          return null;
-                        },
-                        onValueClear: () {
-                          _selectedStatusNotifier.value = [];
-                        },
-                      );
-                    },
-                  ),
-                  CustomTextField(
-                    title: 'Remark',
-                    hint: "Enter remark",
-                    isRequired: true,
-                    textController: _remarkC,
-                    maxLines: 10,
-                    minLines: 3,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Remark is required";
-                      }
-                      return null;
-                    },
-                  ),
-                  CustomButton(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    text: index != null ? "Update" : "Save",
-                    onPressed: () {
-                      if (!_statusFormKey.currentState!.validate()) return;
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ValueListenableBuilder(
+                  valueListenable: _selectedStatusNotifier,
+                  builder: (context, selectedStatus, child) {
+                    return CustomDropDownWidget(
+                      title: "Status",
+                      hintText: "Select Status",
+                      isRequired: true,
+                      dataList: _statusList,
+                      initialValue:
+                          selectedStatus.isNotEmpty
+                              ? selectedStatus.first
+                              : null,
+                      onSelected: (value) {
+                        _selectedStatusNotifier.value = [value];
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Status is required";
+                        }
+                        return null;
+                      },
+                      onValueClear: () {
+                        _selectedStatusNotifier.value = [];
+                      },
+                    );
+                  },
+                ),
+                CustomTextField(
+                  title: 'Remark',
+                  hint: "Enter remark",
+                  isRequired: true,
+                  textController: _remarkC,
+                  maxLines: 10,
+                  minLines: 3,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Remark is required";
+                    }
+                    return null;
+                  },
+                ),
+                CustomButton(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  text: index != null ? "Update" : "Save",
+                  onPressed: () {
+                    if (!_statusFormKey.currentState!.validate()) return;
 
-                      _submitForm(
-                        flatHandoverChecklistModel: flatHandoverChecklistModel,
-                        index: index,
-                      );
-                    },
-                  ),
-                ],
-              ),
+                    _submitForm(
+                      flatHandoverChecklistModel: flatHandoverChecklistModel,
+                      index: index,
+                    );
+                  },
+                ),
+              ],
             ),
           );
         },

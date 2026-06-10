@@ -696,7 +696,8 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                                     child: Align(
                                       alignment: Alignment.centerRight,
                                       child: CustomClickToContactText(
-                                        value: member.mobileNumber,
+                                        value:
+                                            "${member.mobileNumberCountryCode} ${member.mobileNumber}",
                                       ),
                                     ),
                                   ),

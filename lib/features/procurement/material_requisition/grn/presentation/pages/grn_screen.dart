@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
-import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -34,14 +33,11 @@ class GRNScreen extends StatefulWidget {
 
 class _GRNScreenState extends State<GRNScreen> {
   late GrnCubit _grnCubit;
-  late AuthorizationModel _routeAuthorizationModel;
 
   @override
   void initState() {
     super.initState();
     _grnCubit = context.read<GrnCubit>();
-    _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.materialRequisition]!;
   }
 
   @override
@@ -90,32 +86,31 @@ class _GRNScreenState extends State<GRNScreen> {
                 backgroundColor: AppColor.lightBlue,
                 textColor: AppColor.primary,
               ),
-              if (_routeAuthorizationModel.isAction)
-                CustomButton(
-                  leading: Icon(Icons.add, color: AppColor.white, size: 16),
-                  text: "Add GRN",
-                  onPressed: () async {
-                    await _grnCubit.clearMaterialList();
-                    await goRouter.pushNamed(
-                      AppRoutes.addGrn,
-                      queryParameters: {
-                        "materialRequisitionId": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(
-                            widget.materialRequisitionId.toString(),
-                          ),
+              CustomButton(
+                leading: Icon(Icons.add, color: AppColor.white, size: 16),
+                text: "Add GRN",
+                onPressed: () async {
+                  await _grnCubit.clearMaterialList();
+                  await goRouter.pushNamed(
+                    AppRoutes.addGrn,
+                    queryParameters: {
+                      "materialRequisitionId": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(
+                          widget.materialRequisitionId.toString(),
                         ),
-                        "projectId": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(
-                            widget.projectId.toString(),
-                          ),
+                      ),
+                      "projectId": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(
+                          widget.projectId.toString(),
                         ),
-                        "uniquekey": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(widget.uniquekey),
-                        ),
-                      },
-                    );
-                  },
-                ),
+                      ),
+                      "uniquekey": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(widget.uniquekey),
+                      ),
+                    },
+                  );
+                },
+              ),
             ],
           ),
 
@@ -174,12 +169,11 @@ class _GRNScreenState extends State<GRNScreen> {
                                 children: [
                                   CustomIconButton.edit(
                                     isDisabled:
-                                        (index != 0 ||
-                                            _routeAuthorizationModel.isAction),
+                                        (grn.isInvoicePaymentCompleted ??
+                                            false),
                                     onPressed: () async {
                                       goRouter.pushNamed(
                                         AppRoutes.addGrn,
-
                                         queryParameters: {
                                           "grnMaterial":
                                               Uri.encodeQueryComponent(

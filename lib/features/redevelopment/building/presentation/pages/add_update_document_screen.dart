@@ -139,57 +139,47 @@ class _AddUpdateDocumentScreenState extends State<AddUpdateDocumentScreen> {
     await DialogHelper.showCustomBottomSheet(
       context,
       "Add Document",
-      SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              CustomTextField(
-                textController: _newDocumentTitleController,
-                title: "Document title",
-                hint: "Enter document title",
-              ),
-              verticalSpacing(height: 16),
-              CustomButton(
-                text: "Add Document",
-                onPressed: () async {
-                  final title = _newDocumentTitleController.text.trim();
-                  if (title.isEmpty) {
-                    showErrorMessage(
-                      context,
-                      "Error",
-                      "Please enter document title",
-                    );
-                    return;
-                  }
-
-                  await _buildingCubit.addBuildingDocument(
-                    context: context,
-                    projectId: _project.projectId,
-                    buildingId: widget.building.buildingId,
-                    documentName: title,
-                    files: MultiFilePickerModel(
-                      fileNameList: const [],
-                      fileBytesList: const [],
-                      deletedFileList: "",
-                    ),
-                  );
-
-                  if (!mounted) return;
-                  Navigator.of(context).pop();
-                  _newDocumentTitleController.clear();
-
-                  // Refresh parent titles after adding new one
-                  if (mounted) {
-                    await _loadParentDocuments();
-                  }
-                },
-              ),
-            ],
+      contentWidget: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          CustomTextField(
+            textController: _newDocumentTitleController,
+            title: "Document title",
+            hint: "Enter document title",
           ),
-        ),
+        ],
+      ),
+      bottomActions: CustomButton(
+        text: "Add Document",
+        onPressed: () async {
+          final title = _newDocumentTitleController.text.trim();
+          if (title.isEmpty) {
+            showErrorMessage(context, "Error", "Please enter document title");
+            return;
+          }
+
+          await _buildingCubit.addBuildingDocument(
+            context: context,
+            projectId: _project.projectId,
+            buildingId: widget.building.buildingId,
+            documentName: title,
+            files: MultiFilePickerModel(
+              fileNameList: const [],
+              fileBytesList: const [],
+              deletedFileList: "",
+            ),
+          );
+
+          if (!mounted) return;
+          Navigator.of(context).pop();
+          _newDocumentTitleController.clear();
+
+          // Refresh parent titles after adding new one
+          if (mounted) {
+            await _loadParentDocuments();
+          }
+        },
       ),
     );
   }

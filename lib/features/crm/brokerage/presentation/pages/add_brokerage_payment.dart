@@ -39,7 +39,10 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _amountC, _tdsAmountC, _transactionNumberC;
+  late TextEditingController _pendingAmountC,
+      _amountC,
+      _tdsAmountC,
+      _transactionNumberC;
 
   // DROPDOWNS
   late ValueNotifier<List<Map<String, dynamic>>> _selectedPaymentModeNotifier;
@@ -48,19 +51,18 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
 
   // PAYMENT MODE LIST
   final List<Map<String, dynamic>> _paymentModeList = [
-    {"zAttributesId": 1, "DisplayName": "Cash"},
-    {"zAttributesId": 2, "DisplayName": "Cheque"},
-    {"zAttributesId": 3, "DisplayName": "Bank Transfer"},
-    {"zAttributesId": 4, "DisplayName": "UPI"},
-    {"zAttributesId": 5, "DisplayName": "NEFT"},
-    {"zAttributesId": 6, "DisplayName": "RTGS"},
+    {"zAttributesId": 1, "DisplayName": "Cheque"},
+    {"zAttributesId": 2, "DisplayName": "Demand Draft"},
+    {"zAttributesId": 3, "DisplayName": "IMPS"},
+    {"zAttributesId": 4, "DisplayName": "Online Transfer"},
+    {"zAttributesId": 5, "DisplayName": "RTGS"},
+    {"zAttributesId": 6, "DisplayName": "UPI"},
   ];
 
   // PAYMENT TYPE LIST
   final List<Map<String, dynamic>> _paymentTypeList = [
-    {"zAttributesId": 1, "DisplayName": "Full Payment"},
-    {"zAttributesId": 2, "DisplayName": "Partial Payment"},
-    {"zAttributesId": 3, "DisplayName": "Advance Payment"},
+    {"zAttributesId": 1, "DisplayName": "Full"},
+    {"zAttributesId": 2, "DisplayName": "Partial"},
   ];
 
   // FILE VARIABLES
@@ -97,6 +99,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
 
   // INITIALISING TEXT CONTROLLERS
   void _initializeTextEditingControllers() {
+    _pendingAmountC = TextEditingController();
     _amountC = TextEditingController();
     _tdsAmountC = TextEditingController();
     _transactionNumberC = TextEditingController();
@@ -224,11 +227,17 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                       dataList: _paymentTypeList,
                       onSelected: (value) {
                         _selectedPaymentTypeNotifier.value = [value];
-                        if (value['DisplayName'] == 'Full Payment') {
+                        if (value['DisplayName'] == 'Full') {
                           _amountC.text =
-                              widget.invoiceModel.invoiceAmount.toString();
+                              (widget.invoiceModel.invoiceAmount -
+                                      widget.invoiceModel.paymentAmount)
+                                  .toString();
                           _tdsAmountC.clear();
                         } else {
+                          _pendingAmountC.text =
+                              (widget.invoiceModel.invoiceAmount -
+                                      widget.invoiceModel.paymentAmount)
+                                  .toString();
                           _amountC.clear();
                           _tdsAmountC.clear();
                         }
@@ -245,6 +254,14 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                     );
                   },
                 ),
+                CustomTextField(
+                  textController: _pendingAmountC,
+                  readOnly: true,
+                  title: "Pending Amount",
+                  hint: "0",
+                  keyboardType: TextInputType.numberWithOptions(),
+                  inputFormatterList: InputValidator.decimal(2),
+                ),
                 ValueListenableBuilder(
                   valueListenable: _selectedPaymentTypeNotifier,
                   builder: (context, value, child) {
@@ -254,9 +271,22 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                       readOnly:
                           value.isEmpty
                               ? false
-                              : value.first['DisplayName'] == 'Full Payment',
+                              : value.first['DisplayName'] == 'Full',
                       title: "Amount",
                       hint: "Enter Amount",
+                      onChangeFunction: (v) {
+                        final enteredAmount = double.tryParse(v) ?? 0.0;
+
+                        final calculatedPendingAmount =
+                            (widget.invoiceModel.invoiceAmount -
+                                widget.invoiceModel.paymentAmount) -
+                            enteredAmount;
+
+                        _pendingAmountC.text = (calculatedPendingAmount >= 0
+                                ? calculatedPendingAmount
+                                : 0.0)
+                            .toStringAsFixed(2);
+                      },
                       keyboardType: TextInputType.numberWithOptions(),
                       inputFormatterList: InputValidator.decimal(2),
 

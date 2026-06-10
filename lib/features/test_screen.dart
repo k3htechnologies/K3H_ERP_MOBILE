@@ -37,12 +37,19 @@ class TestScreen extends StatelessWidget {
                         await DialogHelper.showCustomBottomSheet(
                           context,
                           "Hello World",
-                          Container(height: 100, color: Colors.red),
+                          contentWidget: Container(
+                            height: 100,
+                            color: Colors.red,
+                          ),
                         );
                       },
                       text: 'Save Changes',
                       gradient: LinearGradient(
-                        colors: [AppColor.primary, AppColor.primary, AppColor.darkBlue],
+                        colors: [
+                          AppColor.primary,
+                          AppColor.primary,
+                          AppColor.darkBlue,
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -75,12 +82,14 @@ class TestScreen extends StatelessWidget {
                 onPressed: () {
                   DialogHelper.showProcessingOverlay(context);
                 },
-                icon: Icon(Icons.notifications_none,color: AppColor.primary,),
+                icon: Icon(Icons.notifications_none, color: AppColor.primary),
               ),
               Text(formatDateTimeAsDDMMMYYYY(DateTime.now())),
               GestureDetector(
-                onTap: (){
-                  showFilePreviewDialog(context, ["https://www.shutterstock.com/image-photo/portrait-fake-doublecross-betray-85500217?dd_referrer=https%3A%2F%2Fwww.google.com%2F"]);
+                onTap: () {
+                  showFilePreviewDialog(context, [
+                    "https://www.shutterstock.com/image-photo/portrait-fake-doublecross-betray-85500217?dd_referrer=https%3A%2F%2Fwww.google.com%2F",
+                  ]);
                 },
                 child: NetworkImageWidget(
                   imageUrl:

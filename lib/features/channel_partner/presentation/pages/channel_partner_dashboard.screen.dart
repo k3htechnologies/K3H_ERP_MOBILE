@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ChannelPartnerDashboardScreen extends StatefulWidget {
@@ -85,7 +86,7 @@ class _ChannelPartnerDashboardScreenState
                     title: "Total Channel Partner",
                     titleColor: AppColor.lightBlue,
                     value: table0?.totalChannelPartner ?? 0,
-                    valueColor: AppColor.lightBlue,
+                    valueColor: AppColor.white,
                   ),
                   verticalSpacing(height: 16.0),
                   _buildTotalCasesWidget(
@@ -97,7 +98,7 @@ class _ChannelPartnerDashboardScreenState
                     ),
                     value: table0?.activeChannelPartner ?? 0,
                     subText: "this month",
-                    valueColor: AppColor.black,
+                    valueColor: AppColor.greyTitleAndValueColor,
                   ),
                   verticalSpacing(height: 16.0),
                   _buildTotalCasesWidget(
@@ -108,21 +109,20 @@ class _ChannelPartnerDashboardScreenState
                       alpha: 0.5,
                     ),
                     value: table0?.thisMonthAddedChannelPartner ?? 0,
-                    valueColor: AppColor.black,
+                    valueColor: AppColor.greyTitleAndValueColor,
                     subText: "this month",
-                    valuesubTextColor: AppColor.green,
                   ),
                   verticalSpacing(height: 16.0),
                   _buildTotalCasesWidget(
                     context,
-                    bgColor: AppColor.priorityHighColor.withValues(alpha: 0.1),
+                    bgColor: Color(0xffFFECEC),
                     title: "Missing Information",
                     titleColor: AppColor.greyTitleAndValueColor.withValues(
                       alpha: 0.5,
                     ),
                     value: table0?.missingInfoChannelPartner ?? 0,
-                    valueColor: AppColor.priorityHighColor,
-                    borderColor: AppColor.priorityHighColor,
+                    valueColor: AppColor.missingInformationRed,
+                    borderColor: AppColor.missingInformationRed,
                   ),
                   verticalSpacing(height: 16.0),
                   // CHANNEL PARTNER DISTRIBUTION WIDGET
@@ -231,9 +231,12 @@ class _ChannelPartnerDashboardScreenState
                   ),
                 ),
               ),
-              Divider(
-                thickness: 0.3,
-                color: AppColor.black.withValues(alpha: 0.5),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                child: Divider(
+                  thickness: 0.3,
+                  color: AppColor.black.withValues(alpha: 0.5),
+                ),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -241,20 +244,25 @@ class _ChannelPartnerDashboardScreenState
                   Expanded(
                     child: Text(
                       "Partner Type Distribution",
-                      style: AppTextStyle.ts14SB(color: AppColor.black),
+                      style: AppTextStyle.ts14SB(
+                        color: AppColor.greyTitleAndValueColor,
+                      ),
                     ),
                   ),
                 ],
               ),
-              verticalSpacing(),
+              verticalSpacing(height: 16.0),
               if (table2 != null && table2.isNotEmpty) ...[
                 Column(
                   children:
-                      table2.map((partnerTypeDistribution) {
+                      table2.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final partnerTypeDistribution = entry.value;
                         return _buildParkingRow(
                           title: partnerTypeDistribution.type,
                           count: partnerTypeDistribution.totalCount,
                           totalSum: totalSum!,
+                          isLast: index == table2.length - 1,
                         );
                       }).toList(),
                 ),
@@ -263,7 +271,7 @@ class _ChannelPartnerDashboardScreenState
                   child: Text(
                     "No Data Found",
                     style: AppTextStyle.ts12M(
-                      color: AppColor.black.withValues(alpha: 0.50),
+                      color: AppColor.greyBackground.withValues(alpha: 0.50),
                     ),
                   ),
                 ),
@@ -272,18 +280,21 @@ class _ChannelPartnerDashboardScreenState
                 thickness: 0.3,
                 color: AppColor.black.withValues(alpha: 0.5),
               ),
+              verticalSpacing(height: 16.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Text(
                       "Firm Type Distribution",
-                      style: AppTextStyle.ts14SB(color: AppColor.black),
+                      style: AppTextStyle.ts14SB(
+                        color: AppColor.greyTitleAndValueColor,
+                      ),
                     ),
                   ),
                 ],
               ),
-              verticalSpacing(),
+              verticalSpacing(height: 16.0),
               if (table1 != null && table1.isNotEmpty) ...[
                 CommonRadialChart(items: _buildFirmTypeChart(table1)),
               ] else ...[
@@ -291,48 +302,57 @@ class _ChannelPartnerDashboardScreenState
                   child: Text(
                     "No Data Found",
                     style: AppTextStyle.ts12M(
-                      color: AppColor.black.withValues(alpha: 0.50),
+                      color: AppColor.greyTitleAndValueColor.withValues(
+                        alpha: 0.50,
+                      ),
                     ),
                   ),
                 ),
               ],
-
               Divider(
                 thickness: 0.3,
                 color: AppColor.black.withValues(alpha: 0.5),
               ),
-
+              verticalSpacing(height: 16.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Text(
                       "Micromarket",
-                      style: AppTextStyle.ts14SB(color: AppColor.black),
+                      style: AppTextStyle.ts14SB(
+                        color: AppColor.greyTitleAndValueColor,
+                      ),
                     ),
                   ),
                 ],
               ),
-              verticalSpacing(),
-
+              verticalSpacing(height: 16.0),
               if (table3 != null) ...[
-                ...table3.map((item) {
+                ...table3.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final item = entry.value;
                   final widthFactor =
                       maxValue == 0 ? 0.0 : item.totalChannelPartner / maxValue;
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 14),
+                    padding: EdgeInsets.only(
+                      bottom: index == table3.length - 1 ? 0 : 14.0,
+                    ),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SizedBox(
                           width: 90,
                           child: Text(
                             item.name,
                             style: AppTextStyle.ts14M(
-                              color: AppColor.black.withValues(alpha: 0.5),
+                              color: AppColor.greyTitleAndValueColor.withValues(
+                                alpha: 0.5,
+                              ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        horizontalSpacing(),
                         Expanded(
                           child: LayoutBuilder(
                             builder: (context, constraints) {
@@ -343,11 +363,10 @@ class _ChannelPartnerDashboardScreenState
                               return Stack(
                                 children: [
                                   Container(
-                                    height: 36,
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
+                                      borderRadius: BorderRadius.circular(8),
                                       color: AppColor.primary.withValues(
-                                        alpha: 0.1,
+                                        alpha: 0.25,
                                       ),
                                     ),
                                   ),
@@ -403,15 +422,31 @@ class _ChannelPartnerDashboardScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Recently Added Channel Partner",
-                style: AppTextStyle.ts14M(
-                  color: AppColor.greyTitleAndValueColor.withValues(
-                    alpha: 0.50,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 2,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "Recently Added Channel Partner",
+                          style: AppTextStyle.ts14M(
+                            color: AppColor.black.withValues(alpha: 0.50),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
+                  Text(
+                    "(Last 7 Days)",
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                ],
               ),
-              verticalSpacing(),
+              verticalSpacing(height: 16.0),
               if (table4 != null && table4.isNotEmpty) ...[
                 SizedBox(
                   height: 300.0,
@@ -422,10 +457,7 @@ class _ChannelPartnerDashboardScreenState
                       final addedChannelPartner = table4[index];
                       final bool isLast = index == table4.length - 1;
                       return Container(
-                        margin:
-                            isLast
-                                ? EdgeInsets.zero
-                                : EdgeInsets.only(bottom: 12),
+                        margin: EdgeInsets.only(bottom: isLast ? 0.0 : 12),
                         padding: EdgeInsets.all(12.0),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4.0),
@@ -434,24 +466,32 @@ class _ChannelPartnerDashboardScreenState
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _infoColumn(
-                              "Channel Partner Name",
-                              addedChannelPartner.name,
-                              valueColor: AppColor.primary,
+                            buildColumnTitleValueNormal(
+                              title: "Channel Partner Name",
+                              value: addedChannelPartner.name,
+                              valueTextStyle: AppTextStyle.ts14M(
+                                color: AppColor.primary,
+                              ),
                             ),
                             verticalSpacing(height: 16),
-                            _infoColumn(
-                              "Channel Partner Code",
-                              addedChannelPartner.systemGeneratedCode,
+                            buildColumnTitleValueNormal(
+                              title: "Channel Partner Code",
+                              value: addedChannelPartner.systemGeneratedCode,
+                              valueTextStyle: AppTextStyle.ts14M(
+                                color: AppColor.greyTitleAndValueColor,
+                              ),
                             ),
                             verticalSpacing(height: 16),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                _infoColumn(
-                                  "Company",
-                                  addedChannelPartner.companyName,
+                                buildColumnTitleValueNormal(
+                                  title: "Company",
+                                  value: addedChannelPartner.companyName,
+                                  valueTextStyle: AppTextStyle.ts14M(
+                                    color: AppColor.greyTitleAndValueColor,
+                                  ),
                                 ),
                               ],
                             ),
@@ -461,18 +501,24 @@ class _ChannelPartnerDashboardScreenState
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Expanded(
-                                  child: _infoColumn(
-                                    "Date",
-                                    formatDateTimeAsDDMMMYYYY(
+                                  child: buildColumnTitleValueNormal(
+                                    title: "Date",
+                                    value: formatDateTimeAsDDMMMYYYY(
                                       addedChannelPartner.createdDate,
+                                    ),
+                                    valueTextStyle: AppTextStyle.ts14M(
+                                      color: AppColor.greyTitleAndValueColor,
                                     ),
                                   ),
                                 ),
                                 horizontalSpacing(),
                                 Expanded(
-                                  child: _infoColumn(
-                                    "Type",
-                                    addedChannelPartner.type,
+                                  child: buildColumnTitleValueNormal(
+                                    title: "Type",
+                                    value: addedChannelPartner.type,
+                                    valueTextStyle: AppTextStyle.ts14M(
+                                      color: AppColor.greyTitleAndValueColor,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -570,27 +616,6 @@ class _ChannelPartnerDashboardScreenState
     );
   }
 
-  Widget _infoColumn(String title, String value, {Color? valueColor}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: AppTextStyle.ts12R(
-            color: AppColor.black.withValues(alpha: 0.5),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: AppTextStyle.ts14M(color: valueColor ?? AppColor.black),
-        ),
-      ],
-    );
-  }
-
   List<RadialChartItem> _buildFirmTypeChart(List<Table1> table1) {
     final colors = [
       AppColor.primary,
@@ -626,6 +651,7 @@ class _ChannelPartnerDashboardScreenState
     required String title,
     required int count,
     required int totalSum,
+    required bool isLast,
   }) {
     final double progress =
         totalSum == 0 ? 0 : (count / totalSum).clamp(0.0, 1.0);
@@ -642,28 +668,26 @@ class _ChannelPartnerDashboardScreenState
                 child: Text(
                   title,
                   style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.7),
+                    color: AppColor.black.withValues(alpha: 0.6),
                   ),
                 ),
               ),
               Text(
                 "$count",
                 style: AppTextStyle.ts14M(
-                  color: AppColor.black.withValues(alpha: 0.7),
+                  color: AppColor.black.withValues(alpha: 0.6),
                 ),
               ),
             ],
           ),
-
-          const SizedBox(height: 10),
-
+          verticalSpacing(height: 10),
           ClipRRect(
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              borderRadius: BorderRadius.circular(8.0),
+              borderRadius: BorderRadius.circular(4.0),
               value: progress,
               minHeight: 8,
-              backgroundColor: AppColor.primary.withValues(alpha: 0.2),
+              backgroundColor: AppColor.primary.withValues(alpha: 0.25),
               valueColor: AlwaysStoppedAnimation(AppColor.primary),
             ),
           ),

@@ -147,107 +147,91 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
     await DialogHelper.showCustomBottomSheet(
       context,
       'Content Document',
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      contentWidget: Form(
+        key: _contentDocumentAddUpdateKey,
         child: Column(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Form(
-                  key: _contentDocumentAddUpdateKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CustomTextField(
-                        textController: _marketingTitleC,
-                        title: 'Title',
-                        isRequired: true,
-                        hint: "Enter title",
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Title is required";
-                          }
-                          return null;
-                        },
-                      ),
-                      CustomTextField(
-                        textController: _marketingRemarkC,
-                        title: 'Remark',
-                        minLines: 2,
-                        maxLines: 2,
-                        isRequired: true,
-                        hint: "Enter remark",
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Remark is required";
-                          }
-                          return null;
-                        },
-                      ),
-                      CustomMultiFilePicker(
-                        initialFileList:
-                            marketingContentAttachment.fileNameList,
-                        title: "Attachment",
-                        isRequired: true,
-                        onFilePickedCallback: (bytes, fileName) {
-                          marketingContentAttachment.fileBytesList = bytes;
-                          marketingContentAttachment.fileNameList = fileName;
-                        },
-                        onFileDeleteCallback: (bytes, fileName, deletedFiles) {
-                          marketingContentAttachment.fileBytesList = bytes;
-                          marketingContentAttachment.fileNameList = fileName;
-                          marketingContentAttachment.deletedFileList =
-                              deletedFiles;
-                        },
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Attachment is required";
-                          }
-                          return null;
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            CustomButton(
-              text: "Save",
-              onPressed: () {
-                if (_contentDocumentAddUpdateKey.currentState!.validate()) {
-                  if (contentDocumentModel == null) {
-                    // Adding new document
-                    _contentDocumentCubit.addMarketingContent(
-                      context,
-                      projectId: _project.projectId,
-                      marketingContentFolderId: widget.marketingContentFolderId,
-                      title: _marketingTitleC.text,
-                      remark: _marketingRemarkC.text,
-                      marketingContentDocument: marketingContentAttachment,
-                    );
-                  } else {
-                    // Updating existing document
-                    _contentDocumentCubit.updateMarketingContent(
-                      context,
-                      projectId: _project.projectId,
-                      marketingContentFolderId: widget.marketingContentFolderId,
-                      marketingContentId:
-                          contentDocumentModel.marketingContentId,
-                      uniqueKey: contentDocumentModel.uniquekey,
-                      title: _marketingTitleC.text,
-                      remark: _marketingRemarkC.text,
-                      marketingContentDocument: marketingContentAttachment,
-                      index: index!,
-                    );
-                  }
+            CustomTextField(
+              textController: _marketingTitleC,
+              title: 'Title',
+              isRequired: true,
+              hint: "Enter title",
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return "Title is required";
                 }
+                return null;
+              },
+            ),
+            CustomTextField(
+              textController: _marketingRemarkC,
+              title: 'Remark',
+              minLines: 2,
+              maxLines: 2,
+              isRequired: true,
+              hint: "Enter remark",
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return "Remark is required";
+                }
+                return null;
+              },
+            ),
+            CustomMultiFilePicker(
+              initialFileList: marketingContentAttachment.fileNameList,
+              title: "Attachment",
+              isRequired: true,
+              onFilePickedCallback: (bytes, fileName) {
+                marketingContentAttachment.fileBytesList = bytes;
+                marketingContentAttachment.fileNameList = fileName;
+              },
+              onFileDeleteCallback: (bytes, fileName, deletedFiles) {
+                marketingContentAttachment.fileBytesList = bytes;
+                marketingContentAttachment.fileNameList = fileName;
+                marketingContentAttachment.deletedFileList = deletedFiles;
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return "Attachment is required";
+                }
+                return null;
               },
             ),
           ],
         ),
+      ),
+
+      bottomActions: CustomButton(
+        text: "Save",
+        onPressed: () {
+          if (_contentDocumentAddUpdateKey.currentState!.validate()) {
+            if (contentDocumentModel == null) {
+              // Adding new document
+              _contentDocumentCubit.addMarketingContent(
+                context,
+                projectId: _project.projectId,
+                marketingContentFolderId: widget.marketingContentFolderId,
+                title: _marketingTitleC.text,
+                remark: _marketingRemarkC.text,
+                marketingContentDocument: marketingContentAttachment,
+              );
+            } else {
+              // Updating existing document
+              _contentDocumentCubit.updateMarketingContent(
+                context,
+                projectId: _project.projectId,
+                marketingContentFolderId: widget.marketingContentFolderId,
+                marketingContentId: contentDocumentModel.marketingContentId,
+                uniqueKey: contentDocumentModel.uniquekey,
+                title: _marketingTitleC.text,
+                remark: _marketingRemarkC.text,
+                marketingContentDocument: marketingContentAttachment,
+                index: index!,
+              );
+            }
+          }
+        },
       ),
     );
     _clearDialogueToAddUpdateContentDocument();
@@ -339,7 +323,9 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
                     if (empty) {
                       return SizedBox(
                         height: boundedHeight,
-                        child: Center(child: noDataWidget(message: "No Content Data Found")),
+                        child: Center(
+                          child: noDataWidget(message: "No Content Data Found"),
+                        ),
                       );
                     }
                     if (index == list.length) {
@@ -441,7 +427,7 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
                                                     : formatDate(
                                                       files.modifiedDate!,
                                                     ),
-                                            singleLine: false
+                                            singleLine: false,
                                           ),
                                         ],
                                       ),

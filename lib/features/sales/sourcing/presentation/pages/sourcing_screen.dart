@@ -122,6 +122,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
   ) async {
     final state = _sourcingCubit.state;
 
+    _searchC.text = state.searchText;
     _filterCompanyNameC.text = state.filterByCompanyName;
     _filterDesignationC.text = state.filterByDesignation;
     _filterFirmTypeC.text = state.filterByFirmType;
@@ -141,11 +142,12 @@ class _SourcingScreenState extends State<SourcingScreen> {
             ? state.currentSortDirection
             : null;
 
+    final String initialMobileNo = _searchC.text;
     final String initialCompanyName = _filterCompanyNameC.text;
     final String initialDesignation = _filterDesignationC.text;
     final String initialFirmType = _filterFirmTypeC.text;
     final String initialType = _filterTypeC.text;
-    final String initialMobileNumber = _filterCPNameC.text;
+    final String initialName = _filterCPNameC.text;
     final String initialOfficeAddress = _filterOfficeAddressC.text;
     final String initialGSTNumber = _filterGSTNumberC.text;
     final String initialRERANumber = _filterRERANumberC.text;
@@ -163,11 +165,12 @@ class _SourcingScreenState extends State<SourcingScreen> {
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
+            (_searchC.text.trim() != initialMobileNo) ||
             (_filterCompanyNameC.text.trim() != initialCompanyName) ||
             (_filterDesignationC.text.trim() != initialDesignation) ||
             (_filterFirmTypeC.text.trim() != initialFirmType) ||
             (_filterTypeC.text.trim() != initialType) ||
-            (_filterCPNameC.text.trim() != initialMobileNumber) ||
+            (_filterCPNameC.text.trim() != initialName) ||
             (_filterOfficeAddressC.text.trim() != initialOfficeAddress) ||
             (_filterGSTNumberC.text.trim() != initialGSTNumber) ||
             (_filterRERANumberC.text.trim() != initialRERANumber) ||
@@ -252,6 +255,14 @@ class _SourcingScreenState extends State<SourcingScreen> {
                   title: "Full Name",
                   hint: "Enter Full Name",
                   textController: _filterCPNameC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
+                CustomTextField(
+                  title: "Mobile Number",
+                  hint: "Enter Mobile Number",
+                  textController: _searchC,
+                  keyboardType: TextInputType.number,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
@@ -357,7 +368,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
         _filterSpecialityC.clear();
         _filterCityC.clear();
         _filterVillageC.clear();
-
+        _searchC.clear();
         _sourcingCubit.applyChannelPartnerSourcingFilterAndSort(
           context: context,
           isClear: true,
@@ -369,11 +380,12 @@ class _SourcingScreenState extends State<SourcingScreen> {
 
         _sourcingCubit.applyChannelPartnerSourcingFilterAndSort(
           context: context,
+          name: _filterCPNameC.text.trim(),
           companyName: _filterCompanyNameC.text.trim(),
           designation: _filterDesignationC.text.trim(),
           firmType: _filterFirmTypeC.text.trim(),
           type: _filterTypeC.text.trim(),
-          mobileNumber: _filterCPNameC.text.trim(),
+          mobileNumber: _searchC.text.trim(),
           officeAddress: _filterOfficeAddressC.text.trim(),
           gstNumber: _filterGSTNumberC.text.trim(),
           reraNumber: _filterRERANumberC.text.trim(),
@@ -393,6 +405,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
 
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
+      _searchC.clear();
       _filterCompanyNameC.clear();
       _filterDesignationC.clear();
       _filterFirmTypeC.clear();
@@ -576,6 +589,16 @@ class _SourcingScreenState extends State<SourcingScreen> {
                     buildRowTitleValue(
                       title: "Office Address",
                       value: channelPartner.officeAddress,
+                      singleLine: false,
+                    ),
+                    buildRowTitleValue(
+                      title: "No Of IBM",
+                      value: channelPartner.noOfIbm.toString(),
+                      singleLine: false,
+                    ),
+                    buildRowTitleValue(
+                      title: "No Of OBM",
+                      value: channelPartner.noOfObm.toString(),
                       singleLine: false,
                     ),
                   ],

@@ -965,8 +965,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     buildColumnTitleValue(
                       title: "Agreement Value (₹) Without TDS",
                       value:
-                          ((bookingModel!.agreementValue ?? 0) -
-                                  (bookingModel!.agreementValueTDS ?? 0))
+                          (bookingModel!.agreementValue -
+                                  bookingModel!.agreementValueTDS)
                               .toIndianCurrency(),
                     ),
                   ],

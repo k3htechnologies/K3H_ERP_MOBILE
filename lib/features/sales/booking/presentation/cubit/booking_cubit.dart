@@ -19,10 +19,10 @@ import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_d
 import 'package:k3h_erp_app/features/sales/booking/data/repository/booking.repository.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/repository/enquiry.repository.dart';
-import 'package:k3h_erp_app/features/sales/other_charges/data/model/other_charges.model.dart';
-import 'package:k3h_erp_app/features/sales/other_charges/data/repository/other_charges.repository.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule/data/model/payment_schedule.model.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule/data/respository/payment_schedule.repository.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/other_charges/data/model/other_charges.model.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/other_charges/data/repository/other_charges.repository.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule/data/model/payment_schedule.model.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule/data/respository/payment_schedule.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -241,6 +241,7 @@ class BookingCubit extends Cubit<BookingState> {
     double reraArea,
   ) async {
     emit(state.copyWith(isLoading: true));
+    DialogHelper.showProcessingOverlay(context);
 
     var result = await _otherChargesRepository.getOtherChargesList(
       pageNumber: pageNumber,
@@ -253,6 +254,7 @@ class BookingCubit extends Cubit<BookingState> {
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
+        goRouter.pop();
       },
       (response) {
         final rawList = List<OtherChargeModel>.from(response['data'] ?? []);
@@ -269,7 +271,7 @@ class BookingCubit extends Cubit<BookingState> {
               // REUSE EXISTING FIELDS: VALUE=BASE AMOUNT,GST AMOUNT
               return oc.copyWith(value: baseAmount, gstValue: gstValue);
             }).toList();
-
+        goRouter.pop();
         emit(
           state.copyWith(otherChargesList: calculatedList, isLoading: false),
         );
@@ -517,7 +519,8 @@ class BookingCubit extends Cubit<BookingState> {
                 "BookingPaymentScheduleId": e.bookingPaymentScheduleId,
                 "Type": e.type,
                 "Name": e.name,
-                if (e.date != null) "Date": e.date!.toIso8601String(),
+                if (e.date != null)
+                  "Date": e.date!.toIso8601String().split("T")[0],
                 "PaymentSchedulePercentage": e.paymentSchedulePercentage,
                 "PaymentScheduleCumulative": e.paymentCummulativePercentage,
                 "PaymentScheduleAmount": e.paymentScheduleAmount,
@@ -1028,7 +1031,7 @@ class BookingCubit extends Cubit<BookingState> {
     required int paymentScheduleSchemeMasterId,
     required int inventoryBuildingId,
     required int inventoryFlatFloorBasementPodiumWingId,
-    required double agreementValue,
+    required double agreementValueWithoutTds,
     required double agreementValueTds,
     required double agreementValueGST,
   }) async {
@@ -1065,12 +1068,15 @@ class BookingCubit extends Cubit<BookingState> {
               int index = entry.key;
               final master = entry.value;
 
+              /// CALCULATIONS
               final amount =
-                  (agreementValue * master.paymentSchedulePercentage) / 100;
+                  (agreementValueWithoutTds *
+                      master.paymentSchedulePercentage) /
+                  100;
               final gstAmount =
-                  (master.paymentSchedulePercentage * agreementValueGST) / 100;
+                  (agreementValueGST * master.paymentSchedulePercentage) / 100;
               final tdsAmount =
-                  (master.paymentSchedulePercentage * agreementValueTds) / 100;
+                  (agreementValueTds * master.paymentSchedulePercentage) / 100;
 
               return BookingPaymentScheduleData(
                 bookingPaymentScheduleId: 0,

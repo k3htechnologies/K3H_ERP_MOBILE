@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
@@ -240,7 +241,7 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/material_r
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition_view_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/cubit/purchase_order_cubit.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/pages/generate_purchase_order.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/pages/generate_purchase_order.screen.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:k3h_erp_app/features/profile/presentation/pages/profile_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/dashboard_screen.dart';
@@ -349,29 +350,32 @@ import 'package:k3h_erp_app/features/sales/booking/presentation/pages/approval_l
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_screen.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_view_screen.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/data/model/call_log.model.dart';
+import 'package:k3h_erp_app/features/sales/call_tracker/data/model/calling_data.model.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_tracker_cubit.dart';
+import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/add_calling_data_screen.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/call_tracker_screen.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/update_call_log_screen.dart';
-import 'package:k3h_erp_app/features/sales/classification_parameters/data/model/classification_paramerter.model.dart';
-import 'package:k3h_erp_app/features/sales/classification_parameters/presentation/cubit/classification_parameters_cubit.dart';
-import 'package:k3h_erp_app/features/sales/classification_parameters/presentation/pages/Classification_parameter_screen.dart';
-import 'package:k3h_erp_app/features/sales/classification_parameters/presentation/pages/add_classification_parameter_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/classification_parameters/data/model/classification_paramerter.model.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/classification_parameters/presentation/cubit/classification_parameters_cubit.dart';
+
+import 'package:k3h_erp_app/features/sales/sales_master/classification_parameters/presentation/pages/add_classification_parameter_screen.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/add_enquiry_screen.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/enquiry_screen.dart';
-import 'package:k3h_erp_app/features/sales/other_charges/data/model/other_charges.model.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/classification_parameters/presentation/pages/classification_parameter_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/other_charges/data/model/other_charges.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/view_enquiry_screen.dart';
-import 'package:k3h_erp_app/features/sales/other_charges/presentation/cubit/other_charges_cubit.dart';
-import 'package:k3h_erp_app/features/sales/other_charges/presentation/pages/add_other_charges_screen.dart';
-import 'package:k3h_erp_app/features/sales/other_charges/presentation/pages/other_charges_screen.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule/presentation/cubit/payment_schedule_cubit.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule/presentation/presentation/add_payment_schedule_screen.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule/presentation/presentation/payment_schedule_screen.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/cubit/payment_schedule_scheme_cubit.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/pages/add_payment_schedule_scheme_screen.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/pages/payment_schedule_scheme_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/other_charges/presentation/cubit/other_charges_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/other_charges/presentation/pages/add_other_charges_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/other_charges/presentation/pages/other_charges_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule/presentation/cubit/payment_schedule_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule/presentation/presentation/add_payment_schedule_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule/presentation/presentation/payment_schedule_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/presentation/cubit/payment_schedule_scheme_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/presentation/pages/add_payment_schedule_scheme_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/presentation/pages/payment_schedule_scheme_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/project_achievement_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/cubit/achievement_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/pages/managers_achievement_report.dart';
@@ -408,7 +412,7 @@ import 'package:k3h_erp_app/main.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 
-import '../features/sales/payment_schedule/data/model/payment_schedule.model.dart';
+import '../features/sales/sales_master/payment_schedule/data/model/payment_schedule.model.dart';
 import '../features/sales/sales_reports/achievement/presentation/pages/achievement_screen.dart';
 
 String? authenticateAndAuthorizeRoute(GoRouterState state) {
@@ -523,8 +527,13 @@ final GoRouter goRouter = GoRouter(
     ShellRoute(
       navigatorKey: shellNavigatorKey,
       builder: (context, state, child) {
-        return BlocProvider(
-          create: (context) => MainScreenCubit(),
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider<MainScreenCubit>(
+              create: (context) => MainScreenCubit(),
+            ),
+            BlocProvider<UtilsCubit>(create: (context) => UtilsCubit()),
+          ],
           child: MainScreen(child: child),
         );
       },
@@ -4213,6 +4222,36 @@ final GoRouter goRouter = GoRouter(
                     );
                   },
                 ),
+                GoRoute(
+                  name: AppRoutes.addCallingData,
+                  path: AppRoutes.addCallingData,
+                  builder: (context, state) {
+                    final queryParameterCallLog =
+                        state.uri.queryParameters['callingData'];
+                    final callingData =
+                        queryParameterCallLog != null &&
+                                queryParameterCallLog.isNotEmpty
+                            ? CallingDataModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterCallLog),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+
+                    return AddCallingDataScreen(
+                      callingDataModel: callingData,
+                      index: index,
+                    );
+                  },
+                ),
               ],
             ),
 
@@ -5450,7 +5489,11 @@ final GoRouter goRouter = GoRouter(
                           state.uri.queryParameters['index'] ?? '',
                         ) ??
                         0;
-
+                    final parentEditMode =
+                        bool.tryParse(
+                          state.uri.queryParameters['isEdit'] ?? '',
+                        ) ??
+                        false;
                     final MaterialRequisitionDetailGrnDatum? materialDetails =
                         queryParameterMaterialDetails != null
                             ? MaterialRequisitionDetailGrnDatum.fromJson(
@@ -5467,6 +5510,7 @@ final GoRouter goRouter = GoRouter(
                     return AddGrnMaterialScreen(
                       materialDetails: materialDetails,
                       index: index,
+                      isParentEditMode: parentEditMode,
                     );
                   },
                 ),

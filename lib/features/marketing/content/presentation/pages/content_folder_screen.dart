@@ -79,43 +79,39 @@ class _ContentFolderScreenState extends State<ContentFolderScreen> {
     await DialogHelper.showCustomBottomSheet(
       context,
       "Add Content",
-      Form(
+      contentWidget: Form(
         key: _formKey,
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              CustomTextField(
-                title: 'Content Name',
-                isRequired: true,
-                hint: "Enter content name",
-                textController: _folderNameC,
-                inputFormatterList: [LengthLimitingTextInputFormatter(100)],
-                validator: (string) {
-                  if (string == null || string.trim().isEmpty) {
-                    return 'Content name is required';
-                  }
-                  return null;
-                },
-              ),
-              Spacer(),
-              CustomButton(
-                leading: Icon(Icons.add, size: 18, color: AppColor.white),
-                text: "Add",
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _marketingCubit.addContentFolder(
-                      context: context,
-                      projectId: _project.projectId,
-                      marketingContentFolderName: _folderNameC.text,
-                    );
-                  }
-                },
-              ),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            CustomTextField(
+              title: 'Content Name',
+              isRequired: true,
+              hint: "Enter content name",
+              textController: _folderNameC,
+              inputFormatterList: [LengthLimitingTextInputFormatter(100)],
+              validator: (string) {
+                if (string == null || string.trim().isEmpty) {
+                  return 'Content name is required';
+                }
+                return null;
+              },
+            ),
+          ],
         ),
+      ),
+      bottomActions: CustomButton(
+        leading: Icon(Icons.add, size: 18, color: AppColor.white),
+        text: "Add",
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            _marketingCubit.addContentFolder(
+              context: context,
+              projectId: _project.projectId,
+              marketingContentFolderName: _folderNameC.text,
+            );
+          }
+        },
       ),
     );
     _clearDialogueToAddUpdateContentFolder();
@@ -175,7 +171,9 @@ class _ContentFolderScreenState extends State<ContentFolderScreen> {
               return loader();
             }
             if (state.marketingContentFolderList.isEmpty) {
-              return Center(child: noDataWidget(message: "No Content Folder Found"));
+              return Center(
+                child: noDataWidget(message: "No Content Folder Found"),
+              );
             }
             return ListView.builder(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),

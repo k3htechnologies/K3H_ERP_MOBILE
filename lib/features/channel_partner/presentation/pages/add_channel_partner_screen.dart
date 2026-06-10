@@ -5,11 +5,11 @@ import 'package:k3h_erp_app/core/country_code.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/repository/channel_partner.repository.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
-import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -46,7 +46,7 @@ class AddChannelPartnerScreen extends StatefulWidget {
 class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   // CUBIT
   late ChannelPartnerCubit _channelPartnerCubit;
-  late LoginCubit _loginCubit;
+  late UtilsCubit _utilsCubit;
 
   //EDIT MODE
   bool get _isEditMode => widget.channelPartnerModel != null;
@@ -128,7 +128,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   void initState() {
     super.initState();
     _channelPartnerCubit = context.read<ChannelPartnerCubit>();
-    _loginCubit = context.read<LoginCubit>();
+    _utilsCubit = context.read<UtilsCubit>();
     _initializeTextEditingController();
     aadhaarTrigger = ValueNotifier(false);
     panTrigger = ValueNotifier(false);
@@ -507,10 +507,12 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     }
 
     if (!_isEditMode) {
-      _loginCubit.sendOTPModuleBased(
+      _utilsCubit.sendOTPModuleBased(
         context: context,
         mobileNumber: _mobileNumberC.text.trim(),
         module: "CHANNEL PARTNER",
+        name: _nameC.text.trim(),
+        companyName: _companyNameC.text.trim(),
       );
 
       final isReraValid = _reraNumberC.text.trim().isNotEmpty;
@@ -735,6 +737,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                           hint: "Enter Mobile Number",
                           keyboardType: TextInputType.phone,
                           isRequired: true,
+                          readOnly: _isEditMode,
                           showCountryDropdown: true,
                           selectedCountry: value,
                           onCountryChanged: (country) {

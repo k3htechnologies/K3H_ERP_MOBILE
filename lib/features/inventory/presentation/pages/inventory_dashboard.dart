@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -772,7 +773,38 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                           ),
                           TextSpan(
                             text: totalUnits.toString(),
-                            style: AppTextStyle.ts14SB(),
+                            style: AppTextStyle.ts14SB(
+                              color: totalUnits != 0 ? AppColor.primary : null,
+                            ),
+                            recognizer:
+                                TapGestureRecognizer()
+                                  ..onTap =
+                                      totalUnits == 0
+                                          ? () {}
+                                          : () async {
+                                            final title =
+                                                "Total Units ($totalUnits)";
+
+                                            await _inventoryCubit.resetUnits();
+                                            await goRouter.pushNamed(
+                                              AppRoutes.unitDistributionStatus,
+                                              queryParameters: {
+                                                'title': Uri.encodeComponent(
+                                                  EncryptionManager.encryptData(
+                                                    title,
+                                                  ),
+                                                ),
+                                                'queryParams': Uri.encodeComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode({}),
+                                                  ),
+                                                ),
+                                                'projectId':
+                                                    _selectedProject.projectId
+                                                        .toString(),
+                                              },
+                                            );
+                                          },
                           ),
                         ],
                       ),
@@ -1465,6 +1497,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   "BuildingNumber": selectedWingData.building,
                                   "Wing": selectedWingData.wing,
                                   "FlatStatus": "Available",
+                                  "IsAcessOnlyApprovedParking": false,
                                 },
                               );
                             },
@@ -1486,6 +1519,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   "BuildingNumber": selectedWingData.building,
                                   "Wing": selectedWingData.wing,
                                   "FlatStatus": "Blocked",
+                                  "IsAcessOnlyApprovedParking": false,
                                 },
                               );
                             },
@@ -1507,6 +1541,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   "BuildingNumber": selectedWingData.building,
                                   "Wing": selectedWingData.wing,
                                   "FlatStatus": "Hold",
+                                  "IsAcessOnlyApprovedParking": false,
                                 },
                               );
                             },
@@ -1528,6 +1563,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   "BuildingNumber": selectedWingData.building,
                                   "Wing": selectedWingData.wing,
                                   "FlatStatus": "Booked",
+                                  "IsAcessOnlyApprovedParking": false,
                                 },
                               );
                             },

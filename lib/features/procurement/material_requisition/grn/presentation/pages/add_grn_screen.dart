@@ -166,6 +166,8 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
   @override
   void dispose() {
     _remarkC.dispose();
+    _vehicleNumberC.dispose();
+    _challanNumberC.dispose();
     super.dispose();
   }
 
@@ -207,11 +209,11 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                               text: "Add Material",
                               onPressed: () async {
                                 await _materialRequisitionCubit
-                                    .getFinalizedVendor(
+                                    .getMaterialRequisitionDetailsById(
                                       context,
+                                      1,
                                       widget.projectId,
                                       widget.materialRequisitionId,
-                                      widget.uniquekey,
                                     );
                                 await goRouter.pushNamed(
                                   AppRoutes.addGrnMaterial,
@@ -247,14 +249,13 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                                           CustomIconButton.edit(
                                             onPressed: () async {
                                               await _materialRequisitionCubit
-                                                  .getFinalizedVendor(
+                                                  .getMaterialRequisitionDetailsById(
                                                     context,
+                                                    1,
                                                     widget.projectId,
                                                     widget
                                                         .materialRequisitionId,
-                                                    widget.uniquekey,
                                                   );
-
                                               goRouter.pushNamed(
                                                 AppRoutes.addGrnMaterial,
                                                 queryParameters: {
@@ -267,6 +268,7 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                                                         ),
                                                       ),
                                                   'index': index.toString(),
+                                                  'isEdit': true.toString(),
                                                 },
                                               );
                                             },
@@ -398,7 +400,6 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                       },
                     ),
 
-                    /// Remark
                     CustomTextField(
                       title: "Remark",
                       hint: "Enter Remark",

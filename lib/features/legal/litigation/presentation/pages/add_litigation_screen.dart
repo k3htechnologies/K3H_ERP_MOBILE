@@ -160,7 +160,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
                 style: AppTextStyle.ts14R(color: AppColor.grey),
               ),
               TextSpan(
-                text: ' • HRMS',
+                text: ' • ${_selectedProject?['DisplayName']}',
                 style: AppTextStyle.ts14M(color: AppColor.primary),
               ),
             ],
@@ -286,7 +286,8 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
             title: "Date Of Filling",
             initialDate: dateOfFilling,
             isRequired: true,
-            readOnly: _isEditMode,
+            readOnly:
+                (_isEditMode && widget.litigationModel!.hearingDate != null),
             setValue: (v) => dateOfFilling = v,
             validator: (value) {
               if (value == null) {

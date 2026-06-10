@@ -99,6 +99,7 @@ class CustomMultipleSelectPopup extends StatefulWidget {
                   onSelectCallback: (values) {
                     Navigator.of(context).pop(values);
                   },
+                  title: title,
                 ),
               ),
             ],
@@ -170,6 +171,7 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                   initialValue: initialValue ?? [],
                   dataFetchCallBack: widget.dataFetchCallBack,
                   isMultiSelect: widget.isMultiSelect,
+                  title: widget.title ?? '',
                 ),
               ),
             ],
@@ -434,6 +436,7 @@ class DropdownList extends StatefulWidget {
   final Future<Map<String, dynamic>> Function(int pageNumber, {String? value})
   dataFetchCallBack;
   final bool isMultiSelect;
+  final String title;
   final Function(List<Map<String, dynamic>>)? onSelectCallback;
 
   const DropdownList({
@@ -442,6 +445,7 @@ class DropdownList extends StatefulWidget {
     required this.initialValue,
     required this.dataFetchCallBack,
     required this.isMultiSelect,
+    required this.title,
     this.onSelectCallback,
   });
 
@@ -455,6 +459,7 @@ class _DropdownList extends DropdownList {
     required super.initialValue,
     required super.dataFetchCallBack,
     required super.isMultiSelect,
+    required super.title,
   }) : super(key: null, onSelectCallback: null);
 }
 
@@ -528,20 +533,6 @@ class _DropdownListState extends State<DropdownList> {
               'isChecked': true,
             });
           }
-        }
-      }
-    } else {
-      if (_localSelectedValues.isNotEmpty) {
-        final initialItem = _localSelectedValues.first;
-        if (!fetchedItems.any(
-          (item) => item['zAttributesId'] == initialItem['zAttributesId'],
-        )) {
-          fetchedItems.insert(0, {
-            'zAttributesId': initialItem['zAttributesId'],
-            'DisplayName': initialItem['DisplayName'],
-            'isChecked': true,
-          });
-          selectedRadioId = initialItem['zAttributesId'];
         }
       }
     }
@@ -721,6 +712,7 @@ class _DropdownListState extends State<DropdownList> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: SearchWidget(
             isFilterOn: false,
+            hintText: "Search ${widget.title}",
             textController: searchC,
             onSubmit: (string) async => await search(string),
           ),

@@ -40,7 +40,10 @@ class _LitigationScreenState extends State<LitigationScreen> {
   Timer? _debounce;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC, _filterCaseNumber, _filterCourtName;
+  late TextEditingController _searchC,
+      _filterProjectName,
+      _filterCaseNumber,
+      _filterCourtName;
   @override
   void initState() {
     super.initState();
@@ -57,6 +60,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
   void dispose() {
     super.dispose();
     _searchC.dispose();
+    _filterProjectName.dispose();
     _filterCaseNumber.dispose();
     _filterCourtName.dispose();
   }
@@ -64,6 +68,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
   // INITIALISE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _filterProjectName = TextEditingController();
     _filterCaseNumber = TextEditingController();
     _filterCourtName = TextEditingController();
   }
@@ -111,13 +116,16 @@ class _LitigationScreenState extends State<LitigationScreen> {
 
     _filterCaseNumber.text = state.filterCaseNumber;
     _filterCourtName.text = state.filterByCourtName;
+    _filterProjectName.text = state.filterByProjectName;
 
     String? selectedDirection =
         state.currentSortColumn == "Title" ? state.currentSortDirection : null;
 
     final String initialCaseNumber = _filterCaseNumber.text;
     final String initialCourtName = _filterCourtName.text;
+    final String initialProjectName = _filterProjectName.text;
     final String? initialDirection = selectedDirection;
+    final String initialTitle = _searchC.text;
 
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
@@ -126,8 +134,10 @@ class _LitigationScreenState extends State<LitigationScreen> {
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
+            (_searchC.text.trim() != initialTitle) ||
             (_filterCaseNumber.text.trim() != initialCaseNumber) ||
             (_filterCourtName.text.trim() != initialCourtName) ||
+            (_filterProjectName.text.trim() != initialProjectName) ||
             (selectedDirection != initialDirection);
         applyEnabled.value = manualClose;
       });
@@ -196,12 +206,23 @@ class _LitigationScreenState extends State<LitigationScreen> {
                 ),
                 verticalSpacing(height: 20),
                 CustomTextField(
+                  title: "Title",
+                  hint: "Enter Title",
+                  textController: _searchC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Project Name",
+                  hint: "Enter Project Name",
+                  textController: _filterProjectName,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
                   title: "Case / Petition / Dispute Number",
                   hint: "Enter Case / Petition / Dispute Number",
                   textController: _filterCaseNumber,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                verticalSpacing(),
                 CustomTextField(
                   title: "Court Name",
                   hint: "Enter Court Name",
@@ -216,6 +237,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
       onClear: () {
         _filterCaseNumber.clear();
         _filterCourtName.clear();
+        _searchC.clear();
         _litigationCubit.applyLitigationFilterAndSort(
           context: context,
           isClear: true,
@@ -225,8 +247,10 @@ class _LitigationScreenState extends State<LitigationScreen> {
         applied = true;
         _litigationCubit.applyLitigationFilterAndSort(
           context: context,
+          title: _searchC.text.trim(),
           caseNumber: _filterCaseNumber.text.trim(),
           courtName: _filterCourtName.text.trim(),
+          projectName: _filterProjectName.text.trim(),
           sortColumn: selectedDirection != null ? "Title" : null,
           sortDirection: selectedDirection,
         );
@@ -239,6 +263,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
     if (!applied && manualClose) {
       _filterCaseNumber.clear();
       _filterCourtName.clear();
+      _filterProjectName.clear();
     }
   }
 

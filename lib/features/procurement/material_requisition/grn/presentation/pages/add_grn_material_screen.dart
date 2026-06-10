@@ -1,10 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
+import 'package:k3h_erp_app/features/procurement/data/model/sub_material.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/model/grn.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
@@ -12,7 +15,9 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
@@ -22,11 +27,13 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class AddGrnMaterialScreen extends StatefulWidget {
   final MaterialRequisitionDetailGrnDatum? materialDetails;
   final int? index;
+  final bool isParentEditMode;
 
   const AddGrnMaterialScreen({
     super.key,
     required this.materialDetails,
     required this.index,
+    this.isParentEditMode = false,
   });
 
   @override
@@ -37,8 +44,9 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
   // CUBIT
   late GrnCubit _grnCubit;
 
-  final ValueNotifier<List<MaterialRequisitionQuotationDatum>> rawMaterialList =
-      ValueNotifier([]);
+  final ValueNotifier<List<SubMaterialModel>> rawMaterialList = ValueNotifier(
+    [],
+  );
   final ValueNotifier<Map<String, dynamic>?> _selectedMaterial = ValueNotifier(
     null,
   );
@@ -52,32 +60,36 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
   late MaterialRequisitionCubit _materialRequisitionCubit;
 
   late TextEditingController _uomC,
-      _totalQuantityC,
+      _pendingQuantityC,
       _remarkC,
       _receivedQuantity;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late ProjectModel _selectedProject;
+  late UserModel user;
+  final ValueNotifier<double> _totalQuantity = ValueNotifier(0.0);
 
   @override
   void initState() {
     super.initState();
     initializeTextEditingController();
-    _grnCubit = context.read<GrnCubit>();
     _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
-    rawMaterialList.value =
-        _materialRequisitionCubit
-            .state
-            .finalizedVendor!
-            .materialRequisitionQuotationTermsData
-            .first
-            .materialRequisitionQuotationData;
-    _prefill();
+    _selectedProject = getProject();
+    loadData();
+    _grnCubit = context.read<GrnCubit>();
+  }
+
+  void loadData() async {
+    user = getCurrentUser();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await getMaterialSubMaterialUOMMaster();
+    });
   }
 
   final UtilsRepository utilsRepository = serviceLocator<UtilsRepository>();
 
   void initializeTextEditingController() {
     _uomC = TextEditingController();
-    _totalQuantityC = TextEditingController();
+    _pendingQuantityC = TextEditingController();
     _remarkC = TextEditingController();
     _receivedQuantity = TextEditingController();
   }
@@ -85,81 +97,221 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
   void _prefill() {
     if (!_isEditMode) return;
 
-    _selectedMaterial.value =
-        materialList
-            .where(
-              (element) =>
-                  element['DisplayName'] ==
-                  widget.materialDetails!.materialName,
-            )
-            .first;
-    _selectedSubMaterial.value =
-        subMaterialList
-            .where(
-              (element) =>
-                  element['DisplayName'] ==
-                  widget.materialDetails!.subMaterialName,
-            )
-            .first;
-    _uomC.text = widget.materialDetails!.uomCode;
-    _requiredDate.value = widget.materialDetails!.requiredDate;
-    _totalQuantityC.text = widget.materialDetails!.materialQuantity.toString();
+    final material = materialList.cast<Map<String, dynamic>?>().firstWhere(
+      (e) => e?['DisplayName'] == widget.materialDetails?.materialName,
+      orElse: () => null,
+    );
+
+    _selectedMaterial.value = material;
+
+    final subMaterial = subMaterialList
+        .cast<Map<String, dynamic>?>()
+        .firstWhere(
+          (e) => e?['DisplayName'] == widget.materialDetails?.subMaterialName,
+          orElse: () => null,
+        );
+
+    _selectedSubMaterial.value = subMaterial;
+
+    _uomC.text = widget.materialDetails?.uomCode ?? '';
+    _requiredDate.value = widget.materialDetails?.requiredDate;
+
+    _pendingQuantityC.text =
+        widget.materialDetails?.materialQuantity.toString() ?? '';
+
     _receivedQuantity.text =
-        widget.materialDetails!.totalReceivedMaterialQuantity.toString();
-    _remarkC.text = widget.materialDetails!.qualityAnalysisRemarks ?? "";
+        widget.materialDetails?.totalReceivedMaterialQuantity.toString() ?? '';
+
+    _remarkC.text = widget.materialDetails?.qualityAnalysisRemarks ?? '';
+
+    _totalQuantity.value = widget.materialDetails?.materialQuantity ?? 0;
   }
 
   List<Map<String, dynamic>> get materialList {
+    final quotationList =
+        _materialRequisitionCubit
+            .state
+            .materialRequisitionOverview
+            ?.materialRequisitionDetailData ??
+        [];
+
+    final allowedMaterialIds =
+        quotationList.map((e) => e.materialMasterId).toSet();
+
     final seen = <int>{};
 
     return rawMaterialList.value
-        .where(
-          (e) =>
-              (seen.add(e.materialRequisitionDetailId) &&
-                  e.materialRequisitionDetailId != 0),
-        )
-        .map((e) {
-          return {
-            "zAttributesId": e.materialRequisitionDetailId,
+        .where((e) => allowedMaterialIds.contains(e.materialMasterId))
+        .where((e) => seen.add(e.materialMasterId))
+        .map(
+          (e) => {
+            "zAttributesId": e.materialMasterId,
             "DisplayName": e.materialName,
-          };
-        })
+          },
+        )
         .toList();
   }
 
   List<Map<String, dynamic>> get subMaterialList {
     final selectedId = _selectedMaterial.value?['zAttributesId'];
-
     if (selectedId == null) return [];
 
+    final quotationList =
+        _materialRequisitionCubit
+            .state
+            .materialRequisitionOverview
+            ?.materialRequisitionDetailData ??
+        [];
+
+    final allowedSubIds =
+        quotationList
+            .where((e) => e.materialMasterId == selectedId)
+            .map((e) => e.subMaterialMasterId)
+            .toSet();
+
     return rawMaterialList.value
-        .where((e) => e.materialRequisitionDetailId == selectedId)
-        .map((e) {
-          return {
-            "zAttributesId": e.materialRequisitionDetailId,
+        .where(
+          (e) =>
+              e.materialMasterId == selectedId &&
+              allowedSubIds.contains(e.subMaterialMasterId),
+        )
+        .map(
+          (e) => {
+            "zAttributesId": e.subMaterialMasterId,
             "DisplayName": e.subMaterialName,
-          };
-        })
+            "IsTolerant": e.isTolerant,
+            "MaterialTolerant": e.materialTolerant,
+          },
+        )
         .toList();
   }
 
-  void updateUOM() {
-    final selectedId = _selectedSubMaterial.value?['zAttributesId'];
-    if (selectedId == null) return;
+  double getPendingQuantity({
+    required int materialId,
+    required int subMaterialId,
+  }) {
+    final requisitionList =
+        _materialRequisitionCubit
+            .state
+            .materialRequisitionOverview
+            ?.materialRequisitionDetailData ??
+        [];
 
-    final selectedItem = rawMaterialList.value.where(
-      (e) => e.materialRequisitionDetailId == selectedId,
+    final detail = requisitionList.firstWhere(
+      (e) =>
+          e.materialMasterId == materialId &&
+          e.subMaterialMasterId == subMaterialId,
+      orElse: () => throw Exception("Detail not found"),
     );
 
-    _uomC.text = selectedItem.first.uom;
-    _totalQuantityC.text = selectedItem.first.materialQuantity.addCommas();
+    final requestedQty = detail.materialQuantity;
+    _totalQuantity.value = detail.materialQuantity;
+
+    final grnReceivedQty = _grnCubit.state.allGRNList
+        .expand((grn) => grn.materialRequisitionDetailGrnData)
+        .where(
+          (e) =>
+              e.materialName == detail.materialName &&
+              e.subMaterialName == detail.subMaterialName,
+        )
+        .fold<double>(0, (s, e) => s + e.totalReceivedMaterialQuantity);
+
+    final currentQty = _grnCubit.state.materialList
+        .where(
+          (e) =>
+              e.materialName == detail.materialName &&
+              e.subMaterialName == detail.subMaterialName,
+        )
+        .fold<double>(0, (s, e) => s + e.totalReceivedMaterialQuantity);
+
+    return (requestedQty -
+            grnReceivedQty -
+            ((!widget.isParentEditMode) ? 0 : currentQty))
+        .clamp(0.0, double.infinity);
+  }
+
+  void updateUOM() {
+    final materialId = _selectedMaterial.value?['zAttributesId'];
+    final subMaterialId = _selectedSubMaterial.value?['zAttributesId'];
+
+    if (materialId == null || subMaterialId == null) return;
+
+    final item = rawMaterialList.value.firstWhere(
+      (e) =>
+          e.materialMasterId == materialId &&
+          e.subMaterialMasterId == subMaterialId,
+    );
+
+    _uomC.text = item.uomCode;
+    final remainingQty = getPendingQuantity(
+      materialId: materialId,
+      subMaterialId: subMaterialId,
+    );
+
+    _pendingQuantityC.text = remainingQty.toString();
+  }
+
+  Future<void> getMaterialSubMaterialUOMMaster() async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await utilsRepository
+        .getMaterialMasterSubMaterialMasterUOMMaster(
+          projectId: _selectedProject.projectId,
+          queryParams: {"ClientRegistrationId": user.clientRegistrationId},
+        );
+
+    try {
+      return await result.fold(
+        (failure) async {
+          showErrorMessage(context, 'Error', failure.message);
+          rawMaterialList.value = [];
+        },
+        (response) async {
+          final data = response["MaterialMasterSubMaterialMasterData"];
+
+          if (data == null) {
+            rawMaterialList.value = [];
+          }
+
+          final parsedList = await compute(
+            (m) =>
+                (m as List<dynamic>)
+                    .map((e) => SubMaterialModel.fromJson(e))
+                    .toList(),
+            data,
+          );
+
+          rawMaterialList.value = List<SubMaterialModel>.from(parsedList);
+          if (_isEditMode) {
+            _prefill();
+          }
+        },
+      );
+    } finally {
+      if (mounted) {
+        goRouter.pop();
+      }
+    }
+  }
+
+  int getMaterialRequisitionDetailId({required String materialName}) {
+    final requisitionList =
+        _materialRequisitionCubit
+            .state
+            .materialRequisitionOverview
+            ?.materialRequisitionDetailData ??
+        [];
+
+    final detail = requisitionList.where((e) => e.materialName == materialName);
+    return detail.first.materialRequisitionDetailId;
   }
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
 
     final material = MaterialRequisitionDetailGrnDatum(
-      materialRequisitionDetailId: _selectedMaterial.value?['zAttributesId'],
+      materialRequisitionDetailId: getMaterialRequisitionDetailId(
+        materialName: _selectedMaterial.value?['DisplayName'],
+      ),
       uniquekey: _isEditMode ? widget.materialDetails!.uniquekey : '',
       materialRequisitionGrnId:
           _isEditMode ? widget.materialDetails!.materialRequisitionGrnId : 0,
@@ -169,7 +321,7 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
               : 0,
       materialName: _selectedMaterial.value?['DisplayName'] ?? '',
       subMaterialName: _selectedSubMaterial.value?['DisplayName'] ?? '',
-      materialQuantity: double.tryParse(_totalQuantityC.text) ?? 0,
+      materialQuantity: _totalQuantity.value,
       uomCode: _uomC.text,
       uom: _uomC.text,
       requiredDate: _requiredDate.value ?? DateTime.now(),
@@ -194,9 +346,10 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
   @override
   void dispose() {
     _uomC.dispose();
-    _totalQuantityC.dispose();
+    _pendingQuantityC.dispose();
     _receivedQuantity.dispose();
     _remarkC.dispose();
+    _totalQuantity.dispose();
     super.dispose();
   }
 
@@ -301,10 +454,10 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
                         ),
 
                         CustomTextField(
-                          title: "Total Quantity",
+                          title: "Pending Quantity",
                           isRequired: true,
                           readOnly: true,
-                          textController: _totalQuantityC,
+                          textController: _pendingQuantityC,
                           hint: "0",
                         ),
                         CustomTextField(
@@ -316,13 +469,40 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
                           keyboardType: TextInputType.numberWithOptions(),
                           textController: _receivedQuantity,
                           validator: (value) {
-                            if (value == null || value == "") {
+                            if (value == null ||
+                                value.trim().isEmpty ||
+                                value == '0') {
                               return "Received Quantity is required";
                             }
-                            if (double.parse(value) >
-                                double.parse(_totalQuantityC.text)) {
-                              return "Received quantity cannot be greater than total quantity";
+
+                            final receivedQty = double.tryParse(value) ?? 0;
+                            final pendingQty =
+                                double.tryParse(_pendingQuantityC.text) ?? 0;
+
+                            final isTolerant =
+                                _selectedSubMaterial.value?['IsTolerant'] ??
+                                false;
+
+                            final materialTolerant =
+                                (_selectedSubMaterial
+                                            .value?['MaterialTolerant'] ??
+                                        0)
+                                    .toDouble();
+
+                            if (isTolerant) {
+                              final maxAllowedQty =
+                                  pendingQty +
+                                  ((pendingQty * materialTolerant) / 100);
+
+                              if (receivedQty > maxAllowedQty) {
+                                return "Received Quantity cannot be greater than allowed quantity ${maxAllowedQty.toStringAsFixed(2)}";
+                              }
+                            } else {
+                              if (receivedQty > pendingQty) {
+                                return "Received Quantity cannot be greater than pending quantity ${pendingQty.toStringAsFixed(2)}";
+                              }
                             }
+
                             return null;
                           },
                         ),
@@ -330,9 +510,15 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
                         CustomTextField(
                           title: "Quality Analyst Remark",
                           hint: "Enter Quality Analyst Remark",
+                          isRequired: true,
                           maxLines: 3,
                           minLines: 3,
                           textController: _remarkC,
+                          validator:
+                              (v) =>
+                                  (v == null || v.isEmpty)
+                                      ? "Quality Analyst Remark is required"
+                                      : null,
                         ),
                       ],
                     ),

@@ -810,6 +810,8 @@ class _InventoryOverallReportOverviewState
                                                             "BuildingNumber":
                                                                 building,
                                                             "Wing": wing,
+                                                            "IsAcessOnlyApprovedParking":
+                                                                false,
                                                           },
                                                         );
                                                       },
@@ -849,6 +851,8 @@ class _InventoryOverallReportOverviewState
                                                             "Wing": wing,
                                                             "FlatStatus":
                                                                 "Available",
+                                                            "IsAcessOnlyApprovedParking":
+                                                                false,
                                                           },
                                                         );
                                                       },
@@ -887,6 +891,8 @@ class _InventoryOverallReportOverviewState
                                                             "Wing": wing,
                                                             "FlatStatus":
                                                                 "Blocked",
+                                                            "IsAcessOnlyApprovedParking":
+                                                                false,
                                                           },
                                                         );
                                                       },
@@ -925,6 +931,8 @@ class _InventoryOverallReportOverviewState
                                                             "Wing": wing,
                                                             "FlatStatus":
                                                                 "Booked",
+                                                            "IsAcessOnlyApprovedParking":
+                                                                false,
                                                           },
                                                         );
                                                       },
@@ -962,6 +970,8 @@ class _InventoryOverallReportOverviewState
                                                             "Wing": wing,
                                                             "FlatStatus":
                                                                 "Hold",
+                                                            "IsAcessOnlyApprovedParking":
+                                                                false,
                                                           },
                                                         );
                                                       },
@@ -1000,6 +1010,8 @@ class _InventoryOverallReportOverviewState
                                                             "Wing": wing,
                                                             "FlatStatus":
                                                                 "Member",
+                                                            "IsAcessOnlyApprovedParking":
+                                                                false,
                                                           },
                                                         );
                                                       },
@@ -1103,6 +1115,7 @@ class _InventoryOverallReportOverviewState
     await goRouter.pushNamed(
       AppRoutes.unitDistributionStatus,
       queryParameters: {
+        'type': Uri.encodeComponent(EncryptionManager.encryptData(type)),
         'title': Uri.encodeComponent(EncryptionManager.encryptData(title)),
 
         'subTitle': Uri.encodeComponent(

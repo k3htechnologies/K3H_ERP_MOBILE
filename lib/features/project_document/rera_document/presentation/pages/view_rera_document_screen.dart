@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document/data/model/rera_document.model.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_state.dart';
@@ -39,7 +39,7 @@ class ViewRERADocumentScreen extends StatefulWidget {
 class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
   //CUBIT
   late RERADocumentCubit _documentCubit;
-  late LoginCubit _loginCubit;
+  late UtilsCubit _utilsCubit;
 
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
@@ -53,7 +53,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
     super.initState();
     _onScroll();
     _documentCubit = context.read<RERADocumentCubit>();
-    _loginCubit = context.read<LoginCubit>();
+    _utilsCubit = context.read<UtilsCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.rera]!;
 
@@ -361,7 +361,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
             popupTitle:
                 "${widget.documentModel.projectRERADocumentCategory} > ${document.projectRERADocumentName}",
             onApprove: (val) async {
-              await _loginCubit.updateModulesWorkflowApproval(
+              await _utilsCubit.updateModulesWorkflowApproval(
                 context: context,
                 moduleName: 'RERA DOCUMENT APPROVAL',
                 id: document.projectRERADocumentId,
@@ -379,7 +379,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
               }
             },
             onReject: (val) async {
-              await _loginCubit.updateModulesWorkflowApproval(
+              await _utilsCubit.updateModulesWorkflowApproval(
                 context: context,
                 moduleName: 'RERA DOCUMENT APPROVAL',
                 id: document.projectRERADocumentId,
@@ -397,7 +397,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
               }
             },
             onThirdTap: () async {
-              final approvalLogHistoryList = await _loginCubit
+              final approvalLogHistoryList = await _utilsCubit
                   .getApprovalLogHistory(
                     context: context,
                     projectId: document.projectId,

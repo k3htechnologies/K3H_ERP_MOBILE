@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/model/terms_and_conditions.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 abstract interface class TermsAndConditionsDatasource {
   Future<Map<String, dynamic>> apicallPullTermsAndConditionsMaster({
@@ -45,10 +46,7 @@ class TermsAndConditionsDatasourceImpl extends TermsAndConditionsDatasource {
     }) {
       String url =
           "TermsAndConditionsMaster/PullTermsAndConditionsMaster?PageSize=$pageSize&PageNumber=$pageNumber&ModuleName=$moduleName";
-      queryParams?.forEach((key, value) {
-        final encoded = Uri.encodeQueryComponent(value?.toString() ?? '');
-        url += "&$key=$encoded";
-      });
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

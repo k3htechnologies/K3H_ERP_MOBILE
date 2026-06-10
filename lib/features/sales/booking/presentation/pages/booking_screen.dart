@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -35,7 +35,7 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   // CUBIT
-  late LoginCubit _loginCubit;
+  late UtilsCubit _utilsCubit;
   late BookingCubit _bookingCubit;
 
   // AUTHORIZATION
@@ -68,7 +68,7 @@ class _BookingScreenState extends State<BookingScreen> {
   @override
   void initState() {
     super.initState();
-    _loginCubit = context.read<LoginCubit>();
+    _utilsCubit = context.read<UtilsCubit>();
     _bookingCubit = context.read<BookingCubit>();
     _project = getProject();
     _routhAuthorizationModel =
@@ -184,6 +184,7 @@ class _BookingScreenState extends State<BookingScreen> {
     String? selectedDirection = initialDirection;
 
     bool applied = false;
+    bool manualClose = false;
 
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
 
@@ -203,7 +204,7 @@ class _BookingScreenState extends State<BookingScreen> {
               ? ''
               : _selectedSubSourceNotifier.value?['DisplayName'] ?? '';
 
-      final bool manualChange =
+      manualClose =
           (_startDateNotifier.value != initialStartDate) ||
           (_endDateNotifier.value != initialEndDate) ||
           (_wingC.text.trim() != initialWing) ||
@@ -226,7 +227,7 @@ class _BookingScreenState extends State<BookingScreen> {
               _endDateNotifier.value != null &&
               _startDateNotifier.value!.isAfter(_endDateNotifier.value!));
 
-      applyEnabled.value = manualChange && !onlyOneDateSet && !invalidRange;
+      applyEnabled.value = manualClose && !onlyOneDateSet && !invalidRange;
     }
 
     DialogHelper.showCustomFilterBottomSheet(
@@ -496,10 +497,21 @@ class _BookingScreenState extends State<BookingScreen> {
       applyEnabledNotifier: applyEnabled,
     );
 
-    if (!applied) {
-      _startDateNotifier.value = initialStartDate;
-      _endDateNotifier.value = initialEndDate;
-      selectedDirection = initialDirection;
+    if (!applied && manualClose) {
+      _startDateNotifier.value = null;
+      _endDateNotifier.value = null;
+
+      _wingC.clear();
+      _mobileNumberC.clear();
+      _flatC.clear();
+      _floorC.clear();
+      _agreementValueC.clear();
+      _bookingTypeC.clear();
+
+      _selectedSourceNotifier.value = null;
+      _selectedSubSourceNotifier.value = null;
+
+      selectedDirection = null;
     }
   }
 
@@ -704,7 +716,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
                             isActionAlreadyPerformed: !isActionAllowed,
                             onApprove: (val) async {
-                              await _loginCubit.updateModulesWorkflowApproval(
+                              await _utilsCubit.updateModulesWorkflowApproval(
                                 context: context,
                                 moduleName: 'BOOKING APPROVAL',
                                 id: booking.bookingId,
@@ -721,7 +733,7 @@ class _BookingScreenState extends State<BookingScreen> {
                               }
                             },
                             onReject: (val) async {
-                              await _loginCubit.updateModulesWorkflowApproval(
+                              await _utilsCubit.updateModulesWorkflowApproval(
                                 context: context,
                                 moduleName: 'BOOKING APPROVAL',
                                 id: booking.bookingId,
@@ -738,7 +750,7 @@ class _BookingScreenState extends State<BookingScreen> {
                               }
                             },
                             onThirdTap: () async {
-                              final approvalLogHistoryList = await _loginCubit
+                              final approvalLogHistoryList = await _utilsCubit
                                   .getApprovalLogHistory(
                                     context: context,
                                     projectId: _project.projectId,

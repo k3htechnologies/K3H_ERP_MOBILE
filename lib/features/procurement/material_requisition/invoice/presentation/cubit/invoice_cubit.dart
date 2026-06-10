@@ -19,7 +19,7 @@ class InvoiceCubit extends Cubit<InvoiceState> {
   final InvoiceRepository invoiceRepository =
       serviceLocator<InvoiceRepository>();
 
-  Future<void> getInvoice({
+  Future<List<InvoiceModel>> getInvoice({
     required int projectId,
     required int materialRequisitionId,
     required String uniqueKey,
@@ -31,10 +31,11 @@ class InvoiceCubit extends Cubit<InvoiceState> {
       materialRequisitionId: materialRequisitionId,
       uniqueKey: uniqueKey,
     );
-    result.fold(
+    return result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error", failure.message);
+        return [];
       },
       (response) {
         emit(
@@ -43,6 +44,7 @@ class InvoiceCubit extends Cubit<InvoiceState> {
             invoiceList: response["data"] as List<InvoiceModel>,
           ),
         );
+        return response["data"] as List<InvoiceModel>;
       },
     );
   }

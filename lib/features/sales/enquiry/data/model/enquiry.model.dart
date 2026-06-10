@@ -76,7 +76,7 @@ class EnquiryModel {
 
     required this.channelPartnerTeamMemberMobileNumberCountryCode,
     required this.channelPartnerTeamMemberEmailId,
-
+    required this.channelPartnerEmailId,
     required this.enquiryFollowUpDays,
     required this.createdById,
     required this.createdBy,
@@ -129,7 +129,7 @@ class EnquiryModel {
 
   final String channelPartnerCode;
   final String channelPartnerMobileNumberCountryCode;
-
+  final String channelPartnerEmailId;
   final String channelPartnerTeamMemberMobileNumberCountryCode;
   final String channelPartnerTeamMemberEmailId;
 
@@ -246,6 +246,7 @@ class EnquiryModel {
         json,
         "ChannelPartnerTeamMemberMobileNumber",
       ),
+      channelPartnerEmailId: parseValue<String>(json, "ChannelPartnerEmailId"),
       channelPartnerMobileNumber: parseValue<String>(
         json,
         "ChannelPartnerMobileNumber",
@@ -373,6 +374,7 @@ class EnquiryModel {
     "SourcingManager": sourcingManager,
     "SalesAdvisorId": salesAdvisorId,
     "SourcingManagerId": sourcingManagerId,
+    "ChannelPartnerEmailId": channelPartnerEmailId,
     "ChannelPartnerTeamMemberId": channelPartnerTeamMemberId,
     "ChannelPartnerTeamMemberName": channelPartnerTeamMemberName,
     "ChannelPartnerTeamMemberMobileNumber":

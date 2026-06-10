@@ -18,7 +18,6 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/static_data.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
@@ -60,6 +59,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
 
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC,
+      _enquiryNameC,
       _systemCodeC,
       _mobileNumberC,
       _budgetC,
@@ -104,11 +104,11 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
       return;
     }
     _searchC.text = widget.enquiryName!;
-    _enquiryCubit.searchEnquiry(
-      context,
-      widget.enquiryName!,
-      _project.projectId,
-      filterSystemCode: widget.enquiryCode,
+    _enquiryCubit.getEnquiry(
+      context: context,
+      enquiryName: widget.enquiryName!,
+      projectId: _project.projectId,
+      enquiryCode: widget.enquiryCode!,
     );
   }
 
@@ -176,6 +176,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
   @override
   void dispose() {
     _searchC.dispose();
+    _enquiryNameC.dispose();
     _systemCodeC.dispose();
     _mobileNumberC.dispose();
     _budgetC.dispose();
@@ -201,6 +202,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
   // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _enquiryNameC = TextEditingController();
     _systemCodeC = TextEditingController();
     _mobileNumberC = TextEditingController();
     _budgetC = TextEditingController();
@@ -251,6 +253,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         state.currentSortColumn == "Name" ? state.currentSortDirection : null;
 
     final initialSystemCode = state.filterSystemCode;
+    final initialEnquiryName = state.searchText;
     final initialMobile = state.filterMobileNumber;
     final initialBudget = state.filterBudget;
     final initialRequirementType = state.filterRequirementType;
@@ -269,6 +272,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
 
     // CONTROLLERS
     _systemCodeC.text = initialSystemCode;
+    _enquiryNameC.text = initialEnquiryName;
     _mobileNumberC.text = initialMobile;
     _budgetC.text = initialBudget;
     _requirementTypeC.text = initialRequirementType;
@@ -288,6 +292,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     String? selectedDirection = initialDirection;
 
     bool applied = false;
+    bool manualClose = false;
 
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
 
@@ -302,10 +307,11 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
               ? ''
               : _selectedSubSourceNotifier.value?['DisplayName'] ?? '';
 
-      final bool manualChange =
+      manualClose =
           (_startDateNotifier.value != initialStartDate) ||
           (_endDateNotifier.value != initialEndDate) ||
           (_systemCodeC.text.trim() != initialSystemCode) ||
+          (_searchC.text.trim() != initialEnquiryName) ||
           (_mobileNumberC.text.trim() != initialMobile) ||
           (_budgetC.text.trim() != initialBudget) ||
           (_requirementTypeC.text.trim() != initialRequirementType) ||
@@ -334,7 +340,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
               _endDateNotifier.value != null &&
               _startDateNotifier.value!.isAfter(_endDateNotifier.value!));
 
-      applyEnabled.value = manualChange && !onlyOneDateSet && !invalidRange;
+      applyEnabled.value = manualClose && !onlyOneDateSet && !invalidRange;
     }
 
     DialogHelper.showCustomFilterBottomSheet(
@@ -411,6 +417,12 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                   hint: "Enter System Code",
                   onChangeFunction: (_) => updateApplyState(),
                 ),
+                CustomTextField(
+                  textController: _searchC,
+                  title: "Enquiry Name",
+                  hint: "Enter Enquiry Name",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
 
                 CustomTextField(
                   textController: _mobileNumberC,
@@ -427,8 +439,6 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                   textController: _budgetC,
                   title: "Budget",
                   hint: "Enter Budget",
-                  inputFormatterList: InputValidator.decimal(2),
-                  keyboardType: TextInputType.number,
                   onChangeFunction: (_) => updateApplyState(),
                 ),
 
@@ -604,7 +614,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
       ),
 
       // CLEAR
-      onClear: () {
+      onClear: () async {
         _startDateNotifier.value = null;
         _endDateNotifier.value = null;
 
@@ -627,31 +637,8 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         _selectedSourceNotifier.value = null;
         _selectedSubSourceNotifier.value = null;
 
-        _enquiryCubit.applyEnquiryFilterAndSort(
-          context: context,
-          filterStartDate: null,
-          filterEndDate: null,
-          filterSystemCode: '',
-          filterMobileNumber: '',
-          filterBudget: '',
-          filterRequirementType: '',
-          filterSource: '',
-          filterSubSource: '',
-          filterChannelPartnerMobile: '',
-          filterNationality: '',
-          filterCurrentLocation: '',
-          filterCustomerClassification: '',
-          filterEthnicity: '',
-          filterSalesAdvisor: '',
-          filterSourcingManager: '',
-          filterAccommodation: '',
-          filterFollowUpDays: '',
-          filterFinalStage: '',
-          sortColumn: "",
-          sortDirection: "",
-        );
-
-        _enquiryCubit.getEnquiryList(context, 1, _project.projectId);
+        await clearFilter();
+        _searchC.clear();
       },
 
       // APPLY
@@ -663,6 +650,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
           filterStartDate: _startDateNotifier.value,
           filterEndDate: _endDateNotifier.value,
           filterSystemCode: _systemCodeC.text.trim(),
+          filterEnquiryName: _enquiryNameC.text.trim(),
           filterMobileNumber: _mobileNumberC.text.trim(),
           filterBudget: _budgetC.text.trim(),
           filterRequirementType: _requirementTypeC.text.trim(),
@@ -688,20 +676,67 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
           filterFinalStage: _finalStageC.text.trim(),
           sortColumn: selectedDirection != null ? "Name" : "",
           sortDirection: selectedDirection ?? "",
+          projectId: _project.projectId,
         );
-
-        _enquiryCubit.getEnquiryList(context, 1, _project.projectId);
       },
 
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
 
-    if (!applied) {
-      _startDateNotifier.value = initialStartDate;
-      _endDateNotifier.value = initialEndDate;
-      selectedDirection = initialDirection;
+    if (!applied && manualClose) {
+      _systemCodeC.clear();
+      _searchC.clear();
+      _mobileNumberC.clear();
+      _budgetC.clear();
+      _requirementTypeC.clear();
+      _channelPartnerMobileC.clear();
+      _nationalityC.clear();
+      _currentLocationC.clear();
+      _customerClassificationC.clear();
+      _ethnicityC.clear();
+      _salesAdvisorC.clear();
+      _sourcingManagerC.clear();
+      _accommodationC.clear();
+      _followUpDaysC.clear();
+      _finalStageC.clear();
+
+      _startDateNotifier.value = null;
+      _endDateNotifier.value = null;
+
+      _selectedSourceNotifier.value = null;
+      _selectedSubSourceNotifier.value = null;
+
+      selectedDirection = null;
     }
+  }
+
+  Future<void> clearFilter() async {
+    _enquiryCubit.applyEnquiryFilterAndSort(
+      context: context,
+      projectId: _project.projectId,
+      filterEnquiryName: "",
+      filterStartDate: null,
+      filterEndDate: null,
+      filterSystemCode: '',
+      filterMobileNumber: '',
+      filterBudget: '',
+      filterRequirementType: '',
+      filterSource: '',
+      filterSubSource: '',
+      filterChannelPartnerMobile: '',
+      filterNationality: '',
+      filterCurrentLocation: '',
+      filterCustomerClassification: '',
+      filterEthnicity: '',
+      filterSalesAdvisor: '',
+      filterSourcingManager: '',
+      filterAccommodation: '',
+      filterFollowUpDays: '',
+      filterFinalStage: '',
+      sortColumn: "",
+      sortDirection: "",
+    );
   }
 
   @override
@@ -726,9 +761,12 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
           }
           _enquiryCubit.exportExcelPdf(context, value);
         },
-        onProjectChangeCallback: (value) {
+        onProjectChangeCallback: (value) async {
           _project = value;
-          _enquiryCubit.searchEnquiry(context, "", value.projectId);
+          await clearFilter();
+          if (context.mounted) {
+            _enquiryCubit.searchEnquiry(context, "", value.projectId);
+          }
         },
         isFilterOn: true,
         onFilterTap: () {
@@ -739,6 +777,8 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
             showErrorMessage(context, "Error", "Please select a project");
             return;
           }
+          _enquiryCubit.searchEnquiry(context, "", _project.projectId);
+
           goRouter.pushNamed(AppRoutes.addEnquiry);
         },
       ),

@@ -31,6 +31,7 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
   // <---- FILTER CP ---->
   Future applyChannelPartnerFilterAndSort({
     required BuildContext context,
+    String? fullName,
     String? companyName,
     String? designation,
     String? firmType,
@@ -52,6 +53,7 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     if (isClear ?? false) {
       emit(
         state.copyWith(
+          searchText: "",
           filterByCompanyName: "",
           filterByDesignation: "",
           filterByFirmType: "",
@@ -73,6 +75,7 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     } else {
       emit(
         state.copyWith(
+          searchText: fullName ?? state.searchText,
           filterByCompanyName: companyName ?? state.filterByCompanyName,
           filterByDesignation: designation ?? state.filterByDesignation,
           filterByFirmType: firmType ?? state.filterByFirmType,

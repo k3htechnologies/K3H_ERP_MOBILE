@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/model/grn.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/cubit/invoice_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
@@ -39,6 +39,7 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
   late InvoiceCubit _invoiceCubit;
   late MaterialRequisitionCubit _materialRequisitionCubit;
   late ProjectModel _selectedProject;
+  
   @override
   void initState() {
     super.initState();
@@ -243,12 +244,13 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                 final isApproved =
                     invoice.invoiceStatus.toLowerCase() == "approved";
                 final approvalStatus = invoice.invoiceStatus;
-
-                final isAlreadyApproved =
-                    approvalStatus.toLowerCase() == "approved";
-
-                final isRejected = approvalStatus.toLowerCase() == "rejected";
+                final isActionCompleted =
+                    approvalStatus.toLowerCase() == "approved" ||
+                    approvalStatus.toLowerCase() == "rejected" ||
+                    !invoice.isApproval;
                 final hasPayment = invoice.invoiceAmountPaidTillDate > 0;
+                final makePayment =
+                    (invoice.invoiceAmountPaidTillDate != invoice.invoiceAmount);
                 return Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 16.0,
@@ -449,36 +451,33 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                                 if (hasPayment) horizontalSpacing(),
 
                                 /// MAKE PAYMENT
-                                Expanded(
-                                  child: CustomButton(
-                                    text: "Make Payment",
-                                    onPressed: () {
-                                      goRouter.pushNamed(
-                                        AppRoutes.makePaymentScreen,
-                                        extra: {
-                                          'systemGeneratedCode':
-                                              widget.systemgeneratedCode,
-                                          "grn": widget.grn,
-                                        },
-                                      );
-                                    },
+                                if (makePayment)
+                                  Expanded(
+                                    child: CustomButton(
+                                      text: "Make Payment",
+                                      onPressed: () {
+                                        goRouter.pushNamed(
+                                          AppRoutes.makePaymentScreen,
+                                          extra: {
+                                            'systemGeneratedCode':
+                                                widget.systemgeneratedCode,
+                                            "grn": widget.grn,
+                                          },
+                                        );
+                                      },
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
                           ],
                           verticalSpacing(),
                           ApproveRejectWidget(
-                            isActionAlreadyPerformed:
-                                isAlreadyApproved || isRejected,
-                            actionTitle:
-                                approvalStatus.isEmpty
-                                    ? "Pending"
-                                    : approvalStatus,
+                            isActionAlreadyPerformed: isActionCompleted,
+                            actionTitle: approvalStatus,
 
                             onApprove: (remark) async {
                               final isSuccess = await context
-                                  .read<LoginCubit>()
+                                  .read<UtilsCubit>()
                                   .updateModulesWorkflowApproval(
                                     context: context,
                                     moduleName: 'MATERIAL REQUISITION',
@@ -509,7 +508,7 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
 
                             onReject: (remark) async {
                               await context
-                                  .read<LoginCubit>()
+                                  .read<UtilsCubit>()
                                   .updateModulesWorkflowApproval(
                                     context: context,
                                     moduleName: 'MATERIAL REQUISITION',
@@ -523,7 +522,7 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
 
                             onThirdTap: () async {
                               final approvalLogHistoryList = await context
-                                  .read<LoginCubit>()
+                                  .read<UtilsCubit>()
                                   .getApprovalLogHistory(
                                     context: context,
                                     projectId: _selectedProject.projectId,

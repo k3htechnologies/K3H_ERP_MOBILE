@@ -17,6 +17,7 @@ import 'package:k3h_erp_app/features/masters/company_master/data/repository/comp
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/utils/common_enums.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
@@ -61,11 +62,11 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   // <---- TAB CHANGED ---->
   void onTabChanged(
     BuildContext context,
-    int index, {
+    ProjectDetailsTab tab, {
     int? projectId,
     int? employeeId,
   }) {
-    if (index == 1 && projectId != null) {
+    if (tab == ProjectDetailsTab.employee && projectId != null) {
       emit(
         state.copyWith(
           employeeByProject: [],
@@ -75,12 +76,12 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       );
       getProjectWithEmployee(context: context, projectId: projectId);
     }
-    if (index == 2 && projectId != null) {
+    if (tab == ProjectDetailsTab.bankDetails && projectId != null) {
       // Bank Details tab selected - reset and fetch all banks
       emit(state.copyWith(bankByProject: [], currentPageBank: 1));
       getProjectWithBankDetails(context: context, projectId: projectId);
     }
-    if (index == 3 && projectId != null) {
+    if (tab == ProjectDetailsTab.company && projectId != null) {
       // Company tab selected - reset and fetch all companies
       emit(
         state.copyWith(
@@ -91,7 +92,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       );
       getProjectWithCompany(context: context, projectId: projectId);
     }
-    if (index == 4 && projectId != null) {
+    if (tab == ProjectDetailsTab.approval && projectId != null) {
       emit(state.copyWith(moduleWorkflowApprovalList: []));
       getApprovalList(context: context, projectId: projectId);
     }
@@ -100,6 +101,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   // <--- SORT VENDOR ---->
   Future sortProject({
     required BuildContext context,
+    String? projectName,
     String? ctsNumber,
     String? projectLocation,
     String? projectStatus,
@@ -114,6 +116,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     if (isClear ?? false) {
       emit(
         state.copyWith(
+          searchText: "",
           filterCTSNumber: "",
           filterProjectLocation: "",
           currentPage: 1,
@@ -130,6 +133,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     } else {
       emit(
         state.copyWith(
+          searchText: projectName ?? state.searchText,
           filterCTSNumber: ctsNumber ?? state.filterCTSNumber,
           filterProjectLocation: projectLocation ?? state.filterProjectLocation,
           currentPage: 1,
@@ -170,7 +174,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         "ProjectScheme": state.filterProjectScheme,
         "ProjectSubScheme": state.filterProjectSubScheme,
         if (state.isRedevelopment != null)
-          "IsRedevelopment": state.isRedevelopment.toString(),
+          "IsRedevelopment": state.isRedevelopment! ? 1 : 0,
       },
     );
 
@@ -268,7 +272,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       "TenderPurchaseStartDate": tenderPurchaseStartDate,
       "TenderPurchaseEndDate": tenderPurchaseEndDate,
       "TenderChequeNumber": tenderChequeNumber,
-      "TenderSubmissionDate": tenderPurchaseStartDate,
+      "TenderSubmissionDate": tenderSubmissionDate,
       "TenderIssueDate": tenderIssueDate,
       "TenderPayorderRemark": tenderPayorderRemark,
       "IsRedevelopment": isRedevelopment ? '1' : '0',
@@ -411,7 +415,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       "TenderPurchaseStartDate": tenderPurchaseStartDate,
       "TenderPurchaseEndDate": tenderPurchaseEndDate,
       "TenderChequeNumber": tenderChequeNumber,
-      "TenderSubmissionDate": tenderPurchaseStartDate,
+      "TenderSubmissionDate": tenderSubmissionDate,
       "TenderIssueDate": tenderIssueDate,
       "TenderPayorderRemark": tenderPayorderRemark,
       "CountryMasterId": "1",

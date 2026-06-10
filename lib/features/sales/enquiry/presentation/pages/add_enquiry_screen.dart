@@ -8,12 +8,12 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/repository/channel_partner.repository.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/data/repository/inventory.repository.dart';
-import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
@@ -27,6 +27,7 @@ import 'package:k3h_erp_app/utils/static_data.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_time_picker.dart';
@@ -49,7 +50,7 @@ class AddEnquiryScreen extends StatefulWidget {
 class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   // CUBIT
   late EnquiryCubit _enquiryCubit;
-  late LoginCubit _loginCubit;
+  late UtilsCubit _utilsCubit;
 
   // REPOSITORY
   final EmployeeMasterRepository _employeeMasterRepository =
@@ -163,7 +164,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   void initState() {
     super.initState();
     _enquiryCubit = context.read<EnquiryCubit>();
-    _loginCubit = context.read<LoginCubit>();
+    _utilsCubit = context.read<UtilsCubit>();
     _initControllers();
     _enquiryCubit.clearChannelPartner();
     _selectedEmployeeNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
@@ -473,10 +474,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
       // AUTO-FETCH TEAM MEMBER BY ID IN EDIT MODE
       if (model.channelPartnerTeamMemberId != 0) {
-        final member = await fetchChannelPartnerTeamMembers(
-          1,
-          value: model.channelPartnerTeamMemberId.toString(),
-        );
+        final member = await fetchChannelPartnerTeamMembers(1);
 
         if (!mounted) return;
 
@@ -584,10 +582,13 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     // VERIFY OTP ONLY IN FIRST ONBOARDING STAGE AND USER IS INDIAN
     if (!_isEditMode && selectedMobileNoCountry.value.countryCode == "IN") {
       //  SEND OTP FIRST
-      _loginCubit.sendOTPModuleBased(
+      _utilsCubit.sendOTPModuleBased(
         context: context,
         mobileNumber: _mobileC.text.trim(),
         module: "ENQUIRY",
+        name: _nameC.text.trim(),
+        projectName: _project.projectName,
+        source: getDisplayOrEmpty(_selectedSourceNotifier.value),
       );
       bool isEnquiryCompleted =
           _nameC.text.isNotEmpty &&
@@ -879,23 +880,19 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     final result = await _channelPartnerRepository.getChannelPartnerList(
       pageNumber: pageNumber,
       pageSize: 15,
-      queryParams:
-          value != null && value.isNotEmpty
-              ? {
-                "ChannelPartnerId": value,
-                "isCheckPermission": false,
-                "CompanyName":
-                    _isEditMode
-                        ? widget.enquiryModel!.channelPartnerCompany
-                        : _enquiryCubit.state.channelPartnerModel!.companyName,
-              }
-              : {
-                "isCheckPermission": false,
-                "CompanyName":
-                    _isEditMode
-                        ? widget.enquiryModel!.channelPartnerCompany
-                        : _enquiryCubit.state.channelPartnerModel!.companyName,
-              },
+      queryParams: {
+        "ChannelPartnerId":
+            (_isEditMode &&
+                    widget.enquiryModel!.channelPartnerTeamMemberId != 0)
+                ? widget.enquiryModel!.channelPartnerTeamMemberId.toString()
+                : null,
+        "isCheckPermission": false,
+        "ChannelPartnerName": value,
+        "CompanyName":
+            _isEditMode
+                ? widget.enquiryModel!.channelPartnerCompany
+                : _enquiryCubit.state.channelPartnerModel!.companyName,
+      },
     );
 
     return result.fold(
@@ -1347,6 +1344,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
                   if (selectedSource != null)
                     CustomDropDownWidget(
+                      key: ValueKey(selectedSource['zAttributesId']),
                       title: "Sub Source",
                       isDisabled: _isEditMode,
                       hintText: "Select Sub Source",
@@ -1471,6 +1469,11 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                 {
                                   "title": "Mobile",
                                   "value": partner.mobileNumber,
+                                  "widget": CustomClickToContactText(
+                                    value:
+                                        "${partner.mobileNumberCountryCode} ${partner.mobileNumber}",
+                                    type: ContactType.phone,
+                                  ),
                                 },
                                 {
                                   "title": "Designation",
@@ -2287,31 +2290,37 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             dataList: stageTypeList,
             onSelected: (v) {
               _selectedFinalStage.value = v;
-              _selectedFinalStageDetail.value = finalStageDetailsList.first;
+              _selectedFinalStageDetail.value = null;
             },
-            onValueClear: () => _selectedFinalStage.value = null,
+            onValueClear: () {
+              _selectedFinalStage.value = null;
+              _selectedFinalStageDetail.value = null;
+            },
           );
         },
       ),
-      ValueListenableBuilder(
-        valueListenable: _selectedFinalStageDetail,
-        builder: (context, value, child) {
-          return ValueListenableBuilder(
-            valueListenable: _selectedFinalStage,
-            builder: (context, finalStage, child) {
-              return finalStage?["zAttributesId"] == 5
-                  ? CustomDropDownWidget(
-                    title: "Final Stage Detail",
-                    hintText: "Select Final Stage Details",
-                    isDisabled: _isEditMode,
-                    initialValue: _selectedFinalStageDetail.value,
-                    dataList: finalStageDetailsList,
-                    onSelected: (v) => _selectedFinalStageDetail.value = v,
-                    onValueClear: () => _selectedFinalStageDetail.value = null,
-                  )
-                  : SizedBox.shrink();
-            },
-          );
+      AnimatedBuilder(
+        animation: Listenable.merge([
+          _selectedFinalStageDetail,
+          _selectedFinalStage,
+        ]),
+        builder: (context, child) {
+          return _selectedFinalStage.value?["DisplayName"]
+                      .toString()
+                      .toLowerCase() ==
+                  'lost'
+              ? CustomDropDownWidget(
+                title: "Final Stage Detail",
+                hintText: "Select Final Stage Detail",
+                isDisabled: _isEditMode,
+                initialValue: _selectedFinalStageDetail.value,
+                dataList: finalStageDetailsList,
+                onSelected: (v) => _selectedFinalStageDetail.value = v,
+                onValueClear: () => _selectedFinalStageDetail.value = null,
+                validator:
+                    (v) => v == null ? 'Final Stage Detail is required' : null,
+              )
+              : SizedBox.shrink();
         },
       ),
     ]);

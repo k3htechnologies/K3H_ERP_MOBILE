@@ -191,235 +191,219 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     await DialogHelper.showCustomBottomSheet(
       context,
       "Shifting Details",
-      SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Form(
-            key: _shiftingFormKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                /// TYPE
-                ValueListenableBuilder(
-                  valueListenable: _selectedShiftingType,
-                  builder: (context, value, child) {
-                    return CustomDropDownWidget(
-                      isRequired: true,
-                      initialValue: _selectedShiftingType.value,
-                      dataList: _configurationTypeList,
-                      onSelected: (value) {
-                        _selectedShiftingType.value = value;
-                        _amountController.text = '0.0';
-                        _stagePercentageController.text = '0.0';
-                      },
-                      title: "Type",
-                      hintText: "Select Type",
-                      validator: (value) {
-                        if (value == null || value['zAttributesId'] == -1) {
-                          return "Type is required";
-                        }
-                        return null;
-                      },
-                      onValueClear: () => _selectedShiftingType.value = null,
-                    );
-                  },
-                ),
-
-                /// STAGE
-                CustomTextField(
-                  title: "Stage",
+      contentWidget: Form(
+        key: _shiftingFormKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            /// TYPE
+            ValueListenableBuilder(
+              valueListenable: _selectedShiftingType,
+              builder: (context, value, child) {
+                return CustomDropDownWidget(
                   isRequired: true,
-                  hint: "Enter Stage",
-                  textController: _stageController,
-                  inputFormatterList: [LengthLimitingTextInputFormatter(150)],
+                  initialValue: _selectedShiftingType.value,
+                  dataList: _configurationTypeList,
+                  onSelected: (value) {
+                    _selectedShiftingType.value = value;
+                    _amountController.text = '0.0';
+                    _stagePercentageController.text = '0.0';
+                  },
+                  title: "Type",
+                  hintText: "Select Type",
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Stage is required";
+                    if (value == null || value['zAttributesId'] == -1) {
+                      return "Type is required";
                     }
                     return null;
                   },
-                ),
-
-                /// STAGE %
-                CustomTextField(
-                  title: "Stage Percentage (%)",
-                  isRequired: true,
-                  hint: "Enter Stage Percentage",
-                  textController: _stagePercentageController,
-                  keyboardType: TextInputType.number,
-                  inputFormatterList:
-                      inputFormatterListForDecimalValuesFixedToTwo(3),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Amount is required";
-                    }
-
-                    if (_isAmountExceedingForSelectedType(index)) {
-                      return "Amount exceeds allocated limit";
-                    }
-                    return null;
-                  },
-                  onChangeFunction: (value) {
-                    if (_selectedShiftingType.value == null ||
-                        _selectedShiftingType.value?['zAttributesId'] == -1) {
-                      return;
-                    }
-
-                    double percentage = double.tryParse(value) ?? 0;
-
-                    if (_selectedShiftingType.value?['zAttributesId'] == 1) {
-                      _amountController.text =
-                          ((double.tryParse(
-                                        _residentialAmountController.text,
-                                      ) ??
-                                      0) *
-                                  percentage /
-                                  100)
-                              .toString();
-                    } else if (_selectedShiftingType.value?['zAttributesId'] ==
-                        2) {
-                      _amountController.text =
-                          ((double.tryParse(_commercialAmountController.text) ??
-                                      0) *
-                                  percentage /
-                                  100)
-                              .toString();
-                    }
-                  },
-                ),
-
-                /// AMOUNT
-                CustomTextField(
-                  title: "Amount (₹)",
-                  hint: "Enter Amount",
-                  isRequired: true,
-                  textController: _amountController,
-                  keyboardType: TextInputType.number,
-                  readOnly: true,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Amount is required";
-                    }
-
-                    double amount = double.tryParse(value) ?? 0;
-
-                    if (_selectedShiftingType.value == null ||
-                        _selectedShiftingType.value?['zAttributesId'] == -1) {
-                      return "Type must be selected first";
-                    }
-
-                    if (_selectedShiftingType.value?['zAttributesId'] == 1 &&
-                        (double.tryParse(_residentialAmountController.text) ??
-                                0) ==
-                            0) {
-                      return "Residential amount is required";
-                    }
-
-                    if (_selectedShiftingType.value?['zAttributesId'] == 2 &&
-                        (double.tryParse(_commercialAmountController.text) ??
-                                0) ==
-                            0) {
-                      return "Commercial amount is required";
-                    }
-
-                    if (amount == 0) {
-                      return "Amount cannot be zero";
-                    }
-
-                    return null;
-                  },
-                ),
-
-                verticalSpacing(height: 25),
-
-                // SAVE
-                CustomButton(
-                  text: "Save",
-                  onPressed: () {
-                    if (_shiftingFormKey.currentState!.validate()) {
-                      if (_selectedShiftingType.value!['zAttributesId'] == 1 &&
-                          (double.tryParse(_residentialAmountController.text) ??
-                                  0) ==
-                              0) {
-                        showErrorMessage(
-                          context,
-                          'Error',
-                          'Residential amount is required.',
-                        );
-                        return;
-                      }
-
-                      if (_selectedShiftingType.value?['zAttributesId'] == 2 &&
-                          (double.tryParse(_commercialAmountController.text) ??
-                                  0) ==
-                              0) {
-                        showErrorMessage(
-                          context,
-                          'Error',
-                          'Commercial amount is required.',
-                        );
-                        return;
-                      }
-
-                      final newList = List<
-                        ProposedOfferShiftingDetailsWithPaymentStageData
-                      >.from(_shiftingList);
-                      if (shifting == null) {
-                        newList.add(
-                          ProposedOfferShiftingDetailsWithPaymentStageData(
-                            proposedOfferShiftingDetailsWithPaymentStageId: 0,
-                            uniquekey: '',
-                            buildingId: widget.buildingId,
-                            projectId: widget.projectId,
-                            type: _selectedShiftingType.value?['DisplayName'],
-                            stage: _stageController.text,
-                            stagePercentage: double.parse(
-                              _stagePercentageController.text,
-                            ),
-                            amount: double.parse(_amountController.text),
-                            createdById: 1,
-                            createdBy: 'Current User',
-                            createdDate: DateTime.now(),
-                            modifiedById: 0,
-                            modifiedBy: '',
-                            modifiedDate: null,
-                          ),
-                        );
-                      } else {
-                        newList[index!] =
-                            ProposedOfferShiftingDetailsWithPaymentStageData(
-                              proposedOfferShiftingDetailsWithPaymentStageId:
-                                  shifting
-                                      .proposedOfferShiftingDetailsWithPaymentStageId,
-                              uniquekey: shifting.uniquekey,
-                              buildingId: shifting.buildingId,
-                              projectId: shifting.projectId,
-                              type: _selectedShiftingType.value?['DisplayName'],
-                              stage: _stageController.text,
-                              stagePercentage: double.parse(
-                                _stagePercentageController.text,
-                              ),
-                              amount: double.parse(_amountController.text),
-                              createdById: shifting.createdById,
-                              createdBy: shifting.createdBy,
-                              createdDate: shifting.createdDate,
-                              modifiedById: shifting.modifiedById,
-                              modifiedBy: shifting.modifiedBy,
-                              modifiedDate: shifting.modifiedDate,
-                            );
-                      }
-
-                      _shiftingListNotifier.value = newList;
-                      Navigator.pop(context);
-                    }
-                  },
-                ),
-
-                verticalSpacing(height: 20),
-              ],
+                  onValueClear: () => _selectedShiftingType.value = null,
+                );
+              },
             ),
-          ),
+
+            /// STAGE
+            CustomTextField(
+              title: "Stage",
+              isRequired: true,
+              hint: "Enter Stage",
+              textController: _stageController,
+              inputFormatterList: [LengthLimitingTextInputFormatter(150)],
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Stage is required";
+                }
+                return null;
+              },
+            ),
+
+            /// STAGE %
+            CustomTextField(
+              title: "Stage Percentage (%)",
+              isRequired: true,
+              hint: "Enter Stage Percentage",
+              textController: _stagePercentageController,
+              keyboardType: TextInputType.number,
+              inputFormatterList: inputFormatterListForDecimalValuesFixedToTwo(
+                3,
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Amount is required";
+                }
+
+                if (_isAmountExceedingForSelectedType(index)) {
+                  return "Amount exceeds allocated limit";
+                }
+                return null;
+              },
+              onChangeFunction: (value) {
+                if (_selectedShiftingType.value == null ||
+                    _selectedShiftingType.value?['zAttributesId'] == -1) {
+                  return;
+                }
+
+                double percentage = double.tryParse(value) ?? 0;
+
+                if (_selectedShiftingType.value?['zAttributesId'] == 1) {
+                  _amountController.text =
+                      ((double.tryParse(_residentialAmountController.text) ??
+                                  0) *
+                              percentage /
+                              100)
+                          .toString();
+                } else if (_selectedShiftingType.value?['zAttributesId'] == 2) {
+                  _amountController.text =
+                      ((double.tryParse(_commercialAmountController.text) ??
+                                  0) *
+                              percentage /
+                              100)
+                          .toString();
+                }
+              },
+            ),
+
+            /// AMOUNT
+            CustomTextField(
+              title: "Amount (₹)",
+              hint: "Enter Amount",
+              isRequired: true,
+              textController: _amountController,
+              keyboardType: TextInputType.number,
+              readOnly: true,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Amount is required";
+                }
+
+                double amount = double.tryParse(value) ?? 0;
+
+                if (_selectedShiftingType.value == null ||
+                    _selectedShiftingType.value?['zAttributesId'] == -1) {
+                  return "Type must be selected first";
+                }
+
+                if (_selectedShiftingType.value?['zAttributesId'] == 1 &&
+                    (double.tryParse(_residentialAmountController.text) ?? 0) ==
+                        0) {
+                  return "Residential amount is required";
+                }
+
+                if (_selectedShiftingType.value?['zAttributesId'] == 2 &&
+                    (double.tryParse(_commercialAmountController.text) ?? 0) ==
+                        0) {
+                  return "Commercial amount is required";
+                }
+
+                if (amount == 0) {
+                  return "Amount cannot be zero";
+                }
+
+                return null;
+              },
+            ),
+
+            verticalSpacing(height: 25),
+          ],
         ),
+      ),
+      bottomActions: CustomButton(
+        text: "Save",
+        onPressed: () {
+          if (_shiftingFormKey.currentState!.validate()) {
+            if (_selectedShiftingType.value!['zAttributesId'] == 1 &&
+                (double.tryParse(_residentialAmountController.text) ?? 0) ==
+                    0) {
+              showErrorMessage(
+                context,
+                'Error',
+                'Residential amount is required.',
+              );
+              return;
+            }
+
+            if (_selectedShiftingType.value?['zAttributesId'] == 2 &&
+                (double.tryParse(_commercialAmountController.text) ?? 0) == 0) {
+              showErrorMessage(
+                context,
+                'Error',
+                'Commercial amount is required.',
+              );
+              return;
+            }
+
+            final newList =
+                List<ProposedOfferShiftingDetailsWithPaymentStageData>.from(
+                  _shiftingList,
+                );
+            if (shifting == null) {
+              newList.add(
+                ProposedOfferShiftingDetailsWithPaymentStageData(
+                  proposedOfferShiftingDetailsWithPaymentStageId: 0,
+                  uniquekey: '',
+                  buildingId: widget.buildingId,
+                  projectId: widget.projectId,
+                  type: _selectedShiftingType.value?['DisplayName'],
+                  stage: _stageController.text,
+                  stagePercentage: double.parse(
+                    _stagePercentageController.text,
+                  ),
+                  amount: double.parse(_amountController.text),
+                  createdById: 1,
+                  createdBy: 'Current User',
+                  createdDate: DateTime.now(),
+                  modifiedById: 0,
+                  modifiedBy: '',
+                  modifiedDate: null,
+                ),
+              );
+            } else {
+              newList[index!] =
+                  ProposedOfferShiftingDetailsWithPaymentStageData(
+                    proposedOfferShiftingDetailsWithPaymentStageId:
+                        shifting.proposedOfferShiftingDetailsWithPaymentStageId,
+                    uniquekey: shifting.uniquekey,
+                    buildingId: shifting.buildingId,
+                    projectId: shifting.projectId,
+                    type: _selectedShiftingType.value?['DisplayName'],
+                    stage: _stageController.text,
+                    stagePercentage: double.parse(
+                      _stagePercentageController.text,
+                    ),
+                    amount: double.parse(_amountController.text),
+                    createdById: shifting.createdById,
+                    createdBy: shifting.createdBy,
+                    createdDate: shifting.createdDate,
+                    modifiedById: shifting.modifiedById,
+                    modifiedBy: shifting.modifiedBy,
+                    modifiedDate: shifting.modifiedDate,
+                  );
+            }
+
+            _shiftingListNotifier.value = newList;
+            Navigator.pop(context);
+          }
+        },
       ),
     );
 

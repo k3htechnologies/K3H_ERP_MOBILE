@@ -193,8 +193,6 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                 hintText: "Select Stage",
                 initialValue: selectedMaterialRequisitionStage,
                 dataList: materialRequisitionStagesList,
-                isRequired: true,
-
                 onSelected: (v) {
                   selectedMaterialRequisitionStage = v;
 
@@ -213,8 +211,6 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                 hintText: "Select Status",
                 initialValue: selectedMaterialRequisitionStatus,
                 dataList: materialRequisitionStatusList,
-                isRequired: true,
-
                 onSelected: (v) {
                   selectedMaterialRequisitionStatus = v;
 
@@ -513,22 +509,54 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                             ),
                           ),
                           horizontalSpacing(width: 2),
-
-                          if (_routeAuthorizationModel.isAction) ...[
-                            Row(
-                              spacing: 10,
-                              children: [
-                                CustomIconButton.edit(
-                                  isDisabled:
-                                      (materialRequisition
-                                              .materialRequisitionStage
-                                              .toLowerCase() !=
-                                          'get quotation'),
-                                  onPressed: () async {
-                                    await _materialRequisitionCubit
-                                        .clearMaterialList();
-                                    await goRouter.pushNamed(
-                                      AppRoutes.addMaterialRequisition,
+                          Row(
+                            spacing: 10,
+                            children: [
+                              CustomIconButton.edit(
+                                isDisabled:
+                                    (materialRequisition
+                                            .materialRequisitionStage
+                                            .toLowerCase() !=
+                                        'get quotation'),
+                                onPressed: () async {
+                                  await _materialRequisitionCubit
+                                      .clearMaterialList();
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addMaterialRequisition,
+                                    queryParameters: {
+                                      "materialRequisition":
+                                          Uri.encodeQueryComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(
+                                                materialRequisition.toJson(),
+                                              ),
+                                            ),
+                                          ),
+                                      'index': index.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                              CustomIconButton.delete(
+                                isDisabled:
+                                    (materialRequisition
+                                            .materialRequisitionStage
+                                            .toLowerCase() !=
+                                        'get quotation'),
+                                onPressed: () {
+                                  _showPopupToDeleteMaterialRequisition(
+                                    context: context,
+                                    index: index,
+                                    materialRequisitionModel:
+                                        materialRequisition,
+                                  );
+                                },
+                              ),
+                              CustomIconButton(
+                                onPressed: () async {
+                                  if (materialRequisition.isCopy) {
+                                    goRouter.pushNamed(
+                                      AppRoutes.copyMaterialRequisition,
                                       queryParameters: {
                                         "materialRequisition":
                                             Uri.encodeQueryComponent(
@@ -538,60 +566,24 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                                                 ),
                                               ),
                                             ),
-                                        'index': index.toString(),
                                       },
                                     );
-                                  },
-                                ),
-                                CustomIconButton.delete(
-                                  isDisabled:
-                                      (materialRequisition
-                                              .materialRequisitionStage
-                                              .toLowerCase() !=
-                                          'get quotation'),
-                                  onPressed: () {
-                                    _showPopupToDeleteMaterialRequisition(
-                                      context: context,
-                                      index: index,
-                                      materialRequisitionModel:
-                                          materialRequisition,
-                                    );
-                                  },
-                                ),
-                                CustomIconButton(
-                                  onPressed: () async {
-                                    if (materialRequisition.isCopy) {
-                                      goRouter.pushNamed(
-                                        AppRoutes.copyMaterialRequisition,
-                                        queryParameters: {
-                                          "materialRequisition":
-                                              Uri.encodeQueryComponent(
-                                                EncryptionManager.encryptData(
-                                                  jsonEncode(
-                                                    materialRequisition
-                                                        .toJson(),
-                                                  ),
-                                                ),
-                                              ),
-                                        },
-                                      );
-                                    }
-                                  },
-                                  backgroundColor: AppColor.white,
+                                  }
+                                },
+                                backgroundColor: AppColor.white,
 
-                                  icon: Icon(
-                                    Icons.copy,
+                                icon: Icon(
+                                  Icons.copy,
 
-                                    size: 16,
-                                    color:
-                                        materialRequisition.isCopy
-                                            ? AppColor.primary
-                                            : AppColor.grey,
-                                  ),
+                                  size: 16,
+                                  color:
+                                      materialRequisition.isCopy
+                                          ? AppColor.primary
+                                          : AppColor.grey,
                                 ),
-                              ],
-                            ),
-                          ],
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                       buildRowTitleValue(
@@ -665,7 +657,7 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
   Widget statusWidget(String status) {
     final trimmed = status.trim();
 
-    // If empty → show dash
+    // IF EMPTY SHOW TEXT
     if (trimmed.isEmpty) {
       return statusChip("-", AppColor.lightGreyBackground, AppColor.black);
     }

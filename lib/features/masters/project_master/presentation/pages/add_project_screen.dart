@@ -90,10 +90,10 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       _siteContactNameC,
       _siteContactMobileNumberC;
 
-  DateTime? purchaseStartDate;
-  DateTime? purchaseEndDate;
-  DateTime? submissionDate;
-  DateTime? issueDate;
+  final ValueNotifier<DateTime?> purchaseStartDate = ValueNotifier(null);
+  final ValueNotifier<DateTime?> purchaseEndDate = ValueNotifier(null);
+  final ValueNotifier<DateTime?> submissionDate = ValueNotifier(null);
+  final ValueNotifier<DateTime?> issueDate = ValueNotifier(null);
 
   // CHECKBOX FOR REDEVELOPMENT
   final ValueNotifier<bool> isRedevelopmentNotifier = ValueNotifier(false);
@@ -270,8 +270,8 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     if (isTender) {
       _tenderAmountC.text = widget.project!.tenderAmount.toString();
       _tendorEMDAmountC.text = widget.project!.tenderEmdAmount.toString();
-      purchaseStartDate = widget.project!.tenderPurchaseStartDate;
-      purchaseEndDate = widget.project!.tenderPurchaseEndDate;
+      purchaseStartDate.value = widget.project!.tenderPurchaseStartDate;
+      purchaseEndDate.value = widget.project!.tenderPurchaseEndDate;
       _chequeNumberC.text = widget.project!.tenderChequeNumber ?? "";
       chequePhotoFile.fileNameList =
           widget.project!.tenderChequeNumberUrl!
@@ -279,8 +279,8 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
               .map((e) => e.trim())
               .where((e) => e.isNotEmpty)
               .toList();
-      submissionDate = widget.project!.tenderSubmissionDate;
-      issueDate = widget.project!.tenderIssueDate;
+      submissionDate.value = widget.project!.tenderSubmissionDate;
+      issueDate.value = widget.project!.tenderIssueDate;
       _payOrderTrackC.text = widget.project!.tenderPayorderRemark ?? "";
     }
     _projectScopeC.text = widget.project!.projectScope;
@@ -378,12 +378,14 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                 _tendorEMDAmountC.text.trim().isNotEmpty
                     ? _tendorEMDAmountC.text
                     : "0.0",
-            tenderPurchaseStartDate: purchaseStartDate?.toIso8601String() ?? '',
-            tenderPurchaseEndDate: purchaseEndDate?.toIso8601String() ?? "",
+            tenderPurchaseStartDate:
+                purchaseStartDate.value?.toIso8601String() ?? '',
+            tenderPurchaseEndDate:
+                purchaseEndDate.value?.toIso8601String() ?? "",
             tenderChequeNumber: _chequeNumberC.text,
             tenderChequeNumberURL: chequePhotoFile,
-            tenderSubmissionDate: submissionDate?.toIso8601String() ?? "",
-            tenderIssueDate: issueDate?.toIso8601String() ?? "",
+            tenderSubmissionDate: submissionDate.value?.toIso8601String() ?? "",
+            tenderIssueDate: issueDate.value?.toIso8601String() ?? "",
             tenderPayorderRemark: _payOrderTrackC.text,
             isRedevelopment: isRedevelopmentNotifier.value,
             districtMasterId: _districtMasterId.toString(),
@@ -456,12 +458,14 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                 _tendorEMDAmountC.text.trim().isNotEmpty
                     ? _tendorEMDAmountC.text
                     : "0.0",
-            tenderPurchaseStartDate: purchaseStartDate?.toIso8601String() ?? '',
-            tenderPurchaseEndDate: purchaseEndDate?.toIso8601String() ?? "",
+            tenderPurchaseStartDate:
+                purchaseStartDate.value?.toIso8601String() ?? '',
+            tenderPurchaseEndDate:
+                purchaseEndDate.value?.toIso8601String() ?? "",
             tenderChequeNumber: _chequeNumberC.text,
             tenderChequeNumberURL: chequePhotoFile,
-            tenderSubmissionDate: submissionDate?.toIso8601String() ?? "",
-            tenderIssueDate: issueDate?.toIso8601String() ?? "",
+            tenderSubmissionDate: submissionDate.value?.toIso8601String() ?? "",
+            tenderIssueDate: issueDate.value?.toIso8601String() ?? "",
             tenderPayorderRemark: _payOrderTrackC.text,
             isRedevelopment: isRedevelopmentNotifier.value,
             districtMasterId: _districtMasterId.toString(),
@@ -695,8 +699,8 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                 if (isDirect) {
                                   _tenderAmountC.clear();
                                   _tendorEMDAmountC.clear();
-                                  purchaseStartDate = null;
-                                  purchaseEndDate = null;
+                                  purchaseStartDate.value = null;
+                                  purchaseEndDate.value = null;
                                   _chequeNumberC.clear();
                                   chequePhotoFile = MultiFilePickerModel(
                                     fileBytesList: [],
@@ -704,8 +708,8 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                     deletedFileList: "",
                                   );
                                   _payOrderTrackC.clear();
-                                  submissionDate = null;
-                                  issueDate = null;
+                                  submissionDate.value = null;
+                                  issueDate.value = null;
                                 }
                               }
                             },
@@ -733,23 +737,39 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                 title: 'Tender Amount (₹)',
                                 textController: _tenderAmountC,
                                 hint: "Enter Tender Amount",
+                                keyboardType: TextInputType.numberWithOptions(),
                                 inputFormatterList: InputValidator.decimal(2),
                               ),
                               CustomTextField(
                                 title: 'Tender EMD Amount (₹)',
                                 textController: _tendorEMDAmountC,
+                                keyboardType: TextInputType.numberWithOptions(),
                                 hint: "Enter Tender EMD Amount",
                                 inputFormatterList: InputValidator.decimal(2),
                               ),
-                              CustomDatePicker(
-                                title: "Purchase Start Date",
-                                initialDate: purchaseStartDate,
-                                setValue: (value) => purchaseStartDate = value,
+                              ValueListenableBuilder(
+                                valueListenable: purchaseStartDate,
+                                builder: (context, purchaseStartDt, child) {
+                                  return CustomDatePicker(
+                                    title: "Purchase Start Date",
+                                    initialDate: purchaseStartDt,
+                                    setValue:
+                                        (value) =>
+                                            purchaseStartDate.value = value,
+                                  );
+                                },
                               ),
-                              CustomDatePicker(
-                                title: "Purchase End Date",
-                                initialDate: purchaseEndDate,
-                                setValue: (value) => purchaseEndDate = value,
+                              ValueListenableBuilder(
+                                valueListenable: purchaseEndDate,
+                                builder: (context, purchaseEndDt, child) {
+                                  return CustomDatePicker(
+                                    title: "Purchase End Date",
+                                    initialDate: purchaseEndDt,
+                                    setValue:
+                                        (value) =>
+                                            purchaseEndDate.value = value,
+                                  );
+                                },
                               ),
                               CustomTextField(
                                 title: 'Cheque Number',
@@ -796,15 +816,27 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                   return null;
                                 },
                               ),
-                              CustomDatePicker(
-                                title: "Submission Date",
-                                initialDate: submissionDate,
-                                setValue: (value) => submissionDate = value,
+                              ValueListenableBuilder(
+                                valueListenable: submissionDate,
+                                builder: (context, submissionDt, child) {
+                                  return CustomDatePicker(
+                                    title: "Submission Date",
+                                    initialDate: submissionDt,
+                                    setValue:
+                                        (value) => submissionDate.value = value,
+                                  );
+                                },
                               ),
-                              CustomDatePicker(
-                                title: "Issue Date",
-                                initialDate: issueDate,
-                                setValue: (value) => issueDate = value,
+                              ValueListenableBuilder(
+                                valueListenable: issueDate,
+                                builder: (context, issueDt, child) {
+                                  return CustomDatePicker(
+                                    title: "Issue Date",
+                                    initialDate: issueDt,
+                                    setValue:
+                                        (value) => issueDate.value = value,
+                                  );
+                                },
                               ),
                               CustomTextField(
                                 title: 'Payorder Remark',
