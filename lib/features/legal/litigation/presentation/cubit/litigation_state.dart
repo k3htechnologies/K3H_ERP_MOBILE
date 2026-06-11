@@ -4,22 +4,15 @@ import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hear
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_document.model.dart';
 
 class LitigationState extends BaseState {
-  // ---- Litigation ----
   final List<LitigationModel> litigationList;
   final int litigationCurrentPage;
   final int litigationTotalRecords;
-
-  // ---- Hearing ----
   final List<LitigationHearingModel> litigationHearingList;
   final int hearingCurrentPage;
   final int hearingTotalRecords;
-
-  // ---- Document ----
   final List<LitigationDocumentModel> litigationDocumentList;
   final int documentCurrentPage;
   final int documentTotalRecords;
-
-  // ---- UI ----
   final int currentTabIndex;
   final String searchText;
 
@@ -50,7 +43,6 @@ class LitigationState extends BaseState {
     this.filterByProjectName = "",
   });
 
-  // ---------------- INITIAL ----------------
   factory LitigationState.initial() {
     return const LitigationState(
       isLoading: false,
@@ -78,7 +70,6 @@ class LitigationState extends BaseState {
     );
   }
 
-  // ---------------- COPY WITH ----------------
   LitigationState copyWith({
     bool? isLoading,
 

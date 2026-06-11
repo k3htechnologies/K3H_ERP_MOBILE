@@ -232,9 +232,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       Align(
                         alignment: Alignment.center,
                         child: BlocBuilder<LoginCubit, LoginState>(
-                          // buildWhen:
-                          //     (previous, current) =>
-                          //         current.stateType == StateType.sendOTP,
                           builder: (context, state) {
                             return Column(
                               children: [
