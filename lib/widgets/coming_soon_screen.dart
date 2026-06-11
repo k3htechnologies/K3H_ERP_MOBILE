@@ -7,14 +7,15 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 
-class CpUniverseScreen extends StatefulWidget {
-  const CpUniverseScreen({super.key});
+class ComingSoonScreen extends StatefulWidget {
+  final String title;
+  const ComingSoonScreen({super.key, required this.title});
 
   @override
-  State<CpUniverseScreen> createState() => _CpUniverseScreenState();
+  State<ComingSoonScreen> createState() => _ComingSoonScreenState();
 }
 
-class _CpUniverseScreenState extends State<CpUniverseScreen> {
+class _ComingSoonScreenState extends State<ComingSoonScreen> {
   void _closeDialog() {
     Navigator.of(context, rootNavigator: true).pop();
     goRouter.replaceNamed(AppRoutes.dashboardScreen);
@@ -123,7 +124,7 @@ class _CpUniverseScreenState extends State<CpUniverseScreen> {
       },
       child: Scaffold(
         appBar: CustomAppBar(
-          screenTitle: "CP Universe",
+          screenTitle: widget.title,
           authorization: AuthorizationModel(),
         ),
         body: Container(),

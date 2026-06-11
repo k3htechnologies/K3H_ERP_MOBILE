@@ -191,8 +191,12 @@ class AppRoutes {
   static String salesPerformanceReport = "/salesPerformance";
   static String viewPerformanceReport = "/viewPerformance";
   // ACHIEVEMENT
+  static String incentiveReport = "/incentiveReport";
+  static String enquiryReport = "/enquiryReport";
+  static String cpEnquiryReport = "/cpEnquiryReport";
   static String achievementReport = "/achievement";
   static String managerAchievementReport = "/managerAchievementReport";
+  static String ibmObmReport = "/ibmObmReport";
 
   // SALES CLASSIFICATION PARAMETERS
   static String classificationParameter = "/classificationParameter";

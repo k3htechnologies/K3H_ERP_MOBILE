@@ -23,7 +23,7 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_chan
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
-import 'package:k3h_erp_app/features/channel_partner/presentation/pages/cp_universe.dart';
+import 'package:k3h_erp_app/widgets/coming_soon_screen.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/cubit/brokerage_cubit.dart';
@@ -3255,7 +3255,7 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.cpUniverse,
               name: AppRoutes.cpUniverse,
               builder: (context, state) {
-                return const CpUniverseScreen();
+                return const ComingSoonScreen(title: "CP Universe");
               },
             ),
           ],
@@ -4205,6 +4205,29 @@ final GoRouter goRouter = GoRouter(
               },
               routes: [
                 GoRoute(
+                  path: AppRoutes.incentiveReport,
+                  name: AppRoutes.incentiveReport,
+                  builder: (context, state) {
+                    return const ComingSoonScreen(title: "Incentive Report");
+                  },
+                ),
+                GoRoute(
+                  path: AppRoutes.enquiryReport,
+                  name: AppRoutes.enquiryReport,
+                  builder: (context, state) {
+                    return const ComingSoonScreen(title: "Enquiry Report");
+                  },
+                ),
+                GoRoute(
+                  path: AppRoutes.cpEnquiryReport,
+                  name: AppRoutes.cpEnquiryReport,
+                  builder: (context, state) {
+                    return const ComingSoonScreen(
+                      title: "Channel Partner Enquiry Report",
+                    );
+                  },
+                ),
+                GoRoute(
                   name: AppRoutes.performanceReport,
                   path: AppRoutes.performanceReport,
                   builder: (context, state) {
@@ -4303,6 +4326,13 @@ final GoRouter goRouter = GoRouter(
                       toDate: parseToDate,
                       projectAchievementReportModel: projectAchievement!,
                     );
+                  },
+                ),
+                GoRoute(
+                  path: AppRoutes.ibmObmReport,
+                  name: AppRoutes.ibmObmReport,
+                  builder: (context, state) {
+                    return const ComingSoonScreen(title: "IBM OBM Report");
                   },
                 ),
               ],
