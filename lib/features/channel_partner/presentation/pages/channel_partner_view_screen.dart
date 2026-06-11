@@ -615,7 +615,6 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                                           .channelPartnerModel
                                           .micromarketProximity,
                                 ),
-                                Spacer(),
                               ],
                             ),
                           ],

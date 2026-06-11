@@ -758,7 +758,6 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                       title: "Micromarket Proximity",
                       value: widget.channelPartner.micromarketProximity,
                     ),
-                    Spacer(),
                   ],
                 ),
               ],
