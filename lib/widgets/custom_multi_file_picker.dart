@@ -356,6 +356,8 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                                                           .isNotEmpty
                                                       ? [fileBytesList[index]]
                                                       : null,
+                                              title:
+                                                  widget.title ?? "View File",
                                             );
                                           },
                                           child: Icon(

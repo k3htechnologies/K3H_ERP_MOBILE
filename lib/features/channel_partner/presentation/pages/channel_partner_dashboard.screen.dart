@@ -345,15 +345,6 @@ class _ChannelPartnerDashboardScreenState
 
                               return Stack(
                                 children: [
-                                  Container(
-                                    height: 36,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: AppColor.primary.withValues(
-                                        alpha: 0.1,
-                                      ),
-                                    ),
-                                  ),
                                   AnimatedContainer(
                                     duration: const Duration(milliseconds: 500),
                                     width: barWidth,

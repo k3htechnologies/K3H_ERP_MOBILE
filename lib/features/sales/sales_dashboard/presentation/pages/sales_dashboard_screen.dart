@@ -810,17 +810,46 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Performance Report", style: AppTextStyle.ts14M()),
-
-                  Visibility(
-                    visible: showViewAll,
-                    child: CustomButton(
-                      text: "View All",
-                      titleTextStyle: AppTextStyle.ts12M(color: AppColor.white),
-                      onPressed: () {
-                        goRouter.pushNamed(AppRoutes.salesPerformanceReport);
-                      },
-                    ),
+                  Builder(
+                    builder: (context) {
+                      if (!showViewAll) {
+                        return Text(
+                          "Performance Report",
+                          style: AppTextStyle.ts14M(),
+                        );
+                      }
+                      return RichText(
+                        text: TextSpan(
+                          text: "Performance Report",
+                          style: AppTextStyle.ts14M(),
+                          children: [
+                            TextSpan(
+                              text: "\n(Current Month)",
+                              style: AppTextStyle.ts12M(color: AppColor.grey),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  Builder(
+                    builder: (context) {
+                      if (!showViewAll) {
+                        return Text(
+                          "(Current Month)",
+                          style: AppTextStyle.ts12M(color: AppColor.grey),
+                        );
+                      }
+                      return CustomButton(
+                        text: "View All",
+                        titleTextStyle: AppTextStyle.ts12M(
+                          color: AppColor.white,
+                        ),
+                        onPressed: () {
+                          goRouter.pushNamed(AppRoutes.salesPerformanceReport);
+                        },
+                      );
+                    },
                   ),
                 ],
               ),

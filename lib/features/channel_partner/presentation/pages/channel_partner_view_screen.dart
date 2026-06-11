@@ -172,7 +172,14 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // TAB BAR
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              widget.channelPartnerModel.systemGeneratedCode,
+              style: AppTextStyle.ts16SB(color: AppColor.primary),
+            ),
+          ), // TAB BAR
+          verticalSpacing(),
           ChipStyleTabBar(
             controller: _tabController,
             tabs: ["Overview", "Team Members"],
@@ -193,12 +200,6 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      verticalSpacing(height: 5),
-                      Text(
-                        widget.channelPartnerModel.systemGeneratedCode,
-                        style: AppTextStyle.ts16SB(color: AppColor.primary),
-                      ),
-                      verticalSpacing(),
                       Container(
                         decoration: commonCardDecoration(),
                         padding: const EdgeInsets.all(16),
@@ -347,10 +348,28 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                                               .channelPartnerModel
                                               .websiteURL,
                                       style: AppTextStyle.ts14M(
-                                        color: AppColor.primary,
+                                        color:
+                                            widget
+                                                    .channelPartnerModel
+                                                    .websiteURL
+                                                    .isEmpty
+                                                ? null
+                                                : AppColor.primary,
                                       ).copyWith(
-                                        decoration: TextDecoration.underline,
-                                        decorationColor: AppColor.primary,
+                                        decoration:
+                                            widget
+                                                    .channelPartnerModel
+                                                    .websiteURL
+                                                    .isEmpty
+                                                ? TextDecoration.none
+                                                : TextDecoration.underline,
+                                        decorationColor:
+                                            widget
+                                                    .channelPartnerModel
+                                                    .websiteURL
+                                                    .isEmpty
+                                                ? null
+                                                : AppColor.primary,
                                       ),
                                     ),
                                   ),
@@ -675,7 +694,7 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                               Row(
                                 children: [
                                   Expanded(
-                                    flex: 4,
+                                    flex: 5,
                                     child: Text(
                                       "Mobile Number",
                                       style: AppTextStyle.ts14R(
@@ -707,7 +726,7 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                               Row(
                                 children: [
                                   Expanded(
-                                    flex: 4,
+                                    flex: 5,
                                     child: Text(
                                       "Email ID",
                                       style: AppTextStyle.ts14R(

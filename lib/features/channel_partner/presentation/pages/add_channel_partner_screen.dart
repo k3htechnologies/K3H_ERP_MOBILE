@@ -127,7 +127,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     countryList.firstWhere((e) => e.code == "+91"),
   );
   final ValueNotifier<bool> _isAlreadyExist = ValueNotifier(false);
-
+  bool get isExistingCompany =>
+      selectedCompanyType.value?['zAttributesId'] == 2;
   @override
   void initState() {
     super.initState();
@@ -1353,7 +1354,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                   title: 'GST Number',
                                   hint: "Enter GST Number",
                                   textController: _gstNumberC,
-                                  readOnly: isPrefilled,
+                                  readOnly: isExistingCompany,
                                   inputFormatterList:
                                       InputValidator.gstInputFormatters(),
                                   validator: (value) {
@@ -1381,15 +1382,16 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                             ),
 
                             IgnorePointer(
-                              ignoring: isCompanyPrefilled.value,
+                              ignoring: isExistingCompany,
                               child: Opacity(
-                                opacity: isCompanyPrefilled.value ? 0.6 : 1,
+                                opacity: isExistingCompany ? 0.6 : 1,
                                 child: CustomMultiFilePicker(
                                   key: ValueKey(
                                     selectedGSTCertificateForPopUpFile.value,
                                   ),
                                   title: "GST Certificate",
                                   filePickType: FilePickType.both,
+                                  readOnly: isExistingCompany,
                                   initialFileList:
                                       selectedGSTCertificateForPopUpFile
                                           .value
