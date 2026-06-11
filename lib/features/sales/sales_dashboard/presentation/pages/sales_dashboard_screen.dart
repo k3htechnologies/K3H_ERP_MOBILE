@@ -810,18 +810,8 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  RichText(
-                    text: TextSpan(
-                      text: "Performance Report",
-                      style: AppTextStyle.ts14M(),
-                      children: [
-                        TextSpan(
-                          text: "\n(Current Month)",
-                          style: AppTextStyle.ts12M(color: AppColor.grey),
-                        ),
-                      ],
-                    ),
-                  ),
+                  Text("Performance Report", style: AppTextStyle.ts14M()),
+
                   Visibility(
                     visible: showViewAll,
                     child: CustomButton(

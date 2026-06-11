@@ -1319,7 +1319,7 @@ class BookingCubit extends Cubit<BookingState> {
     required String filterFloor,
     required String filterSource,
     required String filterSubSource,
-
+    required String filterApplicantName,
     required int filterAgreementValue,
     required String filterBookingType,
     String? sortColumn,
@@ -1327,6 +1327,7 @@ class BookingCubit extends Cubit<BookingState> {
   }) async {
     emit(
       state.copyWith(
+        searchText: filterApplicantName,
         filterStartDate: filterStartDate,
         filterEndDate: filterEndDate,
         filterWing: filterWing,

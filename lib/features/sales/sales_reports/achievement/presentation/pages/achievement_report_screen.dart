@@ -25,14 +25,15 @@ import '../../../../../../core/encryption_manager.dart';
 import '../cubit/achievement.state.dart';
 import '../cubit/achievement_cubit.dart';
 
-class AchievementScreen extends StatefulWidget {
-  const AchievementScreen({super.key});
+class AchievementReportScreen extends StatefulWidget {
+  const AchievementReportScreen({super.key});
 
   @override
-  State<AchievementScreen> createState() => _AchievementScreenState();
+  State<AchievementReportScreen> createState() =>
+      _AchievementReportScreenState();
 }
 
-class _AchievementScreenState extends State<AchievementScreen>
+class _AchievementReportScreenState extends State<AchievementReportScreen>
     with TickerProviderStateMixin {
   late AchievementCubit _achievementCubit;
   late AuthorizationModel _routeAuthorizationModel;
@@ -437,6 +438,7 @@ class _AchievementScreenState extends State<AchievementScreen>
                   top: 8.0,
                   right: 16.0,
                   left: 16.0,
+                  bottom: 8,
                 ),
                 padding: const EdgeInsets.all(12),
                 decoration: commonCardDecoration(),

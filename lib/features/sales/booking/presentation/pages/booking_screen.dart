@@ -141,6 +141,7 @@ class _BookingScreenState extends State<BookingScreen> {
             ? state.currentSortDirection
             : null;
 
+    final initialApplicantName = state.searchText;
     final initialWing = state.filterWing;
     final initialMobile = state.filterMobileNumber;
     final initialFlat = state.filterFlat;
@@ -150,6 +151,7 @@ class _BookingScreenState extends State<BookingScreen> {
     final initialSource = state.filterSource;
     final initialSubSource = state.filterSubSource;
 
+    _searchC.text = initialApplicantName;
     _wingC.text = initialWing;
     _mobileNumberC.text = initialMobile;
     _flatC.text = initialFlat;
@@ -205,6 +207,7 @@ class _BookingScreenState extends State<BookingScreen> {
               : _selectedSubSourceNotifier.value?['DisplayName'] ?? '';
 
       manualClose =
+          (_searchC.text.trim() != initialApplicantName) ||
           (_startDateNotifier.value != initialStartDate) ||
           (_endDateNotifier.value != initialEndDate) ||
           (_wingC.text.trim() != initialWing) ||
@@ -293,6 +296,12 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
 
                 verticalSpacing(height: 20),
+                CustomTextField(
+                  textController: _searchC,
+                  title: "Applicant Name",
+                  hint: "Enter Applicant Name",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
                 CustomTextField(
                   textController: _mobileNumberC,
                   title: "Applicant Mobile Number",
@@ -437,7 +446,7 @@ class _BookingScreenState extends State<BookingScreen> {
         _agreementValueC.clear();
         _bookingTypeC.clear();
         selectedDirection = null;
-
+        _searchC.clear();
         _selectedSourceNotifier.value = null;
         _selectedSubSourceNotifier.value = null;
 
@@ -453,6 +462,7 @@ class _BookingScreenState extends State<BookingScreen> {
           filterSubSource: '',
           filterAgreementValue: 0,
           filterBookingType: '',
+          filterApplicantName: '',
           sortColumn: "Created Date",
           sortDirection: "DESC",
         );
@@ -475,6 +485,7 @@ class _BookingScreenState extends State<BookingScreen> {
           filterMobileNumber: _mobileNumberC.text.trim(),
           filterFlat: _flatC.text.trim(),
           filterFloor: _floorC.text.trim(),
+          filterApplicantName: _searchC.text.trim(),
           filterSource:
               (_selectedSourceNotifier.value != null &&
                       _selectedSourceNotifier.value!['zAttributesId'] != -1)
@@ -500,7 +511,7 @@ class _BookingScreenState extends State<BookingScreen> {
     if (!applied && manualClose) {
       _startDateNotifier.value = null;
       _endDateNotifier.value = null;
-
+      _searchC.clear();
       _wingC.clear();
       _mobileNumberC.clear();
       _flatC.clear();

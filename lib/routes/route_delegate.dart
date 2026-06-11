@@ -409,7 +409,7 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 
 import '../features/sales/sales_master/payment_schedule/data/model/payment_schedule.model.dart';
-import '../features/sales/sales_reports/achievement/presentation/pages/achievement_screen.dart';
+import '../features/sales/sales_reports/achievement/presentation/pages/achievement_report_screen.dart';
 
 String? authenticateAndAuthorizeRoute(GoRouterState state) {
   // SPLASH || LOGIN
@@ -4274,7 +4274,7 @@ final GoRouter goRouter = GoRouter(
                   name: AppRoutes.achievementReport,
                   path: AppRoutes.achievementReport,
                   builder: (context, state) {
-                    return const AchievementScreen();
+                    return const AchievementReportScreen();
                   },
                 ),
                 GoRoute(
