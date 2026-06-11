@@ -38,9 +38,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
       serviceLocator<ProjectMasterRepository>();
   late UserModel _userModel;
   final ValueNotifier<List<Map<String, dynamic>>> _selectedProjectNotifier =
-      ValueNotifier([
-        {"zAttributesId": 0, "DisplayName": "All Projects"},
-      ]);
+      ValueNotifier([]);
 
   int tempRangeIndex = 0;
   @override
@@ -146,18 +144,14 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
       (response) {
         final project = response['data'] as List<ProjectModel>;
 
-        final List<Map<String, dynamic>> items = [
-          {"zAttributesId": 0, "DisplayName": "All Projects"},
-          ...project.map((pr) {
-            return {
-              "zAttributesId": pr.projectId,
-              "DisplayName": pr.projectName,
-            };
-          }),
-        ];
-
         return {
-          "itemList": items,
+          "itemList":
+              project.map((pr) {
+                return {
+                  "zAttributesId": pr.projectId,
+                  "DisplayName": pr.projectName,
+                };
+              }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
       },
@@ -204,7 +198,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                       return CustomMultipleSelectPopup(
                         title: 'Project',
                         isMultiSelect: false,
-                        hintText: "Select Project",
+                        hintText: "All Project",
                         initialValue: value,
                         dataList: const [],
                         onSelected: (value) {
