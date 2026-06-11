@@ -38,7 +38,9 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
       serviceLocator<ProjectMasterRepository>();
   late UserModel _userModel;
   final ValueNotifier<List<Map<String, dynamic>>> _selectedProjectNotifier =
-      ValueNotifier([]);
+      ValueNotifier([
+        {"zAttributesId": 0, "DisplayName": "All Projects"},
+      ]);
 
   int tempRangeIndex = 0;
   @override
@@ -144,14 +146,18 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
       (response) {
         final project = response['data'] as List<ProjectModel>;
 
+        final List<Map<String, dynamic>> items = [
+          {"zAttributesId": 0, "DisplayName": "All Projects"},
+          ...project.map((pr) {
+            return {
+              "zAttributesId": pr.projectId,
+              "DisplayName": pr.projectName,
+            };
+          }),
+        ];
+
         return {
-          "itemList":
-              project.map((pr) {
-                return {
-                  "zAttributesId": pr.projectId,
-                  "DisplayName": pr.projectName,
-                };
-              }).toList(),
+          "itemList": items,
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
       },
@@ -611,15 +617,14 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Expanded(
-                                  child: _caseField("Case Title", item.title),
+                                  child: _caseField(
+                                    "Project Name",
+                                    item.projectName,
+                                  ),
                                 ),
                                 horizontalSpacing(width: 20.0),
                                 Expanded(
-                                  child: _caseField(
-                                    "Status",
-                                    item.status,
-                                    valueColor: statusColor,
-                                  ),
+                                  child: _caseField("Case Title", item.title),
                                 ),
                               ],
                             ),
@@ -641,9 +646,23 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                               ],
                             ),
                             verticalSpacing(),
-                            _caseField(
-                              "Hearing Date",
-                              formatDateTimeAsDDMMMYYYY(item.hearingDate),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                _caseField(
+                                  "Hearing Date",
+                                  formatDateTimeAsDDMMMYYYY(item.hearingDate),
+                                ),
+                                horizontalSpacing(width: 20.0),
+                                Expanded(
+                                  child: _caseField(
+                                    "Status",
+                                    item.status,
+                                    valueColor: statusColor,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -839,14 +858,14 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                   ),
                 ),
               ] else ...[
+                verticalSpacing(),
                 Center(
-                  child: Text(
-                    "No Data Found",
-                    style: AppTextStyle.ts12M(
-                      color: AppColor.black.withValues(alpha: .5),
-                    ),
+                  child: noDataWidget(
+                    message: "No Data Found",
+                    iconSize: 100.w,
                   ),
                 ),
+                verticalSpacing(),
               ],
             ],
           ),

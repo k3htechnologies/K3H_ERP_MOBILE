@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry_followup.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/repository/enquiry.repository.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_state.dart';
+import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/enquiry_screen.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -153,7 +154,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     required String enquiryName,
     required String enquiryCode,
   }) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isLoading: true, searchText: enquiryName));
     if (projectId == 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showErrorMessage(context, "Error", "Please select a project");
@@ -203,6 +204,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     int? index,
     required int projectId,
     required Map<String, dynamic> body,
+    required bool isIndian,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -222,11 +224,12 @@ class EnquiryCubit extends Cubit<EnquiryState> {
 
         if (index != null) {
           updatedList[index] = newItem;
+          emit(state.copyWith(searchText: ""));
           getEnquiryList(context, 1, projectId);
         } else {
           // CLOSE VERIFICATION DIALOG
-          goRouter.pop();
-
+          if (isIndian) goRouter.pop();
+          emit(state.copyWith(searchText: ""));
           getEnquiryList(context, 1, projectId);
         }
 
@@ -387,6 +390,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     required BuildContext context,
     int? index,
     required Map<String, dynamic> body,
+    required int projectId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -423,6 +427,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
                   ? 'Enquiry FollowUp Updated Successfully'
                   : 'Enquiry FollowUp Added Successfully',
         );
+        getEnquiryList(context, 1, projectId);
       },
     );
   }

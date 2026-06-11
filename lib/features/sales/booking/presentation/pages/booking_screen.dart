@@ -533,9 +533,12 @@ class _BookingScreenState extends State<BookingScreen> {
           }
           _bookingCubit.exportExcelPdf(context, value, getProject().projectId);
         },
-        onProjectChangeCallback: (value) {
+        onProjectChangeCallback: (value) async {
           _project = value;
-          _bookingCubit.getBookingList(context, 1, value.projectId);
+          await _bookingCubit.resetState();
+          if (context.mounted) {
+            _bookingCubit.getBookingList(context, 1, value.projectId);
+          }
         },
         isFilterOn: true,
         onFilterTap: () {

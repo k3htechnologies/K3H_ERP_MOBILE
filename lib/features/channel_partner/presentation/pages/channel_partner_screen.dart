@@ -13,10 +13,12 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/static_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -53,6 +55,12 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
   late ScrollController scrollController;
   Timer? _debounce;
 
+  final ValueNotifier<Map<String, dynamic>?> _selectedNoOfIBM = ValueNotifier(
+    null,
+  );
+  final ValueNotifier<Map<String, dynamic>?> _selectedNoOfOBM = ValueNotifier(
+    null,
+  );
   @override
   void initState() {
     super.initState();
@@ -155,12 +163,30 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
     final String initialCity = _filterCityC.text;
     final String initialVillage = _filterVillageC.text;
     final String? initialDirection = selectedDirection;
+    final initialNoOfIBM = state.filterByNoOfIBM;
+    final initialNoOfOBM = state.filterByNoOfOBM;
 
+    if (initialNoOfIBM.isNotEmpty) {
+      _selectedNoOfIBM.value = ibmObmRangeFilter.firstWhere(
+        (e) => e['DisplayName'] == initialNoOfIBM,
+        orElse: () => ibmObmRangeFilter.first,
+      );
+    }
+    if (initialNoOfOBM.isNotEmpty) {
+      _selectedNoOfOBM.value = ibmObmRangeFilter.firstWhere(
+        (e) => e['DisplayName'] == initialNoOfOBM,
+        orElse: () => ibmObmRangeFilter.first,
+      );
+    }
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     bool applied = false;
 
     void updateApplyState(StateSetter innerState) {
+      final currentNoOfIBM = _selectedNoOfIBM.value?['DisplayName'] ?? '';
+
+      final currentNoOfOBM = _selectedNoOfOBM.value?['DisplayName'] ?? '';
+
       innerState(() {
         manualClose =
             (_searchC.text.trim() != initialFullNameName) ||
@@ -177,6 +203,8 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
             (_filterSpecialityC.text.trim() != initialSpeciality) ||
             (_filterCityC.text.trim() != initialCity) ||
             (_filterVillageC.text.trim() != initialVillage) ||
+            (currentNoOfIBM != initialNoOfIBM) ||
+            (currentNoOfOBM != initialNoOfOBM) ||
             (selectedDirection != initialDirection);
 
         applyEnabled.value = manualClose;
@@ -346,6 +374,44 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                   textController: _filterVillageC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
+                ValueListenableBuilder(
+                  valueListenable: _selectedNoOfIBM,
+                  builder: (context, noOfIBM, child) {
+                    return CustomDropDownWidget(
+                      title: 'No Of IBM',
+                      hintText: 'Select No Of IBM',
+                      initialValue: noOfIBM,
+                      dataList: ibmObmRangeFilter,
+                      onSelected: (v) {
+                        _selectedNoOfIBM.value = v;
+                        updateApplyState(innerState);
+                      },
+                      onValueClear: () {
+                        _selectedNoOfIBM.value = null;
+                        updateApplyState(innerState);
+                      },
+                    );
+                  },
+                ),
+                ValueListenableBuilder(
+                  valueListenable: _selectedNoOfOBM,
+                  builder: (context, noOfOBM, child) {
+                    return CustomDropDownWidget(
+                      title: 'No Of OBM',
+                      hintText: 'Select No Of OBM',
+                      initialValue: noOfOBM,
+                      dataList: ibmObmRangeFilter,
+                      onSelected: (v) {
+                        _selectedNoOfOBM.value = v;
+                        updateApplyState(innerState);
+                      },
+                      onValueClear: () {
+                        _selectedNoOfOBM.value = null;
+                        updateApplyState(innerState);
+                      },
+                    );
+                  },
+                ),
               ],
             ),
           );
@@ -367,6 +433,9 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
         _filterCityC.clear();
         _filterVillageC.clear();
         _searchC.clear();
+        _selectedNoOfIBM.value = null;
+        _selectedNoOfOBM.value = null;
+        selectedDirection = null;
         _channelPartnerCubit.applyChannelPartnerFilterAndSort(
           context: context,
           isClear: true,
@@ -394,6 +463,8 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
           village: _filterVillageC.text.trim(),
           sortColumn: selectedDirection != null ? "Full Name" : null,
           sortDirection: selectedDirection,
+          noOfIBM: _selectedNoOfIBM.value?['DisplayName'] ?? "",
+          noOfOBM: _selectedNoOfOBM.value?['DisplayName'] ?? "",
         );
       },
 
@@ -525,7 +596,9 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                           Row(
                             spacing: 10,
                             children: [
-                              if (channelPartner.isIncomplete) ...[
+                              if (channelPartner.verifiedNonVerified
+                                      .toLowerCase() !=
+                                  'verified') ...[
                                 CustomIconButton(
                                   onPressed: () {},
                                   icon: Icon(

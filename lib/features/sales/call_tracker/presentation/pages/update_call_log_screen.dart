@@ -150,11 +150,28 @@ class _UpdateCallLogScreenState extends State<UpdateCallLogScreen> {
         status: _selectedCallStatus.value!['DisplayName'],
         budget: _selectedBudgetInCr.value?['DisplayName'] ?? "",
         requirement: _selectedRequirementNotifier.value?['DisplayName'] ?? "",
-        residentialType:
-            _selectedResidentialTypeNotifier.value?['DisplayName'] ?? "",
+        residentialType: getRequirementType(),
         siteVisitProposedDate: siteVisitProposedDate,
         index: widget.index,
       );
+    }
+  }
+
+  String getRequirementType() {
+    final requirement =
+        (_selectedRequirementNotifier.value?['DisplayName'] ?? "")
+            .toString()
+            .toLowerCase();
+    switch (requirement) {
+      case "residential":
+        return _selectedResidentialTypeNotifier.value?['DisplayName'] ?? "";
+      case "commercial":
+        return _selectedCommercialTypeNotifier.value?['DisplayName'] ?? "";
+      case "commercial leasing":
+        return _selectedCommercialLeasingNotifier.value?['DisplayName'] ?? "";
+
+      default:
+        return "";
     }
   }
 

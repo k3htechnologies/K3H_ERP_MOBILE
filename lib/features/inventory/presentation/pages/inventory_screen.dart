@@ -379,12 +379,14 @@ class _InventoryScreenState extends State<InventoryScreen>
               final selectedBuilding = state.buildingList[safeTabIndex];
 
               final wingList = selectedBuilding.wingList;
+              final wingIndex = state.wingCurrentPage.clamp(
+                0,
+                wingList.isEmpty ? 0 : wingList.length - 1,
+              );
+
               final selectedWing =
-                  wingList.isNotEmpty &&
-                          state.wingCurrentPage >= 0 &&
-                          state.wingCurrentPage < wingList.length
-                      ? wingList[state.wingCurrentPage]
-                      : null;
+                  wingList.isNotEmpty ? wingList[wingIndex] : null;
+
               final bool isActionAllowed = selectedWing?.isApproval ?? false;
 
               if (state.buildingList.isNotEmpty &&

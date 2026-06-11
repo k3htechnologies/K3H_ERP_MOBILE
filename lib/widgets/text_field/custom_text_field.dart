@@ -8,7 +8,6 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-
 class CustomTextField extends StatelessWidget {
   final TextEditingController textController;
   final bool? isRequired;
@@ -61,6 +60,7 @@ class CustomTextField extends StatelessWidget {
       validator: validator,
       builder: (FormFieldState<String> formFieldState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!formFieldState.mounted) return;
           if (formFieldState.value != textController.text) {
             formFieldState.didChange(textController.text);
           }

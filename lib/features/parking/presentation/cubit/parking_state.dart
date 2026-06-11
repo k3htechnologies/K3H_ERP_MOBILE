@@ -53,7 +53,7 @@ class ParkingState extends BaseState {
     blockedParking: 0,
     holdParking: 0,
     allotedParking: 0,
-    selectedFlatStatus: null,
+    selectedFlatStatus: 'total',
   );
   ParkingState copyWith({
     bool? isLoading,

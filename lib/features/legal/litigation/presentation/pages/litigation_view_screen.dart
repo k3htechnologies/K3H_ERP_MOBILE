@@ -247,19 +247,19 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text("Case Details", style: AppTextStyle.ts16SB()),
-                      _buildRowWrapper(
+                      buildRowWrapper(
                         child: buildColumnTitleValue(
                           title: "Project",
                           value: litigation.projectName,
                         ),
                       ),
-                      _buildRowWrapper(
+                      buildRowWrapper(
                         child: buildColumnTitleValue(
                           title: "Case Title",
                           value: litigation.title,
                         ),
                       ),
-                      _buildRowWrapper(
+                      buildRowWrapper(
                         child: buildColumnTitleValue(
                           title: "Case / Petiton / Dispute Number",
                           value: litigation.caseNumber,
@@ -281,7 +281,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                           ),
                         ],
                       ),
-                      _buildRowWrapper(
+                      buildRowWrapper(
                         child: buildColumnTitleValue(
                           title: "Case Status",
                           value: litigation.status,
@@ -343,26 +343,26 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text("Parties Details", style: AppTextStyle.ts16SB()),
-                      _buildRowWrapper(
+                      buildRowWrapper(
                         child: buildColumnTitleValue(
                           title: "Plaintiff / Complaint / Petitioner",
                           value: litigation.plantiff,
                         ),
                       ),
-                      _buildRowWrapper(
+                      buildRowWrapper(
                         child: buildColumnTitleValue(
                           title: "Defendant / Opposite Party / Respondent",
                           value: litigation.defendant,
                         ),
                       ),
 
-                      _buildRowWrapper(
+                      buildRowWrapper(
                         child: buildColumnTitleValue(
                           title: "Assigned Representative",
                           value: litigation.assignedRepresentative,
                         ),
                       ),
-                      _buildRowWrapper(
+                      buildRowWrapper(
                         child: buildColumnTitleValue(
                           title: "Opposite Representative",
                           value: litigation.opposingRepresentative,
@@ -1443,9 +1443,5 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
         litigationIndex: widget.index,
       );
     }
-  }
-
-  Widget _buildRowWrapper({required Widget child}) {
-    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [child]);
   }
 }

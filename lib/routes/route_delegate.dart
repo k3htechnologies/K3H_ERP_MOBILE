@@ -349,6 +349,8 @@ import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/add_calling_data_screen.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/call_tracker_screen.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/update_call_log_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/channel_partner_category/presentation/cubit/channel_partner_category_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/channel_partner_category/presentation/pages/channel_partner_category_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/classification_parameters/data/model/classification_paramerter.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/classification_parameters/presentation/cubit/classification_parameters_cubit.dart';
 
@@ -372,7 +374,7 @@ import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/presentation/pages/payment_schedule_scheme_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/project_achievement_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/cubit/achievement_cubit.dart';
-import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/pages/managers_achievement_report.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/pages/managers_achievement_report_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/data/model/performance_report_closing.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/data/model/performance_report_sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/presentation/cubit/performance_cubit.dart';
@@ -4190,7 +4192,6 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
-
             // SALES REPORT
             ShellRoute(
               builder: (context, state, child) {
@@ -4295,7 +4296,7 @@ final GoRouter goRouter = GoRouter(
                           );
                     }
 
-                    return ManagerAchievementReport(
+                    return ManagerAchievementReportScreen(
                       type: type,
                       filterType: filterType,
                       fromDate: parseFromDate,
@@ -4358,7 +4359,6 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
-
             // SALES BOOKING
             ShellRoute(
               builder: (context, state, child) {
@@ -4803,7 +4803,7 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
-
+            // PAYEMENT SCHEDULE SCHEME
             ShellRoute(
               builder: (context, state, child) {
                 return BlocProvider(
@@ -4848,6 +4848,23 @@ final GoRouter goRouter = GoRouter(
                       paymentScheduleSchemeModel: paymentScheduleScheme,
                       index: index,
                     );
+                  },
+                ),
+              ],
+            ),
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => ChannelPartnerCategoryCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.channelPartnerCategory,
+                  path: AppRoutes.channelPartnerCategory,
+                  builder: (context, state) {
+                    return const ChannelPartnerCategoryScreen();
                   },
                 ),
               ],

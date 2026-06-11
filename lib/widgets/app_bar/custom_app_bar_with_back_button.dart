@@ -18,6 +18,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/core/presentation/pages/main_screen.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_export_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -315,37 +316,7 @@ class _CustomAppBarWithBackButtonState
                 if (widget.onExportCallback != null &&
                     widget.authorization.isExport) ...[
                   horizontalSpacing(),
-                  _buildAction(
-                    icon: Icons.file_download_outlined,
-                    onTap: () {
-                      final box = context.findRenderObject() as RenderBox;
-                      final position = box.localToGlobal(Offset.zero);
-
-                      CustomOverlayMenu.show(
-                        width: 180,
-                        context: context,
-                        position: Offset(position.dx + 10, position.dy + 115),
-                        items: [
-                          AddImportExportOverlayMenuItem(
-                            icon: Icons.file_download_outlined,
-                            label: 'Export as Excel',
-                            value: 'EXCEL',
-                            onTap: widget.onExportCallback!,
-                            iconColor: AppColor.primary,
-                          ),
-                          AddImportExportOverlayMenuItem(
-                            icon: Icons.file_download_outlined,
-                            label: 'Export as PDF',
-                            value: 'PDF',
-                            onTap: widget.onExportCallback!,
-                            iconColor: AppColor.primary,
-                          ),
-                        ],
-                      );
-                    },
-                    backgroundColor: AppColor.lightGreen,
-                    iconColor: AppColor.darkGreen,
-                  ),
+                  CustomExportButton(onExport: widget.onExportCallback!),
                 ],
                 if (widget.onAddCallback != null &&
                     widget.authorization.isAction) ...[

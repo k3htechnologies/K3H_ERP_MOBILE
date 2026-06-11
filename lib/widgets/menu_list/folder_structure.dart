@@ -14,15 +14,15 @@ class FolderStructureTypeLines extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // STYLE OF VERTICAL LINE
     final Paint verticalLine =
-    Paint()
-      ..color = AppColor.grey.withValues(alpha: 0.3)
-      ..strokeWidth = 1.0;
+        Paint()
+          ..color = AppColor.grey.withValues(alpha: 0.3)
+          ..strokeWidth = 1.0;
 
     // STYLE OF HORIZONTAL LINE
     final Paint horizontalLine =
-    Paint()
-      ..color = AppColor.grey.withValues(alpha: 0.3)
-      ..strokeWidth = 1.0;
+        Paint()
+          ..color = AppColor.grey.withValues(alpha: 0.3)
+          ..strokeWidth = 1.0;
 
     // CALCULATES HORIZONTAL CENTER TO THE CANVAS TO ALIGN VERTICALLY
     final double centerX = size.width / 2;

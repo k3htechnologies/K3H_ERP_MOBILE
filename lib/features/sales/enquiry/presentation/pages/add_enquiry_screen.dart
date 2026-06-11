@@ -769,6 +769,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       context: context,
       body: payload,
       projectId: _project.projectId,
+      isIndian: selectedMobileNoCountry.value.countryCode == "IN",
       index: _isEditMode ? widget.index : null,
     );
   }
@@ -1539,7 +1540,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                     CustomTextField(
                                       title: "Team Member Name",
                                       hint: "Enter Team Member Name",
-
+                                      readOnly: _isEditMode,
                                       textController: _teamMemberNameC,
                                       onChangeFunction: (_) {
                                         _selectedTeamMemberNotifier.value = [];
@@ -1569,6 +1570,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                         return CustomTextField(
                                           title: "Team Member Mobile Number",
                                           hint: "Enter Mobile Number",
+                                          readOnly: _isEditMode,
                                           textController: _teamMemberMobileC,
                                           keyboardType: TextInputType.phone,
                                           showCountryDropdown: true,
@@ -1660,6 +1662,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                           isRequired:
                                               selectedMobNovalue.countryCode !=
                                               "IN",
+                                          readOnly: _isEditMode,
                                           textController: _teamMemberEmailC,
                                           keyboardType:
                                               TextInputType.emailAddress,
@@ -2312,6 +2315,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               ? CustomDropDownWidget(
                 title: "Final Stage Detail",
                 hintText: "Select Final Stage Detail",
+                isRequired: true,
                 isDisabled: _isEditMode,
                 initialValue: _selectedFinalStageDetail.value,
                 dataList: finalStageDetailsList,

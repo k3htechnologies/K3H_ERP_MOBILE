@@ -41,7 +41,13 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: isDisable ? null : onPressed,
+      onPressed:
+          isDisable
+              ? null
+              : () {
+                FocusManager.instance.primaryFocus?.unfocus();
+                onPressed?.call();
+              },
       style: ElevatedButton.styleFrom(
         // Keep the Material layer transparent in all states;
         // visual colors are handled by the Ink decoration below.

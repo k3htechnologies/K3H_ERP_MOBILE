@@ -66,6 +66,8 @@ class SourcingCubit extends Cubit<SourcingState> {
     String? city,
     String? village,
     String? name,
+    String? noOfIBM,
+    String? noOfOBM,
     String? sortColumn,
     String? sortDirection,
     bool? isClear,
@@ -87,8 +89,10 @@ class SourcingCubit extends Cubit<SourcingState> {
           filterByCity: "",
           filterByVillage: "",
           searchText: "",
-          currentSortColumn: "Created Date",
-          currentSortDirection: "DESC",
+          currentSortColumn: "",
+          currentSortDirection: "",
+          filterByNoOfIBM: "",
+          filterByNoOfOBM: "",
           currentPageCp: 1,
         ),
       );
@@ -110,7 +114,8 @@ class SourcingCubit extends Cubit<SourcingState> {
           filterBySpeciality: speciality ?? state.filterBySpeciality,
           filterByCity: city ?? state.filterByCity,
           filterByVillage: village ?? state.filterByVillage,
-
+          filterByNoOfIBM: noOfIBM ?? state.filterByNoOfIBM,
+          filterByNoOfOBM: noOfOBM ?? state.filterByNoOfOBM,
           currentSortColumn: sortColumn ?? state.currentSortColumn,
           currentSortDirection: sortDirection ?? state.currentSortDirection,
 
@@ -176,6 +181,8 @@ class SourcingCubit extends Cubit<SourcingState> {
       "Speciality": state.filterBySpeciality,
       "CityName": state.filterByCity,
       "VillageName": state.filterByVillage,
+      "NoOfIBM": state.filterByNoOfIBM,
+      "NoOfOBM": state.filterByNoOfOBM,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     var result = await _channelPartnerRepository.getChannelPartnerList(

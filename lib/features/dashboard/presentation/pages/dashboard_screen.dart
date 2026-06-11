@@ -329,6 +329,11 @@ class _DashboardScreenState extends State<DashboardScreen>
     _timer?.cancel();
   }
 
+  bool canPunchOut() {
+    final workedTime = DateTime.now().difference(punchInTime);
+    return workedTime >= const Duration(hours: 1);
+  }
+
   double _calculateDistance(List<LatLng> points) {
     double total = 0;
 
@@ -712,7 +717,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                               height: 56,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
-                                color: AppColor.primary.withValues(alpha: 0.12),
+                                color:
+                                    isSwipeDisabled
+                                        ? AppColor.lightGrey
+                                        : AppColor.primary.withValues(
+                                          alpha: 0.12,
+                                        ),
                               ),
                               child: Stack(
                                 alignment: Alignment.centerLeft,
@@ -727,7 +737,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                                             ? "Swipe to Punch Out"
                                             : "Swipe to Punch In",
                                         key: ValueKey(isCurrentlyPunchedIn),
-                                        style: AppTextStyle.ts12B(),
+                                        style: AppTextStyle.ts12B(
+                                          color:
+                                              isSwipeDisabled
+                                                  ? AppColor.grey
+                                                  : null,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -836,6 +851,18 @@ class _DashboardScreenState extends State<DashboardScreen>
                                                           velocity < -700;
 
                                                       if (shouldPunchOut) {
+                                                        if (!canPunchOut()) {
+                                                          showErrorMessage(
+                                                            context,
+                                                            "Punch Out Not Allowed",
+                                                            "Minimum working duration is 1 hour.",
+                                                          );
+
+                                                          dragPositionNotifier
+                                                              .value = maxWidth;
+                                                          return;
+                                                        }
+
                                                         isProcessing = true;
 
                                                         dragPositionNotifier
@@ -855,7 +882,6 @@ class _DashboardScreenState extends State<DashboardScreen>
 
                                                         isDayCompletedNotifier
                                                             .value = true;
-
                                                         isPunchedInNotifier
                                                             .value = false;
 
@@ -880,7 +906,10 @@ class _DashboardScreenState extends State<DashboardScreen>
                                           child: Container(
                                             width: thumbWidth,
                                             decoration: BoxDecoration(
-                                              color: AppColor.primary,
+                                              color:
+                                                  isSwipeDisabled
+                                                      ? AppColor.grey50
+                                                      : AppColor.primary,
                                               borderRadius:
                                                   BorderRadius.circular(14),
                                               boxShadow: [

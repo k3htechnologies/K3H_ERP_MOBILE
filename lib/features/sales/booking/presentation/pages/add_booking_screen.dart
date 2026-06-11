@@ -331,6 +331,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _agreementGstAmountC.text = bm.agreementValueGSTAmount.toString();
     _stampDutyPercentageC.text = bm.stampDutyPercentage.toString();
     _stampDutyAmountC.text = bm.stampDutyAmount.toString();
+    _stampDutyAmountNotifier.value = bm.stampDutyAmount;
     _registrationFeesC.text = bm.registrationFees.toString();
     //FILLED COMMISSION TEXTCONTROLLERS
     _referencePercentageC.text = bm.referelPercentage.toString();
@@ -2598,7 +2599,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Applicable",
+                          "Do Other Charges Apply?",
                           style: AppTextStyle.ts14M(color: AppColor.grey),
                         ),
 

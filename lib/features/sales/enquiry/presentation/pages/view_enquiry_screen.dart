@@ -1420,7 +1420,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       if (index != null) "Uniquekey": followUpModel!.uniquekey,
 
       "EnquiryId": widget.enquiryId,
-      "ProjectId": getProject().projectId,
+      "ProjectId": _project.projectId,
 
       "Status": statusName,
       "LostReason": statusName == "Lost" ? lostReasonName : null,
@@ -1432,6 +1432,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       context: context,
       body: payload,
       index: index,
+      projectId: _project.projectId,
     );
   }
 

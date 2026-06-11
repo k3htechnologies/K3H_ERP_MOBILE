@@ -20,7 +20,8 @@ class ChannelPartnerState extends BaseState {
   final String filterBySpeciality;
   final String filterByCity;
   final String filterByVillage;
-
+  final String filterByNoOfIBM;
+  final String filterByNoOfOBM;
   final String currentSortColumn;
   final String currentSortDirection;
 
@@ -46,6 +47,8 @@ class ChannelPartnerState extends BaseState {
     required this.filterBySpeciality,
     required this.filterByCity,
     required this.filterByVillage,
+    required this.filterByNoOfIBM,
+    required this.filterByNoOfOBM,
 
     required this.currentSortColumn,
     required this.currentSortDirection,
@@ -70,10 +73,11 @@ class ChannelPartnerState extends BaseState {
     filterBySpeciality: "",
     filterByCity: "",
     filterByVillage: "",
-
+    filterByNoOfIBM: "",
+    filterByNoOfOBM: "",
     isLoading: true,
-    currentSortColumn: "Created Date",
-    currentSortDirection: "DESC",
+    currentSortColumn: "",
+    currentSortDirection: "",
   );
 
   ChannelPartnerState copyWith({
@@ -99,6 +103,8 @@ class ChannelPartnerState extends BaseState {
     String? filterBySpeciality,
     String? filterByCity,
     String? filterByVillage,
+    String? filterByNoOfIBM,
+    String? filterByNoOfOBM,
 
     String? currentSortColumn,
     String? currentSortDirection,
@@ -134,6 +140,8 @@ class ChannelPartnerState extends BaseState {
 
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      filterByNoOfIBM: filterByNoOfIBM ?? this.filterByNoOfIBM,
+      filterByNoOfOBM: filterByNoOfOBM ?? this.filterByNoOfOBM,
     );
   }
 
@@ -161,6 +169,8 @@ class ChannelPartnerState extends BaseState {
     filterBySpeciality,
     filterByCity,
     filterByVillage,
+    filterByNoOfIBM,
+    filterByNoOfOBM,
 
     currentSortColumn,
     currentSortDirection,

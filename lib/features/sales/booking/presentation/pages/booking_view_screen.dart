@@ -291,6 +291,14 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                         "${enquiry.mobileNumberCountryCode} ${enquiry.mobileNumber}",
                   ),
                 },
+                {
+                  "title": "E-Mail ID",
+                  "value": enquiry.emailId,
+                  "widget": CustomClickToContactText(
+                    value: enquiry.emailId,
+                    type: ContactType.email,
+                  ),
+                },
                 {"title": "Source", "value": enquiry.source},
               ]);
 
@@ -372,7 +380,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       if (isChannelPartner)
                         infoCard([
                           {
-                            "title": "Channel Partner",
+                            "title": "CP Code",
+                            "value": enquiry.channelPartnerCode,
+                          },
+                          {
+                            "title": "CP Name",
                             "value": enquiry.channelPartnerName,
                           },
                           {
@@ -922,8 +934,13 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       ),
                     ),
                     buildColumnTitleValue(
-                      title: "Handover Type",
-                      value: bookingModel!.handoverType,
+                      title: "Final Registration Date",
+                      value:
+                          bookingModel!.finalRegistrationDate != null
+                              ? formatDateTimeAsDDMMMYYYY(
+                                bookingModel!.finalRegistrationDate!,
+                              )
+                              : "-",
                     ),
                   ],
                 ),
@@ -932,9 +949,19 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
+                      title: "Handover Type",
+                      value: bookingModel!.handoverType,
+                    ),
+                    buildColumnTitleValue(
                       title: "Source Of Funding",
                       value: bookingModel!.sourceOfFunding,
                     ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     buildColumnTitleValue(
                       title: "Number Of Parking",
                       value: bookingModel!.numberOfParking.toString(),

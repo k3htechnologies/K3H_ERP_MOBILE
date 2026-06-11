@@ -52,6 +52,7 @@ class ChannelPartnerModel {
   final String secondaryProjectPortfolioId;
   final String secondaryProjectPortfolio;
   final String micromarketProximity;
+  final String verifiedNonVerified;
 
   ChannelPartnerModel({
     required this.channelPartnerId,
@@ -105,6 +106,7 @@ class ChannelPartnerModel {
     required this.secondaryProjectPortfolioId,
     required this.secondaryProjectPortfolio,
     required this.micromarketProximity,
+    required this.verifiedNonVerified,
   });
 
   factory ChannelPartnerModel.fromJson(Map<String, dynamic> json) =>
@@ -185,6 +187,7 @@ class ChannelPartnerModel {
           "SecondaryProjectPortfolio",
         ),
         micromarketProximity: parseValue<String>(json, "MicromarketProximity"),
+        verifiedNonVerified: parseValue<String>(json, "VerifiedNonVerified"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -239,35 +242,6 @@ class ChannelPartnerModel {
     "SecondaryProjectPortfolioId": secondaryProjectPortfolioId,
     "SecondaryProjectPortfolio": secondaryProjectPortfolio,
     "MicromarketProximity": micromarketProximity,
+    "VerifiedNonVerified": verifiedNonVerified,
   };
-}
-
-extension ChannelPartnerValidation on ChannelPartnerModel {
-  bool get isIncomplete {
-    bool isBasicValid =
-        name.trim().isNotEmpty &&
-        mobileNumber.trim().isNotEmpty &&
-        companyName.trim().isNotEmpty &&
-        firmsType.trim().isNotEmpty &&
-        designation.trim().isNotEmpty &&
-        type.trim().isNotEmpty &&
-        speciality.trim().isNotEmpty &&
-        officeAddress.trim().isNotEmpty &&
-        stateName.trim().isNotEmpty &&
-        districtName.trim().isNotEmpty &&
-        cityName.trim().isNotEmpty &&
-        villageName.trim().isNotEmpty &&
-        emailId.trim().isNotEmpty &&
-        speciality.trim().isNotEmpty;
-
-    bool isPanValid = panNumber.trim().isEmpty == panCardUrl.trim().isEmpty;
-
-    bool isAadhaarValid =
-        aadhaarCardNumber.trim().isEmpty == aadhaarCardUrl.trim().isEmpty;
-
-    bool isGstValid =
-        gstNumber.trim().isEmpty == gstCertificateUrl.trim().isEmpty;
-
-    return !(isBasicValid && isPanValid && isAadhaarValid && isGstValid);
-  }
 }

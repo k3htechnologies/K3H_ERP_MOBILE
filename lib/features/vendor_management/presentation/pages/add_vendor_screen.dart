@@ -86,7 +86,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
   );
 
   // LOCATION MASTER IDS
-  String countryMasterId = '1';
+  String countryMasterId = '';
   String stateMasterId = '';
   String districtMasterId = '';
   String cityMasterId = '';
@@ -690,9 +690,13 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
           ),
           AddressWidget(
             formKey: _formKeys[2],
+            incomingCountryId: widget.vendor?.countryMasterId ?? 1,
             incomingStateId: widget.vendor?.stateMasterId,
             incomingDistrictId: widget.vendor?.districtMasterId,
             incomingCityId: widget.vendor?.cityMasterId,
+            countryChange: (selectedCountry) {
+              countryMasterId = selectedCountry['zAttributesId'].toString();
+            },
             stateChange: (selectedState) {
               stateMasterId = selectedState['zAttributesId'].toString();
             },

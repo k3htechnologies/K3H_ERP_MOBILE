@@ -22,7 +22,6 @@ final List<Map<String, dynamic>> natureOfAccountList = [
 ];
 
 // ENQUIRY
-// STATIC DROPDOWN LISTS
 final List<Map<String, dynamic>> currentAccommodation = [
   {'zAttributesId': 1, 'DisplayName': 'Rented'},
   {'zAttributesId': 2, 'DisplayName': 'Self-Owned'},
@@ -399,3 +398,14 @@ final List<String> achievementTimelineTabs = [
   'Overall',
 ];
 final List<String> achievementTabs = ['Project', 'Closing', 'Sourcing'];
+
+final List<Map<String, dynamic>> ibmObmRangeFilter = [
+  {"zAttributesId": 1, "DisplayName": "Below 10"},
+  {"zAttributesId": 2, "DisplayName": "Between 11 And 50"},
+  {"zAttributesId": 3, "DisplayName": "Between 51 And 100"},
+  {"zAttributesId": 4, "DisplayName": "Between 101 And 200"},
+  {"zAttributesId": 5, "DisplayName": "Between 201 And 300"},
+  {"zAttributesId": 6, "DisplayName": "Between 301 And 400"},
+  {"zAttributesId": 7, "DisplayName": "Between 401 And 500"},
+  {"zAttributesId": 8, "DisplayName": "Above 501"},
+];

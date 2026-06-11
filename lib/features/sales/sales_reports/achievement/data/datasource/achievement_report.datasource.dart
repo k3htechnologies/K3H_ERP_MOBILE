@@ -25,6 +25,25 @@ abstract interface class AchievementReportDatasource {
     required String filterType,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>> apiCallPullProjectAchievementReportForExport({
+    required int pageNumber,
+    required int pageSize,
+    required String filterType,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Map<String, dynamic>> apiCallPullClosingAchievementReportForExport({
+    required int pageNumber,
+    required int pageSize,
+    required String filterType,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Map<String, dynamic>> apiCallPullSourcingAchievementReportForExport({
+    required int pageNumber,
+    required int pageSize,
+    required String filterType,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class AchievementReportDatasourceImpl extends AchievementReportDatasource {
@@ -146,6 +165,120 @@ class AchievementReportDatasourceImpl extends AchievementReportDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         return apiCallPullSourcingAchievementReport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          filterType: filterType,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallPullProjectAchievementReportForExport({
+    required int pageNumber,
+    required int pageSize,
+    required String filterType,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullProjectAchievementReportUrl({
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "AchievementReport/PullProjectAchievementReport?pageNumber=$pageNumber&pageSize=$pageSize&FilterType=$filterType";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullProjectAchievementReportUrl(queryParams: queryParams),
+      );
+
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'] ?? 0,
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apiCallPullProjectAchievementReportForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          filterType: filterType,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallPullClosingAchievementReportForExport({
+    required int pageNumber,
+    required int pageSize,
+    required String filterType,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullClosingAchievementReportUrl({
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "AchievementReport/PullClosingAchievementReport?pageNumber=$pageNumber&pageSize=$pageSize&FilterType=$filterType";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullClosingAchievementReportUrl(queryParams: queryParams),
+      );
+
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'] ?? 0,
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apiCallPullClosingAchievementReportForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          filterType: filterType,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallPullSourcingAchievementReportForExport({
+    required int pageNumber,
+    required int pageSize,
+    required String filterType,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullSourcingAchievementReportUrl({
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "AchievementReport/PullSourcingAchievementReport?pageNumber=$pageNumber&pageSize=$pageSize&FilterType=$filterType";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullSourcingAchievementReportUrl(queryParams: queryParams),
+      );
+
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'] ?? 0,
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apiCallPullSourcingAchievementReportForExport(
           pageNumber: pageNumber,
           pageSize: pageSize,
           filterType: filterType,

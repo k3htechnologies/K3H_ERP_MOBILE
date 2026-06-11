@@ -198,6 +198,9 @@ class AppRoutes {
   static String classificationParameter = "/classificationParameter";
   static String addClassificationParameter = "/addClassificationParameter";
 
+  // SALES CHANNEL PARTNER CATEGORY
+  static String channelPartnerCategory = "/channelPartnerCategory";
+
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// CRM
 

@@ -57,7 +57,7 @@ Widget buildRowTitleValue({
 // BUILD COLUMN TITLE VALUE
 Widget buildColumnTitleValue({
   required String title,
-  required String value,
+  required String? value,
   TextStyle? valueTextStyle,
   Widget? customValueWidget,
 }) {
@@ -69,7 +69,7 @@ Widget buildColumnTitleValue({
         verticalSpacing(height: 4),
         customValueWidget ??
             Text(
-              value.isEmpty ? "-" : value,
+              (value == null || value.isEmpty) ? "-" : value,
               style:
                   valueTextStyle ?? AppTextStyle.ts14M(color: AppColor.black),
             ),
@@ -708,4 +708,8 @@ Widget followUpStatusTextWidget(DateTime? nextFollowUpDate) {
   }
 
   return Text(status, style: AppTextStyle.ts14M(color: statusColor));
+}
+
+Widget buildRowWrapper({required Widget child}) {
+  return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [child]);
 }

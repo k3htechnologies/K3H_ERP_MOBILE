@@ -29,11 +29,12 @@ import 'package:k3h_erp_app/di/feature_dependencies/project_document/rera_docume
 import 'package:k3h_erp_app/di/feature_dependencies/redevelopment/dashboard/redevelopment_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/register/register.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/booking/booking.dependencies.dart';
-import 'package:k3h_erp_app/di/feature_dependencies/sales/classification_parameters/classification_parameters.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/sales/master/channel_partner_category/channel_partner_category.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/sales/master/classification_parameters/classification_parameters.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/enquiry/enquiry.dependencies.dart';
-import 'package:k3h_erp_app/di/feature_dependencies/sales/other_charges/other_charges.dependencies.dart';
-import 'package:k3h_erp_app/di/feature_dependencies/sales/payment_schedule/payment_schedule.dependency.dart';
-import 'package:k3h_erp_app/di/feature_dependencies/sales/payment_schedule_scheme/payment_schedule_scheme.dependency.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/sales/master/other_charges/other_charges.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/sales/master/payment_schedule/payment_schedule.dependency.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/sales/master/payment_schedule_scheme/payment_schedule_scheme.dependency.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/report/performance_report.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/sales_dashboard/sales_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/setting_dashboard/setting_dashboard.dependencies.dart';
@@ -205,6 +206,8 @@ void initDependencies() {
   registerEnquiryDependencies(serviceLocator);
   // OTHER CHARGES DEPENDENCIES
   registerOtherChargesDependencies(serviceLocator);
+  // CHANNEL PARTNER CATEGORY DEPENDENCIES
+  registerChannelPartnerCategoryDependencies(serviceLocator);
   // PAYMENT SCHEDULE DEPENDENCIES (must be before Booking as BookingCubit depends on it)
   registerPaymentScheduleDependencies(serviceLocator);
   // BOOKING DEPENDENCIES

@@ -154,6 +154,7 @@ class ParkingCubit extends Cubit<ParkingState> {
               blockedParking: blockedParking,
               holdParking: holdParking,
               allotedParking: memberParking,
+              selectedFlatStatus: "total",
             ),
           );
           return;
@@ -285,7 +286,6 @@ class ParkingCubit extends Cubit<ParkingState> {
     );
   }
 
-
   // HANDLE BUILDING TAB CHANGE
   void handleBuildingTabChange(int index, String building) {
     if (state.groupedData == null) return;
@@ -374,6 +374,7 @@ class ParkingCubit extends Cubit<ParkingState> {
         blockedParking: blockedParking,
         holdParking: holdParking,
         allotedParking: memberParking,
+        selectedFlatStatus: 'total',
       ),
     );
   }

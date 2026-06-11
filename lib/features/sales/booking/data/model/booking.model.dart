@@ -54,6 +54,7 @@ class BookingModel {
   String parkingNumber;
   String handoverType;
   DateTime registrationDate;
+  DateTime? finalRegistrationDate;
   String modeOfPayment;
   double bookingAmount;
   String chequeRTGSNumber;
@@ -140,6 +141,7 @@ class BookingModel {
     required this.parkingNumber,
     required this.handoverType,
     required this.registrationDate,
+    this.finalRegistrationDate,
     required this.modeOfPayment,
     required this.bookingAmount,
     required this.chequeRTGSNumber,
@@ -254,6 +256,10 @@ class BookingModel {
     parkingNumber: parseValue<String>(json, "ParkingNumber"),
     handoverType: parseValue<String>(json, "HandoverType"),
     registrationDate: parseValue<DateTime>(json, "RegistrationDate"),
+    finalRegistrationDate:
+        json['FinalRegistrationDate'] != null
+            ? parseValue<DateTime>(json, "FinalRegistrationDate")
+            : null,
     modeOfPayment: parseValue<String>(json, "ModeOfPayment"),
     bookingAmount: parseValue<double>(json, "BookingAmount"),
     chequeRTGSNumber: parseValue<String>(json, "ChequeRTGSNumber"),
@@ -435,6 +441,7 @@ class BookingModel {
     "BookingApplicantModificationRequestApprovalStatus":
         bookingApplicantModificationRequestApprovalStatus,
     "NumberOfParking": numberOfParking,
+    "FinalRegistrationDate": finalRegistrationDate,
   };
 }
 

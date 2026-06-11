@@ -21,6 +21,8 @@ class SourcingState extends BaseState {
   final String filterBySpeciality;
   final String filterByCity;
   final String filterByVillage;
+  final String filterByNoOfIBM;
+  final String filterByNoOfOBM;
   final String currentSortColumn;
   final String currentSortDirection;
 
@@ -46,6 +48,8 @@ class SourcingState extends BaseState {
     required this.filterBySpeciality,
     required this.filterByCity,
     required this.filterByVillage,
+    required this.filterByNoOfIBM,
+    required this.filterByNoOfOBM,
     required this.currentSortColumn,
     required this.currentSortDirection,
   });
@@ -59,8 +63,8 @@ class SourcingState extends BaseState {
     isLoading: true,
     currentTabIndex: 0,
     selectedFilter: "ALL",
-    currentSortColumn: "Created Date",
-    currentSortDirection: "DESC",
+    currentSortColumn: "",
+    currentSortDirection: "",
     filterByCompanyName: "",
     filterByDesignation: "",
     filterByFirmType: "",
@@ -74,6 +78,8 @@ class SourcingState extends BaseState {
     filterBySpeciality: "",
     filterByCity: "",
     filterByVillage: "",
+    filterByNoOfIBM: "",
+    filterByNoOfOBM: "",
   );
 
   SourcingState copyWith({
@@ -100,6 +106,8 @@ class SourcingState extends BaseState {
     String? filterBySpeciality,
     String? filterByCity,
     String? filterByVillage,
+    String? filterByNoOfIBM,
+    String? filterByNoOfOBM,
   }) {
     return SourcingState(
       isLoading: isLoading ?? this.isLoading,
@@ -129,6 +137,8 @@ class SourcingState extends BaseState {
       filterBySpeciality: filterBySpeciality ?? this.filterBySpeciality,
       filterByCity: filterByCity ?? this.filterByCity,
       filterByVillage: filterByVillage ?? this.filterByVillage,
+      filterByNoOfIBM: filterByNoOfIBM ?? this.filterByNoOfIBM,
+      filterByNoOfOBM: filterByNoOfOBM ?? this.filterByNoOfOBM,
     );
   }
 
@@ -156,6 +166,8 @@ class SourcingState extends BaseState {
     filterBySpeciality,
     filterByCity,
     filterByVillage,
+    filterByNoOfIBM,
+    filterByNoOfOBM,
 
     currentSortColumn,
     currentSortDirection,

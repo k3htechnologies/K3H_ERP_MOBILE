@@ -53,6 +53,47 @@ class InputValidator {
     ];
   }
 
+  static List<TextInputFormatter> digitWithDecimal({
+    required int maxDigitsBeforeDecimal,
+    int decimalPlaces = 0,
+  }) {
+    return [
+      TextInputFormatter.withFunction((oldValue, newValue) {
+        final text = newValue.text;
+
+        if (text.isEmpty) return newValue;
+
+        // Allow only digits and decimal point
+        if (!RegExp(r'^\d*\.?\d*$').hasMatch(text)) {
+          return oldValue;
+        }
+
+        final parts = text.split('.');
+
+        // Only one decimal point
+        if (parts.length > 2) {
+          return oldValue;
+        }
+
+        // Digits before decimal
+        if (parts[0].length > maxDigitsBeforeDecimal) {
+          return oldValue;
+        }
+
+        // Decimal validation
+        if (decimalPlaces == 0 && text.contains('.')) {
+          return oldValue;
+        }
+
+        if (parts.length == 2 && parts[1].length > decimalPlaces) {
+          return oldValue;
+        }
+
+        return newValue;
+      }),
+    ];
+  }
+
   static bool isValidMobileNumber(String mobileNumber) {
     RegExp mobileRegExp = RegExp(r'^[9876]\d{9}$');
     if (mobileNumber == "" || !mobileRegExp.hasMatch(mobileNumber)) {
