@@ -431,3 +431,9 @@ final List<Map<String, dynamic>> moduleTypeList = [
   {"zAttributesId": 14, "DisplayName": "Redevelopment"},
   {"zAttributesId": 15, "DisplayName": "Operation"},
 ];
+
+final List<Map<String, dynamic>> financialYearList = [
+  {"zAttributesId": 1, "DisplayName": "2025-26"},
+  {"zAttributesId": 2, "DisplayName": "2026-27"},
+  {"zAttributesId": 3, "DisplayName": "2027-28"},
+];

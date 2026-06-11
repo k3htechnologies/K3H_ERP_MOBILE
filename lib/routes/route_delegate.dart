@@ -400,6 +400,10 @@ import 'package:k3h_erp_app/features/stock_management/presentation/cubit/stock_m
 import 'package:k3h_erp_app/features/stock_management/presentation/pages/add_stock_management.screen.dart';
 import 'package:k3h_erp_app/features/stock_management/presentation/pages/stock_management.screen.dart';
 import 'package:k3h_erp_app/features/stock_management/presentation/pages/view_stock_management.screen.dart';
+import 'package:k3h_erp_app/features/tax_tracker/presentation/cubit/tax_tracker_cubit.dart';
+import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/add_tax_tracker.screen.dart';
+import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/tax_tracker.screen.dart';
+import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/view_tax_tracker.screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
@@ -6104,6 +6108,43 @@ final GoRouter goRouter = GoRouter(
               },
             ),
           ],
+        ),
+        // TAX TRACKER
+        GoRoute(
+          name: AppRoutes.addTaxTracker,
+          path: AppRoutes.addTaxTracker,
+          builder: (context, state) {
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => TaxTrackerCubit()),
+                BlocProvider(create: (_) => EmployeeMasterCubit()),
+              ],
+              child: const AddTaxTrackerScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          name: AppRoutes.taxTracker,
+          path: AppRoutes.taxTracker,
+          builder: (context, state) {
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => TaxTrackerCubit()),
+                BlocProvider(create: (_) => CompanyMasterCubit()),
+              ],
+              child: const TaxTrackerScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          name: AppRoutes.viewTaxTracker,
+          path: AppRoutes.viewTaxTracker,
+          builder: (context, state) {
+            return BlocProvider(
+              create: (_) => TaxTrackerCubit(),
+              child: const ViewTaxTrackerScreen(),
+            );
+          },
         ),
       ],
     ),

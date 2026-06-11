@@ -449,4 +449,9 @@ class AppRoutes {
   // PROFILE
   static String profile = "/profile";
   static String updateUserBasicDetails = "/updateUserBasicDetails";
+
+  // TAX TRACKER
+  static String taxTracker = "/taxTracker";
+  static String addTaxTracker = "/addTaxTracker";
+  static String viewTaxTracker = "/viewTaxTracker";
 }
