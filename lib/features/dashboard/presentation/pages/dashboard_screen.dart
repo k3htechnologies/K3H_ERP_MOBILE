@@ -1623,16 +1623,78 @@ class _DashboardScreenState extends State<DashboardScreen>
                         title: "Present",
                         value: table7.first.presentCount,
                         color: AppColor.primary,
+                        onValueTap:
+                            table7.first.presentCount == 0
+                                ? () {}
+                                : () async {
+                                  await _dashboardCubit.resetUnits();
+                                  await goRouter.pushNamed(
+                                    AppRoutes.employeeAttendanceScreen,
+                                    extra: context.read<DashboardCubit>(),
+                                    queryParameters: {
+                                      "type": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          "PRESENT",
+                                        ),
+                                      ),
+                                      "title": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          "Present Employees",
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                },
                       ),
                       RadialChartItem(
                         title: "Absent",
                         value: table7.first.absentCount,
                         color: AppColor.blue,
+                        onValueTap:
+                            table7.first.absentCount == 0
+                                ? () {}
+                                : () async {
+                                  await _dashboardCubit.resetUnits();
+                                  await goRouter.pushNamed(
+                                    AppRoutes.employeeAttendanceScreen,
+                                    extra: context.read<DashboardCubit>(),
+                                    queryParameters: {
+                                      "type": Uri.encodeComponent(
+                                        EncryptionManager.encryptData("ABSENT"),
+                                      ),
+                                      "title": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          "Absent Employees",
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                },
                       ),
                       RadialChartItem(
                         title: "Leave",
                         value: table7.first.onLeaveCount,
                         color: AppColor.grey50,
+                        onValueTap:
+                            table7.first.onLeaveCount == 0
+                                ? () {}
+                                : () async {
+                                  await _dashboardCubit.resetUnits();
+                                  await goRouter.pushNamed(
+                                    AppRoutes.employeeAttendanceScreen,
+                                    extra: context.read<DashboardCubit>(),
+                                    queryParameters: {
+                                      "type": Uri.encodeComponent(
+                                        EncryptionManager.encryptData("LEAVE"),
+                                      ),
+                                      "title": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          "Leave Employees",
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                },
                       ),
                     ],
                   )
@@ -2285,6 +2347,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   day: dayData.dayName,
                   worked: workedDuration,
                   target: targetDuration,
+                  isToday: isCurrentDay(dayData.dayName),
                 );
               }).toList(),
         );
@@ -2417,12 +2480,14 @@ class DayWorkProgress extends StatelessWidget {
   final String day;
   final Duration worked;
   final Duration target;
+  final bool isToday;
 
   const DayWorkProgress({
     super.key,
     required this.day,
     required this.worked,
     required this.target,
+    this.isToday = false,
   });
 
   @override
@@ -2445,7 +2510,10 @@ class DayWorkProgress extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(day, style: AppTextStyle.ts14M()),
+        Text(
+          day,
+          style: isToday ? AppTextStyle.ts14SB() : AppTextStyle.ts14R(),
+        ),
         const SizedBox(height: 8),
         LayoutBuilder(
           builder: (context, constraints) {

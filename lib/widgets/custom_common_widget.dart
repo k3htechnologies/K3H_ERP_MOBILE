@@ -149,6 +149,7 @@ Widget actionCardWidget({
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             buildColumnTitleValue(title: "Created By", value: createdBy),
+            horizontalSpacing(width: 20.0),
             buildColumnTitleValue(
               title: "Created Date",
               value: formatDate(createdDate),
@@ -165,6 +166,7 @@ Widget actionCardWidget({
                       ? modifiedBy
                       : "-",
             ),
+            horizontalSpacing(width: 20.0),
             buildColumnTitleValue(
               title: "Modified Date",
               value:
@@ -217,25 +219,40 @@ Widget buildDocumentRow({
 
 Widget approvalStatusWidget(String status) {
   final trimmed = status.trim();
+  final formatted = formattedStatus(trimmed);
 
-  final s = trimmed.toLowerCase();
-
-  switch (s) {
+  switch (trimmed.toLowerCase()) {
     case 'approved':
-      return statusChip(status, AppColor.lightGreen, AppColor.green);
+      return statusChip(formatted, Color(0xffDCFCE7), AppColor.green20);
 
     case 'rejected':
-      return statusChip(status, AppColor.lightRed, AppColor.red);
+      return statusChip(
+        formatted,
+        AppColor.lightRed,
+        AppColor.missingInformationRed,
+      );
 
     case 'pending':
-      return statusChip(status, AppColor.lightYellow, AppColor.brown);
+      return statusChip(formatted, AppColor.lightYellow, AppColor.brown);
 
     case 'partial approved':
-      return statusChip(status, AppColor.lightPurple, AppColor.purple);
+      return statusChip(formatted, AppColor.lightPurple, Color(0xff561F64));
 
     default:
-      return statusChip(status, AppColor.lightGreyBackground, AppColor.black);
+      return statusChip(
+        formatted,
+        AppColor.lightGreyBackground,
+        AppColor.black,
+      );
   }
+}
+
+String formattedStatus(String status) {
+  return status
+      .toLowerCase()
+      .split(' ')
+      .map((e) => e.isEmpty ? e : '${e[0].toUpperCase()}${e.substring(1)}')
+      .join(' ');
 }
 
 Widget showSiteSelectedWidget() {

@@ -208,7 +208,7 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                           Text(
                             selectedDateTime != null
                                 ? DateFormat('HH:mm').format(selectedDateTime!)
-                                : "HH:mm",
+                                : "HH:MM",
                             style: AppTextStyle.ts14R().copyWith(
                               color:
                                   selectedDateTime != null
@@ -229,23 +229,27 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
 
                 hasError
                     ? Container(
-                  padding: const EdgeInsets.only(top: 2, left: 12),
-                  margin: EdgeInsets.only(bottom: 10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Icon(Icons.info_outline, color: AppColor.error, size: 14),
-                      horizontalSpacing(width: 5),
-                      Expanded(
-                        child: Text(
-                          formFieldState.errorText ?? "",
-                          style: AppTextStyle.ts12R(color: AppColor.error),
-                        ),
+                      padding: const EdgeInsets.only(top: 2, left: 12),
+                      margin: EdgeInsets.only(bottom: 10),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: AppColor.error,
+                            size: 14,
+                          ),
+                          horizontalSpacing(width: 5),
+                          Expanded(
+                            child: Text(
+                              formFieldState.errorText ?? "",
+                              style: AppTextStyle.ts12R(color: AppColor.error),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                )
+                    )
                     : SizedBox(height: widget.bottomMargin),
               ],
             );

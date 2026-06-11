@@ -257,10 +257,14 @@ bool isValidMobileNumber(String value) {
 }
 
 // DATE FORMATTERS (MOSTLY USED)
-String formatDateTimeAsDDMMMYYYY(DateTime d, {String? separator}) {
+String formatDateTimeAsDDMMMYYYY(DateTime? date, {String? separator}) {
+  if (date == null) return "-";
+
+  if (date.year == 1970) return "-";
+
   return DateFormat(
     'dd${separator ?? '-'}MMM${separator ?? '-'}yyyy',
-  ).format(d);
+  ).format(date);
 }
 
 // DATE FORMATTERS
@@ -579,26 +583,22 @@ String formatDateTimeForApi(DateTime d) {
 ///
 /// It prevents crashes and avoids showing "12 am" incorrectly.
 String dateFormatterHourOnly(String? timeString) {
-  //  Safety check for null or empty API values
-  if (timeString == null || timeString.isEmpty) {
+  if (timeString == null || timeString.isEmpty || timeString == "{}") {
     return "-";
   }
 
   try {
-    // Split time string (e.g., "18:00:00")
     final parts = timeString.split(':');
 
-    // Parse hour safely
     final hour = int.tryParse(parts[0]) ?? 0;
+    final minute = parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0;
 
-    // Create a dummy DateTime using today's date with API hour
     final now = DateTime.now();
-    final dateTime = DateTime(now.year, now.month, now.day, hour);
 
-    // Format to only hour with AM/PM and convert to lowercase (UI consistency)
-    return DateFormat('hh a').format(dateTime).toLowerCase();
-  } catch (e) {
-    // Fallback in case API sends unexpected format like {}
+    final dateTime = DateTime(now.year, now.month, now.day, hour, minute);
+
+    return DateFormat('h:mm a').format(dateTime).toLowerCase();
+  } catch (_) {
     return "-";
   }
 }
@@ -870,4 +870,10 @@ extension IndianCurrencyExtension on num {
 
     return '$grouped,$lastThree$decimalPart';
   }
+}
+
+bool isCurrentDay(String dayName) {
+  final today = DateFormat('EEEE').format(DateTime.now());
+
+  return today.toLowerCase() == dayName.toLowerCase();
 }

@@ -2,6 +2,9 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>This app uses speech recognition to convert speech into text.</string>
+
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>tel</string>
@@ -51,7 +54,7 @@
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Location is required for field tracking.</string>	
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Microphone access required</string>
+	<string>This app uses microphone input for speech recognition.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Allow access to save images</string>
 	<key>NSPhotoLibraryUsageDescription</key>

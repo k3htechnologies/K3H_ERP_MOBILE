@@ -144,80 +144,78 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (state.selectedFilterType == "DATEWISE") ...[
+                        verticalSpacing(),
+                        ValueListenableBuilder<DateTime?>(
+                          valueListenable: fromDateNotifier,
+                          builder: (context, fromDate, _) {
+                            return ValueListenableBuilder<DateTime?>(
+                              valueListenable: toDateNotifier,
+                              builder: (context, toDate, _) {
+                                return Row(
+                                  children: [
+                                    Expanded(
+                                      child: CustomDatePicker(
+                                        hint: "Select From Date",
+                                        title: "From Date",
+                                        initialDate: fromDate,
+                                        setValue: (value) {
+                                          fromDateNotifier.value = value;
+                                          toDateNotifier.value = null;
+                                        },
+                                      ),
+                                    ),
+                                    horizontalSpacing(),
+                                    Expanded(
+                                      child: CustomDatePicker(
+                                        hint: "Select To Date",
+                                        title: "To Date",
+                                        initialDate: toDate,
+                                        startDate: fromDate,
+                                        endDate:
+                                            fromDate != null
+                                                ? DateTime(
+                                                  fromDate.year,
+                                                  fromDate.month + 1,
+                                                  fromDate.day,
+                                                )
+                                                : DateTime.now(),
+
+                                        setValue: (value) async {
+                                          toDateNotifier.value = value;
+
+                                          if (fromDateNotifier.value != null &&
+                                              toDateNotifier.value != null) {
+                                            await _crmDashboardCubit
+                                                .getCrmDashboardList(
+                                                  context,
+                                                  filterType: "DATEWISE",
+                                                  projectId:
+                                                      _selectedProject
+                                                          .projectId,
+
+                                                  fromDate:
+                                                      formatDateTimeForApi(
+                                                        fromDateNotifier.value!,
+                                                      ),
+                                                  toDate: formatDateTimeForApi(
+                                                    toDateNotifier.value!,
+                                                  ),
+                                                );
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
                       if (table0 != null) ...{
-                        if (state.selectedFilterType == "DATEWISE") ...[
-                          verticalSpacing(),
-                          ValueListenableBuilder<DateTime?>(
-                            valueListenable: fromDateNotifier,
-                            builder: (context, fromDate, _) {
-                              return ValueListenableBuilder<DateTime?>(
-                                valueListenable: toDateNotifier,
-                                builder: (context, toDate, _) {
-                                  return Row(
-                                    children: [
-                                      Expanded(
-                                        child: CustomDatePicker(
-                                          hint: "Select From Date",
-                                          title: "From Date",
-                                          initialDate: fromDate,
-                                          setValue: (value) {
-                                            fromDateNotifier.value = value;
-                                            toDateNotifier.value = null;
-                                          },
-                                        ),
-                                      ),
-                                      horizontalSpacing(),
-                                      Expanded(
-                                        child: CustomDatePicker(
-                                          hint: "Select To Date",
-                                          title: "To Date",
-                                          initialDate: toDate,
-                                          startDate: fromDate,
-                                          endDate:
-                                              fromDate != null
-                                                  ? DateTime(
-                                                    fromDate.year,
-                                                    fromDate.month + 1,
-                                                    fromDate.day,
-                                                  )
-                                                  : DateTime.now(),
-
-                                          setValue: (value) async {
-                                            toDateNotifier.value = value;
-
-                                            if (fromDateNotifier.value !=
-                                                    null &&
-                                                toDateNotifier.value != null) {
-                                              await _crmDashboardCubit
-                                                  .getCrmDashboardList(
-                                                    context,
-                                                    filterType: "DATEWISE",
-                                                    projectId:
-                                                        _selectedProject
-                                                            .projectId,
-
-                                                    fromDate:
-                                                        formatDateTimeForApi(
-                                                          fromDateNotifier
-                                                              .value!,
-                                                        ),
-                                                    toDate:
-                                                        formatDateTimeForApi(
-                                                          toDateNotifier.value!,
-                                                        ),
-                                                  );
-                                            }
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        ],
                         _projectWiseCollectionWidget(context, state),
+                        verticalSpacing(height: 16.0),
                         Row(
                           children: [
                             Expanded(
@@ -228,9 +226,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                                 formattedAmount(table0.totalAgreementAmount),
                               ),
                             ),
-
                             horizontalSpacing(),
-
                             Expanded(
                               child: _totalValue(
                                 context,
@@ -243,9 +239,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                             ),
                           ],
                         ),
-
-                        verticalSpacing(),
-
+                        verticalSpacing(height: 16.0),
                         Row(
                           children: [
                             Expanded(
@@ -258,9 +252,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                                 ),
                               ),
                             ),
-
                             horizontalSpacing(),
-
                             Expanded(
                               child: _totalValue(
                                 context,
@@ -276,12 +268,13 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                           child: Text(
                             "No Data Found",
                             style: AppTextStyle.ts12M(
-                              color: AppColor.black.withValues(alpha: 0.50),
+                              color: AppColor.greyTitleAndValueColor.withValues(
+                                alpha: 0.50,
+                              ),
                             ),
                           ),
                         ),
                       },
-
                       verticalSpacing(height: 16.0),
                       _collectionSummaryWidget(context, state),
                       _bookingSummaryWidget(context, state),
@@ -319,7 +312,6 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
         table0.collectionGst +
         table0.collectionTds;
     return Container(
-      margin: EdgeInsets.only(bottom: 10.0),
       padding: EdgeInsets.all(16.0),
       decoration: commonCardDecoration(),
       child: Column(
@@ -335,7 +327,9 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                   Text(
                     "Collection %",
                     style: AppTextStyle.ts14M(
-                      color: AppColor.black.withValues(alpha: 0.5),
+                      color: AppColor.greyTitleAndValueColor.withValues(
+                        alpha: 0.5,
+                      ),
                     ),
                   ),
                   verticalSpacing(height: 6),
@@ -374,7 +368,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
     String value,
   ) {
     return Container(
-      height: 140,
+      height: 120,
       padding: const EdgeInsets.all(16.0),
       decoration: commonCardDecoration(),
       child: Column(
@@ -386,7 +380,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: AppTextStyle.ts14M(
-              color: AppColor.black.withValues(alpha: 0.45),
+              color: AppColor.greyTitleAndValueColor.withValues(alpha: 0.5),
             ),
           ),
           Text(
@@ -404,9 +398,20 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
     BuildContext context,
     CrmDashboardState state,
   ) {
+    if (state.crmDashboardList.isEmpty ||
+        state.crmDashboardList.first.table0.isEmpty) {
+      return Center(
+        child: Text(
+          "No Data Found",
+          style: AppTextStyle.ts12M(
+            color: AppColor.greyTitleAndValueColor.withValues(alpha: 0.50),
+          ),
+        ),
+      );
+    }
+
     final list = state.crmDashboardList.first.table0;
     final table0 = list.first;
-
     final totalCollectionPercentage =
         table0.collectionAgreementReceived +
         table0.collectionGst +
@@ -421,15 +426,27 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
           Text(
             "Collection Summary",
             style: AppTextStyle.ts14M(
-              color: AppColor.black.withValues(alpha: 0.5),
+              color: AppColor.greyTitleAndValueColor.withValues(alpha: 0.5),
             ),
           ),
-          verticalSpacing(),
+          verticalSpacing(height: 16.0),
           Container(
             padding: EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: Color(0xff002B81),
+              color: AppColor.darkBlue10,
               borderRadius: BorderRadius.circular(8.0),
+              boxShadow: [
+                BoxShadow(
+                  blurRadius: 10,
+                  offset: Offset(2, 0),
+                  color: AppColor.black.withValues(alpha: 0.05),
+                ),
+                BoxShadow(
+                  blurRadius: 0,
+                  offset: Offset(0, 0),
+                  color: AppColor.black.withValues(alpha: 0),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -448,14 +465,16 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: Text(
-                          formattedAmount(totalCollectionPercentage),
+                          totalCollectionPercentage.toIndianCurrency(),
                           style: AppTextStyle.ts16SB(color: AppColor.white),
                         ),
                       ),
                     ),
                   ],
                 ),
+                verticalSpacing(height: 16.0),
                 Divider(thickness: 0.5, color: AppColor.white),
+                verticalSpacing(height: 12.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -525,7 +544,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
             ),
           ),
           SizedBox(
-            height: 200,
+            height: 180,
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
@@ -555,7 +574,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
           Text(
             "Booking Summary",
             style: AppTextStyle.ts14M(
-              color: AppColor.black.withValues(alpha: 0.5),
+              color: AppColor.greyTitleAndValueColor.withValues(alpha: 0.5),
             ),
           ),
           verticalSpacing(height: 10.0),
@@ -580,29 +599,11 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
             ],
           ),
           verticalSpacing(),
-          Divider(thickness: 0.2, color: AppColor.black.withValues(alpha: 0.5)),
+          Divider(thickness: 0.8, color: AppColor.black.withValues(alpha: 0.1)),
           verticalSpacing(),
-          RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: "Total Registration",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.5),
-                  ),
-                ),
-                TextSpan(
-                  text: " : ",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.5),
-                  ),
-                ),
-                TextSpan(
-                  text: table0.totalBooking.toString(),
-                  style: AppTextStyle.ts14SB(),
-                ),
-              ],
-            ),
+          buildRowTitleValue(
+            title: "Total Registration",
+            value: table0.totalBooking.toString(),
           ),
         ],
       ),
@@ -625,7 +626,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
           Text(
             "Recent Booking",
             style: AppTextStyle.ts14M(
-              color: AppColor.black.withValues(alpha: 0.5),
+              color: AppColor.greyTitleAndValueColor.withValues(alpha: 0.5),
             ),
           ),
           verticalSpacing(),
@@ -639,14 +640,11 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                 final bool isLast = index == list.length - 1;
                 return Container(
                   margin:
-                      isLast ? EdgeInsets.zero : EdgeInsets.only(bottom: 10.0),
+                      isLast ? EdgeInsets.zero : EdgeInsets.only(bottom: 16.0),
                   padding: EdgeInsets.all(12.0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6.0),
-                    border: Border.all(
-                      width: 0.8,
-                      color: AppColor.black.withValues(alpha: 0.2),
-                    ),
+                    border: Border.all(width: 0.8, color: Color(0xffE5E7EB)),
                     color: AppColor.lightGreyBackground,
                   ),
                   child: Column(
@@ -701,7 +699,9 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
               child: Text(
                 "No Data Found",
                 style: AppTextStyle.ts12M(
-                  color: AppColor.black.withValues(alpha: 0.50),
+                  color: AppColor.greyTitleAndValueColor.withValues(
+                    alpha: 0.50,
+                  ),
                 ),
               ),
             ),
@@ -728,7 +728,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
           Text(
             "Brokerage Summary",
             style: AppTextStyle.ts14M(
-              color: AppColor.black.withValues(alpha: 0.5),
+              color: AppColor.greyTitleAndValueColor.withValues(alpha: 0.5),
             ),
           ),
           verticalSpacing(),
@@ -1502,61 +1502,58 @@ class WeeklyCollectionChart extends StatelessWidget {
         return Container(
           width: 110,
           margin: const EdgeInsets.only(right: 16),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(
-                  height: 160,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Container(
+                height: 130,
+                alignment: Alignment.bottomCenter,
+                child: Stack(
                   alignment: Alignment.bottomCenter,
-                  child: Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: [
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        height: barHeight,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors:
-                                isToday
-                                    ? [Colors.orange.shade200, Colors.orange]
-                                    : [
-                                      AppColor.primary.withValues(alpha: 0.85),
-                                      AppColor.primary,
-                                    ],
-                          ),
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(14),
-                            topRight: Radius.circular(14),
-                          ),
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      height: barHeight,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors:
+                              isToday
+                                  ? [Colors.orange.shade200, Colors.orange]
+                                  : [
+                                    AppColor.primary.withValues(alpha: 0.85),
+                                    AppColor.primary,
+                                  ],
+                        ),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(14),
+                          topRight: Radius.circular(14),
                         ),
                       ),
-
-                      if (value > 0)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: Text(
-                            formattedAmount(value, showRupeeSymbol: true),
-                            style: AppTextStyle.ts14SB(color: AppColor.white),
-                            textAlign: TextAlign.center,
-                          ),
+                    ),
+                    if (value > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Text(
+                          formattedAmount(value, showRupeeSymbol: true),
+                          style: AppTextStyle.ts14SB(color: AppColor.white),
+                          textAlign: TextAlign.center,
                         ),
-                    ],
-                  ),
+                      ),
+                  ],
                 ),
+              ),
 
-                verticalSpacing(height: 12),
+              verticalSpacing(height: 12),
 
-                Text(
-                  _formatLabel(item.label),
-                  style: AppTextStyle.ts14M(),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
+              Text(
+                _formatLabel(item.label),
+                style: AppTextStyle.ts14M(),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         );
       }),

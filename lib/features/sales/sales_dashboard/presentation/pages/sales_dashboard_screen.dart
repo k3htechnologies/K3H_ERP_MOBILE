@@ -145,56 +145,48 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
               },
               showNotification: true,
             ),
-            body: SafeArea(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // GENERATE REPORT
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 5.0,
-                          horizontal: 6.0,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(6.0),
-                          color: AppColor.lightBlue,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SvgPicture.asset(
-                              AppAssets.generateReportIcon,
-                              width: 16,
-                              height: 16,
-                            ),
-                            horizontalSpacing(),
-                            Flexible(
-                              child: Text(
-                                "Generate Report",
-                                style: AppTextStyle.ts14M(
-                                  color: AppColor.primary,
-                                ),
+            body: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 5.0,
+                        horizontal: 6.0,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6.0),
+                        color: AppColor.lightBlue,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SvgPicture.asset(
+                            AppAssets.generateReportIcon,
+                            width: 16,
+                            height: 16,
+                          ),
+                          horizontalSpacing(),
+                          Flexible(
+                            child: Text(
+                              "Generate Report",
+                              style: AppTextStyle.ts14M(
+                                color: AppColor.primary,
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      verticalSpacing(),
-                      // ENQUIRIES LIST WIDGET
-                      _buildEnquiriesWidget(context),
-                      verticalSpacing(),
-                      // TARGET PERFORMANCE WIDGET
-                      verticalSpacing(),
-                      // ACTIVE FOLLOW-UPS WIDGET (ACCORDING TO STATUS)
-                      _buildActiveFollowUpsWidget(context),
-                      // PERFORMANCE REPORT
-                      verticalSpacing(),
-                      _buildPerformanceWidget(context),
-                    ],
-                  ),
+                    ),
+                    verticalSpacing(height: 16),
+                    _buildEnquiriesWidget(context),
+                    verticalSpacing(height: 16), 
+                    _buildActiveFollowUpsWidget(context),
+                    verticalSpacing(height: 16),
+                    _buildPerformanceWidget(context),
+                  ],
                 ),
               ),
             ),
@@ -221,18 +213,13 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      "Enquiries  (Today's)",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.black.withValues(alpha: 0.50),
-                      ),
-                    ),
+              Text(
+                "Enquiries  (Today's)",
+                style: AppTextStyle.ts14M(
+                  color: AppColor.greyTitleAndValueColor.withValues(
+                    alpha: 0.50,
                   ),
-                ],
+                ),
               ),
               verticalSpacing(height: 10.0),
               if (data.isNotEmpty) ...[
@@ -247,7 +234,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                             return Container(
                               margin:
                                   !isLast
-                                      ? EdgeInsets.only(bottom: 12)
+                                      ? EdgeInsets.only(bottom: 10)
                                       : EdgeInsets.zero,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
@@ -451,18 +438,13 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      "Follow Up",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.black.withValues(alpha: 0.50),
-                      ),
-                    ),
+              Text(
+                "Follow Up",
+                style: AppTextStyle.ts14M(
+                  color: AppColor.greyTitleAndValueColor.withValues(
+                    alpha: 0.50,
                   ),
-                ],
+                ),
               ),
               verticalSpacing(height: 10.0),
               if (data.isNotEmpty) ...[

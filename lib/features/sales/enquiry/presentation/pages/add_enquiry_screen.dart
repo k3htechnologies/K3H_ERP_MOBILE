@@ -997,7 +997,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                 return {
                   "zAttributesId": employee.employeeId,
                   "DisplayName":
-                      "${employee.fullName} - ${employee.department} - ${employee.designation}",
+                      "${employee.fullName} - ${employee.designation}",
                 };
               }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,

@@ -396,8 +396,12 @@ class _InventoryScreenState extends State<InventoryScreen>
                 return const Center(child: CircularProgressIndicator());
               }
               return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  verticalSpacing(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: showSiteSelectedWidget(),
+                  ),
                   // BUILDING TAB
                   _buildBuildingTab(state),
                   verticalSpacing(),
@@ -582,6 +586,10 @@ class _InventoryScreenState extends State<InventoryScreen>
                   return flat.flatStatus.toLowerCase() ==
                       selectedFilter.toLowerCase();
                 }).toList();
+        final displayCount =
+            selectedFilter == null || selectedFilter.toLowerCase() == 'total'
+                ? floor.flatList.length
+                : filteredFlats.length;
         return ValueListenableBuilder<Set<String>>(
           valueListenable: _expandedFloors,
           builder: (context, expandedSet, child) {
@@ -733,7 +741,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                                   ],
                                 ),
                                 Text(
-                                  "Total Flats : ${floor.flatList.length}",
+                                  "Total Flats : $displayCount",
                                   style: AppTextStyle.ts12R(
                                     color: AppColor.grey,
                                   ),

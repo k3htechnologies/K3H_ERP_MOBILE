@@ -47,6 +47,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
       _filterDesignationC,
       _filterFirmTypeC,
       _filterTypeC,
+      _filterCPCode,
       _filterCPNameC,
       _filterOfficeAddressC,
       _filterGSTNumberC,
@@ -92,6 +93,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
     _filterDesignationC = TextEditingController();
     _filterFirmTypeC = TextEditingController();
     _filterTypeC = TextEditingController();
+    _filterCPCode = TextEditingController();
     _filterCPNameC = TextEditingController();
     _filterOfficeAddressC = TextEditingController();
     _filterGSTNumberC = TextEditingController();
@@ -134,6 +136,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
     _filterDesignationC.text = state.filterByDesignation;
     _filterFirmTypeC.text = state.filterByFirmType;
     _filterTypeC.text = state.filterByType;
+    _filterCPCode.text = state.filterCPCode;
     _filterCPNameC.text = state.filterByCPName;
     _filterOfficeAddressC.text = state.filterByOfficeAddress;
     _filterGSTNumberC.text = state.filterByGSTNumber;
@@ -154,6 +157,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
     final String initialDesignation = _filterDesignationC.text;
     final String initialFirmType = _filterFirmTypeC.text;
     final String initialType = _filterTypeC.text;
+    final String initialCPCode = _filterCPCode.text;
     final String initialName = _filterCPNameC.text;
     final String initialOfficeAddress = _filterOfficeAddressC.text;
     final String initialGSTNumber = _filterGSTNumberC.text;
@@ -194,6 +198,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
             (_filterDesignationC.text.trim() != initialDesignation) ||
             (_filterFirmTypeC.text.trim() != initialFirmType) ||
             (_filterTypeC.text.trim() != initialType) ||
+            (_filterCPCode.text.trim() != initialCPCode) ||
             (_filterCPNameC.text.trim() != initialName) ||
             (_filterOfficeAddressC.text.trim() != initialOfficeAddress) ||
             (_filterGSTNumberC.text.trim() != initialGSTNumber) ||
@@ -276,6 +281,12 @@ class _SourcingScreenState extends State<SourcingScreen> {
                 ),
 
                 verticalSpacing(height: 20),
+                CustomTextField(
+                  title: "CP Code",
+                  hint: "Enter CP Code",
+                  textController: _filterCPCode,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
 
                 CustomTextField(
                   title: "Full Name",
@@ -423,6 +434,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
         _filterDesignationC.clear();
         _filterFirmTypeC.clear();
         _filterTypeC.clear();
+        _filterCPCode.clear();
         _filterCPNameC.clear();
         _filterOfficeAddressC.clear();
         _filterGSTNumberC.clear();
@@ -452,6 +464,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
           designation: _filterDesignationC.text.trim(),
           firmType: _filterFirmTypeC.text.trim(),
           type: _filterTypeC.text.trim(),
+          cpCode: _filterCPCode.text.trim(),
           mobileNumber: _searchC.text.trim(),
           officeAddress: _filterOfficeAddressC.text.trim(),
           gstNumber: _filterGSTNumberC.text.trim(),
@@ -479,6 +492,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
       _filterDesignationC.clear();
       _filterFirmTypeC.clear();
       _filterTypeC.clear();
+      _filterCPCode.clear();
       _filterCPNameC.clear();
       _filterOfficeAddressC.clear();
       _filterGSTNumberC.clear();
@@ -522,152 +536,165 @@ class _SourcingScreenState extends State<SourcingScreen> {
               child: noDataWidget(message: "No Channel Partner Sourcing found"),
             );
           }
-          return ListView.builder(
-            controller: scrollController,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: _sourcingCubit.state.channelPartnerList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.channelPartnerList.length) {
-                return state.channelPartnerList.length <
-                        state.totalNumberOfRecordCP
-                    ? Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var channelPartner = state.channelPartnerList[index];
-              return Container(
-                margin: EdgeInsets.only(bottom: 10),
-                padding: EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              goRouter.pushNamed(
-                                AppRoutes.viewSourcing,
-                                queryParameters: {
-                                  'channelPartner': Uri.encodeComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(channelPartner.toJson()),
-                                    ),
-                                  ),
-                                  "projectId": _project.projectId.toString(),
-                                },
-                              );
-                            },
-                            child: Text(
-                              channelPartner.name,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ).copyWith(
-                                decoration: TextDecoration.underline,
-                                decorationColor: AppColor.primary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        if (channelPartner.verifiedNonVerified.toLowerCase() !=
-                            'verified') ...[
-                          CustomIconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.warning_amber_outlined,
-                              color: AppColor.yellow,
-                              size: 16,
-                            ),
-                            backgroundColor: AppColor.yellow.withValues(
-                              alpha: .2,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    buildRowTitleValue(
-                      title: "CP Code",
-                      value: channelPartner.systemGeneratedCode,
-                      singleLine: false,
-                      customValueWidget: Row(
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: showSiteSelectedWidget(),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  itemCount: _sourcingCubit.state.channelPartnerList.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == state.channelPartnerList.length) {
+                      return state.channelPartnerList.length <
+                              state.totalNumberOfRecordCP
+                          ? Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                          : const SizedBox.shrink();
+                    }
+                    var channelPartner = state.channelPartnerList[index];
+                    return Container(
+                      margin: EdgeInsets.only(bottom: 10),
+                      padding: EdgeInsets.all(12),
+                      decoration: commonCardDecoration(),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Text(
-                              channelPartner.systemGeneratedCode,
-                              style: AppTextStyle.ts14M(),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    goRouter.pushNamed(
+                                      AppRoutes.viewSourcing,
+                                      queryParameters: {
+                                        'channelPartner': Uri.encodeComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(channelPartner.toJson()),
+                                          ),
+                                        ),
+                                        "projectId":
+                                            _project.projectId.toString(),
+                                      },
+                                    );
+                                  },
+                                  child: Text(
+                                    channelPartner.name,
+                                    style: AppTextStyle.ts16M(
+                                      color: AppColor.primary,
+                                    ).copyWith(
+                                      decoration: TextDecoration.underline,
+                                      decorationColor: AppColor.primary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              if (channelPartner.verifiedNonVerified
+                                      .toLowerCase() !=
+                                  'verified') ...[
+                                CustomIconButton(
+                                  onPressed: () {},
+                                  icon: Icon(
+                                    Icons.warning_amber_outlined,
+                                    color: AppColor.yellow,
+                                    size: 16,
+                                  ),
+                                  backgroundColor: AppColor.yellow.withValues(
+                                    alpha: .2,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          buildRowTitleValue(
+                            title: "CP Code",
+                            value: channelPartner.systemGeneratedCode,
+                            singleLine: false,
+                            customValueWidget: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    channelPartner.systemGeneratedCode,
+                                    style: AppTextStyle.ts14M(),
+                                  ),
+                                ),
+                                horizontalSpacing(width: 2),
+                                InkWell(
+                                  onTap: () {
+                                    copy(
+                                      context: context,
+                                      text: channelPartner.systemGeneratedCode,
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(5),
+                                    child: Icon(
+                                      Icons.copy,
+                                      size: 16,
+                                      color: AppColor.primary,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          horizontalSpacing(width: 2),
-                          InkWell(
-                            onTap: () {
-                              copy(
-                                context: context,
-                                text: channelPartner.systemGeneratedCode,
-                              );
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(5),
-                              child: Icon(
-                                Icons.copy,
-                                size: 16,
-                                color: AppColor.primary,
-                              ),
+                          buildRowTitleValue(
+                            title: "Mobile No.",
+                            value: channelPartner.mobileNumber,
+                            customValueWidget: CustomClickToContactText(
+                              value:
+                                  "${channelPartner.mobileNumberCountryCode} ${channelPartner.mobileNumber}",
                             ),
+                          ),
+                          buildRowTitleValue(
+                            title: "Email",
+                            value: channelPartner.emailId,
+                            customValueWidget: CustomClickToContactText(
+                              value: channelPartner.emailId,
+                              type: ContactType.email,
+                            ),
+                          ),
+                          buildRowTitleValue(
+                            title: "Company Name",
+                            value: channelPartner.companyName,
+                            singleLine: false,
+                          ),
+                          buildRowTitleValue(
+                            title: "RERA Number",
+                            value: channelPartner.reraNumber,
+                            singleLine: false,
+                          ),
+                          buildRowTitleValue(
+                            title: "Office Address",
+                            value: channelPartner.officeAddress,
+                            singleLine: false,
+                          ),
+                          buildRowTitleValue(
+                            title: "No Of IBM",
+                            value: channelPartner.noOfIbm.toString(),
+                            singleLine: false,
+                          ),
+                          buildRowTitleValue(
+                            title: "No Of OBM",
+                            value: channelPartner.noOfObm.toString(),
+                            singleLine: false,
                           ),
                         ],
                       ),
-                    ),
-                    buildRowTitleValue(
-                      title: "Mobile No.",
-                      value: channelPartner.mobileNumber,
-                      customValueWidget: CustomClickToContactText(
-                        value:
-                            "${channelPartner.mobileNumberCountryCode} ${channelPartner.mobileNumber}",
-                      ),
-                    ),
-                    buildRowTitleValue(
-                      title: "Email",
-                      value: channelPartner.emailId,
-                      customValueWidget: CustomClickToContactText(
-                        value: channelPartner.emailId,
-                        type: ContactType.email,
-                      ),
-                    ),
-                    buildRowTitleValue(
-                      title: "Company Name",
-                      value: channelPartner.companyName,
-                      singleLine: false,
-                    ),
-                    buildRowTitleValue(
-                      title: "RERA Number",
-                      value: channelPartner.reraNumber,
-                      singleLine: false,
-                    ),
-                    buildRowTitleValue(
-                      title: "Office Address",
-                      value: channelPartner.officeAddress,
-                      singleLine: false,
-                    ),
-                    buildRowTitleValue(
-                      title: "No Of IBM",
-                      value: channelPartner.noOfIbm.toString(),
-                      singleLine: false,
-                    ),
-                    buildRowTitleValue(
-                      title: "No Of OBM",
-                      value: channelPartner.noOfObm.toString(),
-                      singleLine: false,
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ],
           );
         },
       ),

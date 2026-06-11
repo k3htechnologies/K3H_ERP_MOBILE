@@ -453,13 +453,13 @@ class _LitigationScreenState extends State<LitigationScreen> {
                     buildRowTitleValue(
                       title: "Status",
                       value: litigation.status,
-                      valueTextStyle: AppTextStyle.ts14B(
+                      valueTextStyle: AppTextStyle.ts14M(
                         color:
                             (litigation.status.toLowerCase() == 'open')
-                                ? AppColor.green
+                                ? AppColor.green20
                                 : litigation.status.toLowerCase() == 'reopen'
-                                ? AppColor.yellow
-                                : AppColor.red,
+                                ? AppColor.holdYellowColor
+                                : AppColor.missingInformationRed,
                       ),
                     ),
                   ],

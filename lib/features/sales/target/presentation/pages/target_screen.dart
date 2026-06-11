@@ -18,6 +18,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_month_year_picker.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -371,7 +372,12 @@ class _TargetScreenState extends State<TargetScreen>
             },
           ),
           body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: showSiteSelectedWidget(),
+              ),
               ChipStyleTabBar(
                 controller: _tabController,
                 tabs: ["Sourcing Target", "Closing Target"],

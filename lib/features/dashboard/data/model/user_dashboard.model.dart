@@ -74,43 +74,51 @@ class UserDashboardModel {
     "Table10": List<dynamic>.from(table10.map((x) => x.toJson())),
     "Table11": List<dynamic>.from(table11.map((x) => x.toJson())),
     "Table12": List<dynamic>.from(table12.map((x) => x.toJson())),
-   "Table13": List<dynamic>.from(table13.map((x) => x.toJson())),
+    "Table13": List<dynamic>.from(table13.map((x) => x.toJson())),
   };
 }
 
 class Table0 {
   final String name;
   final String department;
+  final String designationName;
   final String employeeCode;
   final String status;
   final String punchIn;
   final String punchOut;
+  final String emailId;
 
   Table0({
     required this.name,
     required this.department,
+    required this.designationName,
     required this.employeeCode,
     required this.status,
     required this.punchIn,
     required this.punchOut,
+    required this.emailId,
   });
 
   factory Table0.fromJson(Map<String, dynamic> json) => Table0(
     name: parseValue<String>(json, "Name"),
     department: parseValue<String>(json, "Department"),
+    designationName: parseValue<String>(json, "DesignationName"),
     employeeCode: parseValue<String>(json, "EmployeeCode"),
     status: parseValue<String>(json, "Status"),
     punchIn: parseValue<String>(json, "PunchIn"),
     punchOut: parseValue<String>(json, "PunchOut"),
+    emailId: parseValue<String>(json, "EmailId"),
   );
 
   Map<String, dynamic> toJson() => {
     "Name": name,
     "Department": department,
+    "DesignationName": designationName,
     "EmployeeCode": employeeCode,
     "Status": status,
     "PunchIn": punchIn,
     "PunchOut": punchOut,
+    "EmailId": emailId,
   };
 }
 

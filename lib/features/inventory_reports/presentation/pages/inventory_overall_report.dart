@@ -189,7 +189,7 @@ class _InventoryOverallReportState extends State<InventoryOverallReport> {
                                   ),
                                   buildColumnTitleValue(
                                     title: "Available Units",
-                                    value: "${report.totalUnit} Units",
+                                    value: "${report.availableUnit} Units",
                                     valueTextStyle: AppTextStyle.ts14M(
                                       color: AppColor.darkGreen10,
                                     ),

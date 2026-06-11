@@ -875,7 +875,7 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
               Expanded(
                 child: Text(callLog.receiverName, style: AppTextStyle.ts14SB()),
               ),
-              _statusChip("Outgoing"),
+              _statusChip(callLog.status),
               horizontalSpacing(width: 6),
               AnimatedRotation(
                 turns: isExpanded ? 0.5 : 0,
@@ -1024,11 +1024,11 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
     late String label;
 
     switch (type) {
-      case "Outgoing":
+      case "Connected":
         bg = Colors.green.shade50;
-        text = Colors.green;
+        text = AppColor.green20;
         icon = Icons.call_made;
-        label = "Outgoing";
+        label = "Connected";
         break;
       case "Incoming":
         bg = Colors.blue.shade50;
@@ -1040,9 +1040,12 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
         bg = Colors.red.shade50;
         text = Colors.red;
         icon = Icons.call_missed;
-        label = "Missed";
+        label = "";
+        break;
     }
-
+    if (label.isEmpty) {
+      return SizedBox.shrink();
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(

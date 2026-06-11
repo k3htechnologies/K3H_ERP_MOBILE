@@ -12,6 +12,7 @@ class SourcingState extends BaseState {
   final String filterByDesignation;
   final String filterByFirmType;
   final String filterByType;
+  final String filterCPCode;
   final String filterByCPName;
   final String filterByOfficeAddress;
   final String filterByGSTNumber;
@@ -39,6 +40,7 @@ class SourcingState extends BaseState {
     required this.filterByDesignation,
     required this.filterByFirmType,
     required this.filterByType,
+    required this.filterCPCode,
     required this.filterByCPName,
     required this.filterByOfficeAddress,
     required this.filterByGSTNumber,
@@ -65,6 +67,7 @@ class SourcingState extends BaseState {
     selectedFilter: "ALL",
     currentSortColumn: "",
     currentSortDirection: "",
+    filterCPCode: "",
     filterByCompanyName: "",
     filterByDesignation: "",
     filterByFirmType: "",
@@ -97,6 +100,7 @@ class SourcingState extends BaseState {
     String? filterByDesignation,
     String? filterByFirmType,
     String? filterByType,
+    String? filterCPCode,
     String? filterByCPName,
     String? filterByOfficeAddress,
     String? filterByGSTNumber,
@@ -126,6 +130,7 @@ class SourcingState extends BaseState {
       filterByDesignation: filterByDesignation ?? this.filterByDesignation,
       filterByFirmType: filterByFirmType ?? this.filterByFirmType,
       filterByType: filterByType ?? this.filterByType,
+      filterCPCode: filterCPCode ?? this.filterCPCode,
       filterByCPName: filterByCPName ?? this.filterByCPName,
       filterByOfficeAddress:
           filterByOfficeAddress ?? this.filterByOfficeAddress,
@@ -157,6 +162,7 @@ class SourcingState extends BaseState {
     filterByDesignation,
     filterByFirmType,
     filterByType,
+    filterCPCode,
     filterByCPName,
     filterByOfficeAddress,
     filterByGSTNumber,

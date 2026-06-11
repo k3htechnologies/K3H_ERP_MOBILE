@@ -11,6 +11,7 @@ class AppRoutes {
   /// MAIN DASHBOARD
   // DASHBOARD
   static String dashboardScreen = "/dashboard";
+  static String employeeAttendanceScreen = "/employeeAttendanceScreen";
   static String pendingApprovalScreen = "/pendingApprovalScreen";
   static String projectOverview = "/projectOverview";
 
@@ -440,6 +441,11 @@ class AppRoutes {
   static String addDetailsCalendar = "/addDetailsCalendar";
   // TASK
   static String taskTransferHistory = "/taskTransferHistory";
+  // TICKET
+  static String ticket = "/ticket";
+  static String viewTicket = "/viewTicket";
+  static String assignTicket = "/assignTicket";
+  static String addTicket = "/addTicket";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
 
