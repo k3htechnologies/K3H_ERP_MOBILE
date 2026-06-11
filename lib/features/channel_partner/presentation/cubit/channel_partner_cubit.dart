@@ -45,7 +45,8 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     String? speciality,
     String? city,
     String? village,
-
+    String? noOfIBM,
+    String? noOfOBM,
     String? sortColumn,
     String? sortDirection,
     bool? isClear,
@@ -67,8 +68,10 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
           filterBySpeciality: "",
           filterByCity: "",
           filterByVillage: "",
-          currentSortColumn: "Created Date",
-          currentSortDirection: "DESC",
+          filterByNoOfIBM: "",
+          filterByNoOfOBM: "",
+          currentSortColumn: "",
+          currentSortDirection: "",
           currentPage: 1,
         ),
       );
@@ -89,7 +92,8 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
           filterBySpeciality: speciality ?? state.filterBySpeciality,
           filterByCity: city ?? state.filterByCity,
           filterByVillage: village ?? state.filterByVillage,
-
+          filterByNoOfIBM: noOfIBM ?? state.filterByNoOfIBM,
+          filterByNoOfOBM: noOfOBM ?? state.filterByNoOfOBM,
           currentSortColumn: sortColumn ?? state.currentSortColumn,
           currentSortDirection: sortDirection ?? state.currentSortDirection,
 
@@ -119,6 +123,8 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       "Speciality": state.filterBySpeciality,
       "CityName": state.filterByCity,
       "VillageName": state.filterByVillage,
+      "NoOfIBM": state.filterByNoOfIBM,
+      "NoOfOBM": state.filterByNoOfOBM,
 
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };

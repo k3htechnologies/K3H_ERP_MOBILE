@@ -51,6 +51,10 @@ class BookingCubit extends Cubit<BookingState> {
   final TermsAndConditionsMasterRepository _termsAndConditionsRepository =
       serviceLocator<TermsAndConditionsMasterRepository>();
 
+  Future<void> resetState() async {
+    emit(BookingState.initial());
+  }
+
   // CLEAR ENQUIRY LIST
   void clearEnquiryList() {
     emit(state.copyWith(enquiryList: []));
@@ -519,8 +523,7 @@ class BookingCubit extends Cubit<BookingState> {
                 "BookingPaymentScheduleId": e.bookingPaymentScheduleId,
                 "Type": e.type,
                 "Name": e.name,
-                if (e.date != null)
-                  "Date": e.date!.toIso8601String().split("T")[0],
+                if (e.date != null) "Date": e.date!.toIso8601String(),
                 "PaymentSchedulePercentage": e.paymentSchedulePercentage,
                 "PaymentScheduleCumulative": e.paymentCummulativePercentage,
                 "PaymentScheduleAmount": e.paymentScheduleAmount,
@@ -1316,7 +1319,7 @@ class BookingCubit extends Cubit<BookingState> {
     required String filterFloor,
     required String filterSource,
     required String filterSubSource,
-
+    required String filterApplicantName,
     required int filterAgreementValue,
     required String filterBookingType,
     String? sortColumn,
@@ -1324,6 +1327,7 @@ class BookingCubit extends Cubit<BookingState> {
   }) async {
     emit(
       state.copyWith(
+        searchText: filterApplicantName,
         filterStartDate: filterStartDate,
         filterEndDate: filterEndDate,
         filterWing: filterWing,

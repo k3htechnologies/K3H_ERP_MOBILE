@@ -28,7 +28,16 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
 
   // HELPER ON TAB CHANGED
   void onTabChanged(int index, BuildContext context) {
-    emit(state.copyWith(currentTabIndex: index, searchText: ""));
+    emit(
+      state.copyWith(
+        currentTabIndex: index,
+        searchText: "",
+        filterMobileNo: "",
+        filterRescheduleFromDate: null,
+        filterRescheduleToDate: null,
+        filterSource: "",
+      ),
+    );
   }
 
   // SEARCH CALLING DATA
@@ -56,11 +65,13 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
     String? mobileNumber,
     DateTime? rescheduleFromDate,
     DateTime? rescheduleToDate,
+    String? source,
     required int projectId,
   }) async {
     emit(
       state.copyWith(
         searchText: name,
+        filterSource: source,
         filterMobileNo: mobileNumber,
         filterRescheduleFromDate: rescheduleFromDate,
         filterRescheduleToDate: rescheduleToDate,
@@ -83,9 +94,9 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
     var queryParams = {
       "Name": state.searchText,
       "MobileNumber": state.filterMobileNo,
-      "RescheduleDateFromDate":
-          state.filterRescheduleFromDate?.toIso8601String(),
-      "RescheduleDateToDate": state.filterRescheduleToDate?.toIso8601String(),
+      "FromDate": state.filterRescheduleFromDate?.toIso8601String(),
+      "ToDate": state.filterRescheduleToDate?.toIso8601String(),
+      "Source": state.filterSource,
     };
 
     emit(state.copyWith(isLoading: true));
@@ -121,6 +132,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
             isLoading: false,
             totalNumberOfRecordCallingData: response["totalNumberOfRecord"],
             currentPageCallingData: pageNumber,
+            currentTabIndex: 0,
           ),
         );
       },
@@ -258,6 +270,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
             isLoading: false,
             totalNumberOfRecordCallLog: response["totalNumberOfRecord"],
             currentPageCallLog: pageNumber,
+            currentTabIndex: 1,
           ),
         );
       },

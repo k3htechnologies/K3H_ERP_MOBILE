@@ -59,6 +59,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
       _searchC;
 
   // ADDRESS VARIABLES
+  int? _countryMasterId;
   int? _stateMasterId;
   int? _districtMasterId;
   int? _cityMasterId;
@@ -162,6 +163,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
     _litigationRemarksC.text = buildingModel.litigationRemarks;
 
     // SET ADDRESS
+    _countryMasterId = buildingModel.countryMasterId;
     _stateMasterId = buildingModel.stateMasterId;
     _districtMasterId = buildingModel.districtMasterId;
     _cityMasterId = buildingModel.cityMasterId;
@@ -207,7 +209,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
         "GoogleLocation": _googleLocationC.text.trim(),
         'TotalPlotAreaSqFt': double.tryParse(_totalPlotAreaC.text) ?? 0.0,
         'RoadWidth': _selectedRoadWidth.value?['DisplayName'] ?? '',
-        'CountryMasterId': buildingModel?.countryMasterId ?? 1,
+        'CountryMasterId': _countryMasterId ?? 1,
         'DistrictMasterId': _districtMasterId ?? 1,
         'StateMasterId': _stateMasterId ?? 1,
         'CityMasterId': _cityMasterId ?? 1,
@@ -618,10 +620,14 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                     verticalSpacing(),
                     AddressWidget(
                       formKey: _formKey,
+                      incomingCountryId: _countryMasterId ?? 1,
                       incomingStateId: _stateMasterId,
-                      incomingDistrictId: _stateMasterId,
+                      incomingDistrictId: _districtMasterId,
                       incomingCityId: _cityMasterId,
                       incomingVillageId: _villageMasterId,
+                      countryChange: (selectedCountry) {
+                        _countryMasterId = selectedCountry['zAttributesId'];
+                      },
                       stateChange: (selectedState) {
                         _stateMasterId = selectedState['zAttributesId'];
                       },

@@ -291,6 +291,14 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                         "${enquiry.mobileNumberCountryCode} ${enquiry.mobileNumber}",
                   ),
                 },
+                {
+                  "title": "E-Mail ID",
+                  "value": enquiry.emailId,
+                  "widget": CustomClickToContactText(
+                    value: enquiry.emailId,
+                    type: ContactType.email,
+                  ),
+                },
                 {"title": "Source", "value": enquiry.source},
               ]);
 
@@ -372,7 +380,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       if (isChannelPartner)
                         infoCard([
                           {
-                            "title": "Channel Partner",
+                            "title": "CP Code",
+                            "value": enquiry.channelPartnerCode,
+                          },
+                          {
+                            "title": "CP Name",
                             "value": enquiry.channelPartnerName,
                           },
                           {
@@ -381,6 +393,14 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                             "widget": CustomClickToContactText(
                               value:
                                   "${enquiry.channelPartnerMobileNumberCountryCode} ${enquiry.channelPartnerMobileNumber}",
+                            ),
+                          },
+                          {
+                            "title": "CP E-mail ID",
+                            "value": enquiry.channelPartnerEmailId,
+                            "widget": CustomClickToContactText(
+                              value: enquiry.channelPartnerEmailId,
+                              type: ContactType.email,
                             ),
                           },
                           {
@@ -922,8 +942,13 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       ),
                     ),
                     buildColumnTitleValue(
-                      title: "Handover Type",
-                      value: bookingModel!.handoverType,
+                      title: "Final Registration Date",
+                      value:
+                          bookingModel!.finalRegistrationDate != null
+                              ? formatDateTimeAsDDMMMYYYY(
+                                bookingModel!.finalRegistrationDate!,
+                              )
+                              : "-",
                     ),
                   ],
                 ),
@@ -932,9 +957,19 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
+                      title: "Handover Type",
+                      value: bookingModel!.handoverType,
+                    ),
+                    buildColumnTitleValue(
                       title: "Source Of Funding",
                       value: bookingModel!.sourceOfFunding,
                     ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     buildColumnTitleValue(
                       title: "Number Of Parking",
                       value: bookingModel!.numberOfParking.toString(),
@@ -944,6 +979,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               ],
             ),
           ),
+          verticalSpacing(),
           // BOOKING SUMMARY
           Container(
             decoration: commonCardDecoration(),
@@ -1203,6 +1239,13 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                               extraCharge.gstValue
                                                   .toIndianCurrency(),
                                         ),
+                                        buildColumnTitleValue(
+                                          title: "Total Value (₹)",
+                                          value:
+                                              (extraCharge.value +
+                                                      extraCharge.gstValue)
+                                                  .toIndianCurrency(),
+                                        ),
                                       ],
                                     ),
                                   ],
@@ -1228,7 +1271,20 @@ class _BookingViewScreenState extends State<BookingViewScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Payment Schedule", style: AppTextStyle.ts16SB()),
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Payment Schedule",
+                        style: AppTextStyle.ts16SB(),
+                      ),
+                      TextSpan(
+                        text: " (${bookingModel?.paymentScheduleScheme ?? ""})",
+                        style: AppTextStyle.ts14M(color: AppColor.grey),
+                      ),
+                    ],
+                  ),
+                ),
                 verticalSpacing(),
                 SizedBox(
                   height: 250.0,
@@ -1329,6 +1385,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                       payment.paymentScheduleAmount
                                           .toIndianCurrency(),
                                 ),
+                                Spacer(),
                               ],
                             ),
                           ],
@@ -1812,56 +1869,114 @@ class _BookingViewScreenState extends State<BookingViewScreen>
         child: noDataWidget(message: "No Charges Available", iconSize: 180),
       );
     }
-    return ListView.builder(
-      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      shrinkWrap: true,
-      itemCount: bookingModel!.bookingOtherChargesData.length,
-      itemBuilder: (context, index) {
-        final extraCharge = bookingModel!.bookingOtherChargesData[index];
-        return Container(
-          decoration: commonCardDecoration(),
-          margin: EdgeInsets.only(bottom: 10),
-          padding: EdgeInsets.all(16),
-          child: Column(
-            spacing: 10,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  buildColumnTitleValue(
-                    title: "Name",
-                    value: extraCharge.chargeName,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: bookingModel!.bookingOtherChargesData.length,
+              itemBuilder: (context, index) {
+                final extraCharge =
+                    bookingModel!.bookingOtherChargesData[index];
+                return Container(
+                  decoration: commonCardDecoration(),
+                  margin: EdgeInsets.only(bottom: 10),
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Name",
+                            value: extraCharge.chargeName,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Calculated On",
+                            value: extraCharge.calculatedOn,
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Value (In ₹)",
+                            value: extraCharge.value.toIndianCurrency(),
+                          ),
+                          buildColumnTitleValue(
+                            title: "GST (%)",
+                            value: extraCharge.gstPercentage.toString(),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          buildColumnTitleValue(
+                            title: "GST Value (₹)",
+                            value: extraCharge.gstValue.toIndianCurrency(),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  buildColumnTitleValue(
-                    title: "Calculated On",
-                    value: extraCharge.calculatedOn,
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  buildColumnTitleValue(
-                    title: "Value (In ₹)",
-                    value: extraCharge.value.toIndianCurrency(),
-                  ),
-                  buildColumnTitleValue(
-                    title: "GST (%)",
-                    value: extraCharge.gstPercentage.toString(),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  buildColumnTitleValue(
-                    title: "GST Value (₹)",
-                    value: extraCharge.gstValue.toIndianCurrency(),
-                  ),
-                ],
-              ),
-            ],
+                );
+              },
+            ),
           ),
-        );
-      },
+          verticalSpacing(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Color(0xFFF1F1F1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Builder(
+              builder: (_) {
+                final extraCharges = bookingModel!.bookingOtherChargesData;
+                final double totalGstPercentage = extraCharges.fold(
+                  0.0,
+                  (sum, item) => sum + item.gstPercentage,
+                );
+                final double totalValue = extraCharges.fold(
+                  0.0,
+                  (sum, item) => sum + item.value,
+                );
+
+                final double totalGstAmount = extraCharges.fold(
+                  0.0,
+                  (sum, item) => sum + item.gstValue,
+                );
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    buildRowTitleValue(
+                      title: "Percentage (%)",
+                      value: totalGstPercentage.toString(),
+                      valueTextStyle: AppTextStyle.ts14SB(),
+                    ),
+                    buildRowTitleValue(
+                      title: "Total Value",
+                      value: totalValue.toIndianCurrency(),
+                      valueTextStyle: AppTextStyle.ts14SB(),
+                    ),
+                    buildRowTitleValue(
+                      title: "Gst Amount",
+                      value: totalGstAmount.toIndianCurrency(),
+                      valueTextStyle: AppTextStyle.ts14SB(),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1870,71 +1985,179 @@ class _BookingViewScreenState extends State<BookingViewScreen>
     if (bookingModel!.bookingPaymentScheduleData.isEmpty) {
       return noDataWidget();
     }
-    return ListView.builder(
+    return Padding(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      shrinkWrap: true,
-      itemCount: bookingModel!.bookingPaymentScheduleData.length,
-      itemBuilder: (context, index) {
-        final payment = bookingModel!.bookingPaymentScheduleData[index];
-        return Container(
-          decoration: commonCardDecoration(),
-          margin: EdgeInsets.only(bottom: 10),
-          padding: EdgeInsets.all(16),
-          child: Column(
-            spacing: 10,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(title: "Type", value: payment.type),
-                  payment.type.contains("Date")
-                      ? buildColumnTitleValue(
-                        title: "Date",
-                        value:
-                            payment.date != null
-                                ? formatDateTimeAsDDMMMYYYY(payment.date!)
-                                : "-",
-                      )
-                      : buildColumnTitleValue(
-                        title: "Stage",
-                        value: payment.name,
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView.separated(
+              shrinkWrap: true,
+              itemCount: bookingModel!.bookingPaymentScheduleData.length,
+              separatorBuilder: (context, index) => verticalSpacing(),
+              itemBuilder: (context, index) {
+                final payment = bookingModel!.bookingPaymentScheduleData[index];
+
+                return Container(
+                  decoration: commonCardDecoration(),
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Type",
+                            value: payment.type,
+                          ),
+                          payment.type.contains("Date")
+                              ? buildColumnTitleValue(
+                                title: "Date",
+                                value:
+                                    payment.date != null
+                                        ? formatDateTimeAsDDMMMYYYY(
+                                          payment.date!,
+                                        )
+                                        : "-",
+                              )
+                              : buildColumnTitleValue(
+                                title: "Stage",
+                                value: payment.name,
+                              ),
+                        ],
                       ),
-                ],
-              ),
-              Row(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(
-                    title: "Percentage (%)",
-                    value: "${payment.paymentSchedulePercentage} %",
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Percentage (%)",
+                            value: "${payment.paymentSchedulePercentage} %",
+                          ),
+                          buildColumnTitleValue(
+                            title: "Amount (₹)",
+                            value:
+                                payment.paymentScheduleAmount
+                                    .toIndianCurrency(),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "GST Amount (₹)",
+                            value:
+                                payment.paymentScheduleGSTAmount
+                                    .toIndianCurrency(),
+                          ),
+                          buildColumnTitleValue(
+                            title: "TDS Amount (₹)",
+                            value:
+                                payment.paymentScheduleTDSAmount
+                                    .toIndianCurrency(),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Total Amount With TDS (₹)",
+                            value:
+                                (payment.paymentScheduleAmount +
+                                        payment.paymentScheduleTDSAmount)
+                                    .toIndianCurrency(),
+                          ),
+                          Spacer(),
+                        ],
+                      ),
+                    ],
                   ),
-                  buildColumnTitleValue(
-                    title: "Amount (₹)",
-                    value: payment.paymentScheduleAmount.toIndianCurrency(),
-                  ),
-                ],
-              ),
-              Row(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(
-                    title: "GST Amount (₹)",
-                    value: payment.paymentScheduleGSTAmount.toIndianCurrency(),
-                  ),
-                  buildColumnTitleValue(
-                    title: "TDS Amount (₹)",
-                    value: payment.paymentScheduleTDSAmount.toIndianCurrency(),
-                  ),
-                ],
-              ),
-            ],
+                );
+              },
+            ),
           ),
-        );
-      },
+          verticalSpacing(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Color(0xFFF1F1F1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Builder(
+              builder: (_) {
+                final payments = bookingModel!.bookingPaymentScheduleData;
+
+                final double totalPercentage = payments.fold(
+                  0.0,
+                  (sum, item) => sum + item.paymentSchedulePercentage,
+                );
+
+                final double totalAmount = payments.fold(
+                  0.0,
+                  (sum, item) => sum + item.paymentScheduleAmount,
+                );
+
+                final double totalGSTAmount = payments.fold(
+                  0.0,
+                  (sum, item) => sum + item.paymentScheduleGSTAmount,
+                );
+
+                final double totalTDSAmount = payments.fold(
+                  0.0,
+                  (sum, item) => sum + item.paymentScheduleTDSAmount,
+                );
+
+                final double totalAmountWithTDS = payments.fold(
+                  0.0,
+                  (sum, item) =>
+                      sum +
+                      item.paymentScheduleAmount +
+                      item.paymentScheduleTDSAmount,
+                );
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    buildRowTitleValue(
+                      title: "Percentage (%)",
+                      value: totalPercentage.toString(),
+                      valueTextStyle: AppTextStyle.ts14SB(),
+                    ),
+                    buildRowTitleValue(
+                      title: "Amount Without TDS (₹)",
+                      value: totalAmount.toIndianCurrency(),
+                      valueTextStyle: AppTextStyle.ts14SB(),
+                    ),
+                    buildRowTitleValue(
+                      title: "GST Amount (₹)",
+                      value: totalGSTAmount.toIndianCurrency(),
+                      valueTextStyle: AppTextStyle.ts14SB(),
+                    ),
+
+                    buildRowTitleValue(
+                      title: "TDS Amount (₹)",
+                      value: totalTDSAmount.toIndianCurrency(),
+                      valueTextStyle: AppTextStyle.ts14SB(),
+                    ),
+
+                    buildRowTitleValue(
+                      title: "Total Amount With TDS (₹)",
+                      value: totalAmountWithTDS.toIndianCurrency(),
+                      valueTextStyle: AppTextStyle.ts14SB(),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1954,7 +2177,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               children: [
                 Text(
                   "Unit / Modulation / Customization Remark",
-                  style: AppTextStyle.ts16SB(),
+                  style: AppTextStyle.ts14SB(),
                 ),
                 verticalSpacing(),
                 Row(
@@ -1977,7 +2200,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Payment Related Remark", style: AppTextStyle.ts16SB()),
+                Text("Payment Related Remark", style: AppTextStyle.ts14SB()),
                 verticalSpacing(),
                 Row(
                   spacing: 10,
@@ -1999,7 +2222,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Other Remark", style: AppTextStyle.ts16SB()),
+                Text("Other Remark", style: AppTextStyle.ts14SB()),
                 verticalSpacing(),
                 Row(
                   spacing: 10,

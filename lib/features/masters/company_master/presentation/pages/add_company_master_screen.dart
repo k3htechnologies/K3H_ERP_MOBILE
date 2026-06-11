@@ -70,7 +70,9 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     GlobalKey<FormState>(), // Company verification documents
   ];
 
-  // INITIAL STATE/DISTRICT/CITY ID
+  // INITIAL COUNTRY/STATE/DISTRICT/CITY ID
+
+  int countryMasterId = 1;
   int stateMasterId = -1;
   int districtMasterId = -1;
   int cityMasterId = -1;
@@ -200,6 +202,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
   // PREFILL COMPANY DETAILS
   Future<void> _prefillCompanyDetails(CompanyModel? company) async {
     // DROPDOWN INITIALIZATION
+    countryMasterId = widget.company?.countryMasterId ?? -1;
     stateMasterId = widget.company?.stateMasterId ?? -1;
     districtMasterId = widget.company?.districtMasterId ?? -1;
     cityMasterId = widget.company?.cityMasterId ?? -1;
@@ -794,6 +797,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           _buildSectionHeader('Address Details'),
           AddressWidget(
             formKey: _formKeys[2],
+            incomingCountryId: widget.company?.countryMasterId ?? 1,
             incomingStateId: widget.company?.stateMasterId,
             incomingDistrictId: widget.company?.districtMasterId,
             incomingCityId: widget.company?.cityMasterId,
@@ -805,6 +809,9 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             },
             cityChange: (selectedCity) {
               cityMasterId = selectedCity['zAttributesId'];
+            },
+            countryChange: (selectedCountry) {
+              countryMasterId = selectedCountry['zAttributesId'];
             },
           ),
         ],
@@ -882,7 +889,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
         panCardFile: selectedPANCardFile,
         companyLetterheadHeaderFile: selectedCompanyLetterHeadHeaderFile,
         companyLetterheadFooterFile: selectedCompanyLetterHeadFooterFile,
-        countryId: 1,
+        countryId: countryMasterId,
         stateId: stateMasterId,
         districtId: districtMasterId,
         cityId: cityMasterId,
@@ -912,7 +919,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
         tanNumber: _tanNumberC.text,
         companyLetterheadHeaderFile: selectedCompanyLetterHeadHeaderFile,
         companyLetterheadFooterFile: selectedCompanyLetterHeadFooterFile,
-        countryId: 1,
+        countryId: countryMasterId,
         stateId: stateMasterId,
         districtId: districtMasterId,
         cityId: cityMasterId,

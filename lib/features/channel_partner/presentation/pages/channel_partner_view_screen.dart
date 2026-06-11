@@ -519,7 +519,7 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                                   title: "Brokerage Amount (₹)",
                                   value:
                                       widget.channelPartnerModel.brokerageAmount
-                                          .toString(),
+                                          .toIndianCurrency(),
                                 ),
                               ],
                             ),
@@ -532,7 +532,7 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                                       widget
                                           .channelPartnerModel
                                           .paidBrokerageAmount
-                                          .toString(),
+                                          .toIndianCurrency(),
                                 ),
                                 buildColumnTitleValue(
                                   title: "No Of IBM",

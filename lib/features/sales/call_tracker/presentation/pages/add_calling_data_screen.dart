@@ -113,7 +113,7 @@ class _AddCallingDataScreenState extends State<AddCallingDataScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Add Call Tracker",
+              "Add Calling Data",
               style: AppTextStyle.ts14M(color: AppColor.grey),
             ),
             Container(

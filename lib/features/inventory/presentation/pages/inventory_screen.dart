@@ -379,12 +379,14 @@ class _InventoryScreenState extends State<InventoryScreen>
               final selectedBuilding = state.buildingList[safeTabIndex];
 
               final wingList = selectedBuilding.wingList;
+              final wingIndex = state.wingCurrentPage.clamp(
+                0,
+                wingList.isEmpty ? 0 : wingList.length - 1,
+              );
+
               final selectedWing =
-                  wingList.isNotEmpty &&
-                          state.wingCurrentPage >= 0 &&
-                          state.wingCurrentPage < wingList.length
-                      ? wingList[state.wingCurrentPage]
-                      : null;
+                  wingList.isNotEmpty ? wingList[wingIndex] : null;
+
               final bool isActionAllowed = selectedWing?.isApproval ?? false;
 
               if (state.buildingList.isNotEmpty &&
@@ -394,8 +396,12 @@ class _InventoryScreenState extends State<InventoryScreen>
                 return const Center(child: CircularProgressIndicator());
               }
               return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  verticalSpacing(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: showSiteSelectedWidget(),
+                  ),
                   // BUILDING TAB
                   _buildBuildingTab(state),
                   verticalSpacing(),
@@ -580,6 +586,10 @@ class _InventoryScreenState extends State<InventoryScreen>
                   return flat.flatStatus.toLowerCase() ==
                       selectedFilter.toLowerCase();
                 }).toList();
+        final displayCount =
+            selectedFilter == null || selectedFilter.toLowerCase() == 'total'
+                ? floor.flatList.length
+                : filteredFlats.length;
         return ValueListenableBuilder<Set<String>>(
           valueListenable: _expandedFloors,
           builder: (context, expandedSet, child) {
@@ -731,7 +741,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                                   ],
                                 ),
                                 Text(
-                                  "Total Flats : ${floor.flatList.length}",
+                                  "Total Flats : $displayCount",
                                   style: AppTextStyle.ts12R(
                                     color: AppColor.grey,
                                   ),

@@ -11,6 +11,7 @@ class CallTrackerState extends BaseState {
   final String filterMobileNo;
   final DateTime? filterRescheduleFromDate;
   final DateTime? filterRescheduleToDate;
+  final String? filterSource;
   final int currentTabIndex;
 
   const CallTrackerState({
@@ -26,6 +27,7 @@ class CallTrackerState extends BaseState {
     required this.currentTabIndex,
     required this.filterRescheduleFromDate,
     required this.filterRescheduleToDate,
+    required this.filterSource,
   });
 
   factory CallTrackerState.initial() => CallTrackerState(
@@ -41,6 +43,7 @@ class CallTrackerState extends BaseState {
     currentTabIndex: 0,
     filterRescheduleFromDate: null,
     filterRescheduleToDate: null,
+    filterSource: "",
   );
 
   static const _noChange = Object();
@@ -55,6 +58,7 @@ class CallTrackerState extends BaseState {
     int? currentPageCallLog,
     String? searchText,
     String? filterMobileNo,
+    String? filterSource,
     int? currentTabIndex,
     Object? filterRescheduleFromDate = _noChange,
     Object? filterRescheduleToDate = _noChange,
@@ -73,6 +77,7 @@ class CallTrackerState extends BaseState {
       searchText: searchText ?? this.searchText,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
       filterMobileNo: filterMobileNo ?? this.filterMobileNo,
+      filterSource: filterSource ?? this.filterSource,
 
       filterRescheduleFromDate:
           filterRescheduleFromDate == _noChange
@@ -100,5 +105,6 @@ class CallTrackerState extends BaseState {
     filterMobileNo,
     filterRescheduleFromDate,
     filterRescheduleToDate,
+    filterSource,
   ];
 }

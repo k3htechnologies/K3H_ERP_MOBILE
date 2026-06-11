@@ -378,11 +378,21 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
       ),
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: showSiteSelectedWidget(),
             ),
+            verticalSpacing(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                widget.channelPartner.systemGeneratedCode,
+                style: AppTextStyle.ts16SB(color: AppColor.primary),
+              ),
+            ),
+            verticalSpacing(),
             Align(
               alignment: Alignment.centerLeft,
               child: IntrinsicWidth(
@@ -440,12 +450,6 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          verticalSpacing(height: 5),
-          Text(
-            widget.channelPartner.systemGeneratedCode,
-            style: AppTextStyle.ts16SB(color: AppColor.primary),
-          ),
-          verticalSpacing(),
           Container(
             decoration: commonCardDecoration(),
             padding: const EdgeInsets.all(16),
@@ -970,19 +974,17 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
 
                                         const SizedBox(height: 4),
                                         if ((item.support ?? "").isNotEmpty)
-                                          Text(
-                                            'Support: ${item.support}',
-                                            style: AppTextStyle.ts12M(),
+                                          buildRowTitleValueNormal(
+                                            title: "Support",
+                                            value: item.support.toString(),
                                           ),
-
-                                        const SizedBox(height: 4),
+                                        verticalSpacing(height: 4),
                                         if ((item.sourcingRemark ?? "")
                                             .isNotEmpty)
-                                          Text(
-                                            item.sourcingRemark ?? "",
-                                            style: AppTextStyle.ts14R(
-                                              color: AppColor.grey,
-                                            ),
+                                          buildRowTitleValueNormal(
+                                            title: "Remark",
+                                            value: item.sourcingRemark ?? "",
+                                            singleLine: false,
                                           ),
                                       ],
                                     ),
@@ -997,6 +999,50 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
           ],
         );
       },
+    );
+  }
+
+  Widget buildRowTitleValueNormal({
+    required String title,
+    required String value,
+    double fixesWidth = 140,
+    TextStyle? valueTextStyle,
+    Widget? customValueWidget,
+    bool singleLine = true,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // TITLE
+          Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
+
+          // COLON
+          SizedBox(
+            width: 20,
+            child: Text(
+              ":",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColor.grey),
+            ),
+          ),
+
+          // VALUE
+          Expanded(
+            child:
+                customValueWidget ??
+                Text(
+                  value.isNotEmpty ? value : "-",
+                  maxLines: singleLine ? 1 : null,
+                  overflow:
+                      singleLine ? TextOverflow.ellipsis : TextOverflow.visible,
+                  style: valueTextStyle ?? AppTextStyle.ts14M(),
+                ),
+          ),
+        ],
+      ),
     );
   }
 

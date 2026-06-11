@@ -331,6 +331,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _agreementGstAmountC.text = bm.agreementValueGSTAmount.toString();
     _stampDutyPercentageC.text = bm.stampDutyPercentage.toString();
     _stampDutyAmountC.text = bm.stampDutyAmount.toString();
+    _stampDutyAmountNotifier.value = bm.stampDutyAmount;
     _registrationFeesC.text = bm.registrationFees.toString();
     //FILLED COMMISSION TEXTCONTROLLERS
     _referencePercentageC.text = bm.referelPercentage.toString();
@@ -1280,7 +1281,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                               UpperCaseTextFormatter(),
                               LengthLimitingTextInputFormatter(18),
                             ],
-                            hint: "Enter Enquiry Code",
+                            hint: "Search By Enquiry Code",
                             textController: _enquiryUniqueCodeC,
                             onChangeFunction: (value) {
                               if (_debounce?.isActive ?? false) {
@@ -1329,6 +1330,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                 "title": "Enquiry Code",
                                 "value": enquiry.systemGeneratedCode,
                               },
+                              {"title": "Name", "value": enquiry.name},
                               {
                                 "title": "E-Mail ID",
                                 "value": enquiry.emailId,
@@ -1337,7 +1339,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                   type: ContactType.email,
                                 ),
                               },
-                              {"title": "Name", "value": enquiry.name},
                               {
                                 "title": "Nationality",
                                 "value": enquiry.nationality,
@@ -1824,6 +1825,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text("Tax Details", style: AppTextStyle.ts16SB()),
+                  verticalSpacing(),
                   Column(
                     children: [
                       CustomTextField(
@@ -2552,7 +2554,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                                         item.paymentScheduleTDSAmount)
                                                     .toIndianCurrency(),
                                           ),
-                                          Spacer(),
                                         ],
                                       ),
                                     ],
@@ -2598,7 +2599,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Applicable",
+                          "Do Other Charges Apply?",
                           style: AppTextStyle.ts14M(color: AppColor.grey),
                         ),
 

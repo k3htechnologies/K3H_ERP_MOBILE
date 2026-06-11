@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class TargetViewScreen extends StatefulWidget {
   final SalesTargetSourcingModel? sourcing;
@@ -53,9 +54,9 @@ class _TargetViewScreenState extends State<TargetViewScreen>
   // SOURCING VIEW
   Widget _buildSourcingView() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _headerSection(),
-
         ChipStyleTabBar(
           controller: _sourcingTabC,
           tabs: ["Walkins", "Bookings", "OBM & IBM", "CP"],
@@ -79,6 +80,7 @@ class _TargetViewScreenState extends State<TargetViewScreen>
   // CLOSING VIEW
   Widget _buildClosingView() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _headerSection(),
 
@@ -99,19 +101,16 @@ class _TargetViewScreenState extends State<TargetViewScreen>
 
   // HARDER SECTION
   Widget _headerSection() {
-    return Container(
-      margin: EdgeInsets.all(16),
-      width: getActualWidth(context),
-      decoration: commonCardDecoration(),
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             widget.closing?.employeeName ?? widget.sourcing?.employeeName ?? "",
             style: AppTextStyle.ts14M(),
           ),
+          verticalSpacing(height: 4.0),
           Text(
             widget.closing?.designationName ??
                 widget.sourcing?.designationName ??
@@ -184,22 +183,23 @@ class _TargetViewScreenState extends State<TargetViewScreen>
       itemCount: data.length,
       itemBuilder: (context, index) {
         final map = data[index];
-
         return Container(
-          margin: const EdgeInsets.only(bottom: 10),
+          margin: const EdgeInsets.only(bottom: 12),
           decoration: commonCardDecoration(),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(8),
           child: Column(
-            children: map.entries.map((entry) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: buildRowTitleValue(
-                  title: entry.key,
-                  value: entry.value,
-                  fixesWidth: 200,
-                ),
-              );
-            }).toList(),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children:
+                map.entries.map((entry) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: buildRowTitleValue(
+                      title: entry.key,
+                      value: entry.value,
+                    ),
+                  );
+                }).toList(),
           ),
         );
       },

@@ -27,6 +27,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String screenTitle;
   final AuthorizationModel authorization;
+  final TextInputType? textControllerInputType;
   final String? searchHintText;
   final Widget? widgets;
   final WidgetBuilder? secondaryBuilder;
@@ -48,6 +49,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final int? buildingId;
   final String? exportMonthYear;
   final Function(String)? onImportResult;
+  final bool showMenuIcon;
 
   const CustomAppBar({
     super.key,
@@ -68,12 +70,13 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.onProjectChangeCallback,
     this.isFilterOn = false,
     this.onFilterTap,
-
     this.importTableName,
     this.projectId,
     this.buildingId,
     this.exportMonthYear,
     this.onImportResult,
+    this.textControllerInputType = TextInputType.text,
+    this.showMenuIcon = true,
   });
 
   static const double _baseHeight = 90;
@@ -272,7 +275,14 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
         children: [
           GestureDetector(
             onTap: () {
-              mobileScreenGlobalScaffoldKey.currentState?.openDrawer();
+              if (widget.showMenuIcon) {
+                mobileScreenGlobalScaffoldKey.currentState?.openDrawer();
+              } else {
+                if (goRouter.canPop()) {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  goRouter.pop();
+                }
+              }
             },
             child: Container(
               padding: EdgeInsets.all(5),
@@ -281,9 +291,9 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Icon(
-                Icons.menu,
+                widget.showMenuIcon ? Icons.menu : Icons.arrow_back_ios,
                 color: isDarkMode ? AppColor.white : AppColor.primary,
-                size: 16,
+                size: widget.showMenuIcon ? 16 : 14,
               ),
             ),
           ),
@@ -336,6 +346,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                         textController: widget.textController!,
                         isFilterOn: widget.isFilterOn,
                         onFilterTap: widget.onFilterTap,
+                        textControllerInputType: widget.textControllerInputType,
                       ),
                     ),
                   Row(

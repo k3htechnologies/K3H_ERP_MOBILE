@@ -10,6 +10,8 @@ class SearchWidget extends StatefulWidget {
   final Function(String) onSubmit;
   final VoidCallback? onFilterTap;
   final TextEditingController textController;
+  final TextInputType? textControllerInputType;
+
   final String hintText;
   final bool isFilterOn;
 
@@ -20,6 +22,7 @@ class SearchWidget extends StatefulWidget {
     this.onFilterTap,
     this.hintText = "Search...",
     this.isFilterOn = false,
+    this.textControllerInputType = TextInputType.text,
   });
 
   @override
@@ -76,6 +79,7 @@ class _SearchWidgetState extends State<SearchWidget> {
               controller: widget.textController,
               onChanged: _onChanged,
               onSubmitted: _onSubmitted,
+              keyboardType: widget.textControllerInputType,
               onTapOutside: (_) {
                 FocusScope.of(context).unfocus();
               },

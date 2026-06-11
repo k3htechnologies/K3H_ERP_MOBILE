@@ -329,6 +329,11 @@ class _DashboardScreenState extends State<DashboardScreen>
     _timer?.cancel();
   }
 
+  bool canPunchOut() {
+    final workedTime = DateTime.now().difference(punchInTime);
+    return workedTime >= const Duration(hours: 1);
+  }
+
   double _calculateDistance(List<LatLng> points) {
     double total = 0;
 
@@ -712,7 +717,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                               height: 56,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
-                                color: AppColor.primary.withValues(alpha: 0.12),
+                                color:
+                                    isSwipeDisabled
+                                        ? AppColor.lightGrey
+                                        : AppColor.primary.withValues(
+                                          alpha: 0.12,
+                                        ),
                               ),
                               child: Stack(
                                 alignment: Alignment.centerLeft,
@@ -727,7 +737,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                                             ? "Swipe to Punch Out"
                                             : "Swipe to Punch In",
                                         key: ValueKey(isCurrentlyPunchedIn),
-                                        style: AppTextStyle.ts12B(),
+                                        style: AppTextStyle.ts12B(
+                                          color:
+                                              isSwipeDisabled
+                                                  ? AppColor.grey
+                                                  : null,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -836,6 +851,18 @@ class _DashboardScreenState extends State<DashboardScreen>
                                                           velocity < -700;
 
                                                       if (shouldPunchOut) {
+                                                        if (!canPunchOut()) {
+                                                          showErrorMessage(
+                                                            context,
+                                                            "Punch Out Not Allowed",
+                                                            "Minimum working duration is 1 hour.",
+                                                          );
+
+                                                          dragPositionNotifier
+                                                              .value = maxWidth;
+                                                          return;
+                                                        }
+
                                                         isProcessing = true;
 
                                                         dragPositionNotifier
@@ -855,7 +882,6 @@ class _DashboardScreenState extends State<DashboardScreen>
 
                                                         isDayCompletedNotifier
                                                             .value = true;
-
                                                         isPunchedInNotifier
                                                             .value = false;
 
@@ -880,7 +906,10 @@ class _DashboardScreenState extends State<DashboardScreen>
                                           child: Container(
                                             width: thumbWidth,
                                             decoration: BoxDecoration(
-                                              color: AppColor.primary,
+                                              color:
+                                                  isSwipeDisabled
+                                                      ? AppColor.grey50
+                                                      : AppColor.primary,
                                               borderRadius:
                                                   BorderRadius.circular(14),
                                               boxShadow: [
@@ -1594,16 +1623,78 @@ class _DashboardScreenState extends State<DashboardScreen>
                         title: "Present",
                         value: table7.first.presentCount,
                         color: AppColor.primary,
+                        onValueTap:
+                            table7.first.presentCount == 0
+                                ? () {}
+                                : () async {
+                                  await _dashboardCubit.resetUnits();
+                                  await goRouter.pushNamed(
+                                    AppRoutes.employeeAttendanceScreen,
+                                    extra: context.read<DashboardCubit>(),
+                                    queryParameters: {
+                                      "type": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          "PRESENT",
+                                        ),
+                                      ),
+                                      "title": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          "Present Employees",
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                },
                       ),
                       RadialChartItem(
                         title: "Absent",
                         value: table7.first.absentCount,
                         color: AppColor.blue,
+                        onValueTap:
+                            table7.first.absentCount == 0
+                                ? () {}
+                                : () async {
+                                  await _dashboardCubit.resetUnits();
+                                  await goRouter.pushNamed(
+                                    AppRoutes.employeeAttendanceScreen,
+                                    extra: context.read<DashboardCubit>(),
+                                    queryParameters: {
+                                      "type": Uri.encodeComponent(
+                                        EncryptionManager.encryptData("ABSENT"),
+                                      ),
+                                      "title": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          "Absent Employees",
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                },
                       ),
                       RadialChartItem(
                         title: "Leave",
                         value: table7.first.onLeaveCount,
                         color: AppColor.grey50,
+                        onValueTap:
+                            table7.first.onLeaveCount == 0
+                                ? () {}
+                                : () async {
+                                  await _dashboardCubit.resetUnits();
+                                  await goRouter.pushNamed(
+                                    AppRoutes.employeeAttendanceScreen,
+                                    extra: context.read<DashboardCubit>(),
+                                    queryParameters: {
+                                      "type": Uri.encodeComponent(
+                                        EncryptionManager.encryptData("LEAVE"),
+                                      ),
+                                      "title": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          "Leave Employees",
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                },
                       ),
                     ],
                   )
@@ -2256,6 +2347,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   day: dayData.dayName,
                   worked: workedDuration,
                   target: targetDuration,
+                  isToday: isCurrentDay(dayData.dayName),
                 );
               }).toList(),
         );
@@ -2388,12 +2480,14 @@ class DayWorkProgress extends StatelessWidget {
   final String day;
   final Duration worked;
   final Duration target;
+  final bool isToday;
 
   const DayWorkProgress({
     super.key,
     required this.day,
     required this.worked,
     required this.target,
+    this.isToday = false,
   });
 
   @override
@@ -2416,7 +2510,10 @@ class DayWorkProgress extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(day, style: AppTextStyle.ts14M()),
+        Text(
+          day,
+          style: isToday ? AppTextStyle.ts14SB() : AppTextStyle.ts14R(),
+        ),
         const SizedBox(height: 8),
         LayoutBuilder(
           builder: (context, constraints) {

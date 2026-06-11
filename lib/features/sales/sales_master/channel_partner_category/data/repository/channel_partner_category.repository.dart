@@ -3,7 +3,7 @@ import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/channel_partner_category/data/datasource/channel_partner_category.datasource.dart';
 
-abstract interface class PaymentScheduleRepository {
+abstract interface class ChannelPartnerCategoryRepository {
   Future<Either<Failure, Map<String, dynamic>>> getChannelPartnerCategoryList({
     required int projectId,
     Map<String, dynamic>? queryParams,
@@ -18,10 +18,11 @@ abstract interface class PaymentScheduleRepository {
   });
 }
 
-class PaymentScheduleRepositoryImpl extends PaymentScheduleRepository {
+class ChannelPartnerCategoryRepositoryImpl
+    extends ChannelPartnerCategoryRepository {
   final ChannelPartnerCategoryDatasource channelPartnerCategoryDatasource;
 
-  PaymentScheduleRepositoryImpl({
+  ChannelPartnerCategoryRepositoryImpl({
     required this.channelPartnerCategoryDatasource,
   });
 

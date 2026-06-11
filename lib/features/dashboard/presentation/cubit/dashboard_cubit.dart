@@ -30,6 +30,16 @@ class DashboardCubit extends Cubit<DashboardState> {
     emit(state.copyWith(currentTabIndex: index));
   }
 
+  Future<void> resetUnits() async {
+    emit(
+      state.copyWith(
+        dashboardModelList: [],
+        currentUnitPage: 1,
+        unitTotalRecords: 0,
+      ),
+    );
+  }
+
   // <---- GET ATTENDANCE LIST ---->
   Future getAttendanceList(
     BuildContext context,
