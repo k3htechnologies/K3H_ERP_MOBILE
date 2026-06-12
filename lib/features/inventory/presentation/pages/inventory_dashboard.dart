@@ -1555,7 +1555,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                 queryParams: {
                                   "BuildingNumber": selectedWingData.building,
                                   "Wing": selectedWingData.wing,
-                                  "FlatStatus": "Available",
+                                  "ParkingStatus": "Available",
                                   "IsAcessOnlyApprovedParking": false,
                                 },
                               );
@@ -1577,7 +1577,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                 queryParams: {
                                   "BuildingNumber": selectedWingData.building,
                                   "Wing": selectedWingData.wing,
-                                  "FlatStatus": "Blocked",
+                                  "ParkingStatus": "Blocked",
                                   "IsAcessOnlyApprovedParking": false,
                                 },
                               );
@@ -1599,7 +1599,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                 queryParams: {
                                   "BuildingNumber": selectedWingData.building,
                                   "Wing": selectedWingData.wing,
-                                  "FlatStatus": "Hold",
+                                  "ParkingStatus": "Hold",
                                   "IsAcessOnlyApprovedParking": false,
                                 },
                               );
@@ -1621,7 +1621,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                 queryParams: {
                                   "BuildingNumber": selectedWingData.building,
                                   "Wing": selectedWingData.wing,
-                                  "FlatStatus": "Booked",
+                                  "ParkingStatus": "Booked",
                                   "IsAcessOnlyApprovedParking": false,
                                 },
                               );
@@ -1643,7 +1643,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                 queryParams: {
                                   "BuildingNumber": selectedWingData.building,
                                   "Wing": selectedWingData.wing,
-                                  "FlatStatus": "Available",
+                                  "ParkingStatus": "Available",
                                 },
                               );
                             },
