@@ -443,6 +443,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                         title: "Mobile Number",
                         value: company.mobileNumber,
                         customValueWidget: CustomClickToContactText(
+                          countryCode: "+91",
                           value: company.mobileNumber,
                         ),
                       ),

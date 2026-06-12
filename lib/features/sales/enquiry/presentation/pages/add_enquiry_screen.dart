@@ -295,17 +295,19 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     // TEXT CONTROLLERS
     _nameC.text = model.name;
     _mobileC.text = model.mobileNumber;
-    selectedMobileNoCountry.value = countryList.firstWhere(
-      (e) => e.code == model.mobileNumberCountryCode,
-      orElse:
-          () => CountryCode(
-            name: "India",
-            code: "+91",
-            countryCode: "IN",
-            mobileLength: 10,
-            regex: RegExp(r'^[6-9]\d{9}$'),
-          ),
-    );
+    if (model.mobileNumberCountryCode.isNotEmpty) {
+      selectedMobileNoCountry.value = countryList.firstWhere(
+        (e) => e.code == model.mobileNumberCountryCode,
+        orElse:
+            () => CountryCode(
+              name: "India",
+              code: "+91",
+              countryCode: "IN",
+              mobileLength: 10,
+              regex: RegExp(r'^[6-9]\d{9}$'),
+            ),
+      );
+    }
     _teamMemberEmailC.text = model.channelPartnerTeamMemberEmailId;
     _emailC.text = model.emailId;
     _locationC.text = model.currentLocation;
@@ -1471,8 +1473,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                   "title": "Mobile",
                                   "value": partner.mobileNumber,
                                   "widget": CustomClickToContactText(
-                                    value:
-                                        "${partner.mobileNumberCountryCode} ${partner.mobileNumber}",
+                                    countryCode:
+                                        partner.mobileNumberCountryCode,
+                                    value: partner.mobileNumber,
                                     type: ContactType.phone,
                                   ),
                                 },

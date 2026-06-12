@@ -1347,8 +1347,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                 "title": "Mobile No",
                                 "value": enquiry.mobileNumber,
                                 "widget": CustomClickToContactText(
-                                  value:
-                                      "${enquiry.mobileNumberCountryCode} ${enquiry.mobileNumber}",
+                                  countryCode: enquiry.mobileNumberCountryCode,
+                                  value: enquiry.mobileNumber,
                                 ),
                               },
                               {"title": "Source", "value": enquiry.source},
@@ -1438,8 +1438,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                       "value":
                                           enquiry.channelPartnerMobileNumber,
                                       "widget": CustomClickToContactText(
+                                        countryCode:
+                                            enquiry
+                                                .channelPartnerMobileNumberCountryCode,
                                         value:
-                                            "${enquiry.channelPartnerMobileNumberCountryCode} ${enquiry.channelPartnerMobileNumber}",
+                                            enquiry.channelPartnerMobileNumber,
                                       ),
                                     },
                                     {
@@ -1461,8 +1464,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                           enquiry
                                               .channelPartnerTeamMemberMobileNumber,
                                       "widget": CustomClickToContactText(
+                                        countryCode:
+                                            enquiry
+                                                .channelPartnerTeamMemberMobileNumberCountryCode,
                                         value:
-                                            "${enquiry.channelPartnerTeamMemberMobileNumberCountryCode} ${enquiry.channelPartnerTeamMemberMobileNumber}",
+                                            enquiry
+                                                .channelPartnerTeamMemberMobileNumber,
                                       ),
                                     },
                                     {
@@ -3014,8 +3021,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         ? "-"
                         : applicant.applicantMobileNumber,
                 customValueWidget: CustomClickToContactText(
-                  value:
-                      "${applicant.applicantMobileNumberCountryCode} ${applicant.applicantMobileNumber}",
+                  countryCode: applicant.applicantMobileNumberCountryCode,
+                  value: applicant.applicantMobileNumber,
                 ),
               ),
               buildColumnTitleValue(

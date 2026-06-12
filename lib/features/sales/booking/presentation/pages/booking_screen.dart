@@ -556,257 +556,306 @@ class _BookingScreenState extends State<BookingScreen> {
           _showBottomSheetToFilterBooking(context);
         },
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _searchC.clear();
-          _bookingCubit.searchBooking(context, "");
-        },
-        child: BlocBuilder<BookingCubit, BookingState>(
-          builder: (context, state) {
-            if ((state.isLoading ?? true) && state.bookingList.isEmpty) {
-              return Center(child: loader());
-            }
+      body: BlocBuilder<BookingCubit, BookingState>(
+        builder: (context, state) {
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: showSiteSelectedWidget(),
+              ),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    _searchC.clear();
+                    _bookingCubit.searchBooking(context, "");
+                  },
+                  child: BlocBuilder<BookingCubit, BookingState>(
+                    builder: (context, state) {
+                      if ((state.isLoading ?? true) &&
+                          state.bookingList.isEmpty) {
+                        return Center(child: loader());
+                      }
 
-            return state.bookingList.isEmpty
-                ? ListView(
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.6,
-                      child: Center(
-                        child: noDataWidget(message: "No Booking Data Found"),
-                      ),
-                    ),
-                  ],
-                )
-                : ListView.builder(
-                  controller: scrollController,
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  itemCount: _bookingCubit.state.bookingList.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == state.bookingList.length) {
-                      return state.bookingList.length <
-                              state.totalNumberOfRecord
-                          ? Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Center(child: CircularProgressIndicator()),
-                          )
-                          : const SizedBox.shrink();
-                    }
-                    var booking = state.bookingList[index];
-                    final bool isActionAllowed = booking.isApproval;
-
-                    return Container(
-                      margin: EdgeInsets.only(bottom: 10),
-                      padding: EdgeInsets.all(12),
-                      decoration: commonCardDecoration(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                      return state.bookingList.isEmpty
+                          ? ListView(
                             children: [
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    goRouter.pushNamed(
-                                      AppRoutes.viewBooking,
-                                      queryParameters: {
-                                        "bookingId": Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            booking.bookingId.toString(),
-                                          ),
-                                        ),
-                                        "projectId": Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            booking.projectId.toString(),
-                                          ),
-                                        ),
-                                      },
-                                    );
-                                  },
-                                  child: Text(
-                                    booking.applicantName,
-                                    style: AppTextStyle.ts14M(
-                                      color: AppColor.primary,
-                                    ).copyWith(
-                                      decoration: TextDecoration.underline,
-                                      decorationColor: AppColor.primary,
-                                    ),
+                              SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.6,
+                                child: Center(
+                                  child: noDataWidget(
+                                    message: "No Booking Data Found",
                                   ),
                                 ),
                               ),
+                            ],
+                          )
+                          : ListView.builder(
+                            controller: scrollController,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            itemCount:
+                                _bookingCubit.state.bookingList.length + 1,
+                            itemBuilder: (context, index) {
+                              if (index == state.bookingList.length) {
+                                return state.bookingList.length <
+                                        state.totalNumberOfRecord
+                                    ? Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    )
+                                    : const SizedBox.shrink();
+                              }
+                              var booking = state.bookingList[index];
+                              final bool isActionAllowed = booking.isApproval;
 
-                              _routhAuthorizationModel.isAction &&
-                                      (booking.approvalStatus.toLowerCase() ==
-                                          'pending')
-                                  ? Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      CustomIconButton.edit(
-                                        onPressed: () {
+                              return Container(
+                                margin: EdgeInsets.only(bottom: 10),
+                                padding: EdgeInsets.all(12),
+                                decoration: commonCardDecoration(),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              goRouter.pushNamed(
+                                                AppRoutes.viewBooking,
+                                                queryParameters: {
+                                                  "bookingId":
+                                                      Uri.encodeQueryComponent(
+                                                        EncryptionManager.encryptData(
+                                                          booking.bookingId
+                                                              .toString(),
+                                                        ),
+                                                      ),
+                                                  "projectId":
+                                                      Uri.encodeQueryComponent(
+                                                        EncryptionManager.encryptData(
+                                                          booking.projectId
+                                                              .toString(),
+                                                        ),
+                                                      ),
+                                                },
+                                              );
+                                            },
+                                            child: Text(
+                                              booking.applicantName,
+                                              style: AppTextStyle.ts14M(
+                                                color: AppColor.primary,
+                                              ).copyWith(
+                                                decoration:
+                                                    TextDecoration.underline,
+                                                decorationColor:
+                                                    AppColor.primary,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+
+                                        _routhAuthorizationModel.isAction &&
+                                                (booking.approvalStatus
+                                                        .toLowerCase() ==
+                                                    'pending')
+                                            ? Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                CustomIconButton.edit(
+                                                  onPressed: () {
+                                                    goRouter.pushNamed(
+                                                      AppRoutes.addBooking,
+                                                      queryParameters: {
+                                                        "booking":
+                                                            Uri.encodeComponent(
+                                                              EncryptionManager.encryptData(
+                                                                jsonEncode(
+                                                                  booking,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                        "index":
+                                                            index.toString(),
+                                                      },
+                                                    );
+                                                  },
+                                                ),
+                                                horizontalSpacing(),
+                                              ],
+                                            )
+                                            : SizedBox.shrink(),
+                                        approvalStatusWidget(
+                                          booking.approvalStatus,
+                                        ),
+                                      ],
+                                    ),
+                                    verticalSpacing(height: 5),
+                                    buildRowTitleValue(
+                                      title: "Enquiry Code",
+                                      value: booking.systemGeneratedCode,
+                                      singleLine: false,
+                                      customValueWidget: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              booking.systemGeneratedCode,
+                                              style: AppTextStyle.ts14M(),
+                                            ),
+                                          ),
+                                          horizontalSpacing(width: 2),
+                                          InkWell(
+                                            onTap: () {
+                                              copy(
+                                                context: context,
+                                                text:
+                                                    booking.systemGeneratedCode,
+                                              );
+                                            },
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(5),
+                                              child: Icon(
+                                                Icons.copy,
+                                                size: 16,
+                                                color: AppColor.primary,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    buildRowTitleValue(
+                                      title: "Flat",
+                                      value: booking.flat,
+                                    ),
+                                    buildRowTitleValue(
+                                      title: "Category",
+                                      value: booking.flatType,
+                                    ),
+                                    buildRowTitleValue(
+                                      title: "Flat Configuration:",
+                                      value: booking.flatConfiguration,
+                                    ),
+                                    buildRowTitleValue(
+                                      title: "Agreement Value (₹)",
+                                      value:
+                                          booking.agreementValue
+                                              .toIndianCurrency(),
+                                    ),
+                                    buildRowTitleValue(
+                                      title: "Expected Registration",
+                                      value: formatDateTimeAsDDMMMYYYY(
+                                        booking.registrationDate,
+                                      ),
+                                    ),
+                                    verticalSpacing(),
+                                    ApproveRejectWidget(
+                                      actionTitle:
+                                          isActionAllowed
+                                              ? "Actions"
+                                              : "History",
+                                      popupTitle:
+                                          booking.bookingType.toLowerCase() ==
+                                                  'parking'
+                                              ? "${booking.applicantName} > ${booking.parkingData.first.parkingNumber}}"
+                                              : "${booking.applicantName} > ${booking.flat}",
+
+                                      isActionAlreadyPerformed:
+                                          !isActionAllowed,
+                                      onApprove: (val) async {
+                                        await _utilsCubit
+                                            .updateModulesWorkflowApproval(
+                                              context: context,
+                                              moduleName: 'BOOKING APPROVAL',
+                                              id: booking.bookingId,
+                                              projectId: _project.projectId,
+                                              isApproved: true,
+                                              remark: val.trim(),
+                                            );
+                                        if (context.mounted) {
+                                          _bookingCubit.getBookingList(
+                                            context,
+                                            1,
+                                            _project.projectId,
+                                          );
+                                        }
+                                      },
+                                      onReject: (val) async {
+                                        await _utilsCubit
+                                            .updateModulesWorkflowApproval(
+                                              context: context,
+                                              moduleName: 'BOOKING APPROVAL',
+                                              id: booking.bookingId,
+                                              projectId: _project.projectId,
+                                              isApproved: false,
+                                              remark: val.trim(),
+                                            );
+                                        if (context.mounted) {
+                                          _bookingCubit.getBookingList(
+                                            context,
+                                            1,
+                                            _project.projectId,
+                                          );
+                                        }
+                                      },
+                                      onThirdTap: () async {
+                                        final approvalLogHistoryList =
+                                            await _utilsCubit
+                                                .getApprovalLogHistory(
+                                                  context: context,
+                                                  projectId: _project.projectId,
+                                                  id: booking.bookingId,
+                                                  moduleName:
+                                                      "BOOKING APPROVAL",
+                                                );
+
+                                        if (context.mounted) {
                                           goRouter.pushNamed(
-                                            AppRoutes.addBooking,
+                                            AppRoutes.approvalLogHistory,
                                             queryParameters: {
-                                              "booking": Uri.encodeComponent(
+                                              "subTitle": Uri.encodeComponent(
                                                 EncryptionManager.encryptData(
-                                                  jsonEncode(booking),
+                                                  "${booking.applicantName} ${booking.flat.isNotEmpty ? " > ${booking.flat}" : ""}",
                                                 ),
                                               ),
-                                              "index": index.toString(),
+                                              "title": Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  "Booking Log History",
+                                                ),
+                                              ),
+                                              "approvalList": Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(
+                                                    approvalLogHistoryList
+                                                        .map((e) => e.toJson())
+                                                        .toList(),
+                                                  ),
+                                                ),
+                                              ),
                                             },
                                           );
-                                        },
-                                      ),
-                                      horizontalSpacing(),
-                                    ],
-                                  )
-                                  : SizedBox.shrink(),
-                              approvalStatusWidget(booking.approvalStatus),
-                            ],
-                          ),
-                          verticalSpacing(height: 5),
-                          buildRowTitleValue(
-                            title: "Enquiry Code",
-                            value: booking.systemGeneratedCode,
-                            singleLine: false,
-                            customValueWidget: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    booking.systemGeneratedCode,
-                                    style: AppTextStyle.ts14M(),
-                                  ),
+                                        }
+                                      },
+                                    ),
+                                  ],
                                 ),
-                                horizontalSpacing(width: 2),
-                                InkWell(
-                                  onTap: () {
-                                    copy(
-                                      context: context,
-                                      text: booking.systemGeneratedCode,
-                                    );
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(5),
-                                    child: Icon(
-                                      Icons.copy,
-                                      size: 16,
-                                      color: AppColor.primary,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          buildRowTitleValue(
-                            title: "Flat",
-                            value: booking.flat,
-                          ),
-                          buildRowTitleValue(
-                            title: "Category",
-                            value: booking.flatType,
-                          ),
-                          buildRowTitleValue(
-                            title: "Flat Configuration:",
-                            value: booking.flatConfiguration,
-                          ),
-                          buildRowTitleValue(
-                            title: "Agreement Value (₹)",
-                            value: booking.agreementValue.toIndianCurrency(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Expected Registration",
-                            value: formatDateTimeAsDDMMMYYYY(
-                              booking.registrationDate,
-                            ),
-                          ),
-                          verticalSpacing(),
-                          ApproveRejectWidget(
-                            actionTitle:
-                                isActionAllowed ? "Actions" : "History",
-                            popupTitle:
-                                booking.bookingType.toLowerCase() == 'parking'
-                                    ? "${booking.applicantName} > ${booking.parkingData.first.parkingNumber}}"
-                                    : "${booking.applicantName} > ${booking.flat}",
-
-                            isActionAlreadyPerformed: !isActionAllowed,
-                            onApprove: (val) async {
-                              await _utilsCubit.updateModulesWorkflowApproval(
-                                context: context,
-                                moduleName: 'BOOKING APPROVAL',
-                                id: booking.bookingId,
-                                projectId: _project.projectId,
-                                isApproved: true,
-                                remark: val.trim(),
                               );
-                              if (context.mounted) {
-                                _bookingCubit.getBookingList(
-                                  context,
-                                  1,
-                                  _project.projectId,
-                                );
-                              }
                             },
-                            onReject: (val) async {
-                              await _utilsCubit.updateModulesWorkflowApproval(
-                                context: context,
-                                moduleName: 'BOOKING APPROVAL',
-                                id: booking.bookingId,
-                                projectId: _project.projectId,
-                                isApproved: false,
-                                remark: val.trim(),
-                              );
-                              if (context.mounted) {
-                                _bookingCubit.getBookingList(
-                                  context,
-                                  1,
-                                  _project.projectId,
-                                );
-                              }
-                            },
-                            onThirdTap: () async {
-                              final approvalLogHistoryList = await _utilsCubit
-                                  .getApprovalLogHistory(
-                                    context: context,
-                                    projectId: _project.projectId,
-                                    id: booking.bookingId,
-                                    moduleName: "BOOKING APPROVAL",
-                                  );
-
-                              if (context.mounted) {
-                                goRouter.pushNamed(
-                                  AppRoutes.approvalLogHistory,
-                                  queryParameters: {
-                                    "subTitle": Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        "${booking.applicantName} ${booking.flat.isNotEmpty ? " > ${booking.flat}" : ""}",
-                                      ),
-                                    ),
-                                    "title": Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        "Booking Log History",
-                                      ),
-                                    ),
-                                    "approvalList": Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(
-                                          approvalLogHistoryList
-                                              .map((e) => e.toJson())
-                                              .toList(),
-                                        ),
-                                      ),
-                                    ),
-                                  },
-                                );
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-          },
-        ),
+                          );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

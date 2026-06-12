@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -320,7 +321,6 @@ class _PerformanceScreenState extends State<PerformanceScreen>
       child: BlocBuilder<PerformanceCubit, PerformanceState>(
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: AppColor.white,
             appBar: CustomAppBar(
               screenTitle: "Performance",
               authorization: _routeAuthorizationModel,
@@ -381,6 +381,10 @@ class _PerformanceScreenState extends State<PerformanceScreen>
             body: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: showSiteSelectedWidget(),
+                ),
                 ChipStyleTabBar(
                   controller: _tabControllerFirst,
                   tabs: ["WTD", "MTD", "YTD"],

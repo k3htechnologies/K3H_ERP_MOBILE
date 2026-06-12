@@ -420,20 +420,28 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
           },
         ),
       ),
-      body: Column(
-        children: [
-          ChipStyleTabBar(
-            controller: _tabController,
-            tabs: ['Calling Data', 'Call Log'],
-          ),
-          Expanded(
-            child: TabBarView(
-              physics: const NeverScrollableScrollPhysics(),
-              controller: _tabController,
-              children: [_buildCallingData(), _buildCallLog()],
-            ),
-          ),
-        ],
+      body: BlocBuilder<CallTrackerCubit, CallTrackerState>(
+        builder: (context, state) {
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: showSiteSelectedWidget(),
+              ),
+              ChipStyleTabBar(
+                controller: _tabController,
+                tabs: ['Calling Data', 'Call Log'],
+              ),
+              Expanded(
+                child: TabBarView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  controller: _tabController,
+                  children: [_buildCallingData(), _buildCallLog()],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -636,6 +644,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                                           value: callingData.mobileNumber,
                                           customValueWidget:
                                               CustomClickToContactText(
+                                                countryCode: "+91",
                                                 value: callingData.mobileNumber,
                                               ),
                                         ),

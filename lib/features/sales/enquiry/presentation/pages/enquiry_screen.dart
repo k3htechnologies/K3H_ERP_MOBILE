@@ -959,8 +959,8 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                                 title: "Mobile Number",
                                 value: enquiry.mobileNumber,
                                 customValueWidget: CustomClickToContactText(
-                                  value:
-                                      "${enquiry.mobileNumberCountryCode} ${enquiry.mobileNumber}",
+                                  countryCode: enquiry.mobileNumberCountryCode,
+                                  value: enquiry.mobileNumber,
                                 ),
                               ),
                               buildRowTitleValue(

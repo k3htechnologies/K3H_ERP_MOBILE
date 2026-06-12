@@ -148,129 +148,157 @@ class _PaymentScheduleSchemeScreenState
       ),
       body: BlocBuilder<PaymentScheduleSchemeCubit, PaymentScheduleSchemeState>(
         builder: (context, state) {
-          if ((state.isLoading ?? true) &&
-              state.paymentScheduleSchemeList.isEmpty) {
-            return Center(child: loader());
-          }
-
-          if (state.paymentScheduleSchemeList.isEmpty) {
-            return Center(
-              child: noDataWidget(
-                message: "No Payment Schedule Scheme Data Found",
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: showSiteSelectedWidget(),
               ),
-            );
-          }
+              Expanded(
+                child: BlocBuilder<
+                  PaymentScheduleSchemeCubit,
+                  PaymentScheduleSchemeState
+                >(
+                  builder: (context, state) {
+                    if ((state.isLoading ?? true) &&
+                        state.paymentScheduleSchemeList.isEmpty) {
+                      return Center(child: loader());
+                    }
 
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.paymentScheduleSchemeList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.paymentScheduleSchemeList.length) {
-                return state.paymentScheduleSchemeList.length <
-                        state.totalNumberOfRecord
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-
-              var scheme = state.paymentScheduleSchemeList[index];
-
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            scheme.paymentScheduleSchemeName,
-                            style: AppTextStyle.ts16M(color: AppColor.primary),
-                          ),
+                    if (state.paymentScheduleSchemeList.isEmpty) {
+                      return Center(
+                        child: noDataWidget(
+                          message: "No Payment Schedule Scheme Data Found",
                         ),
-                        if (_routeAuthorizationModel.isAction) ...[
-                          Row(
+                      );
+                    }
+
+                    return ListView.builder(
+                      controller: scrollController,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      itemCount: state.paymentScheduleSchemeList.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == state.paymentScheduleSchemeList.length) {
+                          return state.paymentScheduleSchemeList.length <
+                                  state.totalNumberOfRecord
+                              ? const Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              )
+                              : const SizedBox.shrink();
+                        }
+
+                        var scheme = state.paymentScheduleSchemeList[index];
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.all(12),
+                          decoration: commonCardDecoration(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addPaymentScheduleScheme,
-                                    queryParameters: {
-                                      'scheme': Uri.encodeComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(scheme.toJson()),
-                                        ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      scheme.paymentScheduleSchemeName,
+                                      style: AppTextStyle.ts16M(
+                                        color: AppColor.primary,
                                       ),
-                                      'index': index.toString(),
-                                    },
-                                  );
-                                },
+                                    ),
+                                  ),
+                                  if (_routeAuthorizationModel.isAction) ...[
+                                    Row(
+                                      children: [
+                                        CustomIconButton.edit(
+                                          onPressed: () async {
+                                            await goRouter.pushNamed(
+                                              AppRoutes
+                                                  .addPaymentScheduleScheme,
+                                              queryParameters: {
+                                                'scheme': Uri.encodeComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(scheme.toJson()),
+                                                  ),
+                                                ),
+                                                'index': index.toString(),
+                                              },
+                                            );
+                                          },
+                                        ),
+                                        horizontalSpacing(),
+                                        CustomIconButton.delete(
+                                          isDisabled:
+                                              scheme
+                                                  .isExistsPaymentScheduleScheme,
+                                          onPressed: () async {
+                                            _showPaymentScheduleSchemeDeletePopup(
+                                              context,
+                                              scheme,
+                                              index,
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ],
                               ),
-                              horizontalSpacing(),
-                              CustomIconButton.delete(
-                                isDisabled:
-                                    scheme.isExistsPaymentScheduleScheme,
-                                onPressed: () async {
-                                  _showPaymentScheduleSchemeDeletePopup(
-                                    context,
-                                    scheme,
-                                    index,
-                                  );
-                                },
+
+                              verticalSpacing(),
+                              buildRowTitleValue(
+                                title: "Building",
+                                value: scheme.buildingNumber,
+                                singleLine: false,
+                              ),
+                              buildRowTitleValue(
+                                title: "Wing",
+                                value: scheme.wing,
+                                singleLine: false,
+                              ),
+                              buildRowTitleValue(
+                                title: "Created By",
+                                value: scheme.createdBy,
+                                singleLine: false,
+                              ),
+                              buildRowTitleValue(
+                                title: "Created Date",
+                                value:
+                                    scheme.createdDate == null
+                                        ? "-"
+                                        : formatDate(scheme.createdDate!),
+                                singleLine: false,
+                              ),
+                              buildRowTitleValue(
+                                title: "Modified By",
+                                value:
+                                    scheme.modifiedBy.isEmpty
+                                        ? "-"
+                                        : scheme.modifiedBy,
+                                singleLine: false,
+                              ),
+                              buildRowTitleValue(
+                                title: "Modified Date",
+                                value:
+                                    scheme.modifiedDate == null
+                                        ? "-"
+                                        : formatDate(scheme.modifiedDate!),
+                                singleLine: false,
                               ),
                             ],
                           ),
-                        ],
-                      ],
-                    ),
-
-                    verticalSpacing(),
-                    buildRowTitleValue(
-                      title: "Building",
-                      value: scheme.buildingNumber,
-                      singleLine: false,
-                    ),
-                    buildRowTitleValue(
-                      title: "Wing",
-                      value: scheme.wing,
-                      singleLine: false,
-                    ),
-                    buildRowTitleValue(
-                      title: "Created By",
-                      value: scheme.createdBy,
-                      singleLine: false,
-                    ),
-                    buildRowTitleValue(
-                      title: "Created Date",
-                      value:
-                          scheme.createdDate == null
-                              ? "-"
-                              : formatDate(scheme.createdDate!),
-                      singleLine: false,
-                    ),
-                    buildRowTitleValue(
-                      title: "Modified By",
-                      value:
-                          scheme.modifiedBy.isEmpty ? "-" : scheme.modifiedBy,
-                      singleLine: false,
-                    ),
-                    buildRowTitleValue(
-                      title: "Modified Date",
-                      value:
-                          scheme.modifiedDate == null
-                              ? "-"
-                              : formatDate(scheme.modifiedDate!),
-                      singleLine: false,
-                    ),
-                  ],
+                        );
+                      },
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ],
           );
         },
       ),

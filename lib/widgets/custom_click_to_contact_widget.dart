@@ -11,7 +11,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-enum ContactType { phone, email }
+enum ContactType { phone, email, landLine }
 
 class CustomClickToContactText extends StatelessWidget {
   final String value;
@@ -19,6 +19,7 @@ class CustomClickToContactText extends StatelessWidget {
   final TextStyle? textStyle;
   final Color iconColor;
   final double iconSize;
+  final String countryCode;
 
   const CustomClickToContactText({
     super.key,
@@ -27,12 +28,38 @@ class CustomClickToContactText extends StatelessWidget {
     this.textStyle,
     this.iconColor = AppColor.mediumBlue,
     this.iconSize = 15,
+    this.countryCode = '+91',
   });
+
+  String _getFormattedPhoneNumber() {
+    final trimmed = value.trim();
+
+    if (trimmed.isEmpty) return '';
+
+    // Landline should be shown as-is
+    if (type == ContactType.landLine) {
+      return trimmed;
+    }
+
+    String cleaned = trimmed.replaceAll(RegExp(r'[^\d+]'), '');
+
+    if (cleaned.startsWith('+')) {
+      return cleaned;
+    }
+
+    cleaned = cleaned.replaceFirst(RegExp(r'^0+'), '');
+
+    if (cleaned.isEmpty) return '';
+
+    final code = countryCode.trim().isEmpty ? '+91' : countryCode.trim();
+
+    return '$code $cleaned';
+  }
 
   Future<void> launchContact(BuildContext context) async {
     late final Uri uri;
 
-    if (type == ContactType.phone) {
+    if (type == ContactType.phone || type == ContactType.landLine) {
       PermissionStatus status = await Permission.phone.status;
 
       if (Platform.isAndroid) {
@@ -52,7 +79,6 @@ class CustomClickToContactText extends StatelessWidget {
           }
           await Future.delayed(const Duration(seconds: 1));
           await openAppSettings();
-
           return;
         }
 
@@ -71,16 +97,17 @@ class CustomClickToContactText extends StatelessWidget {
           return;
         }
       }
-      uri = Uri(scheme: 'tel', path: value);
+
+      final phoneNumber = _getFormattedPhoneNumber();
+      uri = Uri(scheme: 'tel', path: phoneNumber);
 
       try {
         final service = serviceLocator<AppCallTrackerService>();
-
-        service.setPendingCall(value);
-        service.forceStartCall(value);
+        service.setPendingCall(phoneNumber);
+        service.forceStartCall(phoneNumber);
       } catch (_) {}
     } else {
-      uri = Uri(scheme: 'mailto', path: value);
+      uri = Uri(scheme: 'mailto', path: value.trim());
     }
 
     if (await canLaunchUrl(uri)) {
@@ -92,33 +119,28 @@ class CustomClickToContactText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (value.trim().isEmpty) {
-      return Text("-");
+    final displayValue =
+        type == ContactType.email ? value.trim() : _getFormattedPhoneNumber();
+    if (displayValue.isEmpty) {
+      return Text(
+        "-",
+        style: textStyle ?? const TextStyle(fontSize: 14, color: Colors.black),
+      );
     }
+
     return InkWell(
       onTap: () => launchContact(context),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            child:
-                type == ContactType.phone
-                    ? SvgPicture.asset(
-                      AppAssets.phoneIcon,
-                      height: 16.h,
-                      width: 16.w,
-                    )
-                    : SvgPicture.asset(
-                      AppAssets.mailIcon,
-                      height: 16.h,
-                      width: 16.w,
-                    ),
-          ),
+          (type == ContactType.phone || type == ContactType.landLine)
+              ? SvgPicture.asset(AppAssets.phoneIcon, height: 16.h, width: 16.w)
+              : SvgPicture.asset(AppAssets.mailIcon, height: 16.h, width: 16.w),
           const SizedBox(width: 6),
           Flexible(
             child: Text(
-              type == ContactType.phone ? value.trim() : value,
+              displayValue,
               style:
                   textStyle ??
                   const TextStyle(

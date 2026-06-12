@@ -241,8 +241,12 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                                   value:
                                       widget.channelPartnerModel.mobileNumber,
                                   customValueWidget: CustomClickToContactText(
+                                    countryCode:
+                                        widget
+                                            .channelPartnerModel
+                                            .mobileNumberCountryCode,
                                     value:
-                                        "${widget.channelPartnerModel.mobileNumberCountryCode} ${widget.channelPartnerModel.mobileNumber}",
+                                        widget.channelPartnerModel.mobileNumber,
                                     type: ContactType.phone,
                                   ),
                                 ),
@@ -714,8 +718,9 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                                     child: Align(
                                       alignment: Alignment.centerRight,
                                       child: CustomClickToContactText(
-                                        value:
-                                            "${member.mobileNumberCountryCode} ${member.mobileNumber}",
+                                        countryCode:
+                                            member.mobileNumberCountryCode,
+                                        value: member.mobileNumber,
                                       ),
                                     ),
                                   ),

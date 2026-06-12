@@ -673,8 +673,8 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                         title: "Mobile Number",
                         value: channelPartner.mobileNumber,
                         customValueWidget: CustomClickToContactText(
-                          value:
-                              "${channelPartner.mobileNumberCountryCode} ${channelPartner.mobileNumber}",
+                          countryCode: channelPartner.mobileNumberCountryCode,
+                          value: channelPartner.mobileNumber,
                         ),
                       ),
                       buildRowTitleValue(

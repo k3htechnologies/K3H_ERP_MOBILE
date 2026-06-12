@@ -182,7 +182,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                     ),
                     verticalSpacing(height: 16),
                     _buildEnquiriesWidget(context),
-                    verticalSpacing(height: 16), 
+                    verticalSpacing(height: 16),
                     _buildActiveFollowUpsWidget(context),
                     verticalSpacing(height: 16),
                     _buildPerformanceWidget(context),
@@ -320,8 +320,9 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                                           "Mobile Number",
                                           item.mobileNumber,
                                           customWidget: CustomClickToContactText(
-                                            value:
-                                                "${item.mobileNumberCountryCode} ${item.mobileNumber}",
+                                            countryCode:
+                                                item.mobileNumberCountryCode,
+                                            value: item.mobileNumber,
                                           ),
                                         ),
                                       ),
@@ -580,8 +581,10 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                                     "Mobile Number",
                                     activeFollowUps.mobileNumber,
                                     customWidget: CustomClickToContactText(
-                                      value:
-                                          "${activeFollowUps.mobileNumberCountryCode} ${activeFollowUps.mobileNumber}",
+                                      countryCode:
+                                          activeFollowUps
+                                              .mobileNumberCountryCode,
+                                      value: activeFollowUps.mobileNumber,
                                     ),
                                   ),
                                 ),

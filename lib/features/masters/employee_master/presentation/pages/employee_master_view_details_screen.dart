@@ -240,6 +240,7 @@ class _EmployeeMasterViewDetailsScreenState
                       title: "Personal Mobile Number",
                       value: user.personalMobileNumber,
                       customValueWidget: CustomClickToContactText(
+                        countryCode: "+91",
                         value: user.personalMobileNumber,
                         type: ContactType.phone,
                       ),
@@ -415,6 +416,7 @@ class _EmployeeMasterViewDetailsScreenState
                       title: "Office Number",
                       value: user.officeMobileNumber,
                       customValueWidget: CustomClickToContactText(
+                        countryCode: "+91",
                         value: user.officeMobileNumber,
                       ),
                     ),

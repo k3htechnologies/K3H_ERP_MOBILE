@@ -64,49 +64,65 @@ class _ViewPerformanceScreenState extends State<ViewPerformanceScreen>
 
   // BUILD SOURCING VIEW
   Widget _buildSourcingView(PerformanceReportSourcingModel sourcing) {
-    return Column(
-      children: [
-        ChipStyleTabBar(
-          controller: _tabController,
-          tabs: ["Walkins", "Bookings", "Meetings", "CPs"],
-        ),
-        verticalSpacing(),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            physics: NeverScrollableScrollPhysics(),
-            children: [
-              _buildWalkInsSection(sourcing),
-              _buildBookingsSection(sourcing),
-              _buildMeetingSection(sourcing),
-              _buildCPSection(sourcing),
-            ],
-          ),
-        ),
-      ],
+    return BlocBuilder<PerformanceCubit, PerformanceState>(
+      builder: (context, state) {
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: showSiteSelectedWidget(),
+            ),
+            ChipStyleTabBar(
+              controller: _tabController,
+              tabs: ["Walkins", "Bookings", "Meetings", "CPs"],
+            ),
+            verticalSpacing(),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                physics: NeverScrollableScrollPhysics(),
+                children: [
+                  _buildWalkInsSection(sourcing),
+                  _buildBookingsSection(sourcing),
+                  _buildMeetingSection(sourcing),
+                  _buildCPSection(sourcing),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
   // BUILD CLOSING VIEW
   Widget _buildClosingView(PerformanceReportClosingModel closing) {
-    return Column(
-      children: [
-        ChipStyleTabBar(
-          controller: _tabController,
-          tabs: ["Walkins", "Bookings"],
-        ),
-        verticalSpacing(),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            physics: NeverScrollableScrollPhysics(),
-            children: [
-              _buildWalkInsClosingSection(closing),
-              _buildBookingsClosingSection(closing),
-            ],
-          ),
-        ),
-      ],
+    return BlocBuilder<PerformanceCubit, PerformanceState>(
+      builder: (context, state) {
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: showSiteSelectedWidget(),
+            ),
+            ChipStyleTabBar(
+              controller: _tabController,
+              tabs: ["Walkins", "Bookings"],
+            ),
+            verticalSpacing(),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                physics: NeverScrollableScrollPhysics(),
+                children: [
+                  _buildWalkInsClosingSection(closing),
+                  _buildBookingsClosingSection(closing),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

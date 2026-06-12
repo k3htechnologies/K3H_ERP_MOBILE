@@ -287,8 +287,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   "title": "Mobile No.",
                   "value": enquiry.mobileNumber,
                   "widget": CustomClickToContactText(
-                    value:
-                        "${enquiry.mobileNumberCountryCode} ${enquiry.mobileNumber}",
+                    countryCode: enquiry.mobileNumberCountryCode,
+                    value: enquiry.mobileNumber,
                   ),
                 },
                 {
@@ -391,8 +391,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                             "title": "CP Mobile",
                             "value": enquiry.channelPartnerMobileNumber,
                             "widget": CustomClickToContactText(
-                              value:
-                                  "${enquiry.channelPartnerMobileNumberCountryCode} ${enquiry.channelPartnerMobileNumber}",
+                              countryCode:
+                                  enquiry.channelPartnerMobileNumberCountryCode,
+                              value: enquiry.channelPartnerMobileNumber,
                             ),
                           },
                           {
@@ -412,8 +413,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                             "value":
                                 enquiry.channelPartnerTeamMemberMobileNumber,
                             "widget": CustomClickToContactText(
+                              countryCode:
+                                  enquiry
+                                      .channelPartnerTeamMemberMobileNumberCountryCode,
                               value:
-                                  "${enquiry.channelPartnerTeamMemberMobileNumberCountryCode} ${enquiry.channelPartnerTeamMemberMobileNumber}",
+                                  enquiry.channelPartnerTeamMemberMobileNumber,
                             ),
                           },
                           {
@@ -475,8 +479,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                             "title": "Mobile Number",
                             "value": applicant.applicantMobileNumber,
                             "widget": CustomClickToContactText(
-                              value:
-                                  "${applicant.applicantMobileNumberCountryCode} ${applicant.applicantMobileNumber}",
+                              countryCode:
+                                  applicant.applicantMobileNumberCountryCode,
+                              value: applicant.applicantMobileNumber,
                               type: ContactType.phone,
                             ),
                           },
@@ -1375,14 +1380,13 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                               ],
                             ),
                             Row(
-                              spacing: 10,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
-                                  title: "Amount (₹) Without TDS",
+                                  title: "Total Amount With TDS (₹)",
                                   value:
-                                      payment.paymentScheduleAmount
+                                      (payment.paymentScheduleAmount +
+                                              payment.paymentScheduleTDSAmount)
                                           .toIndianCurrency(),
                                 ),
                                 Spacer(),
@@ -1626,8 +1630,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               "title": "Mobile Number",
               "value": applicant.applicantMobileNumber,
               "widget": CustomClickToContactText(
-                value:
-                    "${applicant.applicantMobileNumberCountryCode} ${applicant.applicantMobileNumber}",
+                countryCode: applicant.applicantMobileNumberCountryCode,
+                value: applicant.applicantMobileNumber,
                 type: ContactType.phone,
               ),
             },

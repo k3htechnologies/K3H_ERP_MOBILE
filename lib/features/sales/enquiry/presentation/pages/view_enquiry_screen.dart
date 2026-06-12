@@ -319,8 +319,8 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                   ? enquiry.mobileNumber
                                   : "-",
                           customValueWidget: CustomClickToContactText(
-                            value:
-                                "${enquiry.mobileNumberCountryCode} ${enquiry.mobileNumber}",
+                            countryCode: enquiry.mobileNumberCountryCode,
+                            value: enquiry.mobileNumber,
                             type: ContactType.phone,
                           ),
                         ),
@@ -487,8 +487,9 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                     ? enquiry.channelPartnerMobileNumber
                                     : "-",
                             customValueWidget: CustomClickToContactText(
-                              value:
-                                  "${enquiry.channelPartnerMobileNumberCountryCode} ${enquiry.channelPartnerMobileNumber}",
+                              countryCode:
+                                  enquiry.channelPartnerMobileNumberCountryCode,
+                              value: enquiry.channelPartnerMobileNumber,
                               type: ContactType.phone,
                             ),
                           ),
@@ -567,8 +568,12 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                           .channelPartnerTeamMemberMobileNumber
                                       : "-",
                               customValueWidget: CustomClickToContactText(
+                                countryCode:
+                                    enquiry
+                                        .channelPartnerTeamMemberMobileNumberCountryCode,
                                 value:
-                                    "${enquiry.channelPartnerTeamMemberMobileNumberCountryCode} ${enquiry.channelPartnerTeamMemberMobileNumber}",
+                                    enquiry
+                                        .channelPartnerTeamMemberMobileNumber,
                                 type: ContactType.phone,
                               ),
                             ),
@@ -624,6 +629,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                     ? enquiry.employeeReferenceMobileNumber
                                     : "-",
                             customValueWidget: CustomClickToContactText(
+                              countryCode: "+91",
                               value: enquiry.employeeReferenceMobileNumber,
                               type: ContactType.phone,
                             ),

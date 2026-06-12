@@ -330,17 +330,19 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _nameC.text = channelPartnerMasterModel.name;
     _emailC.text = channelPartnerMasterModel.emailId;
     _mobileNumberC.text = channelPartnerMasterModel.mobileNumber;
-    selectedMobileNoCountry.value = countryList.firstWhere(
-      (e) => e.code == channelPartnerMasterModel.mobileNumberCountryCode,
-      orElse:
-          () => CountryCode(
-            name: "India",
-            code: "+91",
-            countryCode: "IN",
-            mobileLength: 10,
-            regex: RegExp(r'^[6-9]\d{9}$'),
-          ),
-    );
+    if (channelPartnerMasterModel.mobileNumberCountryCode.isNotEmpty) {
+      selectedMobileNoCountry.value = countryList.firstWhere(
+        (e) => e.code == channelPartnerMasterModel.mobileNumberCountryCode,
+        orElse:
+            () => CountryCode(
+              name: "India",
+              code: "+91",
+              countryCode: "IN",
+              mobileLength: 10,
+              regex: RegExp(r'^[6-9]\d{9}$'),
+            ),
+      );
+    }
 
     _alternateMobileNumberC.text =
         channelPartnerMasterModel.alternativeMobileNumber;

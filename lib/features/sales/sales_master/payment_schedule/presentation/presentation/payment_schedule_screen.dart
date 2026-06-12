@@ -166,6 +166,8 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                showSiteSelectedWidget(),
+                verticalSpacing(),
                 CustomMultipleSelectPopup(
                   key: ValueKey(
                     state.selectedScheme?.paymentScheduleSchemeMasterId ?? 0,

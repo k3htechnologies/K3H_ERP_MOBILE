@@ -1014,6 +1014,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                               ? widget.project.siteContactMobileNumber
                               : "-",
                       customValueWidget: CustomClickToContactText(
+                        countryCode: "+91",
                         value: widget.project.siteContactMobileNumber,
                       ),
                     ),
@@ -1220,6 +1221,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                   ),
                                   verticalSpacing(),
                                   CustomClickToContactText(
+                                    countryCode: "+91",
                                     value: employee.personalMobileNumber,
                                   ),
                                 ],
@@ -1441,6 +1443,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                   title: "Mobile Number",
                                   value: company.mobileNumber,
                                   customValueWidget: CustomClickToContactText(
+                                    countryCode: "+91",
                                     value: company.mobileNumber,
                                   ),
                                 ),
@@ -1866,6 +1869,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                                   ),
 
                                                   CustomClickToContactText(
+                                                    countryCode: "+91",
                                                     value:
                                                         employee
                                                             .personalMobileNumber!,
