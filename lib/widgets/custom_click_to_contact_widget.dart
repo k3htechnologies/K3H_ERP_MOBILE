@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/services/app_call_tracker_service.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -143,13 +144,9 @@ class CustomClickToContactText extends StatelessWidget {
               displayValue,
               style:
                   textStyle ??
-                  const TextStyle(
-                    fontSize: 14,
-                    color: AppColor.mediumBlue,
+                  AppTextStyle.ts14M(color: AppColor.primary).copyWith(
                     decoration: TextDecoration.underline,
-                    decorationColor: AppColor.mediumBlue,
-                    decorationThickness: .8,
-                    height: 1.3,
+                    decorationColor: AppColor.primary,
                   ),
             ),
           ),

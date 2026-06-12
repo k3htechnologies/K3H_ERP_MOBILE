@@ -137,12 +137,15 @@ class _ChannelPartnerCategoryScreenState
         isMenuButton: true,
         onProjectChangeCallback: (v) {
           _selectedProject = v;
-          _channelPartnerCategoryCubit.getChannelPartnerCategoryList(
-            context,
-            _selectedProject.projectId,
-          );
+          loadData();
         },
         onExportCallback: (v) {
+          if (_selectedProject.projectId == 0) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              showErrorMessage(context, "Error", "Please select a project");
+            });
+            return;
+          }
           _channelPartnerCategoryCubit.exportExcelPdf(
             context,
             v,

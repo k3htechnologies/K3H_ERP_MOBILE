@@ -845,6 +845,17 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       showErrorMessage(context, "", "Add Payment Schedule Details");
       return false;
     }
+    // PAYMENT SCHEDULE SHOULD BE 100 PERCENTAGE COMPLETED
+    if (_bookingCubit.totalCumulativePercentage != 100) {
+      _bookingCubit.onTabChangedAddForm(1, context);
+      _tabController.animateTo(1);
+      showErrorMessage(
+        context,
+        "",
+        "Payment schedule total must be exactly 100%. Current total is ${_bookingCubit.remainingPercentage}",
+      );
+      return false;
+    }
 
     // STEP 3 : TERMS AND CONDITIONS
     if (!(_termsFormKey.currentState?.validate() ?? false)) {

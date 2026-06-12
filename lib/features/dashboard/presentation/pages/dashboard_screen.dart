@@ -30,6 +30,7 @@ import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -2180,56 +2181,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                 ),
                 verticalSpacing(),
-                InkWell(
-                  onTap: () {
-                    _openEmail(table10List.first.managerEmail);
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            SvgPicture.asset(
-                              AppAssets.mailIcon,
-                              height: 16.0,
-                              width: 16.0,
-                            ),
-                            const SizedBox(width: 6.0),
-                            Expanded(
-                              child: Text(
-                                table10List.first.managerEmail,
-                                style: AppTextStyle.ts14M(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+
+                CustomClickToContactText(
+                  value: table10List.first.managerEmail,
+                  type: ContactType.email,
                 ),
                 verticalSpacing(),
-                InkWell(
-                  onTap: () {
-                    _openDialer(table10List.first.managerPhone);
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SvgPicture.asset(
-                        AppAssets.phoneIcon,
-                        height: 16.0,
-                        width: 16.0,
-                      ),
-                      const SizedBox(width: 6.0),
-                      Text(
-                        table10List.first.managerPhone,
-                        style: AppTextStyle.ts14M(),
-                      ),
-                    ],
-                  ),
-                ),
+                CustomClickToContactText(value: table10List.first.managerPhone),
               ] else ...[
                 Center(
                   child: Text(

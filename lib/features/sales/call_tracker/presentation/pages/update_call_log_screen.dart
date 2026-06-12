@@ -199,34 +199,45 @@ class _UpdateCallLogScreenState extends State<UpdateCallLogScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    CustomDropDownWidget(
-                      title: "Call Status",
-                      hintText: "Select Call Status",
-                      initialValue: _selectedCallStatus.value,
-                      isRequired: true,
-                      dataList: callStatus,
-                      onSelected: (value) {
-                        _selectedCallStatus.value = value;
-                      },
-                      onValueClear: () {
-                        _selectedCallStatus.value = null;
-                      },
-                      validator: (value) {
-                        if (value == null || value.toString().trim().isEmpty) {
-                          return "Status is required";
-                        }
-                        return null;
+                    ValueListenableBuilder(
+                      valueListenable: _selectedCallStatus,
+                      builder: (context, value, child) {
+                        return CustomDropDownWidget(
+                          title: "Call Status",
+                          hintText: "Select Call Status",
+                          initialValue: value,
+                          isRequired: true,
+                          dataList: callStatus,
+                          onSelected: (value) {
+                            _selectedCallStatus.value = value;
+                          },
+                          onValueClear: () {
+                            _selectedCallStatus.value = null;
+                          },
+                          validator: (value) {
+                            if (value == null ||
+                                value.toString().trim().isEmpty) {
+                              return "Status is required";
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
-                    CustomDropDownWidget(
-                      title: "Budget (In Cr)",
-                      hintText: "Select Budget(In Cr)",
-                      initialValue: _selectedBudgetInCr.value,
-                      dataList: budgetInCrList,
-                      onSelected: (value) {
-                        _selectedBudgetInCr.value = value;
+                    ValueListenableBuilder(
+                      valueListenable: _selectedBudgetInCr,
+                      builder: (context, value, child) {
+                        return CustomDropDownWidget(
+                          title: "Budget (In Cr)",
+                          hintText: "Select Budget(In Cr)",
+                          initialValue: value,
+                          dataList: budgetInCrList,
+                          onSelected: (value) {
+                            _selectedBudgetInCr.value = value;
+                          },
+                          onValueClear: () => _selectedBudgetInCr.value = null,
+                        );
                       },
-                      onValueClear: () => _selectedBudgetInCr.value = null,
                     ),
                     ValueListenableBuilder<Map<String, dynamic>?>(
                       valueListenable: _selectedRequirementNotifier,

@@ -320,12 +320,14 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                     );
                   },
                 ),
-                CustomTextField(
-                  textController: _filterSourceC,
-                  title: "Source",
-                  hint: "Enter Source",
-                  onChangeFunction: (_) => updateApplyState(innerState),
-                ),
+                // VISIBLE : FOR CALLING DATA ONLY
+                if (_tabController.index == 0)
+                  CustomTextField(
+                    textController: _filterSourceC,
+                    title: "Source",
+                    hint: "Enter Source",
+                    onChangeFunction: (_) => updateApplyState(innerState),
+                  ),
               ],
             ),
           );
@@ -884,7 +886,7 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
               Expanded(
                 child: Text(callLog.receiverName, style: AppTextStyle.ts14SB()),
               ),
-              _statusChip(callLog.status),
+              callLogStatusWidget(callLog.status),
               horizontalSpacing(width: 6),
               AnimatedRotation(
                 turns: isExpanded ? 0.5 : 0,
@@ -1009,11 +1011,8 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
                         )
                         : "-",
               ),
-              buildColumnTitleValue(
-                title: "Status",
-                value: callLog.status,
-                customValueWidget: callLogStatusWidget(callLog.status),
-              ),
+              if (callLog.status.isEmpty)
+                buildColumnTitleValue(title: "Status", value: "-"),
             ],
           ),
           Row(
@@ -1021,51 +1020,6 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
               buildColumnTitleValue(title: "Remark", value: callLog.remark),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _statusChip(String? type) {
-    late Color bg;
-    late Color text;
-    late IconData icon;
-    late String label;
-
-    switch (type) {
-      case "Connected":
-        bg = Colors.green.shade50;
-        text = AppColor.green20;
-        icon = Icons.call_made;
-        label = "Connected";
-        break;
-      case "Incoming":
-        bg = Colors.blue.shade50;
-        text = Colors.blue;
-        icon = Icons.call_received;
-        label = "Incoming";
-        break;
-      default:
-        bg = Colors.red.shade50;
-        text = Colors.red;
-        icon = Icons.call_missed;
-        label = "";
-        break;
-    }
-    if (label.isEmpty) {
-      return SizedBox.shrink();
-    }
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 14, color: text),
-          const SizedBox(width: 4),
-          Text(label, style: AppTextStyle.ts12SB(color: text)),
         ],
       ),
     );
