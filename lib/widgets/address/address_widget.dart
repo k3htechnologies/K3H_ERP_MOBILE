@@ -339,6 +339,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                   valueListenable: stateId,
                   builder: (_, val, __) {
                     return CustomDropDownWidget(
+                      isDisabled: (countryId.value == null),
                       key: ValueKey('state_${val}_${list.length}_$resetVal'),
                       initialValue:
                           val == null
@@ -385,6 +386,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                   valueListenable: districtId,
                   builder: (_, val, __) {
                     return CustomDropDownWidget(
+                      isDisabled: (stateId.value == null),
                       key: ValueKey('district_${val}_${list.length}_$resetVal'),
                       initialValue:
                           val == null
@@ -430,6 +432,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                   valueListenable: cityId,
                   builder: (_, val, __) {
                     return CustomDropDownWidget(
+                      isDisabled: (districtId.value == null),
                       key: ValueKey('city_${val}_${list.length}_$resetVal'),
                       initialValue:
                           val == null
@@ -473,6 +476,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                     valueListenable: villageId,
                     builder: (_, val, __) {
                       return CustomDropDownWidget(
+                        isDisabled: (cityId.value == null),
                         key: ValueKey(
                           'village_${val}_${list.length}_$resetVal',
                         ),
