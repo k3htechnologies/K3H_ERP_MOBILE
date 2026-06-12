@@ -578,18 +578,10 @@ class _BookingScreenState extends State<BookingScreen> {
                       }
 
                       return state.bookingList.isEmpty
-                          ? ListView(
-                            children: [
-                              SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.6,
-                                child: Center(
-                                  child: noDataWidget(
-                                    message: "No Booking Data Found",
-                                  ),
-                                ),
-                              ),
-                            ],
+                          ? Center(
+                            child: noDataWidget(
+                              message: "No Booking Data Found",
+                            ),
                           )
                           : ListView.builder(
                             controller: scrollController,

@@ -97,32 +97,28 @@ class _ViewPerformanceScreenState extends State<ViewPerformanceScreen>
 
   // BUILD CLOSING VIEW
   Widget _buildClosingView(PerformanceReportClosingModel closing) {
-    return BlocBuilder<PerformanceCubit, PerformanceState>(
-      builder: (context, state) {
-        return Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: showSiteSelectedWidget(),
-            ),
-            ChipStyleTabBar(
-              controller: _tabController,
-              tabs: ["Walkins", "Bookings"],
-            ),
-            verticalSpacing(),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                physics: NeverScrollableScrollPhysics(),
-                children: [
-                  _buildWalkInsClosingSection(closing),
-                  _buildBookingsClosingSection(closing),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: showSiteSelectedWidget(),
+        ),
+        ChipStyleTabBar(
+          controller: _tabController,
+          tabs: ["Walkins", "Bookings"],
+        ),
+        verticalSpacing(),
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            physics: NeverScrollableScrollPhysics(),
+            children: [
+              _buildWalkInsClosingSection(closing),
+              _buildBookingsClosingSection(closing),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

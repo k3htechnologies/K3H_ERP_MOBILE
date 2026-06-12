@@ -383,7 +383,9 @@ class _PerformanceScreenState extends State<PerformanceScreen>
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: showSiteSelectedWidget(),
+                  child: showSiteSelectedWidget(
+                    projectName: _project.projectName,
+                  ),
                 ),
                 ChipStyleTabBar(
                   controller: _tabControllerFirst,
@@ -426,17 +428,10 @@ class _PerformanceScreenState extends State<PerformanceScreen>
           onRefresh: _onRefresh,
           child:
               state.performanceReportSourcingModel.isEmpty
-                  ? ListView(
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.3,
-                      ),
-                      Center(
-                        child: noDataWidget(
-                          message: "No Performance Report Data Found",
-                        ),
-                      ),
-                    ],
+                  ? Center(
+                    child: noDataWidget(
+                      message: "No Performance Report Data Found",
+                    ),
                   )
                   : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -515,17 +510,10 @@ class _PerformanceScreenState extends State<PerformanceScreen>
           onRefresh: _onRefresh,
           child:
               state.performanceReportClosingModel.isEmpty
-                  ? ListView(
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.3,
-                      ),
-                      Center(
-                        child: noDataWidget(
-                          message: "No Performance Report Data Found",
-                        ),
-                      ),
-                    ],
+                  ? Center(
+                    child: noDataWidget(
+                      message: "No Performance Report Data Found",
+                    ),
                   )
                   : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16),

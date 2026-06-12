@@ -169,7 +169,9 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: showSiteSelectedWidget(),
+                  child: showSiteSelectedWidget(
+                    projectName: _selectedProject.projectName,
+                  ),
                 ),
                 Expanded(
                   child: SingleChildScrollView(

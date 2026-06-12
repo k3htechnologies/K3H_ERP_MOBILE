@@ -164,28 +164,36 @@ class _ClassificationParameterScreenState
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: showSiteSelectedWidget(),
               ),
-              Visibility(
-                visible: _routhAuthorizationModel.isAction,
-                child: Container(
-                  width: 120,
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                  child: CustomButton(
-                    leading: Icon(Icons.add, color: AppColor.white, size: 18),
-                    text: "Add",
-                    onPressed: () async {
-                      if (_project.projectId == 0) {
-                        showErrorMessage(
-                          context,
-                          "Error",
-                          "Please select a project",
-                        );
-                        return;
-                      }
-                      await goRouter.pushNamed(
-                        AppRoutes.addClassificationParameter,
-                      );
-                    },
+              Container(
+                width: 120,
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                child: CustomButton(
+                  isDisable:
+                      (!_routhAuthorizationModel.isAction ||
+                          _project.projectId == 0),
+                  leading: Icon(
+                    Icons.add,
+                    color:
+                        (!_routhAuthorizationModel.isAction ||
+                                _project.projectId == 0)
+                            ? AppColor.grey2
+                            : AppColor.white,
+                    size: 18,
                   ),
+                  text: "Add",
+                  onPressed: () async {
+                    if (_project.projectId == 0) {
+                      showErrorMessage(
+                        context,
+                        "Error",
+                        "Please select a project",
+                      );
+                      return;
+                    }
+                    await goRouter.pushNamed(
+                      AppRoutes.addClassificationParameter,
+                    );
+                  },
                 ),
               ),
               Expanded(

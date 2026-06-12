@@ -255,8 +255,12 @@ String formattedStatus(String status) {
       .join(' ');
 }
 
-Widget showSiteSelectedWidget() {
-  String projectName = getProject().projectName;
+Widget showSiteSelectedWidget({String? projectName}) {
+  String localProject =
+      (projectName != null && projectName.trim().isNotEmpty)
+          ? projectName
+          : getProject().projectName.trim();
+
   return Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
@@ -272,9 +276,10 @@ Widget showSiteSelectedWidget() {
                 style: AppTextStyle.ts14M(color: AppColor.grey),
               ),
               TextSpan(
-                text: projectName.isEmpty ? "No Project Selected" : projectName,
+                text:
+                    localProject.isEmpty ? "No Project Selected" : localProject,
                 style:
-                    projectName.isEmpty
+                    localProject.isEmpty
                         ? AppTextStyle.ts14R(color: AppColor.black)
                         : AppTextStyle.ts14SB(color: AppColor.black),
               ),

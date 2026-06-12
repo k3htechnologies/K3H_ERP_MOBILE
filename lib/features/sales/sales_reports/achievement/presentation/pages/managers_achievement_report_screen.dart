@@ -338,29 +338,8 @@ class _ManagerAchievementReportScreenState
         spacing: 5,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
-                decoration: commonCardDecoration(),
-                padding: const EdgeInsets.all(16),
-                margin: const EdgeInsets.only(bottom: 10),
-                child: RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: "Project : ",
-                        style: AppTextStyle.ts14M(color: AppColor.grey),
-                      ),
-                      TextSpan(
-                        text: widget.projectAchievementReportModel.projectName,
-                        style: AppTextStyle.ts14SB(color: AppColor.black),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+          showSiteSelectedWidget(
+            projectName: widget.projectAchievementReportModel.projectName,
           ),
           Expanded(
             child: BlocBuilder<AchievementCubit, AchievementState>(
@@ -510,29 +489,8 @@ class _ManagerAchievementReportScreenState
         spacing: 5,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
-                decoration: commonCardDecoration(),
-                padding: const EdgeInsets.all(16),
-                margin: const EdgeInsets.only(bottom: 10),
-                child: RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: "Project : ",
-                        style: AppTextStyle.ts14M(color: AppColor.grey),
-                      ),
-                      TextSpan(
-                        text: widget.projectAchievementReportModel.projectName,
-                        style: AppTextStyle.ts14SB(color: AppColor.black),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+          showSiteSelectedWidget(
+            projectName: widget.projectAchievementReportModel.projectName,
           ),
           Expanded(
             child: BlocBuilder<AchievementCubit, AchievementState>(

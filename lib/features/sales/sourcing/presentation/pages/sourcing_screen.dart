@@ -573,6 +573,14 @@ class _SourcingScreenState extends State<SourcingScreen> {
                               Expanded(
                                 child: GestureDetector(
                                   onTap: () {
+                                    if (_project.projectId == 0) {
+                                      showErrorMessage(
+                                        context,
+                                        "Error",
+                                        "Please select a project",
+                                      );
+                                      return;
+                                    }
                                     goRouter.pushNamed(
                                       AppRoutes.viewSourcing,
                                       queryParameters: {
