@@ -397,23 +397,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     }, onError: (e) {});
   }
 
-  Future<void> _openEmail(String email) async {
-    final Uri emailUri = Uri(
-      scheme: 'mailto',
-      path: email,
-      queryParameters: {'subject': 'Hello', 'body': 'Hi'},
-    );
-
-    await launchUrl(emailUri, mode: LaunchMode.externalApplication);
-  }
-
-  void _openDialer(String phone) async {
-    final Uri launchUri = Uri(scheme: 'tel', path: phone);
-    if (await canLaunchUrl(launchUri)) {
-      await launchUrl(launchUri);
-    }
-  }
-
   Future<void> loadSavedRoute() async {
     final data = storage.getString("route_points");
 
@@ -880,12 +863,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                                                             context,
                                                           );
                                                         }
-
+                                                        isSwipeDisabledNotifier
+                                                            .value = true;
                                                         isDayCompletedNotifier
                                                             .value = true;
                                                         isPunchedInNotifier
                                                             .value = false;
-
+                                                        await initialise();
                                                         HapticFeedback.mediumImpact();
 
                                                         isProcessing = false;
