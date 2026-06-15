@@ -28,6 +28,11 @@ abstract interface class InwardOutwardRepository {
   Future<Either<Failure, Map<String, dynamic>>> getSenderReceiverByMobileNo({
     required String mobileNumber,
   });
+  Future<Either<Failure, Map<String, dynamic>>> getInwardOutwardListForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class InwardOutwardRepositoryImpl implements InwardOutwardRepository {
@@ -108,6 +113,26 @@ class InwardOutwardRepositoryImpl implements InwardOutwardRepository {
     try {
       var result = await inwardOutwardDatasource
           .apicallPullSenderReceiverByMobileNo(mobileNumber: mobileNumber);
+
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getInwardOutwardListForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await inwardOutwardDatasource
+          .apicallPullInwardOutwardMasterForExport(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            queryParams: queryParams,
+          );
 
       return right(result);
     } catch (error) {

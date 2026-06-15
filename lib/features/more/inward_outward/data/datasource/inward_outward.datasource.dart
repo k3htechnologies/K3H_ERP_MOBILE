@@ -24,6 +24,11 @@ abstract interface class InwardOutwardDatasource {
   Future<Map<String, dynamic>> apicallPullSenderReceiverByMobileNo({
     required String mobileNumber,
   });
+  Future<Map<String, dynamic>> apicallPullInwardOutwardMasterForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class InwardOutwardDatasourceImp implements InwardOutwardDatasource {
@@ -192,6 +197,47 @@ class InwardOutwardDatasourceImp implements InwardOutwardDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         apicallPullSenderReceiverByMobileNo(mobileNumber: mobileNumber);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullInwardOutwardMasterForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullInwardOutwardUrl({
+      required int pageSize,
+      required int pageNumber,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "InwardOutward/PullInwardOutward?PageSize=$pageSize&PageNumber=$pageNumber";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullInwardOutwardUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullInwardOutwardMasterForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
+        );
       }
       rethrow;
     }

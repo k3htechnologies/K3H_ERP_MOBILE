@@ -76,7 +76,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
     _project = getProject();
     _initializeTextEditingController();
     _onScroll();
-    _sourcingCubit.getChannelPartnerList(context, 1);
+    _sourcingCubit.getChannelPartnerList(context, 1, _project.projectId);
   }
 
   @override
@@ -120,6 +120,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
           _sourcingCubit.getChannelPartnerList(
             context,
             _sourcingCubit.state.currentPageCp + 1,
+            _project.projectId,
           );
         });
       }
@@ -451,6 +452,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
         _sourcingCubit.applyChannelPartnerSourcingFilterAndSort(
           context: context,
           isClear: true,
+          projectId: _project.projectId,
         );
       },
 
@@ -478,6 +480,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
           noOfOBM: _selectedNoOfOBM.value?['DisplayName'] ?? "",
           sortColumn: selectedDirection != null ? "Full Name" : null,
           sortDirection: selectedDirection,
+          projectId: _project.projectId,
         );
       },
 
@@ -515,11 +518,19 @@ class _SourcingScreenState extends State<SourcingScreen> {
         textControllerInputType: TextInputType.number,
         searchHintText: "Search by Mobile Number",
         onSearchSubmit: (value) {
-          _sourcingCubit.searchChannelPartner(context, value);
+          _sourcingCubit.searchChannelPartner(
+            context,
+            value,
+            projectId: _project.projectId,
+          );
         },
         onProjectChangeCallback: (value) {
           _project = value;
-          _sourcingCubit.searchChannelPartner(context, "");
+          _sourcingCubit.searchChannelPartner(
+            context,
+            "",
+            projectId: _project.projectId,
+          );
         },
         isFilterOn: true,
         onFilterTap: () {

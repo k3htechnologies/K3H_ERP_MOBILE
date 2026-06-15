@@ -23,6 +23,9 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_chan
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
+import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inward_outward_cubit.dart';
+import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/add_inward_outward_screen.dart';
+import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_screen.dart';
 import 'package:k3h_erp_app/widgets/coming_soon_screen.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.model.dart';
@@ -2669,6 +2672,7 @@ final GoRouter goRouter = GoRouter(
             return MultiBlocProvider(
               providers: [
                 BlocProvider(create: (_) => CalendarCubit(), child: child),
+                BlocProvider(create: (_) => InwardOutwardCubit(), child: child),
                 BlocProvider(create: (_) => TicketCubit(), child: child),
               ],
               child: child,
@@ -2727,6 +2731,20 @@ final GoRouter goRouter = GoRouter(
                   );
                 }
               },
+            ),
+            GoRoute(
+              path: AppRoutes.inwardOutward,
+              name: AppRoutes.inwardOutward,
+              builder: (context, state) => const InwardOutwardScreen(),
+              routes: [
+                GoRoute(
+                  path: AppRoutes.addInwardOutward,
+                  name: AppRoutes.addInwardOutward,
+                  builder: (context, state) {
+                    return AddInwardOutwardScreen();
+                  },
+                ),
+              ],
             ),
             GoRoute(
               path: AppRoutes.ticket,

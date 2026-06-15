@@ -19,6 +19,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/material_requisition/grn.dep
 import 'package:k3h_erp_app/di/feature_dependencies/material_requisition/invoice.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/material_requisition/material_requisition.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/material_requisition/purchase_order.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/more/inward_outward/inward_outward.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/more/ticket/ticket.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/notification/notification.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/payroll/resignation/resignation.dependencies.dart';
@@ -142,6 +143,8 @@ void initDependencies() {
   registerApprovedBankDependencies(serviceLocator);
   // CALENDAR DEPENDENCIES
   registerCalendarDependencies(serviceLocator);
+  // INWARD OUTWARD DEPENDENCIES
+  registerInwardOutwardependencies(serviceLocator);
   // TICKET DEPENDENCIES
   registerTicketDependencies(serviceLocator);
   // REDEVELOPMENT DEPENDENCIES

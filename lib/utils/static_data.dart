@@ -1,4 +1,4 @@
-final List<Map<String, dynamic>> accountTypeList = [
+List<Map<String, dynamic>> accountTypeList = const [
   {"zAttributesId": 1, "DisplayName": "Current"},
   {"zAttributesId": 2, "DisplayName": "Overdraft"},
   {"zAttributesId": 3, "DisplayName": "RERA Escrow Current Account"},
@@ -6,7 +6,7 @@ final List<Map<String, dynamic>> accountTypeList = [
   {"zAttributesId": 5, "DisplayName": "Saving"},
 ];
 
-final List<Map<String, dynamic>> natureOfAccountList = [
+List<Map<String, dynamic>> natureOfAccountList = const [
   {"zAttributesId": 1, "DisplayName": "100% Collection Account"},
   {"zAttributesId": 2, "DisplayName": "100% RERA Account"},
   {"zAttributesId": 3, "DisplayName": "30% RERA Account"},
@@ -22,12 +22,12 @@ final List<Map<String, dynamic>> natureOfAccountList = [
 ];
 
 // ENQUIRY
-final List<Map<String, dynamic>> currentAccommodation = [
+List<Map<String, dynamic>> currentAccommodation = const [
   {'zAttributesId': 1, 'DisplayName': 'Rented'},
   {'zAttributesId': 2, 'DisplayName': 'Self-Owned'},
 ];
 
-final List<Map<String, dynamic>> occupationType = [
+List<Map<String, dynamic>> occupationType = const [
   {'zAttributesId': 1, 'DisplayName': 'Business'},
   {'zAttributesId': 2, 'DisplayName': 'Homemaker'},
   {'zAttributesId': 3, 'DisplayName': 'Professional'},
@@ -35,12 +35,12 @@ final List<Map<String, dynamic>> occupationType = [
   {'zAttributesId': 5, 'DisplayName': 'Retired'},
 ];
 
-final List<Map<String, dynamic>> sourceTypeList = [
+List<Map<String, dynamic>> sourceTypeList = const [
   {'zAttributesId': 1, 'DisplayName': 'Channel Partner'},
   {'zAttributesId': 2, 'DisplayName': 'Direct Walkin'},
 ];
 
-final List<Map<String, dynamic>> residentialType = [
+List<Map<String, dynamic>> residentialType = const [
   {'zAttributesId': 1, 'DisplayName': '1 RK'},
   {'zAttributesId': 2, 'DisplayName': '1 BHK'},
   {'zAttributesId': 3, 'DisplayName': '2 BHK'},
@@ -60,13 +60,13 @@ final List<Map<String, dynamic>> residentialType = [
   {'zAttributesId': 17, 'DisplayName': 'PENTHOUSE'},
 ];
 
-final List<Map<String, dynamic>> floorBrand = [
+List<Map<String, dynamic>> floorBrand = const [
   {'zAttributesId': 1, 'DisplayName': 'Higher'},
   {'zAttributesId': 2, 'DisplayName': 'Middle'},
   {'zAttributesId': 3, 'DisplayName': 'Lower'},
 ];
 
-final List<Map<String, dynamic>> budgetInCrList = [
+List<Map<String, dynamic>> budgetInCrList = const [
   {'zAttributesId': 1, 'DisplayName': '<1'},
   {'zAttributesId': 2, 'DisplayName': '1.5'},
   {'zAttributesId': 3, 'DisplayName': '2'},
@@ -98,7 +98,7 @@ final List<Map<String, dynamic>> budgetInCrList = [
   {'zAttributesId': 29, 'DisplayName': '25+'},
 ];
 
-final List<Map<String, dynamic>> possessionType = [
+List<Map<String, dynamic>> possessionType = const [
   {'zAttributesId': 1, 'DisplayName': 'RTMI'},
   {'zAttributesId': 2, 'DisplayName': 'Under 1 Year'},
   {'zAttributesId': 3, 'DisplayName': '1 Years To 2 Years'},
@@ -106,33 +106,33 @@ final List<Map<String, dynamic>> possessionType = [
   {'zAttributesId': 5, 'DisplayName': '3 Years & Above'},
 ];
 
-final List<Map<String, dynamic>> requirementType = [
+List<Map<String, dynamic>> requirementType = const [
   {'zAttributesId': 1, 'DisplayName': 'Commercial'},
   {'zAttributesId': 2, 'DisplayName': 'Commercial Leasing'},
   {'zAttributesId': 3, 'DisplayName': 'Residential'},
 ];
 
-final List<Map<String, dynamic>> commercialUnitTypeList = [
+List<Map<String, dynamic>> commercialUnitTypeList = const [
   {'zAttributesId': 1, 'DisplayName': 'OFFICE'},
   {'zAttributesId': 2, 'DisplayName': 'SHOP'},
 ];
-final List<Map<String, dynamic>> commercialLeasingTypeList = [
+List<Map<String, dynamic>> commercialLeasingTypeList = const [
   {'zAttributesId': 1, 'DisplayName': 'OFFICE'},
   {'zAttributesId': 2, 'DisplayName': 'SHOP'},
 ];
 
-final List<Map<String, dynamic>> timelineTypeList = [
+List<Map<String, dynamic>> timelineTypeList = const [
   {'zAttributesId': 1, 'DisplayName': 'Within 1 Month'},
   {'zAttributesId': 2, 'DisplayName': 'Beyond 1 Month'},
 ];
 
-final List<Map<String, dynamic>> fundingSourceList = [
+List<Map<String, dynamic>> fundingSourceList = const [
   {'zAttributesId': 1, 'DisplayName': 'Loan'},
   {'zAttributesId': 2, 'DisplayName': 'Self-funded'},
   {'zAttributesId': 3, 'DisplayName': 'Sale Of Property'},
 ];
 
-final List<Map<String, dynamic>> ethnicityList = [
+List<Map<String, dynamic>> ethnicityList = const [
   {'zAttributesId': 1, 'DisplayName': 'Bengali'},
   {'zAttributesId': 2, 'DisplayName': 'Christian'},
   {'zAttributesId': 3, 'DisplayName': 'Gujarati'},
@@ -148,7 +148,7 @@ final List<Map<String, dynamic>> ethnicityList = [
   {'zAttributesId': 13, 'DisplayName': 'Others'},
 ];
 
-final List<Map<String, dynamic>> stageTypeList = [
+List<Map<String, dynamic>> stageTypeList = const [
   {'zAttributesId': 1, 'DisplayName': 'Follow - Up'},
   {'zAttributesId': 2, 'DisplayName': 'Site Visit'},
   {'zAttributesId': 3, 'DisplayName': 'Re - Visit Proposed'},
@@ -163,7 +163,7 @@ final List<Map<String, dynamic>> stageTypeList = [
   {'zAttributesId': 12, 'DisplayName': 'Lost'},
 ];
 
-final List<Map<String, dynamic>> finalStageDetailsList = [
+List<Map<String, dynamic>> finalStageDetailsList = const [
   {'zAttributesId': 1, 'DisplayName': 'Purchased with competition'},
   {'zAttributesId': 2, 'DisplayName': 'Purchased somewhere else'},
   {'zAttributesId': 3, 'DisplayName': 'Not connected calls >7'},
@@ -181,13 +181,13 @@ final List<Map<String, dynamic>> finalStageDetailsList = [
   {'zAttributesId': 15, 'DisplayName': 'Booked Somewhere Else'},
 ];
 
-final List<Map<String, dynamic>> channelPartnerActivityList = [
+List<Map<String, dynamic>> channelPartnerActivityList = const [
   {'zAttributesId': 1, 'DisplayName': 'Channel Partner Data Calling'},
   {'zAttributesId': 2, 'DisplayName': 'Channel Partner Walked IN'},
   {'zAttributesId': 3, 'DisplayName': 'Digital Activity'},
 ];
 
-final List<Map<String, dynamic>> directWalkingSubSourceList = [
+List<Map<String, dynamic>> directWalkingSubSourceList = const [
   {'zAttributesId': 1, 'DisplayName': 'Advertisement'},
   {'zAttributesId': 2, 'DisplayName': 'Exhibition'},
   {'zAttributesId': 3, 'DisplayName': 'Employee Reference'},
@@ -201,7 +201,7 @@ final List<Map<String, dynamic>> directWalkingSubSourceList = [
   {'zAttributesId': 11, 'DisplayName': 'Other'},
 ];
 
-final List<Map<String, dynamic>> subSubSourceList = [
+List<Map<String, dynamic>> subSubSourceList = const [
   {'zAttributesId': 1, 'DisplayName': 'Facebook'},
   {'zAttributesId': 2, 'DisplayName': 'Hoarding'},
   {'zAttributesId': 3, 'DisplayName': 'Instagram'},
@@ -209,7 +209,7 @@ final List<Map<String, dynamic>> subSubSourceList = [
   {'zAttributesId': 5, 'DisplayName': 'Newspaper'},
 ];
 
-final List<Map<String, dynamic>> lostReasonList = [
+List<Map<String, dynamic>> lostReasonList = const [
   {'DisplayName': 'Purchased with competition'},
   {'DisplayName': 'Purchased somewhere else'},
   {'DisplayName': 'Not connected calls >7'},
@@ -228,32 +228,32 @@ final List<Map<String, dynamic>> lostReasonList = [
 ];
 
 // CHANNEL PARTNER
-List<Map<String, dynamic>> designationList = [
+List<Map<String, dynamic>> designationList = const [
   {"zAttributesId": 1, "DisplayName": "Business Head"},
   {"zAttributesId": 2, "DisplayName": "Cluster Head"},
   {"zAttributesId": 3, "DisplayName": "Owner"},
   {"zAttributesId": 4, "DisplayName": "Partner"},
   {"zAttributesId": 5, "DisplayName": "Team Member"},
 ];
-final List<Map<String, dynamic>> specialityList = [
+List<Map<String, dynamic>> specialityList = const [
   {"zAttributesId": 1, "DisplayName": "Commercial Sale"},
   {"zAttributesId": 2, "DisplayName": "Commercial Leasing"},
   {"zAttributesId": 3, "DisplayName": "Residential Sale"},
   {"zAttributesId": 4, "DisplayName": "Commercial + Residential Sale"},
 ];
 
-final List<Map<String, dynamic>> companyTypeList = [
+List<Map<String, dynamic>> companyTypeList = const [
   {"zAttributesId": 1, "DisplayName": "New Company"},
   {"zAttributesId": 2, "DisplayName": "Existing Company"},
 ];
 
-final List<Map<String, dynamic>> firmTypeList = [
+List<Map<String, dynamic>> firmTypeList = const [
   {"zAttributesId": 1, "DisplayName": "LLP"},
   {"zAttributesId": 2, "DisplayName": "Private Limited Company"},
   {"zAttributesId": 3, "DisplayName": "Proprietorship"},
 ];
 
-final List<Map<String, dynamic>> type = [
+List<Map<String, dynamic>> type = const [
   {"zAttributesId": 1, "DisplayName": "International Channel Partner (IPC)"},
   {"zAttributesId": 2, "DisplayName": "Institutional Channel Partner (ICP)"},
   {"zAttributesId": 3, "DisplayName": "Retail Channel Partner (RCP)"},
@@ -261,7 +261,7 @@ final List<Map<String, dynamic>> type = [
 
 // INVENTORY
 // STATIC LISTS
-List<Map<String, dynamic>> flatTypeList = [
+List<Map<String, dynamic>> flatTypeList = const [
   {'zAttributesId': 1, 'DisplayName': 'BMC'},
   {'zAttributesId': 2, 'DisplayName': 'Commercial'},
   {'zAttributesId': 3, 'DisplayName': 'eDeck'},
@@ -282,7 +282,7 @@ List<Map<String, dynamic>> flatTypeList = [
 ];
 
 // STATIC LISTS FOR FLAT CONFIGURATION
-List<Map<String, dynamic>> residentialFlatList = [
+List<Map<String, dynamic>> residentialFlatList = const [
   {'zAttributesId': 1, 'DisplayName': '1 RK'},
   {'zAttributesId': 2, 'DisplayName': '1 BHK'},
   {'zAttributesId': 3, 'DisplayName': '2 BHK'},
@@ -300,18 +300,18 @@ List<Map<String, dynamic>> residentialFlatList = [
 ];
 
 // STATIC LISTS FOR FLAT CONFIGURATION
-List<Map<String, dynamic>> commercialFlatList = [
+List<Map<String, dynamic>> commercialFlatList = const [
   {'zAttributesId': 1, 'DisplayName': 'OFFICE'},
   {'zAttributesId': 2, 'DisplayName': 'SHOP'},
 ];
 
 // STATIC LISTS FOR FLAT STATUS
-List<Map<String, dynamic>> flatStatusList = [
+List<Map<String, dynamic>> flatStatusList = const [
   {'zAttributesId': 1, 'DisplayName': 'Available'},
   {'zAttributesId': 2, 'DisplayName': 'Blocked'},
   {'zAttributesId': 3, 'DisplayName': 'Hold'},
 ];
-List<Map<String, dynamic>> flatStatusListWithOtherOptions = [
+List<Map<String, dynamic>> flatStatusListWithOtherOptions = const [
   {'zAttributesId': 1, 'DisplayName': 'Available'},
   {'zAttributesId': 2, 'DisplayName': 'Blocked'},
   {'zAttributesId': 3, 'DisplayName': 'Hold'},
@@ -320,7 +320,7 @@ List<Map<String, dynamic>> flatStatusListWithOtherOptions = [
 ];
 
 // STATIC LISTS FOR FLAT FACING
-List<Map<String, dynamic>> flatFacingList = [
+List<Map<String, dynamic>> flatFacingList = const [
   {'zAttributesId': 1, 'DisplayName': 'City View'},
   {'zAttributesId': 2, 'DisplayName': 'Forest / Mangrove View'},
   {'zAttributesId': 3, 'DisplayName': 'Building View'},
@@ -334,12 +334,12 @@ List<Map<String, dynamic>> flatFacingList = [
 
 // Legal
 // Litigation
-final List<Map<String, dynamic>> caseTypeList = [
+List<Map<String, dynamic>> caseTypeList = const [
   {"zAttributesId": 1, "DisplayName": "Criminal"},
   {"zAttributesId": 2, "DisplayName": "Civil"},
 ];
 
-final List<Map<String, dynamic>> courtTypeList = [
+List<Map<String, dynamic>> courtTypeList = const [
   {"zAttributesId": 1, "DisplayName": "Civil Court"},
   {"zAttributesId": 2, "DisplayName": "District Court"},
   {"zAttributesId": 3, "DisplayName": "High Court"},
@@ -347,13 +347,13 @@ final List<Map<String, dynamic>> courtTypeList = [
   {"zAttributesId": 4, "DisplayName": "Supreme Court"},
 ];
 //  Company Master
-final List<Map<String, dynamic>> genderList = const [
+List<Map<String, dynamic>> genderList = const [
   {"zAttributesId": 1, "DisplayName": "Male"},
   {"zAttributesId": 2, "DisplayName": "Female"},
   {"zAttributesId": 3, "DisplayName": "Other"},
 ];
 
-final List<Map<String, dynamic>> materialRequisitionStagesList = const [
+List<Map<String, dynamic>> materialRequisitionStagesList = const [
   {"zAttributesId": 1, "DisplayName": "Get Quotation"},
   {"zAttributesId": 2, "DisplayName": "Finalize Vendor"},
   {"zAttributesId": 3, "DisplayName": "Get Purchase Order"},
@@ -361,7 +361,7 @@ final List<Map<String, dynamic>> materialRequisitionStagesList = const [
   {"zAttributesId": 5, "DisplayName": "Add Invoice"},
 ];
 
-final List<Map<String, dynamic>> materialRequisitionStatusList = const [
+List<Map<String, dynamic>> materialRequisitionStatusList = const [
   {"zAttributesId": 1, "DisplayName": "Pending"},
   {"zAttributesId": 2, "DisplayName": "Approved"},
   {"zAttributesId": 3, "DisplayName": "Rejected"},
@@ -369,7 +369,7 @@ final List<Map<String, dynamic>> materialRequisitionStatusList = const [
   {"zAttributesId": 5, "DisplayName": "Cancelled"},
 ];
 
-List<Map<String, dynamic>> projectStatusList = [
+List<Map<String, dynamic>> projectStatusList = const [
   {"zAttributesId": 1, "DisplayName": "On-Going"},
   {"zAttributesId": 2, "DisplayName": "Up-Coming"},
   {"zAttributesId": 3, "DisplayName": "Completed"},
@@ -378,7 +378,7 @@ List<Map<String, dynamic>> projectStatusList = [
   {"zAttributesId": 6, "DisplayName": "Planning"},
 ];
 
-List<Map<String, dynamic>> callStatus = [
+List<Map<String, dynamic>> callStatus = const [
   {"zAttributesId": 1, "DisplayName": "Connected"},
   {"zAttributesId": 2, "DisplayName": "Not Connected"},
   {"zAttributesId": 3, "DisplayName": "Wrong Number"},
@@ -390,16 +390,16 @@ List<Map<String, dynamic>> callStatus = [
 ];
 
 // ACHIEVEMENT TABS
-final List<String> achievementTimelineTabs = [
+List<String> achievementTimelineTabs = const [
   'Today',
   'Weekly',
   'Monthly',
   'Datewise',
   'Overall',
 ];
-final List<String> achievementTabs = ['Project', 'Closing', 'Sourcing'];
+List<String> achievementTabs = const ['Project', 'Closing', 'Sourcing'];
 
-final List<Map<String, dynamic>> statusModeList = [
+List<Map<String, dynamic>> statusModeList = const [
   {"zAttributesId": 1, "DisplayName": "Open"},
   {"zAttributesId": 2, "DisplayName": "Assigned"},
   {"zAttributesId": 3, "DisplayName": "In Progress"},
@@ -408,12 +408,12 @@ final List<Map<String, dynamic>> statusModeList = [
   {"zAttributesId": 6, "DisplayName": "Closed"},
 ];
 
-final List<Map<String, dynamic>> platformTypeList = [
+List<Map<String, dynamic>> platformTypeList = const [
   {"zAttributesId": 1, "DisplayName": "ERP"},
   {"zAttributesId": 2, "DisplayName": "Application"},
   {"zAttributesId": 3, "DisplayName": "Website"},
 ];
-final List<Map<String, dynamic>> moduleTypeList = [
+List<Map<String, dynamic>> moduleTypeList = const [
   {"zAttributesId": 1, "DisplayName": "Dashboard"},
   {"zAttributesId": 2, "DisplayName": "Inventory"},
   {"zAttributesId": 3, "DisplayName": "Project Document"},
@@ -430,7 +430,8 @@ final List<Map<String, dynamic>> moduleTypeList = [
   {"zAttributesId": 14, "DisplayName": "Redevelopment"},
   {"zAttributesId": 15, "DisplayName": "Operation"},
 ];
-final List<Map<String, dynamic>> ibmObmRangeFilter = [
+
+List<Map<String, dynamic>> ibmObmRangeFilter = const [
   {"zAttributesId": 1, "DisplayName": "Below 10"},
   {"zAttributesId": 2, "DisplayName": "Between 11 And 50"},
   {"zAttributesId": 3, "DisplayName": "Between 51 And 100"},
@@ -439,4 +440,21 @@ final List<Map<String, dynamic>> ibmObmRangeFilter = [
   {"zAttributesId": 6, "DisplayName": "Between 301 And 400"},
   {"zAttributesId": 7, "DisplayName": "Between 401 And 500"},
   {"zAttributesId": 8, "DisplayName": "Above 501"},
+];
+
+List<String> inwardOutwardTabs = const ['All', 'Inward', 'Outward'];
+
+List<Map<String, dynamic>> inwardOutwardDocumentType = const [
+  {"zAttributesId": 1, "DisplayName": "Inward"},
+  {"zAttributesId": 2, "DisplayName": "Outward"},
+];
+
+List<Map<String, dynamic>> inwardOutwardDeliveryMode = const [
+  {"zAttributesId": 1, "DisplayName": "Courier"},
+  {"zAttributesId": 2, "DisplayName": "Hand-To-Hand"},
+];
+
+List<Map<String, dynamic>> inwardOutwardDeliveryStatus = const [
+  {"zAttributesId": 1, "DisplayName": "Acknowledged"},
+  {"zAttributesId": 2, "DisplayName": "Delivered"},
 ];

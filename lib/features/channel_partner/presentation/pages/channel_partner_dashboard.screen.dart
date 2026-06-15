@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner_dashboard.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
@@ -13,6 +14,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'dart:math' as math;
 
 class ChannelPartnerDashboardScreen extends StatefulWidget {
   const ChannelPartnerDashboardScreen({super.key});
@@ -328,18 +330,20 @@ class _ChannelPartnerDashboardScreenState
                 ],
               ),
               verticalSpacing(height: 16.0),
+
               if (table3 != null) ...[
                 ...table3.asMap().entries.map((entry) {
                   final index = entry.key;
                   final item = entry.value;
+
                   final widthFactor =
                       maxValue == 0 ? 0.0 : item.totalChannelPartner / maxValue;
+
                   return Padding(
                     padding: EdgeInsets.only(
                       bottom: index == table3.length - 1 ? 0 : 14.0,
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SizedBox(
                           width: 90,
@@ -356,34 +360,65 @@ class _ChannelPartnerDashboardScreenState
                         Expanded(
                           child: LayoutBuilder(
                             builder: (context, constraints) {
-                              final barWidth =
+                              final calculatedWidth =
                                   constraints.maxWidth *
                                   widthFactor.clamp(0.0, 1.0);
 
-                              return Stack(
-                                children: [
-                                  AnimatedContainer(
-                                    duration: const Duration(milliseconds: 500),
-                                    width: barWidth,
-                                    height: 36,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: AppColor.primary.withValues(
-                                        alpha: 0.35,
+                              final valueText =
+                                  item.totalChannelPartner.toString();
+
+                              // Medium values should still display inside
+                              final showInside = item.totalChannelPartner >= 25;
+
+                              final barWidth =
+                                  showInside
+                                      ? math.max(calculatedWidth, 50.w)
+                                      : calculatedWidth;
+
+                              return SizedBox(
+                                height: 36.h,
+                                child: Row(
+                                  children: [
+                                    AnimatedContainer(
+                                      duration: const Duration(
+                                        milliseconds: 500,
                                       ),
-                                    ),
-                                    alignment: Alignment.centerRight,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                    ),
-                                    child: Text(
-                                      item.totalChannelPartner.toString(),
-                                      style: AppTextStyle.ts16SB(
-                                        color: AppColor.primary,
+                                      width: barWidth,
+                                      height: 36.h,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: AppColor.primary.withValues(
+                                          alpha: 0.35,
+                                        ),
                                       ),
+                                      alignment: Alignment.centerRight,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 12.w,
+                                      ),
+                                      child:
+                                          showInside
+                                              ? Text(
+                                                valueText,
+                                                maxLines: 1,
+                                                style: AppTextStyle.ts16SB(
+                                                  color: AppColor.primary,
+                                                ),
+                                              )
+                                              : null,
                                     ),
-                                  ),
-                                ],
+
+                                    if (!showInside) ...[
+                                      SizedBox(width: 8.w),
+                                      Text(
+                                        valueText,
+                                        maxLines: 1,
+                                        style: AppTextStyle.ts16SB(
+                                          color: AppColor.primary,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
                               );
                             },
                           ),

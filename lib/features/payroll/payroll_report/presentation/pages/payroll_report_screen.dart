@@ -112,6 +112,21 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     _resignationTabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
 
+    // Attach all pagination listeners
+    _initializePagination();
+
+    // Selected date listener
+    _selectedDateNotifier.addListener(_onSelectedDateChanged);
+
+    // Load data for the default tab
+    _loadDataForTab(_tabController.index);
+
+    // Attach inner tab listeners
+    _initializeInnerTabListeners();
+  }
+
+  /// Initializes pagination listeners for both reports and approvals
+  void _initializePagination() {
     // SCROLL CONTROLLERS
     _attendanceScrollController = ScrollController();
 
@@ -130,22 +145,6 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
     _resignationReportController = ScrollController();
     _resignationApprovalController = ScrollController();
-
-    // Attach all pagination listeners
-    _initializePagination();
-
-    // Selected date listener
-    _selectedDateNotifier.addListener(_onSelectedDateChanged);
-
-    // Load data for the default tab
-    _loadDataForTab(_tabController.index);
-
-    // Attach inner tab listeners
-    _initializeInnerTabListeners();
-  }
-
-  /// Initializes pagination listeners for both reports and approvals
-  void _initializePagination() {
     _setupAttendancePagination();
 
     // REGULARIZATION

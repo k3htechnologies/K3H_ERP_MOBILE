@@ -23,7 +23,18 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
     required BuildContext context,
     required int currentTabIndex,
   }) async {
-    emit(state.copyWith(currentTabIndex: currentTabIndex));
+    emit(
+      state.copyWith(
+        currentTabIndex: currentTabIndex,
+        searchText: "",
+        filterByDocumentType: "",
+        filterByReceiverName: "",
+        filterBySenderName: "",
+        inwardOutwardList: [],
+        inwardList: [],
+        outwardList: [],
+      ),
+    );
     await handleApiCall(context: context);
   }
 
@@ -93,7 +104,7 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
       pageNumber: pageNumber,
       pageSize: 10,
       queryParams: {
-        "DocumentId": state.searchText,
+        "SystemGeneratedCode": state.searchText,
         "SenderName": state.filterBySenderName,
         "ReceiverName": state.filterByReceiverName,
         "DocumentType": state.filterByDocumentType,
@@ -136,7 +147,7 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
       pageNumber: pageNumber,
       pageSize: 10,
       queryParams: {
-        "DocumentId": state.searchText,
+        "SystemGeneratedCode": state.searchText,
         "SenderName": state.filterBySenderName,
         "ReceiverName": state.filterByReceiverName,
         "DocumentType": "Inward",
@@ -177,7 +188,7 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
       pageNumber: pageNumber,
       pageSize: 10,
       queryParams: {
-        "DocumentId": state.searchText,
+        "SystemGeneratedCode": state.searchText,
         "SenderName": state.filterBySenderName,
         "ReceiverName": state.filterByReceiverName,
         "DocumentType": "Outward",
@@ -215,6 +226,7 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
     required BuildContext context,
     required int inwardOutwardId,
     required String uniqueKey,
+    required int index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -230,8 +242,59 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) async {
-        await getInwardOutwardList(context, 1);
+        switch (state.currentTabIndex) {
+          case 0:
+            final updatedList = List<InwardOutwardModel>.from(
+              state.inwardOutwardList,
+            );
+            updatedList.removeAt(index);
 
+            emit(
+              state.copyWith(
+                inwardOutwardList: updatedList,
+                isLoading: false,
+                inwardOutwardTotalRecords:
+                    state.inwardOutwardTotalRecords > 0
+                        ? state.inwardOutwardTotalRecords - 1
+                        : 0,
+              ),
+            );
+            break;
+
+          case 1:
+            final updatedList = List<InwardOutwardModel>.from(state.inwardList);
+            updatedList.removeAt(index);
+
+            emit(
+              state.copyWith(
+                inwardList: updatedList,
+                isLoading: false,
+                inwardTotalRecords:
+                    state.inwardTotalRecords > 0
+                        ? state.inwardTotalRecords - 1
+                        : 0,
+              ),
+            );
+            break;
+
+          case 2:
+            final updatedList = List<InwardOutwardModel>.from(
+              state.outwardList,
+            );
+            updatedList.removeAt(index);
+
+            emit(
+              state.copyWith(
+                outwardList: updatedList,
+                isLoading: false,
+                outwardTotalRecords:
+                    state.outwardTotalRecords > 0
+                        ? state.outwardTotalRecords - 1
+                        : 0,
+              ),
+            );
+            break;
+        }
         if (context.mounted) {
           showSuccessMessage(
             context,
@@ -575,6 +638,60 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
                 response["message"] ?? "Inward Outward Reverted Successfully",
           );
         }
+      },
+    );
+  }
+
+  Future exportExcelPdf(BuildContext context, String exportType) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    int totalRecords = switch (state.currentTabIndex) {
+      0 => state.inwardOutwardTotalRecords,
+      1 => state.inwardTotalRecords,
+      2 => state.outwardTotalRecords,
+      _ => state.inwardOutwardTotalRecords,
+    };
+
+    Map<String, dynamic> queryParams = {"ExportType": exportType};
+
+    if (state.searchText.isNotEmpty) {
+      queryParams["SystemGeneratedCode"] = state.searchText;
+    }
+
+    switch (state.currentTabIndex) {
+      case 1:
+        queryParams["Type"] = "Inward";
+        break;
+
+      case 2:
+        queryParams["Type"] = "Outward";
+        break;
+    }
+
+    final result = await _repository.getInwardOutwardListForExport(
+      pageNumber: 1,
+      pageSize: totalRecords,
+      queryParams: queryParams,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "Inward Outward Master ${DateTime.now()}.pdf"
+              : "Inward Outward Master ${DateTime.now()}.xlsx",
+        );
       },
     );
   }

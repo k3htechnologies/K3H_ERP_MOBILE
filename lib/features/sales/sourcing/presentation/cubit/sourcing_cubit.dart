@@ -40,9 +40,13 @@ class SourcingCubit extends Cubit<SourcingState> {
   }
 
   // <---- SEARCH CHANNEL PARTNER ---->
-  Future searchChannelPartner(BuildContext context, String value) async {
+  Future searchChannelPartner(
+    BuildContext context,
+    String value, {
+    required int projectId,
+  }) async {
     emit(state.copyWith(searchText: value, channelPartnerList: []));
-    await getChannelPartnerList(context, 1);
+    await getChannelPartnerList(context, 1, projectId);
   }
 
   Future clearSourcingList() async {
@@ -52,6 +56,7 @@ class SourcingCubit extends Cubit<SourcingState> {
   // <---- FILTER CP SOURCING ---->
   Future applyChannelPartnerSourcingFilterAndSort({
     required BuildContext context,
+    required int projectId,
     String? companyName,
     String? designation,
     String? firmType,
@@ -127,7 +132,7 @@ class SourcingCubit extends Cubit<SourcingState> {
       );
     }
 
-    await getChannelPartnerList(context, 1);
+    await getChannelPartnerList(context, 1, projectId);
   }
 
   // <---- GET SOURCING LIST ---->
@@ -166,7 +171,11 @@ class SourcingCubit extends Cubit<SourcingState> {
   }
 
   // <---- GET CHANNEL PARTNER LIST ---->
-  Future getChannelPartnerList(BuildContext context, int pageNumber) async {
+  Future getChannelPartnerList(
+    BuildContext context,
+    int pageNumber,
+    int projectId,
+  ) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
       "IsCheckPermission": false,
@@ -187,6 +196,7 @@ class SourcingCubit extends Cubit<SourcingState> {
       "VillageName": state.filterByVillage,
       "NoOfIBM": state.filterByNoOfIBM,
       "NoOfOBM": state.filterByNoOfOBM,
+      "ProjectId": projectId,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     var result = await _channelPartnerRepository.getChannelPartnerList(
