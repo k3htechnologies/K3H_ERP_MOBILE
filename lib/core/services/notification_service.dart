@@ -24,9 +24,10 @@ class NotificationService {
       announcement: true,
       badge: true,
       criticalAlert: true,
-      provisional: true,
+      provisional: false,
       sound: true,
       carPlay: true,
+      providesAppNotificationSettings: true,
     );
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
