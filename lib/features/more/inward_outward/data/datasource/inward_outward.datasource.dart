@@ -89,6 +89,7 @@ class InwardOutwardDatasourceImp implements InwardOutwardDatasource {
         'data': List<InwardOutwardModel>.from(
           networkResponse["data"].map((e) => InwardOutwardModel.fromJson(e)),
         ),
+        'message': networkResponse["message"],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -118,6 +119,7 @@ class InwardOutwardDatasourceImp implements InwardOutwardDatasource {
         'data': List<InwardOutwardModel>.from(
           networkResponse["data"].map((e) => InwardOutwardModel.fromJson(e)),
         ),
+        'message': networkResponse["message"],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
