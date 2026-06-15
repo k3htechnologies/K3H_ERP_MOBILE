@@ -2,7 +2,6 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/data/model/inward_outward.model.dart';
 
 class InwardOutwardState extends BaseState {
-  // All
   final List<InwardOutwardModel> inwardOutwardList;
   final int inwardOutwardTotalRecords;
   final int inwardOutwardCurrentPage;
@@ -18,12 +17,10 @@ class InwardOutwardState extends BaseState {
   final String searchText;
   final int currentTabIndex;
 
-  // Filters
   final String filterBySenderName;
   final String filterByReceiverName;
   final String filterByDocumentType;
 
-  // Sorting
   final String currentSortColumn;
   final String currentSortDirection;
 
