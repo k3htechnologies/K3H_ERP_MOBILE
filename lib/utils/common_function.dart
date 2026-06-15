@@ -583,26 +583,24 @@ String formatDateTimeForApi(DateTime d) {
 ///
 /// It prevents crashes and avoids showing "12 am" incorrectly.
 String dateFormatterHourOnly(String? timeString) {
-  //  Safety check for null or empty API values
-  if (timeString == null || timeString.isEmpty) {
+  if (timeString == null || timeString.isEmpty || timeString == "{}") {
     return "-";
   }
 
   try {
-    // Split time string (e.g., "18:00:00")
     final parts = timeString.split(':');
 
-    // Parse hour safely
+    if (parts.length < 2) return "-";
+
     final hour = int.tryParse(parts[0]) ?? 0;
+    final minute = int.tryParse(parts[1]) ?? 0;
 
-    // Create a dummy DateTime using today's date with API hour
     final now = DateTime.now();
-    final dateTime = DateTime(now.year, now.month, now.day, hour);
 
-    // Format to only hour with AM/PM and convert to lowercase (UI consistency)
-    return DateFormat('hh a').format(dateTime).toLowerCase();
+    final dateTime = DateTime(now.year, now.month, now.day, hour, minute);
+
+    return DateFormat('hh:mm a').format(dateTime).toLowerCase();
   } catch (e) {
-    // Fallback in case API sends unexpected format like {}
     return "-";
   }
 }

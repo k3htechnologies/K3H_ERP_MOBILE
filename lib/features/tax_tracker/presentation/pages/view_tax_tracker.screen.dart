@@ -349,7 +349,6 @@ class _ViewTaxTrackerScreenState extends State<ViewTaxTrackerScreen>
           itemCount: trackingList.length,
           itemBuilder: (context, index) {
             final item = trackingList[index];
-
             return _trackingTimelineItem(
               item: item,
               isLast: index == trackingList.length - 1,
@@ -381,8 +380,15 @@ class _ViewTaxTrackerScreenState extends State<ViewTaxTrackerScreen>
                     shape: BoxShape.circle,
                     color:
                         item.isCompleted
-                            ? const Color(0xffDCFCE7)
+                            ? const Color(0xffEFFFF5)
                             : const Color(0xffE5E7EB),
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 1,
+                        offset: Offset(1, 1),
+                        color: AppColor.black.withValues(alpha: 0.12),
+                      ),
+                    ],
                   ),
                   child: Image.asset(
                     AppAssets.tickIcon,
@@ -418,29 +424,32 @@ class _ViewTaxTrackerScreenState extends State<ViewTaxTrackerScreen>
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xffF8FAFC),
-        borderRadius: BorderRadius.circular(8),
+        color: Color(0xffE8F0FF).withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(item.title, style: AppTextStyle.ts12M()),
-          verticalSpacing(height: 12),
+          verticalSpacing(height: 6),
           buildRowTitleValueNormal(
             title: "Authority",
             value: item.authority,
             singleLine: false,
           ),
+          verticalSpacing(height: 6),
           buildRowTitleValueNormal(
             title: "Date",
             value: item.date,
             singleLine: false,
           ),
+          verticalSpacing(height: 6),
           buildRowTitleValueNormal(
             title: "Uploaded By",
             value: item.uploadedBy,
             singleLine: false,
           ),
+          verticalSpacing(height: 6),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
