@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/tax_tracker/data/model/tracking_item.model.dart';
 import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/widget/container_decoration.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -64,7 +68,7 @@ class _ViewTaxTrackerScreenState extends State<ViewTaxTrackerScreen>
             child: TabBarView(
               controller: _tabController,
               physics: const NeverScrollableScrollPhysics(),
-              children: [_detailsWidget(context), Container()],
+              children: [_detailsWidget(context), _trackingWidget(context)],
             ),
           ),
         ],
@@ -299,6 +303,203 @@ class _ViewTaxTrackerScreenState extends State<ViewTaxTrackerScreen>
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _trackingWidget(BuildContext context) {
+    final List<TrackingItem> trackingList = [
+      TrackingItem(
+        title: "Notice Received",
+        authority: "Assessing Officer ( AO )",
+        date: "09 June 2026",
+        uploadedBy: "Rahul Sharma",
+        isCompleted: true,
+        url: "",
+      ),
+      TrackingItem(
+        title: "Reply Submitted",
+        authority: "Assessing Officer ( AO )",
+        date: "12 June 2026",
+        uploadedBy: "Rahul Sharma",
+        isCompleted: true,
+        url: "",
+      ),
+      TrackingItem(
+        title: "Order Uploaded",
+        authority: "",
+        date: "",
+        uploadedBy: "",
+        isCompleted: false,
+        url: "",
+      ),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColor.white,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: ListView.builder(
+          itemCount: trackingList.length,
+          itemBuilder: (context, index) {
+            final item = trackingList[index];
+
+            return _trackingTimelineItem(
+              item: item,
+              isLast: index == trackingList.length - 1,
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _trackingTimelineItem({
+    required TrackingItem item,
+    required bool isLast,
+  }) {
+    return IntrinsicHeight(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 32,
+            child: Column(
+              children: [
+                Container(
+                  width: 24,
+                  height: 24,
+                  padding: EdgeInsets.all(6.25),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color:
+                        item.isCompleted
+                            ? const Color(0xffDCFCE7)
+                            : const Color(0xffE5E7EB),
+                  ),
+                  child: Image.asset(
+                    AppAssets.tickIcon,
+                    color:
+                        item.isCompleted
+                            ? Color(0xff15803D)
+                            : AppColor.black.withValues(alpha: 0.3),
+                  ),
+                ),
+                if (!isLast)
+                  Expanded(
+                    child: Container(width: 2, color: const Color(0xffE5E7EB)),
+                  ),
+              ],
+            ),
+          ),
+          horizontalSpacing(width: 12),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child:
+                  item.isCompleted
+                      ? _trackingCard(item)
+                      : Text(item.title, style: AppTextStyle.ts12M()),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _trackingCard(TrackingItem item) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xffF8FAFC),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(item.title, style: AppTextStyle.ts12M()),
+          verticalSpacing(height: 12),
+          buildRowTitleValueNormal(
+            title: "Authority",
+            value: item.authority,
+            singleLine: false,
+          ),
+          buildRowTitleValueNormal(
+            title: "Date",
+            value: item.date,
+            singleLine: false,
+          ),
+          buildRowTitleValueNormal(
+            title: "Uploaded By",
+            value: item.uploadedBy,
+            singleLine: false,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              CustomButton.documentOutline(
+                onPressed: () {
+                  if (item.url.isNotEmpty) {
+                    showFilePreviewDialog(context, item.url.split(","));
+                  }
+                },
+                isDisable: item.url.isEmpty,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildRowTitleValueNormal({
+    required String title,
+    required String value,
+    TextStyle? valueTextStyle,
+    Widget? customValueWidget,
+    bool singleLine = true,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: AppTextStyle.ts12R(
+                color: AppColor.grey.withValues(alpha: 0.5),
+              ),
+            ),
+          ),
+          Text(
+            ":",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColor.grey),
+          ),
+          horizontalSpacing(),
+          Expanded(
+            child:
+                customValueWidget ??
+                Text(
+                  value.isNotEmpty ? value : "-",
+                  maxLines: singleLine ? 1 : null,
+                  overflow:
+                      singleLine ? TextOverflow.ellipsis : TextOverflow.visible,
+                  style:
+                      valueTextStyle ??
+                      AppTextStyle.ts12R(
+                        color: AppColor.greyTitleAndValueColor,
+                      ),
+                ),
           ),
         ],
       ),
