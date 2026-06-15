@@ -41,6 +41,7 @@ class EnquiryState extends BaseState {
 
   final bool isFetchingEnquiryDetails;
   final bool isFetchingChannelPartners;
+  final bool isFromDashboard;
 
   const EnquiryState({
     super.isLoading,
@@ -74,6 +75,7 @@ class EnquiryState extends BaseState {
     this.currentEnquiryDetails,
     this.isFetchingEnquiryDetails = false,
     this.isFetchingChannelPartners = false,
+    this.isFromDashboard = false,
   });
 
   factory EnquiryState.initial() => const EnquiryState(
@@ -108,6 +110,7 @@ class EnquiryState extends BaseState {
     currentEnquiryDetails: null,
     isFetchingEnquiryDetails: false,
     isFetchingChannelPartners: false,
+    isFromDashboard: false,
   );
 
   static const _noChange = Object();
@@ -145,6 +148,7 @@ class EnquiryState extends BaseState {
     Object? currentEnquiryDetails = _noChange,
     Object? isFetchingEnquiryDetails = _noChange,
     Object? isFetchingChannelPartners = _noChange,
+    Object? isFromDashboard = _noChange,
   }) {
     return EnquiryState(
       isLoading: isLoading ?? this.isLoading,
@@ -224,6 +228,10 @@ class EnquiryState extends BaseState {
           isFetchingChannelPartners == _noChange
               ? this.isFetchingChannelPartners
               : isFetchingChannelPartners as bool,
+      isFromDashboard:
+          isFromDashboard == _noChange
+              ? this.isFromDashboard
+              : isFromDashboard as bool,
     );
   }
 
@@ -260,5 +268,6 @@ class EnquiryState extends BaseState {
     currentEnquiryDetails,
     isFetchingEnquiryDetails,
     isFetchingChannelPartners,
+    isFromDashboard,
   ];
 }

@@ -333,14 +333,10 @@ class _RichTextInputState extends State<RichTextInput> {
   @override
   Widget build(BuildContext context) {
     return FormField<String>(
-        validator: widget.validator,
-        builder: (FormFieldState<String> fieldState) {
-          final hasError = fieldState.hasError;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (fieldState.value != _controller.text) {
-              fieldState.didChange(_controller.text);
-            }
-          });
+      validator: widget.validator,
+      builder: (FormFieldState<String> fieldState) {
+        final hasError = fieldState.hasError;
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -358,7 +354,10 @@ class _RichTextInputState extends State<RichTextInput> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     if (widget.isRequired == true)
-                      Text("*", style: AppTextStyle.ts14R(color: AppColor.error)),
+                      Text(
+                        "*",
+                        style: AppTextStyle.ts14R(color: AppColor.error),
+                      ),
                   ],
                 ),
               ),
@@ -498,11 +497,12 @@ class _RichTextInputState extends State<RichTextInput> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(6.0),
                 border: Border.all(
-                  color: hasError
-                      ? AppColor.error
-                      : widget.readOnly
-                      ? AppColor.darkGrey
-                      : AppColor.grey.withValues(alpha: 0.3),
+                  color:
+                      hasError
+                          ? AppColor.error
+                          : widget.readOnly
+                          ? AppColor.darkGrey
+                          : AppColor.grey.withValues(alpha: 0.3),
                   width: 1.0,
                 ),
               ),
@@ -530,7 +530,8 @@ class _RichTextInputState extends State<RichTextInput> {
                           color: _textColor,
                           fontSize: _fontSize,
                           fontFamily: _fontFamily,
-                          fontWeight: _isBold ? FontWeight.bold : FontWeight.normal,
+                          fontWeight:
+                              _isBold ? FontWeight.bold : FontWeight.normal,
                           fontStyle:
                               _isItalic ? FontStyle.italic : FontStyle.normal,
                           decoration: _buildTextDecoration(),
@@ -548,31 +549,34 @@ class _RichTextInputState extends State<RichTextInput> {
                           contentPadding: const EdgeInsets.all(12),
                           filled: false,
                         ),
+                        onChanged: (value) {
+                          fieldState.didChange(value);
+                        },
                         textAlign: _textAlign,
                       ),
             ),
             hasError
                 ? Container(
-              padding: const EdgeInsets.only(top: 2, left: 12),
-              margin: const EdgeInsets.only(bottom: 10),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(Icons.info_outline, color: AppColor.error, size: 14),
-                  const SizedBox(width: 5),
-                  Expanded(
-                    child: Text(
-                      fieldState.errorText ?? "",
-                      style: AppTextStyle.ts12R(color: AppColor.error),
-                    ),
+                  padding: const EdgeInsets.only(top: 2, left: 12),
+                  margin: const EdgeInsets.only(bottom: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(Icons.info_outline, color: AppColor.error, size: 14),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          fieldState.errorText ?? "",
+                          style: AppTextStyle.ts12R(color: AppColor.error),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            )
+                )
                 : const SizedBox(height: 18),
           ],
         );
-      }
+      },
     );
   }
 

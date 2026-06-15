@@ -33,7 +33,6 @@ import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class DashboardScreen extends StatefulWidget {
   final AttendanceModel? data;
@@ -395,23 +394,6 @@ class _DashboardScreenState extends State<DashboardScreen>
 
       lastPoint = currentPoint;
     }, onError: (e) {});
-  }
-
-  Future<void> _openEmail(String email) async {
-    final Uri emailUri = Uri(
-      scheme: 'mailto',
-      path: email,
-      queryParameters: {'subject': 'Hello', 'body': 'Hi'},
-    );
-
-    await launchUrl(emailUri, mode: LaunchMode.externalApplication);
-  }
-
-  void _openDialer(String phone) async {
-    final Uri launchUri = Uri(scheme: 'tel', path: phone);
-    if (await canLaunchUrl(launchUri)) {
-      await launchUrl(launchUri);
-    }
   }
 
   Future<void> loadSavedRoute() async {
@@ -880,12 +862,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                                                             context,
                                                           );
                                                         }
-
+                                                        isSwipeDisabledNotifier
+                                                            .value = true;
                                                         isDayCompletedNotifier
                                                             .value = true;
                                                         isPunchedInNotifier
                                                             .value = false;
-
+                                                        await initialise();
                                                         HapticFeedback.mediumImpact();
 
                                                         isProcessing = false;

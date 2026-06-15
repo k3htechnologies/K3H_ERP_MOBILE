@@ -2,7 +2,7 @@ name: k3h_erp_app
 description: "ERP Mobile App."
 publish_to: 'none'
 
-version: 1.0.0+7
+version: 1.0.1+9
 
 environment:
   sdk: ^3.7.2
@@ -73,7 +73,7 @@ dependencies:
   # CUSTOM PAGINATED DROPDOWN
   dropdown_search: ^6.0.2
   # HTML RENDERING
-  flutter_html: ^3.0.0-beta.2
+  flutter_html: ^3.0.0
   # SHIMMER EFFECT FOR IMAGES
   shimmer: ^3.0.0
   # LAUNCH ICON
