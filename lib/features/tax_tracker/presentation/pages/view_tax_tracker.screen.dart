@@ -317,7 +317,8 @@ class _ViewTaxTrackerScreenState extends State<ViewTaxTrackerScreen>
         date: "09 June 2026",
         uploadedBy: "Rahul Sharma",
         isCompleted: true,
-        url: "",
+        url:
+            "http://202.168.146.8:402/documents/1/Employee/scaled_578e39fb-9192-40b8-bbb6-1119883db5361794365537003268879_4f265af9-d3af-4be9-9e00-195ab9fe779b.jpg",
       ),
       TrackingItem(
         title: "Reply Submitted",
@@ -325,7 +326,8 @@ class _ViewTaxTrackerScreenState extends State<ViewTaxTrackerScreen>
         date: "12 June 2026",
         uploadedBy: "Rahul Sharma",
         isCompleted: true,
-        url: "",
+        url:
+            "http://202.168.146.8:402/documents/1/Employee/scaled_578e39fb-9192-40b8-bbb6-1119883db5361794365537003268879_4f265af9-d3af-4be9-9e00-195ab9fe779b.jpg",
       ),
       TrackingItem(
         title: "Order Uploaded",
