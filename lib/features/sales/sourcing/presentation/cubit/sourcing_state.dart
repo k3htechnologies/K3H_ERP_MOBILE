@@ -12,6 +12,7 @@ class SourcingState extends BaseState {
   final String filterByDesignation;
   final String filterByFirmType;
   final String filterByType;
+  final String filterCPCode;
   final String filterByCPName;
   final String filterByOfficeAddress;
   final String filterByGSTNumber;
@@ -21,6 +22,8 @@ class SourcingState extends BaseState {
   final String filterBySpeciality;
   final String filterByCity;
   final String filterByVillage;
+  final String filterByNoOfIBM;
+  final String filterByNoOfOBM;
   final String currentSortColumn;
   final String currentSortDirection;
 
@@ -37,6 +40,7 @@ class SourcingState extends BaseState {
     required this.filterByDesignation,
     required this.filterByFirmType,
     required this.filterByType,
+    required this.filterCPCode,
     required this.filterByCPName,
     required this.filterByOfficeAddress,
     required this.filterByGSTNumber,
@@ -46,6 +50,8 @@ class SourcingState extends BaseState {
     required this.filterBySpeciality,
     required this.filterByCity,
     required this.filterByVillage,
+    required this.filterByNoOfIBM,
+    required this.filterByNoOfOBM,
     required this.currentSortColumn,
     required this.currentSortDirection,
   });
@@ -59,8 +65,9 @@ class SourcingState extends BaseState {
     isLoading: true,
     currentTabIndex: 0,
     selectedFilter: "ALL",
-    currentSortColumn: "Created Date",
-    currentSortDirection: "DESC",
+    currentSortColumn: "",
+    currentSortDirection: "",
+    filterCPCode: "",
     filterByCompanyName: "",
     filterByDesignation: "",
     filterByFirmType: "",
@@ -74,6 +81,8 @@ class SourcingState extends BaseState {
     filterBySpeciality: "",
     filterByCity: "",
     filterByVillage: "",
+    filterByNoOfIBM: "",
+    filterByNoOfOBM: "",
   );
 
   SourcingState copyWith({
@@ -91,6 +100,7 @@ class SourcingState extends BaseState {
     String? filterByDesignation,
     String? filterByFirmType,
     String? filterByType,
+    String? filterCPCode,
     String? filterByCPName,
     String? filterByOfficeAddress,
     String? filterByGSTNumber,
@@ -100,6 +110,8 @@ class SourcingState extends BaseState {
     String? filterBySpeciality,
     String? filterByCity,
     String? filterByVillage,
+    String? filterByNoOfIBM,
+    String? filterByNoOfOBM,
   }) {
     return SourcingState(
       isLoading: isLoading ?? this.isLoading,
@@ -118,6 +130,7 @@ class SourcingState extends BaseState {
       filterByDesignation: filterByDesignation ?? this.filterByDesignation,
       filterByFirmType: filterByFirmType ?? this.filterByFirmType,
       filterByType: filterByType ?? this.filterByType,
+      filterCPCode: filterCPCode ?? this.filterCPCode,
       filterByCPName: filterByCPName ?? this.filterByCPName,
       filterByOfficeAddress:
           filterByOfficeAddress ?? this.filterByOfficeAddress,
@@ -129,6 +142,8 @@ class SourcingState extends BaseState {
       filterBySpeciality: filterBySpeciality ?? this.filterBySpeciality,
       filterByCity: filterByCity ?? this.filterByCity,
       filterByVillage: filterByVillage ?? this.filterByVillage,
+      filterByNoOfIBM: filterByNoOfIBM ?? this.filterByNoOfIBM,
+      filterByNoOfOBM: filterByNoOfOBM ?? this.filterByNoOfOBM,
     );
   }
 
@@ -147,6 +162,7 @@ class SourcingState extends BaseState {
     filterByDesignation,
     filterByFirmType,
     filterByType,
+    filterCPCode,
     filterByCPName,
     filterByOfficeAddress,
     filterByGSTNumber,
@@ -156,6 +172,8 @@ class SourcingState extends BaseState {
     filterBySpeciality,
     filterByCity,
     filterByVillage,
+    filterByNoOfIBM,
+    filterByNoOfOBM,
 
     currentSortColumn,
     currentSortDirection,

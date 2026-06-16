@@ -4,6 +4,7 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/data/model/performance_report_closing.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/data/model/performance_report_sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/presentation/cubit/performance_cubit.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
@@ -63,26 +64,34 @@ class _ViewPerformanceScreenState extends State<ViewPerformanceScreen>
 
   // BUILD SOURCING VIEW
   Widget _buildSourcingView(PerformanceReportSourcingModel sourcing) {
-    return Column(
-      children: [
-        ChipStyleTabBar(
-          controller: _tabController,
-          tabs: ["Walkins", "Bookings", "Meetings", "CPs"],
-        ),
-        verticalSpacing(),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            physics: NeverScrollableScrollPhysics(),
-            children: [
-              _buildWalkInsSection(sourcing),
-              _buildBookingsSection(sourcing),
-              _buildMeetingSection(sourcing),
-              _buildCPSection(sourcing),
-            ],
-          ),
-        ),
-      ],
+    return BlocBuilder<PerformanceCubit, PerformanceState>(
+      builder: (context, state) {
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: showSiteSelectedWidget(),
+            ),
+            ChipStyleTabBar(
+              controller: _tabController,
+              tabs: ["Walkins", "Bookings", "Meetings", "CPs"],
+            ),
+            verticalSpacing(),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                physics: NeverScrollableScrollPhysics(),
+                children: [
+                  _buildWalkInsSection(sourcing),
+                  _buildBookingsSection(sourcing),
+                  _buildMeetingSection(sourcing),
+                  _buildCPSection(sourcing),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -90,6 +99,10 @@ class _ViewPerformanceScreenState extends State<ViewPerformanceScreen>
   Widget _buildClosingView(PerformanceReportClosingModel closing) {
     return Column(
       children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: showSiteSelectedWidget(),
+        ),
         ChipStyleTabBar(
           controller: _tabController,
           tabs: ["Walkins", "Bookings"],
@@ -280,8 +293,8 @@ class _ViewPerformanceScreenState extends State<ViewPerformanceScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title),
-          verticalSpacing(),
+          Text(title, style: AppTextStyle.ts14SB()),
+          verticalSpacing(height: 2),
           buildRowTitleValue(title: "Target", value: target.toString()),
           buildRowTitleValue(title: "Actual", value: actual.toString()),
           buildRowTitleValue(title: "Performance", value: "$performance%"),

@@ -113,6 +113,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   late ValueNotifier<List<Map<String, dynamic>>> selectedCompany;
   late ValueNotifier<bool> hasReraNumber;
 
+  ValueNotifier<Map<String, dynamic>?> selectedCountry = ValueNotifier({
+    "zAttributesId": 1,
+    "DisplayName": "India",
+  });
   ValueNotifier<Map<String, dynamic>?> selectedStateVN = ValueNotifier(null);
   ValueNotifier<Map<String, dynamic>?> selectedDistrictVN = ValueNotifier(null);
   ValueNotifier<Map<String, dynamic>?> selectedCityVN = ValueNotifier(null);
@@ -123,7 +127,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     countryList.firstWhere((e) => e.code == "+91"),
   );
   final ValueNotifier<bool> _isAlreadyExist = ValueNotifier(false);
-
+  bool get isExistingCompany =>
+      selectedCompanyType.value?['zAttributesId'] == 2;
   @override
   void initState() {
     super.initState();
@@ -290,6 +295,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                     : data.gstCertificateUrl.split(","),
             deletedFileList: "",
           );
+          selectedCountry.value = {
+            "DisplayName": data.countryName,
+            "zAttributesId": data.countryMasterId,
+          };
           selectedStateVN.value = {
             "DisplayName": data.stateName,
             "zAttributesId": data.stateMasterId,
@@ -321,9 +330,19 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _nameC.text = channelPartnerMasterModel.name;
     _emailC.text = channelPartnerMasterModel.emailId;
     _mobileNumberC.text = channelPartnerMasterModel.mobileNumber;
-    selectedMobileNoCountry.value = countryList.firstWhere(
-      (e) => e.code == channelPartnerMasterModel.mobileNumberCountryCode,
-    );
+    if (channelPartnerMasterModel.mobileNumberCountryCode.isNotEmpty) {
+      selectedMobileNoCountry.value = countryList.firstWhere(
+        (e) => e.code == channelPartnerMasterModel.mobileNumberCountryCode,
+        orElse:
+            () => CountryCode(
+              name: "India",
+              code: "+91",
+              countryCode: "IN",
+              mobileLength: 10,
+              regex: RegExp(r'^[6-9]\d{9}$'),
+            ),
+      );
+    }
 
     _alternateMobileNumberC.text =
         channelPartnerMasterModel.alternativeMobileNumber;
@@ -400,6 +419,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
               : channelPartnerMasterModel.gstCertificateUrl.split(","),
       deletedFileList: "",
     );
+    selectedCountry.value = {
+      "DisplayName": channelPartnerMasterModel.countryName,
+      "zAttributesId": channelPartnerMasterModel.countryMasterId,
+    };
     selectedStateVN.value = {
       "DisplayName": channelPartnerMasterModel.stateName,
       "zAttributesId": channelPartnerMasterModel.stateMasterId,
@@ -575,7 +598,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         panCardDocuments: selectedPANForPopUpFile,
         aadhaarCardDocuments: selectedAadhaarForPopUpFile,
         gstCertificateDocuments: selectedGSTCertificateForPopUpFile.value,
-        selectedCountryNameId: 1,
+        selectedCountryNameId: selectedCountry.value?["zAttributesId"] ?? 1,
         selectedStateId: selectedStateVN.value!["zAttributesId"],
         selectedDistrictId: selectedDistrictVN.value!["zAttributesId"],
         selectedCityId: selectedCityVN.value!["zAttributesId"],
@@ -613,7 +636,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         officeAddress: _officeAddressC.text.trim(),
         panCardURL: selectedPANForPopUpFile,
         aadhaarCardURL: selectedAadhaarForPopUpFile,
-        selectedCountryNameId: 1,
+        selectedCountryNameId: selectedCountry.value?["zAttributesId"] ?? 1,
         selectedStateId: selectedStateVN.value!["zAttributesId"],
         selectedDistrictId: selectedDistrictVN.value!["zAttributesId"],
         selectedCityId: selectedCityVN.value!["zAttributesId"],
@@ -662,6 +685,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
       deletedFileList: "",
     );
     _reraNumberC.clear();
+    selectedCountry.value = {"zAttributesId": 1, "DisplayName": "India"};
     selectedDistrictVN.value = {};
     selectedCityVN.value = {};
     selectedStateVN.value = {};
@@ -1332,7 +1356,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                   title: 'GST Number',
                                   hint: "Enter GST Number",
                                   textController: _gstNumberC,
-                                  readOnly: isPrefilled,
+                                  readOnly: isExistingCompany,
                                   inputFormatterList:
                                       InputValidator.gstInputFormatters(),
                                   validator: (value) {
@@ -1360,15 +1384,16 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                             ),
 
                             IgnorePointer(
-                              ignoring: isCompanyPrefilled.value,
+                              ignoring: isExistingCompany,
                               child: Opacity(
-                                opacity: isCompanyPrefilled.value ? 0.6 : 1,
+                                opacity: isExistingCompany ? 0.6 : 1,
                                 child: CustomMultiFilePicker(
                                   key: ValueKey(
                                     selectedGSTCertificateForPopUpFile.value,
                                   ),
                                   title: "GST Certificate",
                                   filePickType: FilePickType.both,
+                                  readOnly: isExistingCompany,
                                   initialFileList:
                                       selectedGSTCertificateForPopUpFile
                                           .value
@@ -1434,14 +1459,20 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                   children: [
                     Text("Address Details", style: AppTextStyle.ts16SB()),
                     verticalSpacing(),
-                    ValueListenableBuilder(
-                      valueListenable: selectedStateVN,
-                      builder: (context, _, __) {
+                    AnimatedBuilder(
+                      animation: Listenable.merge([
+                        selectedCountry,
+                        selectedStateVN,
+                      ]),
+                      builder: (context, _) {
                         return AddressWidget(
                           key: ValueKey(
                             "${selectedStateVN.value?['zAttributesId']}_${selectedCityVN.value?['zAttributesId']}",
                           ),
                           formKey: _formKey,
+                          incomingCountryId:
+                              selectedCountry.value?['zAttributesId'] ?? 1,
+
                           incomingStateId:
                               selectedStateVN.value?['zAttributesId'],
                           incomingDistrictId:
@@ -1455,6 +1486,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                               (val) => selectedDistrictVN.value = val,
                           cityChange: (val) => selectedCityVN.value = val,
                           villageChange: (val) => selectedVillageVN.value = val,
+                          countryChange: (val) => selectedCountry.value = val,
                         );
                       },
                     ),

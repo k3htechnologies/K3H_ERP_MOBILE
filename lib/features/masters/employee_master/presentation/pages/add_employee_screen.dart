@@ -121,6 +121,10 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   ];
 
   // EMPLOYEE INFO SHEET
+  Map<String, dynamic>? selectedCountry = {
+    "zAttributesId": 1,
+    "DisplayName": "India",
+  };
   Map<String, dynamic>? selectedState;
   Map<String, dynamic>? selectedDistrict;
   Map<String, dynamic>? selectedCity;
@@ -250,7 +254,10 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           item['DisplayName'] == employee.emergencyContactPersonRelationship,
       orElse: () => relationToEmployeeList.first,
     );
-
+    selectedCountry = {
+      'zAttributesId': employee.countryMasterId,
+      'DisplayName': employee.countryName,
+    };
     selectedState = {
       'zAttributesId': employee.stateMasterId,
       'DisplayName': employee.stateName,
@@ -819,7 +826,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         ),
         selectedReportingPersonId:
             selectedReportingPerson.first['zAttributesId'] as int,
-        selectedCountryNameId: 1,
+        selectedCountryNameId: selectedCountry?["zAttributesId"] ?? 1,
         selectedStateId: selectedState!["zAttributesId"],
         selectedDistrictId: selectedDistrict!["zAttributesId"],
         selectedCityId: selectedCity!["zAttributesId"],
@@ -868,7 +875,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         ),
         selectedReportingPersonId:
             selectedReportingPerson.first['zAttributesId'] as int,
-        selectedCountryNameId: 1,
+        selectedCountryNameId: selectedCountry?["zAttributesId"] ?? 1,
         selectedStateId: selectedState!["zAttributesId"],
         selectedDistrictId: selectedDistrict!["zAttributesId"],
         selectedCityId: selectedCity!["zAttributesId"],
@@ -1488,6 +1495,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           ),
           AddressWidget(
             formKey: _formKeys[2],
+            incomingCountryId: widget.employee?.countryMasterId ?? 1,
             incomingStateId: widget.employee?.stateMasterId,
             incomingDistrictId: widget.employee?.districtMasterId,
             incomingCityId: widget.employee?.cityMasterId,
@@ -1503,6 +1511,9 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             },
             villageChange: (selectedVillage) {
               this.selectedVillage = selectedVillage;
+            },
+            countryChange: (selectedCountry) {
+              this.selectedCountry = selectedCountry;
             },
           ),
         ],

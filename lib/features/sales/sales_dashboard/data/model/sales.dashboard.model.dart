@@ -505,7 +505,6 @@ class Table3 {
     "Message": message,
   };
 }
-
 // class SalesDashboardModel {
 //   List<Table0> table0;
 //   List<Table1> table1;
@@ -904,7 +903,7 @@ class Table3 {
 //     department: parseValue<String>(json, "Department"),
 //     totalObm: parseValue<int>(json, "TotalOBM"),
 //     walkinsByCp: parseValue<int>(json, "WalkinsByCP"),
-//     profilePhotoUrl: parseValue<String>(json, "ProfilePhotoURL"),
+//     profilePhotoUrl: parseValue<String>(json["ProfilePhotoURL"]),
 //   );
 
 //   Map<String, dynamic> toJson() => {

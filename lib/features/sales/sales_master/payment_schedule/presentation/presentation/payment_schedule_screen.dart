@@ -166,6 +166,8 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                showSiteSelectedWidget(),
+                verticalSpacing(),
                 CustomMultipleSelectPopup(
                   key: ValueKey(
                     state.selectedScheme?.paymentScheduleSchemeMasterId ?? 0,
@@ -225,40 +227,28 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
                         border: Border.all(color: AppColor.primary, width: .5),
                         color: AppColor.lightBlue,
                       ),
-                      child: Column(
+                      child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Building",
-                                value:
-                                    selectedSchemeNotifier
-                                        .value!
-                                        .buildingNumber,
-                              ),
-                              buildColumnTitleValue(
-                                title: "Wing",
-                                value: selectedSchemeNotifier.value!.wing,
-                              ),
-                            ],
+                          buildColumnTitleValue(
+                            title: "Building",
+                            value: selectedSchemeNotifier.value!.buildingNumber,
                           ),
-                          verticalSpacing(height: 5),
-                          Row(
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Total",
-                                value: "${state.totalCumulativePercentage}%",
-                              ),
-                            ],
+                          buildColumnTitleValue(
+                            title: "Wing",
+                            value: selectedSchemeNotifier.value!.wing,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Total",
+                            value: "${state.totalCumulativePercentage}%",
                           ),
                         ],
                       ),
                     );
                   },
                 ),
-                verticalSpacing(height: 5),
+                verticalSpacing(),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -338,42 +328,45 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
                                             ),
                                           ),
                                         ),
-                                        if (_routeAuthorizationModel
-                                            .isAction) ...[
-                                          Row(
-                                            children: [
-                                              CustomIconButton.edit(
-                                                onPressed: () async {
-                                                  await goRouter.pushNamed(
-                                                    AppRoutes
-                                                        .addPaymentSchedule,
-                                                    queryParameters: {
-                                                      "paymentSchedule":
-                                                          Uri.encodeQueryComponent(
-                                                            EncryptionManager.encryptData(
-                                                              jsonEncode(
-                                                                item.toJson(),
-                                                              ),
+
+                                        Row(
+                                          children: [
+                                            CustomIconButton.edit(
+                                              isDisabled:
+                                                  !_routeAuthorizationModel
+                                                      .isAction,
+                                              onPressed: () async {
+                                                await goRouter.pushNamed(
+                                                  AppRoutes.addPaymentSchedule,
+                                                  queryParameters: {
+                                                    "paymentSchedule":
+                                                        Uri.encodeQueryComponent(
+                                                          EncryptionManager.encryptData(
+                                                            jsonEncode(
+                                                              item.toJson(),
                                                             ),
                                                           ),
-                                                      "index": index.toString(),
-                                                    },
-                                                  );
-                                                },
-                                              ),
-                                              const SizedBox(width: 8),
-                                              CustomIconButton.delete(
-                                                onPressed: () {
-                                                  _showPopupToDeletePaymentScheduleMaster(
-                                                    context,
-                                                    item,
-                                                    index,
-                                                  );
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ],
+                                                        ),
+                                                    "index": index.toString(),
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                            const SizedBox(width: 8),
+                                            CustomIconButton.delete(
+                                              isDisabled:
+                                                  !_routeAuthorizationModel
+                                                      .isAction,
+                                              onPressed: () {
+                                                _showPopupToDeletePaymentScheduleMaster(
+                                                  context,
+                                                  item,
+                                                  index,
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
                                       ],
                                     ),
                                     buildRowTitleValue(

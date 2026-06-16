@@ -11,6 +11,7 @@ class AppRoutes {
   /// MAIN DASHBOARD
   // DASHBOARD
   static String dashboardScreen = "/dashboard";
+  static String employeeAttendanceScreen = "/employeeAttendanceScreen";
   static String pendingApprovalScreen = "/pendingApprovalScreen";
   static String projectOverview = "/projectOverview";
 
@@ -191,12 +192,19 @@ class AppRoutes {
   static String salesPerformanceReport = "/salesPerformance";
   static String viewPerformanceReport = "/viewPerformance";
   // ACHIEVEMENT
+  static String incentiveReport = "/incentiveReport";
+  static String enquiryReport = "/enquiryReport";
+  static String cpEnquiryReport = "/cpEnquiryReport";
   static String achievementReport = "/achievement";
   static String managerAchievementReport = "/managerAchievementReport";
+  static String ibmObmReport = "/ibmObmReport";
 
   // SALES CLASSIFICATION PARAMETERS
   static String classificationParameter = "/classificationParameter";
   static String addClassificationParameter = "/addClassificationParameter";
+
+  // SALES CHANNEL PARTNER CATEGORY
+  static String channelPartnerCategory = "/channelPartnerCategory";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// CRM

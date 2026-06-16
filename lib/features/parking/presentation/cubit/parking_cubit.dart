@@ -57,7 +57,7 @@ class ParkingCubit extends Cubit<ParkingState> {
   Future getParking(BuildContext context, int projectId) async {
     emit(state.copyWith(isLoading: true, parkingList: []));
     if (projectId == 0) {
-      showErrorMessage(context, "Error", "Project Not Selected");
+      showErrorMessage(context, "Error", "Please Select a Project");
       ParkingCubit();
       emit(state.copyWith(isLoading: false));
 
@@ -154,6 +154,7 @@ class ParkingCubit extends Cubit<ParkingState> {
               blockedParking: blockedParking,
               holdParking: holdParking,
               allotedParking: memberParking,
+              selectedFlatStatus: "total",
             ),
           );
           return;
@@ -285,7 +286,6 @@ class ParkingCubit extends Cubit<ParkingState> {
     );
   }
 
-
   // HANDLE BUILDING TAB CHANGE
   void handleBuildingTabChange(int index, String building) {
     if (state.groupedData == null) return;
@@ -374,6 +374,7 @@ class ParkingCubit extends Cubit<ParkingState> {
         blockedParking: blockedParking,
         holdParking: holdParking,
         allotedParking: memberParking,
+        selectedFlatStatus: 'total',
       ),
     );
   }

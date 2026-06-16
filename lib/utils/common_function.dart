@@ -873,3 +873,9 @@ extension IndianCurrencyExtension on num {
     return '$grouped,$lastThree$decimalPart';
   }
 }
+
+bool isCurrentDay(String dayName) {
+  final today = DateFormat('EEEE').format(DateTime.now());
+
+  return today.toLowerCase() == dayName.toLowerCase();
+}

@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/project_achievement_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/sourcing_achievement_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/repository/achievement_report.repository.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import '../../../../../../di/app_dependencies.dart';
 import '../../../../../../utils/common_function.dart';
 import '../../data/model/closing_achievement_report.model.dart';
@@ -231,9 +233,10 @@ class AchievementCubit extends Cubit<AchievementState> {
     required BuildContext context,
     required String searchText,
     required int reportTabIndex,
+    required String filterType,
     DateTime? fromDate,
     DateTime? toDate,
-    int? projectId,
+    required int projectId,
   }) {
     emit(state.copyWith(managerSearchText: searchText));
 
@@ -242,7 +245,7 @@ class AchievementCubit extends Cubit<AchievementState> {
         getManagerClosingAchievementReport(
           context: context,
           pageNumber: 1,
-          filterType: '',
+          filterType: filterType,
           fromDate: fromDate,
           toDate: toDate,
           projectId: projectId,
@@ -253,7 +256,7 @@ class AchievementCubit extends Cubit<AchievementState> {
         getManagerSourcingAchievementReport(
           context: context,
           pageNumber: 1,
-          filterType: '',
+          filterType: filterType,
           fromDate: fromDate,
           toDate: toDate,
           projectId: projectId,
@@ -458,5 +461,270 @@ class AchievementCubit extends Cubit<AchievementState> {
         );
         break;
     }
+  }
+
+  Future exportExcelPdf(
+    BuildContext context,
+    String exportType, {
+    required String filterType,
+    required int? secondTabIndex,
+  }) async {
+    switch (secondTabIndex) {
+      case 0:
+        exportProjectExcelPdf(context, exportType, filterType: filterType);
+        break;
+      case 1:
+        exportClosingExcelPdf(context, exportType, filterType: filterType);
+        break;
+      case 2:
+        exportSourcingExcelPdf(context, exportType, filterType: filterType);
+        break;
+      case null:
+        break;
+    }
+  }
+
+  Future exportProjectExcelPdf(
+    BuildContext context,
+    String exportType, {
+    required String filterType,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _achievementRepository
+        .getProjectAchievementReportForExport(
+          pageNumber: 1,
+          pageSize: state.projectAchievementTotalNumberOfRecord,
+          filterType: filterType,
+          queryParams:
+              state.searchText != ""
+                  ? {"ProjectName": state.searchText, "ExportType": exportType}
+                  : {"ExportType": exportType},
+        );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "Achievement By Project ${DateTime.now()}.pdf"
+              : "Achievement By Project ${DateTime.now()}.xlsx",
+        );
+      },
+    );
+  }
+
+  Future exportClosingExcelPdf(
+    BuildContext context,
+    String exportType, {
+    required String filterType,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _achievementRepository
+        .getClosingAchievementReportForExport(
+          pageNumber: 1,
+          pageSize: state.closingAchievementTotalNumberOfRecord,
+          filterType: filterType,
+          queryParams:
+              state.searchText != ""
+                  ? {"EmployeeName": state.searchText, "ExportType": exportType}
+                  : {"ExportType": exportType},
+        );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "Achievement By Closing ${DateTime.now()}.pdf"
+              : "Achievement By Closing ${DateTime.now()}.xlsx",
+        );
+      },
+    );
+  }
+
+  Future exportSourcingExcelPdf(
+    BuildContext context,
+    String exportType, {
+    required String filterType,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _achievementRepository
+        .getSourcingAchievementReportForExport(
+          pageNumber: 1,
+          pageSize: state.sourcingAchievementTotalNumberOfRecord,
+          filterType: filterType,
+          queryParams:
+              state.searchText != ""
+                  ? {"EmployeeName": state.searchText, "ExportType": exportType}
+                  : {"ExportType": exportType},
+        );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "Achievement By Sourcing ${DateTime.now()}.pdf"
+              : "Achievement By Sourcing ${DateTime.now()}.xlsx",
+        );
+      },
+    );
+  }
+
+  void exportManagerExcelPdf({
+    required BuildContext context,
+    required String exportType,
+    required String filterType,
+    required int reportTabIndex,
+    required int projectId,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) {
+    switch (reportTabIndex) {
+      case 0:
+        exportManagerClosingExcelPdf(
+          context,
+          exportType,
+          filterType: filterType,
+          fromDate: fromDate,
+          toDate: toDate,
+          projectId: projectId,
+        );
+        break;
+
+      case 1:
+        exportManagerSourcingExcelPdf(
+          context,
+          exportType,
+          filterType: filterType,
+          fromDate: fromDate,
+          toDate: toDate,
+          projectId: projectId,
+        );
+        break;
+
+      default:
+    }
+  }
+
+  Future exportManagerClosingExcelPdf(
+    BuildContext context,
+    String exportType, {
+    required String filterType,
+    required int projectId,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _achievementRepository
+        .getClosingAchievementReportForExport(
+          pageNumber: 1,
+          pageSize: state.managerClosingAchievementTotalNumberOfRecord,
+          filterType: filterType,
+          queryParams:
+              state.managerSearchText != ""
+                  ? {
+                    "EmployeeName": state.managerSearchText,
+                    "ExportType": exportType,
+                    'FromDate': fromDate?.toIso8601String(),
+                    'ToDate': toDate?.toIso8601String(),
+                    'ProjectId': projectId,
+                  }
+                  : {
+                    "ExportType": exportType,
+                    'FromDate': fromDate?.toIso8601String(),
+                    'ToDate': toDate?.toIso8601String(),
+                    'ProjectId': projectId,
+                  },
+        );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "Achievement By Closing ${DateTime.now()}.pdf"
+              : "Achievement By Closing ${DateTime.now()}.xlsx",
+        );
+      },
+    );
+  }
+
+  Future exportManagerSourcingExcelPdf(
+    BuildContext context,
+    String exportType, {
+    required String filterType,
+    required int projectId,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _achievementRepository
+        .getSourcingAchievementReportForExport(
+          pageNumber: 1,
+          pageSize: state.managerSourcingAchievementTotalNumberOfRecord,
+          filterType: filterType,
+          queryParams:
+              state.managerSearchText != ""
+                  ? {
+                    'FromDate': fromDate?.toIso8601String(),
+                    'ToDate': toDate?.toIso8601String(),
+                    'ProjectId': projectId,
+                    "EmployeeName": state.managerSearchText,
+                    "ExportType": exportType,
+                  }
+                  : {
+                    "ExportType": exportType,
+                    'FromDate': fromDate?.toIso8601String(),
+                    'ToDate': toDate?.toIso8601String(),
+                    'ProjectId': projectId,
+                  },
+        );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "Achievement By Sourcing ${DateTime.now()}.pdf"
+              : "Achievement By Sourcing ${DateTime.now()}.xlsx",
+        );
+      },
+    );
   }
 }

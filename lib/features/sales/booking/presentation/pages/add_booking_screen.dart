@@ -331,6 +331,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _agreementGstAmountC.text = bm.agreementValueGSTAmount.toString();
     _stampDutyPercentageC.text = bm.stampDutyPercentage.toString();
     _stampDutyAmountC.text = bm.stampDutyAmount.toString();
+    _stampDutyAmountNotifier.value = bm.stampDutyAmount;
     _registrationFeesC.text = bm.registrationFees.toString();
     //FILLED COMMISSION TEXTCONTROLLERS
     _referencePercentageC.text = bm.referelPercentage.toString();
@@ -844,6 +845,17 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       showErrorMessage(context, "", "Add Payment Schedule Details");
       return false;
     }
+    // PAYMENT SCHEDULE SHOULD BE 100 PERCENTAGE COMPLETED
+    if (_bookingCubit.totalCumulativePercentage != 100) {
+      _bookingCubit.onTabChangedAddForm(1, context);
+      _tabController.animateTo(1);
+      showErrorMessage(
+        context,
+        "",
+        "Payment schedule total must be exactly 100%. Current total is ${_bookingCubit.remainingPercentage}",
+      );
+      return false;
+    }
 
     // STEP 3 : TERMS AND CONDITIONS
     if (!(_termsFormKey.currentState?.validate() ?? false)) {
@@ -1280,7 +1292,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                               UpperCaseTextFormatter(),
                               LengthLimitingTextInputFormatter(18),
                             ],
-                            hint: "Enter Enquiry Code",
+                            hint: "Search By Enquiry Code",
                             textController: _enquiryUniqueCodeC,
                             onChangeFunction: (value) {
                               if (_debounce?.isActive ?? false) {
@@ -1329,6 +1341,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                 "title": "Enquiry Code",
                                 "value": enquiry.systemGeneratedCode,
                               },
+                              {"title": "Name", "value": enquiry.name},
                               {
                                 "title": "E-Mail ID",
                                 "value": enquiry.emailId,
@@ -1337,7 +1350,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                   type: ContactType.email,
                                 ),
                               },
-                              {"title": "Name", "value": enquiry.name},
                               {
                                 "title": "Nationality",
                                 "value": enquiry.nationality,
@@ -1346,8 +1358,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                 "title": "Mobile No",
                                 "value": enquiry.mobileNumber,
                                 "widget": CustomClickToContactText(
-                                  value:
-                                      "${enquiry.mobileNumberCountryCode} ${enquiry.mobileNumber}",
+                                  countryCode: enquiry.mobileNumberCountryCode,
+                                  value: enquiry.mobileNumber,
                                 ),
                               },
                               {"title": "Source", "value": enquiry.source},
@@ -1437,8 +1449,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                       "value":
                                           enquiry.channelPartnerMobileNumber,
                                       "widget": CustomClickToContactText(
+                                        countryCode:
+                                            enquiry
+                                                .channelPartnerMobileNumberCountryCode,
                                         value:
-                                            "${enquiry.channelPartnerMobileNumberCountryCode} ${enquiry.channelPartnerMobileNumber}",
+                                            enquiry.channelPartnerMobileNumber,
                                       ),
                                     },
                                     {
@@ -1460,8 +1475,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                           enquiry
                                               .channelPartnerTeamMemberMobileNumber,
                                       "widget": CustomClickToContactText(
+                                        countryCode:
+                                            enquiry
+                                                .channelPartnerTeamMemberMobileNumberCountryCode,
                                         value:
-                                            "${enquiry.channelPartnerTeamMemberMobileNumberCountryCode} ${enquiry.channelPartnerTeamMemberMobileNumber}",
+                                            enquiry
+                                                .channelPartnerTeamMemberMobileNumber,
                                       ),
                                     },
                                     {
@@ -1824,6 +1843,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text("Tax Details", style: AppTextStyle.ts16SB()),
+                  verticalSpacing(),
                   Column(
                     children: [
                       CustomTextField(
@@ -2552,7 +2572,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                                         item.paymentScheduleTDSAmount)
                                                     .toIndianCurrency(),
                                           ),
-                                          Spacer(),
                                         ],
                                       ),
                                     ],
@@ -2598,7 +2617,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Applicable",
+                          "Do Other Charges Apply?",
                           style: AppTextStyle.ts14M(color: AppColor.grey),
                         ),
 
@@ -3013,8 +3032,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         ? "-"
                         : applicant.applicantMobileNumber,
                 customValueWidget: CustomClickToContactText(
-                  value:
-                      "${applicant.applicantMobileNumberCountryCode} ${applicant.applicantMobileNumber}",
+                  countryCode: applicant.applicantMobileNumberCountryCode,
+                  value: applicant.applicantMobileNumber,
                 ),
               ),
               buildColumnTitleValue(

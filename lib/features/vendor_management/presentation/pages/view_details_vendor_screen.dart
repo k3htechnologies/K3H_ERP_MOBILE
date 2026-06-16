@@ -102,7 +102,10 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
                       "Mobile Number",
                       style: AppTextStyle.ts14M(color: AppColor.grey),
                     ),
-                    CustomClickToContactText(value: widget.vendor.mobileNumber),
+                    CustomClickToContactText(
+                      countryCode: "+91",
+                      value: widget.vendor.mobileNumber,
+                    ),
                   ],
                 ),
               ),

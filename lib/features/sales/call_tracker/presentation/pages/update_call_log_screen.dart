@@ -150,11 +150,28 @@ class _UpdateCallLogScreenState extends State<UpdateCallLogScreen> {
         status: _selectedCallStatus.value!['DisplayName'],
         budget: _selectedBudgetInCr.value?['DisplayName'] ?? "",
         requirement: _selectedRequirementNotifier.value?['DisplayName'] ?? "",
-        residentialType:
-            _selectedResidentialTypeNotifier.value?['DisplayName'] ?? "",
+        residentialType: getRequirementType(),
         siteVisitProposedDate: siteVisitProposedDate,
         index: widget.index,
       );
+    }
+  }
+
+  String getRequirementType() {
+    final requirement =
+        (_selectedRequirementNotifier.value?['DisplayName'] ?? "")
+            .toString()
+            .toLowerCase();
+    switch (requirement) {
+      case "residential":
+        return _selectedResidentialTypeNotifier.value?['DisplayName'] ?? "";
+      case "commercial":
+        return _selectedCommercialTypeNotifier.value?['DisplayName'] ?? "";
+      case "commercial leasing":
+        return _selectedCommercialLeasingNotifier.value?['DisplayName'] ?? "";
+
+      default:
+        return "";
     }
   }
 
@@ -182,34 +199,45 @@ class _UpdateCallLogScreenState extends State<UpdateCallLogScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    CustomDropDownWidget(
-                      title: "Call Status",
-                      hintText: "Select Call Status",
-                      initialValue: _selectedCallStatus.value,
-                      isRequired: true,
-                      dataList: callStatus,
-                      onSelected: (value) {
-                        _selectedCallStatus.value = value;
-                      },
-                      onValueClear: () {
-                        _selectedCallStatus.value = null;
-                      },
-                      validator: (value) {
-                        if (value == null || value.toString().trim().isEmpty) {
-                          return "Status is required";
-                        }
-                        return null;
+                    ValueListenableBuilder(
+                      valueListenable: _selectedCallStatus,
+                      builder: (context, value, child) {
+                        return CustomDropDownWidget(
+                          title: "Call Status",
+                          hintText: "Select Call Status",
+                          initialValue: value,
+                          isRequired: true,
+                          dataList: callStatus,
+                          onSelected: (value) {
+                            _selectedCallStatus.value = value;
+                          },
+                          onValueClear: () {
+                            _selectedCallStatus.value = null;
+                          },
+                          validator: (value) {
+                            if (value == null ||
+                                value.toString().trim().isEmpty) {
+                              return "Status is required";
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
-                    CustomDropDownWidget(
-                      title: "Budget (In Cr)",
-                      hintText: "Select Budget(In Cr)",
-                      initialValue: _selectedBudgetInCr.value,
-                      dataList: budgetInCrList,
-                      onSelected: (value) {
-                        _selectedBudgetInCr.value = value;
+                    ValueListenableBuilder(
+                      valueListenable: _selectedBudgetInCr,
+                      builder: (context, value, child) {
+                        return CustomDropDownWidget(
+                          title: "Budget (In Cr)",
+                          hintText: "Select Budget(In Cr)",
+                          initialValue: value,
+                          dataList: budgetInCrList,
+                          onSelected: (value) {
+                            _selectedBudgetInCr.value = value;
+                          },
+                          onValueClear: () => _selectedBudgetInCr.value = null,
+                        );
                       },
-                      onValueClear: () => _selectedBudgetInCr.value = null,
                     ),
                     ValueListenableBuilder<Map<String, dynamic>?>(
                       valueListenable: _selectedRequirementNotifier,

@@ -64,6 +64,7 @@ class ViewCompanyPartnerScreen extends StatelessWidget {
                                     ),
 
                                     CustomClickToContactText(
+                                      countryCode: "+91",
                                       value: p.mobileNumber,
                                     ),
                                   ],
@@ -206,6 +207,4 @@ class ViewCompanyPartnerScreen extends StatelessWidget {
       ),
     );
   }
-
-
 }

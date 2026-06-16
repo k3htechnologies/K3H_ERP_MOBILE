@@ -33,11 +33,7 @@ import 'package:url_launcher/url_launcher.dart';
 class EnquiryScreen extends StatefulWidget {
   final String? enquiryName;
   final String? enquiryCode;
-  const EnquiryScreen({
-    super.key,
-    required this.enquiryName,
-    required this.enquiryCode,
-  });
+  const EnquiryScreen({super.key, this.enquiryName, this.enquiryCode});
 
   @override
   State<EnquiryScreen> createState() => _EnquiryScreenState();
@@ -59,7 +55,6 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
 
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC,
-      _enquiryNameC,
       _systemCodeC,
       _mobileNumberC,
       _budgetC,
@@ -176,7 +171,6 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
   @override
   void dispose() {
     _searchC.dispose();
-    _enquiryNameC.dispose();
     _systemCodeC.dispose();
     _mobileNumberC.dispose();
     _budgetC.dispose();
@@ -202,7 +196,6 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
   // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
-    _enquiryNameC = TextEditingController();
     _systemCodeC = TextEditingController();
     _mobileNumberC = TextEditingController();
     _budgetC = TextEditingController();
@@ -272,7 +265,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
 
     // CONTROLLERS
     _systemCodeC.text = initialSystemCode;
-    _enquiryNameC.text = initialEnquiryName;
+    _searchC.text = initialEnquiryName;
     _mobileNumberC.text = initialMobile;
     _budgetC.text = initialBudget;
     _requirementTypeC.text = initialRequirementType;
@@ -650,7 +643,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
           filterStartDate: _startDateNotifier.value,
           filterEndDate: _endDateNotifier.value,
           filterSystemCode: _systemCodeC.text.trim(),
-          filterEnquiryName: _enquiryNameC.text.trim(),
+          filterEnquiryName: _searchC.text.trim(),
           filterMobileNumber: _mobileNumberC.text.trim(),
           filterBudget: _budgetC.text.trim(),
           filterRequirementType: _requirementTypeC.text.trim(),
@@ -741,254 +734,323 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Enquiry",
-        authorization: _routeAuthorizationModel,
-        textController: _searchC,
-        searchHintText: "Search by Name",
-        onSearchSubmit: (value) {
-          _enquiryCubit.searchEnquiry(context, value, _project.projectId);
-        },
-        onExportCallback: (value) {
-          if (_project.projectId == 0) {
-            showErrorMessage(context, "Error", "Please select a project");
-            return;
-          }
-          if (_enquiryCubit.state.totalNumberOfRecord == 0) {
-            showErrorMessage(context, "Error", "No Data Found");
-            return;
-          }
-          _enquiryCubit.exportExcelPdf(context, value);
-        },
-        onProjectChangeCallback: (value) async {
-          _project = value;
-          await clearFilter();
-          if (context.mounted) {
-            _enquiryCubit.searchEnquiry(context, "", value.projectId);
-          }
-        },
-        isFilterOn: true,
-        onFilterTap: () {
-          _showBottomSheetToFilterEnquiry(context);
-        },
-        onAddCallback: () {
-          if (_project.projectId == 0) {
-            showErrorMessage(context, "Error", "Please select a project");
-            return;
-          }
-          _enquiryCubit.searchEnquiry(context, "", _project.projectId);
+    return BlocListener<EnquiryCubit, EnquiryState>(
+      listenWhen: (prev, curr) => curr.searchText.trim().isEmpty,
+      listener: (context, state) {
+        _searchC.clear();
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "Enquiry",
+          authorization: _routeAuthorizationModel,
+          textController: _searchC,
+          searchHintText: "Search by Name",
+          onSearchSubmit: (value) {
+            _enquiryCubit.searchEnquiry(context, value, _project.projectId);
+          },
+          onExportCallback: (value) {
+            if (_project.projectId == 0) {
+              showErrorMessage(context, "Error", "Please select a project");
+              return;
+            }
+            if (_enquiryCubit.state.totalNumberOfRecord == 0) {
+              showErrorMessage(context, "Error", "No Data Found");
+              return;
+            }
+            _enquiryCubit.exportExcelPdf(context, value);
+          },
+          onProjectChangeCallback: (value) async {
+            _project = value;
+            await clearFilter();
+            if (context.mounted) {
+              _enquiryCubit.searchEnquiry(context, "", value.projectId);
+            }
+          },
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterEnquiry(context);
+          },
+          onAddCallback: () {
+            if (_project.projectId == 0) {
+              showErrorMessage(context, "Error", "Please select a project");
+              return;
+            }
 
-          goRouter.pushNamed(AppRoutes.addEnquiry);
-        },
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _searchC.clear();
-          _enquiryCubit.searchEnquiry(context, "", _project.projectId);
-        },
-        child: BlocBuilder<EnquiryCubit, EnquiryState>(
+            goRouter.pushNamed(AppRoutes.addEnquiry);
+          },
+        ),
+        body: BlocBuilder<EnquiryCubit, EnquiryState>(
           builder: (context, state) {
-            if ((state.isLoading ?? true) && state.enquiryList.isEmpty) {
-              return Center(child: loader());
-            }
-            if (state.enquiryList.isEmpty) {
-              return Center(
-                child: noDataWidget(message: "No Enquiry Data Found"),
-              );
-            }
-            return ListView.builder(
-              controller: scrollController,
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              itemCount: _enquiryCubit.state.enquiryList.length + 1,
-              itemBuilder: (context, index) {
-                if (index == state.enquiryList.length) {
-                  return state.enquiryList.length < state.totalNumberOfRecord
-                      ? Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                      : const SizedBox.shrink();
-                }
-                var enquiry = state.enquiryList[index];
-                final editDisable =
-                    !_routeAuthorizationModel.isAction ||
-                    closedStatuses.contains(enquiry.finalStage.toLowerCase());
-                final deleteDisable =
-                    !_routeAuthorizationModel.isAction ||
-                    (enquiry.nextFollowUpDate != null ||
-                        closedStatuses.contains(
-                          enquiry.finalStage.toLowerCase(),
-                        ));
-
-                return Container(
-                  margin: EdgeInsets.only(bottom: 10),
-                  padding: EdgeInsets.all(12),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () async {
-                                /// CLEAR PREVIOUS OVERVIEW DATA
-                                await _enquiryCubit.clearCurrentEnquiry();
-
-                                ///  CLEAR PREVIOUS FOLLOWUP DATA
-                                await _enquiryCubit.clearEnquiryFollowUp();
-
-                                await goRouter.pushNamed(
-                                  AppRoutes.viewEnquiry,
-                                  queryParameters: {
-                                    "enquiryId": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        enquiry.enquiryId.toString(),
-                                      ),
-                                    ),
-                                  },
-                                );
-                              },
-                              child: Text(
-                                enquiry.name,
-                                style: AppTextStyle.ts14M(
-                                  color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
-                                ),
-                              ),
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: showSiteSelectedWidget(),
+                ),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      _searchC.clear();
+                      _enquiryCubit.searchEnquiry(
+                        context,
+                        "",
+                        _project.projectId,
+                      );
+                    },
+                    child: BlocBuilder<EnquiryCubit, EnquiryState>(
+                      builder: (context, state) {
+                        if ((state.isLoading ?? true) &&
+                            state.enquiryList.isEmpty) {
+                          return Center(child: loader());
+                        }
+                        if (state.enquiryList.isEmpty) {
+                          return Center(
+                            child: noDataWidget(
+                              message: "No Enquiry Data Found",
                             ),
-                          ),
-                          horizontalSpacing(),
-                          CustomIconButton(
-                            onPressed: () {
-                              openWhatsApp(phoneNumber: enquiry.mobileNumber);
-                            },
-                            icon: SvgPicture.asset(
-                              AppAssets.whatsAppIcon,
-                              height: 16,
-                              width: 16,
-                            ),
-                          ),
-                          horizontalSpacing(),
-                          CustomIconButton.edit(
-                            isDisabled: editDisable,
-                            onPressed: () {
-                              goRouter.pushNamed(
-                                AppRoutes.addEnquiry,
-                                queryParameters: {
-                                  "enquiry": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(enquiry.toJson()),
-                                    ),
-                                  ),
-                                  'index': index.toString(),
-                                },
-                              );
-                            },
-                          ),
-                          horizontalSpacing(),
-
-                          CustomIconButton.delete(
-                            isDisabled: deleteDisable,
-                            onPressed: () {
-                              _showPopupToDeleteEnquiry(
-                                context: context,
-                                enquiryModel: enquiry,
-                                index: index,
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      buildRowTitleValue(
-                        title: "Enquiry Code  ",
-                        value: enquiry.systemGeneratedCode,
-                        customValueWidget: Row(
+                          );
+                        }
+                        return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                              child: Text(
-                                enquiry.systemGeneratedCode,
-                                style: AppTextStyle.ts14M(),
-                              ),
-                            ),
-                            horizontalSpacing(width: 2),
-                            InkWell(
-                              onTap: () {
-                                copy(
-                                  context: context,
-                                  text: enquiry.systemGeneratedCode,
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(5),
-                                child: Icon(
-                                  Icons.copy,
-                                  size: 16,
-                                  color: AppColor.primary,
+                              child: ListView.builder(
+                                controller: scrollController,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
                                 ),
+                                itemCount:
+                                    _enquiryCubit.state.enquiryList.length + 1,
+                                itemBuilder: (context, index) {
+                                  if (index == state.enquiryList.length) {
+                                    return state.enquiryList.length <
+                                            state.totalNumberOfRecord
+                                        ? Padding(
+                                          padding: const EdgeInsets.all(16),
+                                          child: Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                        )
+                                        : const SizedBox.shrink();
+                                  }
+                                  var enquiry = state.enquiryList[index];
+                                  final editDisable =
+                                      !_routeAuthorizationModel.isAction ||
+                                      closedStatuses.contains(
+                                        enquiry.finalStage.toLowerCase(),
+                                      );
+                                  final deleteDisable =
+                                      !_routeAuthorizationModel.isAction ||
+                                      (enquiry.nextFollowUpDate != null ||
+                                          closedStatuses.contains(
+                                            enquiry.finalStage.toLowerCase(),
+                                          ));
+
+                                  return Container(
+                                    margin: EdgeInsets.only(bottom: 10),
+                                    padding: EdgeInsets.all(12),
+                                    decoration: commonCardDecoration(),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: GestureDetector(
+                                                onTap: () async {
+                                                  /// CLEAR PREVIOUS OVERVIEW DATA
+                                                  await _enquiryCubit
+                                                      .clearCurrentEnquiry();
+
+                                                  ///  CLEAR PREVIOUS FOLLOWUP DATA
+                                                  await _enquiryCubit
+                                                      .clearEnquiryFollowUp();
+
+                                                  await goRouter.pushNamed(
+                                                    AppRoutes.viewEnquiry,
+                                                    queryParameters: {
+                                                      "enquiryId":
+                                                          Uri.encodeQueryComponent(
+                                                            EncryptionManager.encryptData(
+                                                              enquiry.enquiryId
+                                                                  .toString(),
+                                                            ),
+                                                          ),
+                                                    },
+                                                  );
+                                                },
+                                                child: Text(
+                                                  enquiry.name,
+                                                  style: AppTextStyle.ts14M(
+                                                    color: AppColor.primary,
+                                                  ).copyWith(
+                                                    decoration:
+                                                        TextDecoration
+                                                            .underline,
+                                                    decorationColor:
+                                                        AppColor.primary,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            horizontalSpacing(),
+                                            CustomIconButton(
+                                              onPressed: () {
+                                                openWhatsApp(
+                                                  phoneNumber:
+                                                      enquiry.mobileNumber,
+                                                );
+                                              },
+                                              icon: SvgPicture.asset(
+                                                AppAssets.whatsAppIcon,
+                                                height: 16,
+                                                width: 16,
+                                              ),
+                                            ),
+                                            horizontalSpacing(),
+                                            CustomIconButton.edit(
+                                              isDisabled: editDisable,
+                                              onPressed: () {
+                                                goRouter.pushNamed(
+                                                  AppRoutes.addEnquiry,
+                                                  queryParameters: {
+                                                    "enquiry":
+                                                        Uri.encodeQueryComponent(
+                                                          EncryptionManager.encryptData(
+                                                            jsonEncode(
+                                                              enquiry.toJson(),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                    'index': index.toString(),
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                            horizontalSpacing(),
+
+                                            CustomIconButton.delete(
+                                              isDisabled: deleteDisable,
+                                              onPressed: () {
+                                                _showPopupToDeleteEnquiry(
+                                                  context: context,
+                                                  enquiryModel: enquiry,
+                                                  index: index,
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                        buildRowTitleValue(
+                                          title: "Enquiry Code  ",
+                                          value: enquiry.systemGeneratedCode,
+                                          customValueWidget: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  enquiry.systemGeneratedCode,
+                                                  style: AppTextStyle.ts14M(),
+                                                ),
+                                              ),
+                                              horizontalSpacing(width: 2),
+                                              InkWell(
+                                                onTap: () {
+                                                  copy(
+                                                    context: context,
+                                                    text:
+                                                        enquiry
+                                                            .systemGeneratedCode,
+                                                  );
+                                                },
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(
+                                                    5,
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.copy,
+                                                    size: 16,
+                                                    color: AppColor.primary,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        buildRowTitleValue(
+                                          title: "Mobile Number",
+                                          value: enquiry.mobileNumber,
+                                          customValueWidget:
+                                              CustomClickToContactText(
+                                                countryCode:
+                                                    enquiry
+                                                        .mobileNumberCountryCode,
+                                                value: enquiry.mobileNumber,
+                                              ),
+                                        ),
+                                        buildRowTitleValue(
+                                          title: "Source",
+                                          value: enquiry.source,
+                                        ),
+                                        buildRowTitleValue(
+                                          title: "Customer Classification",
+                                          value: enquiry.customerClassification,
+                                        ),
+                                        buildRowTitleValue(
+                                          title: "Enquiry Follow Up Days",
+                                          value:
+                                              enquiry.nextFollowUpDate
+                                                  ?.toIso8601String() ??
+                                              'No Follow up',
+                                          singleLine: false,
+                                          customValueWidget:
+                                              followUpStatusTextWidget(
+                                                enquiry.nextFollowUpDate,
+                                              ),
+                                        ),
+                                        buildRowTitleValue(
+                                          title: "Next Follow-Up Date",
+                                          value:
+                                              enquiry.nextFollowUpDate != null
+                                                  ? formatDateTimeAsDDMMMYYYY(
+                                                    enquiry.nextFollowUpDate!,
+                                                  )
+                                                  : "-",
+                                          singleLine: false,
+                                        ),
+                                        buildRowTitleValue(
+                                          title: "Requirement",
+                                          value: enquiry.requirement,
+                                          singleLine: false,
+                                        ),
+                                        buildRowTitleValue(
+                                          title: "Stage",
+                                          value: enquiry.finalStage,
+                                          customValueWidget:
+                                              enquiry.finalStage.isNotEmpty
+                                                  ? enquiryStatusWidget(
+                                                    enquiry.finalStage,
+                                                  )
+                                                  : null,
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           ],
-                        ),
-                      ),
-                      buildRowTitleValue(
-                        title: "Mobile Number",
-                        value: enquiry.mobileNumber,
-                        customValueWidget: CustomClickToContactText(
-                          value:
-                              "${enquiry.mobileNumberCountryCode} ${enquiry.mobileNumber}",
-                        ),
-                      ),
-                      buildRowTitleValue(
-                        title: "Source",
-                        value: enquiry.source,
-                      ),
-                      buildRowTitleValue(
-                        title: "Customer Classification",
-                        value: enquiry.customerClassification,
-                      ),
-                      buildRowTitleValue(
-                        title: "Enquiry Follow Up Days",
-                        value:
-                            enquiry.nextFollowUpDate?.toIso8601String() ??
-                            'No Follow up',
-                        singleLine: false,
-                        customValueWidget: followUpStatusTextWidget(
-                          enquiry.nextFollowUpDate,
-                        ),
-                      ),
-                      buildRowTitleValue(
-                        title: "Next Follow-Up Date",
-                        value:
-                            enquiry.nextFollowUpDate != null
-                                ? formatDateTimeAsDDMMMYYYY(
-                                  enquiry.nextFollowUpDate!,
-                                )
-                                : "-",
-                        singleLine: false,
-                      ),
-                      buildRowTitleValue(
-                        title: "Requirement",
-                        value: enquiry.requirement,
-                        singleLine: false,
-                      ),
-                      buildRowTitleValue(
-                        title: "Stage",
-                        value: enquiry.finalStage,
-                        customValueWidget:
-                            enquiry.finalStage.isNotEmpty
-                                ? enquiryStatusWidget(enquiry.finalStage)
-                                : null,
-                      ),
-                    ],
+                        );
+                      },
+                    ),
                   ),
-                );
-              },
+                ),
+              ],
             );
           },
         ),

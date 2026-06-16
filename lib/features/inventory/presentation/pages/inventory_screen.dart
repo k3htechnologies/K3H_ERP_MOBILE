@@ -357,183 +357,236 @@ class _InventoryScreenState extends State<InventoryScreen>
               }
             }
           },
-          child: BlocBuilder<InventoryCubit, InventoryState>(
-            builder: (context, state) {
-              if (state.isLoading! && state.buildingList.isEmpty) {
-                return loader();
-              }
+          child: Builder(
+            builder: (context) {
+              return BlocBuilder<InventoryCubit, InventoryState>(
+                builder: (context, state) {
+                  return Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: showSiteSelectedWidget(),
+                      ),
+                      Expanded(
+                        child: BlocBuilder<InventoryCubit, InventoryState>(
+                          builder: (context, state) {
+                            if (state.isLoading! &&
+                                state.buildingList.isEmpty) {
+                              return loader();
+                            }
 
-              if (state.buildingList.isEmpty) {
-                return Center(child: noDataWidget());
-              }
+                            if (state.buildingList.isEmpty) {
+                              return Center(child: noDataWidget());
+                            }
 
-              _initializeControllersIfNeeded(state);
+                            _initializeControllersIfNeeded(state);
 
-              // Ensure currentTabIndex is within bounds
-              final int safeTabIndex =
-                  state.currentTabIndex >= 0 &&
-                          state.currentTabIndex < state.buildingList.length
-                      ? state.currentTabIndex
-                      : 0;
+                            // Ensure currentTabIndex is within bounds
+                            final int safeTabIndex =
+                                state.currentTabIndex >= 0 &&
+                                        state.currentTabIndex <
+                                            state.buildingList.length
+                                    ? state.currentTabIndex
+                                    : 0;
 
-              final selectedBuilding = state.buildingList[safeTabIndex];
+                            final selectedBuilding =
+                                state.buildingList[safeTabIndex];
 
-              final wingList = selectedBuilding.wingList;
-              final selectedWing =
-                  wingList.isNotEmpty &&
-                          state.wingCurrentPage >= 0 &&
-                          state.wingCurrentPage < wingList.length
-                      ? wingList[state.wingCurrentPage]
-                      : null;
-              final bool isActionAllowed = selectedWing?.isApproval ?? false;
+                            final wingList = selectedBuilding.wingList;
+                            final wingIndex = state.wingCurrentPage.clamp(
+                              0,
+                              wingList.isEmpty ? 0 : wingList.length - 1,
+                            );
 
-              if (state.buildingList.isNotEmpty &&
-                  (_buildingTabController == null ||
-                      _buildingTabController!.length !=
-                          state.buildingList.length)) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              return Column(
-                children: [
-                  verticalSpacing(),
-                  // BUILDING TAB
-                  _buildBuildingTab(state),
-                  verticalSpacing(),
-                  // WING TAB
-                  if (wingList.isNotEmpty) _buildWingTab(wingList),
-                  // COUNTS
-                  verticalSpacing(),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: ApproveRejectWidget(
-                      actionTitle: selectedWing?.approvalStatus ?? "",
-                      isActionAlreadyPerformed: !isActionAllowed,
-                      isMaster: true,
-                      popupTitle:
-                          "${selectedBuilding.buildingNumber} > ${selectedWing?.wing ?? ''}",
+                            final selectedWing =
+                                wingList.isNotEmpty
+                                    ? wingList[wingIndex]
+                                    : null;
 
-                      onApprove: (val) async {
-                        await _utilsCubit.updateModulesWorkflowApproval(
-                          context: context,
-                          moduleName: 'INVENTORY APPROVAL',
-                          id: selectedBuilding.inventoryBuildingId,
-                          subId:
-                              selectedWing
-                                  ?.inventoryFlatFloorBasementPodiumWingId,
-                          projectId: _project.projectId,
-                          isApproved: true,
-                          remark: val.trim(),
-                        );
-                        if (context.mounted) {
-                          _inventoryCubit.getInventory(
-                            context,
-                            _project.projectId,
-                          );
-                        }
-                      },
+                            final bool isActionAllowed =
+                                selectedWing?.isApproval ?? false;
 
-                      onReject: (val) async {
-                        await _utilsCubit.updateModulesWorkflowApproval(
-                          context: context,
-                          moduleName: 'INVENTORY APPROVAL',
-                          id: selectedBuilding.inventoryBuildingId,
-                          subId:
-                              selectedWing
-                                  ?.inventoryFlatFloorBasementPodiumWingId,
-                          projectId: _project.projectId,
-                          isApproved: false,
-                          remark: val.trim(),
-                        );
-                        if (context.mounted) {
-                          _inventoryCubit.getInventory(
-                            context,
-                            _project.projectId,
-                          );
-                        }
-                      },
-                      onThirdTap:
-                          selectedWing == null
-                              ? null
-                              : () async {
-                                final approvalLogHistoryList = await _utilsCubit
-                                    .getApprovalLogHistory(
-                                      context: context,
-                                      projectId: _project.projectId,
-                                      id: selectedBuilding.inventoryBuildingId,
-                                      subId:
-                                          selectedWing
-                                              .inventoryFlatFloorBasementPodiumWingId,
-                                      moduleName: "INVENTORY APPROVAL",
-                                    );
-
-                                if (context.mounted) {
-                                  goRouter.pushNamed(
-                                    AppRoutes.approvalLogHistory,
-                                    queryParameters: {
-                                      "subTitle": Uri.encodeComponent(
-                                        EncryptionManager.encryptData(
-                                          "${selectedBuilding.buildingNumber} > ${selectedWing.wing}",
-                                        ),
-                                      ),
-                                      "title": Uri.encodeComponent(
-                                        EncryptionManager.encryptData(
-                                          "Inventory Log History",
-                                        ),
-                                      ),
-                                      "approvalList": Uri.encodeComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(
-                                            approvalLogHistoryList
-                                                .map((e) => e.toJson())
-                                                .toList(),
-                                          ),
-                                        ),
-                                      ),
-                                    },
-                                  );
-                                }
-                              },
-                    ),
-                  ),
-                  verticalSpacing(),
-                  if (wingList.isNotEmpty &&
-                      _wingTabController != null &&
-                      _wingTabController!.length == wingList.length)
-                    _buildCountsRow(wingList),
-
-                  if (wingList.isNotEmpty)
-                    Expanded(
-                      child:
-                          _wingTabController != null &&
-                                  _wingTabController!.length ==
-                                      wingList.length &&
-                                  mounted
-                              ? TabBarView(
-                                controller: _wingTabController,
-                                children:
-                                    wingList
-                                        .asMap()
-                                        .entries
-                                        .map(
-                                          (entry) => _buildFloorList(
-                                            entry.value.floorList,
-                                            entry.value,
-                                            selectedBuilding,
-                                            safeTabIndex,
-                                            entry.key,
-                                          ),
-                                        )
-                                        .toList(),
-                              )
-                              : const Center(
+                            if (state.buildingList.isNotEmpty &&
+                                (_buildingTabController == null ||
+                                    _buildingTabController!.length !=
+                                        state.buildingList.length)) {
+                              return const Center(
                                 child: CircularProgressIndicator(),
-                              ),
-                    )
-                  else
-                    const Expanded(
-                      child: Center(child: Text("No wings found")),
-                    ),
-                ],
+                              );
+                            }
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // BUILDING TAB
+                                _buildBuildingTab(state),
+                                verticalSpacing(),
+                                // WING TAB
+                                if (wingList.isNotEmpty)
+                                  _buildWingTab(wingList),
+                                // COUNTS
+                                verticalSpacing(),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 16.w,
+                                  ),
+                                  child: ApproveRejectWidget(
+                                    actionTitle:
+                                        selectedWing?.approvalStatus ?? "",
+                                    isActionAlreadyPerformed: !isActionAllowed,
+                                    isMaster: true,
+                                    popupTitle:
+                                        "${selectedBuilding.buildingNumber} > ${selectedWing?.wing ?? ''}",
+
+                                    onApprove: (val) async {
+                                      await _utilsCubit
+                                          .updateModulesWorkflowApproval(
+                                            context: context,
+                                            moduleName: 'INVENTORY APPROVAL',
+                                            id:
+                                                selectedBuilding
+                                                    .inventoryBuildingId,
+                                            subId:
+                                                selectedWing
+                                                    ?.inventoryFlatFloorBasementPodiumWingId,
+                                            projectId: _project.projectId,
+                                            isApproved: true,
+                                            remark: val.trim(),
+                                          );
+                                      if (context.mounted) {
+                                        _inventoryCubit.getInventory(
+                                          context,
+                                          _project.projectId,
+                                        );
+                                      }
+                                    },
+
+                                    onReject: (val) async {
+                                      await _utilsCubit
+                                          .updateModulesWorkflowApproval(
+                                            context: context,
+                                            moduleName: 'INVENTORY APPROVAL',
+                                            id:
+                                                selectedBuilding
+                                                    .inventoryBuildingId,
+                                            subId:
+                                                selectedWing
+                                                    ?.inventoryFlatFloorBasementPodiumWingId,
+                                            projectId: _project.projectId,
+                                            isApproved: false,
+                                            remark: val.trim(),
+                                          );
+                                      if (context.mounted) {
+                                        _inventoryCubit.getInventory(
+                                          context,
+                                          _project.projectId,
+                                        );
+                                      }
+                                    },
+                                    onThirdTap:
+                                        selectedWing == null
+                                            ? null
+                                            : () async {
+                                              final approvalLogHistoryList =
+                                                  await _utilsCubit
+                                                      .getApprovalLogHistory(
+                                                        context: context,
+                                                        projectId:
+                                                            _project.projectId,
+                                                        id:
+                                                            selectedBuilding
+                                                                .inventoryBuildingId,
+                                                        subId:
+                                                            selectedWing
+                                                                .inventoryFlatFloorBasementPodiumWingId,
+                                                        moduleName:
+                                                            "INVENTORY APPROVAL",
+                                                      );
+
+                                              if (context.mounted) {
+                                                goRouter.pushNamed(
+                                                  AppRoutes.approvalLogHistory,
+                                                  queryParameters: {
+                                                    "subTitle": Uri.encodeComponent(
+                                                      EncryptionManager.encryptData(
+                                                        "${selectedBuilding.buildingNumber} > ${selectedWing.wing}",
+                                                      ),
+                                                    ),
+                                                    "title": Uri.encodeComponent(
+                                                      EncryptionManager.encryptData(
+                                                        "Inventory Log History",
+                                                      ),
+                                                    ),
+                                                    "approvalList": Uri.encodeComponent(
+                                                      EncryptionManager.encryptData(
+                                                        jsonEncode(
+                                                          approvalLogHistoryList
+                                                              .map(
+                                                                (e) =>
+                                                                    e.toJson(),
+                                                              )
+                                                              .toList(),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  },
+                                                );
+                                              }
+                                            },
+                                  ),
+                                ),
+                                verticalSpacing(),
+                                if (wingList.isNotEmpty &&
+                                    _wingTabController != null &&
+                                    _wingTabController!.length ==
+                                        wingList.length)
+                                  _buildCountsRow(wingList),
+
+                                if (wingList.isNotEmpty)
+                                  Expanded(
+                                    child:
+                                        _wingTabController != null &&
+                                                _wingTabController!.length ==
+                                                    wingList.length &&
+                                                mounted
+                                            ? TabBarView(
+                                              controller: _wingTabController,
+                                              children:
+                                                  wingList
+                                                      .asMap()
+                                                      .entries
+                                                      .map(
+                                                        (entry) =>
+                                                            _buildFloorList(
+                                                              entry
+                                                                  .value
+                                                                  .floorList,
+                                                              entry.value,
+                                                              selectedBuilding,
+                                                              safeTabIndex,
+                                                              entry.key,
+                                                            ),
+                                                      )
+                                                      .toList(),
+                                            )
+                                            : const Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            ),
+                                  )
+                                else
+                                  const Expanded(
+                                    child: Center(
+                                      child: Text("No wings found"),
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
               );
             },
           ),
@@ -580,6 +633,10 @@ class _InventoryScreenState extends State<InventoryScreen>
                   return flat.flatStatus.toLowerCase() ==
                       selectedFilter.toLowerCase();
                 }).toList();
+        final displayCount =
+            selectedFilter == null || selectedFilter.toLowerCase() == 'total'
+                ? floor.flatList.length
+                : filteredFlats.length;
         return ValueListenableBuilder<Set<String>>(
           valueListenable: _expandedFloors,
           builder: (context, expandedSet, child) {
@@ -731,7 +788,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                                   ],
                                 ),
                                 Text(
-                                  "Total Flats : ${floor.flatList.length}",
+                                  "Total Flats : $displayCount",
                                   style: AppTextStyle.ts12R(
                                     color: AppColor.grey,
                                   ),

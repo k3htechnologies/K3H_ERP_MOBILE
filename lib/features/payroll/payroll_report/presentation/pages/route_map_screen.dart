@@ -81,7 +81,7 @@ class _MapScreenState extends State<MapScreen> {
         "https://maps.googleapis.com/maps/api/directions/json?"
         "origin=${widget.startLatitude},${widget.startLongitude}"
         "&destination=${widget.endLatitude},${widget.endLongitude}"
-        "&key=YOUR_API_KEY";
+        "&key=AIzaSyATMi_WzfUnBfhb66_FR8c1Fg_zEwHyaCs";
 
     final response = await _dio.get(url);
     final data = response.data;

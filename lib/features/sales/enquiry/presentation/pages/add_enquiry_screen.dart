@@ -295,17 +295,19 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     // TEXT CONTROLLERS
     _nameC.text = model.name;
     _mobileC.text = model.mobileNumber;
-    selectedMobileNoCountry.value = countryList.firstWhere(
-      (e) => e.code == model.mobileNumberCountryCode,
-      orElse:
-          () => CountryCode(
-            name: "India",
-            code: "+91",
-            countryCode: "IN",
-            mobileLength: 10,
-            regex: RegExp(r'^[6-9]\d{9}$'),
-          ),
-    );
+    if (model.mobileNumberCountryCode.isNotEmpty) {
+      selectedMobileNoCountry.value = countryList.firstWhere(
+        (e) => e.code == model.mobileNumberCountryCode,
+        orElse:
+            () => CountryCode(
+              name: "India",
+              code: "+91",
+              countryCode: "IN",
+              mobileLength: 10,
+              regex: RegExp(r'^[6-9]\d{9}$'),
+            ),
+      );
+    }
     _teamMemberEmailC.text = model.channelPartnerTeamMemberEmailId;
     _emailC.text = model.emailId;
     _locationC.text = model.currentLocation;
@@ -769,6 +771,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       context: context,
       body: payload,
       projectId: _project.projectId,
+      isIndian: selectedMobileNoCountry.value.countryCode == "IN",
       index: _isEditMode ? widget.index : null,
     );
   }
@@ -996,7 +999,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                 return {
                   "zAttributesId": employee.employeeId,
                   "DisplayName":
-                      "${employee.fullName} - ${employee.department} - ${employee.designation}",
+                      "${employee.fullName} - ${employee.designation}",
                 };
               }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
@@ -1470,8 +1473,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                   "title": "Mobile",
                                   "value": partner.mobileNumber,
                                   "widget": CustomClickToContactText(
-                                    value:
-                                        "${partner.mobileNumberCountryCode} ${partner.mobileNumber}",
+                                    countryCode:
+                                        partner.mobileNumberCountryCode,
+                                    value: partner.mobileNumber,
                                     type: ContactType.phone,
                                   ),
                                 },
@@ -1539,7 +1543,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                     CustomTextField(
                                       title: "Team Member Name",
                                       hint: "Enter Team Member Name",
-
+                                      readOnly: _isEditMode,
                                       textController: _teamMemberNameC,
                                       onChangeFunction: (_) {
                                         _selectedTeamMemberNotifier.value = [];
@@ -1569,6 +1573,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                         return CustomTextField(
                                           title: "Team Member Mobile Number",
                                           hint: "Enter Mobile Number",
+                                          readOnly: _isEditMode,
                                           textController: _teamMemberMobileC,
                                           keyboardType: TextInputType.phone,
                                           showCountryDropdown: true,
@@ -1660,6 +1665,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                           isRequired:
                                               selectedMobNovalue.countryCode !=
                                               "IN",
+                                          readOnly: _isEditMode,
                                           textController: _teamMemberEmailC,
                                           keyboardType:
                                               TextInputType.emailAddress,
@@ -2312,6 +2318,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               ? CustomDropDownWidget(
                 title: "Final Stage Detail",
                 hintText: "Select Final Stage Detail",
+                isRequired: true,
                 isDisabled: _isEditMode,
                 initialValue: _selectedFinalStageDetail.value,
                 dataList: finalStageDetailsList,

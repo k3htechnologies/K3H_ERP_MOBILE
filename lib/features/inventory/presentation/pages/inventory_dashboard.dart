@@ -121,9 +121,11 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
     required String buildingNumber,
     required String wing,
   }) {
-    final base = "$projectName | Bldg: $buildingNumber | Wing: $wing";
+    if (wing.toLowerCase() == "total") {
+      return "$projectName | Bldg: $buildingNumber";
+    }
 
-    return base;
+    return "$projectName | Bldg: $buildingNumber | Wing: $wing";
   }
 
   @override
@@ -167,7 +169,9 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: showSiteSelectedWidget(),
+                  child: showSiteSelectedWidget(
+                    projectName: _selectedProject.projectName,
+                  ),
                 ),
                 Expanded(
                   child: SingleChildScrollView(
@@ -1297,6 +1301,10 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                           e.inventoryFlatFloorBasementPodiumWingId ==
                           selectedWing["zAttributesId"],
                     );
+                    final totalCount =
+                        selectedTab == 0
+                            ? selectedWingData.units
+                            : selectedWingData.totalParking;
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -1387,10 +1395,42 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                               selectedTab == 0
                                   ? "Total Units"
                                   : "Total Parking",
-                          value:
-                              selectedTab == 0
-                                  ? selectedWingData.units.toString()
-                                  : selectedWingData.totalParking.toString(),
+                          value: "",
+                          customValueWidget: InkWell(
+                            onTap:
+                                totalCount > 0
+                                    ? () {
+                                      _navigateToDistribution(
+                                        type:
+                                            selectedTab == 0
+                                                ? "Unit"
+                                                : "Parking",
+                                        count: totalCount,
+                                        projectName:
+                                            _selectedProject.projectName,
+                                        buildingNumber:
+                                            selectedWingData.building,
+                                        wing: selectedWingData.wing,
+                                        queryParams: {
+                                          "BuildingNumber":
+                                              selectedWingData.building,
+                                          "Wing": selectedWingData.wing,
+                                          if (selectedTab == 1)
+                                            "IsAcessOnlyApprovedParking": false,
+                                        },
+                                      );
+                                    }
+                                    : null,
+                            child: Text(
+                              totalCount.toString(),
+                              style: AppTextStyle.ts14M(
+                                color:
+                                    totalCount > 0
+                                        ? AppColor.primary
+                                        : AppColor.grey,
+                              ),
+                            ),
+                          ),
                         ),
                         verticalSpacing(),
                         if (selectedTab == 0) ...[
@@ -1424,7 +1464,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                               _navigateToDistribution(
                                 type: "Unit",
                                 status: "Blocked",
-                                count: selectedWingData.availableFlats,
+                                count: selectedWingData.blockedFlats,
                                 projectName: _selectedProject.projectName,
                                 buildingNumber: selectedWingData.building,
                                 wing: selectedWingData.wing,
@@ -1445,7 +1485,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                               _navigateToDistribution(
                                 type: "Unit",
                                 status: "Hold",
-                                count: selectedWingData.availableFlats,
+                                count: selectedWingData.holdFlats,
                                 projectName: _selectedProject.projectName,
                                 buildingNumber: selectedWingData.building,
                                 wing: selectedWingData.wing,
@@ -1466,7 +1506,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                               _navigateToDistribution(
                                 type: "Unit",
                                 status: "Booked",
-                                count: selectedWingData.availableFlats,
+                                count: selectedWingData.bookedFlats,
                                 projectName: _selectedProject.projectName,
                                 buildingNumber: selectedWingData.building,
                                 wing: selectedWingData.wing,
@@ -1474,6 +1514,27 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                   "BuildingNumber": selectedWingData.building,
                                   "Wing": selectedWingData.wing,
                                   "FlatStatus": "Booked",
+                                },
+                              );
+                            },
+                          ),
+                          buildProgressRow(
+                            title: "Alloted",
+                            value: selectedWingData.allotedFlats,
+                            total: selectedWingData.units,
+                            color: Color(0xff561F64),
+                            onTap: () {
+                              _navigateToDistribution(
+                                type: "Unit",
+                                status: "Alloted",
+                                count: selectedWingData.allotedFlats,
+                                projectName: _selectedProject.projectName,
+                                buildingNumber: selectedWingData.building,
+                                wing: selectedWingData.wing,
+                                queryParams: {
+                                  "BuildingNumber": selectedWingData.building,
+                                  "Wing": selectedWingData.wing,
+                                  "FlatStatus": "Available",
                                 },
                               );
                             },
@@ -1496,7 +1557,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                 queryParams: {
                                   "BuildingNumber": selectedWingData.building,
                                   "Wing": selectedWingData.wing,
-                                  "FlatStatus": "Available",
+                                  "ParkingStatus": "Available",
                                   "IsAcessOnlyApprovedParking": false,
                                 },
                               );
@@ -1511,14 +1572,14 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                               _navigateToDistribution(
                                 type: "Parking",
                                 status: "Blocked",
-                                count: selectedWingData.availableParking,
+                                count: selectedWingData.blockedParking,
                                 projectName: _selectedProject.projectName,
                                 buildingNumber: selectedWingData.building,
                                 wing: selectedWingData.wing,
                                 queryParams: {
                                   "BuildingNumber": selectedWingData.building,
                                   "Wing": selectedWingData.wing,
-                                  "FlatStatus": "Blocked",
+                                  "ParkingStatus": "Blocked",
                                   "IsAcessOnlyApprovedParking": false,
                                 },
                               );
@@ -1533,14 +1594,14 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                               _navigateToDistribution(
                                 type: "Parking",
                                 status: "Hold",
-                                count: selectedWingData.availableParking,
+                                count: selectedWingData.holdParking,
                                 projectName: _selectedProject.projectName,
                                 buildingNumber: selectedWingData.building,
                                 wing: selectedWingData.wing,
                                 queryParams: {
                                   "BuildingNumber": selectedWingData.building,
                                   "Wing": selectedWingData.wing,
-                                  "FlatStatus": "Hold",
+                                  "ParkingStatus": "Hold",
                                   "IsAcessOnlyApprovedParking": false,
                                 },
                               );
@@ -1555,15 +1616,36 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                               _navigateToDistribution(
                                 type: "Parking",
                                 status: "Booked",
-                                count: selectedWingData.availableParking,
+                                count: selectedWingData.bookedParking,
                                 projectName: _selectedProject.projectName,
                                 buildingNumber: selectedWingData.building,
                                 wing: selectedWingData.wing,
                                 queryParams: {
                                   "BuildingNumber": selectedWingData.building,
                                   "Wing": selectedWingData.wing,
-                                  "FlatStatus": "Booked",
+                                  "ParkingStatus": "Booked",
                                   "IsAcessOnlyApprovedParking": false,
+                                },
+                              );
+                            },
+                          ),
+                          buildProgressRow(
+                            title: "Member",
+                            value: 0,
+                            total: selectedWingData.units,
+                            color: Color(0xff561F64),
+                            onTap: () {
+                              _navigateToDistribution(
+                                type: "Parking",
+                                status: "Member",
+                                count: 0,
+                                projectName: _selectedProject.projectName,
+                                buildingNumber: selectedWingData.building,
+                                wing: selectedWingData.wing,
+                                queryParams: {
+                                  "BuildingNumber": selectedWingData.building,
+                                  "Wing": selectedWingData.wing,
+                                  "ParkingStatus": "Available",
                                 },
                               );
                             },

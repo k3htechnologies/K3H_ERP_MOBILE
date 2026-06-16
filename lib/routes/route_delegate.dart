@@ -23,7 +23,7 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_chan
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
-import 'package:k3h_erp_app/features/channel_partner/presentation/pages/cp_universe.dart';
+import 'package:k3h_erp_app/widgets/coming_soon_screen.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/cubit/brokerage_cubit.dart';
@@ -57,6 +57,7 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/snag_checklist/presentati
 import 'package:k3h_erp_app/features/crm/dashboard/presentation/cubit/crm_dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/crm/dashboard/presentation/pages/crm_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
+import 'package:k3h_erp_app/features/dashboard/presentation/pages/employee_attendace.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/pending_approvals_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/project_overview_screen.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
@@ -355,6 +356,8 @@ import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/add_calling_data_screen.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/call_tracker_screen.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/update_call_log_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/channel_partner_category/presentation/cubit/channel_partner_category_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/channel_partner_category/presentation/pages/channel_partner_category_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/classification_parameters/data/model/classification_paramerter.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/classification_parameters/presentation/cubit/classification_parameters_cubit.dart';
 
@@ -378,7 +381,7 @@ import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/presentation/pages/payment_schedule_scheme_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/project_achievement_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/cubit/achievement_cubit.dart';
-import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/pages/managers_achievement_report.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/pages/managers_achievement_report_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/data/model/performance_report_closing.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/data/model/performance_report_sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/presentation/cubit/performance_cubit.dart';
@@ -417,7 +420,7 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 
 import '../features/sales/sales_master/payment_schedule/data/model/payment_schedule.model.dart';
-import '../features/sales/sales_reports/achievement/presentation/pages/achievement_screen.dart';
+import '../features/sales/sales_reports/achievement/presentation/pages/achievement_report_screen.dart';
 
 String? authenticateAndAuthorizeRoute(GoRouterState state) {
   // SPLASH || LOGIN
@@ -601,6 +604,60 @@ final GoRouter goRouter = GoRouter(
                     onViewRoute: queryParameterOnView!,
 
                     data: data,
+                  ),
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.employeeAttendanceScreen,
+              path: AppRoutes.employeeAttendanceScreen,
+              builder: (context, state) {
+                final dashboardCubit = state.extra as DashboardCubit;
+                final queryParamsData =
+                    state.uri.queryParameters['queryParams'];
+
+                Map<String, dynamic> queryParams = {};
+                if (queryParamsData != null) {
+                  queryParams = Map<String, dynamic>.from(
+                    jsonDecode(
+                      EncryptionManager.decryptData(
+                        Uri.decodeQueryComponent(queryParamsData),
+                      ),
+                    ),
+                  );
+                }
+                final type =
+                    state.uri.queryParameters['type'] != null
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeQueryComponent(
+                            state.uri.queryParameters['type']!,
+                          ),
+                        )
+                        : '';
+                final title =
+                    state.uri.queryParameters['title'] != null
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeQueryComponent(
+                            state.uri.queryParameters['title']!,
+                          ),
+                        )
+                        : '';
+                final subTitle =
+                    state.uri.queryParameters['subTitle'] != null
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeQueryComponent(
+                            state.uri.queryParameters['subTitle']!,
+                          ),
+                        )
+                        : null;
+
+                return BlocProvider.value(
+                  value: dashboardCubit,
+                  child: EmployeeAttendanceScreen(
+                    type: type,
+                    title: title,
+                    subTitle: subTitle,
+                    queryParams: queryParams,
                   ),
                 );
               },
@@ -3321,7 +3378,7 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.cpUniverse,
               name: AppRoutes.cpUniverse,
               builder: (context, state) {
-                return const CpUniverseScreen();
+                return const ComingSoonScreen(title: "CP Universe");
               },
             ),
           ],
@@ -4258,7 +4315,6 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
-
             // SALES REPORT
             ShellRoute(
               builder: (context, state, child) {
@@ -4271,6 +4327,29 @@ final GoRouter goRouter = GoRouter(
                 );
               },
               routes: [
+                GoRoute(
+                  path: AppRoutes.incentiveReport,
+                  name: AppRoutes.incentiveReport,
+                  builder: (context, state) {
+                    return const ComingSoonScreen(title: "Incentive Report");
+                  },
+                ),
+                GoRoute(
+                  path: AppRoutes.enquiryReport,
+                  name: AppRoutes.enquiryReport,
+                  builder: (context, state) {
+                    return const ComingSoonScreen(title: "Enquiry Report");
+                  },
+                ),
+                GoRoute(
+                  path: AppRoutes.cpEnquiryReport,
+                  name: AppRoutes.cpEnquiryReport,
+                  builder: (context, state) {
+                    return const ComingSoonScreen(
+                      title: "Channel Partner Enquiry Report",
+                    );
+                  },
+                ),
                 GoRoute(
                   name: AppRoutes.performanceReport,
                   path: AppRoutes.performanceReport,
@@ -4318,7 +4397,7 @@ final GoRouter goRouter = GoRouter(
                   name: AppRoutes.achievementReport,
                   path: AppRoutes.achievementReport,
                   builder: (context, state) {
-                    return const AchievementScreen();
+                    return const AchievementReportScreen();
                   },
                 ),
                 GoRoute(
@@ -4363,13 +4442,20 @@ final GoRouter goRouter = GoRouter(
                           );
                     }
 
-                    return ManagerAchievementReport(
+                    return ManagerAchievementReportScreen(
                       type: type,
                       filterType: filterType,
                       fromDate: parseFromDate,
                       toDate: parseToDate,
                       projectAchievementReportModel: projectAchievement!,
                     );
+                  },
+                ),
+                GoRoute(
+                  path: AppRoutes.ibmObmReport,
+                  name: AppRoutes.ibmObmReport,
+                  builder: (context, state) {
+                    return const ComingSoonScreen(title: "IBM OBM Report");
                   },
                 ),
               ],
@@ -4426,7 +4512,6 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
-
             // SALES BOOKING
             ShellRoute(
               builder: (context, state, child) {
@@ -4871,7 +4956,7 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
-
+            // PAYEMENT SCHEDULE SCHEME
             ShellRoute(
               builder: (context, state, child) {
                 return BlocProvider(
@@ -4916,6 +5001,23 @@ final GoRouter goRouter = GoRouter(
                       paymentScheduleSchemeModel: paymentScheduleScheme,
                       index: index,
                     );
+                  },
+                ),
+              ],
+            ),
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => ChannelPartnerCategoryCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.channelPartnerCategory,
+                  path: AppRoutes.channelPartnerCategory,
+                  builder: (context, state) {
+                    return const ChannelPartnerCategoryScreen();
                   },
                 ),
               ],

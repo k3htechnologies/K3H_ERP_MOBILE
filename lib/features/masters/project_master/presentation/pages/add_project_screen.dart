@@ -47,6 +47,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   _selectedProjectStatusNotifier;
 
   // ADDRESS VARIABLES
+  int? _countryMasterId;
   int? _stateMasterId;
   int? _districtMasterId;
   int? _cityMasterId;
@@ -338,6 +339,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             .toList();
 
     isRedevelopmentNotifier.value = widget.project!.isRedevelopment;
+    _countryMasterId = projectModel.countryMasterId;
     _stateMasterId = projectModel.stateMasterId;
     _districtMasterId = projectModel.districtMasterId;
     _cityMasterId = projectModel.cityMasterId;
@@ -388,6 +390,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             tenderIssueDate: issueDate.value?.toIso8601String() ?? "",
             tenderPayorderRemark: _payOrderTrackC.text,
             isRedevelopment: isRedevelopmentNotifier.value,
+            countryMasterId: _countryMasterId?.toString() ?? "1",
             districtMasterId: _districtMasterId.toString(),
             stateMasterId: _stateMasterId.toString(),
             cityMasterId: _cityMasterId.toString(),
@@ -468,6 +471,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             tenderIssueDate: issueDate.value?.toIso8601String() ?? "",
             tenderPayorderRemark: _payOrderTrackC.text,
             isRedevelopment: isRedevelopmentNotifier.value,
+            countryMasterId: _countryMasterId?.toString() ?? "1",
             districtMasterId: _districtMasterId.toString(),
             stateMasterId: _stateMasterId.toString(),
             cityMasterId: _cityMasterId.toString(),
@@ -1062,10 +1066,14 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       ),
                       AddressWidget(
                         formKey: _projectMasterAddUpdateKey,
+                        incomingCountryId: _countryMasterId ?? 1,
                         incomingStateId: _stateMasterId,
                         incomingDistrictId: _districtMasterId,
                         incomingCityId: widget.project?.cityMasterId,
                         incomingVillageId: _villageMasterId,
+                        countryChange: (selectedCountry) {
+                          _countryMasterId = selectedCountry['zAttributesId'];
+                        },
                         stateChange: (selectedState) {
                           _stateMasterId = selectedState['zAttributesId'];
                         },

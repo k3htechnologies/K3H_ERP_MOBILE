@@ -23,6 +23,27 @@ abstract interface class AchievementReportRepository {
     required String filterType,
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>>
+  getProjectAchievementReportForExport({
+    required int pageNumber,
+    required int pageSize,
+    required String filterType,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Either<Failure, Map<String, dynamic>>>
+  getClosingAchievementReportForExport({
+    required int pageNumber,
+    required int pageSize,
+    required String filterType,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Either<Failure, Map<String, dynamic>>>
+  getSourcingAchievementReportForExport({
+    required int pageNumber,
+    required int pageSize,
+    required String filterType,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class AchievementReportRepositoryImpl extends AchievementReportRepository {
@@ -81,6 +102,72 @@ class AchievementReportRepositoryImpl extends AchievementReportRepository {
     try {
       var result = await achievementReportDatasource
           .apiCallPullSourcingAchievementReport(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            filterType: filterType,
+            queryParams: queryParams,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  getProjectAchievementReportForExport({
+    required int pageNumber,
+    required int pageSize,
+    required String filterType,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await achievementReportDatasource
+          .apiCallPullProjectAchievementReportForExport(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            filterType: filterType,
+            queryParams: queryParams,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  getClosingAchievementReportForExport({
+    required int pageNumber,
+    required int pageSize,
+    required String filterType,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await achievementReportDatasource
+          .apiCallPullClosingAchievementReportForExport(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            filterType: filterType,
+            queryParams: queryParams,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  getSourcingAchievementReportForExport({
+    required int pageNumber,
+    required int pageSize,
+    required String filterType,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await achievementReportDatasource
+          .apiCallPullSourcingAchievementReportForExport(
             pageNumber: pageNumber,
             pageSize: pageSize,
             filterType: filterType,

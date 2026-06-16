@@ -32,7 +32,10 @@ class ChannelPartnerCategoryModel {
   factory ChannelPartnerCategoryModel.fromJson(Map<String, dynamic> json) =>
       ChannelPartnerCategoryModel(
         projectId: parseValue<int>(json, "ProjectId"),
-        channelPartnerCatgoryId: parseValue<int>(json, "ProjectId"),
+        channelPartnerCatgoryId: parseValue<int>(
+          json,
+          "ChannelPartnerCategoryId",
+        ),
         uniquekey: parseValue<String>(json, "Uniquekey"),
         categoryName: parseValue<String>(json, "CategoryName"),
         bookingRevenue: parseValue<double>(json, "BookingRevenue"),
@@ -47,4 +50,19 @@ class ChannelPartnerCategoryModel {
                 ? DateTime.parse(json["ModifiedDate"])
                 : DateTime.now(),
       );
+
+  Map<String, dynamic> toJson() => {
+    "ProjectId": projectId,
+    "ChannelPartnerCategoryId": channelPartnerCatgoryId,
+    "Uniquekey": uniquekey,
+    "CategoryName": categoryName,
+    "BookingRevenue": bookingRevenue,
+    "NoOfEnquirys": noOfEnquiry,
+    "CreatedById": createdById,
+    "CreatedBy": createdBy,
+    "CreatedDate": createdDate.toIso8601String(),
+    "ModifiedById": modifiedById,
+    "ModifiedBy": modifiedBy,
+    "ModifiedDate": modifiedDate?.toIso8601String(),
+  };
 }

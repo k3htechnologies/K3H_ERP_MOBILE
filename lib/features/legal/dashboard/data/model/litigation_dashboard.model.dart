@@ -123,6 +123,7 @@ class Table3 {
 }
 
 class Table4 {
+  final String projectName;
   final String title;
   final String caseNumber;
   final String caseType;
@@ -130,6 +131,7 @@ class Table4 {
   final String status;
 
   Table4({
+    required this.projectName,
     required this.title,
     required this.caseNumber,
     required this.caseType,
@@ -138,6 +140,7 @@ class Table4 {
   });
 
   factory Table4.fromJson(Map<String, dynamic> json) => Table4(
+    projectName: parseValue<String>(json, "ProjectName"),
     title: parseValue<String>(json, "Title"),
     caseNumber: parseValue<String>(json, "CaseNumber"),
     caseType: parseValue<String>(json, "CaseType"),
@@ -146,6 +149,7 @@ class Table4 {
   );
 
   Map<String, dynamic> toJson() => {
+    "ProjectName": projectName,
     "Title": title,
     "CaseNumber": caseNumber,
     "CaseType": caseType,

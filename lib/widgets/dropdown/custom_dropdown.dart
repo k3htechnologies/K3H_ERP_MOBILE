@@ -77,6 +77,16 @@ class CustomDropDownWidget extends StatelessWidget {
                     ),
                     hintText: hintText ?? 'Select',
                     decoration: CustomDropdownDecoration(
+                      closedFillColor:
+                          isDisabled
+                              ? AppColor.grey.withValues(alpha: 0.1)
+                              : Colors.white,
+
+                      expandedFillColor:
+                          isDisabled
+                              ? AppColor.grey.withValues(alpha: 0.1)
+                              : Colors.white,
+
                       hintStyle: AppTextStyle.ts14R().copyWith(
                         color: AppColor.grey,
                       ),
@@ -90,19 +100,12 @@ class CustomDropDownWidget extends StatelessWidget {
                       closedBorder: Border.all(
                         color:
                             isDisabled
-                                ? AppColor.grey.withValues(alpha: 0.2)
+                                ? AppColor.grey.withValues(alpha: 0.3)
                                 : hasError
                                 ? AppColor.error
                                 : AppColor.grey30,
                         width: 1.0,
                       ),
-                      closedErrorBorder: Border.all(
-                        color: AppColor.error.withValues(alpha: 0.5),
-                        width: 1.0,
-                      ),
-                      errorStyle: AppTextStyle.ts14R(
-                        color: AppColor.error,
-                      ).copyWith(fontSize: 0),
                     ),
                     items: dataList,
                     listItemPadding: EdgeInsets.zero,

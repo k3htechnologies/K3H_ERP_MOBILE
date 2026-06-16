@@ -131,6 +131,7 @@ class _CompanyMasterViewMobileScreenState
                 customValueWidget:
                     widget.company!.mobileNumber.isNotEmpty
                         ? CustomClickToContactText(
+                          countryCode: "+91",
                           value: widget.company!.mobileNumber,
                         )
                         : null,
@@ -142,6 +143,8 @@ class _CompanyMasterViewMobileScreenState
                         ? "-"
                         : widget.company!.landLineNumber,
                 customValueWidget: CustomClickToContactText(
+                  countryCode: "",
+                  type: ContactType.landLine,
                   value: widget.company!.landLineNumber,
                 ),
               ),
@@ -213,9 +216,9 @@ class _CompanyMasterViewMobileScreenState
                 customValueWidget: buildDocumentRow(
                   context: context,
                   docNumber:
-                  widget.company!.cinNumber.isEmpty
-                      ? "-"
-                      : widget.company!.cinNumber,
+                      widget.company!.cinNumber.isEmpty
+                          ? "-"
+                          : widget.company!.cinNumber,
                   url: widget.company!.cinURL,
                 ),
               ),

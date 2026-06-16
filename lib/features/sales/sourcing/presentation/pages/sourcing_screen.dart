@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -14,11 +13,13 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/static_data.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -46,6 +47,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
       _filterDesignationC,
       _filterFirmTypeC,
       _filterTypeC,
+      _filterCPCode,
       _filterCPNameC,
       _filterOfficeAddressC,
       _filterGSTNumberC,
@@ -59,6 +61,12 @@ class _SourcingScreenState extends State<SourcingScreen> {
   // PROJECT
   late ProjectModel _project;
 
+  final ValueNotifier<Map<String, dynamic>?> _selectedNoOfIBM = ValueNotifier(
+    null,
+  );
+  final ValueNotifier<Map<String, dynamic>?> _selectedNoOfOBM = ValueNotifier(
+    null,
+  );
   @override
   void initState() {
     super.initState();
@@ -85,6 +93,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
     _filterDesignationC = TextEditingController();
     _filterFirmTypeC = TextEditingController();
     _filterTypeC = TextEditingController();
+    _filterCPCode = TextEditingController();
     _filterCPNameC = TextEditingController();
     _filterOfficeAddressC = TextEditingController();
     _filterGSTNumberC = TextEditingController();
@@ -127,6 +136,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
     _filterDesignationC.text = state.filterByDesignation;
     _filterFirmTypeC.text = state.filterByFirmType;
     _filterTypeC.text = state.filterByType;
+    _filterCPCode.text = state.filterCPCode;
     _filterCPNameC.text = state.filterByCPName;
     _filterOfficeAddressC.text = state.filterByOfficeAddress;
     _filterGSTNumberC.text = state.filterByGSTNumber;
@@ -147,6 +157,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
     final String initialDesignation = _filterDesignationC.text;
     final String initialFirmType = _filterFirmTypeC.text;
     final String initialType = _filterTypeC.text;
+    final String initialCPCode = _filterCPCode.text;
     final String initialName = _filterCPNameC.text;
     final String initialOfficeAddress = _filterOfficeAddressC.text;
     final String initialGSTNumber = _filterGSTNumberC.text;
@@ -157,12 +168,29 @@ class _SourcingScreenState extends State<SourcingScreen> {
     final String initialCity = _filterCityC.text;
     final String initialVillage = _filterVillageC.text;
     final String? initialDirection = selectedDirection;
+    final initialNoOfIBM = state.filterByNoOfIBM;
+    final initialNoOfOBM = state.filterByNoOfOBM;
 
+    if (initialNoOfIBM.isNotEmpty) {
+      _selectedNoOfIBM.value = ibmObmRangeFilter.firstWhere(
+        (e) => e['DisplayName'] == initialNoOfIBM,
+        orElse: () => ibmObmRangeFilter.first,
+      );
+    }
+    if (initialNoOfOBM.isNotEmpty) {
+      _selectedNoOfOBM.value = ibmObmRangeFilter.firstWhere(
+        (e) => e['DisplayName'] == initialNoOfOBM,
+        orElse: () => ibmObmRangeFilter.first,
+      );
+    }
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     bool applied = false;
 
     void updateApplyState(StateSetter innerState) {
+      final currentNoOfIBM = _selectedNoOfIBM.value?['DisplayName'] ?? '';
+
+      final currentNoOfOBM = _selectedNoOfOBM.value?['DisplayName'] ?? '';
       innerState(() {
         manualClose =
             (_searchC.text.trim() != initialMobileNo) ||
@@ -170,6 +198,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
             (_filterDesignationC.text.trim() != initialDesignation) ||
             (_filterFirmTypeC.text.trim() != initialFirmType) ||
             (_filterTypeC.text.trim() != initialType) ||
+            (_filterCPCode.text.trim() != initialCPCode) ||
             (_filterCPNameC.text.trim() != initialName) ||
             (_filterOfficeAddressC.text.trim() != initialOfficeAddress) ||
             (_filterGSTNumberC.text.trim() != initialGSTNumber) ||
@@ -179,6 +208,8 @@ class _SourcingScreenState extends State<SourcingScreen> {
             (_filterSpecialityC.text.trim() != initialSpeciality) ||
             (_filterCityC.text.trim() != initialCity) ||
             (_filterVillageC.text.trim() != initialVillage) ||
+            (currentNoOfIBM != initialNoOfIBM) ||
+            (currentNoOfOBM != initialNoOfOBM) ||
             (selectedDirection != initialDirection);
 
         applyEnabled.value = manualClose;
@@ -250,6 +281,12 @@ class _SourcingScreenState extends State<SourcingScreen> {
                 ),
 
                 verticalSpacing(height: 20),
+                CustomTextField(
+                  title: "CP Code",
+                  hint: "Enter CP Code",
+                  textController: _filterCPCode,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
 
                 CustomTextField(
                   title: "Full Name",
@@ -348,6 +385,44 @@ class _SourcingScreenState extends State<SourcingScreen> {
                   textController: _filterVillageC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
+                ValueListenableBuilder(
+                  valueListenable: _selectedNoOfIBM,
+                  builder: (context, noOfIBM, child) {
+                    return CustomDropDownWidget(
+                      title: 'No Of IBM',
+                      hintText: 'Select No Of IBM',
+                      initialValue: noOfIBM,
+                      dataList: ibmObmRangeFilter,
+                      onSelected: (v) {
+                        _selectedNoOfIBM.value = v;
+                        updateApplyState(innerState);
+                      },
+                      onValueClear: () {
+                        _selectedNoOfIBM.value = null;
+                        updateApplyState(innerState);
+                      },
+                    );
+                  },
+                ),
+                ValueListenableBuilder(
+                  valueListenable: _selectedNoOfOBM,
+                  builder: (context, noOfOBM, child) {
+                    return CustomDropDownWidget(
+                      title: 'No Of OBM',
+                      hintText: 'Select No Of OBM',
+                      initialValue: noOfOBM,
+                      dataList: ibmObmRangeFilter,
+                      onSelected: (v) {
+                        _selectedNoOfOBM.value = v;
+                        updateApplyState(innerState);
+                      },
+                      onValueClear: () {
+                        _selectedNoOfOBM.value = null;
+                        updateApplyState(innerState);
+                      },
+                    );
+                  },
+                ),
               ],
             ),
           );
@@ -359,6 +434,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
         _filterDesignationC.clear();
         _filterFirmTypeC.clear();
         _filterTypeC.clear();
+        _filterCPCode.clear();
         _filterCPNameC.clear();
         _filterOfficeAddressC.clear();
         _filterGSTNumberC.clear();
@@ -369,6 +445,9 @@ class _SourcingScreenState extends State<SourcingScreen> {
         _filterCityC.clear();
         _filterVillageC.clear();
         _searchC.clear();
+        _selectedNoOfIBM.value = null;
+        _selectedNoOfOBM.value = null;
+        selectedDirection = null;
         _sourcingCubit.applyChannelPartnerSourcingFilterAndSort(
           context: context,
           isClear: true,
@@ -385,6 +464,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
           designation: _filterDesignationC.text.trim(),
           firmType: _filterFirmTypeC.text.trim(),
           type: _filterTypeC.text.trim(),
+          cpCode: _filterCPCode.text.trim(),
           mobileNumber: _searchC.text.trim(),
           officeAddress: _filterOfficeAddressC.text.trim(),
           gstNumber: _filterGSTNumberC.text.trim(),
@@ -394,6 +474,8 @@ class _SourcingScreenState extends State<SourcingScreen> {
           speciality: _filterSpecialityC.text.trim(),
           city: _filterCityC.text.trim(),
           village: _filterVillageC.text.trim(),
+          noOfIBM: _selectedNoOfIBM.value?['DisplayName'] ?? "",
+          noOfOBM: _selectedNoOfOBM.value?['DisplayName'] ?? "",
           sortColumn: selectedDirection != null ? "Full Name" : null,
           sortDirection: selectedDirection,
         );
@@ -410,6 +492,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
       _filterDesignationC.clear();
       _filterFirmTypeC.clear();
       _filterTypeC.clear();
+      _filterCPCode.clear();
       _filterCPNameC.clear();
       _filterOfficeAddressC.clear();
       _filterGSTNumberC.clear();
@@ -429,6 +512,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
         screenTitle: "Sourcing",
         authorization: _routeAuthorizationModel,
         textController: _searchC,
+        textControllerInputType: TextInputType.number,
         searchHintText: "Search by Mobile Number",
         onSearchSubmit: (value) {
           _sourcingCubit.searchChannelPartner(context, value);
@@ -452,159 +536,174 @@ class _SourcingScreenState extends State<SourcingScreen> {
               child: noDataWidget(message: "No Channel Partner Sourcing found"),
             );
           }
-          return ListView.builder(
-            controller: scrollController,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: _sourcingCubit.state.channelPartnerList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.channelPartnerList.length) {
-                return state.channelPartnerList.length <
-                        state.totalNumberOfRecordCP
-                    ? Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var channelPartner = state.channelPartnerList[index];
-              return Container(
-                margin: EdgeInsets.only(bottom: 10),
-                padding: EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              if (_project.projectId == 0) {
-                                showErrorMessage(
-                                  context,
-                                  'Error',
-                                  'Please select a project',
-                                );
-                                return;
-                              }
-                              goRouter.pushNamed(
-                                AppRoutes.viewSourcing,
-                                queryParameters: {
-                                  'channelPartner': Uri.encodeComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(channelPartner.toJson()),
-                                    ),
-                                  ),
-                                  "projectId": _project.projectId.toString(),
-                                },
-                              );
-                            },
-                            child: Text(
-                              channelPartner.name,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ).copyWith(
-                                decoration: TextDecoration.underline,
-                                decorationColor: AppColor.primary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        if (channelPartner.isIncomplete) ...[
-                          CustomIconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.warning_amber_outlined,
-                              color: AppColor.yellow,
-                              size: 16,
-                            ),
-                            backgroundColor: AppColor.yellow.withValues(
-                              alpha: .2,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    buildRowTitleValue(
-                      title: "CP Code",
-                      value: channelPartner.systemGeneratedCode,
-                      singleLine: false,
-                      customValueWidget: Row(
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: showSiteSelectedWidget(),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  itemCount: _sourcingCubit.state.channelPartnerList.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == state.channelPartnerList.length) {
+                      return state.channelPartnerList.length <
+                              state.totalNumberOfRecordCP
+                          ? Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                          : const SizedBox.shrink();
+                    }
+                    var channelPartner = state.channelPartnerList[index];
+                    return Container(
+                      margin: EdgeInsets.only(bottom: 10),
+                      padding: EdgeInsets.all(12),
+                      decoration: commonCardDecoration(),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Text(
-                              channelPartner.systemGeneratedCode,
-                              style: AppTextStyle.ts14M(),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    if (_project.projectId == 0) {
+                                      showErrorMessage(
+                                        context,
+                                        "Error",
+                                        "Please select a project",
+                                      );
+                                      return;
+                                    }
+                                    goRouter.pushNamed(
+                                      AppRoutes.viewSourcing,
+                                      queryParameters: {
+                                        'channelPartner': Uri.encodeComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(channelPartner.toJson()),
+                                          ),
+                                        ),
+                                        "projectId":
+                                            _project.projectId.toString(),
+                                      },
+                                    );
+                                  },
+                                  child: Text(
+                                    channelPartner.name,
+                                    style: AppTextStyle.ts16M(
+                                      color: AppColor.primary,
+                                    ).copyWith(
+                                      decoration: TextDecoration.underline,
+                                      decorationColor: AppColor.primary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              if (channelPartner.verifiedNonVerified
+                                      .toLowerCase() !=
+                                  'verified') ...[
+                                CustomIconButton(
+                                  onPressed: () {},
+                                  icon: Icon(
+                                    Icons.warning_amber_outlined,
+                                    color: AppColor.yellow,
+                                    size: 16,
+                                  ),
+                                  backgroundColor: AppColor.yellow.withValues(
+                                    alpha: .2,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          buildRowTitleValue(
+                            title: "CP Code",
+                            value: channelPartner.systemGeneratedCode,
+                            singleLine: false,
+                            customValueWidget: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    channelPartner.systemGeneratedCode,
+                                    style: AppTextStyle.ts14M(),
+                                  ),
+                                ),
+                                horizontalSpacing(width: 2),
+                                InkWell(
+                                  onTap: () {
+                                    copy(
+                                      context: context,
+                                      text: channelPartner.systemGeneratedCode,
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(5),
+                                    child: Icon(
+                                      Icons.copy,
+                                      size: 16,
+                                      color: AppColor.primary,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          horizontalSpacing(width: 2),
-                          InkWell(
-                            onTap: () {
-                              copy(
-                                context: context,
-                                text: channelPartner.systemGeneratedCode,
-                              );
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(5),
-                              child: Icon(
-                                Icons.copy,
-                                size: 16,
-                                color: AppColor.primary,
-                              ),
+                          buildRowTitleValue(
+                            title: "Mobile No.",
+                            value: channelPartner.mobileNumber,
+                            customValueWidget: CustomClickToContactText(
+                              countryCode:
+                                  channelPartner.mobileNumberCountryCode,
+                              value: channelPartner.mobileNumber,
                             ),
+                          ),
+                          buildRowTitleValue(
+                            title: "Email",
+                            value: channelPartner.emailId,
+                            customValueWidget: CustomClickToContactText(
+                              value: channelPartner.emailId,
+                              type: ContactType.email,
+                            ),
+                          ),
+                          buildRowTitleValue(
+                            title: "Company Name",
+                            value: channelPartner.companyName,
+                            singleLine: false,
+                          ),
+                          buildRowTitleValue(
+                            title: "RERA Number",
+                            value: channelPartner.reraNumber,
+                            singleLine: false,
+                          ),
+                          buildRowTitleValue(
+                            title: "Office Address",
+                            value: channelPartner.officeAddress,
+                            singleLine: false,
+                          ),
+                          buildRowTitleValue(
+                            title: "No Of IBM",
+                            value: channelPartner.noOfIbm.toString(),
+                            singleLine: false,
+                          ),
+                          buildRowTitleValue(
+                            title: "No Of OBM",
+                            value: channelPartner.noOfObm.toString(),
+                            singleLine: false,
                           ),
                         ],
                       ),
-                    ),
-                    buildRowTitleValue(
-                      title: "Mobile No.",
-                      value: channelPartner.mobileNumber,
-                      customValueWidget: CustomClickToContactText(
-                        value:
-                            "${channelPartner.mobileNumberCountryCode} ${channelPartner.mobileNumber}",
-                      ),
-                    ),
-                    buildRowTitleValue(
-                      title: "Email",
-                      value: channelPartner.emailId,
-                      customValueWidget: CustomClickToContactText(
-                        value: channelPartner.emailId,
-                        type: ContactType.email,
-                      ),
-                    ),
-                    buildRowTitleValue(
-                      title: "Company Name",
-                      value: channelPartner.companyName,
-                      singleLine: false,
-                    ),
-                    buildRowTitleValue(
-                      title: "RERA Number",
-                      value: channelPartner.reraNumber,
-                      singleLine: false,
-                    ),
-                    buildRowTitleValue(
-                      title: "Office Address",
-                      value: channelPartner.officeAddress,
-                      singleLine: false,
-                    ),
-                    buildRowTitleValue(
-                      title: "No Of IBM",
-                      value: channelPartner.noOfIbm.toString(),
-                      singleLine: false,
-                    ),
-                    buildRowTitleValue(
-                      title: "No Of OBM",
-                      value: channelPartner.noOfObm.toString(),
-                      singleLine: false,
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ],
           );
         },
       ),

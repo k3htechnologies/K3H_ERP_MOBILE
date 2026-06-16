@@ -240,6 +240,7 @@ class _EmployeeMasterViewDetailsScreenState
                       title: "Personal Mobile Number",
                       value: user.personalMobileNumber,
                       customValueWidget: CustomClickToContactText(
+                        countryCode: "+91",
                         value: user.personalMobileNumber,
                         type: ContactType.phone,
                       ),
@@ -415,6 +416,7 @@ class _EmployeeMasterViewDetailsScreenState
                       title: "Office Number",
                       value: user.officeMobileNumber,
                       customValueWidget: CustomClickToContactText(
+                        countryCode: "+91",
                         value: user.officeMobileNumber,
                       ),
                     ),
@@ -509,7 +511,7 @@ class _EmployeeMasterViewDetailsScreenState
                   Column(
                     children: List.generate(
                       user.employeeReportingCycleData.length,
-                          (index) {
+                      (index) {
                         final employee = user.employeeReportingCycleData[index];
                         final bool isLast =
                             index == user.employeeReportingCycleData.length - 1;
@@ -540,7 +542,9 @@ class _EmployeeMasterViewDetailsScreenState
                                     Expanded(
                                       child: Container(
                                         width: 1.5,
-                                        margin: const EdgeInsets.symmetric(vertical: 4),
+                                        margin: const EdgeInsets.symmetric(
+                                          vertical: 4,
+                                        ),
                                         color: Colors.grey.shade400,
                                       ),
                                     ),
@@ -554,7 +558,8 @@ class _EmployeeMasterViewDetailsScreenState
                                 child: Padding(
                                   padding: const EdgeInsets.only(bottom: 24),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       /// NAME + CODE
                                       Row(
@@ -566,8 +571,10 @@ class _EmployeeMasterViewDetailsScreenState
                                             ),
                                           ),
                                           horizontalSpacing(),
-                                          if (employee["EmployeeCode"] != null &&
-                                              employee["EmployeeCode"].isNotEmpty)
+                                          if (employee["EmployeeCode"] !=
+                                                  null &&
+                                              employee["EmployeeCode"]
+                                                  .isNotEmpty)
                                             Text(
                                               "(${employee["EmployeeCode"]})",
                                               style: AppTextStyle.ts12R(
@@ -600,8 +607,10 @@ class _EmployeeMasterViewDetailsScreenState
                                       ],
 
                                       /// PHONE
-                                      if (employee["PersonalMobileNumber"] != null &&
-                                          employee["PersonalMobileNumber"].isNotEmpty) ...[
+                                      if (employee["PersonalMobileNumber"] !=
+                                              null &&
+                                          employee["PersonalMobileNumber"]
+                                              .isNotEmpty) ...[
                                         const SizedBox(height: 6),
                                         Text(
                                           employee["PersonalMobileNumber"],
@@ -622,7 +631,7 @@ class _EmployeeMasterViewDetailsScreenState
                   ),
                 ],
               ),
-            )
+            ),
           ],
           // EMERGENCY CONTACT DETAILS
           Container(
@@ -866,7 +875,7 @@ class _EmployeeMasterViewDetailsScreenState
                                 urls: urls,
                                 isFreshAdd: isFresh,
 
-                                // ➕ ADD / UPLOAD
+                                //  ADD / UPLOAD
                                 addDocument: (pickedFiles) async {
                                   final files = MultiFilePickerModel(
                                     fileNameList:
@@ -893,7 +902,7 @@ class _EmployeeMasterViewDetailsScreenState
                                       );
                                 },
 
-                                // 🗑 DELETE
+                                // DELETE
                                 deleteDocument: (removeUrl) async {
                                   final files = MultiFilePickerModel(
                                     fileNameList: [],
@@ -1197,7 +1206,9 @@ class _EmployeeMasterViewDetailsScreenState
               )
               : SizedBox(
                 height: getActualHeight(context) * 0.7,
-                child: Center(child: noDataWidget(message: "No Shift Policies Found")),
+                child: Center(
+                  child: noDataWidget(message: "No Shift Policies Found"),
+                ),
               );
         },
       ),
@@ -1355,7 +1366,9 @@ class _EmployeeMasterViewDetailsScreenState
               )
               : SizedBox(
                 height: getActualHeight(context) * 0.7,
-                child: Center(child: noDataWidget(message: "No Week Off Policies Found")),
+                child: Center(
+                  child: noDataWidget(message: "No Week Off Policies Found"),
+                ),
               );
         },
       ),

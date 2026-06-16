@@ -30,10 +30,9 @@ import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 class DashboardScreen extends StatefulWidget {
   final AttendanceModel? data;
   const DashboardScreen({super.key, this.data});
@@ -329,6 +328,11 @@ class _DashboardScreenState extends State<DashboardScreen>
     _timer?.cancel();
   }
 
+  bool canPunchOut() {
+    final workedTime = DateTime.now().difference(punchInTime);
+    return workedTime >= const Duration(hours: 1);
+  }
+
   double _calculateDistance(List<LatLng> points) {
     double total = 0;
 
@@ -389,23 +393,6 @@ class _DashboardScreenState extends State<DashboardScreen>
 
       lastPoint = currentPoint;
     }, onError: (e) {});
-  }
-
-  Future<void> _openEmail(String email) async {
-    final Uri emailUri = Uri(
-      scheme: 'mailto',
-      path: email,
-      queryParameters: {'subject': 'Hello', 'body': 'Hi'},
-    );
-
-    await launchUrl(emailUri, mode: LaunchMode.externalApplication);
-  }
-
-  void _openDialer(String phone) async {
-    final Uri launchUri = Uri(scheme: 'tel', path: phone);
-    if (await canLaunchUrl(launchUri)) {
-      await launchUrl(launchUri);
-    }
   }
 
   Future<void> loadSavedRoute() async {
@@ -712,7 +699,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                               height: 56,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
-                                color: AppColor.primary.withValues(alpha: 0.12),
+                                color:
+                                    isSwipeDisabled
+                                        ? AppColor.lightGrey
+                                        : AppColor.primary.withValues(
+                                          alpha: 0.12,
+                                        ),
                               ),
                               child: Stack(
                                 alignment: Alignment.centerLeft,
@@ -727,7 +719,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                                             ? "Swipe to Punch Out"
                                             : "Swipe to Punch In",
                                         key: ValueKey(isCurrentlyPunchedIn),
-                                        style: AppTextStyle.ts12B(),
+                                        style: AppTextStyle.ts12B(
+                                          color:
+                                              isSwipeDisabled
+                                                  ? AppColor.grey
+                                                  : null,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -836,6 +833,18 @@ class _DashboardScreenState extends State<DashboardScreen>
                                                           velocity < -700;
 
                                                       if (shouldPunchOut) {
+                                                        if (!canPunchOut()) {
+                                                          showErrorMessage(
+                                                            context,
+                                                            "Punch Out Not Allowed",
+                                                            "Minimum working duration is 1 hour.",
+                                                          );
+
+                                                          dragPositionNotifier
+                                                              .value = maxWidth;
+                                                          return;
+                                                        }
+
                                                         isProcessing = true;
 
                                                         dragPositionNotifier
@@ -852,13 +861,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                                                             context,
                                                           );
                                                         }
-
+                                                        isSwipeDisabledNotifier
+                                                            .value = true;
                                                         isDayCompletedNotifier
                                                             .value = true;
-
                                                         isPunchedInNotifier
                                                             .value = false;
-
+                                                        await initialise();
                                                         HapticFeedback.mediumImpact();
 
                                                         isProcessing = false;
@@ -880,7 +889,10 @@ class _DashboardScreenState extends State<DashboardScreen>
                                           child: Container(
                                             width: thumbWidth,
                                             decoration: BoxDecoration(
-                                              color: AppColor.primary,
+                                              color:
+                                                  isSwipeDisabled
+                                                      ? AppColor.grey50
+                                                      : AppColor.primary,
                                               borderRadius:
                                                   BorderRadius.circular(14),
                                               boxShadow: [
@@ -1594,16 +1606,78 @@ class _DashboardScreenState extends State<DashboardScreen>
                         title: "Present",
                         value: table7.first.presentCount,
                         color: AppColor.primary,
+                        onValueTap:
+                            table7.first.presentCount == 0
+                                ? () {}
+                                : () async {
+                                  await _dashboardCubit.resetUnits();
+                                  await goRouter.pushNamed(
+                                    AppRoutes.employeeAttendanceScreen,
+                                    extra: context.read<DashboardCubit>(),
+                                    queryParameters: {
+                                      "type": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          "PRESENT",
+                                        ),
+                                      ),
+                                      "title": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          "Present Employees",
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                },
                       ),
                       RadialChartItem(
                         title: "Absent",
                         value: table7.first.absentCount,
                         color: AppColor.blue,
+                        onValueTap:
+                            table7.first.absentCount == 0
+                                ? () {}
+                                : () async {
+                                  await _dashboardCubit.resetUnits();
+                                  await goRouter.pushNamed(
+                                    AppRoutes.employeeAttendanceScreen,
+                                    extra: context.read<DashboardCubit>(),
+                                    queryParameters: {
+                                      "type": Uri.encodeComponent(
+                                        EncryptionManager.encryptData("ABSENT"),
+                                      ),
+                                      "title": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          "Absent Employees",
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                },
                       ),
                       RadialChartItem(
                         title: "Leave",
                         value: table7.first.onLeaveCount,
                         color: AppColor.grey50,
+                        onValueTap:
+                            table7.first.onLeaveCount == 0
+                                ? () {}
+                                : () async {
+                                  await _dashboardCubit.resetUnits();
+                                  await goRouter.pushNamed(
+                                    AppRoutes.employeeAttendanceScreen,
+                                    extra: context.read<DashboardCubit>(),
+                                    queryParameters: {
+                                      "type": Uri.encodeComponent(
+                                        EncryptionManager.encryptData("LEAVE"),
+                                      ),
+                                      "title": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          "Leave Employees",
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                },
                       ),
                     ],
                   )
@@ -2089,56 +2163,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                 ),
                 verticalSpacing(),
-                InkWell(
-                  onTap: () {
-                    _openEmail(table10List.first.managerEmail);
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            SvgPicture.asset(
-                              AppAssets.mailIcon,
-                              height: 16.0,
-                              width: 16.0,
-                            ),
-                            const SizedBox(width: 6.0),
-                            Expanded(
-                              child: Text(
-                                table10List.first.managerEmail,
-                                style: AppTextStyle.ts14M(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+
+                CustomClickToContactText(
+                  value: table10List.first.managerEmail,
+                  type: ContactType.email,
                 ),
                 verticalSpacing(),
-                InkWell(
-                  onTap: () {
-                    _openDialer(table10List.first.managerPhone);
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SvgPicture.asset(
-                        AppAssets.phoneIcon,
-                        height: 16.0,
-                        width: 16.0,
-                      ),
-                      const SizedBox(width: 6.0),
-                      Text(
-                        table10List.first.managerPhone,
-                        style: AppTextStyle.ts14M(),
-                      ),
-                    ],
-                  ),
-                ),
+                CustomClickToContactText(value: table10List.first.managerPhone),
               ] else ...[
                 Center(
                   child: Text(
@@ -2256,6 +2287,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   day: dayData.dayName,
                   worked: workedDuration,
                   target: targetDuration,
+                  isToday: isCurrentDay(dayData.dayName),
                 );
               }).toList(),
         );
@@ -2388,12 +2420,14 @@ class DayWorkProgress extends StatelessWidget {
   final String day;
   final Duration worked;
   final Duration target;
+  final bool isToday;
 
   const DayWorkProgress({
     super.key,
     required this.day,
     required this.worked,
     required this.target,
+    this.isToday = false,
   });
 
   @override
@@ -2416,7 +2450,10 @@ class DayWorkProgress extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(day, style: AppTextStyle.ts14M()),
+        Text(
+          day,
+          style: isToday ? AppTextStyle.ts14SB() : AppTextStyle.ts14R(),
+        ),
         const SizedBox(height: 8),
         LayoutBuilder(
           builder: (context, constraints) {

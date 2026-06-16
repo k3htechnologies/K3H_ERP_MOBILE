@@ -95,6 +95,17 @@ class _CopyMaterialRequisitionScreenState
   }
 
   @override
+  void dispose() {
+    for (var c in _quantityControllers) {
+      c.dispose();
+    }
+    for (var r in _remarkControllers) {
+      r.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(

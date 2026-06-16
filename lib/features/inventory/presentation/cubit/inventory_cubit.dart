@@ -145,6 +145,7 @@ class InventoryCubit extends Cubit<InventoryState> {
               wingCounts: wingCounts,
               wingCurrentPageKey: wingKey,
               originalBuildingList: buildings,
+              selectedFlatStatus: "total",
             ),
           );
         } else {

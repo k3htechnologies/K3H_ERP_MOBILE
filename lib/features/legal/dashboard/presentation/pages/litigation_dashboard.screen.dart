@@ -198,7 +198,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                       return CustomMultipleSelectPopup(
                         title: 'Project',
                         isMultiSelect: false,
-                        hintText: "Select Project",
+                        hintText: "All Project",
                         initialValue: value,
                         dataList: const [],
                         onSelected: (value) {
@@ -613,15 +613,14 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Expanded(
-                                  child: _caseField("Case Title", item.title),
+                                  child: _caseField(
+                                    "Project Name",
+                                    item.projectName,
+                                  ),
                                 ),
                                 horizontalSpacing(width: 20.0),
                                 Expanded(
-                                  child: _caseField(
-                                    "Status",
-                                    item.status,
-                                    valueColor: statusColor,
-                                  ),
+                                  child: _caseField("Case Title", item.title),
                                 ),
                               ],
                             ),
@@ -643,9 +642,23 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                               ],
                             ),
                             verticalSpacing(),
-                            _caseField(
-                              "Hearing Date",
-                              formatDateTimeAsDDMMMYYYY(item.hearingDate),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                _caseField(
+                                  "Hearing Date",
+                                  formatDateTimeAsDDMMMYYYY(item.hearingDate),
+                                ),
+                                horizontalSpacing(width: 20.0),
+                                Expanded(
+                                  child: _caseField(
+                                    "Status",
+                                    item.status,
+                                    valueColor: statusColor,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -838,16 +851,14 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                   ),
                 ),
               ] else ...[
+                verticalSpacing(),
                 Center(
-                  child: Text(
-                    "No Data Found",
-                    style: AppTextStyle.ts12M(
-                      color: AppColor.greyTitleAndValueColor.withValues(
-                        alpha: .5,
-                      ),
-                    ),
+                  child: noDataWidget(
+                    message: "No Data Found",
+                    iconSize: 100.w,
                   ),
                 ),
+                verticalSpacing(),
               ],
             ],
           ),

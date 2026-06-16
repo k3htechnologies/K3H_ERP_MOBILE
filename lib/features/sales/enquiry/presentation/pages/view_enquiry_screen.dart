@@ -125,6 +125,35 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
             ),
             _buildEnquiryTabBar(),
             verticalSpacing(),
+            BlocBuilder<EnquiryCubit, EnquiryState>(
+              builder: (context, state) {
+                final enquiry = state.currentEnquiryDetails;
+
+                if (enquiry == null) {
+                  return const SizedBox.shrink();
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          enquiry.systemGeneratedCode,
+                          style: AppTextStyle.ts16SB(color: AppColor.primary),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+
+                      if (enquiry.finalStage.isNotEmpty)
+                        enquiryStatusWidget(enquiry.finalStage),
+                    ],
+                  ),
+                );
+              },
+            ),
+            verticalSpacing(),
             Expanded(
               child: TabBarView(
                 physics: const NeverScrollableScrollPhysics(),
@@ -241,20 +270,9 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 10,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    enquiry.systemGeneratedCode,
-                    style: AppTextStyle.ts16SB(color: AppColor.primary),
-                  ),
-                  if (enquiry.finalStage.isNotEmpty)
-                    enquiryStatusWidget(enquiry.finalStage),
-                ],
-              ),
-
               /// LEAD INFO
               _buildCard(
                 child: Column(
@@ -301,8 +319,8 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                   ? enquiry.mobileNumber
                                   : "-",
                           customValueWidget: CustomClickToContactText(
-                            value:
-                                "${enquiry.mobileNumberCountryCode} ${enquiry.mobileNumber}",
+                            countryCode: enquiry.mobileNumberCountryCode,
+                            value: enquiry.mobileNumber,
                             type: ContactType.phone,
                           ),
                         ),
@@ -469,8 +487,9 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                     ? enquiry.channelPartnerMobileNumber
                                     : "-",
                             customValueWidget: CustomClickToContactText(
-                              value:
-                                  "${enquiry.channelPartnerMobileNumberCountryCode} ${enquiry.channelPartnerMobileNumber}",
+                              countryCode:
+                                  enquiry.channelPartnerMobileNumberCountryCode,
+                              value: enquiry.channelPartnerMobileNumber,
                               type: ContactType.phone,
                             ),
                           ),
@@ -549,8 +568,12 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                           .channelPartnerTeamMemberMobileNumber
                                       : "-",
                               customValueWidget: CustomClickToContactText(
+                                countryCode:
+                                    enquiry
+                                        .channelPartnerTeamMemberMobileNumberCountryCode,
                                 value:
-                                    "${enquiry.channelPartnerTeamMemberMobileNumberCountryCode} ${enquiry.channelPartnerTeamMemberMobileNumber}",
+                                    enquiry
+                                        .channelPartnerTeamMemberMobileNumber,
                                 type: ContactType.phone,
                               ),
                             ),
@@ -606,6 +629,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                     ? enquiry.employeeReferenceMobileNumber
                                     : "-",
                             customValueWidget: CustomClickToContactText(
+                              countryCode: "+91",
                               value: enquiry.employeeReferenceMobileNumber,
                               type: ContactType.phone,
                             ),
@@ -949,12 +973,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  state.currentEnquiryDetails!.systemGeneratedCode,
-                  style: AppTextStyle.ts16SB(color: AppColor.primary),
-                ),
-                verticalSpacing(),
-
                 Container(
                   decoration: commonCardDecoration(),
                   padding: const EdgeInsets.all(16.0),
@@ -1001,12 +1019,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                state.currentEnquiryDetails!.systemGeneratedCode,
-                style: AppTextStyle.ts16SB(color: AppColor.primary),
-              ),
-              verticalSpacing(),
-
               Container(
                 decoration: commonCardDecoration(),
                 padding: const EdgeInsets.all(16.0),
@@ -1420,7 +1432,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       if (index != null) "Uniquekey": followUpModel!.uniquekey,
 
       "EnquiryId": widget.enquiryId,
-      "ProjectId": getProject().projectId,
+      "ProjectId": _project.projectId,
 
       "Status": statusName,
       "LostReason": statusName == "Lost" ? lostReasonName : null,
@@ -1432,6 +1444,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       context: context,
       body: payload,
       index: index,
+      projectId: _project.projectId,
     );
   }
 

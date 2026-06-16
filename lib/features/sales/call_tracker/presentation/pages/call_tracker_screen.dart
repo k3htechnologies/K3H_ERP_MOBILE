@@ -41,7 +41,10 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
   late CallTrackerCubit _callTrackerCubit;
   late TabController _tabController;
   late AuthorizationModel _routhAuthorizationModel;
-  late TextEditingController _searchC, _remarkC, _filterMobileNoC;
+  late TextEditingController _searchC,
+      _remarkC,
+      _filterMobileNoC,
+      _filterSourceC;
   late AppCallTrackerService _appCallTrackerService;
 
   late ScrollController scrollController;
@@ -66,9 +69,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     _callTrackerCubit = context.read<CallTrackerCubit>();
     _appCallTrackerService = serviceLocator<AppCallTrackerService>();
     _project = getProject();
-    _searchC = TextEditingController();
-    _remarkC = TextEditingController();
-    _filterMobileNoC = TextEditingController();
+    _initializeTextEditingControllers();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
     _onScrollCallingData();
@@ -82,11 +83,19 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     _searchC.dispose();
     _remarkC.dispose();
     _filterMobileNoC.dispose();
+    _filterSourceC.dispose();
     scrollController.dispose();
     _scrollControllerCallLog.dispose();
     _debounce?.cancel();
     _debounceCallLog?.cancel();
     super.dispose();
+  }
+
+  void _initializeTextEditingControllers() {
+    _searchC = TextEditingController();
+    _remarkC = TextEditingController();
+    _filterMobileNoC = TextEditingController();
+    _filterSourceC = TextEditingController();
   }
 
   void _handleTabChange() {
@@ -195,6 +204,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     _filterMobileNoC.text = state.filterMobileNo;
     _startDateNotifier.value = state.filterRescheduleFromDate;
     _endDateNotifier.value = state.filterRescheduleToDate;
+    _filterSourceC.text = state.filterSource ?? "";
 
     bool manualClose = false;
 
@@ -206,7 +216,8 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
             _searchC.text.trim() != state.searchText ||
             _filterMobileNoC.text.trim() != state.filterMobileNo ||
             _startDateNotifier.value != state.filterRescheduleFromDate ||
-            _endDateNotifier.value != state.filterRescheduleToDate;
+            _endDateNotifier.value != state.filterRescheduleToDate ||
+            _filterSourceC.text.trim() != state.filterSource;
 
         applyEnabled.value = manualClose;
       });
@@ -309,6 +320,14 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                     );
                   },
                 ),
+                // VISIBLE : FOR CALLING DATA ONLY
+                if (_tabController.index == 0)
+                  CustomTextField(
+                    textController: _filterSourceC,
+                    title: "Source",
+                    hint: "Enter Source",
+                    onChangeFunction: (_) => updateApplyState(innerState),
+                  ),
               ],
             ),
           );
@@ -321,6 +340,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
         _startDateNotifier.value = null;
         _endDateNotifier.value = null;
         _searchC.clear();
+        _filterSourceC.clear();
         _callTrackerCubit.applyFilterAndSort(
           context: context,
           mobileNumber: '',
@@ -328,6 +348,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
           rescheduleToDate: null,
           name: "",
           projectId: _project.projectId,
+          source: "",
         );
       },
 
@@ -363,6 +384,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
           mobileNumber: _filterMobileNoC.text.trim(),
           rescheduleFromDate: startDate,
           rescheduleToDate: endDate,
+          source: _tabController.index == 0 ? _filterSourceC.text.trim() : null,
         );
       },
 
@@ -400,20 +422,28 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
           },
         ),
       ),
-      body: Column(
-        children: [
-          ChipStyleTabBar(
-            controller: _tabController,
-            tabs: ['Calling Data', 'Call Log'],
-          ),
-          Expanded(
-            child: TabBarView(
-              physics: const NeverScrollableScrollPhysics(),
-              controller: _tabController,
-              children: [_buildCallingData(), _buildCallLog()],
-            ),
-          ),
-        ],
+      body: BlocBuilder<CallTrackerCubit, CallTrackerState>(
+        builder: (context, state) {
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: showSiteSelectedWidget(),
+              ),
+              ChipStyleTabBar(
+                controller: _tabController,
+                tabs: ['Calling Data', 'Call Log'],
+              ),
+              Expanded(
+                child: TabBarView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  controller: _tabController,
+                  children: [_buildCallingData(), _buildCallLog()],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -585,8 +615,11 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                                         ),
                                         CustomIconButton.edit(
                                           isDisabled:
-                                              !_routhAuthorizationModel
-                                                  .isAction,
+                                              // DISABLE EDIT WHEN USER HAD NO ACCESS OF ACTION OR NO OF TIME CALLING IS NON-ZERO
+                                              (!_routhAuthorizationModel
+                                                      .isAction ||
+                                                  callingData.noOfTimeCalling !=
+                                                      0),
                                           onPressed: () {
                                             goRouter.pushNamed(
                                               AppRoutes.addCallingData,
@@ -613,6 +646,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                                           value: callingData.mobileNumber,
                                           customValueWidget:
                                               CustomClickToContactText(
+                                                countryCode: "+91",
                                                 value: callingData.mobileNumber,
                                               ),
                                         ),
@@ -632,24 +666,8 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                                           CrossAxisAlignment.start,
                                       children: [
                                         buildColumnTitleValue(
-                                          title: "Source ",
-                                          value: callingData.source,
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "No. of Time Calling",
-                                          value:
-                                              callingData.noOfTimeCalling
-                                                  .toString(),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Last Modified By",
-                                          value: callingData.modifiedBy,
+                                          title: "Designation",
+                                          value: callingData.designation,
                                         ),
                                         buildColumnTitleValue(
                                           title: "Last Modified Date",
@@ -659,6 +677,22 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                                                     callingData.modifiedDate!,
                                                   )
                                                   : "-",
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Source ",
+                                          value: callingData.source,
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "No. of Time Calling",
+                                          value:
+                                              callingData.noOfTimeCalling
+                                                  .toString(),
                                         ),
                                       ],
                                     ),
@@ -852,7 +886,7 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
               Expanded(
                 child: Text(callLog.receiverName, style: AppTextStyle.ts14SB()),
               ),
-              _statusChip("Outgoing"),
+              callLogStatusWidget(callLog.status),
               horizontalSpacing(width: 6),
               AnimatedRotation(
                 turns: isExpanded ? 0.5 : 0,
@@ -977,11 +1011,8 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
                         )
                         : "-",
               ),
-              buildColumnTitleValue(
-                title: "Status",
-                value: callLog.status,
-                customValueWidget: callLogStatusWidget(callLog.status),
-              ),
+              if (callLog.status.isEmpty)
+                buildColumnTitleValue(title: "Status", value: "-"),
             ],
           ),
           Row(
@@ -989,48 +1020,6 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
               buildColumnTitleValue(title: "Remark", value: callLog.remark),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _statusChip(String? type) {
-    late Color bg;
-    late Color text;
-    late IconData icon;
-    late String label;
-
-    switch (type) {
-      case "Outgoing":
-        bg = Colors.green.shade50;
-        text = Colors.green;
-        icon = Icons.call_made;
-        label = "Outgoing";
-        break;
-      case "Incoming":
-        bg = Colors.blue.shade50;
-        text = Colors.blue;
-        icon = Icons.call_received;
-        label = "Incoming";
-        break;
-      default:
-        bg = Colors.red.shade50;
-        text = Colors.red;
-        icon = Icons.call_missed;
-        label = "Missed";
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 14, color: text),
-          const SizedBox(width: 4),
-          Text(label, style: AppTextStyle.ts12SB(color: text)),
         ],
       ),
     );

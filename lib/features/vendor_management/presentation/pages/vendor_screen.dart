@@ -394,6 +394,7 @@ class _VendorScreenState extends State<VendorScreen> {
                         title: "Mobile Number",
                         value: vendor.mobileNumber,
                         customValueWidget: CustomClickToContactText(
+                          countryCode: "+91",
                           value: vendor.mobileNumber,
                         ),
                       ),
