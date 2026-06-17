@@ -1,6 +1,6 @@
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/data/model/sales.dashboard.model.dart';
@@ -28,9 +28,18 @@ class SalesDashboardCubit extends Cubit<SalesDashboardState> {
 
     final int finalProjectId =
         (projectId == null || projectId == 0) ? 0 : projectId;
+    Map<String, dynamic> queryParams = {"FilterType": state.filterType};
+
+    if (state.filterType == "DATEWISE") {
+      queryParams.addAll({
+        "FromDate": DateFormat('yyyy-MM-dd').format(state.fromDate!),
+        "ToDate": DateFormat('yyyy-MM-dd').format(state.toDate!),
+      });
+    }
 
     var result = await _salesDashboardRepository.getSalesDashboardList(
       projectId: finalProjectId,
+      queryParams: queryParams,
     );
 
     result.fold(
@@ -50,6 +59,20 @@ class SalesDashboardCubit extends Cubit<SalesDashboardState> {
           ),
         );
       },
+    );
+  }
+
+  Future<void> applyDashboardFilter({
+    required String filterType,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) async {
+    emit(
+      state.copyWith(
+        filterType: filterType,
+        fromDate: fromDate,
+        toDate: toDate,
+      ),
     );
   }
 
@@ -78,54 +101,5 @@ class SalesDashboardCubit extends Cubit<SalesDashboardState> {
         getSalesDashboardList(context, projectId);
       },
     );
-  }
-
-  Future localSearch(String query, int index) async {
-    emit(state.copyWith(isLoading: true));
-    if (index == 0) {
-      List<Table3> filteredSourcingList =
-          state.salesDashboardList.first.table3
-              .where(
-                (item) => item.employeeName.toLowerCase().contains(
-                  query.toLowerCase(),
-                ),
-              )
-              .toList();
-      List<SalesDashboardModel> updatedList =
-          state.salesDashboardList.map((model) {
-            if (model.table3.isNotEmpty) {
-              return model.copyWith(table3: filteredSourcingList);
-            }
-            return model;
-          }).toList();
-      emit(
-        state.copyWith(
-          salesDashboardListForFilter: updatedList,
-          isLoading: false,
-        ),
-      );
-    } else if (index == 1) {
-      List<Table2> filteredClosingList =
-          state.salesDashboardList.first.table2
-              .where(
-                (item) => item.employeeName.toLowerCase().contains(
-                  query.toLowerCase(),
-                ),
-              )
-              .toList();
-      List<SalesDashboardModel> updatedList =
-          state.salesDashboardList.map((model) {
-            if (model.table2.isNotEmpty) {
-              return model.copyWith(table2: filteredClosingList);
-            }
-            return model;
-          }).toList();
-      emit(
-        state.copyWith(
-          salesDashboardListForFilter: updatedList,
-          isLoading: false,
-        ),
-      );
-    }
   }
 }

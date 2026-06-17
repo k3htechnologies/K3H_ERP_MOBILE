@@ -446,3 +446,5 @@ final List<Map<String, dynamic>> ibmObmRangeFilter = [
   {"zAttributesId": 7, "DisplayName": "Between 401 And 500"},
   {"zAttributesId": 8, "DisplayName": "Above 501"},
 ];
+
+final filterTypes = ["TODAY", "WEEKLY", "MONTHLY", "DATEWISE", "OVERALL"];

@@ -5,12 +5,18 @@ final class SalesDashboardState extends BaseState {
   final List<SalesDashboardModel> salesDashboardList;
   final List<SalesDashboardModel> salesDashboardListForFilter;
   final int currentTabIndex;
+  final String filterType;
+  final DateTime? fromDate;
+  final DateTime? toDate;
   const SalesDashboardState({
     super.isLoading,
     this.salesData,
     required this.salesDashboardList,
     required this.salesDashboardListForFilter,
     required this.currentTabIndex,
+    required this.filterType,
+    this.fromDate,
+    this.toDate,
   });
 
   factory SalesDashboardState.initial() => SalesDashboardState(
@@ -18,6 +24,7 @@ final class SalesDashboardState extends BaseState {
     salesDashboardList: [],
     salesDashboardListForFilter: [],
     currentTabIndex: 0,
+    filterType: "TODAY",
   );
 
   SalesDashboardState copyWith({
@@ -28,6 +35,9 @@ final class SalesDashboardState extends BaseState {
     List<SalesDashboardModel>? salesDashboardList,
     List<SalesDashboardModel>? salesDashboardListForFilter,
     int? currentTabIndex,
+    String? filterType,
+    DateTime? fromDate,
+    DateTime? toDate,
   }) {
     return SalesDashboardState(
       isLoading: isLoading ?? this.isLoading,
@@ -36,6 +46,9 @@ final class SalesDashboardState extends BaseState {
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
       salesDashboardListForFilter:
           salesDashboardListForFilter ?? this.salesDashboardListForFilter,
+      filterType: filterType ?? this.filterType,
+      fromDate: fromDate ?? this.fromDate,
+      toDate: toDate ?? this.toDate,
     );
   }
 
@@ -46,5 +59,7 @@ final class SalesDashboardState extends BaseState {
     salesDashboardList,
     currentTabIndex,
     salesDashboardListForFilter,
+    filterType,
+    fromDate,
   ];
 }

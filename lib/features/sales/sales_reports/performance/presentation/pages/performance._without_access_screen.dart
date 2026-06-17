@@ -26,9 +26,6 @@ class PerformanceWithoutAccessScreen extends StatefulWidget {
 class _PerformanceWithoutAccessScreenState
     extends State<PerformanceWithoutAccessScreen>
     with TickerProviderStateMixin {
-  // CUBIT
-  late SalesDashboardCubit _salesDashboardCubit;
-
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC;
 
@@ -38,7 +35,6 @@ class _PerformanceWithoutAccessScreenState
   @override
   void initState() {
     super.initState();
-    _salesDashboardCubit = context.read<SalesDashboardCubit>();
 
     _tabController = TabController(length: 2, vsync: this);
 
@@ -84,9 +80,7 @@ class _PerformanceWithoutAccessScreenState
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: SearchWidget(
                 hintText: "Search by Name",
-                onSubmit: (value) {
-                  _salesDashboardCubit.localSearch(value, _tabController.index);
-                },
+                onSubmit: (value) {},
                 textController: _searchC,
               ),
             ),

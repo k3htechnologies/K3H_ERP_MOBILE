@@ -91,36 +91,6 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
     }
   }
 
-  // Future<void> downloadFile(String url, {Uint8List? bytes}) async {
-  //   final fileName = url.startsWith("http")
-  //       ? Uri.parse(url).pathSegments.last
-  //       : url;
-  //
-  //   try {
-  //     Uint8List? fileData = bytes;
-  //
-  //     // If network file → download bytes
-  //     if (url.startsWith("http")) {
-  //       final response = await HttpClient().getUrl(Uri.parse(url));
-  //       final httpResponse = await response.close();
-  //       fileData = await consolidateHttpClientResponseBytes(httpResponse);
-  //     }
-  //
-  //     if (fileData == null) return;
-  //
-  //     final directory = await getApplicationDocumentsDirectory();
-  //     final filePath = "${directory.path}/$fileName";
-  //
-  //     final file = File(filePath);
-  //     await file.writeAsBytes(fileData);
-  //
-  //     // Open file after saving
-  //     await OpenFilex.open(filePath);
-  //   } catch (e) {
-  //     debugPrint("Download error: $e");
-  //   }
-  // }
-
   Future<void> downloadFile(String url, {Uint8List? bytes}) async {
     final fileName = getFileName(url);
 

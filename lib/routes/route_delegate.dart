@@ -23,6 +23,7 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_chan
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/sales_attendance.screen.dart';
 import 'package:k3h_erp_app/widgets/coming_soon_screen.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.model.dart';
@@ -4672,6 +4673,34 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.salesPerformanceReport,
                   builder: (context, state) {
                     return const PerformanceWithoutAccessScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.salesAttendanceScreen,
+                  path: AppRoutes.salesAttendanceScreen,
+                  builder: (context, state) {
+                    final queryParamsData =
+                        state.uri.queryParameters['queryParams'];
+
+                    Map<String, dynamic> queryParams = {};
+                    if (queryParamsData != null) {
+                      queryParams = Map<String, dynamic>.from(
+                        jsonDecode(
+                          EncryptionManager.decryptData(
+                            Uri.decodeQueryComponent(queryParamsData),
+                          ),
+                        ),
+                      );
+                    }
+                    final title =
+                        state.uri.queryParameters['title'] != null
+                            ? EncryptionManager.decryptData(
+                              Uri.decodeQueryComponent(
+                                state.uri.queryParameters['title']!,
+                              ),
+                            )
+                            : '';
+                    return SalesAttendanceScreen(title: title);
                   },
                 ),
               ],
