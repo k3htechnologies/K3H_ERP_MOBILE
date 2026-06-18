@@ -442,8 +442,8 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
             final inwardOutward = state.inwardOutwardList[index];
             final documentModeStyle =
                 inwardOutward.documentType.toLowerCase() == 'inward'
-                    ? AppTextStyle.ts14B(color: const Color(0xFF13367A))
-                    : AppTextStyle.ts14B(color: const Color(0xFFD32F2F));
+                    ? AppTextStyle.ts14B(color: AppColor.darkBlue29)
+                    : AppTextStyle.ts14B(color: AppColor.darkRed);
             final disable =
                 !_inwardOutwardRouteAuthorizationModel.isAction ||
                 (inwardOutward.deliveryStatus.isNotEmpty);
@@ -693,7 +693,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                     title: "Document Mode",
                     value: inward.documentType,
                     valueTextStyle: AppTextStyle.ts14B(
-                      color: const Color(0xFF13367A),
+                      color: AppColor.darkBlue29,
                     ),
                   ),
                   buildRowTitleValue(
@@ -841,9 +841,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                   buildRowTitleValue(
                     title: "Document Mode",
                     value: outward.documentType,
-                    valueTextStyle: AppTextStyle.ts14B(
-                      color: const Color(0xFFD32F2F),
-                    ),
+                    valueTextStyle: AppTextStyle.ts14B(color: AppColor.darkRed),
                   ),
                   buildRowTitleValue(
                     title: "Document Title",
