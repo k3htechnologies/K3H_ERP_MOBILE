@@ -86,7 +86,7 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
     _vehicleNumberC.text = widget.grnModel!.vehicleNumber;
   }
 
-  void _save() {
+  void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
 
     if (_grnCubit.state.materialList.isEmpty) {
@@ -427,7 +427,7 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           color: AppColor.white,
-          child: CustomButton(text: "Save", onPressed: _save),
+          child: CustomButton(text: "Save", onPressed: _submitForm),
         ),
       ),
     );

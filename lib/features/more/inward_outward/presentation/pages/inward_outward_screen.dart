@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inward_outward_cubit.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inward_outward_state.dart';
@@ -30,7 +32,7 @@ class InwardOutwardScreen extends StatefulWidget {
 
 class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     with TickerProviderStateMixin {
-  late AuthorizationModel _routeAuthorizationModel;
+  late AuthorizationModel _inwardOutwardRouteAuthorizationModel;
 
   late InwardOutwardCubit _inwardOutwardCubit;
 
@@ -47,7 +49,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
   Timer? _outwardDebounce;
   @override
   void initState() {
-    _routeAuthorizationModel =
+    _inwardOutwardRouteAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.inwardOutward]!;
     _inwardOutwardCubit = context.read<InwardOutwardCubit>();
     _tabController = TabController(length: 3, vsync: this);
@@ -56,6 +58,27 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     _initializePagination();
     _inwardOutwardCubit.getInwardOutwardList(context, 1);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _tabController.removeListener(_handleTabChange);
+    _tabController.dispose();
+
+    _searchC.dispose();
+    _senderNameC.dispose();
+    _receiverNameC.dispose();
+    _documentTypeC.dispose();
+
+    _inwardOutwardScrollController.dispose();
+    _inwardScrollController.dispose();
+    _outwardScrollController.dispose();
+
+    _inwardOutwardDebounce?.cancel();
+    _inwardDebounce?.cancel();
+    _outwardDebounce?.cancel();
+
+    super.dispose();
   }
 
   void _initializeTextEditingController() {
@@ -310,7 +333,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
           senderName: _senderNameC.text.trim(),
           documentType: _documentTypeC.text.trim(),
           receiverName: _receiverNameC.text.trim(),
-          sortColumn: selectedDirection != null ? "Document Id" : "",
+          sortColumn: selectedDirection != null ? "SystemGeneratedCode" : "",
           sortDirection: selectedDirection ?? "",
         );
       },
@@ -355,7 +378,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     return Scaffold(
       appBar: CustomAppBar(
         screenTitle: "Inward Outward",
-        authorization: _routeAuthorizationModel,
+        authorization: _inwardOutwardRouteAuthorizationModel,
         searchHintText: "Search By Document Id",
         textController: _searchC,
         isFilterOn: true,
@@ -376,7 +399,12 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: [inwardOutwardView(), inwardView(), outwardView()],
+              physics: NeverScrollableScrollPhysics(),
+              children: [
+                inwardOutwardSection(),
+                inwardSection(),
+                outwardSection(),
+              ],
             ),
           ),
         ],
@@ -384,7 +412,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     );
   }
 
-  Widget inwardOutwardView() {
+  Widget inwardOutwardSection() {
     return BlocBuilder<InwardOutwardCubit, InwardOutwardState>(
       builder: (context, state) {
         if ((state.isLoading ?? true) && state.inwardOutwardList.isEmpty) {
@@ -417,10 +445,8 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                     ? AppTextStyle.ts14B(color: const Color(0xFF13367A))
                     : AppTextStyle.ts14B(color: const Color(0xFFD32F2F));
             final disable =
-                !_routeAuthorizationModel.isAction ||
-                (inwardOutward.deliveryStatus.toLowerCase().contains(
-                  'delivered',
-                ));
+                !_inwardOutwardRouteAuthorizationModel.isAction ||
+                (inwardOutward.deliveryStatus.isNotEmpty);
             return Container(
               padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               decoration: commonCardDecoration(),
@@ -432,7 +458,18 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                     children: [
                       Expanded(
                         child: GestureDetector(
-                          onTap: () async {},
+                          onTap: () async {
+                            goRouter.pushNamed(
+                              AppRoutes.viewInwardOutward,
+                              queryParameters: {
+                                'inwardOutward': Uri.encodeComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(inwardOutward.toJson()),
+                                  ),
+                                ),
+                              },
+                            );
+                          },
                           child: Text(
                             inwardOutward.systemGeneratedCode,
                             style: AppTextStyle.ts16M(color: AppColor.primary),
@@ -444,7 +481,19 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                         children: [
                           CustomIconButton.edit(
                             isDisabled: disable,
-                            onPressed: () async {},
+                            onPressed: () async {
+                              goRouter.pushNamed(
+                                AppRoutes.addInwardOutward,
+                                queryParameters: {
+                                  'inwardOutward': Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(inwardOutward.toJson()),
+                                    ),
+                                  ),
+                                  'index': index.toString(),
+                                },
+                              );
+                            },
                           ),
                           CustomIconButton.delete(
                             isDisabled: disable,
@@ -456,6 +505,38 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                                       inwardOutward.inwardOutwardId,
                                   uniqueKey: inwardOutward.uniqueKey,
                                 ),
+                          ),
+                          CustomIconButton(
+                            isDisable:
+                                !_inwardOutwardRouteAuthorizationModel.isAction,
+                            onPressed: () {
+                              goRouter.pushNamed(
+                                AppRoutes.revertInwardOutward,
+                                queryParameters: {
+                                  "inwardOutwardId": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      inwardOutward.inwardOutwardId.toString(),
+                                    ),
+                                  ),
+                                  "uniquekey": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      inwardOutward.uniqueKey,
+                                    ),
+                                  ),
+                                  "index": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      index.toString(),
+                                    ),
+                                  ),
+                                },
+                              );
+                            },
+                            backgroundColor: AppColor.lightGreen,
+                            icon: Icon(
+                              Icons.refresh,
+                              size: 16,
+                              color: AppColor.darkGreen,
+                            ),
                           ),
                         ],
                       ),
@@ -486,7 +567,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     );
   }
 
-  Widget inwardView() {
+  Widget inwardSection() {
     return BlocBuilder<InwardOutwardCubit, InwardOutwardState>(
       builder: (context, state) {
         if ((state.isLoading ?? true) && state.inwardList.isEmpty) {
@@ -512,8 +593,8 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
 
             final inward = state.inwardList[index];
             final disable =
-                !_routeAuthorizationModel.isAction ||
-                (inward.deliveryStatus.toLowerCase().contains('delivered'));
+                !_inwardOutwardRouteAuthorizationModel.isAction ||
+                (inward.deliveryStatus.isNotEmpty);
             return Container(
               padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               decoration: commonCardDecoration(),
@@ -525,7 +606,18 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                     children: [
                       Expanded(
                         child: GestureDetector(
-                          onTap: () async {},
+                          onTap: () async {
+                            goRouter.pushNamed(
+                              AppRoutes.viewInwardOutward,
+                              queryParameters: {
+                                'inwardOutward': Uri.encodeComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(inward.toJson()),
+                                  ),
+                                ),
+                              },
+                            );
+                          },
                           child: Text(
                             inward.systemGeneratedCode,
                             style: AppTextStyle.ts16M(color: AppColor.primary),
@@ -537,7 +629,19 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                         children: [
                           CustomIconButton.edit(
                             isDisabled: disable,
-                            onPressed: () async {},
+                            onPressed: () async {
+                              goRouter.pushNamed(
+                                AppRoutes.addInwardOutward,
+                                queryParameters: {
+                                  'inwardOutward': Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(inward.toJson()),
+                                    ),
+                                  ),
+                                  'index': index.toString(),
+                                },
+                              );
+                            },
                           ),
                           CustomIconButton.delete(
                             isDisabled: disable,
@@ -548,6 +652,38 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                                   inwardOutwardId: inward.inwardOutwardId,
                                   uniqueKey: inward.uniqueKey,
                                 ),
+                          ),
+                          CustomIconButton(
+                            isDisable:
+                                !_inwardOutwardRouteAuthorizationModel.isAction,
+                            onPressed: () {
+                              goRouter.pushNamed(
+                                AppRoutes.revertInwardOutward,
+                                queryParameters: {
+                                  "inwardOutwardId": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      inward.inwardOutwardId.toString(),
+                                    ),
+                                  ),
+                                  "uniquekey": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      inward.uniqueKey,
+                                    ),
+                                  ),
+                                  "index": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      index.toString(),
+                                    ),
+                                  ),
+                                },
+                              );
+                            },
+                            backgroundColor: AppColor.lightGreen,
+                            icon: Icon(
+                              Icons.refresh,
+                              size: 16,
+                              color: AppColor.darkGreen,
+                            ),
                           ),
                         ],
                       ),
@@ -580,7 +716,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     );
   }
 
-  Widget outwardView() {
+  Widget outwardSection() {
     return BlocBuilder<InwardOutwardCubit, InwardOutwardState>(
       builder: (context, state) {
         if ((state.isLoading ?? true) && state.outwardList.isEmpty) {
@@ -606,8 +742,8 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
 
             final outward = state.outwardList[index];
             final disable =
-                !_routeAuthorizationModel.isAction ||
-                (outward.deliveryStatus.toLowerCase().contains('delivered'));
+                !_inwardOutwardRouteAuthorizationModel.isAction ||
+                (outward.deliveryStatus.isNotEmpty);
             return Container(
               padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               decoration: commonCardDecoration(),
@@ -619,7 +755,18 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                     children: [
                       Expanded(
                         child: GestureDetector(
-                          onTap: () async {},
+                          onTap: () async {
+                            goRouter.pushNamed(
+                              AppRoutes.viewInwardOutward,
+                              queryParameters: {
+                                'inwardOutward': Uri.encodeComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(outward.toJson()),
+                                  ),
+                                ),
+                              },
+                            );
+                          },
                           child: Text(
                             outward.systemGeneratedCode,
                             style: AppTextStyle.ts16M(color: AppColor.primary),
@@ -631,7 +778,19 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                         children: [
                           CustomIconButton.edit(
                             isDisabled: disable,
-                            onPressed: () async {},
+                            onPressed: () async {
+                              goRouter.pushNamed(
+                                AppRoutes.addInwardOutward,
+                                queryParameters: {
+                                  'inwardOutward': Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(outward.toJson()),
+                                    ),
+                                  ),
+                                  'index': index.toString(),
+                                },
+                              );
+                            },
                           ),
                           CustomIconButton.delete(
                             isDisabled: disable,
@@ -642,6 +801,38 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                                   inwardOutwardId: outward.inwardOutwardId,
                                   uniqueKey: outward.uniqueKey,
                                 ),
+                          ),
+                          CustomIconButton(
+                            isDisable:
+                                !_inwardOutwardRouteAuthorizationModel.isAction,
+                            onPressed: () {
+                              goRouter.pushNamed(
+                                AppRoutes.revertInwardOutward,
+                                queryParameters: {
+                                  "inwardOutwardId": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      outward.inwardOutwardId.toString(),
+                                    ),
+                                  ),
+                                  "uniquekey": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      outward.uniqueKey,
+                                    ),
+                                  ),
+                                  "index": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      index.toString(),
+                                    ),
+                                  ),
+                                },
+                              );
+                            },
+                            backgroundColor: AppColor.lightGreen,
+                            icon: Icon(
+                              Icons.refresh,
+                              size: 16,
+                              color: AppColor.darkGreen,
+                            ),
                           ),
                         ],
                       ),

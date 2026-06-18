@@ -235,7 +235,7 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
                       children: [
                         TextSpan(
                           text: widget.title,
-                          style: AppTextStyle.ts20B(), // title style
+                          style: AppTextStyle.ts16SB(),
                         ),
                       ],
                     ),

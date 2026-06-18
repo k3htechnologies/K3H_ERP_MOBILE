@@ -57,7 +57,7 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
     _selectedBankNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     _initializeControllers();
     if (_isEditMode) {
-      _prefillData(widget.details!);
+      _populateFormFields(widget.details!);
     }
   }
 
@@ -78,7 +78,7 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
     _addressC.dispose();
   }
 
-  void _prefillData(BookingLoanDetailsModel details) {
+  void _populateFormFields(BookingLoanDetailsModel details) {
     _selectedBankNotifier.value = [
       {
         "zAttributesId": details.bankListMasterId,

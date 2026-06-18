@@ -111,7 +111,7 @@ class InwardOutwardDatasourceImp implements InwardOutwardDatasource {
     required List<Map<String, dynamic>> fileList,
   }) async {
     String addUpdateInwardOutwardRevert =
-        "InwardOutward/AddUpdateInwardOutward";
+        "InwardOutward/AddInwardOutwardRevert";
 
     try {
       var networkResponse = await baseClient

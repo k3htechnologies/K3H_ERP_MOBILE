@@ -59,7 +59,7 @@ class _AddUnitSpecificationScreenState
     super.initState();
     _routeAuthorizationModel = AuthorizationModel();
     _initControllers();
-    _prefillData();
+    _populateFormFields();
   }
 
   @override
@@ -83,7 +83,7 @@ class _AddUnitSpecificationScreenState
   }
 
   // PREFILL DATA IF IN EDIT MODE
-  void _prefillData() {
+  void _populateFormFields() {
     if (_isEditMode && widget.unitSpecificationModel != null) {
       final spec = widget.unitSpecificationModel!;
       selectedUnitLayout.value = unitLayoutTypeList.firstWhere(

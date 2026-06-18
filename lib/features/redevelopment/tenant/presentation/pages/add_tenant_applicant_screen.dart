@@ -258,7 +258,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
   }
 
   // SAVE
-  void _save() {
+  void _submitForm() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     final selectedType = selectedApplicantType.value!['DisplayName'].toString();
@@ -776,7 +776,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
               color: AppColor.white,
             ),
             text: _isEditingApplicantType ? "Update" : "Add",
-            onPressed: _save,
+            onPressed: _submitForm,
           ),
         ),
       ),

@@ -443,6 +443,7 @@ List<Map<String, dynamic>> ibmObmRangeFilter = const [
 ];
 
 List<String> inwardOutwardTabs = const ['All', 'Inward', 'Outward'];
+List<String> inwardOutwardViewTabs = const ['Overview', 'Document', 'Revert'];
 
 List<Map<String, dynamic>> inwardOutwardDocumentType = const [
   {"zAttributesId": 1, "DisplayName": "Inward"},

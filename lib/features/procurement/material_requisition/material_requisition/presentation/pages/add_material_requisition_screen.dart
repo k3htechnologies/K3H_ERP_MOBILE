@@ -41,7 +41,6 @@ class AddMaterialRequisitionScreen extends StatefulWidget {
 
 class _AddMaterialRequisitionScreenState
     extends State<AddMaterialRequisitionScreen> {
-  // CUBIT
   late MaterialRequisitionCubit _materialRequisitionCubit;
   late TextEditingController _remarkC;
   late ProjectModel _selectedProject;
@@ -76,7 +75,7 @@ class _AddMaterialRequisitionScreenState
     _remarkC.text = widget.materialRequisitionModel!.remarks;
   }
 
-  void _save() {
+  void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
 
     if (_materialRequisitionCubit.state.materialList.isEmpty) {
@@ -327,7 +326,7 @@ class _AddMaterialRequisitionScreenState
           height: 70,
           padding: EdgeInsets.all(16),
           color: AppColor.white,
-          child: CustomButton(text: "Save", onPressed: _save),
+          child: CustomButton(text: "Save", onPressed: _submitForm),
         ),
       ),
     );

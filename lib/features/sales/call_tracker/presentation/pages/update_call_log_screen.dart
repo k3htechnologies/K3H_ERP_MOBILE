@@ -57,11 +57,11 @@ class _UpdateCallLogScreenState extends State<UpdateCallLogScreen> {
   void initState() {
     _callTrackerCubit = context.read<CallTrackerCubit>();
     _remarkC = TextEditingController();
-    _populateForm();
+    _populateFormFields();
     super.initState();
   }
 
-  void _populateForm() {
+  void _populateFormFields() {
     final callLog = widget.callLogModel;
     final reqDisplay = callLog.requirement;
     if (reqDisplay.isNotEmpty) {

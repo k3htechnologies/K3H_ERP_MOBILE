@@ -23,9 +23,12 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_chan
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
+import 'package:k3h_erp_app/features/more/inward_outward/data/model/inward_outward.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inward_outward_cubit.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/add_inward_outward_screen.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_screen.dart';
+import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_view_screen.dart';
+import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/revert_inward_outward_screen.dart';
 import 'package:k3h_erp_app/widgets/coming_soon_screen.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.model.dart';
@@ -2741,7 +2744,103 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.addInwardOutward,
                   name: AppRoutes.addInwardOutward,
                   builder: (context, state) {
-                    return AddInwardOutwardScreen();
+                    final queryParameterInwardOutward =
+                        state.uri.queryParameters['inwardOutward'];
+
+                    final inwardOutward =
+                        queryParameterInwardOutward != null &&
+                                queryParameterInwardOutward.isNotEmpty
+                            ? InwardOutwardModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterInwardOutward,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+
+                    return AddInwardOutwardScreen(
+                      inwardOutwardModel: inwardOutward,
+                      index: index,
+                    );
+                  },
+                ),
+                GoRoute(
+                  path: AppRoutes.viewInwardOutward,
+                  name: AppRoutes.viewInwardOutward,
+                  builder: (context, state) {
+                    final queryParameterInwardOutward =
+                        state.uri.queryParameters['inwardOutward'];
+
+                    final inwardOutward =
+                        queryParameterInwardOutward != null &&
+                                queryParameterInwardOutward.isNotEmpty
+                            ? InwardOutwardModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterInwardOutward,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    return InwardOutwardViewScreen(
+                      inwardOutwardModel: inwardOutward!,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.revertInwardOutward,
+                  path: AppRoutes.revertInwardOutward,
+                  builder: (context, state) {
+                    final queryParameterInwardOutwardId =
+                        state.uri.queryParameters['inwardOutwardId'];
+                    final queryParameterUniquekey =
+                        state.uri.queryParameters['uniquekey'];
+                    final queryParameterIndex =
+                        state.uri.queryParameters['index'];
+                    final inwardOutwardId =
+                        queryParameterInwardOutwardId != null &&
+                                queryParameterInwardOutwardId.isNotEmpty
+                            ? int.parse(
+                              EncryptionManager.decryptData(
+                                Uri.decodeComponent(
+                                  queryParameterInwardOutwardId,
+                                ),
+                              ),
+                            )
+                            : 0;
+                    final uniquekey =
+                        queryParameterUniquekey != null &&
+                                queryParameterUniquekey.isNotEmpty
+                            ? EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterUniquekey),
+                            )
+                            : "";
+                    final index =
+                        queryParameterIndex != null &&
+                                queryParameterIndex.isNotEmpty
+                            ? int.parse(
+                              EncryptionManager.decryptData(
+                                Uri.decodeComponent(queryParameterIndex),
+                              ),
+                            )
+                            : 0;
+                    return RevertInwardOutwardScreen(
+                      inwardOutwardId: inwardOutwardId,
+                      uniquekey: uniquekey,
+                      index: index,
+                    );
                   },
                 ),
               ],

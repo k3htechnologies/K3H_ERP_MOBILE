@@ -82,7 +82,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
     _profileCubit = context.read<ProfileCubit>();
     initializeControllers();
     if (widget.userData != null) {
-      _populateForm(widget.userData!);
+      _populateFormFields(widget.userData!);
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final user = _profileCubit.state.user;
@@ -128,7 +128,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
   }
 
   // PREFILL
-  void _populateForm(UserModel model) async {
+  void _populateFormFields(UserModel model) async {
     // TEXT CONTROLLER
     _firstNameC.text = model.firstName;
     _middleNameC.text = model.middleName;

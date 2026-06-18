@@ -87,7 +87,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
         });
       }
       if (_isEditMode) {
-        _populateForm(widget.litigationModel!);
+        _populateFormFields(widget.litigationModel!);
       }
     }
   }
@@ -117,7 +117,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
   }
 
   // POPULATE FORM
-  void _populateForm(LitigationModel model) {
+  void _populateFormFields(LitigationModel model) {
     _selectedProject =
         projects.where((m) => m['zAttributesId'] == model.projectId).first;
     _caseTitleC.text = model.title;

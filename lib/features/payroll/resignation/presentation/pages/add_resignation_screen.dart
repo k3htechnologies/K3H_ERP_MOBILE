@@ -65,7 +65,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
     _resignationCubit = context.read<ResignationCubit>();
     getCurrentUser();
     if (_isEditMode) {
-      _prefillDataForEdit(widget.resignationModel!);
+      _populateFormFields(widget.resignationModel!);
     }
   }
 
@@ -74,7 +74,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
     offerAmountC = TextEditingController();
   }
 
-  void _prefillDataForEdit(ResignationModel resignation) {
+  void _populateFormFields(ResignationModel resignation) {
     resignationDate = resignation.resignationDate;
     reasonC.text = resignation.reasonOfLeaving;
 

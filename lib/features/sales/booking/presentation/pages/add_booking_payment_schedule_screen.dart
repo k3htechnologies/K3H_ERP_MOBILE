@@ -78,10 +78,10 @@ class _AddBookingPaymentScheduleScreenState
   void initEditMode() async {
     await _fetchStages();
 
-    _prefillData();
+    _populateFormFields();
   }
 
-  void _prefillData() {
+  void _populateFormFields() {
     if (!_isEditMode) return;
     final data = _bookingCubit.state.bookingPaymentScheduleList[widget.index!];
 

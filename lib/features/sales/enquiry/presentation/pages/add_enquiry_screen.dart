@@ -174,7 +174,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     user = getCurrentUser();
     _project = getProject();
     if (_isEditMode) {
-      _populateForm(widget.enquiryModel!);
+      _populateFormFields(widget.enquiryModel!);
     } else {
       _timeInC = DateTime.now().toIso8601String().split("T")[1].split(".")[0];
       _enquiryDate = DateTime.now();
@@ -291,7 +291,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   }
 
   // PREFILL
-  void _populateForm(EnquiryModel model) async {
+  void _populateFormFields(EnquiryModel model) async {
     // TEXT CONTROLLERS
     _nameC.text = model.name;
     _mobileC.text = model.mobileNumber;

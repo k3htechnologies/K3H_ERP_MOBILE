@@ -79,7 +79,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
 
     // Pre-fill data if in edit mode
     if (_isEditMode && widget.outdoorModel != null) {
-      _prefillData();
+      _populateFormFields();
     }
   }
 
@@ -101,7 +101,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
   }
 
   // PREFILL DATA IF IN EDIT MODE
-  void _prefillData() {
+  void _populateFormFields() {
     _purposeC.text = widget.outdoorModel!.purpose;
     _companyNameC.text = widget.outdoorModel!.companyName;
     _companyAddressC.text = widget.outdoorModel!.companyAddress;

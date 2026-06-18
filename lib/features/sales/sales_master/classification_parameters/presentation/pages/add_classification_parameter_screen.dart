@@ -144,7 +144,7 @@ class _AddClassificationParameterScreenState
     // SET PROJECT ID
     projectId = getProject();
     if (_isEditMode) {
-      _populateForm(widget.classificationParamterModel!);
+      _populateFormFields(widget.classificationParamterModel!);
     }
   }
 
@@ -164,7 +164,7 @@ class _AddClassificationParameterScreenState
   }
 
   // PREFILL
-  void _populateForm(ClassificationParameterModel model) async {
+  void _populateFormFields(ClassificationParameterModel model) async {
     // HELPER: Find item in list by DisplayName
     Map<String, dynamic> findItem(
       List<Map<String, dynamic>> list,

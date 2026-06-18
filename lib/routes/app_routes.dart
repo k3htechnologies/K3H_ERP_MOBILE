@@ -443,6 +443,8 @@ class AppRoutes {
   static String taskTransferHistory = "/taskTransferHistory";
   // INWARD - OUTWARD
   static String inwardOutward = "/inwardOutward";
+  static String inwardOutwardAcknowledgement = "/inwardOutwardAcknowledgement";
+  static String revertInwardOutward = "/revertInwardOutward";
   static String addInwardOutward = "/addInwardOutward";
   static String viewInwardOutward = "/viewInwardOutward";
 

@@ -1,7 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/data/model/inward_outward.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/data/repository/inward_outward.repository.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inward_outward_state.dart';
@@ -14,6 +16,9 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
 
   final InwardOutwardRepository _repository =
       serviceLocator<InwardOutwardRepository>();
+
+  final EmployeeMasterRepository _employeeMasterRepository =
+      serviceLocator<EmployeeMasterRepository>();
 
   void resetSearch() {
     emit(state.copyWith(searchText: ""));
@@ -322,35 +327,32 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
     required BuildContext context,
     required String deliveryType,
     required String inwardOutwardDate,
-    required String inwardNumber,
     required String invoiceNumber,
     required String invoiceDate,
     required String senderName,
     required String senderAddress,
-    required String senderMobileNo,
+    required String senderMobileNumberCountryCode,
+    required String senderMobileNumber,
     required String senderEmailId,
     required String receiverName,
     required String receiverAddress,
-    required String receiverMobileNo,
+    required String receiverMobileNumber,
+    required String receiverMobileNumberCountryCode,
     required String receiverEmailId,
     required MultiFilePickerModel documentURL,
-    required String removeDocumentURL,
     required String employeeId,
     required String documentType,
-    required MultiFilePickerModel receiversSignature,
-    required String removeReceiversSignature,
-    required String receivedBy,
+    required MultiFilePickerModel acknowledgementSignature,
+    required String acknowledgementBy,
     required String handOverTo,
     required String handOverDate,
-    required String chequeNo,
+    required String chequeNumber,
     required String documentTitle,
-    required String priority,
     required String documentDescription,
     required double amount,
     required String deliveryMode,
     required String deliveryStatus,
     required MultiFilePickerModel acknowledgementURL,
-    required String removeAcknowledgementURL,
     required String acknowledgementRemark,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -359,32 +361,31 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
       "InwardOutwardId": "0",
       "DeliveryType": deliveryType,
       "InwardOutwardDate": inwardOutwardDate,
-      "InwardNumber": inwardNumber,
       "InVoiceNumber": invoiceNumber,
       "InVoiceDate": invoiceDate,
       "SenderName": senderName,
       "SenderAddress": senderAddress,
-      "SenderMobileNo": senderMobileNo,
+      "SenderMobileNumber": senderMobileNumber,
       "SenderEmailId": senderEmailId,
       "ReceiverName": receiverName,
       "ReceiverAddress": receiverAddress,
-      "ReceiverMobileNo": receiverMobileNo,
+      "ReceiverMobileNumber": receiverMobileNumber,
       "ReceiverEmailId": receiverEmailId,
-      "RemoveDocumentURL": removeDocumentURL,
+      "RemoveDocumentURL": documentURL.deletedFileList,
       "EmployeeId": employeeId,
       "DocumentType": documentType,
-      "RemoveReceiversSignature": removeReceiversSignature,
-      "ReceivedBy": receivedBy,
+      "RemoveAcknowledgementSignatureURL":
+          acknowledgementSignature.deletedFileList,
+      "AcknowledgementBy": acknowledgementBy,
       "HandOverTo": handOverTo,
       "HandOverDate": handOverDate,
-      "ChequeNo": chequeNo,
+      "ChequeNumber": chequeNumber,
       "DocumentTitle": documentTitle,
-      "Priority": priority,
       "DocumentDescription": documentDescription,
       "Amount": amount.toString(),
       "DeliveryMode": deliveryMode,
       "DeliveryStatus": deliveryStatus,
-      "RemoveAcknowledgementURL": removeAcknowledgementURL,
+      "RemoveAcknowledgementURL": acknowledgementURL.deletedFileList,
       "AcknowledgementRemark": acknowledgementRemark,
     };
 
@@ -402,13 +403,13 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
     }
 
     // ReceiversSignature
-    for (int i = 0; i < receiversSignature.fileNameList.length; i++) {
-      if (receiversSignature.fileNameList[i].contains("http")) continue;
+    for (int i = 0; i < acknowledgementSignature.fileNameList.length; i++) {
+      if (acknowledgementSignature.fileNameList[i].contains("http")) continue;
 
       fileList.add({
-        "key": "ReceiversSignature",
-        "value": receiversSignature.fileBytesList[i],
-        "fileName": receiversSignature.fileNameList[i],
+        "key": "AcknowledgementSignatureURL",
+        "value": acknowledgementSignature.fileBytesList[i],
+        "fileName": acknowledgementSignature.fileNameList[i],
       });
     }
 
@@ -454,37 +455,35 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
     required BuildContext context,
     required int inwardOutwardId,
     required String uniqueKey,
+    required int index,
     required String deliveryType,
     required String inwardOutwardDate,
-    required String inwardNumber,
     required String invoiceNumber,
     required String invoiceDate,
     required String senderName,
     required String senderAddress,
-    required String senderMobileNo,
+    required String senderMobileNumberCountryCode,
+    required String senderMobileNumber,
     required String senderEmailId,
     required String receiverName,
     required String receiverAddress,
-    required String receiverMobileNo,
+    required String receiverMobileNumber,
+    required String receiverMobileNumberCountryCode,
     required String receiverEmailId,
     required MultiFilePickerModel documentURL,
-    required String removeDocumentURL,
     required String employeeId,
     required String documentType,
-    required MultiFilePickerModel receiversSignature,
-    required String removeReceiversSignature,
-    required String receivedBy,
+    required MultiFilePickerModel acknowledgementSignature,
+    required String acknowledgementBy,
     required String handOverTo,
     required String handOverDate,
-    required String chequeNo,
+    required String chequeNumber,
     required String documentTitle,
-    required String priority,
     required String documentDescription,
     required double amount,
     required String deliveryMode,
     required String deliveryStatus,
     required MultiFilePickerModel acknowledgementURL,
-    required String removeAcknowledgementURL,
     required String acknowledgementRemark,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -494,32 +493,33 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
       "UniqueKey": uniqueKey,
       "DeliveryType": deliveryType,
       "InwardOutwardDate": inwardOutwardDate,
-      "InwardNumber": inwardNumber,
       "InVoiceNumber": invoiceNumber,
       "InVoiceDate": invoiceDate,
       "SenderName": senderName,
       "SenderAddress": senderAddress,
-      "SenderMobileNo": senderMobileNo,
+      "SenderMobileNumberCountryCode": senderMobileNumberCountryCode,
+      "SenderMobileNumber": senderMobileNumber,
       "SenderEmailId": senderEmailId,
       "ReceiverName": receiverName,
       "ReceiverAddress": receiverAddress,
-      "ReceiverMobileNo": receiverMobileNo,
+      "MobileNumberCountryCode": receiverMobileNumberCountryCode,
+      "ReceiverMobileNumber": receiverMobileNumber,
       "ReceiverEmailId": receiverEmailId,
-      "RemoveDocumentURL": removeDocumentURL,
+      "RemoveDocumentURL": documentURL.deletedFileList,
       "EmployeeId": employeeId,
       "DocumentType": documentType,
-      "RemoveReceiversSignature": removeReceiversSignature,
-      "ReceivedBy": receivedBy,
+      "RemoveAcknowledgementSignatureURL":
+          acknowledgementSignature.deletedFileList,
+      "AcknowledgementBy": acknowledgementBy,
       "HandOverTo": handOverTo,
       "HandOverDate": handOverDate,
-      "ChequeNo": chequeNo,
+      "ChequeNumber": chequeNumber,
       "DocumentTitle": documentTitle,
-      "Priority": priority,
       "DocumentDescription": documentDescription,
       "Amount": amount.toString(),
       "DeliveryMode": deliveryMode,
       "DeliveryStatus": deliveryStatus,
-      "RemoveAcknowledgementURL": removeAcknowledgementURL,
+      "RemoveAcknowledgementURL": acknowledgementURL.deletedFileList,
       "AcknowledgementRemark": acknowledgementRemark,
     };
 
@@ -537,13 +537,13 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
     }
 
     // ReceiversSignature
-    for (int i = 0; i < receiversSignature.fileNameList.length; i++) {
-      if (receiversSignature.fileNameList[i].contains("http")) continue;
+    for (int i = 0; i < acknowledgementSignature.fileNameList.length; i++) {
+      if (acknowledgementSignature.fileNameList[i].contains("http")) continue;
 
       fileList.add({
-        "key": "ReceiversSignature",
-        "value": receiversSignature.fileBytesList[i],
-        "fileName": receiversSignature.fileNameList[i],
+        "key": "AcknowledgementSignatureURL",
+        "value": acknowledgementSignature.fileBytesList[i],
+        "fileName": acknowledgementSignature.fileNameList[i],
       });
     }
 
@@ -570,7 +570,57 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) async {
-        await getInwardOutwardList(context, 1);
+        goRouter.pop();
+        final updatedInwardOutward =
+            (response['data'] as List<InwardOutwardModel>).first;
+
+        switch (state.currentTabIndex) {
+          case 0:
+            if (state.inwardOutwardList.isNotEmpty &&
+                index < state.inwardOutwardList.length) {
+              final updatedList = List<InwardOutwardModel>.from(
+                state.inwardOutwardList,
+              );
+
+              updatedList[index] = updatedInwardOutward;
+
+              emit(
+                state.copyWith(
+                  isLoading: false,
+                  inwardOutwardList: updatedList,
+                ),
+              );
+            }
+            break;
+
+          case 1:
+            if (state.inwardList.isNotEmpty &&
+                index < state.inwardList.length) {
+              final updatedList = List<InwardOutwardModel>.from(
+                state.inwardList,
+              );
+
+              updatedList[index] = updatedInwardOutward;
+
+              emit(state.copyWith(isLoading: false, inwardList: updatedList));
+            }
+            break;
+
+          case 2:
+            if (state.outwardList.isNotEmpty &&
+                index < state.outwardList.length) {
+              final updatedList = List<InwardOutwardModel>.from(
+                state.outwardList,
+              );
+
+              updatedList[index] = updatedInwardOutward;
+
+              emit(state.copyWith(isLoading: false, outwardList: updatedList));
+            }
+            break;
+          default:
+            break;
+        }
 
         if (context.mounted) {
           showSuccessMessage(
@@ -579,25 +629,23 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
                 response["message"] ?? "Inward Outward Updated Successfully",
           );
         }
-
-        goRouter.pop();
       },
     );
   }
 
-  Future addUpdateInwardOutwardRevert({
+  Future revertInwardOutward({
     required BuildContext context,
-    required int inwardOutwardRevertId,
     required int inwardOutwardId,
     required String uniqueKey,
     required String revertDate,
     required String revertRemark,
+    required int index,
     required MultiFilePickerModel revertDocumentURL,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
     Map<String, String> body = {
-      "InwardOutwardRevertId": inwardOutwardRevertId.toString(),
+      "InwardOutwardRevertId": 0.toString(),
       "InwardOutwardId": inwardOutwardId.toString(),
       "UniqueKey": uniqueKey,
       "RevertDate": revertDate,
@@ -629,8 +677,57 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) async {
-        await getInwardOutwardList(context, 1);
+        final updatedInwardOutward =
+            (response['data'] as List<InwardOutwardModel>).first;
 
+        switch (state.currentTabIndex) {
+          case 0:
+            if (state.inwardOutwardList.isNotEmpty &&
+                index < state.inwardOutwardList.length) {
+              final updatedList = List<InwardOutwardModel>.from(
+                state.inwardOutwardList,
+              );
+
+              updatedList[index] = updatedInwardOutward;
+
+              emit(
+                state.copyWith(
+                  isLoading: false,
+                  inwardOutwardList: updatedList,
+                ),
+              );
+            }
+            break;
+
+          case 1:
+            if (state.inwardList.isNotEmpty &&
+                index < state.inwardList.length) {
+              final updatedList = List<InwardOutwardModel>.from(
+                state.inwardList,
+              );
+
+              updatedList[index] = updatedInwardOutward;
+
+              emit(state.copyWith(isLoading: false, inwardList: updatedList));
+            }
+            break;
+
+          case 2:
+            if (state.outwardList.isNotEmpty &&
+                index < state.outwardList.length) {
+              final updatedList = List<InwardOutwardModel>.from(
+                state.outwardList,
+              );
+
+              updatedList[index] = updatedInwardOutward;
+
+              emit(state.copyWith(isLoading: false, outwardList: updatedList));
+            }
+            break;
+          default:
+            break;
+        }
+        goRouter.pop();
         if (context.mounted) {
           showSuccessMessage(
             context,
@@ -638,6 +735,41 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
                 response["message"] ?? "Inward Outward Reverted Successfully",
           );
         }
+      },
+    );
+  }
+
+  Future<Map<String, dynamic>> fetchEmployees(
+    int pageNumber, {
+    String? value,
+  }) async {
+    final result = await _employeeMasterRepository.getEmployeeMasterList(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      queryParams:
+          value != null && value.isNotEmpty
+              ? {"EmployeeName": value, "isCheckPermission": false}
+              : {"isCheckPermission": false},
+    );
+
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final employees = response['data'] as List<UserModel>;
+
+        return {
+          "itemList":
+              employees.map((employee) {
+                return {
+                  "zAttributesId": employee.employeeId,
+                  "DisplayName": employee.fullName,
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
+        };
       },
     );
   }

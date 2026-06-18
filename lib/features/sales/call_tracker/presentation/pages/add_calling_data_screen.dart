@@ -44,7 +44,7 @@ class _AddCallingDataScreenState extends State<AddCallingDataScreen> {
     _callTrackerCubit = context.read<CallTrackerCubit>();
     _initializeTextEditingControllers();
     _selectedProject = getProject();
-    _prefillData(callingData: widget.callingDataModel);
+    _populateFormFields(callingData: widget.callingDataModel);
     super.initState();
   }
 
@@ -55,7 +55,7 @@ class _AddCallingDataScreenState extends State<AddCallingDataScreen> {
     _addressC = TextEditingController();
   }
 
-  void _prefillData({CallingDataModel? callingData}) {
+  void _populateFormFields({CallingDataModel? callingData}) {
     if (!_isEditMode) return;
     final model = callingData!;
     _nameC.text = model.name;

@@ -354,6 +354,32 @@ class InputValidator {
     final aadhaarRegex = RegExp(r'^\d{12}$');
     return aadhaarRegex.hasMatch(input);
   }
+
+  static bool isValidInvoiceNumber(String invoiceNumber) {
+    if (invoiceNumber.trim().isEmpty) {
+      return false;
+    }
+
+    // REJECT 0, 00, 000, 000000, ETC.
+    if (RegExp(r'^0+$').hasMatch(invoiceNumber)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  static bool isValidChequeNumber(String chequeNumber) {
+    if (chequeNumber.trim().isEmpty) {
+      return false;
+    }
+
+    // REJECT 0, 00, 000, 000000, ETC.
+    if (RegExp(r'^0+$').hasMatch(chequeNumber)) {
+      return false;
+    }
+
+    return true;
+  }
 }
 
 class UpperCaseTextFormatter extends TextInputFormatter {
