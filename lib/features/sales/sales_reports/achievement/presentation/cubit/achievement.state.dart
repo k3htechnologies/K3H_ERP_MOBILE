@@ -1,4 +1,5 @@
 import 'package:k3h_erp_app/core/base_state.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/achivement_drill_down_report.model.dart';
 
 import '../../data/model/closing_achievement_report.model.dart';
 import '../../data/model/project_achievement_report.model.dart';
@@ -38,6 +39,12 @@ class AchievementState extends BaseState {
   final String managerCurrentSortColumn;
   final String managerCurrentSortDirection;
 
+  final List<AchievementDrillDownReportModel> achievementDrillDownReportList;
+  final AchievementDrillDownType drillDownType;
+  final int currentAchievementDrillDownReportPageNumber;
+
+  final int achievementDrillDownTotalNumberOfRecord;
+
   const AchievementState({
     super.isLoading,
 
@@ -62,12 +69,17 @@ class AchievementState extends BaseState {
     this.managerClosingAchievementTotalNumberOfRecord = 0,
     this.managerSourcingAchievementTotalNumberOfRecord = 0,
 
+    required this.achievementDrillDownReportList,
+    this.currentAchievementDrillDownReportPageNumber = 1,
+    this.achievementDrillDownTotalNumberOfRecord = 0,
+
     this.searchText = '',
     this.managerSearchText = '',
     this.currentSortColumn = '',
     this.currentSortDirection = '',
     this.managerCurrentSortColumn = '',
     this.managerCurrentSortDirection = '',
+    this.drillDownType = AchievementDrillDownType.enquiry,
   });
 
   factory AchievementState.initial() => AchievementState(
@@ -93,6 +105,11 @@ class AchievementState extends BaseState {
 
     managerClosingAchievementTotalNumberOfRecord: 0,
     managerSourcingAchievementTotalNumberOfRecord: 0,
+
+    achievementDrillDownReportList: [],
+    currentAchievementDrillDownReportPageNumber: 1,
+    achievementDrillDownTotalNumberOfRecord: 0,
+    drillDownType: AchievementDrillDownType.enquiry,
 
     searchText: '',
     managerSearchText: '',
@@ -129,12 +146,17 @@ class AchievementState extends BaseState {
     int? managerClosingAchievementTotalNumberOfRecord,
     int? managerSourcingAchievementTotalNumberOfRecord,
 
+    List<AchievementDrillDownReportModel>? achievementDrillDownReportList,
+    int? currentAchievementDrillDownReportPageNumber,
+    int? achievementDrillDownTotalNumberOfRecord,
+
     String? searchText,
     String? managerSearchText,
     String? currentSortColumn,
     String? currentSortDirection,
     String? managerCurrentSortColumn,
     String? managerCurrentSortDirection,
+    AchievementDrillDownType? drillDownType,
   }) {
     return AchievementState(
       isLoading: isLoading ?? this.isLoading,
@@ -196,6 +218,18 @@ class AchievementState extends BaseState {
           managerSourcingAchievementTotalNumberOfRecord ??
           this.managerSourcingAchievementTotalNumberOfRecord,
 
+      achievementDrillDownReportList:
+          achievementDrillDownReportList ?? this.achievementDrillDownReportList,
+
+      currentAchievementDrillDownReportPageNumber:
+          currentAchievementDrillDownReportPageNumber ??
+          this.currentAchievementDrillDownReportPageNumber,
+
+      achievementDrillDownTotalNumberOfRecord:
+          achievementDrillDownTotalNumberOfRecord ??
+          this.achievementDrillDownTotalNumberOfRecord,
+
+      drillDownType: drillDownType ?? this.drillDownType,
       searchText: searchText ?? this.searchText,
 
       managerSearchText: managerSearchText ?? this.managerSearchText,
@@ -233,6 +267,11 @@ class AchievementState extends BaseState {
 
     managerClosingAchievementTotalNumberOfRecord,
     managerSourcingAchievementTotalNumberOfRecord,
+
+    achievementDrillDownReportList,
+    currentAchievementDrillDownReportPageNumber,
+    achievementDrillDownTotalNumberOfRecord,
+    drillDownType,
 
     searchText,
     managerSearchText,

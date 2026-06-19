@@ -19,18 +19,21 @@ import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class InventoryOverallReportOverview extends StatefulWidget {
+class InventoryOverallReportOverviewScreen extends StatefulWidget {
   final int projectId;
 
-  const InventoryOverallReportOverview({super.key, required this.projectId});
+  const InventoryOverallReportOverviewScreen({
+    super.key,
+    required this.projectId,
+  });
 
   @override
-  State<InventoryOverallReportOverview> createState() =>
-      _InventoryOverallReportOverviewState();
+  State<InventoryOverallReportOverviewScreen> createState() =>
+      _InventoryOverallReportOverviewScreenState();
 }
 
-class _InventoryOverallReportOverviewState
-    extends State<InventoryOverallReportOverview>
+class _InventoryOverallReportOverviewScreenState
+    extends State<InventoryOverallReportOverviewScreen>
     with TickerProviderStateMixin {
   late InventoryReportCubit _inventoryReportCubit;
   late InventoryCubit _inventoryCubit;
@@ -276,10 +279,11 @@ class _InventoryOverallReportOverviewState
 
                                                     verticalSpacing(height: 5),
 
-                                                    _buildRowTitleValue(
+                                                    buildRowTitleCount(
+                                                      fixesWidth: 180.w,
                                                       title: "Total",
                                                       value:
-                                                          totalArea.addCommas(),
+                                                          totalArea.toString(),
                                                       valueTextStyle:
                                                           AppTextStyle.ts14SB(
                                                             color:
@@ -289,7 +293,7 @@ class _InventoryOverallReportOverviewState
                                                                     : AppColor
                                                                         .grey,
                                                           ),
-                                                      onTap: () {
+                                                      onValueTap: () {
                                                         _navigateToDistribution(
                                                           type: "Unit",
                                                           status: "Total",
@@ -310,11 +314,12 @@ class _InventoryOverallReportOverviewState
                                                       },
                                                     ),
 
-                                                    _buildRowTitleValue(
+                                                    buildRowTitleCount(
+                                                      fixesWidth: 180.w,
                                                       title: "Alloted",
                                                       value:
                                                           allotedArea
-                                                              .addCommas(),
+                                                              .toString(),
                                                       valueTextStyle:
                                                           AppTextStyle.ts14SB(
                                                             color:
@@ -324,7 +329,7 @@ class _InventoryOverallReportOverviewState
                                                                     : AppColor
                                                                         .grey,
                                                           ),
-                                                      onTap: () {
+                                                      onValueTap: () {
                                                         _navigateToDistribution(
                                                           type: "Unit",
                                                           status: "Alloted",
@@ -347,11 +352,11 @@ class _InventoryOverallReportOverviewState
                                                       },
                                                     ),
 
-                                                    _buildRowTitleValue(
+                                                    buildRowTitleCount(
+                                                      fixesWidth: 180.w,
                                                       title: "Booked",
                                                       value:
-                                                          bookedArea
-                                                              .addCommas(),
+                                                          bookedArea.toString(),
                                                       valueTextStyle:
                                                           AppTextStyle.ts14SB(
                                                             color:
@@ -361,7 +366,7 @@ class _InventoryOverallReportOverviewState
                                                                     : AppColor
                                                                         .grey,
                                                           ),
-                                                      onTap: () {
+                                                      onValueTap: () {
                                                         _navigateToDistribution(
                                                           type: "Unit",
                                                           status: "Booked",
@@ -384,10 +389,11 @@ class _InventoryOverallReportOverviewState
                                                       },
                                                     ),
 
-                                                    _buildRowTitleValue(
+                                                    buildRowTitleCount(
+                                                      fixesWidth: 180.w,
                                                       title: "Hold",
                                                       value:
-                                                          holdArea.addCommas(),
+                                                          holdArea.toString(),
                                                       valueTextStyle:
                                                           AppTextStyle.ts14SB(
                                                             color:
@@ -397,7 +403,7 @@ class _InventoryOverallReportOverviewState
                                                                     : AppColor
                                                                         .grey,
                                                           ),
-                                                      onTap: () {
+                                                      onValueTap: () {
                                                         _navigateToDistribution(
                                                           type: "Unit",
                                                           status: "Hold",
@@ -420,11 +426,12 @@ class _InventoryOverallReportOverviewState
                                                       },
                                                     ),
 
-                                                    _buildRowTitleValue(
+                                                    buildRowTitleCount(
+                                                      fixesWidth: 180.w,
                                                       title: "Available",
                                                       value:
                                                           availableArea
-                                                              .addCommas(),
+                                                              .toString(),
                                                       valueTextStyle:
                                                           AppTextStyle.ts14SB(
                                                             color:
@@ -435,7 +442,7 @@ class _InventoryOverallReportOverviewState
                                                                     : AppColor
                                                                         .grey,
                                                           ),
-                                                      onTap: () {
+                                                      onValueTap: () {
                                                         _navigateToDistribution(
                                                           type: "Unit",
                                                           status: "Available",
@@ -458,11 +465,12 @@ class _InventoryOverallReportOverviewState
                                                       },
                                                     ),
 
-                                                    _buildRowTitleValue(
+                                                    buildRowTitleCount(
+                                                      fixesWidth: 180.w,
                                                       title: "Blocked",
                                                       value:
                                                           blockedArea
-                                                              .addCommas(),
+                                                              .toString(),
 
                                                       valueTextStyle:
                                                           AppTextStyle.ts14SB(
@@ -473,7 +481,7 @@ class _InventoryOverallReportOverviewState
                                                                     : AppColor
                                                                         .grey,
                                                           ),
-                                                      onTap: () {
+                                                      onValueTap: () {
                                                         _navigateToDistribution(
                                                           type: "Unit",
                                                           status: "Blocked",
@@ -529,7 +537,8 @@ class _InventoryOverallReportOverviewState
 
                                                     verticalSpacing(height: 5),
 
-                                                    _buildRowTitleValue(
+                                                    buildRowTitleCount(
+                                                      fixesWidth: 180.w,
                                                       title: "Total",
                                                       value:
                                                           totalUnit.toString(),
@@ -542,7 +551,7 @@ class _InventoryOverallReportOverviewState
                                                                     : AppColor
                                                                         .grey,
                                                           ),
-                                                      onTap: () {
+                                                      onValueTap: () {
                                                         _navigateToDistribution(
                                                           type: "Units",
                                                           status: "Total",
@@ -563,7 +572,8 @@ class _InventoryOverallReportOverviewState
                                                       },
                                                     ),
 
-                                                    _buildRowTitleValue(
+                                                    buildRowTitleCount(
+                                                      fixesWidth: 180.w,
                                                       title: "Alloted",
                                                       value:
                                                           allotedUnit
@@ -577,7 +587,7 @@ class _InventoryOverallReportOverviewState
                                                                     : AppColor
                                                                         .grey,
                                                           ),
-                                                      onTap: () {
+                                                      onValueTap: () {
                                                         _navigateToDistribution(
                                                           type: "Units",
                                                           status: "Alloted",
@@ -600,7 +610,8 @@ class _InventoryOverallReportOverviewState
                                                       },
                                                     ),
 
-                                                    _buildRowTitleValue(
+                                                    buildRowTitleCount(
+                                                      fixesWidth: 180.w,
                                                       title: "Booked",
                                                       value:
                                                           bookedUnit.toString(),
@@ -613,7 +624,7 @@ class _InventoryOverallReportOverviewState
                                                                     : AppColor
                                                                         .grey,
                                                           ),
-                                                      onTap: () {
+                                                      onValueTap: () {
                                                         _navigateToDistribution(
                                                           type: "Units",
                                                           status: "Booked",
@@ -636,7 +647,8 @@ class _InventoryOverallReportOverviewState
                                                       },
                                                     ),
 
-                                                    _buildRowTitleValue(
+                                                    buildRowTitleCount(
+                                                      fixesWidth: 180.w,
                                                       title: "Hold",
                                                       value:
                                                           holdUnit.toString(),
@@ -649,7 +661,7 @@ class _InventoryOverallReportOverviewState
                                                                     : AppColor
                                                                         .grey,
                                                           ),
-                                                      onTap: () {
+                                                      onValueTap: () {
                                                         _navigateToDistribution(
                                                           type: "Units",
                                                           status: "Hold",
@@ -672,7 +684,8 @@ class _InventoryOverallReportOverviewState
                                                       },
                                                     ),
 
-                                                    _buildRowTitleValue(
+                                                    buildRowTitleCount(
+                                                      fixesWidth: 180.w,
                                                       title: "Available",
                                                       value:
                                                           availableUnit
@@ -687,7 +700,7 @@ class _InventoryOverallReportOverviewState
                                                                     : AppColor
                                                                         .grey,
                                                           ),
-                                                      onTap: () {
+                                                      onValueTap: () {
                                                         _navigateToDistribution(
                                                           type: "Units",
                                                           status: "Available",
@@ -710,7 +723,8 @@ class _InventoryOverallReportOverviewState
                                                       },
                                                     ),
 
-                                                    _buildRowTitleValue(
+                                                    buildRowTitleCount(
+                                                      fixesWidth: 180.w,
                                                       title: "Blocked",
                                                       value:
                                                           blockedUnit
@@ -724,7 +738,7 @@ class _InventoryOverallReportOverviewState
                                                                     : AppColor
                                                                         .grey,
                                                           ),
-                                                      onTap: () {
+                                                      onValueTap: () {
                                                         _navigateToDistribution(
                                                           type: "Units",
                                                           status: "Blocked",
@@ -780,7 +794,8 @@ class _InventoryOverallReportOverviewState
 
                                                     verticalSpacing(height: 5),
 
-                                                    _buildRowTitleValue(
+                                                    buildRowTitleCount(
+                                                      fixesWidth: 180.w,
                                                       title: "Total",
                                                       value:
                                                           totalParking
@@ -794,7 +809,7 @@ class _InventoryOverallReportOverviewState
                                                                     : AppColor
                                                                         .grey,
                                                           ),
-                                                      onTap: () {
+                                                      onValueTap: () {
                                                         _navigateToDistribution(
                                                           type: "Parking",
                                                           status: "Total",
@@ -817,7 +832,8 @@ class _InventoryOverallReportOverviewState
                                                       },
                                                     ),
 
-                                                    _buildRowTitleValue(
+                                                    buildRowTitleCount(
+                                                      fixesWidth: 180.w,
                                                       title: "Available",
                                                       value:
                                                           availableParking
@@ -832,7 +848,7 @@ class _InventoryOverallReportOverviewState
                                                                     : AppColor
                                                                         .grey,
                                                           ),
-                                                      onTap: () {
+                                                      onValueTap: () {
                                                         _navigateToDistribution(
                                                           type: "Parking",
                                                           status: "Available",
@@ -858,7 +874,8 @@ class _InventoryOverallReportOverviewState
                                                       },
                                                     ),
 
-                                                    _buildRowTitleValue(
+                                                    buildRowTitleCount(
+                                                      fixesWidth: 180.w,
                                                       title: "Blocked",
                                                       value:
                                                           blockedParking
@@ -873,7 +890,7 @@ class _InventoryOverallReportOverviewState
                                                                     : AppColor
                                                                         .grey,
                                                           ),
-                                                      onTap: () {
+                                                      onValueTap: () {
                                                         _navigateToDistribution(
                                                           type: "Parking",
                                                           status: "Blocked",
@@ -898,7 +915,8 @@ class _InventoryOverallReportOverviewState
                                                       },
                                                     ),
 
-                                                    _buildRowTitleValue(
+                                                    buildRowTitleCount(
+                                                      fixesWidth: 180.w,
                                                       title: "Booked",
                                                       value:
                                                           bookedParking
@@ -913,7 +931,7 @@ class _InventoryOverallReportOverviewState
                                                                     : AppColor
                                                                         .grey,
                                                           ),
-                                                      onTap: () {
+                                                      onValueTap: () {
                                                         _navigateToDistribution(
                                                           type: "Parking",
                                                           status: "Booked",
@@ -938,7 +956,8 @@ class _InventoryOverallReportOverviewState
                                                       },
                                                     ),
 
-                                                    _buildRowTitleValue(
+                                                    buildRowTitleCount(
+                                                      fixesWidth: 180.w,
                                                       title: "Hold",
                                                       value:
                                                           holdParking
@@ -952,7 +971,7 @@ class _InventoryOverallReportOverviewState
                                                                     : AppColor
                                                                         .grey,
                                                           ),
-                                                      onTap: () {
+                                                      onValueTap: () {
                                                         _navigateToDistribution(
                                                           type: "Parking",
                                                           status: "Hold",
@@ -977,7 +996,8 @@ class _InventoryOverallReportOverviewState
                                                       },
                                                     ),
 
-                                                    _buildRowTitleValue(
+                                                    buildRowTitleCount(
+                                                      fixesWidth: 180.w,
                                                       title: "Member",
                                                       value:
                                                           memberParking
@@ -992,7 +1012,7 @@ class _InventoryOverallReportOverviewState
                                                                     : AppColor
                                                                         .grey,
                                                           ),
-                                                      onTap: () {
+                                                      onValueTap: () {
                                                         _navigateToDistribution(
                                                           type: "Parking",
                                                           status: "Member",
@@ -1034,32 +1054,6 @@ class _InventoryOverallReportOverviewState
             ],
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildRowTitleValue({
-    required String title,
-    required String value,
-    TextStyle? valueTextStyle,
-    bool singleLine = true,
-    VoidCallback? onTap,
-  }) {
-    return buildRowTitleValue(
-      fixesWidth: 180.w,
-      title: title,
-      value: value,
-      customValueWidget: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Text(
-            value.isNotEmpty ? value : "-",
-            maxLines: singleLine ? 1 : null,
-            overflow: singleLine ? TextOverflow.ellipsis : TextOverflow.visible,
-            style: valueTextStyle ?? AppTextStyle.ts14M(),
-          ),
-        ),
       ),
     );
   }

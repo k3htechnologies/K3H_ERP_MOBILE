@@ -938,7 +938,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                           value:
                               enquiry.remark.isNotEmpty ? enquiry.remark : "-",
                         ),
-                        const Expanded(child: SizedBox()),
                       ],
                     ),
                   ],

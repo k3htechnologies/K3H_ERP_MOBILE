@@ -67,6 +67,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   bool get _isEditMode => widget.enquiryModel != null;
   // VARIABLE FOR VALIDATION
   final _formKey = GlobalKey<FormState>();
+  final _channelPartnerCodeKey = GlobalKey<FormState>();
   // TIME VARIABLE
   String? _timeInC;
   String? _timeOutC;
@@ -159,6 +160,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   );
   final ValueNotifier<bool> _isMobileNoAlreadyExist = ValueNotifier(false);
   final ValueNotifier<bool> _isTeamMemberAlreadyExist = ValueNotifier(false);
+  final ValueNotifier<bool> _isChannelPartnerAlreadyExist = ValueNotifier(
+    false,
+  );
 
   @override
   void initState() {
@@ -1333,6 +1337,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                       _enquiryCubit.clearChannelPartner();
                       _selectedProjectNotifier.value = [];
                       _selectedFlatNotifier.value = [];
+                      _isChannelPartnerAlreadyExist.value = false;
                     },
                     validator: (value) {
                       if (value == null) {
@@ -1380,6 +1385,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                       hint: "Search by Channel Partner Code",
                       textController: _channelPartnerCodeC,
                       readOnly: _isEditMode,
+                      key: _channelPartnerCodeKey,
                       isRequired: true,
                       inputFormatterList: [
                         UpperCaseTextFormatter(),
@@ -1388,6 +1394,10 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                       validator: (val) {
                         if (val == null || val.trim().isEmpty) {
                           return "Channel Partner code is required";
+                        }
+                        if (!_isChannelPartnerAlreadyExist.value &&
+                            !_isEditMode) {
+                          return "No Channel Partner found for this Channel Partner Code";
                         }
 
                         return null;
@@ -1417,6 +1427,11 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                             "DisplayName":
                                 _enquiryCubit.state.channelPartnerModel!.name,
                           };
+                          _isChannelPartnerAlreadyExist.value = true;
+                          _channelPartnerCodeKey.currentState?.validate();
+                        } else {
+                          _isChannelPartnerAlreadyExist.value = false;
+                          _channelPartnerCodeKey.currentState?.validate();
                         }
                       },
                     ),
@@ -1426,32 +1441,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                         return BlocBuilder<EnquiryCubit, EnquiryState>(
                           builder: (context, state) {
                             final partner = state.channelPartnerModel;
-
-                            final bool hasEnteredCPCode = mobile.length == 18;
-
-                            //  NO PARTNER FOUND
-                            if (hasEnteredCPCode &&
-                                partner == null &&
-                                state.isFetchingChannelPartners == false) {
-                              return Container(
-                                padding: const EdgeInsets.all(16),
-                                margin: const EdgeInsets.only(bottom: 10),
-                                decoration: BoxDecoration(
-                                  color: AppColor.lightRed,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    width: 0.5,
-                                    color: AppColor.red,
-                                  ),
-                                ),
-                                child: Text(
-                                  "No Channel Partner found for this Channel Partner Code",
-                                  style: AppTextStyle.ts14R(
-                                    color: AppColor.red,
-                                  ),
-                                ),
-                              );
-                            }
 
                             //  PARTNER FOUND
                             if (partner != null) {
