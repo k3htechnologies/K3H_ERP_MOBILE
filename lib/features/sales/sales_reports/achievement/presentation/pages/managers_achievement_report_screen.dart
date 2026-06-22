@@ -413,17 +413,9 @@ class _ManagerAchievementReportScreenState
                             /// WALKINS
                             ExpansionTile(
                               tilePadding: EdgeInsets.zero,
-                              title: buildRowTitleCount(
+                              title: buildRowTitleValue(
                                 title: "Total Walkins",
-                                value: achievement.totalWalkins.toString(),
-                                onValueTap:
-                                    () => _navigateToAchievementDrillDown(
-                                      employeeId: achievement.employeeId,
-                                      employeeName: achievement.employeeName,
-                                      columnName: 'TOTAL WALKINS',
-                                      achievementDrillDownType:
-                                          AchievementDrillDownType.enquiry,
-                                    ),
+                                value: achievement.totalWalkins.addCommas(),
                               ),
                               trailing: const Icon(Icons.keyboard_arrow_down),
                               childrenPadding: EdgeInsets.zero,
@@ -642,17 +634,13 @@ class _ManagerAchievementReportScreenState
                               shape: const Border(),
                               collapsedShape: const Border(),
                               trailing: const Icon(Icons.keyboard_arrow_down),
-                              title: buildRowTitleCount(
-                                title: "Walkins",
-                                value: achievement.walkinsByCp.toString(),
-                                onValueTap:
-                                    () => _navigateToAchievementDrillDown(
-                                      employeeName: achievement.employeeName,
-                                      employeeId: achievement.employeeId,
-                                      columnName: 'TOTAL WALKINS',
-                                      achievementDrillDownType:
-                                          AchievementDrillDownType.enquiry,
-                                    ),
+                              title: buildRowTitleValue(
+                                title: "Total Walkins",
+                                value:
+                                    (achievement.walkinsByCp +
+                                            achievement.freshVisits +
+                                            achievement.revisits)
+                                        .addCommas(),
                               ),
                               children: [
                                 buildRowTitleCount(
