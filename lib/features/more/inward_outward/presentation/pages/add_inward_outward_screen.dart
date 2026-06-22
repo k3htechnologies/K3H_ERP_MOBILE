@@ -570,6 +570,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                       isRequired: true,
                       hint: "Enter Sender Mobile No.",
                       showCountryDropdown: true,
+                      readOnly: _isEditMode,
                       keyboardType: TextInputType.number,
                       selectedCountry: value,
                       onChangeFunction: (v) async {
@@ -677,6 +678,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                       textController: _receiverMobileNumberC,
                       title: "Mobile No.",
                       isRequired: true,
+                      readOnly: _isEditMode,
                       hint: "Enter Receiver Mobile No.",
                       keyboardType: TextInputType.number,
                       showCountryDropdown: true,
