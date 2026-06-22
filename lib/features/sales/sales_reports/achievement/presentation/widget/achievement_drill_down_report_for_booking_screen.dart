@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
-import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/pages/achievement_drill_down_report_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/widget/common_achivement_widgets.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -69,7 +68,7 @@ class AchievementDrillDownReportForBookingScreen extends StatelessWidget {
                   ),
 
                   TextSpan(
-                    text: formattedColumnName(columnName),
+                    text: toTitleCase(columnName),
                     style: AppTextStyle.ts14M(),
                   ),
                 ],

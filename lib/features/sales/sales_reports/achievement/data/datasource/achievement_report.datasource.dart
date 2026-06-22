@@ -59,7 +59,6 @@ abstract interface class AchievementReportDatasource {
     required int pageNumber,
     required int pageSize,
     required String filterType,
-    required int projectId,
     required String tabName,
     required String columnName,
     Map<String, dynamic>? queryParams,
@@ -371,7 +370,6 @@ class AchievementReportDatasourceImpl extends AchievementReportDatasource {
     required int pageNumber,
     required int pageSize,
     required String filterType,
-    required int projectId,
     required String tabName,
     required String columnName,
     Map<String, dynamic>? queryParams,
@@ -383,9 +381,8 @@ class AchievementReportDatasourceImpl extends AchievementReportDatasource {
           "AchievementReport/PullAchievementDrillDownReport"
           "?pageSize=$pageSize"
           "&pageNumber=$pageNumber"
-          "&ProjectId=$projectId"
           "&TabName=$tabName"
-          "&ColumnName=$columnName"
+          "&ColumnName=${Uri.encodeQueryComponent(columnName)}"
           "&FilterType=$filterType";
 
       url += queryParamsFormatter(queryParams: queryParams);
@@ -407,7 +404,6 @@ class AchievementReportDatasourceImpl extends AchievementReportDatasource {
           pageNumber: pageNumber,
           pageSize: pageSize,
           filterType: filterType,
-          projectId: projectId,
           tabName: tabName,
           columnName: columnName,
           queryParams: queryParams,

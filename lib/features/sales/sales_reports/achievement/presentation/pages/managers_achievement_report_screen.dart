@@ -43,13 +43,13 @@ class ManagerAchievementReportScreen extends StatefulWidget {
 class _ManagerAchievementReportScreenState
     extends State<ManagerAchievementReportScreen> {
   late AchievementCubit _achievementCubit;
+  late AuthorizationModel _routeAuthorizationModel;
   // PAGINATION
   late ScrollController _closingScrollController;
   Timer? _closingDebounce;
   late ScrollController _sourcingScrollController;
   Timer? _sourcingDebounce;
   late TextEditingController _searchTextC;
-  late AuthorizationModel _routeAuthorizationModel;
 
   @override
   void initState() {

@@ -794,7 +794,8 @@ class AchievementCubit extends Cubit<AchievementState> {
   Future<void> exportAchievementDrillDownExcelPdf(
     BuildContext context,
     String exportType, {
-    required int projectId,
+    int? projectId,
+    int? employeeId,
     required String tabName,
     required String columnName,
     required String filterType,
@@ -805,11 +806,14 @@ class AchievementCubit extends Cubit<AchievementState> {
         .getAchievementDrillDownReportForExport(
           pageNumber: 1,
           pageSize: state.achievementDrillDownTotalNumberOfRecord,
-          projectId: projectId,
           tabName: tabName,
           columnName: columnName,
           filterType: filterType,
-          queryParams: {"ExportType": exportType},
+          queryParams: {
+            "ExportType": exportType,
+            "ProjectId": projectId,
+            "EmployeeId": employeeId,
+          },
         );
 
     goRouter.pop();
@@ -827,8 +831,8 @@ class AchievementCubit extends Cubit<AchievementState> {
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "Achievement Drill Down ${DateTime.now()}.pdf"
-              : "Achievement Drill Down ${DateTime.now()}.xlsx",
+              ? "${toTitleCase(columnName)} ${DateTime.now()}.pdf"
+              : "${toTitleCase(columnName)} ${DateTime.now()}.xlsx",
         );
       },
     );

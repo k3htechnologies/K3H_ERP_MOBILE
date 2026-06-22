@@ -877,3 +877,11 @@ bool isCurrentDay(String dayName) {
 
   return today.toLowerCase() == dayName.toLowerCase();
 }
+
+String toTitleCase(String columnName) {
+  return columnName
+      .toLowerCase()
+      .split(' ')
+      .map((e) => e.isEmpty ? e : '${e[0].toUpperCase()}${e.substring(1)}')
+      .join(' ');
+}

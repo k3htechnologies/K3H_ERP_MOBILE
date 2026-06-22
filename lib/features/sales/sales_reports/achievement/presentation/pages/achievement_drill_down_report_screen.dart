@@ -48,12 +48,15 @@ class AchievementDrillDownReportScreen extends StatefulWidget {
 class _AchievementDrillDownReportScreenState
     extends State<AchievementDrillDownReportScreen> {
   late AchievementCubit _achievementCubit;
+  late AuthorizationModel _routeAuthorizationModel;
   late ScrollController scrollController;
   Timer? _debounce;
 
   @override
   void initState() {
     _achievementCubit = context.read<AchievementCubit>();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.achievementReport]!;
     _achievementCubit.getAchievementDrillDownReportList(
       context: context,
       pageNumber: 1,
@@ -112,7 +115,18 @@ class _AchievementDrillDownReportScreenState
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: getScreenTitle(),
-        authorization: AuthorizationModel(),
+        authorization: _routeAuthorizationModel,
+        onExportCallback: (exportType) {
+          _achievementCubit.exportAchievementDrillDownExcelPdf(
+            context,
+            exportType,
+            projectId: widget.projectId,
+            employeeId: widget.employeeId,
+            tabName: widget.tabName.toUpperCase(),
+            columnName: widget.columnName,
+            filterType: widget.filterType,
+          );
+        },
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -151,7 +165,7 @@ class _AchievementDrillDownReportScreenState
                   ),
 
                   TextSpan(
-                    text: formattedColumnName(widget.columnName),
+                    text: toTitleCase(widget.columnName),
                     style: AppTextStyle.ts14M(),
                   ),
                 ],
@@ -541,10 +555,4 @@ class _AchievementDrillDownReportScreenState
   }
 }
 
-String formattedColumnName(String columnName) {
-  return columnName
-      .toLowerCase()
-      .split(' ')
-      .map((e) => e.isEmpty ? e : '${e[0].toUpperCase()}${e.substring(1)}')
-      .join(' ');
-}
+
