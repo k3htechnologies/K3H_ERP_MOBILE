@@ -824,7 +824,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                               Padding(
                                 padding: EdgeInsets.only(top: 10),
                                 child: buildRowTitleCount(
-                                  title: "Total Revenue",
+                                  title: "Total Revenue (₹)",
                                   singleLine: false,
                                   value: (achievement.totalRevenue).toString(),
                                   onValueTap:
@@ -1056,7 +1056,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                               Padding(
                                 padding: EdgeInsets.only(top: 10),
                                 child: buildRowTitleCount(
-                                  title: "Total Revenue",
+                                  title: "Total Revenue (₹)",
                                   singleLine: false,
                                   value: (achievement.totalRevenue).toString(),
                                   onValueTap:
@@ -1340,7 +1340,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                               Padding(
                                 padding: const EdgeInsets.only(top: 10),
                                 child: buildRowTitleCount(
-                                  title: "Total Revenue",
+                                  title: "Total Revenue (₹)",
                                   singleLine: false,
                                   value: achievement.totalRevenue.toString(),
                                   onValueTap:
