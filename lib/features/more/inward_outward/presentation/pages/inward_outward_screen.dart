@@ -60,6 +60,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     _inwardOutwardRouteAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.inwardOutward]!;
     _inwardOutwardCubit = context.read<InwardOutwardCubit>();
+    _inwardOutwardCubit.resetState();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() => _handleTabChange());
     _initializeTextEditingController();

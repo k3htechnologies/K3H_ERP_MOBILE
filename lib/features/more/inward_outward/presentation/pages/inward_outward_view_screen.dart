@@ -133,6 +133,78 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
                         inwardOutward.inwardOutwardDate,
                       ),
                     ),
+                    buildColumnTitleValue(
+                      title: "Invoice Number",
+                      value: inwardOutward.invoiceNumber,
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Invoice Date",
+                      value: formatDateTimeAsDDMMMYYYY(
+                        inwardOutward.invoiceDate,
+                      ),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Amount",
+                      value: inwardOutward.amount.toIndianCurrency(),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Cheque No.",
+                      value: inwardOutward.chequeNumber,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Container(
+            decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Document Details', style: AppTextStyle.ts16SB()),
+
+                Row(
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Attachment",
+                      value: inwardOutward.documentURL,
+                      customValueWidget: CustomButton.documentOutline(
+                        onPressed: () {
+                          if (inwardOutward.documentURL.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "Attachment",
+                              inwardOutward.documentURL.split(","),
+                            );
+                          }
+                        },
+                        isDisable: inwardOutward.documentURL.isEmpty,
+                      ),
+                    ),
+                    Spacer(),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Document Description",
+                      value: inwardOutward.documentDescription,
+                    ),
                   ],
                 ),
               ],
@@ -224,62 +296,6 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
                     buildColumnTitleValue(
                       title: "Address",
                       value: inwardOutward.receiverAddress,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Container(
-            decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Document Details', style: AppTextStyle.ts16SB()),
-                Row(
-                  spacing: 10,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Cheque No.",
-                      value: inwardOutward.chequeNumber,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Amount",
-                      value: inwardOutward.amount.toIndianCurrency(),
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Attachment",
-                      value: inwardOutward.documentURL,
-                      customValueWidget: CustomButton.documentOutline(
-                        onPressed: () {
-                          if (inwardOutward.documentURL.isNotEmpty) {
-                            showFilePreviewDialog(
-                              context,
-                              title: "Attachment",
-                              inwardOutward.documentURL.split(","),
-                            );
-                          }
-                        },
-                        isDisable: inwardOutward.documentURL.isEmpty,
-                      ),
-                    ),
-                    Spacer(),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Document Description",
-                      value: inwardOutward.documentDescription,
                     ),
                   ],
                 ),
