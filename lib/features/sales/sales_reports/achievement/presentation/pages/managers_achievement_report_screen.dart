@@ -17,8 +17,8 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 import '../../../../../../style/app_color.dart';
-import '../cubit/achievement.state.dart';
-import '../cubit/achievement_cubit.dart';
+import '../cubit/achievement_report.state.dart';
+import '../cubit/achievement_report_cubit.dart';
 
 class ManagerAchievementReportScreen extends StatefulWidget {
   final String type;
@@ -395,7 +395,7 @@ class _ManagerAchievementReportScreenState
                                   TextSpan(
                                     text: achievement.employeeName,
                                     style: AppTextStyle.ts16M(
-                                      color: AppColor.primary,
+                                      color: AppColor.black,
                                     ),
                                   ),
                                   TextSpan(
@@ -612,7 +612,7 @@ class _ManagerAchievementReportScreenState
                                   TextSpan(
                                     text: achievement.employeeName,
                                     style: AppTextStyle.ts16M(
-                                      color: AppColor.primary,
+                                      color: AppColor.black,
                                     ),
                                   ),
                                   TextSpan(

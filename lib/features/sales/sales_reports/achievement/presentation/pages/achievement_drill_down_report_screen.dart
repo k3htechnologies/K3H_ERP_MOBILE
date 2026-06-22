@@ -8,8 +8,8 @@ import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/achivement_drill_down_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/channel_partner_sourcing.model.dart';
-import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/cubit/achievement.state.dart';
-import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/cubit/achievement_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/cubit/achievement_report.state.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/cubit/achievement_report_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -279,10 +279,7 @@ class _AchievementDrillDownReportScreenState
             },
             child: Text(
               enquiry.name,
-              style: AppTextStyle.ts14M(color: AppColor.primary).copyWith(
-                decoration: TextDecoration.underline,
-                decorationColor: AppColor.primary,
-              ),
+              style: AppTextStyle.ts14M(color: AppColor.primary),
             ),
           ),
           buildRowTitleValue(
@@ -399,10 +396,7 @@ class _AchievementDrillDownReportScreenState
                   },
                   child: Text(
                     booking.applicantName,
-                    style: AppTextStyle.ts14M(color: AppColor.primary).copyWith(
-                      decoration: TextDecoration.underline,
-                      decorationColor: AppColor.primary,
-                    ),
+                    style: AppTextStyle.ts14M(color: AppColor.primary),
                   ),
                 ),
               ),
@@ -500,10 +494,7 @@ class _AchievementDrillDownReportScreenState
                   },
                   child: Text(
                     channelPartner.name,
-                    style: AppTextStyle.ts16M(color: AppColor.primary).copyWith(
-                      decoration: TextDecoration.underline,
-                      decorationColor: AppColor.primary,
-                    ),
+                    style: AppTextStyle.ts16M(color: AppColor.primary),
                   ),
                 ),
               ),
@@ -554,5 +545,3 @@ class _AchievementDrillDownReportScreenState
     );
   }
 }
-
-

@@ -23,8 +23,8 @@ import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 import '../../../../../../core/encryption_manager.dart';
-import '../cubit/achievement.state.dart';
-import '../cubit/achievement_cubit.dart';
+import '../cubit/achievement_report.state.dart';
+import '../cubit/achievement_report_cubit.dart';
 
 class AchievementReportScreen extends StatefulWidget {
   const AchievementReportScreen({super.key});
@@ -548,7 +548,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                     child: Text(
                                       achievement.projectName,
                                       style: AppTextStyle.ts16M(
-                                        color: AppColor.primary,
+                                        color: AppColor.black,
                                       ),
                                     ),
                                   ),
@@ -915,7 +915,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                     TextSpan(
                                       text: achievement.employeeName,
                                       style: AppTextStyle.ts16M(
-                                        color: AppColor.primary,
+                                        color: AppColor.black,
                                       ),
                                     ),
                                     TextSpan(
@@ -1150,7 +1150,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                     TextSpan(
                                       text: achievement.employeeName,
                                       style: AppTextStyle.ts16M(
-                                        color: AppColor.primary,
+                                        color: AppColor.black,
                                       ),
                                     ),
                                     TextSpan(
