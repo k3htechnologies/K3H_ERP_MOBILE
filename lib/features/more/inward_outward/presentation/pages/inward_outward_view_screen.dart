@@ -256,6 +256,28 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
                   spacing: 10,
                   children: [
                     buildColumnTitleValue(
+                      title: "Attachment",
+                      value: inwardOutward.documentURL,
+                      customValueWidget: CustomButton.documentOutline(
+                        onPressed: () {
+                          if (inwardOutward.documentURL.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "Attachment",
+                              inwardOutward.documentURL.split(","),
+                            );
+                          }
+                        },
+                        isDisable: inwardOutward.documentURL.isEmpty,
+                      ),
+                    ),
+                    Spacer(),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
                       title: "Document Description",
                       value: inwardOutward.documentDescription,
                     ),
@@ -358,10 +380,54 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
                 Text('Acknowledgement Details', style: AppTextStyle.ts16SB()),
                 Row(
                   spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "Received By",
+                      title: "Acknowlegded By",
                       value: inwardOutward.acknowledgementBy,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Acknowlegder's Signature",
+                      value: inwardOutward.acknowledgementSignatureURL,
+                      customValueWidget: CustomButton.documentOutline(
+                        onPressed: () {
+                          if (inwardOutward
+                              .acknowledgementSignatureURL
+                              .isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "Acknowleger's Signature Document",
+                              inwardOutward.acknowledgementSignatureURL.split(
+                                ",",
+                              ),
+                            );
+                          }
+                        },
+                        isDisable:
+                            inwardOutward.acknowledgementSignatureURL.isEmpty,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Attachment",
+                      value: inwardOutward.acknowledgementURL,
+                      customValueWidget: CustomButton.documentOutline(
+                        onPressed: () {
+                          if (inwardOutward.acknowledgementURL.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "Acknowlegement Document",
+                              inwardOutward.acknowledgementURL.split(","),
+                            );
+                          }
+                        },
+                        isDisable: inwardOutward.acknowledgementURL.isEmpty,
+                      ),
                     ),
                     buildColumnTitleValue(
                       title: "Handover To",
@@ -369,7 +435,6 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
                     ),
                   ],
                 ),
-
                 Row(
                   spacing: 10,
                   children: [
@@ -416,7 +481,10 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
               child: ExpansionTile(
                 tilePadding: EdgeInsets.zero,
-                title: Text("Inward Document", style: AppTextStyle.ts14SB()),
+                title: Text(
+                  "${widget.inwardOutwardModel.documentType} Document",
+                  style: AppTextStyle.ts14SB(),
+                ),
                 trailing: const Icon(Icons.keyboard_arrow_down),
                 childrenPadding: EdgeInsets.zero,
                 expandedCrossAxisAlignment: CrossAxisAlignment.start,
@@ -431,7 +499,8 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
                               .isNotEmpty) {
                             showFilePreviewDialog(
                               context,
-                              title: "Inward Document",
+                              title:
+                                  "${widget.inwardOutwardModel.documentType} Document",
                               widget.inwardOutwardModel.documentURL.split(","),
                             );
                           }
@@ -461,8 +530,8 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
                             widget.inwardOutwardModel.modifiedBy
                                     .trim()
                                     .isNotEmpty
-                                ? "${widget.inwardOutwardModel.modifiedBy} /${formatDateTimeAsDDMMMYYYY(widget.inwardOutwardModel.modifiedDate)}"
-                                : "${widget.inwardOutwardModel.createdBy} /${formatDateTimeAsDDMMMYYYY(widget.inwardOutwardModel.createdDate)}",
+                                ? "${widget.inwardOutwardModel.modifiedBy} /${formatDate(widget.inwardOutwardModel.modifiedDate)}"
+                                : "${widget.inwardOutwardModel.createdBy} /${formatDate(widget.inwardOutwardModel.createdDate)}",
                       ),
                     ],
                   ),
@@ -537,8 +606,8 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
                                 widget.inwardOutwardModel.modifiedBy
                                         .trim()
                                         .isNotEmpty
-                                    ? "${widget.inwardOutwardModel.modifiedBy} /${formatDateTimeAsDDMMMYYYY(widget.inwardOutwardModel.modifiedDate)}"
-                                    : "${widget.inwardOutwardModel.createdBy} /${formatDateTimeAsDDMMMYYYY(widget.inwardOutwardModel.createdDate)}",
+                                    ? "${widget.inwardOutwardModel.modifiedBy} /${formatDate(widget.inwardOutwardModel.modifiedDate)}"
+                                    : "${widget.inwardOutwardModel.createdBy} /${formatDate(widget.inwardOutwardModel.createdDate)}",
                           ),
                         ],
                       ),

@@ -20,32 +20,36 @@ class InwardOutwardState extends BaseState {
   final String filterBySenderName;
   final String filterByReceiverName;
   final String filterByDocumentType;
+  final String filterByDocumentTitle;
+  final String filterByStatus;
+  final String filterBySenderMobileNumber;
+  final String filterByReceiverMobileNumber;
+  final DateTime? filterByCreatedDate;
 
   final String currentSortColumn;
   final String currentSortDirection;
 
   const InwardOutwardState({
     super.isLoading,
-
     required this.inwardOutwardList,
     required this.inwardOutwardTotalRecords,
     required this.inwardOutwardCurrentPage,
-
     required this.inwardList,
     required this.inwardTotalRecords,
     required this.inwardCurrentPage,
-
     required this.outwardList,
     required this.outwardTotalRecords,
     required this.outwardCurrentPage,
-
     required this.searchText,
     required this.currentTabIndex,
-
     required this.filterBySenderName,
     required this.filterByReceiverName,
     required this.filterByDocumentType,
-
+    required this.filterByDocumentTitle,
+    required this.filterByStatus,
+    required this.filterBySenderMobileNumber,
+    required this.filterByReceiverMobileNumber,
+    required this.filterByCreatedDate,
     required this.currentSortColumn,
     required this.currentSortDirection,
   });
@@ -71,33 +75,38 @@ class InwardOutwardState extends BaseState {
     filterBySenderName: "",
     filterByReceiverName: "",
     filterByDocumentType: "",
+    filterByDocumentTitle: "",
+    filterByStatus: "",
+    filterBySenderMobileNumber: "",
+    filterByReceiverMobileNumber: "",
+    filterByCreatedDate: null,
 
     currentSortColumn: "",
     currentSortDirection: "",
   );
+  static const _noChange = Object();
 
   InwardOutwardState copyWith({
     bool? isLoading,
-
     List<InwardOutwardModel>? inwardOutwardList,
     int? inwardOutwardTotalRecords,
     int? inwardOutwardCurrentPage,
-
     List<InwardOutwardModel>? inwardList,
     int? inwardTotalRecords,
     int? inwardCurrentPage,
-
     List<InwardOutwardModel>? outwardList,
     int? outwardTotalRecords,
     int? outwardCurrentPage,
-
     String? searchText,
     int? currentTabIndex,
-
     String? filterBySenderName,
     String? filterByReceiverName,
     String? filterByDocumentType,
-
+    String? filterByDocumentTitle,
+    String? filterByStatus,
+    String? filterBySenderMobileNumber,
+    String? filterByReceiverMobileNumber,
+    Object? filterByCreatedDate = _noChange,
     String? currentSortColumn,
     String? currentSortDirection,
   }) {
@@ -124,6 +133,17 @@ class InwardOutwardState extends BaseState {
       filterBySenderName: filterBySenderName ?? this.filterBySenderName,
       filterByReceiverName: filterByReceiverName ?? this.filterByReceiverName,
       filterByDocumentType: filterByDocumentType ?? this.filterByDocumentType,
+      filterByDocumentTitle:
+          filterByDocumentTitle ?? this.filterByDocumentTitle,
+      filterByStatus: filterByStatus ?? this.filterByStatus,
+      filterBySenderMobileNumber:
+          filterBySenderMobileNumber ?? this.filterBySenderMobileNumber,
+      filterByReceiverMobileNumber:
+          filterByReceiverMobileNumber ?? this.filterByReceiverMobileNumber,
+      filterByCreatedDate:
+          filterByCreatedDate == _noChange
+              ? this.filterByCreatedDate
+              : filterByCreatedDate as DateTime?,
 
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
@@ -152,6 +172,11 @@ class InwardOutwardState extends BaseState {
     filterBySenderName,
     filterByReceiverName,
     filterByDocumentType,
+    filterByDocumentTitle,
+    filterByStatus,
+    filterBySenderMobileNumber,
+    filterByReceiverMobileNumber,
+    filterByCreatedDate,
 
     currentSortColumn,
     currentSortDirection,

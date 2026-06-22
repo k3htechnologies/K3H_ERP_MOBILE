@@ -1,4 +1,5 @@
 import 'package:k3h_erp_app/features/more/inward_outward/data/model/inward_outward.model.dart';
+import 'package:k3h_erp_app/features/more/inward_outward/data/model/sender_detail.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -189,8 +190,8 @@ class InwardOutwardDatasourceImp implements InwardOutwardDatasource {
         pullSenderReceiverByMobileNo(mobileNumber: mobileNumber),
       );
       return {
-        'data': List<InwardOutwardModel>.from(
-          networkResponse["data"].map((e) => InwardOutwardModel.fromJson(e)),
+        'data': List<SenderDetailModel>.from(
+          networkResponse["data"].map((e) => SenderDetailModel.fromJson(e)),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };

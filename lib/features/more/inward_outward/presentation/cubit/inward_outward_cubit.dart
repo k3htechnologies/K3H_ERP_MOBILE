@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/data/model/inward_outward.model.dart';
+import 'package:k3h_erp_app/features/more/inward_outward/data/model/sender_detail.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/data/repository/inward_outward.repository.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inward_outward_state.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -35,6 +36,11 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         filterByDocumentType: "",
         filterByReceiverName: "",
         filterBySenderName: "",
+        filterByDocumentTitle: "",
+        filterBySenderMobileNumber: "",
+        filterByReceiverMobileNumber: "",
+        filterByStatus: "",
+        filterByCreatedDate: null,
         inwardOutwardList: [],
         inwardList: [],
         outwardList: [],
@@ -69,6 +75,11 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
     String? senderName,
     String? receiverName,
     String? documentType,
+    String? documentTitle,
+    String? status,
+    String? senderMobileNumber,
+    String? receiverMobileNumber,
+    DateTime? createdDate,
     String? sortColumn,
     String? sortDirection,
     bool? isClear,
@@ -80,6 +91,11 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
           filterBySenderName: "",
           filterByReceiverName: "",
           filterByDocumentType: "",
+          filterByDocumentTitle: "",
+          filterByStatus: "",
+          filterBySenderMobileNumber: "",
+          filterByReceiverMobileNumber: "",
+          filterByCreatedDate: null,
           currentSortColumn: "",
           currentSortDirection: "",
           inwardOutwardCurrentPage: 1,
@@ -92,6 +108,13 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
           filterBySenderName: senderName ?? state.filterBySenderName,
           filterByReceiverName: receiverName ?? state.filterByReceiverName,
           filterByDocumentType: documentType ?? state.filterByDocumentType,
+          filterByDocumentTitle: documentTitle ?? state.filterByDocumentTitle,
+          filterByStatus: status ?? state.filterByStatus,
+          filterBySenderMobileNumber:
+              senderMobileNumber ?? state.filterBySenderMobileNumber,
+          filterByReceiverMobileNumber:
+              receiverMobileNumber ?? state.filterByReceiverMobileNumber,
+          filterByCreatedDate: createdDate ?? state.filterByCreatedDate,
           currentSortColumn: sortColumn ?? state.currentSortColumn,
           currentSortDirection: sortDirection ?? state.currentSortDirection,
           inwardOutwardCurrentPage: 1,
@@ -114,6 +137,11 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         "ReceiverName": state.filterByReceiverName,
         "DocumentType": state.filterByDocumentType,
         "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+        "DocumentTitle": state.filterByDocumentTitle,
+        "SenderMobileNumber": state.filterBySenderMobileNumber,
+        "ReceiverMobileNumber": state.filterBySenderMobileNumber,
+        "DeliveryStatus": state.filterByStatus,
+        "CreatedDate": state.filterByCreatedDate,
       },
     );
 
@@ -156,6 +184,11 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         "SenderName": state.filterBySenderName,
         "ReceiverName": state.filterByReceiverName,
         "DocumentType": "Inward",
+        "DocumentTitle": state.filterByDocumentTitle,
+        "SenderMobileNumber": state.filterBySenderMobileNumber,
+        "ReceiverMobileNumber": state.filterBySenderMobileNumber,
+        "DeliveryStatus": state.filterByStatus,
+        "CreatedDate": state.filterByCreatedDate,
         "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
       },
     );
@@ -198,6 +231,11 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         "ReceiverName": state.filterByReceiverName,
         "DocumentType": "Outward",
         "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+        "DocumentTitle": state.filterByDocumentTitle,
+        "SenderMobileNumber": state.filterBySenderMobileNumber,
+        "ReceiverMobileNumber": state.filterBySenderMobileNumber,
+        "DeliveryStatus": state.filterByStatus,
+        "CreatedDate": state.filterByCreatedDate,
       },
     );
 
@@ -310,7 +348,7 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
     );
   }
 
-  Future<List<InwardOutwardModel>> fetchSenderReceiverByMobile(
+  Future<List<SenderDetailModel>> fetchSenderReceiverByMobile(
     String? mobileNumber,
   ) async {
     final result = await _repository.getSenderReceiverByMobileNo(
@@ -319,7 +357,7 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
 
     return result.fold(
       (failure) => [],
-      (response) => List<InwardOutwardModel>.from(response["data"] ?? []),
+      (response) => List<SenderDetailModel>.from(response["data"] ?? []),
     );
   }
 

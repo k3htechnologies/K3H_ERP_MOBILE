@@ -19,6 +19,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -40,7 +41,14 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
   late TextEditingController _searchC,
       _senderNameC,
       _receiverNameC,
-      _documentTypeC;
+      _documentTypeC,
+      _documentTitleC,
+      _statusC,
+      _senderMobileNumberC,
+      _receiverMobileNumberC;
+
+  DateTime? _selectedCreatedDate;
+
   late ScrollController _inwardOutwardScrollController;
   Timer? _inwardOutwardDebounce;
   late ScrollController _inwardScrollController;
@@ -86,6 +94,10 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     _senderNameC = TextEditingController();
     _receiverNameC = TextEditingController();
     _documentTypeC = TextEditingController();
+    _documentTitleC = TextEditingController();
+    _statusC = TextEditingController();
+    _senderMobileNumberC = TextEditingController();
+    _receiverMobileNumberC = TextEditingController();
   }
 
   void _handleTabChange() async {
@@ -182,15 +194,26 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     final initialDocumentType = state.filterByDocumentType;
     final initialSenderName = state.filterBySenderName;
     final initialReceiverName = state.filterByReceiverName;
+    final initialDocumentTitle = state.filterByDocumentTitle;
+    final initialStatus = state.filterByStatus;
+    final initialSenderMobileNumber = state.filterBySenderMobileNumber;
+    final initialReceiverMobileNumber = state.filterByReceiverMobileNumber;
+    final initialCreatedDate = state.filterByCreatedDate;
 
     final String? initialDirection =
         state.currentSortColumn == "SystemGeneratedCode"
             ? state.currentSortDirection
             : null;
+
     _searchC.text = initialDocumentId;
     _documentTypeC.text = initialDocumentType;
     _senderNameC.text = initialSenderName;
     _receiverNameC.text = initialReceiverName;
+    _documentTitleC.text = initialDocumentTitle;
+    _statusC.text = initialStatus;
+    _senderMobileNumberC.text = initialSenderMobileNumber;
+    _receiverMobileNumberC.text = initialReceiverMobileNumber;
+    _selectedCreatedDate = initialCreatedDate;
 
     String? selectedDirection = initialDirection;
 
@@ -205,6 +228,11 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
           (_senderNameC.text.trim() != initialSenderName) ||
           (_receiverNameC.text.trim() != initialReceiverName) ||
           (_documentTypeC.text.trim() != initialDocumentType) ||
+          (_documentTitleC.text.trim() != initialDocumentTitle) ||
+          (_statusC.text.trim() != initialStatus) ||
+          (_senderMobileNumberC.text.trim() != initialSenderMobileNumber) ||
+          (_receiverMobileNumberC.text.trim() != initialReceiverMobileNumber) ||
+          (_selectedCreatedDate != initialCreatedDate) ||
           (selectedDirection != initialDirection);
 
       applyEnabled.value = manualClose;
@@ -298,11 +326,52 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                   hint: "Enter Receiver Name",
                   onChangeFunction: (_) => updateApplyState(),
                 ),
+
+                if (_tabController.index == 0)
+                  CustomTextField(
+                    textController: _documentTypeC,
+                    title: "Document Type",
+                    hint: "Enter Document Type",
+                    onChangeFunction: (_) => updateApplyState(),
+                  ),
+
                 CustomTextField(
-                  textController: _documentTypeC,
-                  title: "Document Type",
-                  hint: "Enter Document Type",
+                  textController: _documentTitleC,
+                  title: "Document Title",
+                  hint: "Enter Document Title",
                   onChangeFunction: (_) => updateApplyState(),
+                ),
+
+                CustomTextField(
+                  textController: _statusC,
+                  title: "Status",
+                  hint: "Enter Status",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+
+                CustomTextField(
+                  textController: _senderMobileNumberC,
+                  title: "Sender Mobile Number",
+                  hint: "Enter Sender Mobile Number",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+
+                CustomTextField(
+                  textController: _receiverMobileNumberC,
+                  title: "Receiver Mobile Number",
+                  hint: "Enter Receiver Mobile Number",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+
+                CustomDatePicker(
+                  title: "Created Date",
+                  initialDate: _selectedCreatedDate,
+                  setValue: (date) {
+                    innerState(() {
+                      _selectedCreatedDate = date;
+                      updateApplyState();
+                    });
+                  },
                 ),
               ],
             ),
@@ -315,7 +384,12 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
         _documentTypeC.clear();
         _senderNameC.clear();
         _receiverNameC.clear();
+        _documentTitleC.clear();
+        _statusC.clear();
+        _senderMobileNumberC.clear();
+        _receiverMobileNumberC.clear();
 
+        _selectedCreatedDate = null;
         selectedDirection = null;
 
         await _inwardOutwardCubit.applyInwardOutwardFilterAndSort(
@@ -331,8 +405,13 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
           context: context,
           documentId: _searchC.text.trim(),
           senderName: _senderNameC.text.trim(),
-          documentType: _documentTypeC.text.trim(),
           receiverName: _receiverNameC.text.trim(),
+          documentType: _documentTypeC.text.trim(),
+          documentTitle: _documentTitleC.text.trim(),
+          status: _statusC.text.trim(),
+          senderMobileNumber: _senderMobileNumberC.text.trim(),
+          receiverMobileNumber: _receiverMobileNumberC.text.trim(),
+          createdDate: _selectedCreatedDate,
           sortColumn: selectedDirection != null ? "SystemGeneratedCode" : "",
           sortDirection: selectedDirection ?? "",
         );
@@ -347,6 +426,12 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
       _documentTypeC.clear();
       _senderNameC.clear();
       _receiverNameC.clear();
+      _documentTitleC.clear();
+      _statusC.clear();
+      _senderMobileNumberC.clear();
+      _receiverMobileNumberC.clear();
+
+      _selectedCreatedDate = null;
       selectedDirection = null;
     }
   }
