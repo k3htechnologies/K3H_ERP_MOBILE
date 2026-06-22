@@ -21,6 +21,10 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
 
+  void resetState() {
+    emit(InwardOutwardState.initial());
+  }
+
   void resetSearch() {
     emit(state.copyWith(searchText: ""));
   }
