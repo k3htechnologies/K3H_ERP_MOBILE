@@ -295,13 +295,12 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
         invoiceDate: _invoiceDate?.toIso8601String() ?? "",
         senderName: _senderNameC.text.trim(),
         senderAddress: _senderAddressC.text.trim(),
-        senderMobileNumberCountryCode: _selectedSenderCountry.value.countryCode,
+        senderMobileNumberCountryCode: _selectedSenderCountry.value.code,
         senderMobileNumber: _senderMobileNumberC.text.trim(),
         senderEmailId: _senderEmailIdC.text.trim(),
         receiverName: _receiverNameC.text.trim(),
         receiverAddress: _receiverAddressC.text.trim(),
-        receiverMobileNumberCountryCode:
-            _selectedReceiverCountry.value.countryCode,
+        receiverMobileNumberCountryCode: _selectedReceiverCountry.value.code,
         receiverMobileNumber: _receiverMobileNumberC.text.trim(),
         receiverEmailId: _receiverEmailIdC.text.trim(),
         documentURL: selectedDocumentFile,
@@ -351,9 +350,8 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
         deliveryStatus: _selectedDeliveryStatus.value?['DisplayName'] ?? "",
         acknowledgementURL: selectedAcknowledgementFile,
         acknowledgementRemark: _remarkC.text.trim(),
-        senderMobileNumberCountryCode: _selectedSenderCountry.value.countryCode,
-        receiverMobileNumberCountryCode:
-            _selectedReceiverCountry.value.countryCode,
+        senderMobileNumberCountryCode: _selectedSenderCountry.value.code,
+        receiverMobileNumberCountryCode: _selectedReceiverCountry.value.code,
       );
     }
   }
@@ -574,6 +572,18 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                       showCountryDropdown: true,
                       keyboardType: TextInputType.number,
                       selectedCountry: value,
+                      onChangeFunction: (v) async {
+                        final country = _selectedSenderCountry.value;
+                        if (country.mobileLength == v.length) {
+                          final senderDetails = await _inwardOutwardCubit
+                              .fetchSenderReceiverByMobile(v);
+                          if (senderDetails.isNotEmpty) {
+                            _senderNameC.text = senderDetails.first.name;
+                            _senderEmailIdC.text = senderDetails.first.emailId;
+                            _senderAddressC.text = senderDetails.first.address;
+                          }
+                        }
+                      },
                       onCountryChanged: (country) {
                         if (country == null) return;
 
