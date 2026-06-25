@@ -230,6 +230,7 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
 
   Future<void> applyFilterAndSort({
     required BuildContext context,
+    required String branchName,
     required String filterBranchCode,
     required String filterBranchLocation,
     String? sortColumn,
@@ -237,6 +238,7 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
   }) async {
     emit(
       state.copyWith(
+        searchText: branchName,
         filterBranchCode: filterBranchCode,
         filterBranchLocation: filterBranchLocation,
         currentSortColumn: sortColumn ?? state.currentSortColumn,
@@ -247,5 +249,18 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
     );
 
     await getBranchList(context: context, pageNumber: 1);
+  }
+
+  int updateFilterCount(BranchMasterState state) {
+    final hasSort =
+        state.currentSortColumn == "Branch Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterBranchCode.trim().isNotEmpty,
+      state.filterBranchLocation.trim().isNotEmpty,
+      hasSort,
+    ]);
   }
 }

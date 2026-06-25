@@ -1348,4 +1348,24 @@ class BookingCubit extends Cubit<BookingState> {
     // Fetch new filtered list
     await getBookingList(context, 1, getProject().projectId);
   }
+
+  int updateFilterCount() {
+    final hasSort =
+        state.currentSortColumn == "ApplicantName" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterStartDate != null && state.filterEndDate != null,
+      state.filterWing.trim().isNotEmpty,
+      state.filterMobileNumber.trim().isNotEmpty,
+      state.filterFlat.trim().isNotEmpty,
+      state.filterFloor.trim().isNotEmpty,
+      state.filterSource.trim().isNotEmpty,
+      state.filterSubSource.trim().isNotEmpty,
+      state.filterAgreementValue > 0,
+      state.filterBookingType.trim().isNotEmpty,
+      hasSort,
+    ]);
+  }
 }

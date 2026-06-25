@@ -14,10 +14,11 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 import '../../../../../../style/app_color.dart';
-import '../cubit/achievement_report.state.dart';
+import '../cubit/achievement_report_state.dart';
 import '../cubit/achievement_report_cubit.dart';
 
 class ManagerAchievementReportScreen extends StatefulWidget {
@@ -42,24 +43,35 @@ class ManagerAchievementReportScreen extends StatefulWidget {
 
 class _ManagerAchievementReportScreenState
     extends State<ManagerAchievementReportScreen> {
-  late AchievementCubit _achievementCubit;
+  late AchievementReportCubit _achievementCubit;
   late AuthorizationModel _routeAuthorizationModel;
   // PAGINATION
   late ScrollController _closingScrollController;
   Timer? _closingDebounce;
   late ScrollController _sourcingScrollController;
   Timer? _sourcingDebounce;
-  late TextEditingController _searchTextC;
+  late TextEditingController _searchC;
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   @override
   void initState() {
-    _achievementCubit = context.read<AchievementCubit>();
+    _achievementCubit = context.read<AchievementReportCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.achievementReport]!;
-    _searchTextC = TextEditingController();
+    _searchC = TextEditingController();
     _onScroll();
     _initializeData();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _closingScrollController.dispose();
+    _closingDebounce?.cancel();
+    _sourcingScrollController.dispose();
+    _sourcingDebounce?.cancel();
+    _filterCount.dispose();
+    super.dispose();
   }
 
   void _initializeData() {
@@ -158,14 +170,20 @@ class _ManagerAchievementReportScreenState
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
 
     bool applied = false;
+    _searchC.text = state.searchText;
+    bool manualClose = false;
 
+    final String initialEmployeeName = _searchC.text;
     void updateApplyState(StateSetter innerState) {
       innerState(() {
-        applyEnabled.value = selectedDirection != initialDirection;
+        manualClose =
+            _searchC.text.trim() != initialEmployeeName ||
+            selectedDirection != initialDirection;
+        applyEnabled.value = manualClose;
       });
     }
 
-    DialogHelper.showCustomFilterBottomSheet(
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter - Achievement",
 
@@ -231,6 +249,13 @@ class _ManagerAchievementReportScreenState
                     ),
                   ],
                 ),
+                verticalSpacing(height: 20),
+                CustomTextField(
+                  textController: _searchC,
+                  hint: "Enter Employee Name",
+                  title: "Employee Name",
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
               ],
             ),
           );
@@ -241,6 +266,7 @@ class _ManagerAchievementReportScreenState
         selectedDirection = null;
 
         _achievementCubit.applyManagerAchievementFilterAndSort(
+          employeeName: '',
           context: context,
           projectId: widget.projectAchievementReportModel.projectId,
           sortColumn: '',
@@ -256,6 +282,7 @@ class _ManagerAchievementReportScreenState
           toDate: widget.toDate,
           filterType: widget.filterType,
         );
+        _searchC.clear();
       },
 
       onApply: () {
@@ -264,6 +291,7 @@ class _ManagerAchievementReportScreenState
         _achievementCubit.applyManagerAchievementFilterAndSort(
           context: context,
           sortColumn: "Employee Name",
+          employeeName: _searchC.text.trim(),
           sortDirection: selectedDirection,
           activeSecondaryTabIndex:
               widget.type.toLowerCase() == "closing"
@@ -284,6 +312,7 @@ class _ManagerAchievementReportScreenState
 
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied) {
+      _searchC.text = initialEmployeeName;
       selectedDirection = initialDirection;
     }
   }
@@ -296,43 +325,50 @@ class _ManagerAchievementReportScreenState
             : widget.type.toLowerCase() == "sourcing"
             ? 1
             : 0;
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle:
-            widget.type.toLowerCase() == 'closing'
-                ? 'Closing Managers'
-                : 'Sourcing Managers',
-        authorization: _routeAuthorizationModel,
-        showMenuIcon: false,
-        textController: _searchTextC,
-        searchHintText: "Search By Employee Name",
-        isFilterOn: true,
-        onFilterTap: () => _showBottomSheetToFilterManagerAchievement(context),
-        onSearchSubmit: (String value) {
-          _achievementCubit.managerSearch(
-            context: context,
-            searchText: value,
-            filterType: widget.filterType,
-            reportTabIndex: reportTabIndex,
-            projectId: widget.projectAchievementReportModel.projectId,
-          );
-        },
-        onExportCallback: (v) {
-          _achievementCubit.exportManagerExcelPdf(
-            context: context,
-            exportType: v,
-            filterType: widget.filterType,
-            reportTabIndex: reportTabIndex,
-            projectId: widget.projectAchievementReportModel.projectId,
-          );
-        },
+    return BlocListener<AchievementReportCubit, AchievementState>(
+      listener: (context, state) {
+        _filterCount.value = _achievementCubit.updateManagerFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle:
+              widget.type.toLowerCase() == 'closing'
+                  ? 'Closing Managers'
+                  : 'Sourcing Managers',
+          authorization: _routeAuthorizationModel,
+          showMenuIcon: false,
+          textController: _searchC,
+          filterCountNotifier: _filterCount,
+          searchHintText: "Search By Employee Name",
+          isFilterOn: true,
+          onFilterTap:
+              () => _showBottomSheetToFilterManagerAchievement(context),
+          onSearchSubmit: (String value) {
+            _achievementCubit.managerSearch(
+              context: context,
+              searchText: value,
+              filterType: widget.filterType,
+              reportTabIndex: reportTabIndex,
+              projectId: widget.projectAchievementReportModel.projectId,
+            );
+          },
+          onExportCallback: (v) {
+            _achievementCubit.exportManagerExcelPdf(
+              context: context,
+              exportType: v,
+              filterType: widget.filterType,
+              reportTabIndex: reportTabIndex,
+              projectId: widget.projectAchievementReportModel.projectId,
+            );
+          },
+        ),
+        body:
+            widget.type.toLowerCase() == "closing"
+                ? _buildClosingAchievementTab()
+                : widget.type.toLowerCase() == "sourcing"
+                ? _buildSourcingAchievementTab()
+                : const SizedBox.shrink(),
       ),
-      body:
-          widget.type.toLowerCase() == "closing"
-              ? _buildClosingAchievementTab()
-              : widget.type.toLowerCase() == "sourcing"
-              ? _buildSourcingAchievementTab()
-              : const SizedBox.shrink(),
     );
   }
 
@@ -347,7 +383,7 @@ class _ManagerAchievementReportScreenState
             projectName: widget.projectAchievementReportModel.projectName,
           ),
           Expanded(
-            child: BlocBuilder<AchievementCubit, AchievementState>(
+            child: BlocBuilder<AchievementReportCubit, AchievementState>(
               builder: (context, state) {
                 if ((state.isLoading ?? false) &&
                     state.managerClosingAchievementReportList.isEmpty) {
@@ -560,7 +596,7 @@ class _ManagerAchievementReportScreenState
             projectName: widget.projectAchievementReportModel.projectName,
           ),
           Expanded(
-            child: BlocBuilder<AchievementCubit, AchievementState>(
+            child: BlocBuilder<AchievementReportCubit, AchievementState>(
               builder: (context, state) {
                 if ((state.isLoading ?? false) &&
                     state.managerSourcingAchievementReportList.isEmpty) {

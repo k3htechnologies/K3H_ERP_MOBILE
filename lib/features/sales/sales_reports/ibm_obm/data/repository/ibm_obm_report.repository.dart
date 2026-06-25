@@ -8,14 +8,12 @@ abstract interface class IbmObmReportRepository {
   Future<Either<Failure, Map<String, dynamic>>> getIbmObmReport({
     required int pageNumber,
     required int pageSize,
-    required int projectId,
     Map<String, dynamic>? queryParams,
   });
 
   Future<Either<Failure, Map<String, dynamic>>> getIbmObmReportForExport({
     required int pageNumber,
     required int pageSize,
-    required int projectId,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -29,14 +27,12 @@ class IbmObmReportRepositoryImpl implements IbmObmReportRepository {
   Future<Either<Failure, Map<String, dynamic>>> getIbmObmReport({
     required int pageNumber,
     required int pageSize,
-    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     try {
       final result = await ibmObmReportDatasource.apiCallPullIbmObmReport(
         pageNumber: pageNumber,
         pageSize: pageSize,
-        projectId: projectId,
         queryParams: queryParams,
       );
 
@@ -50,7 +46,6 @@ class IbmObmReportRepositoryImpl implements IbmObmReportRepository {
   Future<Either<Failure, Map<String, dynamic>>> getIbmObmReportForExport({
     required int pageNumber,
     required int pageSize,
-    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     try {
@@ -58,7 +53,6 @@ class IbmObmReportRepositoryImpl implements IbmObmReportRepository {
           .apiCallPullIbmObmReportForExport(
             pageNumber: pageNumber,
             pageSize: pageSize,
-            projectId: projectId,
             queryParams: queryParams,
           );
 

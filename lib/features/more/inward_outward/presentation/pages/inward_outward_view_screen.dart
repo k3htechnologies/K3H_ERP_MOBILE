@@ -412,7 +412,7 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
                               .isNotEmpty) {
                             showFilePreviewDialog(
                               context,
-                              title: "Acknowleger's Signature Document",
+                              title: "Acknowleger's Signature",
                               inwardOutward.acknowledgementSignatureURL.split(
                                 ",",
                               ),
@@ -564,7 +564,7 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
                 child: ExpansionTile(
                   tilePadding: EdgeInsets.zero,
                   title: Text(
-                    "Acknowledgement Document",
+                    "Acknowledgement Documents",
                     style: AppTextStyle.ts14SB(),
                   ),
                   trailing: const Icon(Icons.keyboard_arrow_down),
@@ -584,7 +584,7 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
                                   .isNotEmpty) {
                                 showFilePreviewDialog(
                                   context,
-                                  title: "Acknowleger's Signature Document",
+                                  title: "Acknowleger's Signature",
                                   widget
                                       .inwardOutwardModel
                                       .acknowledgementSignatureURL

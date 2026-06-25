@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/payroll/leave/model/leave.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 abstract interface class LeaveDatasource {
   Future<Map<String, dynamic>> apicallPullLeave({
@@ -47,7 +48,7 @@ class LeaveDatasourceDataSourceImpl implements LeaveDatasource {
       Map<String, dynamic>? queryParams,
     }) {
       String url = "Leave/PullLeave?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -142,7 +143,8 @@ class LeaveDatasourceDataSourceImpl implements LeaveDatasource {
       Map<String, dynamic>? queryParams,
     }) {
       String url = "Leave/PullLeave?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
+
       return url;
     }
 
@@ -184,7 +186,8 @@ class LeaveDatasourceDataSourceImpl implements LeaveDatasource {
     }) {
       String url =
           "Leave/PullLeaveConfigured?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
+
       return url;
     }
 

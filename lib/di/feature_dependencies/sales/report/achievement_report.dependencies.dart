@@ -14,5 +14,7 @@ void registerAchievementReportDependencies(GetIt serviceLocator) {
           serviceLocator<AchievementReportDatasource>(),
     ),
   );
-  serviceLocator.registerSingleton<AchievementCubit>(AchievementCubit());
+  serviceLocator.registerSingleton<AchievementReportCubit>(
+    AchievementReportCubit(),
+  );
 }

@@ -56,12 +56,14 @@ class BuildingCubit extends Cubit<BuildingState> {
   Future applyFilterAndSort({
     required BuildContext context,
     required int projectId,
+    required String filterBuildingName,
     required String filterCTSNumber,
     String? sortColumn,
     String? sortDirection,
   }) async {
     emit(
       state.copyWith(
+        searchText: filterBuildingName,
         filterCTSNumber: filterCTSNumber,
         currentSortColumn: sortColumn ?? state.currentSortColumn,
         currentSortDirection: sortDirection ?? state.currentSortDirection,
@@ -563,5 +565,17 @@ class BuildingCubit extends Cubit<BuildingState> {
         }
       },
     );
+  }
+
+  int updateFilterCount(BuildingState state) {
+    final hasSort =
+        state.currentSortColumn == "Building Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.searchText.isNotEmpty,
+      state.filterCTSNumber.isNotEmpty,
+      hasSort,
+    ]);
   }
 }

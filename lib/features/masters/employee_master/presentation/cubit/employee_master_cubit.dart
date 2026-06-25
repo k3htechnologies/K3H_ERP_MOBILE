@@ -84,6 +84,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
 
   Future applyFilterAndSort({
     required BuildContext context,
+    required String employeeName,
     required String employeeCode,
     required String companyName,
     required String reportingPersonName,
@@ -100,6 +101,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   }) async {
     emit(
       state.copyWith(
+        searchText: employeeName,
         filterEmployeeCode: employeeCode,
         filterCompanyName: companyName,
         filterReportPersonName: reportingPersonName,
@@ -1017,5 +1019,26 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
         emit(state.copyWith(isLoading: false, branchAssociationList: newList));
       },
     );
+  }
+
+  int updateFilterCount(EmployeeMasterState state) {
+    final hasSort =
+        state.currentSortColumn == "Full Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterEmployeeCode.trim().isNotEmpty,
+      state.filterCompanyName.trim().isNotEmpty,
+      state.filterReportPersonName.trim().isNotEmpty,
+      state.filterDepartmentName.trim().isNotEmpty,
+      state.filterDesignationName.trim().isNotEmpty,
+      state.filterMobileNumber.trim().isNotEmpty,
+      state.filterBranchName.trim().isNotEmpty,
+      state.filterIsProbation.isNotEmpty,
+      state.filterIdCardIssue.isNotEmpty,
+      (state.filterDOBFrom != null && state.filterDOBTo != null),
+      hasSort,
+    ]);
   }
 }

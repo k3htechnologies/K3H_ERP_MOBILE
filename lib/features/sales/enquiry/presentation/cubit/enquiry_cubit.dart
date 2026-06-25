@@ -646,4 +646,32 @@ class EnquiryCubit extends Cubit<EnquiryState> {
       return enquiry;
     });
   }
+
+  int updateFilterCount() {
+    final hasSort =
+        state.currentSortColumn == "Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterSystemCode.trim().isNotEmpty,
+      state.filterMobileNumber.trim().isNotEmpty,
+      state.filterBudget.trim().isNotEmpty,
+      state.filterRequirementType.trim().isNotEmpty,
+      state.filterSource.trim().isNotEmpty,
+      state.filterSubSource.trim().isNotEmpty,
+      state.filterChannelPartnerMobile.trim().isNotEmpty,
+      state.filterNationality.trim().isNotEmpty,
+      state.filterCurrentLocation.trim().isNotEmpty,
+      state.filterCustomerClassification.trim().isNotEmpty,
+      state.filterEthnicity.trim().isNotEmpty,
+      state.filterSalesAdvisor.trim().isNotEmpty,
+      state.filterSourcingManager.trim().isNotEmpty,
+      state.filterAccommodation.trim().isNotEmpty,
+      state.filterFollowUpDays.trim().isNotEmpty,
+      state.filterFinalStage.trim().isNotEmpty,
+      state.filterStartDate != null && state.filterEndDate != null,
+      hasSort,
+    ]);
+  }
 }

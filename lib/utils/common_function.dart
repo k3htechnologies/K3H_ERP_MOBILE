@@ -836,6 +836,25 @@ Future<void> loadAndSelectProjectById(int projectId) async {
   }
 }
 
+List<Map<String, dynamic>> get projectList {
+  final projectsJson = LocalStorageManager().getString(StorageKey.projectList);
+
+  if (projectsJson == null || projectsJson.isEmpty) {
+    return [];
+  }
+
+  final List<dynamic> decodedList = jsonDecode(projectsJson);
+
+  return decodedList.map<Map<String, dynamic>>((e) {
+    final project = ProjectModel.fromJson(e);
+
+    return {
+      "zAttributesId": project.projectId,
+      "DisplayName": project.projectName,
+    };
+  }).toList();
+}
+
 extension IndianCurrencyExtension on num {
   String toIndianCurrency() {
     return '₹ ${_format()}';
@@ -884,4 +903,8 @@ String toTitleCase(String columnName) {
       .split(' ')
       .map((e) => e.isEmpty ? e : '${e[0].toUpperCase()}${e.substring(1)}')
       .join(' ');
+}
+
+int getActiveFilterCount(List<bool> filters) {
+  return filters.where((e) => e).length;
 }

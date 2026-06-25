@@ -2,6 +2,7 @@ import 'package:k3h_erp_app/features/payroll/comp_off/data/model/comp_off.model.
 import 'package:k3h_erp_app/features/payroll/comp_off/data/model/comp_off_dates.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 abstract interface class CompOffDatasource {
   Future<Map<String, dynamic>> apicallPullCompOff({
@@ -48,7 +49,8 @@ class CompOffDatasourceImpl implements CompOffDatasource {
     }) {
       String url =
           "CompOff/PullCompOff?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
+
       return url;
     }
 
@@ -91,7 +93,8 @@ class CompOffDatasourceImpl implements CompOffDatasource {
     }) {
       String url =
           "CompOff/PullCompOffDates?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
+
       return url;
     }
 
@@ -187,7 +190,8 @@ class CompOffDatasourceImpl implements CompOffDatasource {
     }) {
       String url =
           "CompOff/PullCompOff?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
+
       return url;
     }
 

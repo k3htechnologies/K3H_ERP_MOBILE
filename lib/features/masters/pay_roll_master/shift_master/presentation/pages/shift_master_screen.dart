@@ -17,6 +17,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ShiftMasterScreen extends StatefulWidget {
@@ -39,6 +40,8 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
 
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC;
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
+
   @override
   void initState() {
     super.initState();
@@ -55,6 +58,8 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
   void dispose() {
     super.dispose();
     scrollController.dispose();
+    _debounce?.cancel();
+    _filterCount.dispose();
     _searchC.dispose();
   }
 
@@ -102,25 +107,31 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
   }
 
   // SORT BOTTOM SHEET - SHIFT (SHIFT NAME)
-  Future<void> _showSortBottomSheetForShift(BuildContext context) async {
+  Future<void> _showBottomSheetToFilterShift(BuildContext context) async {
     final state = _shiftMasterCubit.state;
 
     String? selectedDirection =
         state.currentSortColumn == "Shift Name"
             ? state.currentSortDirection
             : null;
+    _searchC.text = state.searchText;
 
     final String? initialDirection = selectedDirection;
-
+    final String initialShiftName = _searchC.text;
+    bool manualClose = false;
+    bool applied = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
 
     void updateApplyState(StateSetter innerState) {
       innerState(() {
-        applyEnabled.value = selectedDirection != initialDirection;
+        manualClose =
+            (_searchC.text.trim() != initialShiftName) ||
+            selectedDirection != initialDirection;
+        applyEnabled.value = manualClose;
       });
     }
 
-    DialogHelper.showCustomFilterBottomSheet(
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Sort Shift",
       contentWidget: StatefulBuilder(
@@ -179,6 +190,13 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
                   ),
                 ],
               ),
+              verticalSpacing(height: 20),
+              CustomTextField(
+                title: "Shift Name",
+                hint: "Enter Shift Name",
+                textController: _searchC,
+                onChangeFunction: (_) => updateApplyState(innerState),
+              ),
             ],
           );
         },
@@ -186,13 +204,17 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
       onClear: () {
         _shiftMasterCubit.applyFilterAndSort(
           context: context,
+          filterShiftName: "",
           sortColumn: "Created Date",
           sortDirection: "DESC",
         );
+        _searchC.clear();
       },
       onApply: () {
+        applied = true;
         _shiftMasterCubit.applyFilterAndSort(
           context: context,
+          filterShiftName: _searchC.text.trim(),
           sortColumn: "Shift Name",
           sortDirection: selectedDirection,
         );
@@ -200,172 +222,184 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
+    if (!applied && manualClose) {
+      _searchC.clear();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Shift Master",
-        authorization: _routeAuthorizationModel,
-        onAddCallback: () async {
-          await goRouter.pushNamed(AppRoutes.addShiftMaster);
-          if (context.mounted) {
+    return BlocListener<ShiftMasterCubit, ShiftMasterState>(
+      listener: (context, state) {
+        _filterCount.value = _shiftMasterCubit.updateFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "Shift Master",
+          authorization: _routeAuthorizationModel,
+          onAddCallback: () async {
+            await goRouter.pushNamed(AppRoutes.addShiftMaster);
+            if (context.mounted) {
+              _shiftMasterCubit.searchShift("", context);
+            }
+          },
+          filterCountNotifier: _filterCount,
+          textController: _searchC,
+          searchHintText: "Search by Shift Name",
+          onExportCallback: (value) {
+            if (_shiftMasterCubit.state.totalNumberOfRecord == 0) {
+              showErrorMessage(context, "Error", "No Data Found");
+              return;
+            }
+            _shiftMasterCubit.exportExcelPdf(context, value);
+          },
+          onSearchSubmit: (value) {
+            _shiftMasterCubit.searchShift(value, context);
+          },
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterShift(context);
+          },
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            _searchC.clear();
             _shiftMasterCubit.searchShift("", context);
-          }
-        },
-        textController: _searchC,
-        searchHintText: "Search by Shift Name",
-        onExportCallback: (value) {
-          if (_shiftMasterCubit.state.totalNumberOfRecord == 0) {
-            showErrorMessage(context, "Error", "No Data Found");
-            return;
-          }
-          _shiftMasterCubit.exportExcelPdf(context, value);
-        },
-        onSearchSubmit: (value) {
-          _shiftMasterCubit.searchShift(value, context);
-        },
-        isFilterOn: true,
-        onFilterTap: () {
-          _showSortBottomSheetForShift(context);
-        },
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _searchC.clear();
-          _shiftMasterCubit.searchShift("", context);
-        },
-        child: BlocBuilder<ShiftMasterCubit, ShiftMasterState>(
-          builder: (context, state) {
-            if ((state.isLoading ?? true) && state.shiftMasterList.isEmpty) {
-              return Center(child: loader());
-            }
-            if (state.shiftMasterList.isEmpty) {
-              return ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: [
-                  SizedBox(
-                    height: getActualHeight(context) * .7,
-                    child: Center(
-                      child: noDataWidget(message: "No Shift Data Found"),
+          },
+          child: BlocBuilder<ShiftMasterCubit, ShiftMasterState>(
+            builder: (context, state) {
+              if ((state.isLoading ?? true) && state.shiftMasterList.isEmpty) {
+                return Center(child: loader());
+              }
+              if (state.shiftMasterList.isEmpty) {
+                return ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: getActualHeight(context) * .7,
+                      child: Center(
+                        child: noDataWidget(message: "No Shift Data Found"),
+                      ),
                     ),
-                  ),
-                ],
-              );
-            }
-            return ListView.builder(
-              controller: scrollController,
-              physics: AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              itemCount: state.shiftMasterList.length + 1,
-              itemBuilder: (context, index) {
-                if (index == state.shiftMasterList.length) {
-                  return state.shiftMasterList.length <
-                          state.totalNumberOfRecord
-                      ? const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                      : const SizedBox.shrink();
-                }
-                var shiftMaster = state.shiftMasterList[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(12),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: GestureDetector(
-                              onTap: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.viewShiftMaster,
-                                  queryParameters: {
-                                    "shift": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(shiftMaster.toJson()),
-                                      ),
-                                    ),
-                                  },
-                                );
-                              },
-                              child: Text(
-                                shiftMaster.shiftName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addShiftMaster,
+                  ],
+                );
+              }
+              return ListView.builder(
+                controller: scrollController,
+                physics: AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                itemCount: state.shiftMasterList.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == state.shiftMasterList.length) {
+                    return state.shiftMasterList.length <
+                            state.totalNumberOfRecord
+                        ? const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : const SizedBox.shrink();
+                  }
+                  var shiftMaster = state.shiftMasterList[index];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(12),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () {
+                                  goRouter.pushNamed(
+                                    AppRoutes.viewShiftMaster,
                                     queryParameters: {
                                       "shift": Uri.encodeQueryComponent(
                                         EncryptionManager.encryptData(
                                           jsonEncode(shiftMaster.toJson()),
                                         ),
                                       ),
-                                      'index': index.toString(),
                                     },
                                   );
                                 },
+                                child: Text(
+                                  shiftMaster.shiftName,
+                                  style: AppTextStyle.ts16M(
+                                    color: AppColor.primary,
+                                  ).copyWith(
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColor.primary,
+                                  ),
+                                ),
                               ),
-                              const SizedBox(width: 8),
-                              CustomIconButton.delete(
-                                onPressed: () {
-                                  _showPopupToDeleteShiftMaster(
-                                    context,
-                                    shiftMaster,
-                                    state.currentPage,
-                                    index,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      verticalSpacing(height: 10),
-                      buildRowTitleValue(
-                        title: "Shift Code",
-                        value: shiftMaster.shiftCode,
-                      ),
-                      buildRowTitleValue(
-                        title: "Shift Begin Time",
-                        value: shiftMaster.shiftBeginTime,
-                      ),
-                      buildRowTitleValue(
-                        title: "Shift End Time",
-                        value: shiftMaster.shiftEndTime,
-                      ),
-                      buildRowTitleValue(
-                        title: "Shift Duration Time",
-                        value: shiftMaster.shiftDurationTime,
-                      ),
+                            ),
 
-                      buildRowTitleValue(
-                        title: "Shift Work Duration Time",
-                        value: shiftMaster.shiftWorkDurationTime,
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                CustomIconButton.edit(
+                                  onPressed: () async {
+                                    await goRouter.pushNamed(
+                                      AppRoutes.addShiftMaster,
+                                      queryParameters: {
+                                        "shift": Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(shiftMaster.toJson()),
+                                          ),
+                                        ),
+                                        'index': index.toString(),
+                                      },
+                                    );
+                                  },
+                                ),
+                                const SizedBox(width: 8),
+                                CustomIconButton.delete(
+                                  onPressed: () {
+                                    _showPopupToDeleteShiftMaster(
+                                      context,
+                                      shiftMaster,
+                                      state.currentPage,
+                                      index,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(height: 10),
+                        buildRowTitleValue(
+                          title: "Shift Code",
+                          value: shiftMaster.shiftCode,
+                        ),
+                        buildRowTitleValue(
+                          title: "Shift Begin Time",
+                          value: shiftMaster.shiftBeginTime,
+                        ),
+                        buildRowTitleValue(
+                          title: "Shift End Time",
+                          value: shiftMaster.shiftEndTime,
+                        ),
+                        buildRowTitleValue(
+                          title: "Shift Duration Time",
+                          value: shiftMaster.shiftDurationTime,
+                        ),
+
+                        buildRowTitleValue(
+                          title: "Shift Work Duration Time",
+                          value: shiftMaster.shiftWorkDurationTime,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );

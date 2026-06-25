@@ -44,6 +44,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
       _filterContactPersonC,
       _filterMobileNumberC,
       _filterCityNameC;
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   @override
   void initState() {
@@ -67,6 +68,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
     _filterMobileNumberC.dispose();
     _filterCityNameC.dispose();
     scrollController.dispose();
+    _filterCount.dispose();
     _debounce?.cancel();
     super.dispose();
   }
@@ -128,6 +130,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
   ) async {
     final state = _companyMasterCubit.state;
 
+    _searchC.text = state.searchText;
     _filterFirmsTypeC.text = state.filterByFirmType;
     _filterContactPersonC.text = state.filterByContactPerson;
     _filterMobileNumberC.text = state.filterByMobileNumber;
@@ -138,19 +141,21 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
             ? state.currentSortDirection
             : null;
 
+    final String initialCompanyName = _searchC.text;
     final String initialFirmsType = _filterFirmsTypeC.text;
     final String initialContactPerson = _filterContactPersonC.text;
     final String initialMobileNumber = _filterMobileNumberC.text;
     final String initialCityName = _filterCityNameC.text;
     final String? initialDirection = selectedDirection;
 
-    bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    bool manualClose = false;
     bool applied = false;
 
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
+            (_searchC.text.trim() != initialCompanyName) ||
             (_filterFirmsTypeC.text.trim() != initialFirmsType) ||
             (_filterContactPersonC.text.trim() != initialContactPerson) ||
             (_filterMobileNumberC.text.trim() != initialMobileNumber) ||
@@ -160,7 +165,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
       });
     }
 
-    DialogHelper.showCustomFilterBottomSheet(
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter - Company Master",
       contentWidget: StatefulBuilder(
@@ -223,26 +228,29 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                 ),
                 verticalSpacing(height: 20),
                 CustomTextField(
+                  title: "Company Name",
+                  hint: "Enter Company Name",
+                  textController: _searchC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
                   title: "Firms Type",
                   hint: "Enter Firms Type",
                   textController: _filterFirmsTypeC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                verticalSpacing(),
                 CustomTextField(
                   title: "Contact Person",
                   hint: "Enter Contact Person",
                   textController: _filterContactPersonC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                verticalSpacing(),
                 CustomTextField(
                   title: "Mobile Number",
                   hint: "Enter Mobile Number",
                   textController: _filterMobileNumberC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                verticalSpacing(),
                 CustomTextField(
                   title: "City Name",
                   hint: "Enter City Name",
@@ -259,6 +267,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
         _filterContactPersonC.clear();
         _filterMobileNumberC.clear();
         _filterCityNameC.clear();
+        _searchC.clear();
         _companyMasterCubit.applyCompanyFilterAndSort(
           context: context,
           isClear: true,
@@ -268,6 +277,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
         applied = true;
         _companyMasterCubit.applyCompanyFilterAndSort(
           context: context,
+          companyName: _searchC.text.trim(),
           companyType: _filterFirmsTypeC.text.trim(),
           contactPerson: _filterContactPersonC.text.trim(),
           mobileNumber: _filterMobileNumberC.text.trim(),
@@ -286,181 +296,189 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
       _filterContactPersonC.clear();
       _filterMobileNumberC.clear();
       _filterCityNameC.clear();
+      _searchC.clear();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: 'Company Master',
-        authorization: _routeAuthorizationModel,
-        onExportCallback: (value) {
-          if (_companyMasterCubit.state.totalNumberOfRecord == 0) {
-            showErrorMessage(context, "Error", "No data found");
-            return;
-          }
-          _companyMasterCubit.exportExcelPdf(context, value);
-        },
-        searchHintText: "Search by Company Name",
-        onSearchSubmit: (value) {
-          _companyMasterCubit.searchCompany(context, value);
-        },
-        onAddCallback: () async {
-          await goRouter.pushNamed(AppRoutes.addCompany);
-          if (context.mounted) {
-            _companyMasterCubit.searchCompany(context, "");
-          }
-        },
-        textController: _searchC,
-        onFilterTap: () {
-          _showBottomSheetToFilterCompanyMaster(context);
-        },
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _searchC.clear();
-          await _companyMasterCubit.searchCompany(context, "");
-        },
-        child: BlocBuilder<CompanyMasterCubit, CompanyMasterState>(
-          builder: (context, state) {
-            if ((state.isLoading ?? true) && state.companyList.isEmpty) {
-              return Center(child: loader());
+    return BlocListener<CompanyMasterCubit, CompanyMasterState>(
+      listener: (context, state) {
+        _filterCount.value = _companyMasterCubit.updateFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: 'Company Master',
+          authorization: _routeAuthorizationModel,
+          filterCountNotifier: _filterCount,
+          onExportCallback: (value) {
+            if (_companyMasterCubit.state.totalNumberOfRecord == 0) {
+              showErrorMessage(context, "Error", "No data found");
+              return;
             }
-            if (state.companyList.isEmpty) {
-              return ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.7,
-                    child: Center(
-                      child: noDataWidget(message: "No companies Data found"),
+            _companyMasterCubit.exportExcelPdf(context, value);
+          },
+          searchHintText: "Search by Company Name",
+          onSearchSubmit: (value) {
+            _companyMasterCubit.searchCompany(context, value);
+          },
+          onAddCallback: () async {
+            await goRouter.pushNamed(AppRoutes.addCompany);
+            if (context.mounted) {
+              _companyMasterCubit.searchCompany(context, "");
+            }
+          },
+          textController: _searchC,
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterCompanyMaster(context);
+          },
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            _searchC.clear();
+            await _companyMasterCubit.searchCompany(context, "");
+          },
+          child: BlocBuilder<CompanyMasterCubit, CompanyMasterState>(
+            builder: (context, state) {
+              if ((state.isLoading ?? true) && state.companyList.isEmpty) {
+                return Center(child: loader());
+              }
+              if (state.companyList.isEmpty) {
+                return ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.7,
+                      child: Center(
+                        child: noDataWidget(message: "No companies Data found"),
+                      ),
                     ),
-                  ),
-                ],
-              );
-            }
-            return ListView.builder(
-              controller: scrollController,
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              itemCount: _companyMasterCubit.state.companyList.length + 1,
-              itemBuilder: (context, index) {
-                if (index == state.companyList.length) {
-                  return state.companyList.length < state.totalNumberOfRecord
-                      ? Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                      : const SizedBox.shrink();
-                }
-                var company = state.companyList[index];
-                return Container(
-                  padding: EdgeInsets.all(16),
-                  margin: EdgeInsets.only(bottom: 10),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        spacing: 10,
-                        children: [
-                          Flexible(
-                            child: GestureDetector(
-                              onTap: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.viewCompanyDetails,
-                                  queryParameters: {
-                                    "company": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(company),
+                  ],
+                );
+              }
+              return ListView.builder(
+                controller: scrollController,
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                itemCount: _companyMasterCubit.state.companyList.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == state.companyList.length) {
+                    return state.companyList.length < state.totalNumberOfRecord
+                        ? Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : const SizedBox.shrink();
+                  }
+                  var company = state.companyList[index];
+                  return Container(
+                    padding: EdgeInsets.all(16),
+                    margin: EdgeInsets.only(bottom: 10),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          spacing: 10,
+                          children: [
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.viewCompanyDetails,
+                                    queryParameters: {
+                                      "company": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(company),
+                                        ),
                                       ),
-                                    ),
-                                  },
-                                );
-                              },
-                              child: Text(
-                                company.companyName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
+                                    },
+                                  );
+                                },
+                                child: Text(
+                                  company.companyName,
+                                  style: AppTextStyle.ts16M(
+                                    color: AppColor.primary,
+                                  ).copyWith(
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColor.primary,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          if (_routeAuthorizationModel.isAction) ...[
-                            Row(
-                              spacing: 10,
-                              children: [
-                                CustomIconButton.edit(
-                                  onPressed: () async {
-                                    final result = await goRouter.pushNamed(
-                                      AppRoutes.addCompany,
-                                      queryParameters: {
-                                        "company": Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(company),
+                            if (_routeAuthorizationModel.isAction) ...[
+                              Row(
+                                spacing: 10,
+                                children: [
+                                  CustomIconButton.edit(
+                                    onPressed: () async {
+                                      final result = await goRouter.pushNamed(
+                                        AppRoutes.addCompany,
+                                        queryParameters: {
+                                          "company": Uri.encodeQueryComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(company),
+                                            ),
                                           ),
-                                        ),
-                                      },
-                                    );
-                                    if (result != null &&
-                                        result is CompanyModel) {
-                                      _companyMasterCubit.updateCompany(
-                                        result,
+                                        },
+                                      );
+                                      if (result != null &&
+                                          result is CompanyModel) {
+                                        _companyMasterCubit.updateCompany(
+                                          result,
+                                          index,
+                                        );
+                                      }
+                                    },
+                                  ),
+                                  CustomIconButton.delete(
+                                    onPressed: () {
+                                      _showPopUpToDeleteVendor(
+                                        context,
+                                        company,
                                         index,
                                       );
-                                    }
-                                  },
-                                ),
-                                CustomIconButton.delete(
-                                  onPressed: () {
-                                    _showPopUpToDeleteVendor(
-                                      context,
-                                      company,
-                                      index,
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
                           ],
-                        ],
-                      ),
-                      verticalSpacing(height: 5),
-                      buildRowTitleValue(
-                        title: "Contact Person",
-                        value: company.contactPerson,
-                        singleLine: false,
-                      ),
-                      buildRowTitleValue(
-                        title: "Company Type",
-                        value: company.firmsType,
-                        singleLine: false,
-                      ),
-                      buildRowTitleValue(
-                        title: "Mobile Number",
-                        value: company.mobileNumber,
-                        customValueWidget: CustomClickToContactText(
-                          countryCode: "+91",
+                        ),
+                        verticalSpacing(height: 5),
+                        buildRowTitleValue(
+                          title: "Contact Person",
+                          value: company.contactPerson,
+                          singleLine: false,
+                        ),
+                        buildRowTitleValue(
+                          title: "Company Type",
+                          value: company.firmsType,
+                          singleLine: false,
+                        ),
+                        buildRowTitleValue(
+                          title: "Mobile Number",
                           value: company.mobileNumber,
+                          customValueWidget: CustomClickToContactText(
+                            countryCode: "+91",
+                            value: company.mobileNumber,
+                          ),
                         ),
-                      ),
-                      buildRowTitleValue(
-                        title: "Email ID",
-                        value: company.emailId,
-                        customValueWidget: CustomClickToContactText(
+                        buildRowTitleValue(
+                          title: "Email ID",
                           value: company.emailId,
-                          type: ContactType.email,
+                          customValueWidget: CustomClickToContactText(
+                            value: company.emailId,
+                            type: ContactType.email,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );

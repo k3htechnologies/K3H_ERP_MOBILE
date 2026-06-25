@@ -339,4 +339,31 @@ class SourcingCubit extends Cubit<SourcingState> {
       },
     );
   }
+
+  int updateFilterCount() {
+    final hasSort =
+        (state.currentSortColumn == "Full Name") &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterByCompanyName.trim().isNotEmpty,
+      state.filterByDesignation.trim().isNotEmpty,
+      state.filterByFirmType.trim().isNotEmpty,
+      state.filterByType.trim().isNotEmpty,
+      state.filterCPCode.trim().isNotEmpty,
+      state.filterByCPName.trim().isNotEmpty,
+      state.filterByOfficeAddress.trim().isNotEmpty,
+      state.filterByGSTNumber.trim().isNotEmpty,
+      state.filterByRERANumber.trim().isNotEmpty,
+      state.filterByPANNumber.trim().isNotEmpty,
+      state.filterByAadhaarNumber.trim().isNotEmpty,
+      state.filterBySpeciality.trim().isNotEmpty,
+      state.filterByCity.trim().isNotEmpty,
+      state.filterByVillage.trim().isNotEmpty,
+      state.filterByNoOfIBM.trim().isNotEmpty,
+      state.filterByNoOfOBM.trim().isNotEmpty,
+      hasSort,
+    ]);
+  }
 }

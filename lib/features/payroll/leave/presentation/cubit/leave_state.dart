@@ -2,7 +2,7 @@ part of 'leave_cubit.dart';
 
 class LeaveState extends BaseState {
   final List<LeaveTypeModel> leaveTypeList;
-  final List<LeaveModel> leaveList;  // final int leaveTypeTotalCount;
+  final List<LeaveModel> leaveList; // final int leaveTypeTotalCount;
 
   final int totalNumberOfRecord;
   final int currentPage;
@@ -11,14 +11,12 @@ class LeaveState extends BaseState {
   final String currentSortDirection;
   final int currentTabIndex;
   final int currentTabIndexViewScreen;
-  final String? filterLeaveType;
   final DateTime? filterStartDate;
   final DateTime? filterEndDate;
 
   const LeaveState({
     super.isLoading,
     required this.leaveTypeList,
-    // required this.leaveTypeTotalCount,
     required this.leaveList,
     required this.totalNumberOfRecord,
     required this.currentPage,
@@ -27,7 +25,6 @@ class LeaveState extends BaseState {
     required this.currentSortDirection,
     required this.currentTabIndex,
     required this.currentTabIndexViewScreen,
-    this.filterLeaveType,
     this.filterStartDate,
     this.filterEndDate,
   });
@@ -44,7 +41,6 @@ class LeaveState extends BaseState {
     isLoading: true,
     currentTabIndex: 0,
     currentTabIndexViewScreen: 0,
-    filterLeaveType: null,
     filterStartDate: null,
     filterEndDate: null,
   );
@@ -52,7 +48,6 @@ class LeaveState extends BaseState {
   LeaveState copyWith({
     bool? isLoading,
     List<LeaveTypeModel>? leaveTypeList,
-    // int? leaveTypeTotalCount,
     List<LeaveModel>? leaveList,
     int? totalNumberOfRecord,
     int? currentPage,
@@ -61,7 +56,6 @@ class LeaveState extends BaseState {
     String? currentSortDirection,
     int? currentTabIndex,
     int? currentTabIndexViewScreen,
-    String? filterLeaveType,
     DateTime? filterStartDate,
     DateTime? filterEndDate,
     bool clearFilters = false,
@@ -77,10 +71,12 @@ class LeaveState extends BaseState {
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
-      currentTabIndexViewScreen: currentTabIndexViewScreen ?? this.currentTabIndexViewScreen,
-      filterLeaveType: clearFilters ? null : (filterLeaveType ?? this.filterLeaveType),
-      filterStartDate: clearFilters ? null : (filterStartDate ?? this.filterStartDate),
-      filterEndDate: clearFilters ? null : (filterEndDate ?? this.filterEndDate),
+      currentTabIndexViewScreen:
+          currentTabIndexViewScreen ?? this.currentTabIndexViewScreen,
+      filterStartDate:
+          clearFilters ? null : (filterStartDate ?? this.filterStartDate),
+      filterEndDate:
+          clearFilters ? null : (filterEndDate ?? this.filterEndDate),
     );
   }
 
@@ -88,7 +84,6 @@ class LeaveState extends BaseState {
   List<Object?> get props => [
     isLoading,
     leaveTypeList,
-    // leaveTypeTotalCount,
     leaveList,
     totalNumberOfRecord,
     currentPage,
@@ -97,7 +92,6 @@ class LeaveState extends BaseState {
     currentSortDirection,
     currentTabIndex,
     currentTabIndexViewScreen,
-    filterLeaveType,
     filterStartDate,
     filterEndDate,
   ];

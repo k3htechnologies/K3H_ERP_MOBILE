@@ -66,6 +66,8 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
     DateTime? rescheduleFromDate,
     DateTime? rescheduleToDate,
     String? source,
+    String? sortColumn,
+    String? sortDirection,
     required int projectId,
   }) async {
     emit(
@@ -75,6 +77,8 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
         filterMobileNo: mobileNumber,
         filterRescheduleFromDate: rescheduleFromDate,
         filterRescheduleToDate: rescheduleToDate,
+        currentSortColumn: sortColumn,
+        currentSortDirection: sortDirection,
       ),
     );
 
@@ -97,6 +101,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
       "FromDate": state.filterRescheduleFromDate?.toIso8601String(),
       "ToDate": state.filterRescheduleToDate?.toIso8601String(),
       "Source": state.filterSource,
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
 
     emit(state.copyWith(isLoading: true));
@@ -236,6 +241,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
       "RescheduleDateFromDate":
           state.filterRescheduleFromDate?.toIso8601String(),
       "RescheduleDateToDate": state.filterRescheduleToDate?.toIso8601String(),
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     emit(state.copyWith(isLoading: true));
     if (projectId == 0) {
@@ -468,5 +474,24 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
         );
       },
     );
+  }
+
+  int updateFilterCount(CallTrackerState state) {
+    final hasSort =
+        state.currentSortColumn ==
+            (state.currentTabIndex == 0
+                ? "Customer Name"
+                : "Sales Executive") &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterMobileNo.trim().isNotEmpty,
+      state.filterSource?.trim().isNotEmpty ?? false,
+      state.filterRescheduleFromDate != null,
+      state.filterRescheduleToDate != null,
+      hasSort,
+    ]);
   }
 }

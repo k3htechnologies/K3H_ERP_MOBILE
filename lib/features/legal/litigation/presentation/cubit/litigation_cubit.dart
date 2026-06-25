@@ -850,4 +850,18 @@ class LitigationCubit extends Cubit<LitigationState> {
       },
     );
   }
+
+  int updateFilterCount(LitigationState state) {
+    final hasSort =
+        state.currentSortColumn == "Title" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterCaseNumber.trim().isNotEmpty,
+      state.filterByCourtName.trim().isNotEmpty,
+      state.filterByProjectName.trim().isNotEmpty,
+      hasSort,
+    ]);
+  }
 }

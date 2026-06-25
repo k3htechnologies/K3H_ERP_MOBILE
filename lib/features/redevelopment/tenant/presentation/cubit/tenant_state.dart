@@ -13,7 +13,12 @@ class TenantState extends BaseState {
   final String currentSortDirection;
   final String filterFlatType;
   final String filterFlatConfiguration;
-
+  final String filterApplicantName;
+  final String filterFlatCarpetAreaSqFt;
+  final String filterBuildingNumber;
+  final String filterWing;
+  final String filterFlat;
+  final String filterParkingNumber;
 
   const TenantState({
     super.isLoading,
@@ -29,6 +34,13 @@ class TenantState extends BaseState {
     required this.currentSortDirection,
     required this.filterFlatType,
     required this.filterFlatConfiguration,
+
+    required this.filterApplicantName,
+    required this.filterFlatCarpetAreaSqFt,
+    required this.filterBuildingNumber,
+    required this.filterWing,
+    required this.filterFlat,
+    required this.filterParkingNumber,
   });
 
   factory TenantState.initial() => TenantState(
@@ -45,6 +57,13 @@ class TenantState extends BaseState {
     currentSortDirection: "DESC",
     filterFlatType: "",
     filterFlatConfiguration: "",
+
+    filterApplicantName: "",
+    filterFlatCarpetAreaSqFt: "",
+    filterBuildingNumber: "",
+    filterWing: "",
+    filterFlat: "",
+    filterParkingNumber: "",
   );
 
   TenantState copyWith({
@@ -61,6 +80,13 @@ class TenantState extends BaseState {
     String? currentSortDirection,
     String? filterFlatType,
     String? filterFlatConfiguration,
+
+    String? filterApplicantName,
+    String? filterFlatCarpetAreaSqFt,
+    String? filterBuildingNumber,
+    String? filterWing,
+    String? filterFlat,
+    String? filterParkingNumber,
   }) {
     return TenantState(
       isLoading: isLoading ?? this.isLoading,
@@ -75,7 +101,16 @@ class TenantState extends BaseState {
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
       filterFlatType: filterFlatType ?? this.filterFlatType,
-      filterFlatConfiguration: filterFlatConfiguration ?? this.filterFlatConfiguration
+      filterFlatConfiguration:
+          filterFlatConfiguration ?? this.filterFlatConfiguration,
+
+      filterApplicantName: filterApplicantName ?? this.filterApplicantName,
+      filterFlatCarpetAreaSqFt:
+          filterFlatCarpetAreaSqFt ?? this.filterFlatCarpetAreaSqFt,
+      filterBuildingNumber: filterBuildingNumber ?? this.filterBuildingNumber,
+      filterWing: filterWing ?? this.filterWing,
+      filterFlat: filterFlat ?? this.filterFlat,
+      filterParkingNumber: filterParkingNumber ?? this.filterParkingNumber,
     );
   }
 
@@ -94,5 +129,12 @@ class TenantState extends BaseState {
     currentSortDirection,
     filterFlatType,
     filterFlatConfiguration,
+
+    filterApplicantName,
+    filterFlatCarpetAreaSqFt,
+    filterBuildingNumber,
+    filterWing,
+    filterFlat,
+    filterParkingNumber,
   ];
 }

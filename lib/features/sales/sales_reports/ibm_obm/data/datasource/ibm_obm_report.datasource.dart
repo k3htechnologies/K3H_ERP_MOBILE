@@ -8,14 +8,12 @@ abstract interface class IbmObmReportDatasource {
   Future<Map<String, dynamic>> apiCallPullIbmObmReport({
     required int pageNumber,
     required int pageSize,
-    required int projectId,
     Map<String, dynamic>? queryParams,
   });
 
   Future<Map<String, dynamic>> apiCallPullIbmObmReportForExport({
     required int pageNumber,
     required int pageSize,
-    required int projectId,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -27,15 +25,13 @@ class IbmObmReportDatasourceImpl implements IbmObmReportDatasource {
   Future<Map<String, dynamic>> apiCallPullIbmObmReport({
     required int pageNumber,
     required int pageSize,
-    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     String pullIbmObmReportUrl({Map<String, dynamic>? queryParams}) {
       String url =
           "IbmObmReport/PullIbmObmReport"
           "?PageSize=$pageSize"
-          "&PageNumber=$pageNumber"
-          "&ProjectId=$projectId";
+          "&PageNumber=$pageNumber";
 
       url += queryParamsFormatter(queryParams: queryParams);
 
@@ -60,7 +56,6 @@ class IbmObmReportDatasourceImpl implements IbmObmReportDatasource {
         return apiCallPullIbmObmReport(
           pageNumber: pageNumber,
           pageSize: pageSize,
-          projectId: projectId,
           queryParams: queryParams,
         );
       }
@@ -72,15 +67,13 @@ class IbmObmReportDatasourceImpl implements IbmObmReportDatasource {
   Future<Map<String, dynamic>> apiCallPullIbmObmReportForExport({
     required int pageNumber,
     required int pageSize,
-    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     String pullIbmObmReportUrl({Map<String, dynamic>? queryParams}) {
       String url =
           "IbmObmReport/PullIbmObmReport"
           "?PageSize=$pageSize"
-          "&PageNumber=$pageNumber"
-          "&ProjectId=$projectId";
+          "&PageNumber=$pageNumber";
 
       url += queryParamsFormatter(queryParams: queryParams);
 
@@ -101,7 +94,6 @@ class IbmObmReportDatasourceImpl implements IbmObmReportDatasource {
         return apiCallPullIbmObmReportForExport(
           pageNumber: pageNumber,
           pageSize: pageSize,
-          projectId: projectId,
           queryParams: queryParams,
         );
       }

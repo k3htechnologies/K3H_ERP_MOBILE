@@ -243,6 +243,7 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
 
   Future<void> applyFilterAndSort({
     required BuildContext context,
+    required String filterHolidayName,
     required String filterBranchName,
     required String filterDepartmentName,
     required DateTime? filterFromHolidayDate,
@@ -252,6 +253,7 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
   }) async {
     emit(
       state.copyWith(
+        searchText: filterHolidayName,
         filterBranchName: filterBranchName,
         filterDepartmentName: filterDepartmentName,
         filterFromHolidayDate: filterFromHolidayDate,
@@ -264,5 +266,34 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
     );
 
     await getHolidayMappingList(context: context, pageNumber: 1);
+  }
+
+  int updateHolidayMappingFilterCount(HolidayMappingMasterState state) {
+    final hasSort =
+        state.currentSortColumn == "Holiday Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+
+    final hasDateFilter =
+        state.filterFromHolidayDate != null &&
+        state.filterToHolidayDate != null;
+
+    final isValidDateRange =
+        hasDateFilter &&
+        !state.filterFromHolidayDate!.isAfter(
+          DateTime(
+            state.filterToHolidayDate!.year,
+            state.filterToHolidayDate!.month,
+            state.filterToHolidayDate!.day,
+          ),
+        );
+
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterBranchName.trim().isNotEmpty,
+      state.filterDepartmentName.trim().isNotEmpty,
+      hasSort,
+      isValidDateRange,
+    ]);
   }
 }

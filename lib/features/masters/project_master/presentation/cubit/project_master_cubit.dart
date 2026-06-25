@@ -111,6 +111,8 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     String? projectScheme,
     String? projectSubScheme,
     bool? isRedevelopment,
+    String? sortColumn,
+    String? sortDirection,
     bool? isClear,
   }) async {
     if (isClear ?? false) {
@@ -128,6 +130,8 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
           filterProjectScheme: '',
           filterProjectSubScheme: '',
           isRedevelopment: null,
+          currentSortColumn: "Created Date",
+          currentSortDirection: "DESC",
         ),
       );
     } else {
@@ -146,6 +150,8 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
           filterProjectSubScheme:
               projectSubScheme ?? state.filterProjectSubScheme,
           isRedevelopment: isRedevelopment ?? state.isRedevelopment,
+          currentSortColumn: sortColumn ?? state.currentSortColumn,
+          currentSortDirection: sortDirection ?? state.currentSortDirection,
         ),
       );
     }
@@ -173,6 +179,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         "RERANumber": state.filterRERANumber,
         "ProjectScheme": state.filterProjectScheme,
         "ProjectSubScheme": state.filterProjectSubScheme,
+        "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
         if (state.isRedevelopment != null)
           "IsRedevelopment": state.isRedevelopment! ? 1 : 0,
       },
@@ -1133,5 +1140,26 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         emit(state.copyWith(isLoading: false));
       },
     );
+  }
+
+  int updateFilterCount(ProjectMasterState state) {
+    final hasSort =
+        state.currentSortColumn == "Project Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterCTSNumber.trim().isNotEmpty,
+      state.filterProjectLocation.trim().isNotEmpty,
+      state.filterProjectStatus.trim().isNotEmpty,
+      state.filterVillage?.trim().isNotEmpty ?? false,
+      state.filterLiasoningArchitectName?.trim().isNotEmpty ?? false,
+      state.filterRERANumber?.trim().isNotEmpty ?? false,
+      state.filterProjectScheme?.trim().isNotEmpty ?? false,
+      state.filterProjectSubScheme?.trim().isNotEmpty ?? false,
+      state.isRedevelopment != null,
+      hasSort,
+    ]);
   }
 }

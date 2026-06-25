@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/data/model/ibm_obm_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/cubit/ibm_obm_report_state.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -9,23 +11,54 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import '../../data/repository/ibm_obm_report.repository.dart';
 
 class IbmObmReportCubit extends Cubit<IbmObmReportState> {
-  final IbmObmReportRepository ibmObmReportRepository;
+  IbmObmReportCubit() : super(IbmObmReportState.initial());
+  final IbmObmReportRepository ibmObmReportRepository =
+      serviceLocator<IbmObmReportRepository>();
 
-  IbmObmReportCubit({required this.ibmObmReportRepository})
-    : super(IbmObmReportState.initial());
+  void initializeViewFilters() {
+    emit(
+      state.copyWith(
+        viewFilterByFromDate: state.filterByFromDate,
+        viewFilterByToDate: state.filterByToDate,
+        viewFilterByYear: state.filterByYear,
+        viewFilterByReportType: state.filterByReportType,
+        viewReportList: [],
+      ),
+    );
+  }
 
   Future<void> getIbmObmReport({
+    required BuildContext context,
     required int pageNumber,
-    required int pageSize,
-    required int projectId,
-    Map<String, dynamic>? queryParams,
   }) async {
     emit(state.copyWith(isLoading: true));
+    final bool shouldCallApi =
+        state.filterByYear.isNotEmpty ||
+        (state.filterByFromDate != null && state.filterByToDate != null);
 
+    if (!shouldCallApi) {
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
+    var queryParams = {
+      "EmployeeName": state.searchText.trim(),
+      "Year": state.filterByYear,
+      "ProjectId": state.filterByProjectId,
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+    };
+    if (state.filterByFromDate != null) {
+      queryParams["FromDate"] = DateFormat(
+        'yyyy-MM-dd',
+      ).format(state.filterByFromDate!);
+    }
+    if (state.filterByToDate != null) {
+      queryParams["ToDate"] = DateFormat(
+        'yyyy-MM-dd',
+      ).format(state.filterByToDate!);
+    }
     final result = await ibmObmReportRepository.getIbmObmReport(
       pageNumber: pageNumber,
-      pageSize: pageSize,
-      projectId: projectId,
+      pageSize: 10,
       queryParams: queryParams,
     );
 
@@ -53,20 +86,86 @@ class IbmObmReportCubit extends Cubit<IbmObmReportState> {
     );
   }
 
+  Future<void> getIbmObmReportForView({
+    required BuildContext context,
+    required int pageNumber,
+    required int employeeId,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+    final bool shouldCallApi =
+        state.viewFilterByYear.isNotEmpty ||
+        (state.viewFilterByFromDate != null &&
+            state.viewFilterByToDate != null);
+
+    if (!shouldCallApi) {
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
+    var queryParams = {
+      "EmployeeId": employeeId,
+      "Year": state.viewFilterByYear,
+    };
+    if (state.viewFilterByFromDate != null) {
+      queryParams["FromDate"] = DateFormat(
+        'yyyy-MM-dd',
+      ).format(state.viewFilterByFromDate!);
+    }
+    if (state.viewFilterByToDate != null) {
+      queryParams["ToDate"] = DateFormat(
+        'yyyy-MM-dd',
+      ).format(state.viewFilterByToDate!);
+    }
+    final result = await ibmObmReportRepository.getIbmObmReport(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+      },
+      (response) {
+        final List<IbmObmReportModel> newData = List<IbmObmReportModel>.from(
+          response['data'] ?? [],
+        );
+
+        final updatedList =
+            pageNumber == 1 ? newData : [...state.viewReportList, ...newData];
+
+        emit(state.copyWith(isLoading: false, viewReportList: updatedList));
+      },
+    );
+  }
+
   Future<void> getIbmObmReportForExport(
     BuildContext context,
     String exportType, {
     required int pageNumber,
-    required int pageSize,
-    required int projectId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
+    var queryParams = {
+      "ExportType": exportType,
+      "EmployeeName": state.searchText.trim(),
+      "Year": state.filterByYear,
+      "ProjectId": state.filterByProjectId,
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+    };
+    if (state.filterByFromDate != null) {
+      queryParams["FromDate"] = DateFormat(
+        'yyyy-MM-dd',
+      ).format(state.filterByFromDate!);
+    }
+    if (state.filterByToDate != null) {
+      queryParams["ToDate"] = DateFormat(
+        'yyyy-MM-dd',
+      ).format(state.filterByToDate!);
+    }
 
     final result = await ibmObmReportRepository.getIbmObmReportForExport(
       pageNumber: pageNumber,
-      pageSize: pageSize,
-      projectId: projectId,
-      queryParams: {"ExportType": exportType},
+      pageSize: state.totalNumberOfRecord,
+      queryParams: queryParams,
     );
 
     goRouter.pop();
@@ -91,19 +190,77 @@ class IbmObmReportCubit extends Cubit<IbmObmReportState> {
     );
   }
 
-  void search(String value) {
+  void search({required BuildContext context, required String value}) {
     emit(state.copyWith(searchText: value));
+    getIbmObmReport(context: context, pageNumber: 1);
   }
 
   void applyIbmObmFilterAndSort({
+    required BuildContext context,
     required String column,
     required String direction,
+    String? reportType,
+    String? employeeName,
+    DateTime? fromDate,
+    DateTime? toDate,
+    String? year,
+    int? projectId,
   }) {
     emit(
       state.copyWith(
+        ibmObmReportList: [],
+        totalNumberOfRecord: 0,
         currentSortColumn: column,
         currentSortDirection: direction,
+        filterByReportType: reportType,
+        filterByFromDate: fromDate,
+        filterByToDate: toDate,
+        filterByYear: year,
+        searchText: employeeName,
+        filterByProjectId: projectId,
+        currentPageNumber: 1,
       ),
     );
+
+    getIbmObmReport(context: context, pageNumber: 1);
+  }
+
+  void applyIbmObmFilterForView({
+    required BuildContext context,
+    required int employeeId,
+    String? reportType,
+    DateTime? fromDate,
+    DateTime? toDate,
+    String? year,
+  }) {
+    emit(
+      state.copyWith(
+        viewReportList: [],
+        viewFilterByReportType: reportType,
+        viewFilterByFromDate: fromDate,
+        viewFilterByToDate: toDate,
+        viewFilterByYear: year,
+      ),
+    );
+
+    getIbmObmReportForView(
+      context: context,
+      pageNumber: 1,
+      employeeId: employeeId,
+    );
+  }
+
+  int updateFilterCount(IbmObmReportState state) {
+    final hasSort =
+        (state.currentSortColumn == "EmployeeName") &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterByProjectId != null,
+      state.filterByYear.trim().isNotEmpty ||
+          (state.filterByFromDate != null && state.filterByToDate != null),
+      hasSort,
+    ]);
   }
 }

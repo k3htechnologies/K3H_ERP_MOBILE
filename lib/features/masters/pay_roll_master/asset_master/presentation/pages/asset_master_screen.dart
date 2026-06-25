@@ -42,6 +42,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
       _filterAssetBrandC,
       _filterAssetModelC,
       _filterSerialNumberC;
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   @override
   void initState() {
@@ -60,6 +61,13 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     scrollController.dispose();
     _searchC.dispose();
     _filterAssetStatusC.dispose();
+    _filterAssetTypeC.dispose();
+    _filterAssetBrandC.dispose();
+    _filterAssetModelC.dispose();
+    _filterSerialNumberC.dispose();
+    scrollController.dispose();
+    _debounce?.cancel();
+    _filterCount.dispose();
     super.dispose();
   }
 
@@ -115,6 +123,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
   Future<void> _showBottomSheetToFilterAsset(BuildContext context) async {
     final state = _assetMasterCubit.state;
 
+    _searchC.text = state.searchText;
     _filterAssetStatusC.text = state.filterAssetStatus;
     _filterAssetTypeC.text = state.filterAssetType;
     _filterAssetBrandC.text = state.filterAssetBrand;
@@ -126,6 +135,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
             ? state.currentSortDirection
             : null;
 
+    final String initialAssetName = _searchC.text;
     final String initialAssetStatus = _filterAssetStatusC.text;
     final String initialAssetType = _filterAssetTypeC.text;
     final String initialAssetBrand = _filterAssetBrandC.text;
@@ -140,6 +150,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
+            (_searchC.text.trim() != initialAssetName) ||
             (_filterAssetStatusC.text.trim() != initialAssetStatus) ||
             (_filterAssetTypeC.text.trim() != initialAssetType) ||
             (_filterAssetBrandC.text.trim() != initialAssetBrand) ||
@@ -151,7 +162,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
       });
     }
 
-    DialogHelper.showCustomFilterBottomSheet(
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter Asset",
       contentWidget: StatefulBuilder(
@@ -212,7 +223,12 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                 ),
 
                 verticalSpacing(height: 20),
-
+                CustomTextField(
+                  title: "Asset Name",
+                  hint: "Enter Asset Name",
+                  textController: _searchC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
                 CustomTextField(
                   title: "Asset Type",
                   hint: "Enter Asset Type",
@@ -251,6 +267,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
       onClear: () {
         _assetMasterCubit.applyFilterAndSort(
           context: context,
+          filterAssetName: "",
           filterAssetStatus: "",
           filterAssetType: "",
           filterAssetBrand: "",
@@ -259,16 +276,18 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
           sortColumn: "Created Date",
           sortDirection: "DESC",
         );
+        _searchC.clear();
       },
       onApply: () {
         applied = true;
         _assetMasterCubit.applyFilterAndSort(
           context: context,
-          filterAssetStatus: _filterAssetStatusC.text,
-          filterAssetType: _filterAssetTypeC.text,
-          filterAssetBrand: _filterAssetBrandC.text,
-          filterAssetModel: _filterAssetModelC.text,
-          filterSerialNumber: _filterSerialNumberC.text,
+          filterAssetName: _searchC.text.trim(),
+          filterAssetStatus: _filterAssetStatusC.text.trim(),
+          filterAssetType: _filterAssetTypeC.text.trim(),
+          filterAssetBrand: _filterAssetBrandC.text.trim(),
+          filterAssetModel: _filterAssetModelC.text.trim(),
+          filterSerialNumber: _filterSerialNumberC.text.trim(),
           sortColumn: selectedDirection != null ? "Asset Name" : null,
           sortDirection: selectedDirection,
         );
@@ -288,172 +307,184 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.lightGreyBackground,
-      appBar: CustomAppBar(
-        screenTitle: "Asset Master",
-        authorization: _routeAuthorizationModel,
-        onSearchSubmit: (value) {
-          _assetMasterCubit.searchAsset(value, context);
-        },
-        textController: _searchC,
-        searchHintText: "Search by Asset Name",
-        onAddCallback: () async {
-          await goRouter.pushNamed(AppRoutes.addAssetMaster);
-          if (context.mounted) {
+    return BlocListener<AssetMasterCubit, AssetMasterState>(
+      listener: (context, state) {
+        _filterCount.value = _assetMasterCubit.updateFilterCount(state);
+      },
+      child: Scaffold(
+        backgroundColor: AppColor.lightGreyBackground,
+        appBar: CustomAppBar(
+          screenTitle: "Asset Master",
+          authorization: _routeAuthorizationModel,
+          onSearchSubmit: (value) {
+            _assetMasterCubit.searchAsset(value, context);
+          },
+          textController: _searchC,
+          searchHintText: "Search by Asset Name",
+          onAddCallback: () async {
+            await goRouter.pushNamed(AppRoutes.addAssetMaster);
+            if (context.mounted) {
+              _assetMasterCubit.searchAsset("", context);
+            }
+          },
+          onExportCallback: (value) {
+            if (_assetMasterCubit.state.totalNumberOfRecord == 0) {
+              showErrorMessage(context, "Error", "No Data Found");
+              return;
+            }
+            _assetMasterCubit.exportExcelPdf(context, value);
+          },
+          filterCountNotifier: _filterCount,
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterAsset(context);
+          },
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            _searchC.clear();
             _assetMasterCubit.searchAsset("", context);
-          }
-        },
-        onExportCallback: (value) {
-          if (_assetMasterCubit.state.totalNumberOfRecord == 0) {
-            showErrorMessage(context, "Error", "No Data Found");
-            return;
-          }
-          _assetMasterCubit.exportExcelPdf(context, value);
-        },
-        isFilterOn: true,
-        onFilterTap: () {
-          _showBottomSheetToFilterAsset(context);
-        },
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _searchC.clear();
-          _assetMasterCubit.searchAsset("", context);
-        },
-        child: BlocBuilder<AssetMasterCubit, AssetMasterState>(
-          builder: (context, state) {
-            if ((state.isLoading ?? true) && state.assetList.isEmpty) {
-              return Center(child: loader());
-            }
-            if (state.assetList.isEmpty) {
-              return ListView(
-                physics: AlwaysScrollableScrollPhysics(),
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    child: Center(
-                      child: noDataWidget(message: "No Assets Found"),
+          },
+          child: BlocBuilder<AssetMasterCubit, AssetMasterState>(
+            builder: (context, state) {
+              if ((state.isLoading ?? true) && state.assetList.isEmpty) {
+                return Center(child: loader());
+              }
+              if (state.assetList.isEmpty) {
+                return ListView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height,
+                      child: Center(
+                        child: noDataWidget(message: "No Assets Found"),
+                      ),
                     ),
-                  ),
-                ],
-              );
-            }
-            return ListView.builder(
-              controller: scrollController,
-              physics: AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              itemCount: state.assetList.length + 1,
-              itemBuilder: (context, index) {
-                if (index == state.assetList.length) {
-                  return state.assetList.length < state.totalNumberOfRecord
-                      ? const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                      : const SizedBox.shrink();
-                }
-                var asset = state.assetList[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(12),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: GestureDetector(
-                              onTap: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.viewAssetMaster,
-                                  queryParameters: {
-                                    "asset": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(asset.toJson()),
+                  ],
+                );
+              }
+              return ListView.builder(
+                controller: scrollController,
+                physics: AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                itemCount: state.assetList.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == state.assetList.length) {
+                    return state.assetList.length < state.totalNumberOfRecord
+                        ? const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : const SizedBox.shrink();
+                  }
+                  var asset = state.assetList[index];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(12),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () {
+                                  goRouter.pushNamed(
+                                    AppRoutes.viewAssetMaster,
+                                    queryParameters: {
+                                      "asset": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(asset.toJson()),
+                                        ),
                                       ),
+                                    },
+                                  );
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 0,
+                                    vertical: 4,
+                                  ),
+                                  child: Text(
+                                    asset.assetName,
+                                    style: AppTextStyle.ts16M(
+                                      color: AppColor.primary,
+                                    ).copyWith(
+                                      decoration: TextDecoration.underline,
+                                      decorationColor: AppColor.primary,
                                     ),
-                                  },
-                                );
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 0,
-                                  vertical: 4,
-                                ),
-                                child: Text(
-                                  asset.assetName,
-                                  style: AppTextStyle.ts16M(
-                                    color: AppColor.primary,
-                                  ).copyWith(
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: AppColor.primary,
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          Row(
-                            spacing: 10,
-                            children: [
-                              if (asset.status.toLowerCase() != "booked") ...[
-                                CustomIconButton.edit(
-                                  onPressed: () async {
-                                    await goRouter.pushNamed(
-                                      AppRoutes.addAssetMaster,
-                                      queryParameters: {
-                                        "asset": Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(asset.toJson()),
+                            Row(
+                              spacing: 10,
+                              children: [
+                                if (asset.status.toLowerCase() != "booked") ...[
+                                  CustomIconButton.edit(
+                                    onPressed: () async {
+                                      await goRouter.pushNamed(
+                                        AppRoutes.addAssetMaster,
+                                        queryParameters: {
+                                          "asset": Uri.encodeQueryComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(asset.toJson()),
+                                            ),
                                           ),
-                                        ),
-                                        'index': index.toString(),
-                                      },
-                                    );
-                                  },
-                                ),
-                                CustomIconButton.delete(
-                                  onPressed: () {
-                                    _showPopupToDeleteAssetMaster(
-                                      context,
-                                      asset,
-                                      state.currentPage,
-                                      index,
-                                    );
-                                  },
-                                ),
+                                          'index': index.toString(),
+                                        },
+                                      );
+                                    },
+                                  ),
+                                  CustomIconButton.delete(
+                                    onPressed: () {
+                                      _showPopupToDeleteAssetMaster(
+                                        context,
+                                        asset,
+                                        state.currentPage,
+                                        index,
+                                      );
+                                    },
+                                  ),
+                                ],
+                                _buildStatusWidget(asset.status),
                               ],
-                              _buildStatusWidget(asset.status),
-                            ],
-                          ),
-                        ],
-                      ),
-                      verticalSpacing(height: 8),
-                      buildRowTitleValue(title: "Code", value: asset.assetCode),
-                      buildRowTitleValue(
-                        title: "Asset Type",
-                        value: asset.assetType,
-                      ),
-                      buildRowTitleValue(
-                        title: "Brand",
-                        value: asset.assetBrand,
-                      ),
-                      buildRowTitleValue(
-                        title: "Model",
-                        value: asset.assetModel,
-                      ),
-                      buildRowTitleValue(
-                        title: "Serial Number",
-                        value: asset.serialNumber,
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(height: 8),
+                        buildRowTitleValue(
+                          title: "Code",
+                          value: asset.assetCode,
+                        ),
+                        buildRowTitleValue(
+                          title: "Asset Type",
+                          value: asset.assetType,
+                        ),
+                        buildRowTitleValue(
+                          title: "Brand",
+                          value: asset.assetBrand,
+                        ),
+                        buildRowTitleValue(
+                          title: "Model",
+                          value: asset.assetModel,
+                        ),
+                        buildRowTitleValue(
+                          title: "Serial Number",
+                          value: asset.serialNumber,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );

@@ -59,11 +59,13 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
   final ValueNotifier<DateTime?> _endDateNotifier = ValueNotifier<DateTime?>(
     null,
   );
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   @override
   void initState() {
     super.initState();
     _brokerageCubit = context.read<BrokerageCubit>();
+    _brokerageCubit.resetState();
     _initializeTextEditingController();
     _project = getProject();
     _routeAuthorizationModel =
@@ -74,9 +76,20 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
 
   @override
   void dispose() {
-    super.dispose();
-    scrollController.dispose();
     _searchC.dispose();
+    _filterCpCompanyC.dispose();
+    _filterCpMobileNoC.dispose();
+    _filterApplicantNameC.dispose();
+    _filterApplicantMobileNoC.dispose();
+    _filterWingC.dispose();
+    _filterFlatC.dispose();
+    _filterFloorC.dispose();
+    _filterAgreementValueC.dispose();
+    _filterBookingTypeC.dispose();
+    _filterCount.dispose();
+    scrollController.dispose();
+
+    super.dispose();
   }
 
   void _initializeTextEditingController() {
@@ -117,6 +130,7 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
   Future<void> _showBottomSheetToFilterBrokerage(BuildContext context) async {
     final s = _brokerageCubit.state;
 
+    _searchC.text = s.searchText;
     _filterCpCompanyC.text = s.filterCpCompany;
     _filterCpMobileNoC.text = s.filterCpMobileNo;
     _filterApplicantNameC.text = s.filterApplicantName;
@@ -134,12 +148,14 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
     _endDateNotifier.value = s.filterByToDate;
 
     bool manualClose = false;
+    bool applied = false;
 
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
 
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
+            _searchC.text.trim() != s.searchText ||
             _filterCpCompanyC.text.trim() != s.filterCpCompany ||
             _filterCpMobileNoC.text.trim() != s.filterCpMobileNo ||
             _filterApplicantNameC.text.trim() != s.filterApplicantName ||
@@ -171,6 +187,12 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
               children: [
                 verticalSpacing(),
 
+                CustomTextField(
+                  textController: _searchC,
+                  title: "CP Name",
+                  hint: 'Enter CP Name',
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
                 CustomTextField(
                   textController: _filterCpCompanyC,
                   title: "CP Company",
@@ -324,12 +346,14 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
         _filterFloorC.clear();
         _filterAgreementValueC.clear();
         _filterBookingTypeC.clear();
+        _searchC.clear();
 
         _startDateNotifier.value = null;
         _endDateNotifier.value = null;
 
         _brokerageCubit.applyFilterAndSort(
           context: context,
+          filterCpName: '',
           projectId: _project.projectId,
           filterByFromDate: null,
           filterByToDate: null,
@@ -346,6 +370,7 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
       },
 
       onApply: () {
+        applied = true;
         final startDate = _startDateNotifier.value;
 
         final endDate = _endDateNotifier.value;
@@ -375,6 +400,7 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
           projectId: _project.projectId,
           filterByFromDate: startDate,
           filterByToDate: endDate,
+          filterCpName: _searchC.text.trim(),
           filterCpCompany: _filterCpCompanyC.text.trim(),
           filterCpMobileNo: _filterCpMobileNoC.text.trim(),
           filterApplicantName: _filterApplicantNameC.text.trim(),
@@ -391,154 +417,161 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
+    if (!applied && manualClose) {
+      _searchC.clear();
+      _filterWingC.clear();
+      _filterFloorC.clear();
+      _filterFlatC.clear();
+      _filterCpMobileNoC.clear();
+      _filterCpCompanyC.clear();
+      _filterBookingTypeC.clear();
+      _filterApplicantNameC.clear();
+      _filterApplicantMobileNoC.clear();
+      _filterAgreementValueC.clear();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Brokerage",
-        authorization: _routeAuthorizationModel,
-        searchHintText: "Search by CP Name",
-        isFilterOn: true,
-        onFilterTap: () {
-          _showBottomSheetToFilterBrokerage(context);
-        },
-        onSearchSubmit: (value) {
-          _brokerageCubit.searchBrokerage(context, value, _project.projectId);
-        },
-        textController: _searchC,
-        onExportCallback: (value) {
-          _brokerageCubit.exportExcelPdf(context, value, _project.projectId);
-        },
-        onProjectChangeCallback: (value) {
-          _project = value;
-          _brokerageCubit.applyFilterAndSort(
-            context: context,
-            projectId: _project.projectId,
-            filterByFromDate: null,
-            filterByToDate: null,
-            filterCpCompany: '',
-            filterCpMobileNo: '',
-            filterApplicantName: '',
-            filterApplicantMobileNo: '',
-            filterWing: '',
-            filterFlat: '',
-            filterFloor: '',
-            filterAgreementValue: 0,
-            filterBookingType: '',
-          );
-          _brokerageCubit.searchBrokerage(context, "", value.projectId);
-        },
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _searchC.clear();
-          _brokerageCubit.searchBrokerage(context, "", _project.projectId);
-        },
-        child: BlocBuilder<BrokerageCubit, BrokerageState>(
-          builder: (context, state) {
-            if ((state.isLoading ?? true) && state.brokerageList.isEmpty) {
-              return Center(child: loader());
-            }
-            if (state.brokerageList.isEmpty) {
-              return ListView(
-                physics: AlwaysScrollableScrollPhysics(),
-                children: [
-                  SizedBox(
-                    height: getActualHeight(context) * .7,
-                    child: Center(
-                      child: noDataWidget(
-                        message: "No Brokerage Booking Data Found",
+    return BlocListener<BrokerageCubit, BrokerageState>(
+      listener: (context, state) {
+        _filterCount.value = _brokerageCubit.updateFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "Brokerage",
+          authorization: _routeAuthorizationModel,
+          searchHintText: "Search by CP Name",
+          isFilterOn: true,
+          filterCountNotifier: _filterCount,
+          onFilterTap: () {
+            _showBottomSheetToFilterBrokerage(context);
+          },
+          onSearchSubmit: (value) {
+            _brokerageCubit.searchBrokerage(context, value, _project.projectId);
+          },
+          textController: _searchC,
+          onExportCallback: (value) {
+            _brokerageCubit.exportExcelPdf(context, value, _project.projectId);
+          },
+          onProjectChangeCallback: (value) {
+            _project = value;
+            _brokerageCubit.resetState();
+            _brokerageCubit.searchBrokerage(context, "", value.projectId);
+          },
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            _searchC.clear();
+            _brokerageCubit.searchBrokerage(context, "", _project.projectId);
+          },
+          child: BlocBuilder<BrokerageCubit, BrokerageState>(
+            builder: (context, state) {
+              if ((state.isLoading ?? true) && state.brokerageList.isEmpty) {
+                return Center(child: loader());
+              }
+              if (state.brokerageList.isEmpty) {
+                return ListView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: getActualHeight(context) * .7,
+                      child: Center(
+                        child: noDataWidget(
+                          message: "No Brokerage Booking Data Found",
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              );
-            }
-            return ListView.builder(
-              controller: scrollController,
+                  ],
+                );
+              }
+              return ListView.builder(
+                controller: scrollController,
 
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              itemCount: _brokerageCubit.state.brokerageList.length + 1,
-              itemBuilder: (context, index) {
-                if (index == state.brokerageList.length) {
-                  return state.brokerageList.length < state.totalNumberOfRecord
-                      ? Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                      : const SizedBox.shrink();
-                }
-                var brokerage = state.brokerageList[index];
-                return Container(
-                  margin: EdgeInsets.only(bottom: 10),
-                  padding: EdgeInsets.all(12),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () async {
-                                await _brokerageCubit.resetSearch();
-                                await _brokerageCubit.clearInvoiceAndPayment();
-                                goRouter.pushNamed(
-                                  AppRoutes.viewBrokerage,
-                                  queryParameters: {
-                                    "brokerage": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(brokerage.toJson()),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                itemCount: _brokerageCubit.state.brokerageList.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == state.brokerageList.length) {
+                    return state.brokerageList.length <
+                            state.totalNumberOfRecord
+                        ? Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : const SizedBox.shrink();
+                  }
+                  var brokerage = state.brokerageList[index];
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 10),
+                    padding: EdgeInsets.all(12),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () async {
+                                  await _brokerageCubit.resetSearch();
+                                  await _brokerageCubit
+                                      .clearInvoiceAndPayment();
+                                  goRouter.pushNamed(
+                                    AppRoutes.viewBrokerage,
+                                    queryParameters: {
+                                      "brokerage": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(brokerage.toJson()),
+                                        ),
                                       ),
-                                    ),
-                                  },
-                                );
-                              },
-                              child: Text(
-                                brokerage.channelPartnerName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
+                                    },
+                                  );
+                                },
+                                child: Text(
+                                  brokerage.channelPartnerName,
+                                  style: AppTextStyle.ts16M(
+                                    color: AppColor.primary,
+                                  ).copyWith(
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColor.primary,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      buildRowTitleValue(
-                        title: "Company Name",
-                        value: brokerage.channelPartnerCompany,
-                      ),
-                      buildRowTitleValue(
-                        title: "Mobile No.",
-                        value: brokerage.channelPartnerMobileNumber,
-                      ),
-                      buildRowTitleValue(
-                        title: "Brokerage Amount",
-                        value: brokerage.brokerageAmount.toIndianCurrency(),
-                      ),
-                      buildRowTitleValue(
-                        title: "Raised Invoice Amount",
-                        value: 0.toIndianCurrency(),
-                      ),
+                          ],
+                        ),
+                        buildRowTitleValue(
+                          title: "Company Name",
+                          value: brokerage.channelPartnerCompany,
+                        ),
+                        buildRowTitleValue(
+                          title: "Mobile No.",
+                          value: brokerage.channelPartnerMobileNumber,
+                        ),
+                        buildRowTitleValue(
+                          title: "Brokerage Amount",
+                          value: brokerage.brokerageAmount.toIndianCurrency(),
+                        ),
+                        buildRowTitleValue(
+                          title: "Raised Invoice Amount",
+                          value: 0.toIndianCurrency(),
+                        ),
 
-                      buildRowTitleValue(
-                        title: "Paid Amount",
-                        value: brokerage.paidBrokerageAmount.toIndianCurrency(),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
+                        buildRowTitleValue(
+                          title: "Paid Amount",
+                          value:
+                              brokerage.paidBrokerageAmount.toIndianCurrency(),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );

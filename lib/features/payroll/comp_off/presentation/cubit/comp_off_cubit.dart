@@ -300,9 +300,9 @@ class CompOffCubit extends Cubit<CompOffState> {
     getCompOffList(context, 1);
   }
 
-  // <---- CLEAR FILTER ON COMP OFF ---->
-  void clearFilterOnCompOff(BuildContext context) {
-    emit(state.copyWith(clearFilters: true, compOffList: [], currentPage: 1));
-    getCompOffList(context, 1);
+  int updateFilterCount(CompOffState state) {
+    return getActiveFilterCount([
+      (state.filterStartDate != null && state.filterEndDate != null),
+    ]);
   }
 }

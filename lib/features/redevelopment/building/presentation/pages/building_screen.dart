@@ -44,6 +44,8 @@ class _BuildingScreenState extends State<BuildingScreen> {
   // TEXT EDITING CONTROLLER
   late TextEditingController _searchC, _filterCTSNumberC;
 
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
+
   @override
   void initState() {
     super.initState();
@@ -67,6 +69,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
     scrollController.dispose();
     _searchC.dispose();
     _filterCTSNumberC.dispose();
+    _filterCount.dispose();
     super.dispose();
   }
 
@@ -116,12 +119,13 @@ class _BuildingScreenState extends State<BuildingScreen> {
     final state = _buildingCubit.state;
 
     _filterCTSNumberC.text = state.filterCTSNumber;
-
+    _searchC.text = state.searchText;
     String? selectedDirection =
         state.currentSortColumn == "Building Name"
             ? state.currentSortDirection
             : null;
 
+    final String initialBuildingName = _searchC.text;
     final String initialCTSNumber = _filterCTSNumberC.text;
     final String? initialDirection = selectedDirection;
 
@@ -132,13 +136,14 @@ class _BuildingScreenState extends State<BuildingScreen> {
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
+            (_searchC.text.trim() != initialBuildingName) ||
             (_filterCTSNumberC.text.trim() != initialCTSNumber) ||
             (selectedDirection != initialDirection);
         applyEnabled.value = manualClose;
       });
     }
 
-    DialogHelper.showCustomFilterBottomSheet(
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter Building",
       contentWidget: StatefulBuilder(
@@ -200,6 +205,12 @@ class _BuildingScreenState extends State<BuildingScreen> {
                 ),
                 verticalSpacing(height: 20),
                 CustomTextField(
+                  title: "Building Name",
+                  hint: "Enter Building Name",
+                  textController: _searchC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
                   title: "CTS Number",
                   hint: "Enter CTS Number",
                   textController: _filterCTSNumberC,
@@ -216,6 +227,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
           context: context,
           projectId: _project.projectId,
           filterCTSNumber: "",
+          filterBuildingName: "",
           sortColumn: "Created Date",
           sortDirection: "DESC",
         );
@@ -224,6 +236,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
         applied = true;
         _buildingCubit.applyFilterAndSort(
           context: context,
+          filterBuildingName: _searchC.text,
           filterCTSNumber: _filterCTSNumberC.text,
           projectId: _project.projectId,
           sortColumn: selectedDirection != null ? "Building Name" : null,
@@ -236,172 +249,185 @@ class _BuildingScreenState extends State<BuildingScreen> {
 
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
+      _searchC.clear();
       _filterCTSNumberC.clear();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Building",
-        authorization: _routeAuthorizationModel,
-        onSearchSubmit: (value) {
-          _buildingCubit.searchBuilding(context, _project.projectId, value);
-        },
-        textController: _searchC,
-        onAddCallback: () async {
-          await goRouter.pushNamed(
-            AppRoutes.addBuilding,
-            queryParameters: {'projectId': _project.projectId.toString()},
-          );
-          if (context.mounted) {
-            _buildingCubit.getBuildingList(context, 1, _project.projectId);
-          }
-        },
-        onExportCallback: (value) {
-          _buildingCubit.exportExcelPdf(context, value, _project.projectId);
-        },
-        onProjectChangeCallback: (project) {
-          _project = project;
-          _buildingCubit.searchBuilding(context, _project.projectId, "");
-        },
-        isFilterOn: true,
-        onFilterTap: () {
-          _showBottomSheetToFilterBuilding(context);
-        },
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: BlocBuilder<BuildingCubit, BuildingState>(
-              key: ValueKey('building_list_${_project.projectId}'),
-              bloc: _buildingCubit,
-              builder: (context, state) {
-                if (state.isLoading == true && state.buildingList.isEmpty) {
-                  return Center(child: loader());
-                }
-                if (state.buildingList.isEmpty) {
-                  return Center(child: noDataWidget());
-                }
-                return ListView.builder(
-                  controller: scrollController,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  itemCount: state.buildingList.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == state.buildingList.length) {
-                      return state.buildingList.length <
-                              state.totalNumberOfRecord
-                          ? const Padding(
-                            padding: EdgeInsets.all(16),
-                            child: Center(child: CircularProgressIndicator()),
-                          )
-                          : const SizedBox.shrink();
-                    }
-                    var building = state.buildingList[index];
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      padding: const EdgeInsets.all(12),
-                      decoration: commonCardDecoration(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            spacing: 10,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Flexible(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    goRouter.pushNamed(
-                                      AppRoutes.viewBuilding,
-                                      queryParameters: {
-                                        "building": Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(building.toJson()),
-                                          ),
-                                        ),
-                                      },
-                                    );
-                                  },
-                                  child: Text(
-                                    building.buildingName,
-                                    style: AppTextStyle.ts16M(
-                                      color: AppColor.primary,
-                                    ).copyWith(
-                                      decoration: TextDecoration.underline,
-                                      decorationColor: AppColor.primary,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Row(
-                                children: [
-                                  CustomIconButton.edit(
-                                    onPressed: () async {
-                                      await goRouter.pushNamed(
-                                        AppRoutes.addBuilding,
+    return BlocListener<BuildingCubit, BuildingState>(
+      listener: (context, state) {
+        _filterCount.value = _buildingCubit.updateFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "Building",
+          searchHintText: "Search By Building Name",
+          authorization: _routeAuthorizationModel,
+          onSearchSubmit: (value) {
+            _buildingCubit.searchBuilding(context, _project.projectId, value);
+          },
+          textController: _searchC,
+          onAddCallback: () async {
+            await goRouter.pushNamed(
+              AppRoutes.addBuilding,
+              queryParameters: {'projectId': _project.projectId.toString()},
+            );
+            if (context.mounted) {
+              _buildingCubit.getBuildingList(context, 1, _project.projectId);
+            }
+          },
+          onExportCallback: (value) {
+            _buildingCubit.exportExcelPdf(context, value, _project.projectId);
+          },
+          onProjectChangeCallback: (project) {
+            _project = project;
+            _buildingCubit.searchBuilding(context, _project.projectId, "");
+          },
+          isFilterOn: true,
+          filterCountNotifier: _filterCount,
+          onFilterTap: () {
+            _showBottomSheetToFilterBuilding(context);
+          },
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: BlocBuilder<BuildingCubit, BuildingState>(
+                key: ValueKey('building_list_${_project.projectId}'),
+                bloc: _buildingCubit,
+                builder: (context, state) {
+                  if (state.isLoading == true && state.buildingList.isEmpty) {
+                    return Center(child: loader());
+                  }
+                  if (state.buildingList.isEmpty) {
+                    return Center(
+                      child: noDataWidget(message: "No Buildings Data Found"),
+                    );
+                  }
+                  return ListView.builder(
+                    controller: scrollController,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    itemCount: state.buildingList.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == state.buildingList.length) {
+                        return state.buildingList.length <
+                                state.totalNumberOfRecord
+                            ? const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                            : const SizedBox.shrink();
+                      }
+                      var building = state.buildingList[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(12),
+                        decoration: commonCardDecoration(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              spacing: 10,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      goRouter.pushNamed(
+                                        AppRoutes.viewBuilding,
                                         queryParameters: {
                                           "building": Uri.encodeQueryComponent(
                                             EncryptionManager.encryptData(
                                               jsonEncode(building.toJson()),
                                             ),
                                           ),
-                                          'index': index.toString(),
-                                          'projectId':
-                                              _project.projectId.toString(),
                                         },
                                       );
                                     },
+                                    child: Text(
+                                      building.buildingName,
+                                      style: AppTextStyle.ts16M(
+                                        color: AppColor.primary,
+                                      ).copyWith(
+                                        decoration: TextDecoration.underline,
+                                        decorationColor: AppColor.primary,
+                                      ),
+                                    ),
                                   ),
-                                  const SizedBox(width: 8),
-                                  CustomIconButton.delete(
-                                    onPressed: () {
-                                      _showPopupToDeleteBuilding(
-                                        context,
-                                        building,
-                                        state.currentPage,
-                                        index,
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          verticalSpacing(height: 8),
-                          buildRowTitleValue(
-                            title: "CTS Number",
-                            value: building.ctsNumber,
-                          ),
-                          buildRowTitleValue(
-                            title: "Total Plot Area(Sq. ft)",
-                            value: building.totalPlotAreaSqFt.toString(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Road Width",
-                            value: building.roadWidth,
-                          ),
-                          buildRowTitleValue(
-                            title: "Total Floor",
-                            value: building.numberOfFloors.toString(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Total Units",
-                            value: building.totalNumberOfUnits.toString(),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
+                                ),
+                                Row(
+                                  children: [
+                                    CustomIconButton.edit(
+                                      onPressed: () async {
+                                        await goRouter.pushNamed(
+                                          AppRoutes.addBuilding,
+                                          queryParameters: {
+                                            "building":
+                                                Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(
+                                                      building.toJson(),
+                                                    ),
+                                                  ),
+                                                ),
+                                            'index': index.toString(),
+                                            'projectId':
+                                                _project.projectId.toString(),
+                                          },
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(width: 8),
+                                    CustomIconButton.delete(
+                                      onPressed: () {
+                                        _showPopupToDeleteBuilding(
+                                          context,
+                                          building,
+                                          state.currentPage,
+                                          index,
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(height: 8),
+                            buildRowTitleValue(
+                              title: "CTS Number",
+                              value: building.ctsNumber,
+                            ),
+                            buildRowTitleValue(
+                              title: "Total Plot Area(Sq. ft)",
+                              value: building.totalPlotAreaSqFt.toString(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Road Width",
+                              value: building.roadWidth,
+                            ),
+                            buildRowTitleValue(
+                              title: "Total Floor",
+                              value: building.numberOfFloors.toString(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Total Units",
+                              value: building.totalNumberOfUnits.toString(),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

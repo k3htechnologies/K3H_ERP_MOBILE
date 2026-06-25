@@ -8,7 +8,7 @@ import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/achivement_drill_down_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/channel_partner_sourcing.model.dart';
-import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/cubit/achievement_report.state.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/cubit/achievement_report_state.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/cubit/achievement_report_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -47,14 +47,14 @@ class AchievementDrillDownReportScreen extends StatefulWidget {
 
 class _AchievementDrillDownReportScreenState
     extends State<AchievementDrillDownReportScreen> {
-  late AchievementCubit _achievementCubit;
+  late AchievementReportCubit _achievementCubit;
   late AuthorizationModel _routeAuthorizationModel;
   late ScrollController scrollController;
   Timer? _debounce;
 
   @override
   void initState() {
-    _achievementCubit = context.read<AchievementCubit>();
+    _achievementCubit = context.read<AchievementReportCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.achievementReport]!;
     _achievementCubit.getAchievementDrillDownReportList(
@@ -117,6 +117,11 @@ class _AchievementDrillDownReportScreenState
         screenTitle: getScreenTitle(),
         authorization: _routeAuthorizationModel,
         onExportCallback: (exportType) {
+          if (_achievementCubit.state.achievementDrillDownTotalNumberOfRecord ==
+              0) {
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _achievementCubit.exportAchievementDrillDownExcelPdf(
             context,
             exportType,
@@ -173,7 +178,7 @@ class _AchievementDrillDownReportScreenState
             ),
             verticalSpacing(),
             Expanded(
-              child: BlocBuilder<AchievementCubit, AchievementState>(
+              child: BlocBuilder<AchievementReportCubit, AchievementState>(
                 builder: (context, state) {
                   if ((state.isLoading ?? true) &&
                       state.achievementDrillDownReportList.isEmpty) {

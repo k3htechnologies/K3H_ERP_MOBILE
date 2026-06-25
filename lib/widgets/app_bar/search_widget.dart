@@ -14,7 +14,7 @@ class SearchWidget extends StatefulWidget {
 
   final String hintText;
   final bool isFilterOn;
-
+  final ValueNotifier<int>? filterCountNotifier;
   const SearchWidget({
     super.key,
     required this.onSubmit,
@@ -23,6 +23,7 @@ class SearchWidget extends StatefulWidget {
     this.hintText = "Search...",
     this.isFilterOn = false,
     this.textControllerInputType = TextInputType.text,
+    this.filterCountNotifier,
   });
 
   @override
@@ -96,24 +97,62 @@ class _SearchWidgetState extends State<SearchWidget> {
           ),
 
           // FILTER ICON
+          // FILTER ICON WITH BADGE
           if (widget.isFilterOn) ...[
             GestureDetector(
               onTap: widget.onFilterTap,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: AppColor.lightBlue,
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                child: SvgPicture.asset(
-                  AppAssets.filterIcon,
-                  colorFilter: const ColorFilter.mode(
-                    AppColor.primary,
-                    BlendMode.srcIn,
-                  ),
-                  width: 14,
-                  height: 14,
-                ),
+              child: ValueListenableBuilder<int>(
+                valueListenable:
+                    widget.filterCountNotifier ?? ValueNotifier<int>(0),
+                builder: (context, filterCount, child) {
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: AppColor.lightBlue,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        child: SvgPicture.asset(
+                          AppAssets.filterIcon,
+                          colorFilter: const ColorFilter.mode(
+                            AppColor.primary,
+                            BlendMode.srcIn,
+                          ),
+                          width: 14,
+                          height: 14,
+                        ),
+                      ),
+
+                      if (filterCount > 0)
+                        Positioned(
+                          top: -6,
+                          right: -6,
+                          child: Container(
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            padding: const EdgeInsets.all(2),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              filterCount > 99 ? '99+' : '$filterCount',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
               ),
             ),
           ],

@@ -20,10 +20,11 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 import '../../../../../../core/encryption_manager.dart';
-import '../cubit/achievement_report.state.dart';
+import '../cubit/achievement_report_state.dart';
 import '../cubit/achievement_report_cubit.dart';
 
 class AchievementReportScreen extends StatefulWidget {
@@ -36,11 +37,11 @@ class AchievementReportScreen extends StatefulWidget {
 
 class _AchievementReportScreenState extends State<AchievementReportScreen>
     with TickerProviderStateMixin {
-  late AchievementCubit _achievementCubit;
+  late AchievementReportCubit _achievementCubit;
   late AuthorizationModel _routeAuthorizationModel;
   TabController? _primaryTabController;
   TabController? _secondaryTabController;
-  late TextEditingController _searchTextC;
+  late TextEditingController _searchC;
   final ValueNotifier<String> _searchTextNotifier = ValueNotifier<String>(
     'Search By Project Name',
   );
@@ -60,10 +61,11 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
   Timer? _closingDebounce;
   late ScrollController _sourcingScrollController;
   Timer? _sourcingDebounce;
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   @override
   void initState() {
-    _achievementCubit = context.read<AchievementCubit>();
+    _achievementCubit = context.read<AchievementReportCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.achievementReport]!;
     _primaryTabController = TabController(length: 5, vsync: this);
@@ -79,7 +81,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
     );
     _primaryTabController!.addListener(_primaryTabListener);
     _secondaryTabController!.addListener(_secondaryTabListener);
-    _searchTextC = TextEditingController();
+    _searchC = TextEditingController();
     _onScroll();
     super.initState();
   }
@@ -88,13 +90,14 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
   void dispose() {
     _primaryTabController?.dispose();
     _secondaryTabController?.dispose();
-    _searchTextC.dispose();
+    _searchC.dispose();
     _filterTypeNotifier.dispose();
     _fromDateNotifier.dispose();
     _toDateNotifier.dispose();
     _projectScrollController.dispose();
     _closingScrollController.dispose();
     _sourcingScrollController.dispose();
+    _filterCount.dispose();
     super.dispose();
   }
 
@@ -155,7 +158,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
     if (isIndexChangeCheck) {
       if (_secondaryTabController?.indexIsChanging ?? false) return;
     }
-    _searchTextC.clear();
+    _searchC.clear();
     _achievementCubit.resetState();
 
     switch (_secondaryTabController?.index) {
@@ -191,7 +194,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
         break;
       default:
         _searchTextNotifier.value = 'Search By Project Name';
-        _searchTextC.clear();
+        _searchC.clear();
     }
   }
 
@@ -281,20 +284,26 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
             : state.currentSortColumn == "Employee Name"
             ? state.currentSortDirection
             : null;
+    _searchC.text = state.searchText;
 
+    final String initialSearchText = _searchC.text;
     final String? initialDirection = selectedDirection;
 
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
 
     bool applied = false;
+    bool manualClose = false;
 
     void updateApplyState(StateSetter innerState) {
       innerState(() {
-        applyEnabled.value = selectedDirection != initialDirection;
+        manualClose =
+            _searchC.text != initialSearchText ||
+            selectedDirection != initialDirection;
+        applyEnabled.value = manualClose;
       });
     }
 
-    DialogHelper.showCustomFilterBottomSheet(
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter - Achievement",
 
@@ -365,6 +374,19 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                     ),
                   ],
                 ),
+                verticalSpacing(height: 20),
+                CustomTextField(
+                  textController: _searchC,
+                  hint:
+                      _secondaryTabController?.index == 0
+                          ? "Enter Project Name"
+                          : "Enter Employee Name",
+                  title:
+                      _secondaryTabController?.index == 0
+                          ? "Project Name"
+                          : "Employee Name",
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
               ],
             ),
           );
@@ -373,10 +395,10 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
 
       onClear: () {
         selectedDirection = null;
-
+        _searchC.clear();
         _achievementCubit.applyAchievementFilterAndSort(
           context: context,
-
+          searchText: '',
           sortColumn: '',
           sortDirection: '',
           activeSecondaryTabIndex: _secondaryTabController?.index ?? 0,
@@ -394,6 +416,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                       ? "Project Name"
                       : "Employee Name")
                   : null,
+          searchText: _searchC.text.trim(),
           sortDirection: selectedDirection,
           activeSecondaryTabIndex: _secondaryTabController?.index ?? 0,
         );
@@ -404,8 +427,9 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
     );
 
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
-    if (!applied) {
+    if (!applied && manualClose) {
       selectedDirection = initialDirection;
+      _searchC.text = initialSearchText;
     }
   }
 
@@ -490,7 +514,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
           _buildSearchBar(),
           verticalSpacing(),
           Expanded(
-            child: BlocBuilder<AchievementCubit, AchievementState>(
+            child: BlocBuilder<AchievementReportCubit, AchievementState>(
               builder: (context, state) {
                 if ((state.isLoading ?? false) &&
                     state.projectAchievementReportList.isEmpty) {
@@ -505,7 +529,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                 }
                 return RefreshIndicator(
                   onRefresh: () async {
-                    _searchTextC.clear();
+                    _searchC.clear();
                     _achievementCubit.getProjectAchievementReport(
                       context: context,
                       pageNumber: 1,
@@ -860,7 +884,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
           _buildSearchBar(),
           verticalSpacing(),
           Expanded(
-            child: BlocBuilder<AchievementCubit, AchievementState>(
+            child: BlocBuilder<AchievementReportCubit, AchievementState>(
               builder: (context, state) {
                 if ((state.isLoading ?? false) &&
                     state.closingAchievementReportList.isEmpty) {
@@ -875,7 +899,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                 }
                 return RefreshIndicator(
                   onRefresh: () async {
-                    _searchTextC.clear();
+                    _searchC.clear();
                     _achievementCubit.getClosingAchievementReport(
                       context: context,
                       pageNumber: 1,
@@ -1092,7 +1116,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
           _buildSearchBar(),
           verticalSpacing(),
           Expanded(
-            child: BlocBuilder<AchievementCubit, AchievementState>(
+            child: BlocBuilder<AchievementReportCubit, AchievementState>(
               builder: (context, state) {
                 if ((state.isLoading ?? false) &&
                     state.sourcingAchievementReportList.isEmpty) {
@@ -1107,7 +1131,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                 }
                 return RefreshIndicator(
                   onRefresh: () async {
-                    _searchTextC.clear();
+                    _searchC.clear();
                     _achievementCubit.getSourcingAchievementReport(
                       context: context,
                       pageNumber: 1,
@@ -1369,8 +1393,9 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
   }
 
   Widget _buildSearchBar() {
-    return BlocBuilder<AchievementCubit, AchievementState>(
+    return BlocBuilder<AchievementReportCubit, AchievementState>(
       builder: (context, state) {
+        _filterCount.value = _achievementCubit.updateFilterCount(state);
         return AnimatedBuilder(
           animation: Listenable.merge([
             _searchTextNotifier,
@@ -1394,9 +1419,10 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
               children: [
                 Expanded(
                   child: SearchWidget(
-                    textController: _searchTextC,
+                    textController: _searchC,
                     hintText: _searchTextNotifier.value,
                     isFilterOn: true,
+                    filterCountNotifier: _filterCount,
                     onFilterTap:
                         () => _showBottomSheetToFilterAchievement(context),
                     onSubmit: (String value) {

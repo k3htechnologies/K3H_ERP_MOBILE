@@ -24,7 +24,8 @@ class InwardOutwardState extends BaseState {
   final String filterByStatus;
   final String filterBySenderMobileNumber;
   final String filterByReceiverMobileNumber;
-  final DateTime? filterByCreatedDate;
+  final DateTime? filterByFromDate;
+  final DateTime? filterByToDate;
 
   final String currentSortColumn;
   final String currentSortDirection;
@@ -49,7 +50,8 @@ class InwardOutwardState extends BaseState {
     required this.filterByStatus,
     required this.filterBySenderMobileNumber,
     required this.filterByReceiverMobileNumber,
-    required this.filterByCreatedDate,
+    required this.filterByFromDate,
+    required this.filterByToDate,
     required this.currentSortColumn,
     required this.currentSortDirection,
   });
@@ -79,8 +81,8 @@ class InwardOutwardState extends BaseState {
     filterByStatus: "",
     filterBySenderMobileNumber: "",
     filterByReceiverMobileNumber: "",
-    filterByCreatedDate: null,
-
+    filterByFromDate: null,
+    filterByToDate: null,
     currentSortColumn: "",
     currentSortDirection: "",
   );
@@ -106,7 +108,8 @@ class InwardOutwardState extends BaseState {
     String? filterByStatus,
     String? filterBySenderMobileNumber,
     String? filterByReceiverMobileNumber,
-    Object? filterByCreatedDate = _noChange,
+    Object? filterByFromDate = _noChange,
+    Object? filterByToDate = _noChange,
     String? currentSortColumn,
     String? currentSortDirection,
   }) {
@@ -140,11 +143,14 @@ class InwardOutwardState extends BaseState {
           filterBySenderMobileNumber ?? this.filterBySenderMobileNumber,
       filterByReceiverMobileNumber:
           filterByReceiverMobileNumber ?? this.filterByReceiverMobileNumber,
-      filterByCreatedDate:
-          filterByCreatedDate == _noChange
-              ? this.filterByCreatedDate
-              : filterByCreatedDate as DateTime?,
-
+      filterByFromDate:
+          filterByFromDate == _noChange
+              ? this.filterByFromDate
+              : filterByFromDate as DateTime?,
+      filterByToDate:
+          filterByToDate == _noChange
+              ? this.filterByToDate
+              : filterByToDate as DateTime?,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
     );
@@ -176,7 +182,8 @@ class InwardOutwardState extends BaseState {
     filterByStatus,
     filterBySenderMobileNumber,
     filterByReceiverMobileNumber,
-    filterByCreatedDate,
+    filterByFromDate,
+    filterByToDate,
 
     currentSortColumn,
     currentSortDirection,

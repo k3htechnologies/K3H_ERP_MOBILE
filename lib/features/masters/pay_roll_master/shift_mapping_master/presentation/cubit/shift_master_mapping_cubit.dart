@@ -368,12 +368,14 @@ class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {
 
   void applyFilterAndSort({
     required BuildContext context,
+    required String filterShiftName,
     String? filterDepartmentName,
     String? filterEmployeeName,
     String? sortColumn,
     String? sortDirection,
   }) {
     final newState = state.copyWith(
+      searchText: filterShiftName,
       filterDepartmentName: filterDepartmentName ?? "",
       filterEmployeeName: filterEmployeeName ?? "",
       currentSortColumn: sortColumn ?? state.currentSortColumn,
@@ -383,5 +385,18 @@ class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {
 
     emit(newState);
     getShiftMappingList(context: context, pageNumber: 1);
+  }
+
+  int updateFilterCount(ShiftMappingMasterState state) {
+    final hasSort =
+        state.currentSortColumn == "Shift Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.searchText.isNotEmpty,
+      state.filterDepartmentName.isNotEmpty,
+      state.filterEmployeeName.isNotEmpty,
+      hasSort,
+    ]);
   }
 }

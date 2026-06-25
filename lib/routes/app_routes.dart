@@ -207,6 +207,7 @@ class AppRoutes {
   static String managerAchievementReport = "/managerAchievementReport";
 
   static String ibmObmReport = "/ibmObmReport";
+  static String viewIbmObmReport = "/viewIbmObmReport";
 
   // SALES CLASSIFICATION PARAMETERS
   static String classificationParameter = "/classificationParameter";

@@ -459,3 +459,29 @@ List<Map<String, dynamic>> inwardOutwardDeliveryStatus = const [
   {"zAttributesId": 1, "DisplayName": "Acknowledged"},
   {"zAttributesId": 2, "DisplayName": "Delivered"},
 ];
+
+List<Map<String, dynamic>> ibmObmReportType = const [
+  {"zAttributesId": 1, "DisplayName": "Date"},
+  {"zAttributesId": 2, "DisplayName": "Year"},
+];
+
+List<Map<String, dynamic>> year = const [
+  {"zAttributesId": 1, "DisplayName": "2025"},
+  {"zAttributesId": 2, "DisplayName": "2026"},
+  {"zAttributesId": 3, "DisplayName": "2027"},
+  {"zAttributesId": 4, "DisplayName": "2028"},
+  {"zAttributesId": 5, "DisplayName": "2029"},
+  {"zAttributesId": 6, "DisplayName": "2030"},
+  {"zAttributesId": 7, "DisplayName": "2031"},
+  {"zAttributesId": 8, "DisplayName": "2032"},
+  {"zAttributesId": 9, "DisplayName": "2033"},
+  {"zAttributesId": 10, "DisplayName": "2034"},
+  {"zAttributesId": 11, "DisplayName": "2035"},
+  {"zAttributesId": 12, "DisplayName": "2036"},
+  {"zAttributesId": 13, "DisplayName": "2037"},
+  {"zAttributesId": 14, "DisplayName": "2038"},
+  {"zAttributesId": 15, "DisplayName": "2039"},
+  {"zAttributesId": 16, "DisplayName": "2040"},
+  {"zAttributesId": 17, "DisplayName": "2041"},
+  {"zAttributesId": 18, "DisplayName": "2042"},
+];

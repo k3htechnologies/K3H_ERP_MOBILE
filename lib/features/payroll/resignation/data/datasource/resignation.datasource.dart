@@ -1,5 +1,6 @@
 import 'package:k3h_erp_app/features/payroll/resignation/data/model/resignation.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 abstract interface class ResignationDatasource {
   Future<Map<String, dynamic>> apicallPullResignation({
@@ -35,7 +36,8 @@ class ResignationDatasourceImpl implements ResignationDatasource {
     }) {
       String url =
           "EmployeeResignation/PullEmployeeResignation?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
+
       return url;
     }
 

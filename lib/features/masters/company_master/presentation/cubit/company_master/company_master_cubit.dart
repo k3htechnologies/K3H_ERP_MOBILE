@@ -26,6 +26,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
   // <---- FILTER COMPANY ---->
   Future applyCompanyFilterAndSort({
     required BuildContext context,
+    String? companyName,
     String? companyType,
     String? contactPerson,
     String? mobileNumber,
@@ -38,6 +39,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
       emit(
         state.copyWith(
           filterByFirmType: "",
+          searchText: "",
           filterByContactPerson: "",
           filterByMobileNumber: "",
           filterByCityName: "",
@@ -49,6 +51,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     } else {
       emit(
         state.copyWith(
+          searchText: companyName ?? state.searchText,
           filterByFirmType: companyType ?? state.filterByFirmType,
           filterByContactPerson: contactPerson ?? state.filterByContactPerson,
           filterByMobileNumber: mobileNumber ?? state.filterByMobileNumber,
@@ -439,5 +442,20 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         );
       },
     );
+  }
+
+  int updateFilterCount(CompanyMasterState state) {
+    final hasSort =
+        state.currentSortColumn == "Company Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterByFirmType.trim().isNotEmpty,
+      state.filterByContactPerson.trim().isNotEmpty,
+      state.filterByMobileNumber.trim().isNotEmpty,
+      state.filterByCityName.trim().isNotEmpty,
+      hasSort,
+    ]);
   }
 }

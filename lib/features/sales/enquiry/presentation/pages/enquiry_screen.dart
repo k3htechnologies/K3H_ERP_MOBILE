@@ -78,6 +78,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
       ValueNotifier(null);
   final ValueNotifier<Map<String, dynamic>?> _selectedSubSourceNotifier =
       ValueNotifier(null);
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   @override
   void initState() {
@@ -186,7 +187,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     _accommodationC.dispose();
     _followUpDaysC.dispose();
     _finalStageC.dispose();
-
+    _filterCount.dispose();
     scrollController.dispose();
 
     _debounce?.cancel();
@@ -337,7 +338,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
       applyEnabled.value = manualClose && !onlyOneDateSet && !invalidRange;
     }
 
-    DialogHelper.showCustomFilterBottomSheet(
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter Enquiry",
 
@@ -694,10 +695,8 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
       _accommodationC.clear();
       _followUpDaysC.clear();
       _finalStageC.clear();
-
       _startDateNotifier.value = null;
       _endDateNotifier.value = null;
-
       _selectedSourceNotifier.value = null;
       _selectedSubSourceNotifier.value = null;
 
@@ -736,9 +735,12 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<EnquiryCubit, EnquiryState>(
-      listenWhen: (prev, curr) => curr.searchText.trim().isEmpty,
       listener: (context, state) {
-        _searchC.clear();
+        _filterCount.value = _enquiryCubit.updateFilterCount();
+
+        if (state.searchText.trim().isEmpty) {
+          _searchC.clear();
+        }
       },
       child: Scaffold(
         appBar: CustomAppBar(
@@ -746,6 +748,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
           authorization: _routeAuthorizationModel,
           textController: _searchC,
           searchHintText: "Search by Name",
+          filterCountNotifier: _filterCount,
           onSearchSubmit: (value) {
             _enquiryCubit.searchEnquiry(context, value, _project.projectId);
           },

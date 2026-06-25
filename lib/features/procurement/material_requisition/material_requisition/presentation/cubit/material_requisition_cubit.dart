@@ -43,19 +43,28 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
   void applyFilterAndSort({
     required BuildContext context,
     required int projectId,
+    String? filterByUniqueId,
     required String? filterByMaterialRequisitionStage,
     required String? filterByMaterialRequisitionStatus,
     required DateTime? filterByFromDate,
     required DateTime? filterByToDate,
+    String? sortColumn,
+    String? sortDirection,
   }) {
     emit(
       state.copyWith(
+        searchText: filterByUniqueId,
         filterByMaterialRequisitionStage: filterByMaterialRequisitionStage,
         filterByMaterialRequisitionStatus: filterByMaterialRequisitionStatus,
         filterByFromDate: filterByFromDate,
         filterByToDate: filterByToDate,
+        currentSortColumn: sortColumn ?? "",
+        currentSortDirection: sortDirection ?? "",
+        currentPage: 1,
+        materialRequisitionList: [],
       ),
     );
+
     getMaterialRequisitionList(context, 1, projectId);
   }
 
@@ -79,6 +88,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
       "MaterialRequisitionStatus": state.filterByMaterialRequisitionStatus,
       "FromDate": state.filterByFromDate,
       "ToDate": state.filterByToDate,
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     var result = await _materialRequisitionRepository
         .getMaterialRequisitionList(
@@ -558,5 +568,20 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
         getMaterialRequisitionList(context, 1, projectId);
       },
     );
+  }
+
+  int updateFilterCount(MaterialRequisitionState state) {
+    final hasSort =
+        state.currentSortColumn == "SystemGeneratedCode" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterByMaterialRequisitionStage.trim().isNotEmpty,
+      state.filterByMaterialRequisitionStatus.trim().isNotEmpty,
+      state.filterByFromDate != null && state.filterByToDate != null,
+      hasSort,
+    ]);
   }
 }

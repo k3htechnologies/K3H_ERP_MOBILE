@@ -3,6 +3,7 @@ import 'package:k3h_erp_app/features/redevelopment/building/data/model/building_
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building_document.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 abstract interface class BuildingDatasource {
   Future<Map<String, dynamic>> apicallPullBuilding({
@@ -71,7 +72,7 @@ class BuildingDatasourceImpl implements BuildingDatasource {
     }) {
       String url =
           "Building/PullBuilding?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -118,7 +119,7 @@ class BuildingDatasourceImpl implements BuildingDatasource {
     }) {
       String url =
           "BuildingDetails/PullBuildingDetails?ProjectId=$projectId&BuildingId=$buildingId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -165,7 +166,7 @@ class BuildingDatasourceImpl implements BuildingDatasource {
     }) {
       String url =
           "BuildingDocument/PullBuildingDocument?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&BuildingId=$buildingId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -221,11 +222,8 @@ class BuildingDatasourceImpl implements BuildingDatasource {
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
-      if (error is TokenExpiredException){
-        apicallAddUpdateBuildingDocument(
-          body: body,
-          fileList: fileList,
-        );
+      if (error is TokenExpiredException) {
+        apicallAddUpdateBuildingDocument(body: body, fileList: fileList);
       }
       rethrow;
     }

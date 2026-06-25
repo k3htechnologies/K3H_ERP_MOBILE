@@ -314,12 +314,14 @@ class LeaveCreditConfigurationMasterCubit
 
   Future<void> applyFilterAndSort({
     required BuildContext context,
+    required String filterDepartmentName,
     required String filterDesignationName,
     required DateTime? filterFromLeaveCreditDate,
     required DateTime? filterToLeaveCreditDate,
   }) async {
     emit(
       state.copyWith(
+        searchText: filterDepartmentName,
         filterDesignationName: filterDesignationName,
         filterFromLeaveCreditDate: filterFromLeaveCreditDate,
         filterToLeaveCreditDate: filterToLeaveCreditDate,
@@ -329,5 +331,29 @@ class LeaveCreditConfigurationMasterCubit
     );
 
     await getLeaveCreditConfigurationList(context, 1);
+  }
+
+  int updateLeaveCreditConfigurationFilterCount(
+    LeaveCreditConfigurationMasterState state,
+  ) {
+    final hasDateFilter =
+        state.filterFromLeaveCreditDate != null &&
+        state.filterToLeaveCreditDate != null;
+
+    final isValidDateRange =
+        hasDateFilter &&  
+        !state.filterFromLeaveCreditDate!.isAfter(
+          DateTime(
+            state.filterToLeaveCreditDate!.year,
+            state.filterToLeaveCreditDate!.month,
+            state.filterToLeaveCreditDate!.day,
+          ),
+        );
+
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterDesignationName.trim().isNotEmpty,
+      isValidDateRange,
+    ]);
   }
 }

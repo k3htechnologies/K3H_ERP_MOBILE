@@ -52,6 +52,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
       ValueNotifier(null);
   ValueNotifier<bool?> isRedevelopement = ValueNotifier(false);
   late AuthorizationModel _routeAuthorizationModel;
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   // STATIC LISTS
   List<Map<String, dynamic>> projectSchemeList = [
@@ -98,6 +99,14 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
   void dispose() {
     super.dispose();
     _searchC.dispose();
+    _filterVillageC.dispose();
+    _filterLiasoningArchitectNameC.dispose();
+    _filterRERANumberC.dispose();
+    _filterProjectLocationC.dispose();
+    _filterCTSNumberC.dispose();
+    scrollController.dispose();
+    _debounce?.cancel();
+    _filterCount.dispose();
   }
 
   // INITIALISING TEXT CONTROLLER
@@ -142,7 +151,12 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
     BuildContext context,
   ) async {
     final state = _projectMasterCubit.state;
+    String? selectedDirection =
+        state.currentSortColumn == "Project Name"
+            ? state.currentSortDirection
+            : null;
 
+    final String? initialDirection = selectedDirection;
     _filterCTSNumberC.text = state.filterCTSNumber;
     _filterProjectLocationC.text = state.filterProjectLocation;
     final String initialProjectName = state.searchText;
@@ -153,7 +167,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
     final String initialArchitectName =
         state.filterLiasoningArchitectName ?? "";
     final String initialRERANumber = state.filterRERANumber ?? "";
-    final String initialProjectStatus = state.filterProjectStatus ?? "";
+    final String initialProjectStatus = state.filterProjectStatus;
     final String initialVillage = state.filterVillage ?? "";
     final bool? initialIsRedevelopement = state.isRedevelopment;
     bool manualClose = false;
@@ -176,7 +190,8 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
             (getDisplayOrEmpty(selectedProjectStatus.value) !=
                 initialProjectStatus) ||
             (_filterVillageC.text.trim() != initialVillage) ||
-            (isRedevelopement.value != initialIsRedevelopement);
+            (isRedevelopement.value != initialIsRedevelopement) ||
+            (selectedDirection != initialDirection);
         applyEnabled.value = manualClose;
       });
     }
@@ -186,11 +201,62 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
       title: "Filter - Project Master",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
           return SingleChildScrollView(
+            padding: EdgeInsets.only(right: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                verticalSpacing(height: 5),
+                Text("Sort By Project Name", style: AppTextStyle.ts14M()),
+                verticalSpacing(),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpacing(height: 20),
                 Text("Is Redevelopment", style: AppTextStyle.ts14M()),
                 ValueListenableBuilder<bool?>(
                   valueListenable: isRedevelopement,
@@ -360,6 +426,8 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
           projectSubScheme: getDisplayOrEmpty(
             selectedProjectSubSchemeNotifier.value,
           ),
+          sortColumn: selectedDirection != null ? "Project Name" : null,
+          sortDirection: selectedDirection,
           isRedevelopment: isRedevelopement.value,
         );
       },
@@ -392,171 +460,177 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Project Management",
-        authorization: _routeAuthorizationModel,
-        onSearchSubmit: (value) {
-          _projectMasterCubit.searchProject(context, value);
-        },
-        textController: _searchC,
-        searchHintText: "Search by Project Name",
-        onAddCallback: () async {
-          await goRouter.pushNamed(AppRoutes.addProjectMaster);
-          if (context.mounted) {
+    return BlocListener<ProjectMasterCubit, ProjectMasterState>(
+      listener: (context, state) {
+        _filterCount.value = _projectMasterCubit.updateFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "Project Management",
+          authorization: _routeAuthorizationModel,
+          onSearchSubmit: (value) {
+            _projectMasterCubit.searchProject(context, value);
+          },
+          filterCountNotifier: _filterCount,
+          textController: _searchC,
+          searchHintText: "Search by Project Name",
+          onAddCallback: () async {
+            await goRouter.pushNamed(AppRoutes.addProjectMaster);
+            if (context.mounted) {
+              _projectMasterCubit.searchProject(context, "");
+            }
+          },
+          onExportCallback: (value) {
+            if (_projectMasterCubit.state.totalNumberOfRecord == 0) {
+              showErrorMessage(context, "Error", "No Data Found");
+              return;
+            }
+            _projectMasterCubit.exportExcelPdf(context, value);
+          },
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterProjectMaster(context);
+          },
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            _searchC.clear();
             _projectMasterCubit.searchProject(context, "");
-          }
-        },
-        onExportCallback: (value) {
-          if (_projectMasterCubit.state.totalNumberOfRecord == 0) {
-            showErrorMessage(context, "Error", "No Data Found");
-            return;
-          }
-          _projectMasterCubit.exportExcelPdf(context, value);
-        },
-        isFilterOn: true,
-        onFilterTap: () {
-          _showBottomSheetToFilterProjectMaster(context);
-        },
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _searchC.clear();
-          _projectMasterCubit.searchProject(context, "");
-        },
-        child: BlocBuilder<ProjectMasterCubit, ProjectMasterState>(
-          builder: (context, state) {
-            if ((state.isLoading ?? true) && state.projectList.isEmpty) {
-              return Center(child: loader());
-            }
-            if (state.projectList.isEmpty) {
-              return ListView(
-                physics: AlwaysScrollableScrollPhysics(),
-                children: [
-                  SizedBox(
-                    height: getActualHeight(context) * .7,
-                    child: Center(
-                      child: noDataWidget(message: "No projects found"),
+          },
+          child: BlocBuilder<ProjectMasterCubit, ProjectMasterState>(
+            builder: (context, state) {
+              if ((state.isLoading ?? true) && state.projectList.isEmpty) {
+                return Center(child: loader());
+              }
+              if (state.projectList.isEmpty) {
+                return ListView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: getActualHeight(context) * .7,
+                      child: Center(
+                        child: noDataWidget(message: "No projects found"),
+                      ),
                     ),
-                  ),
-                ],
-              );
-            }
-            return ListView.builder(
-              controller: scrollController,
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              itemCount: _projectMasterCubit.state.projectList.length + 1,
-              itemBuilder: (context, index) {
-                if (index == state.projectList.length) {
-                  return state.projectList.length < state.totalNumberOfRecord
-                      ? Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                      : const SizedBox.shrink();
-                }
-                var project = state.projectList[index];
-                return Container(
-                  margin: EdgeInsets.only(bottom: 10),
-                  padding: EdgeInsets.all(12),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        spacing: 10,
-                        children: [
-                          Flexible(
-                            child: GestureDetector(
-                              onTap: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.projectDetails,
+                  ],
+                );
+              }
+              return ListView.builder(
+                controller: scrollController,
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                itemCount: _projectMasterCubit.state.projectList.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == state.projectList.length) {
+                    return state.projectList.length < state.totalNumberOfRecord
+                        ? Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : const SizedBox.shrink();
+                  }
+                  var project = state.projectList[index];
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 10),
+                    padding: EdgeInsets.all(12),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          spacing: 10,
+                          children: [
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () {
+                                  goRouter.pushNamed(
+                                    AppRoutes.projectDetails,
+                                    queryParameters: {
+                                      "project": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(project),
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                },
+                                child: Text(
+                                  project.projectName,
+                                  style: AppTextStyle.ts16M(
+                                    color: AppColor.primary,
+                                  ).copyWith(
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColor.primary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            CustomIconButton.edit(
+                              isDisabled: !_routeAuthorizationModel.isAction,
+                              onPressed: () async {
+                                await goRouter.pushNamed(
+                                  AppRoutes.addProjectMaster,
                                   queryParameters: {
                                     "project": Uri.encodeQueryComponent(
                                       EncryptionManager.encryptData(
                                         jsonEncode(project),
                                       ),
                                     ),
+                                    'index': index.toString(),
                                   },
                                 );
                               },
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          children: [
+                            // TITLE
+                            SizedBox(
+                              width: 140,
                               child: Text(
-                                project.projectName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
-                                ),
+                                "Project Status",
+                                style: AppTextStyle.ts14R(color: AppColor.grey),
                               ),
                             ),
-                          ),
-                          CustomIconButton.edit(
-                            isDisabled: !_routeAuthorizationModel.isAction,
-                            onPressed: () async {
-                              await goRouter.pushNamed(
-                                AppRoutes.addProjectMaster,
-                                queryParameters: {
-                                  "project": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(project),
-                                    ),
-                                  ),
-                                  'index': index.toString(),
-                                },
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      verticalSpacing(),
-                      Row(
-                        children: [
-                          // TITLE
-                          SizedBox(
-                            width: 140,
-                            child: Text(
-                              "Project Status",
-                              style: AppTextStyle.ts14R(color: AppColor.grey),
-                            ),
-                          ),
 
-                          // COLON
-                          SizedBox(
-                            width: 20,
-                            child: Text(
-                              ":",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: AppColor.grey),
+                            // COLON
+                            SizedBox(
+                              width: 20,
+                              child: Text(
+                                ":",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: AppColor.grey),
+                              ),
                             ),
-                          ),
-                          project.projectStatus.isNotEmpty
-                              ?
-                              // VALUE
-                              projectStatusWidget(project.projectStatus)
-                              : Text("-"),
-                        ],
-                      ),
-                      buildRowTitleValue(
-                        title: "Project Location",
-                        value: project.projectLocation,
-                      ),
-                      buildRowTitleValue(
-                        title: "CTS Number",
-                        value: project.ctsNumber,
-                      ),
-                      buildRowTitleValue(
-                        title: "Business Category",
-                        value: project.bussinessCategory,
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
+                            project.projectStatus.isNotEmpty
+                                ?
+                                // VALUE
+                                projectStatusWidget(project.projectStatus)
+                                : Text("-"),
+                          ],
+                        ),
+                        buildRowTitleValue(
+                          title: "Project Location",
+                          value: project.projectLocation,
+                        ),
+                        buildRowTitleValue(
+                          title: "CTS Number",
+                          value: project.ctsNumber,
+                        ),
+                        buildRowTitleValue(
+                          title: "Business Category",
+                          value: project.bussinessCategory,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );

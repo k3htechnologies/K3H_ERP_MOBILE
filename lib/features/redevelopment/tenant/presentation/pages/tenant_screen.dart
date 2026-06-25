@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -48,10 +49,19 @@ class _TenantScreenState extends State<TenantScreen> {
   Timer? _debounce;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC,_filterFlatTypeC,_filterFlatConfigurationC;
+  late TextEditingController _searchC,
+      _filterFlatTypeC,
+      _filterFlatConfigurationC,
+      _filterApplicantNameC,
+      _filterFlatCarpetAreaSqFtC,
+      _filterBuildingNumberC,
+      _filterWingC,
+      _filterFlatC,
+      _filterParkingNumberC;
 
   // FLAGS TO PREVENT INFINITE CALLS
   int? _lastFetchedBuildingId;
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   @override
   void initState() {
@@ -77,8 +87,15 @@ class _TenantScreenState extends State<TenantScreen> {
     scrollController.dispose();
     _searchC.dispose();
     _filterFlatTypeC.dispose();
+    _filterApplicantNameC.dispose();
+    _filterFlatCarpetAreaSqFtC.dispose();
+    _filterBuildingNumberC.dispose();
+    _filterWingC.dispose();
+    _filterFlatC.dispose();
+    _filterParkingNumberC.dispose();
     _filterFlatConfigurationC.dispose();
     _selectedBuildingNotifier.dispose();
+    _filterCount.dispose();
     super.dispose();
   }
 
@@ -125,6 +142,12 @@ class _TenantScreenState extends State<TenantScreen> {
     _searchC = TextEditingController();
     _filterFlatTypeC = TextEditingController();
     _filterFlatConfigurationC = TextEditingController();
+    _filterApplicantNameC = TextEditingController();
+    _filterFlatCarpetAreaSqFtC = TextEditingController();
+    _filterBuildingNumberC = TextEditingController();
+    _filterWingC = TextEditingController();
+    _filterFlatC = TextEditingController();
+    _filterParkingNumberC = TextEditingController();
   }
 
   // FETCH BUILDINGS — when [value] is set, calls API with search param; otherwise uses/paginates loaded list
@@ -160,7 +183,8 @@ class _TenantScreenState extends State<TenantScreen> {
 
       return {
         "itemList": uniqueFiltered.values.toList(),
-        "totalNumberOfRecord": totalCount > 0 ? totalCount : uniqueFiltered.length,
+        "totalNumberOfRecord":
+            totalCount > 0 ? totalCount : uniqueFiltered.length,
       };
     }
 
@@ -229,7 +253,13 @@ class _TenantScreenState extends State<TenantScreen> {
 
     _filterFlatTypeC.text = state.filterFlatType;
     _filterFlatConfigurationC.text = state.filterFlatConfiguration;
-
+    _filterApplicantNameC.text = state.filterApplicantName;
+    _searchC.text = state.searchText;
+    _filterFlatCarpetAreaSqFtC.text = state.filterFlatCarpetAreaSqFt;
+    _filterBuildingNumberC.text = state.filterBuildingNumber;
+    _filterWingC.text = state.filterWing;
+    _filterFlatC.text = state.filterFlat;
+    _filterParkingNumberC.text = state.filterParkingNumber;
 
     String? selectedDirection =
         state.currentSortColumn == "Applicant Name"
@@ -237,9 +267,15 @@ class _TenantScreenState extends State<TenantScreen> {
             : null;
 
     final String initialFlatType = _filterFlatTypeC.text;
+    final String initialApplicantName = _filterApplicantNameC.text;
     final String initialFlatConfiguration = _filterFlatConfigurationC.text;
     final String? initialDirection = selectedDirection;
-
+    final String initialFlatNumber = _searchC.text;
+    final String initialFlatCarpetAreaSqFt = _filterFlatCarpetAreaSqFtC.text;
+    final String initialBuildingNumber = _filterBuildingNumberC.text;
+    final String initialWing = _filterWingC.text;
+    final String initialFlat = _filterFlatC.text;
+    final String initialParkingNumber = _filterParkingNumberC.text;
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     bool applied = false;
@@ -248,13 +284,22 @@ class _TenantScreenState extends State<TenantScreen> {
       innerState(() {
         manualClose =
             (_filterFlatTypeC.text.trim() != initialFlatType) ||
-            (_filterFlatConfigurationC.text.trim() != initialFlatConfiguration) ||
+            (_filterApplicantNameC.text.trim() != initialApplicantName) ||
+            (_filterFlatConfigurationC.text.trim() !=
+                initialFlatConfiguration) ||
+            (_searchC.text.trim() != initialFlatNumber) ||
+            (_filterFlatCarpetAreaSqFtC.text.trim() !=
+                initialFlatCarpetAreaSqFt) ||
+            (_filterBuildingNumberC.text.trim() != initialBuildingNumber) ||
+            (_filterWingC.text.trim() != initialWing) ||
+            (_filterFlatC.text.trim() != initialFlat) ||
+            (_filterParkingNumberC.text.trim() != initialParkingNumber) ||
             (selectedDirection != initialDirection);
         applyEnabled.value = manualClose;
       });
     }
 
-    DialogHelper.showCustomFilterBottomSheet(
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter Tenant",
       contentWidget: StatefulBuilder(
@@ -267,6 +312,7 @@ class _TenantScreenState extends State<TenantScreen> {
           }
 
           return SingleChildScrollView(
+            padding: EdgeInsets.only(right: 16.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -316,16 +362,63 @@ class _TenantScreenState extends State<TenantScreen> {
                 ),
                 verticalSpacing(height: 20),
                 CustomTextField(
-                  title: "Flat Type",
-                  hint: "Enter Flat Type",
+                  title: "Unit / Annexure / Survey Number",
+                  hint: "Enter Unit / Annexure / Survey Number",
+                  textController: _searchC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Applicant Name",
+                  hint: "Enter Applicant Name",
+                  textController: _filterApplicantNameC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Exisiting Unit Type",
+                  hint: "Enter Exisiting Unit Type",
                   textController: _filterFlatTypeC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                verticalSpacing(height: 5),
+
                 CustomTextField(
-                  title: "Flat Configuration",
-                  hint: "Enter Flat Configuration",
+                  title: "Existing Configuration",
+                  hint: "Enter Existing Configuration",
                   textController: _filterFlatConfigurationC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
+                CustomTextField(
+                  title: "Existing Carpet Area (SqFt)",
+                  hint: "Enter Existing Carpet Area (SqFt)",
+                  textController: _filterFlatCarpetAreaSqFtC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
+                CustomTextField(
+                  title: "Building Number",
+                  hint: "Enter Building Number",
+                  textController: _filterBuildingNumberC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
+                CustomTextField(
+                  title: "Wing",
+                  hint: "Enter Wing",
+                  textController: _filterWingC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
+                CustomTextField(
+                  title: "New Unit Number",
+                  hint: "Enter New Unit Number",
+                  textController: _filterFlatC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
+                CustomTextField(
+                  title: "Parking Number",
+                  hint: "Enter Parking Number",
+                  textController: _filterParkingNumberC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 verticalSpacing(),
@@ -338,12 +431,24 @@ class _TenantScreenState extends State<TenantScreen> {
         _tenantCubit.applyFilterAndSort(
           context: context,
           projectId: _project.projectId,
-          buildingId: _selectedBuildingNotifier.value.first["zAttributesId"] as int,
+          buildingId:
+              _selectedBuildingNotifier.value.isNotEmpty
+                  ? _selectedBuildingNotifier.value.first["zAttributesId"]
+                      as int
+                  : 0,
           filterFlatType: "",
           filterFlatConfiguration: "",
           sortColumn: "Created Date",
           sortDirection: "DESC",
+          filterApplicantName: "",
+          filterFlatNumber: "",
+          filterFlatCarpetAreaSqFt: "",
+          filterBuildingNumber: "",
+          filterWing: "",
+          filterFlat: "",
+          filterParkingNumber: "",
         );
+        _searchC.clear();
       },
       onApply: () {
         applied = true;
@@ -352,9 +457,20 @@ class _TenantScreenState extends State<TenantScreen> {
           filterFlatType: _filterFlatTypeC.text,
           filterFlatConfiguration: _filterFlatConfigurationC.text,
           projectId: _project.projectId,
-          buildingId: _selectedBuildingNotifier.value.first["zAttributesId"] as int,
+          buildingId:
+              _selectedBuildingNotifier.value.isNotEmpty
+                  ? _selectedBuildingNotifier.value.first["zAttributesId"]
+                      as int
+                  : 0,
           sortColumn: selectedDirection != null ? "Applicant Name" : null,
           sortDirection: selectedDirection,
+          filterApplicantName: _filterApplicantNameC.text.trim(),
+          filterFlatCarpetAreaSqFt: _filterFlatCarpetAreaSqFtC.text.trim(),
+          filterBuildingNumber: _filterBuildingNumberC.text.trim(),
+          filterWing: _filterWingC.text.trim(),
+          filterFlat: _filterFlatC.text.trim(),
+          filterParkingNumber: _filterParkingNumberC.text.trim(),
+          filterFlatNumber: _searchC.text.trim(),
         );
       },
       isApplyEnabled: applyEnabled.value,
@@ -363,281 +479,301 @@ class _TenantScreenState extends State<TenantScreen> {
 
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
+      _filterFlatC.clear();
       _filterFlatTypeC.clear();
       _filterFlatConfigurationC.clear();
+      _filterApplicantNameC.clear();
+      _filterFlatCarpetAreaSqFtC.clear();
+      _filterBuildingNumberC.clear();
+      _filterWingC.clear();
+      _filterFlatC.clear();
+      _filterParkingNumberC.clear();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Tenant",
-        authorization: _routeAuthorizationModel,
-        onSearchSubmit: (value) {
-          if (_selectedBuildingNotifier.value.isNotEmpty) {
-            _tenantCubit.searchTenant(
-              value,
-              context,
-              _project.projectId,
-              _selectedBuildingNotifier.value.first["zAttributesId"] as int,
-            );
-          }
-        },
-        textController: _searchC,
-        searchHintText: "Search By Flat Number",
-        onAddCallback: () async {
-          if (_selectedBuildingNotifier.value.isNotEmpty) {
-            await goRouter.pushNamed(
-              AppRoutes.addTenant,
-              queryParameters: {
-                'projectId': _project.projectId.toString(),
-                'buildingId':
-                    _selectedBuildingNotifier.value.first["zAttributesId"]
-                        .toString(),
-              },
-            );
-            if (context.mounted) {
-              _tenantCubit.getTenantList(
-                context: context,
-                projectId: _project.projectId,
-                buildingId:
-                    _selectedBuildingNotifier.value.first["zAttributesId"],
-                pageNumber: 1,
+    return BlocListener<TenantCubit, TenantState>(
+      listener: (context, state) {
+        _filterCount.value = _tenantCubit.updateFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "Tenant",
+          authorization: _routeAuthorizationModel,
+          onSearchSubmit: (value) {
+            if (_selectedBuildingNotifier.value.isNotEmpty) {
+              _tenantCubit.searchTenant(
+                value,
+                context,
+                _project.projectId,
+                _selectedBuildingNotifier.value.first["zAttributesId"] as int,
               );
             }
-          } else {
-            showErrorMessage(context, "Error", "Please select building");
-          }
-        },
-        onExportCallback: (value) {
-          if (_selectedBuildingNotifier.value.isNotEmpty) {
-            _tenantCubit.exportExcelPdf(
-              context,
-              value,
-              _project.projectId,
-              _selectedBuildingNotifier.value.first["zAttributesId"] as int,
-            );
-          } else {
-            showErrorMessage(context, "Error", "Please select building");
-          }
-        },
-        onProjectChangeCallback: (project) {
-          _project = project;
-          _selectedBuildingNotifier.value = [];
-          _lastFetchedBuildingId = null;
-          _loadBuildingsForProject(_project.projectId);
-        },
-        isFilterOn: true,
-        onFilterTap: () {
-          _showBottomSheetToFilterTenant(context);
-        },
-        extraHeight: 90,
-        widgets: BlocBuilder<TenantCubit, TenantState>(
-          bloc: _tenantCubit,
-          builder: (context, state) {
-            return ValueListenableBuilder<List<Map<String, dynamic>>>(
-              valueListenable: _selectedBuildingNotifier,
-              builder: (context, selectedBuilding, child) {
-                return CustomMultipleSelectPopup(
-                  title: "Building",
-                  isRequired: true,
-                  isMultiSelect: false,
-                  initialValue: selectedBuilding,
-                  dataList: const [],
-                  onSelected: (value) async {
-                    _selectedBuildingNotifier.value = value;
-                    if (value.isNotEmpty &&
-                        value.first['zAttributesId'] != null &&
-                        mounted) {
-                      final newBuildingId = value.first['zAttributesId'] as int;
-                      if (_lastFetchedBuildingId != newBuildingId) {
-                        _lastFetchedBuildingId = newBuildingId;
-                        await _tenantCubit.getTenantList(
-                          context: context,
-                          projectId: _project.projectId,
-                          buildingId: newBuildingId,
-                          pageNumber: 1,
-                        );
-                      }
-                    } else if (mounted) {
-                      _lastFetchedBuildingId = null;
-                    }
-                  },
-                  dataFetchCallBack: _fetchBuildings,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Building is required";
-                    }
-                    return null;
-                  },
-                );
-              },
-            );
           },
-        ),
-      ),
-      body: Column(
-        children: [
-          verticalSpacing(),
-          Expanded(
-            child: ValueListenableBuilder<List<Map<String, dynamic>>>(
-              valueListenable: _selectedBuildingNotifier,
-              builder: (context, selectedBuilding, child) {
-                if (selectedBuilding.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'Please select a building',
-                      style: AppTextStyle.ts14R(color: AppColor.grey),
-                    ),
-                  );
-                }
-                return BlocBuilder<TenantCubit, TenantState>(
-                  bloc: _tenantCubit,
-                  builder: (context, state) {
-                    if ((state.isLoading ?? true) && state.tenantList.isEmpty) {
-                      return Center(child: loader());
-                    }
-                    if (state.tenantList.isEmpty) {
-                      return Center(child: noDataWidget());
-                    }
-                    return ListView.builder(
-                      controller: scrollController,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      itemCount: state.tenantList.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index == state.tenantList.length) {
-                          return state.tenantList.length <
-                                  state.totalNumberOfRecord
-                              ? const Padding(
-                                padding: EdgeInsets.all(16),
-                                child: Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              )
-                              : const SizedBox.shrink();
+          textController: _searchC,
+          searchHintText: "Search By Flat Number",
+          filterCountNotifier: _filterCount,
+          onAddCallback: () async {
+            if (_selectedBuildingNotifier.value.isNotEmpty) {
+              await goRouter.pushNamed(
+                AppRoutes.addTenant,
+                queryParameters: {
+                  'projectId': _project.projectId.toString(),
+                  'buildingId':
+                      _selectedBuildingNotifier.value.first["zAttributesId"]
+                          .toString(),
+                },
+              );
+              if (context.mounted) {
+                _tenantCubit.getTenantList(
+                  context: context,
+                  projectId: _project.projectId,
+                  buildingId:
+                      _selectedBuildingNotifier.value.first["zAttributesId"],
+                  pageNumber: 1,
+                );
+              }
+            } else {
+              showErrorMessage(context, "Error", "Please select building");
+            }
+          },
+          onExportCallback: (value) {
+            if (_selectedBuildingNotifier.value.isNotEmpty) {
+              _tenantCubit.exportExcelPdf(
+                context,
+                value,
+                _project.projectId,
+                _selectedBuildingNotifier.value.first["zAttributesId"] as int,
+              );
+            } else {
+              showErrorMessage(context, "Error", "Please select building");
+            }
+          },
+          onProjectChangeCallback: (project) {
+            _project = project;
+            _selectedBuildingNotifier.value = [];
+            _lastFetchedBuildingId = null;
+            _loadBuildingsForProject(_project.projectId);
+          },
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterTenant(context);
+          },
+          extraHeight: 90,
+          widgets: BlocBuilder<TenantCubit, TenantState>(
+            bloc: _tenantCubit,
+            builder: (context, state) {
+              return ValueListenableBuilder<List<Map<String, dynamic>>>(
+                valueListenable: _selectedBuildingNotifier,
+                builder: (context, selectedBuilding, child) {
+                  return CustomMultipleSelectPopup(
+                    title: "Building",
+                    isRequired: true,
+                    isMultiSelect: false,
+                    initialValue: selectedBuilding,
+                    dataList: const [],
+                    onSelected: (value) async {
+                      _selectedBuildingNotifier.value = value;
+                      if (value.isNotEmpty &&
+                          value.first['zAttributesId'] != null &&
+                          mounted) {
+                        final newBuildingId =
+                            value.first['zAttributesId'] as int;
+                        if (_lastFetchedBuildingId != newBuildingId) {
+                          _lastFetchedBuildingId = newBuildingId;
+                          await _tenantCubit.getTenantList(
+                            context: context,
+                            projectId: _project.projectId,
+                            buildingId: newBuildingId,
+                            pageNumber: 1,
+                          );
                         }
-                        var tenant = state.tenantList[index];
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          padding: const EdgeInsets.all(12),
-                          decoration: commonCardDecoration(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Flexible(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        goRouter.pushNamed(
-                                          AppRoutes.viewTenant,
-                                          queryParameters: {
-                                            "tenant":
-                                                EncryptionManager.encryptData(
-                                                  jsonEncode(tenant.toJson()),
-                                                ),
-                                          },
-                                        );
-                                      },
-                                      child: Text(
-                                        tenant.tenantApplicantData
-                                            .firstWhere(
-                                              (e) =>
-                                          e.applicantType
-                                              .toLowerCase() ==
-                                              "applicant",
-                                        )
-                                            .applicantName,
-                                        style: AppTextStyle.ts16M(
-                                          color: AppColor.primary,
-                                        ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
-                                      ),
-                                    ),
+                      } else if (mounted) {
+                        _lastFetchedBuildingId = null;
+                      }
+                    },
+                    dataFetchCallBack: _fetchBuildings,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Building is required";
+                      }
+                      return null;
+                    },
+                  );
+                },
+              );
+            },
+          ),
+        ),
+        body: Column(
+          children: [
+            verticalSpacing(),
+            Expanded(
+              child: ValueListenableBuilder<List<Map<String, dynamic>>>(
+                valueListenable: _selectedBuildingNotifier,
+                builder: (context, selectedBuilding, child) {
+                  if (selectedBuilding.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'Please select a building',
+                        style: AppTextStyle.ts14R(color: AppColor.grey),
+                      ),
+                    );
+                  }
+                  return BlocBuilder<TenantCubit, TenantState>(
+                    bloc: _tenantCubit,
+                    builder: (context, state) {
+                      if ((state.isLoading ?? true) &&
+                          state.tenantList.isEmpty) {
+                        return Center(child: loader());
+                      }
+                      if (state.tenantList.isEmpty) {
+                        return Center(child: noDataWidget());
+                      }
+                      return ListView.builder(
+                        controller: scrollController,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        itemCount: state.tenantList.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == state.tenantList.length) {
+                            return state.tenantList.length <
+                                    state.totalNumberOfRecord
+                                ? const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
                                   ),
-                                  Row(
-                                    children: [
-                                      CustomIconButton.edit(
-                                        onPressed: () async {
-                                          if (_selectedBuildingNotifier
-                                              .value
-                                              .isEmpty) {
-                                            showErrorMessage(
-                                              context,
-                                              'Error',
-                                              'Please select a building',
-                                            );
-                                            return;
-                                          }
-                                          final buildingId =
-                                              _selectedBuildingNotifier
-                                                      .value
-                                                      .first["zAttributesId"]
-                                                  as int;
-                                          await goRouter.pushNamed(
-                                            AppRoutes.addTenant,
+                                )
+                                : const SizedBox.shrink();
+                          }
+                          var tenant = state.tenantList[index];
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(12),
+                            decoration: commonCardDecoration(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Flexible(
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          goRouter.pushNamed(
+                                            AppRoutes.viewTenant,
                                             queryParameters: {
-                                              "tenant": Uri.encodeQueryComponent(
-                                                EncryptionManager.encryptData(
-                                                  jsonEncode(tenant.toJson()),
-                                                ),
-                                              ),
-                                              'index': index.toString(),
-                                              'projectId':
-                                                  _project.projectId.toString(),
-                                              'buildingId':
-                                                  buildingId.toString(),
+                                              "tenant":
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(tenant.toJson()),
+                                                  ),
                                             },
                                           );
                                         },
+                                        child: Text(
+                                          tenant.tenantApplicantData
+                                              .firstWhere(
+                                                (e) =>
+                                                    e.applicantType
+                                                        .toLowerCase() ==
+                                                    "applicant",
+                                              )
+                                              .applicantName,
+                                          style: AppTextStyle.ts16M(
+                                            color: AppColor.primary,
+                                          ).copyWith(
+                                            decoration:
+                                                TextDecoration.underline,
+                                            decorationColor: AppColor.primary,
+                                          ),
+                                        ),
                                       ),
-                                      const SizedBox(width: 8),
-                                      CustomIconButton.delete(
-                                        onPressed: () {
-                                          _showPopupToDeleteTenant(
-                                            context,
-                                            tenant,
-                                            state.currentPage,
-                                            index,
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              verticalSpacing(height: 8),
-                              buildRowTitleValue(
-                                title: "Existing Flat No.",
-                                value: tenant.flatNumber,
-                              ),
-                              buildRowTitleValue(
-                                title: "Existing Flat Type",
-                                value: tenant.flatType,
-                              ),
-                              buildRowTitleValue(
-                                title: "New Flat No",
-                                value:
-                                    tenant.inventoryFlatType.isEmpty
-                                        ? "-"
-                                        : tenant.inventoryFlatType,
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  },
-                );
-              },
+                                    ),
+                                    Row(
+                                      children: [
+                                        CustomIconButton.edit(
+                                          onPressed: () async {
+                                            if (_selectedBuildingNotifier
+                                                .value
+                                                .isEmpty) {
+                                              showErrorMessage(
+                                                context,
+                                                'Error',
+                                                'Please select a building',
+                                              );
+                                              return;
+                                            }
+                                            final buildingId =
+                                                _selectedBuildingNotifier
+                                                        .value
+                                                        .first["zAttributesId"]
+                                                    as int;
+                                            await goRouter.pushNamed(
+                                              AppRoutes.addTenant,
+                                              queryParameters: {
+                                                "tenant": Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(tenant.toJson()),
+                                                  ),
+                                                ),
+                                                'index': index.toString(),
+                                                'projectId':
+                                                    _project.projectId
+                                                        .toString(),
+                                                'buildingId':
+                                                    buildingId.toString(),
+                                              },
+                                            );
+                                          },
+                                        ),
+                                        const SizedBox(width: 8),
+                                        CustomIconButton.delete(
+                                          onPressed: () {
+                                            _showPopupToDeleteTenant(
+                                              context,
+                                              tenant,
+                                              state.currentPage,
+                                              index,
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                verticalSpacing(height: 8),
+                                buildRowTitleValue(
+                                  title: "Existing Flat No.",
+                                  value: tenant.flatNumber,
+                                ),
+                                buildRowTitleValue(
+                                  title: "Existing Flat Type",
+                                  value: tenant.flatType,
+                                ),
+                                buildRowTitleValue(
+                                  title: "New Flat No",
+                                  value:
+                                      tenant.inventoryFlatType.isEmpty
+                                          ? "-"
+                                          : tenant.inventoryFlatType,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/payroll/outdoor/data/model/outdoor.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 abstract interface class OutdoorDatasource {
   Future<Map<String, dynamic>> apicallPullOutdoor({
@@ -45,7 +46,8 @@ class OutdoorDatasourceDataSourceImpl implements OutdoorDatasource {
     }) {
       String url =
           "Outdoor/PullOutdoor?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
+
       return url;
     }
 
@@ -190,7 +192,8 @@ class OutdoorDatasourceDataSourceImpl implements OutdoorDatasource {
     }) {
       String url =
           "Outdoor/PullOutdoor?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
+
       return url;
     }
 

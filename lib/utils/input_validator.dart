@@ -55,7 +55,7 @@ class InputValidator {
 
   static List<TextInputFormatter> digitWithDecimal({
     required int maxDigitsBeforeDecimal,
-    int decimalPlaces = 0,
+    int decimalPlaces = 2,
   }) {
     return [
       TextInputFormatter.withFunction((oldValue, newValue) {

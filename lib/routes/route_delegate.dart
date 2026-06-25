@@ -34,6 +34,9 @@ import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentatio
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/widget/achievement_drill_down_report_for_booking_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/widget/achievement_drill_down_report_for_channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/widget/achievement_drill_down_report_for_enquiry_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/cubit/ibm_obm_report_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pages/ibm_obm_report_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pages/ibm_obm_report_view_screen.dart';
 import 'package:k3h_erp_app/widgets/coming_soon_screen.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.model.dart';
@@ -4441,7 +4444,8 @@ final GoRouter goRouter = GoRouter(
                 return MultiBlocProvider(
                   providers: [
                     BlocProvider(create: (_) => PerformanceCubit()),
-                    BlocProvider(create: (_) => AchievementCubit()),
+                    BlocProvider(create: (_) => AchievementReportCubit()),
+                    BlocProvider(create: (_) => IbmObmReportCubit()),
                   ],
                   child: child,
                 );
@@ -4854,8 +4858,41 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.ibmObmReport,
                   name: AppRoutes.ibmObmReport,
                   builder: (context, state) {
-                    return const ComingSoonScreen(title: "IBM OBM Report");
+                    return IbmObmReportScreen();
                   },
+                  routes: [
+                    GoRoute(
+                      path: AppRoutes.viewIbmObmReport,
+                      name: AppRoutes.viewIbmObmReport,
+                      builder: (context, state) {
+                        final employeeId =
+                            state.uri.queryParameters['employeeId'] != null
+                                ? int.tryParse(
+                                      EncryptionManager.decryptData(
+                                        Uri.decodeComponent(
+                                          state
+                                              .uri
+                                              .queryParameters['employeeId']!,
+                                        ),
+                                      ),
+                                    ) ??
+                                    0
+                                : 0;
+                        final employeeName =
+                            state.uri.queryParameters['employeeName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['employeeName']!,
+                                  ),
+                                )
+                                : '';
+                        return IbmObmReportViewScreen(
+                          employeeId: employeeId,
+                          employeeName: employeeName,
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),

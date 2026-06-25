@@ -13,6 +13,8 @@ class CallTrackerState extends BaseState {
   final DateTime? filterRescheduleToDate;
   final String? filterSource;
   final int currentTabIndex;
+  final String currentSortColumn;
+  final String currentSortDirection;
 
   const CallTrackerState({
     super.isLoading,
@@ -28,6 +30,8 @@ class CallTrackerState extends BaseState {
     required this.filterRescheduleFromDate,
     required this.filterRescheduleToDate,
     required this.filterSource,
+    required this.currentSortColumn,
+    required this.currentSortDirection,
   });
 
   factory CallTrackerState.initial() => CallTrackerState(
@@ -44,6 +48,8 @@ class CallTrackerState extends BaseState {
     filterRescheduleFromDate: null,
     filterRescheduleToDate: null,
     filterSource: "",
+    currentSortColumn: "Created Date",
+    currentSortDirection: "DESC",
   );
 
   static const _noChange = Object();
@@ -62,6 +68,8 @@ class CallTrackerState extends BaseState {
     int? currentTabIndex,
     Object? filterRescheduleFromDate = _noChange,
     Object? filterRescheduleToDate = _noChange,
+    String? currentSortColumn,
+    String? currentSortDirection,
   }) {
     return CallTrackerState(
       isLoading: isLoading ?? this.isLoading,
@@ -88,6 +96,9 @@ class CallTrackerState extends BaseState {
           filterRescheduleToDate == _noChange
               ? this.filterRescheduleToDate
               : filterRescheduleToDate as DateTime?,
+      currentSortColumn: currentSortColumn ?? this.currentSortColumn,
+
+      currentSortDirection: currentSortDirection ?? this.currentSortDirection,
     );
   }
 
@@ -106,5 +117,7 @@ class CallTrackerState extends BaseState {
     filterRescheduleFromDate,
     filterRescheduleToDate,
     filterSource,
+    currentSortColumn,
+    currentSortDirection,
   ];
 }

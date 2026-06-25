@@ -9,10 +9,10 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import '../../../../../../di/app_dependencies.dart';
 import '../../../../../../utils/common_function.dart';
 import '../../data/model/closing_achievement_report.model.dart';
-import 'achievement_report.state.dart';
+import 'achievement_report_state.dart';
 
-class AchievementCubit extends Cubit<AchievementState> {
-  AchievementCubit() : super(AchievementState.initial());
+class AchievementReportCubit extends Cubit<AchievementState> {
+  AchievementReportCubit() : super(AchievementState.initial());
   final AchievementReportRepository _achievementRepository =
       serviceLocator<AchievementReportRepository>();
 
@@ -379,12 +379,14 @@ class AchievementCubit extends Cubit<AchievementState> {
 
   Future applyAchievementFilterAndSort({
     required BuildContext context,
+    required String searchText,
     String? sortColumn,
     String? sortDirection,
     required int activeSecondaryTabIndex,
   }) async {
     emit(
       state.copyWith(
+        searchText: searchText,
         currentSortColumn: sortColumn ?? '',
         currentSortDirection: sortDirection ?? '',
         currentProjectAchievementReportPageNumber: 1,
@@ -422,6 +424,7 @@ class AchievementCubit extends Cubit<AchievementState> {
 
   Future applyManagerAchievementFilterAndSort({
     required BuildContext context,
+    required String employeeName,
     String? sortColumn,
     String? sortDirection,
     required int activeSecondaryTabIndex,
@@ -432,6 +435,7 @@ class AchievementCubit extends Cubit<AchievementState> {
   }) async {
     emit(
       state.copyWith(
+        managerSearchText: employeeName,
         managerCurrentSortColumn: sortColumn ?? '',
         managerCurrentSortDirection: sortDirection ?? '',
         managerClosingAchievementReportPageNumber: 1,
@@ -836,5 +840,25 @@ class AchievementCubit extends Cubit<AchievementState> {
         );
       },
     );
+  }
+
+  int updateFilterCount(AchievementState state) {
+    final hasSort =
+        (state.currentSortColumn == "Project Name" ||
+            state.currentSortColumn == "Employee Name") &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([state.searchText.trim().isNotEmpty, hasSort]);
+  }
+
+  int updateManagerFilterCount(AchievementState state) {
+    final hasSort =
+        (state.managerCurrentSortColumn == "Employee Name") &&
+        (state.managerCurrentSortDirection == "ASC" ||
+            state.managerCurrentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.managerSearchText.trim().isNotEmpty,
+      hasSort,
+    ]);
   }
 }

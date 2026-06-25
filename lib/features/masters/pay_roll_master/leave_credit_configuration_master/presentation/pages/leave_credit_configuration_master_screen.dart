@@ -42,6 +42,8 @@ class _LeaveCreditConfigurationMasterScreenState
   late ScrollController scrollController;
   Timer? _debounce;
 
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
+
   @override
   void initState() {
     super.initState();
@@ -60,6 +62,7 @@ class _LeaveCreditConfigurationMasterScreenState
     scrollController.dispose();
     _searchC.dispose();
     _debounce?.cancel();
+    _filterCount.dispose();
     super.dispose();
   }
 
@@ -140,7 +143,9 @@ class _LeaveCreditConfigurationMasterScreenState
     final state = _leaveCreditConfigurationMasterCubit.state;
 
     _filterDesignationNameC.text = state.filterDesignationName;
+    _searchC.text = state.searchText;
 
+    final String initialDepartmentName = _searchC.text;
     final String initialBranchName = _filterDesignationNameC.text;
 
     DateTime? filterFromDate = state.filterFromLeaveCreditDate;
@@ -156,6 +161,7 @@ class _LeaveCreditConfigurationMasterScreenState
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
+            (_searchC.text.trim() != initialDepartmentName) ||
             (_filterDesignationNameC.text.trim() != initialBranchName) ||
             (filterFromDate != initialFromDate) ||
             (filterToDate != initialToDate);
@@ -179,7 +185,7 @@ class _LeaveCreditConfigurationMasterScreenState
       });
     }
 
-    DialogHelper.showCustomFilterBottomSheet(
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter Leave Credit Configuration",
       contentWidget: StatefulBuilder(
@@ -191,6 +197,12 @@ class _LeaveCreditConfigurationMasterScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  CustomTextField(
+                    textController: _searchC,
+                    hint: "Enter Department Name",
+                    title: "Department Name",
+                    onChangeFunction: (_) => updateApplyState(innerState),
+                  ),
                   CustomTextField(
                     textController: _filterDesignationNameC,
                     hint: "Enter Designation Name",
@@ -283,19 +295,22 @@ class _LeaveCreditConfigurationMasterScreenState
 
         _leaveCreditConfigurationMasterCubit.applyFilterAndSort(
           context: context,
+          filterDepartmentName: '',
           filterFromLeaveCreditDate: null,
           filterToLeaveCreditDate: null,
           filterDesignationName: '',
         );
+        _searchC.clear();
       },
       onApply: () {
         if (filterFormKey.currentState?.validate() ?? false) {
           applied = true;
           _leaveCreditConfigurationMasterCubit.applyFilterAndSort(
             context: context,
-            filterDesignationName: _filterDesignationNameC.text,
+            filterDesignationName: _filterDesignationNameC.text.trim(),
             filterFromLeaveCreditDate: filterFromDate,
             filterToLeaveCreditDate: filterToDate,
+            filterDepartmentName: _searchC.text.trim(),
           );
         }
       },
@@ -306,146 +321,130 @@ class _LeaveCreditConfigurationMasterScreenState
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
       _filterDesignationNameC.clear();
+      _searchC.clear();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Leave Credit Configuration",
-        authorization: _routeAuthorizationModel,
-        textController: _searchC,
-        searchHintText: "Search by Department Name",
-        onSearchSubmit: (value) {
-          _leaveCreditConfigurationMasterCubit.searchLeaveCreditConfiguration(
-            context,
-            value,
-          );
-        },
-        onAddCallback: () async {
-          await goRouter.pushNamed(AppRoutes.addLeaveCreditConfigurationMaster);
-          if (context.mounted) {
+    return BlocListener<
+      LeaveCreditConfigurationMasterCubit,
+      LeaveCreditConfigurationMasterState
+    >(
+      listener: (context, state) {
+        _filterCount.value = _leaveCreditConfigurationMasterCubit
+            .updateLeaveCreditConfigurationFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "Leave Credit Configuration",
+          authorization: _routeAuthorizationModel,
+          textController: _searchC,
+          filterCountNotifier: _filterCount,
+          searchHintText: "Search by Department Name",
+          onSearchSubmit: (value) {
+            _leaveCreditConfigurationMasterCubit.searchLeaveCreditConfiguration(
+              context,
+              value,
+            );
+          },
+          onAddCallback: () async {
+            await goRouter.pushNamed(
+              AppRoutes.addLeaveCreditConfigurationMaster,
+            );
+            if (context.mounted) {
+              _leaveCreditConfigurationMasterCubit
+                  .searchLeaveCreditConfiguration(context, "");
+            }
+          },
+          onExportCallback: (value) {
+            if (_leaveCreditConfigurationMasterCubit
+                    .state
+                    .totalNumberOfRecord ==
+                0) {
+              showErrorMessage(context, "Error", "No Data Found");
+              return;
+            }
+            _leaveCreditConfigurationMasterCubit.exportExcelPdf(context, value);
+          },
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterLeaveCreditConfiguration(context);
+          },
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            _searchC.clear();
             _leaveCreditConfigurationMasterCubit.searchLeaveCreditConfiguration(
               context,
               "",
             );
-          }
-        },
-        onExportCallback: (value) {
-          if (_leaveCreditConfigurationMasterCubit.state.totalNumberOfRecord ==
-              0) {
-            showErrorMessage(context, "Error", "No Data Found");
-            return;
-          }
-          _leaveCreditConfigurationMasterCubit.exportExcelPdf(context, value);
-        },
-        isFilterOn: true,
-        onFilterTap: () {
-          _showBottomSheetToFilterLeaveCreditConfiguration(context);
-        },
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _searchC.clear();
-          _leaveCreditConfigurationMasterCubit.searchLeaveCreditConfiguration(
-            context,
-            "",
-          );
-        },
-        child: BlocBuilder<
-          LeaveCreditConfigurationMasterCubit,
-          LeaveCreditConfigurationMasterState
-        >(
-          builder: (context, state) {
-            if ((state.isLoading ?? true) &&
-                state.leaveCreditConfigurationMasterList.isEmpty) {
-              return Center(child: loader());
-            }
-            if (state.leaveCreditConfigurationMasterList.isEmpty) {
-              return ListView(
-                physics: AlwaysScrollableScrollPhysics(),
-                children: [
-                  SizedBox(
-                    height: getActualHeight(context) * .7,
-                    child: Center(
-                      child: noDataWidget(
-                        message: "No Leave Credit Configuration Data Found",
+          },
+          child: BlocBuilder<
+            LeaveCreditConfigurationMasterCubit,
+            LeaveCreditConfigurationMasterState
+          >(
+            builder: (context, state) {
+              if ((state.isLoading ?? true) &&
+                  state.leaveCreditConfigurationMasterList.isEmpty) {
+                return Center(child: loader());
+              }
+              if (state.leaveCreditConfigurationMasterList.isEmpty) {
+                return ListView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: getActualHeight(context) * .7,
+                      child: Center(
+                        child: noDataWidget(
+                          message: "No Leave Credit Configuration Data Found",
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              );
-            }
-            return ListView.builder(
-              controller: scrollController,
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              itemCount:
-                  _leaveCreditConfigurationMasterCubit
-                      .state
-                      .leaveCreditConfigurationMasterList
-                      .length +
-                  1,
-              itemBuilder: (context, index) {
-                if (index == state.leaveCreditConfigurationMasterList.length) {
-                  return state.leaveCreditConfigurationMasterList.length <
-                          state.totalNumberOfRecord
-                      ? Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                      : const SizedBox.shrink();
-                }
-                var leaveCreditConfigurationMaster =
-                    state.leaveCreditConfigurationMasterList[index];
-                return Container(
-                  margin: EdgeInsets.only(bottom: 10),
-                  padding: EdgeInsets.all(12),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: GestureDetector(
-                              onTap: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.viewLeaveCreditConfigurationMaster,
-                                  queryParameters: {
-                                    "leaveCreditConfiguration":
-                                        Uri.encodeComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(
-                                              leaveCreditConfigurationMaster
-                                                  .toJson(),
-                                            ),
-                                          ),
-                                        ),
-                                  },
-                                );
-                              },
-                              child: Text(
-                                leaveCreditConfigurationMaster.departmentName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ).copyWith(
-                                  decorationColor: AppColor.primary,
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addLeaveCreditConfigurationMaster,
+                  ],
+                );
+              }
+              return ListView.builder(
+                controller: scrollController,
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                itemCount:
+                    _leaveCreditConfigurationMasterCubit
+                        .state
+                        .leaveCreditConfigurationMasterList
+                        .length +
+                    1,
+                itemBuilder: (context, index) {
+                  if (index ==
+                      state.leaveCreditConfigurationMasterList.length) {
+                    return state.leaveCreditConfigurationMasterList.length <
+                            state.totalNumberOfRecord
+                        ? Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : const SizedBox.shrink();
+                  }
+                  var leaveCreditConfigurationMaster =
+                      state.leaveCreditConfigurationMasterList[index];
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 10),
+                    padding: EdgeInsets.all(12),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () {
+                                  goRouter.pushNamed(
+                                    AppRoutes
+                                        .viewLeaveCreditConfigurationMaster,
                                     queryParameters: {
-                                      'leaveCreditConfiguration':
+                                      "leaveCreditConfiguration":
                                           Uri.encodeComponent(
                                             EncryptionManager.encryptData(
                                               jsonEncode(
@@ -454,58 +453,91 @@ class _LeaveCreditConfigurationMasterScreenState
                                               ),
                                             ),
                                           ),
-                                      'index': index.toString(),
                                     },
                                   );
                                 },
+                                child: Text(
+                                  leaveCreditConfigurationMaster.departmentName,
+                                  style: AppTextStyle.ts16M(
+                                    color: AppColor.primary,
+                                  ).copyWith(
+                                    decorationColor: AppColor.primary,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
                               ),
-                              horizontalSpacing(),
-                              CustomIconButton.delete(
-                                onPressed: () {
-                                  _showDeleteDialog(
-                                    context,
-                                    leaveCreditConfigurationMaster,
-                                    state.currentPage,
-                                    index,
-                                  );
-                                },
-                              ),
-                            ],
+                            ),
+                            Row(
+                              children: [
+                                CustomIconButton.edit(
+                                  onPressed: () async {
+                                    await goRouter.pushNamed(
+                                      AppRoutes
+                                          .addLeaveCreditConfigurationMaster,
+                                      queryParameters: {
+                                        'leaveCreditConfiguration':
+                                            Uri.encodeComponent(
+                                              EncryptionManager.encryptData(
+                                                jsonEncode(
+                                                  leaveCreditConfigurationMaster
+                                                      .toJson(),
+                                                ),
+                                              ),
+                                            ),
+                                        'index': index.toString(),
+                                      },
+                                    );
+                                  },
+                                ),
+                                horizontalSpacing(),
+                                CustomIconButton.delete(
+                                  onPressed: () {
+                                    _showDeleteDialog(
+                                      context,
+                                      leaveCreditConfigurationMaster,
+                                      state.currentPage,
+                                      index,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        _buildInfoRow(
+                          "Period Mode",
+                          leaveCreditConfigurationMaster.leavePeriodMode,
+                        ),
+                        verticalSpacing(height: 5),
+                        _buildInfoRow(
+                          "Financial Year Start Date",
+                          formatDateTimeAsDDMMMYYYY(
+                            leaveCreditConfigurationMaster
+                                .financialYearStartDate,
                           ),
-                        ],
-                      ),
-                      verticalSpacing(),
-                      _buildInfoRow(
-                        "Period Mode",
-                        leaveCreditConfigurationMaster.leavePeriodMode,
-                      ),
-                      verticalSpacing(height: 5),
-                      _buildInfoRow(
-                        "Financial Year Start Date",
-                        formatDateTimeAsDDMMMYYYY(
-                          leaveCreditConfigurationMaster.financialYearStartDate,
                         ),
-                      ),
-                      verticalSpacing(height: 5),
-                      _buildInfoRow(
-                        "Financial Year End Date",
-                        formatDateTimeAsDDMMMYYYY(
-                          leaveCreditConfigurationMaster.financialYearEndDate,
+                        verticalSpacing(height: 5),
+                        _buildInfoRow(
+                          "Financial Year End Date",
+                          formatDateTimeAsDDMMMYYYY(
+                            leaveCreditConfigurationMaster.financialYearEndDate,
+                          ),
                         ),
-                      ),
-                      verticalSpacing(height: 5),
-                      _buildInfoRow(
-                        "Designation",
-                        leaveCreditConfigurationMaster.designationName.isEmpty
-                            ? "-"
-                            : leaveCreditConfigurationMaster.designationName,
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
+                        verticalSpacing(height: 5),
+                        _buildInfoRow(
+                          "Designation",
+                          leaveCreditConfigurationMaster.designationName.isEmpty
+                              ? "-"
+                              : leaveCreditConfigurationMaster.designationName,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );

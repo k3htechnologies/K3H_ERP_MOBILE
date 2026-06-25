@@ -39,6 +39,8 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC, _filterEmployeeNameC;
 
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
+
   @override
   void initState() {
     super.initState();
@@ -58,6 +60,9 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
   void dispose() {
     scrollController.dispose();
     _searchC.dispose();
+    _filterEmployeeNameC.dispose();
+    scrollController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
@@ -93,7 +98,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
     BuildContext context,
   ) async {
     final state = _assetMappingMasterCubit.state;
-
+    _searchC.text = state.searchText;
     _filterEmployeeNameC.text = state.filterEmployeeName;
 
     String? selectedDirection =
@@ -101,6 +106,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
             ? state.currentSortDirection
             : null;
 
+    final String initialAssetName = _searchC.text;
     final String initialEmployeeName = _filterEmployeeNameC.text;
     final String? initialDirection = selectedDirection;
 
@@ -111,6 +117,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
+            (_searchC.text.trim() != initialAssetName) ||
             (_filterEmployeeNameC.text.trim() != initialEmployeeName) ||
             (selectedDirection != initialDirection);
 
@@ -118,7 +125,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
       });
     }
 
-    DialogHelper.showCustomFilterBottomSheet(
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter Asset Mapping",
       contentWidget: StatefulBuilder(
@@ -181,6 +188,12 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                 verticalSpacing(height: 20),
 
                 CustomTextField(
+                  title: "Asset Name",
+                  hint: "Enter Asset Name",
+                  textController: _searchC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
                   title: "Employee Name",
                   hint: "Enter Employee Name",
                   textController: _filterEmployeeNameC,
@@ -195,15 +208,18 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
       onClear: () {
         _assetMappingMasterCubit.applyFilterAndSort(
           context: context,
+          filterAssetName: "",
           filterEmployeeName: "",
           sortColumn: "Created Date",
           sortDirection: "DESC",
         );
+        _searchC.clear();
       },
       onApply: () {
         applied = true;
         _assetMappingMasterCubit.applyFilterAndSort(
           context: context,
+          filterAssetName: _searchC.text.trim(),
           filterEmployeeName: _filterEmployeeNameC.text,
           sortColumn: selectedDirection != null ? "Asset Name" : null,
           sortDirection: selectedDirection,
@@ -216,160 +232,173 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
     // IF CLOSED WITHOUT APPLY
     if (!applied && manualClose) {
       _filterEmployeeNameC.clear();
+      _searchC.clear();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Asset Mapping Master",
-        authorization: _routeAuthorizationModel,
-        onSearchSubmit: (value) {
-          _assetMappingMasterCubit.searchAssetMapping(value, context);
-        },
-        textController: _searchC,
-        searchHintText: "Search by Asset Name",
-        onAddCallback: () async {
-          await goRouter.pushNamed(AppRoutes.addAssetMappingMaster);
-          if (context.mounted) {
+    return BlocListener<AssetMappingMasterCubit, AssetMappingMasterState>(
+      listener: (context, state) {
+        _filterCount.value = _assetMappingMasterCubit.updateFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "Asset Mapping Master",
+          authorization: _routeAuthorizationModel,
+          onSearchSubmit: (value) {
+            _assetMappingMasterCubit.searchAssetMapping(value, context);
+          },
+          filterCountNotifier: _filterCount,
+          textController: _searchC,
+          searchHintText: "Search by Asset Name",
+          onAddCallback: () async {
+            await goRouter.pushNamed(AppRoutes.addAssetMappingMaster);
+            if (context.mounted) {
+              _assetMappingMasterCubit.searchAssetMapping("", context);
+            }
+          },
+          onExportCallback: (value) {
+            if (_assetMappingMasterCubit.state.totalNumberOfRecord == 0) {
+              showErrorMessage(context, "Error", "No Data Found");
+              return;
+            }
+            _assetMappingMasterCubit.exportExcelPdf(context, value);
+          },
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterAssetMapping(context);
+          },
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            _searchC.clear();
             _assetMappingMasterCubit.searchAssetMapping("", context);
-          }
-        },
-        onExportCallback: (value) {
-          if (_assetMappingMasterCubit.state.totalNumberOfRecord == 0) {
-            showErrorMessage(context, "Error", "No Data Found");
-            return;
-          }
-          _assetMappingMasterCubit.exportExcelPdf(context, value);
-        },
-        isFilterOn: true,
-        onFilterTap: () {
-          _showBottomSheetToFilterAssetMapping(context);
-        },
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _searchC.clear();
-          _assetMappingMasterCubit.searchAssetMapping("", context);
-        },
-        child: BlocBuilder<AssetMappingMasterCubit, AssetMappingMasterState>(
-          builder: (context, state) {
-            if ((state.isLoading ?? true) && state.assetMappingList.isEmpty) {
-              return Center(child: loader());
-            }
-            if (state.assetMappingList.isEmpty) {
-              return ListView(
-                physics: AlwaysScrollableScrollPhysics(),
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    child: Center(
-                      child: noDataWidget(message: "No Asset Data Found"),
+          },
+          child: BlocBuilder<AssetMappingMasterCubit, AssetMappingMasterState>(
+            builder: (context, state) {
+              if ((state.isLoading ?? true) && state.assetMappingList.isEmpty) {
+                return Center(child: loader());
+              }
+              if (state.assetMappingList.isEmpty) {
+                return ListView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height,
+                      child: Center(
+                        child: noDataWidget(message: "No Asset Data Found"),
+                      ),
                     ),
-                  ),
-                ],
-              );
-            }
-            return ListView.builder(
-              controller: scrollController,
-              physics: AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              itemCount: state.assetMappingList.length + 1,
-              itemBuilder: (context, index) {
-                if (index == state.assetMappingList.length) {
-                  return state.assetMappingList.length <
-                          state.totalNumberOfRecord
-                      ? const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                      : const SizedBox.shrink();
-                }
-                var assetMapping = state.assetMappingList[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(12),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: GestureDetector(
-                              onTap: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.viewAssetMappingMaster,
-                                  queryParameters: {
-                                    "assetMapping": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(assetMapping.toJson()),
-                                      ),
-                                    ),
-                                  },
-                                );
-                              },
-                              child: Text(
-                                assetMapping.assetName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              CustomIconButton.edit(
-                                onPressed: () async {
+                  ],
+                );
+              }
+              return ListView.builder(
+                controller: scrollController,
+                physics: AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                itemCount: state.assetMappingList.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == state.assetMappingList.length) {
+                    return state.assetMappingList.length <
+                            state.totalNumberOfRecord
+                        ? const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : const SizedBox.shrink();
+                  }
+                  var assetMapping = state.assetMappingList[index];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(12),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () {
                                   goRouter.pushNamed(
-                                    AppRoutes.addAssetMappingMaster,
+                                    AppRoutes.viewAssetMappingMaster,
                                     queryParameters: {
                                       "assetMapping": Uri.encodeQueryComponent(
                                         EncryptionManager.encryptData(
                                           jsonEncode(assetMapping.toJson()),
                                         ),
                                       ),
-                                      'index': index.toString(),
                                     },
                                   );
                                 },
+                                child: Text(
+                                  assetMapping.assetName,
+                                  style: AppTextStyle.ts16M(
+                                    color: AppColor.primary,
+                                  ).copyWith(
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColor.primary,
+                                  ),
+                                ),
                               ),
-                            ],
+                            ),
+                            Row(
+                              children: [
+                                CustomIconButton.edit(
+                                  onPressed: () async {
+                                    goRouter.pushNamed(
+                                      AppRoutes.addAssetMappingMaster,
+                                      queryParameters: {
+                                        "assetMapping":
+                                            Uri.encodeQueryComponent(
+                                              EncryptionManager.encryptData(
+                                                jsonEncode(
+                                                  assetMapping.toJson(),
+                                                ),
+                                              ),
+                                            ),
+                                        'index': index.toString(),
+                                      },
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(height: 8),
+                        buildRowTitleValue(
+                          title: "Employee",
+                          value: assetMapping.employeeName,
+                        ),
+                        buildRowTitleValue(
+                          title: "Assigned Date",
+                          value: formatDateTimeAsDDMMMYYYY(
+                            assetMapping.assignedDate,
                           ),
-                        ],
-                      ),
-                      verticalSpacing(height: 8),
-                      buildRowTitleValue(
-                        title: "Employee",
-                        value: assetMapping.employeeName,
-                      ),
-                      buildRowTitleValue(
-                        title: "Assigned Date",
-                        value: formatDateTimeAsDDMMMYYYY(
-                          assetMapping.assignedDate,
                         ),
-                      ),
-                      if (assetMapping.conditionOnIssue.isNotEmpty)
-                        buildRowTitleValue(
-                          title: "Condition on Issue",
-                          value: assetMapping.conditionOnIssue,
-                        ),
-                      if (assetMapping.conditionOnReturn.isNotEmpty)
-                        buildRowTitleValue(
-                          title: "Condition on Return",
-                          value: assetMapping.conditionOnReturn,
-                        ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
+                        if (assetMapping.conditionOnIssue.isNotEmpty)
+                          buildRowTitleValue(
+                            title: "Condition on Issue",
+                            value: assetMapping.conditionOnIssue,
+                          ),
+                        if (assetMapping.conditionOnReturn.isNotEmpty)
+                          buildRowTitleValue(
+                            title: "Condition on Return",
+                            value: assetMapping.conditionOnReturn,
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );
