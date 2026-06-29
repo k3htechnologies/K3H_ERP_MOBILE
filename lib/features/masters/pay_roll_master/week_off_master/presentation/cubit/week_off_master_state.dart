@@ -53,5 +53,7 @@ class WeekOffMasterState extends BaseState {
     searchText,
     totalNumberOfRecord,
     weekOffMasterList,
+    currentSortColumn,
+    currentSortDirection,
   ];
 }

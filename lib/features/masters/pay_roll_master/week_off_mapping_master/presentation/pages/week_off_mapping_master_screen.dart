@@ -42,6 +42,8 @@ class _WeekOffMappingMasterScreenState
 
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC, _filterDepartmentC, _filterEmployeeNameC;
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
+
   @override
   void initState() {
     super.initState();
@@ -60,6 +62,8 @@ class _WeekOffMappingMasterScreenState
   @override
   void dispose() {
     scrollController.dispose();
+    _debounce?.cancel();
+    _filterCount.dispose();
     _searchC.dispose();
     _filterDepartmentC.dispose();
     _filterEmployeeNameC.dispose();
@@ -118,6 +122,7 @@ class _WeekOffMappingMasterScreenState
     // Initialize filter text controllers
     _filterDepartmentC.text = state.filterDepartmentName;
     _filterEmployeeNameC.text = state.filterEmployeeName;
+    _searchC.text = state.searchText;
 
     // Sorting
     String? selectedDirection =
@@ -126,6 +131,7 @@ class _WeekOffMappingMasterScreenState
             : null;
 
     // Keep initial values to detect changes
+    final String initialWeekOffPolicyName = _searchC.text;
     final String initialDepartment = _filterDepartmentC.text;
     final String initialEmployeeName = _filterEmployeeNameC.text;
     final String? initialDirection = selectedDirection;
@@ -137,15 +143,15 @@ class _WeekOffMappingMasterScreenState
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
+            (_searchC.text.trim() != initialWeekOffPolicyName) ||
             (_filterDepartmentC.text.trim() != initialDepartment) ||
             (_filterEmployeeNameC.text.trim() != initialEmployeeName) ||
             (selectedDirection != initialDirection);
-
         applyEnabled.value = manualClose;
       });
     }
 
-    DialogHelper.showCustomFilterBottomSheet(
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter Week Off Mapping",
       contentWidget: StatefulBuilder(
@@ -207,6 +213,12 @@ class _WeekOffMappingMasterScreenState
                 ),
 
                 verticalSpacing(height: 20),
+                CustomTextField(
+                  title: "Week Off Policy Name",
+                  hint: "Enter Week Off Policy Name",
+                  textController: _searchC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
 
                 CustomTextField(
                   title: "Department",
@@ -227,18 +239,25 @@ class _WeekOffMappingMasterScreenState
         },
       ),
       onClear: () {
+        _searchC.clear();
+        _filterDepartmentC.clear();
+        _filterEmployeeNameC.clear();
+
         _weekOffMappingMasterCubit.applyFilterAndSort(
           context: context,
+          filterWeekOffPolicyName: "",
           filterDepartmentName: "",
           filterEmployeeName: "",
           sortColumn: "Created Date",
           sortDirection: "DESC",
         );
+        _searchC.clear();
       },
       onApply: () {
         applied = true;
         _weekOffMappingMasterCubit.applyFilterAndSort(
           context: context,
+          filterWeekOffPolicyName: _searchC.text.trim(),
           filterDepartmentName: _filterDepartmentC.text,
           filterEmployeeName: _filterEmployeeNameC.text,
           sortColumn: selectedDirection != null ? "Week Off Policy Name" : null,
@@ -251,6 +270,7 @@ class _WeekOffMappingMasterScreenState
 
     // If bottom sheet closed without applying, reset
     if (!applied && manualClose) {
+      _searchC.clear();
       _filterDepartmentC.clear();
       _filterEmployeeNameC.clear();
     }
@@ -258,120 +278,101 @@ class _WeekOffMappingMasterScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Week Off Mapping Master",
-        authorization: _routeAuthorizationModel,
-        onAddCallback: () async {
-          await goRouter.pushNamed(AppRoutes.addWeekOffMappingMaster);
-          if (context.mounted) {
-            _weekOffMappingMasterCubit.searchWeekOffMapping("", context);
-          }
-        },
-        textController: _searchC,
-        searchHintText: "Search by Week Off Policy Name",
-        onExportCallback: (value) {
-          if (_weekOffMappingMasterCubit.state.totalNumberOfRecord == 0) {
-            showErrorMessage(context, "Error", "No Data Found");
-            return;
-          }
-          _weekOffMappingMasterCubit.exportExcelPdf(context, value);
-        },
-        onSearchSubmit: (value) {
-          _weekOffMappingMasterCubit.searchWeekOffMapping(value, context);
-        },
-        isFilterOn: true,
-        onFilterTap: () {
-          _showBottomSheetToFilterWeekMapping(context);
-        },
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _searchC.clear();
-          _weekOffMappingMasterCubit.searchWeekOffMapping("", context);
-        },
-        child: BlocBuilder<
-          WeekOffMappingMasterCubit,
-          WeekOffMappingMasterState
-        >(
-          builder: (context, state) {
-            if ((state.isLoading ?? true) && state.weekOffMappingList.isEmpty) {
-              return Center(child: loader());
+    return BlocListener<WeekOffMappingMasterCubit, WeekOffMappingMasterState>(
+      listener: (context, state) {
+        _filterCount.value = _weekOffMappingMasterCubit.updateFilterCount(
+          state,
+        );
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "Week Off Mapping Master",
+          authorization: _routeAuthorizationModel,
+          filterCountNotifier: _filterCount,
+          onAddCallback: () async {
+            await goRouter.pushNamed(AppRoutes.addWeekOffMappingMaster);
+            if (context.mounted) {
+              _weekOffMappingMasterCubit.searchWeekOffMapping("", context);
             }
-            if (state.weekOffMappingList.isEmpty) {
-              return ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: [
-                  SizedBox(
-                    height: getActualHeight(context) * .7,
-                    child: Center(
-                      child: noDataWidget(
-                        message: "No Week Off Mapping Data Found",
+          },
+          textController: _searchC,
+          searchHintText: "Search by Week Off Policy Name",
+          onExportCallback: (value) {
+            if (_weekOffMappingMasterCubit.state.totalNumberOfRecord == 0) {
+              showErrorMessage(context, "Error", "No Data Found");
+              return;
+            }
+            _weekOffMappingMasterCubit.exportExcelPdf(context, value);
+          },
+          onSearchSubmit: (value) {
+            _weekOffMappingMasterCubit.searchWeekOffMapping(value, context);
+          },
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterWeekMapping(context);
+          },
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            _searchC.clear();
+            _weekOffMappingMasterCubit.searchWeekOffMapping("", context);
+          },
+          child: BlocBuilder<
+            WeekOffMappingMasterCubit,
+            WeekOffMappingMasterState
+          >(
+            builder: (context, state) {
+              if ((state.isLoading ?? true) &&
+                  state.weekOffMappingList.isEmpty) {
+                return Center(child: loader());
+              }
+              if (state.weekOffMappingList.isEmpty) {
+                return ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: getActualHeight(context) * .7,
+                      child: Center(
+                        child: noDataWidget(
+                          message: "No Week Off Mapping Data Found",
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              );
-            }
-            return ListView.builder(
-              controller: scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              itemCount: state.weekOffMappingList.length + 1,
-              itemBuilder: (context, index) {
-                if (index == state.weekOffMappingList.length) {
-                  return state.weekOffMappingList.length <
-                          state.totalNumberOfRecord
-                      ? const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                      : const SizedBox.shrink();
-                }
-                var weekOffMappingMaster = state.weekOffMappingList[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(12),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: GestureDetector(
-                              onTap: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.viewWeekOffMappingMaster,
-                                  queryParameters: {
-                                    "weekOffMapping": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(
-                                          weekOffMappingMaster.toJson(),
-                                        ),
-                                      ),
-                                    ),
-                                  },
-                                );
-                              },
-                              child: Text(
-                                weekOffMappingMaster.weekOffPolicyName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addWeekOffMappingMaster,
+                  ],
+                );
+              }
+              return ListView.builder(
+                controller: scrollController,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                itemCount: state.weekOffMappingList.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == state.weekOffMappingList.length) {
+                    return state.weekOffMappingList.length <
+                            state.totalNumberOfRecord
+                        ? const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : const SizedBox.shrink();
+                  }
+                  var weekOffMappingMaster = state.weekOffMappingList[index];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(12),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () {
+                                  goRouter.pushNamed(
+                                    AppRoutes.viewWeekOffMappingMaster,
                                     queryParameters: {
                                       "weekOffMapping":
                                           Uri.encodeQueryComponent(
@@ -381,50 +382,82 @@ class _WeekOffMappingMasterScreenState
                                               ),
                                             ),
                                           ),
-                                      'index': index.toString(),
                                     },
                                   );
                                 },
+                                child: Text(
+                                  weekOffMappingMaster.weekOffPolicyName,
+                                  style: AppTextStyle.ts16M(
+                                    color: AppColor.primary,
+                                  ).copyWith(
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColor.primary,
+                                  ),
+                                ),
                               ),
-                              const SizedBox(width: 8),
-                              CustomIconButton.delete(
-                                onPressed: () {
-                                  _showPopupToDeleteWeekOffMappingMaster(
-                                    context,
-                                    weekOffMappingMaster,
-                                    state.currentPage,
-                                    index,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      verticalSpacing(height: 10),
+                            ),
 
-                      buildRowTitleValue(
-                        title: "Deparment Name",
-                        value: weekOffMappingMaster.departmentName,
-                      ),
-                      buildRowTitleValue(
-                        title: "Employee Name",
-                        value: weekOffMappingMaster.employeeName,
-                      ),
-                      buildRowTitleValue(
-                        title: "Week Off",
-                        value: weekOffMappingMaster.weekOffPolicyCode,
-                      ),
-                      buildRowTitleValue(
-                        title: "Week Off 2",
-                        value: weekOffMappingMaster.weeklyOff2,
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                CustomIconButton.edit(
+                                  onPressed: () async {
+                                    await goRouter.pushNamed(
+                                      AppRoutes.addWeekOffMappingMaster,
+                                      queryParameters: {
+                                        "weekOffMapping":
+                                            Uri.encodeQueryComponent(
+                                              EncryptionManager.encryptData(
+                                                jsonEncode(
+                                                  weekOffMappingMaster.toJson(),
+                                                ),
+                                              ),
+                                            ),
+                                        'index': index.toString(),
+                                      },
+                                    );
+                                  },
+                                ),
+                                const SizedBox(width: 8),
+                                CustomIconButton.delete(
+                                  onPressed: () {
+                                    _showPopupToDeleteWeekOffMappingMaster(
+                                      context,
+                                      weekOffMappingMaster,
+                                      state.currentPage,
+                                      index,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(height: 10),
+
+                        buildRowTitleValue(
+                          title: "Deparment Name",
+                          value: weekOffMappingMaster.departmentName,
+                        ),
+                        buildRowTitleValue(
+                          title: "Employee Name",
+                          value: weekOffMappingMaster.employeeName,
+                        ),
+                        buildRowTitleValue(
+                          title: "Week Off",
+                          value: weekOffMappingMaster.weekOffPolicyCode,
+                        ),
+                        buildRowTitleValue(
+                          title: "Week Off 2",
+                          value: weekOffMappingMaster.weeklyOff2,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );

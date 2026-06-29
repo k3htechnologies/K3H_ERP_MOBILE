@@ -278,11 +278,13 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
 
   Future<void> applyFilterAndSort({
     required BuildContext context,
+    required String filterShiftName,
     String? sortColumn,
     String? sortDirection,
   }) async {
     emit(
       state.copyWith(
+        searchText: filterShiftName,
         currentSortColumn: sortColumn ?? state.currentSortColumn,
         currentSortDirection: sortDirection ?? state.currentSortDirection,
         shiftMasterList: [],
@@ -291,5 +293,13 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
     );
 
     await getShiftList(context: context, pageNumber: 1);
+  }
+
+  int updateFilterCount(ShiftMasterState state) {
+    final hasSort =
+        state.currentSortColumn == "Shift Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([state.searchText.isNotEmpty, hasSort]);
   }
 }

@@ -799,7 +799,7 @@ String queryParamsFormatter({required Map<String, dynamic>? queryParams}) {
   String url = '';
   queryParams?.forEach((key, value) {
     if (value != null && value.toString().trim().isNotEmpty) {
-      url += "&$key=$value";
+      url += "&$key=${Uri.encodeQueryComponent(value.toString())}";
     }
   });
   return url;
@@ -834,6 +834,25 @@ Future<void> loadAndSelectProjectById(int projectId) async {
       jsonEncode(selectedProject.toJson()),
     );
   }
+}
+
+List<Map<String, dynamic>> get projectList {
+  final projectsJson = LocalStorageManager().getString(StorageKey.projectList);
+
+  if (projectsJson == null || projectsJson.isEmpty) {
+    return [];
+  }
+
+  final List<dynamic> decodedList = jsonDecode(projectsJson);
+
+  return decodedList.map<Map<String, dynamic>>((e) {
+    final project = ProjectModel.fromJson(e);
+
+    return {
+      "zAttributesId": project.projectId,
+      "DisplayName": project.projectName,
+    };
+  }).toList();
 }
 
 extension IndianCurrencyExtension on num {
@@ -876,4 +895,16 @@ bool isCurrentDay(String dayName) {
   final today = DateFormat('EEEE').format(DateTime.now());
 
   return today.toLowerCase() == dayName.toLowerCase();
+}
+
+String toTitleCase(String columnName) {
+  return columnName
+      .toLowerCase()
+      .split(' ')
+      .map((e) => e.isEmpty ? e : '${e[0].toUpperCase()}${e.substring(1)}')
+      .join(' ');
+}
+
+int getActiveFilterCount(List<bool> filters) {
+  return filters.where((e) => e).length;
 }

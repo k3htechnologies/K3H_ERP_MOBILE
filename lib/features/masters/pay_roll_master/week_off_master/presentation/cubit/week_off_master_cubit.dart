@@ -249,11 +249,13 @@ class WeekOffMasterCubit extends Cubit<WeekOffMasterState> {
 
   Future<void> applyFilterAndSort({
     required BuildContext context,
+    required String weekOffPolicyName,
     String? sortColumn,
     String? sortDirection,
   }) async {
     emit(
       state.copyWith(
+        searchText: weekOffPolicyName,
         currentSortColumn: sortColumn ?? state.currentSortColumn,
         currentSortDirection: sortDirection ?? state.currentSortDirection,
         weekOffMasterList: [],
@@ -262,5 +264,13 @@ class WeekOffMasterCubit extends Cubit<WeekOffMasterState> {
     );
 
     await getWeekOffList(context: context, pageNumber: 1);
+  }
+
+  int updateFilterCount(WeekOffMasterState state) {
+    final hasSort =
+        state.currentSortColumn == "Week Off Policy Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([state.searchText.trim().isNotEmpty, hasSort]);
   }
 }

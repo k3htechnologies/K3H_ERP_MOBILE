@@ -9,6 +9,11 @@ class VendorState extends BaseState {
   final String currentSortDirection;
   final String filterByCompanyName;
   final String filterByCompanyType;
+  final String filterByMobileNumber;
+  final String filterByCity;
+  final String filterByGstNumber;
+  final String filterByAadhaarCardNumber;
+  final String filterByPanCardNumber;
 
   const VendorState({
     super.isLoading,
@@ -21,6 +26,11 @@ class VendorState extends BaseState {
     required this.currentSortDirection,
     required this.filterByCompanyName,
     required this.filterByCompanyType,
+    required this.filterByMobileNumber,
+    required this.filterByCity,
+    required this.filterByGstNumber,
+    required this.filterByAadhaarCardNumber,
+    required this.filterByPanCardNumber,
   });
 
   factory VendorState.initial() => VendorState(
@@ -33,6 +43,11 @@ class VendorState extends BaseState {
     currentSortDirection: "DESC",
     filterByCompanyName: "",
     filterByCompanyType: "",
+    filterByMobileNumber: "",
+    filterByCity: "",
+    filterByGstNumber: "",
+    filterByAadhaarCardNumber: "",
+    filterByPanCardNumber: "",
   );
 
   VendorState copyWith({
@@ -46,6 +61,11 @@ class VendorState extends BaseState {
     String? currentSortDirection,
     String? filterByCompanyName,
     String? filterByCompanyType,
+    String? filterByMobileNumber,
+    String? filterByCity,
+    String? filterByGstNumber,
+    String? filterByAadhaarCardNumber,
+    String? filterByPanCardNumber,
   }) {
     return VendorState(
       isLoading: isLoading ?? this.isLoading,
@@ -58,6 +78,13 @@ class VendorState extends BaseState {
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
       filterByCompanyName: filterByCompanyName ?? this.filterByCompanyName,
       filterByCompanyType: filterByCompanyType ?? this.filterByCompanyType,
+      filterByMobileNumber: filterByMobileNumber ?? this.filterByMobileNumber,
+      filterByCity: filterByCity ?? this.filterByCity,
+      filterByGstNumber: filterByGstNumber ?? this.filterByGstNumber,
+      filterByAadhaarCardNumber:
+          filterByAadhaarCardNumber ?? this.filterByAadhaarCardNumber,
+      filterByPanCardNumber:
+          filterByPanCardNumber ?? this.filterByPanCardNumber,
     );
   }
 
@@ -73,6 +100,10 @@ class VendorState extends BaseState {
     currentSortDirection,
     filterByCompanyName,
     filterByCompanyType,
+    filterByMobileNumber,
+    filterByCity,
+    filterByGstNumber,
+    filterByAadhaarCardNumber,
+    filterByPanCardNumber,
   ];
-
 }

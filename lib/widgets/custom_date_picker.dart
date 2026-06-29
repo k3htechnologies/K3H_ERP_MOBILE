@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -129,7 +130,7 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6.0),
+                    borderRadius: BorderRadius.circular(6.r),
                     color: AppColor.white,
                   ),
                   child: InkWell(
@@ -144,18 +145,18 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                         hintStyle: AppTextStyle.ts14R(),
                         labelText: widget.label,
                         labelStyle: AppTextStyle.ts14R(),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 10.0,
-                          vertical: 15.0,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 10.w,
+                          vertical: 15.h,
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6.0),
+                          borderRadius: BorderRadius.circular(6.r),
                           borderSide: BorderSide(
                             color:
                                 formFieldState.hasError
                                     ? AppColor.error
                                     : AppColor.grey30,
-                            width: 1.0,
+                            width: 1.w,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
@@ -165,7 +166,7 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                                 formFieldState.hasError
                                     ? AppColor.error
                                     : AppColor.grey30,
-                            width: 1.0,
+                            width: 1.w,
                           ),
                         ),
                         errorStyle: const TextStyle(height: 0),
@@ -199,7 +200,7 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                                 formFieldState.didChange(null);
                               },
                               child: Padding(
-                                padding: const EdgeInsets.only(right: 8),
+                                padding: EdgeInsets.only(right: 8.w),
                                 child: Icon(
                                   Icons.close,
                                   size: 18,
@@ -224,12 +225,15 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                       margin: EdgeInsets.only(bottom: 10),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.info_outline,
-                            color: AppColor.error,
-                            size: 14,
+                          Padding(
+                            padding: EdgeInsets.only(top: 2.h),
+                            child: Icon(
+                              Icons.info_outline,
+                              color: AppColor.error,
+                              size: 14,
+                            ),
                           ),
                           horizontalSpacing(width: 5),
                           Expanded(

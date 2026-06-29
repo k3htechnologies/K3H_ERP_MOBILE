@@ -50,6 +50,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String? exportMonthYear;
   final Function(String)? onImportResult;
   final bool showMenuIcon;
+  final ValueNotifier<int>? filterCountNotifier;
 
   const CustomAppBar({
     super.key,
@@ -77,6 +78,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.onImportResult,
     this.textControllerInputType = TextInputType.text,
     this.showMenuIcon = true,
+    this.filterCountNotifier,
   });
 
   static const double _baseHeight = 90;
@@ -346,6 +348,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                         textController: widget.textController!,
                         isFilterOn: widget.isFilterOn,
                         onFilterTap: widget.onFilterTap,
+                        filterCountNotifier: widget.filterCountNotifier,
                         textControllerInputType: widget.textControllerInputType,
                       ),
                     ),
@@ -370,6 +373,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                           onPressed: () {
                             if (widget.textController != null) {
                               widget.textController!.clear();
+                              
                             }
                             widget.onAddCallback!();
                           },

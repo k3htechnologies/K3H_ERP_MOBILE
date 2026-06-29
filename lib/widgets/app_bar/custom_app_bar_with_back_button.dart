@@ -32,6 +32,7 @@ class CustomAppBarWithBackButton extends StatefulWidget
   final Function(ProjectModel)? onProjectChangeCallback;
   final VoidCallback? onFilterTap;
   final Widget? secondaryWidget;
+  final ValueNotifier<int>? filterCountNotifier;
 
   const CustomAppBarWithBackButton({
     super.key,
@@ -44,6 +45,7 @@ class CustomAppBarWithBackButton extends StatefulWidget
     this.onProjectChangeCallback,
     this.onFilterTap,
     this.secondaryWidget,
+    this.filterCountNotifier,
   });
 
   @override
@@ -303,12 +305,61 @@ class _CustomAppBarWithBackButtonState
 
                 if (widget.onFilterTap != null) ...[
                   horizontalSpacing(),
-                  CustomIconButton(
-                    onPressed: () {
-                      widget.onFilterTap!();
-                    },
-                    backgroundColor: AppColor.lightBlue,
-                    icon: SvgPicture.asset(AppAssets.filterIcon, height: 16),
+                  GestureDetector(
+                    onTap: widget.onFilterTap,
+                    child: ValueListenableBuilder<int>(
+                      valueListenable:
+                          widget.filterCountNotifier ?? ValueNotifier<int>(0),
+                      builder: (context, filterCount, child) {
+                        return Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: AppColor.lightBlue,
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                              child: SvgPicture.asset(
+                                AppAssets.filterIcon,
+                                colorFilter: const ColorFilter.mode(
+                                  AppColor.primary,
+                                  BlendMode.srcIn,
+                                ),
+                                width: 14,
+                                height: 14,
+                              ),
+                            ),
+
+                            if (filterCount > 0)
+                              Positioned(
+                                top: -6,
+                                right: -6,
+                                child: Container(
+                                  constraints: const BoxConstraints(
+                                    minWidth: 16,
+                                    minHeight: 16,
+                                  ),
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    filterCount > 99 ? '99+' : '$filterCount',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ],
 

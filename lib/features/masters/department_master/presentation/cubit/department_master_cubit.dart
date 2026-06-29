@@ -25,14 +25,16 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
   }
 
   // <---- SORT DEPARTMENT ---->
-  Future sortDepartment(
-    BuildContext context,
-    String value,
-    String direction,
-  ) async {
+  Future applyFilterAndSortDepartment({
+    required BuildContext context,
+    required String column,
+    required String direction,
+    required String departmentName,
+  }) async {
     emit(
       state.copyWith(
-        currentSortColumn: value,
+        searchText: departmentName,
+        currentSortColumn: column,
         currentSortDirection: direction,
         departmentList: [],
       ),
@@ -222,5 +224,13 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
         );
       },
     );
+  }
+
+  int updateFilterCount(DepartmentMasterState state) {
+    final hasSort =
+        state.currentSortColumn == "Department Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([hasSort, state.searchText.trim().isNotEmpty]);
   }
 }

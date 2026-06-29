@@ -18,14 +18,16 @@ import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class InventoryOverallReport extends StatefulWidget {
-  const InventoryOverallReport({super.key});
+class InventoryOverallReportScreen extends StatefulWidget {
+  const InventoryOverallReportScreen({super.key});
 
   @override
-  State<InventoryOverallReport> createState() => _InventoryOverallReportState();
+  State<InventoryOverallReportScreen> createState() =>
+      _InventoryOverallReportScreenState();
 }
 
-class _InventoryOverallReportState extends State<InventoryOverallReport> {
+class _InventoryOverallReportScreenState
+    extends State<InventoryOverallReportScreen> {
   late TextEditingController _searchC;
   late InventoryReportCubit _inventoryReportCubit;
   // PAGINATION

@@ -55,6 +55,38 @@ Widget buildRowTitleValue({
   );
 }
 
+Widget buildRowTitleCount({
+  required String title,
+  required String value,
+  TextStyle? valueTextStyle,
+  bool singleLine = true,
+  VoidCallback? onValueTap,
+  double? fixesWidth,
+}) {
+  return buildRowTitleValue(
+    fixesWidth: fixesWidth ?? 140,
+    title: title,
+    value: value,
+    customValueWidget: InkWell(
+      onTap: onValueTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Text(
+          value.isNotEmpty ? (double.tryParse(value) ?? 0).addCommas() : "-",
+          maxLines: singleLine ? 1 : null,
+          overflow: singleLine ? TextOverflow.ellipsis : TextOverflow.visible,
+          style: AppTextStyle.ts14SB(
+            color:
+                (double.tryParse(value) ?? 0) > 0
+                    ? AppColor.primary
+                    : AppColor.grey,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 // BUILD COLUMN TITLE VALUE
 Widget buildColumnTitleValue({
   required String title,

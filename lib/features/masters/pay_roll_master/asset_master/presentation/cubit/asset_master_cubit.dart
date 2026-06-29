@@ -59,6 +59,7 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
   Future applyFilterAndSort({
     required BuildContext context,
     required String filterAssetStatus,
+    String? filterAssetName,
     String? filterAssetType,
     String? filterAssetBrand,
     String? filterAssetModel,
@@ -68,6 +69,7 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
   }) async {
     emit(
       state.copyWith(
+        searchText: filterAssetName,
         filterAssetStatus: filterAssetStatus,
         filterAssetType: filterAssetType ?? state.filterAssetType,
         filterAssetBrand: filterAssetBrand ?? state.filterAssetBrand,
@@ -370,5 +372,20 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
         emit(state.copyWith(assetMappingList: dataList, isLoading: false));
       },
     );
+  }
+
+  int updateFilterCount(AssetMasterState state) {
+    final hasSort =
+        state.currentSortColumn == "Asset Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.filterAssetStatus.trim().isNotEmpty,
+      state.filterAssetType.trim().isNotEmpty,
+      state.filterAssetBrand.trim().isNotEmpty,
+      state.filterAssetModel.trim().isNotEmpty,
+      state.filterSerialNumber.trim().isNotEmpty,
+      hasSort,
+    ]);
   }
 }

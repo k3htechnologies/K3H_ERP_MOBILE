@@ -5,9 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/data/model/leave_type_master.model.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/data/repository/leave_type_master.repository.dart';
 import 'package:k3h_erp_app/features/payroll/leave/model/leave.model.dart';
 import 'package:k3h_erp_app/features/payroll/leave/presentation/cubit/leave_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -21,8 +18,8 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
-import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
-import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
+import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class LeaveScreen extends StatefulWidget {
@@ -40,9 +37,6 @@ class _LeaveScreenState extends State<LeaveScreen>
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
 
-  final LeaveTypeMasterRepository _leaveTypeMasterRepository =
-      serviceLocator<LeaveTypeMasterRepository>();
-
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
@@ -52,10 +46,6 @@ class _LeaveScreenState extends State<LeaveScreen>
 
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC;
-
-  // LEAVE TYPE VARIABLE
-  final ValueNotifier<List<Map<String, dynamic>>?> _selectedLeaveTypeNotifier =
-      ValueNotifier(null);
 
   // DATE VARIABLES
   final ValueNotifier<DateTime?> _startDateNotifier = ValueNotifier(null);
@@ -67,6 +57,8 @@ class _LeaveScreenState extends State<LeaveScreen>
     "Approved",
     "Rejected",
   ];
+
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   @override
   void initState() {
@@ -90,6 +82,9 @@ class _LeaveScreenState extends State<LeaveScreen>
 
   void _onStatusTabChanged() {
     if (_tabController != null && !_tabController!.indexIsChanging && mounted) {
+      _searchC.clear();
+      _startDateNotifier.value = null;
+      _endDateNotifier.value = null;
       _leaveCubit.onTabChanged(_tabController!.index, context);
     }
   }
@@ -99,35 +94,18 @@ class _LeaveScreenState extends State<LeaveScreen>
     _tabController?.removeListener(_onStatusTabChanged);
     _tabController?.dispose();
     _searchC.dispose();
-    _selectedLeaveTypeNotifier.dispose();
     _startDateNotifier.dispose();
     _endDateNotifier.dispose();
     scrollController.dispose();
+    _debounce?.cancel();
+    _filterCount.dispose();
     super.dispose();
   }
 
   // PREFILL FILTER FROM STATE
   void _prefillFilterFromState() {
     final s = _leaveCubit.state;
-    if (s.filterLeaveType != null && s.filterLeaveType!.isNotEmpty) {
-      final match =
-          s.leaveTypeList
-              .where((t) => t.leaveType == s.filterLeaveType)
-              .toList();
-      if (match.isNotEmpty) {
-        final t = match.first;
-        _selectedLeaveTypeNotifier.value = [
-          {
-            "zAttributesId": t.leaveTypeMasterId.toString(),
-            "DisplayName": t.leaveType,
-          },
-        ];
-      } else {
-        _selectedLeaveTypeNotifier.value = [];
-      }
-    } else {
-      _selectedLeaveTypeNotifier.value = [];
-    }
+    _searchC.text = s.searchText;
     _startDateNotifier.value = s.filterStartDate;
     _endDateNotifier.value = s.filterEndDate;
   }
@@ -155,40 +133,6 @@ class _LeaveScreenState extends State<LeaveScreen>
     });
   }
 
-  // FETCH LEAVE TYPE
-  Future<Map<String, dynamic>> _fetchLeaveType(
-    int pageNumber, {
-    String? value,
-  }) async {
-    final result = await _leaveTypeMasterRepository.getLeaveTypeList(
-      pageNumber: pageNumber,
-      pageSize: 15,
-      queryParams:
-          value != null && value.isNotEmpty ? {"DepartmentName": value} : {},
-    );
-
-    return result.fold(
-      (failure) => {
-        "itemList": <Map<String, dynamic>>[],
-        "totalNumberOfRecord": 0,
-      },
-      (response) {
-        final departments = response['data'] as List<LeaveTypeModel>;
-
-        return {
-          "itemList":
-              departments.map((department) {
-                return {
-                  "zAttributesId": department.leaveTypeMasterId,
-                  "DisplayName": department.leaveType,
-                };
-              }).toList(),
-          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
-        };
-      },
-    );
-  }
-
   // <---- DELETE LEAVE ---->
   Future<void> _showPopupToDeleteLeave(
     BuildContext context,
@@ -214,17 +158,30 @@ class _LeaveScreenState extends State<LeaveScreen>
   Future<void> _showBottomSheetToFilterLeave(BuildContext context) async {
     _prefillFilterFromState();
     final state = _leaveCubit.state;
-    if (state.filterLeaveType != null && state.filterLeaveType!.isNotEmpty) {
-      _selectedLeaveTypeNotifier.value = [
-        {"DisplayName": state.filterLeaveType},
-      ];
+
+    final String initialLeaveType = state.searchText;
+    final DateTime? initialStartDate = state.filterStartDate;
+    final DateTime? initialEndDate = state.filterEndDate;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    bool manualClose = false;
+    bool applied = false;
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        final bool onlyOneDateSet =
+            (_startDateNotifier.value != null &&
+                _endDateNotifier.value == null) ||
+            (_endDateNotifier.value != null &&
+                _startDateNotifier.value == null);
+        manualClose =
+            _searchC.text.trim() != initialLeaveType ||
+            _startDateNotifier.value != initialStartDate ||
+            _endDateNotifier.value != initialEndDate;
+
+        applyEnabled.value = manualClose && !onlyOneDateSet;
+      });
     }
-    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(
-      state.filterLeaveType != null ||
-          state.filterStartDate != null ||
-          state.filterEndDate != null,
-    );
-    DialogHelper.showCustomFilterBottomSheet(
+
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter Leave",
       contentWidget: StatefulBuilder(
@@ -233,86 +190,33 @@ class _LeaveScreenState extends State<LeaveScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               verticalSpacing(),
-              Row(
-                children: [
-                  Expanded(
-                    child: ValueListenableBuilder<DateTime?>(
-                      valueListenable: _startDateNotifier,
-                      builder: (context, startDate, child) {
-                        return CustomDatePicker(
-                          title: "Start Date",
-                          initialDate: startDate,
-                          setValue: (value) {
-                            _startDateNotifier.value = value;
-                            applyEnabled.value = true;
-                          },
-                          validator: (value) => null,
-                        );
-                      },
-                    ),
-                  ),
-                  horizontalSpacing(),
-                  Expanded(
-                    child: ValueListenableBuilder<DateTime?>(
-                      valueListenable: _endDateNotifier,
-                      builder: (context, endDate, child) {
-                        return ValueListenableBuilder<DateTime?>(
-                          valueListenable: _startDateNotifier,
-                          builder: (context, startDate, child) {
-                            return CustomDatePicker(
-                              title: "End Date",
-                              isRequired: false,
-                              initialDate: endDate,
-                              setValue: (value) {
-                                _endDateNotifier.value = value;
-                                applyEnabled.value = true;
-                              },
-                              validator: (value) {
-                                if (value == null) return null;
-                                if (startDate != null) {
-                                  final startDateOnly = DateTime(
-                                    startDate.year,
-                                    startDate.month,
-                                    startDate.day,
-                                  );
-                                  final endDateOnly = DateTime(
-                                    value.year,
-                                    value.month,
-                                    value.day,
-                                  );
-                                  if (endDateOnly.isBefore(startDateOnly)) {
-                                    return 'End Date cannot be before Start Date';
-                                  }
-                                }
-                                return null;
-                              },
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              ValueListenableBuilder<List<Map<String, dynamic>>?>(
-                valueListenable: _selectedLeaveTypeNotifier,
-                builder: (context, leaveTy, child) {
-                  return CustomMultipleSelectPopup(
-                    title: "Leave Type",
-                    isRequired: false,
-                    hintText: "Select Leave Type",
-                    isMultiSelect: false,
-                    initialValue: leaveTy,
-                    dataFetchCallBack: _fetchLeaveType,
-                    onSelected: (value) {
-                      _selectedLeaveTypeNotifier.value = value;
-                      applyEnabled.value = true;
-                    },
-                    validator: (value) => null,
-                    onClear: () {
-                      _selectedLeaveTypeNotifier.value = null;
+              AnimatedBuilder(
+                animation: Listenable.merge([
+                  _startDateNotifier,
+                  _endDateNotifier,
+                ]),
+                builder: (context, child) {
+                  return CustomFromToDatePicker(
+                    fromDateTitle: "From Date",
+                    toDateTitle: "To Date",
+                    removeBottomMargin: false,
+                    initialFromDate: _startDateNotifier.value,
+                    initialToDate: _endDateNotifier.value,
+                    onToDateChanged: (DateTime? fromDate, DateTime? toDate) {
+                      _startDateNotifier.value = fromDate;
+                      _endDateNotifier.value = toDate;
+
+                      updateApplyState(innerState);
                     },
                   );
+                },
+              ),
+              CustomTextField(
+                textController: _searchC,
+                title: "Leave Type",
+                hint: "Enter Leave Type",
+                onChangeFunction: (v) {
+                  updateApplyState(innerState);
                 },
               ),
             ],
@@ -320,39 +224,19 @@ class _LeaveScreenState extends State<LeaveScreen>
         },
       ),
       onClear: () {
-        _selectedLeaveTypeNotifier.value = null;
+        _searchC.clear();
         _startDateNotifier.value = null;
         _endDateNotifier.value = null;
         _leaveCubit.clearFilterOnLeave(context);
       },
       onApply: () {
-        final leaveType =
-            (_selectedLeaveTypeNotifier.value != null &&
-                    _selectedLeaveTypeNotifier.value!.isNotEmpty)
-                ? (_selectedLeaveTypeNotifier.value![0]["DisplayName"]
-                    as String?)
-                : null;
+        applied = true;
+
         final startDate = _startDateNotifier.value;
         final endDate = _endDateNotifier.value;
-        if (startDate != null && endDate != null) {
-          final startOnly = DateTime(
-            startDate.year,
-            startDate.month,
-            startDate.day,
-          );
-          final endOnly = DateTime(endDate.year, endDate.month, endDate.day);
-          if (endOnly.isBefore(startOnly)) {
-            showErrorMessage(
-              context,
-              "Invalid dates",
-              "End Date cannot be before Start Date",
-            );
-            return;
-          }
-        }
         _leaveCubit.applyFilterOnLeave(
           context,
-          leaveType: leaveType,
+          leaveType: _searchC.text.trim(),
           startDate: startDate,
           endDate: endDate,
         );
@@ -360,183 +244,202 @@ class _LeaveScreenState extends State<LeaveScreen>
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
+    if (!applied && manualClose) {
+      _searchC.clear();
+      _startDateNotifier.value = null;
+      _endDateNotifier.value = null;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Leave",
-        authorization: _routeAuthorizationModel,
-        textController: _searchC,
-        searchHintText: "Search by Leave Type",
-        onSearchSubmit: (value) {
-          _leaveCubit.searchOutdoor(context, value);
-        },
-        onExportCallback: (value) {
-          _leaveCubit.exportExcelPdf(context, value);
-        },
-        isFilterOn: true,
-        onFilterTap: () {
-          _showBottomSheetToFilterLeave(context);
-        },
-        secondaryBuilder:
-            (_) => CustomButton(
-              text: "Apply",
-              onPressed: () async {
-                await goRouter.pushNamed(AppRoutes.applyLeave);
-                if (context.mounted) {
-                  _leaveCubit.getLeaveList(context, 1);
+    return BlocListener<LeaveCubit, LeaveState>(
+      listener: (context, state) {
+        _filterCount.value = _leaveCubit.updateFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "Leave",
+          authorization: _routeAuthorizationModel,
+          textController: _searchC,
+          searchHintText: "Search by Leave Type",
+          filterCountNotifier: _filterCount,
+          onSearchSubmit: (value) {
+            _leaveCubit.searchOutdoor(context, value);
+          },
+          onExportCallback: (value) {
+            _leaveCubit.exportExcelPdf(context, value);
+          },
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterLeave(context);
+          },
+          secondaryBuilder:
+              (_) => CustomButton(
+                text: "Apply",
+                onPressed: () async {
+                  await goRouter.pushNamed(AppRoutes.applyLeave);
+                  if (context.mounted) {
+                    _leaveCubit.getLeaveList(context, 1);
+                  }
+                },
+                backgroundColor: AppColor.primary,
+                leading: Icon(Icons.add, size: 16, color: AppColor.white),
+              ),
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildStatusTabBar(),
+            BlocBuilder<LeaveCubit, LeaveState>(
+              builder: (context, state) {
+                if ((state.isLoading ?? true) && state.leaveList.isEmpty) {
+                  return Expanded(
+                    child: Center(child: CircularProgressIndicator()),
+                  );
                 }
-              },
-              backgroundColor: AppColor.primary,
-              leading: Icon(Icons.add, size: 16, color: AppColor.white),
-            ),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildStatusTabBar(),
-          BlocBuilder<LeaveCubit, LeaveState>(
-            builder: (context, state) {
-              if ((state.isLoading ?? true) && state.leaveList.isEmpty) {
                 return Expanded(
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-              return Expanded(
-                child:
-                    state.leaveList.isEmpty
-                        ? Center(child: noDataWidget(message: "No Leave Found"))
-                        : ListView.builder(
-                          controller: scrollController,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          itemCount: state.leaveList.length + 1,
-                          itemBuilder: (context, index) {
-                            if (index == state.leaveList.length) {
-                              return state.leaveList.length <
-                                      state.totalNumberOfRecord
-                                  ? Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                  )
-                                  : const SizedBox.shrink();
-                            }
-                            var leave = state.leaveList[index];
-                            return Container(
-                              margin: EdgeInsets.only(bottom: 10),
-                              padding: EdgeInsets.all(12),
-                              decoration: commonCardDecoration(),
-                              child: Column(
-                                spacing: 5,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        flex: 6,
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            goRouter.pushNamed(
-                                              AppRoutes.viewLeave,
-                                              queryParameters: {
-                                                "leave": Uri.encodeQueryComponent(
-                                                  EncryptionManager.encryptData(
-                                                    jsonEncode(leave.toJson()),
+                  child:
+                      state.leaveList.isEmpty
+                          ? Center(
+                            child: noDataWidget(message: "No Leave Found"),
+                          )
+                          : ListView.builder(
+                            controller: scrollController,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            itemCount: state.leaveList.length + 1,
+                            itemBuilder: (context, index) {
+                              if (index == state.leaveList.length) {
+                                return state.leaveList.length <
+                                        state.totalNumberOfRecord
+                                    ? Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    )
+                                    : const SizedBox.shrink();
+                              }
+                              var leave = state.leaveList[index];
+                              return Container(
+                                margin: EdgeInsets.only(bottom: 10),
+                                padding: EdgeInsets.all(12),
+                                decoration: commonCardDecoration(),
+                                child: Column(
+                                  spacing: 5,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          flex: 6,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              goRouter.pushNamed(
+                                                AppRoutes.viewLeave,
+                                                queryParameters: {
+                                                  "leave": Uri.encodeQueryComponent(
+                                                    EncryptionManager.encryptData(
+                                                      jsonEncode(
+                                                        leave.toJson(),
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
-                                              },
-                                            );
-                                          },
-                                          child: Text(
-                                            leave.leaveType,
-                                            style: AppTextStyle.ts16M(
-                                              color: AppColor.primary,
-                                            ).copyWith(
-                                              decoration:
-                                                  TextDecoration.underline,
-                                              decorationColor: AppColor.primary,
+                                                },
+                                              );
+                                            },
+                                            child: Text(
+                                              leave.leaveType,
+                                              style: AppTextStyle.ts16M(
+                                                color: AppColor.primary,
+                                              ).copyWith(
+                                                decoration:
+                                                    TextDecoration.underline,
+                                                decorationColor:
+                                                    AppColor.primary,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
 
-                                      Row(
-                                        children: [
-                                          approvalStatusWidget(
-                                            leave.leaveStatus,
-                                          ),
-                                          horizontalSpacing(),
+                                        Row(
+                                          children: [
+                                            approvalStatusWidget(
+                                              leave.leaveStatus,
+                                            ),
+                                            horizontalSpacing(),
 
-                                          Row(
-                                            spacing: 10,
-                                            children: [
-                                              CustomIconButton.edit(
-                                                onPressed: () async {
-                                                  await goRouter.pushNamed(
-                                                    AppRoutes.applyLeave,
-                                                    queryParameters: {
-                                                      "leave":
-                                                          Uri.encodeQueryComponent(
-                                                            EncryptionManager.encryptData(
-                                                              jsonEncode(leave),
+                                            Row(
+                                              spacing: 10,
+                                              children: [
+                                                CustomIconButton.edit(
+                                                  onPressed: () async {
+                                                    await goRouter.pushNamed(
+                                                      AppRoutes.applyLeave,
+                                                      queryParameters: {
+                                                        "leave":
+                                                            Uri.encodeQueryComponent(
+                                                              EncryptionManager.encryptData(
+                                                                jsonEncode(
+                                                                  leave,
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
-                                                      'index': index.toString(),
-                                                    },
-                                                  );
-                                                },
-                                              ),
-                                              CustomIconButton.delete(
-                                                onPressed: () {
-                                                  _showPopupToDeleteLeave(
-                                                    context,
-                                                    leave,
-                                                    index,
-                                                  );
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ],
+                                                        'index':
+                                                            index.toString(),
+                                                      },
+                                                    );
+                                                  },
+                                                ),
+                                                CustomIconButton.delete(
+                                                  onPressed: () {
+                                                    _showPopupToDeleteLeave(
+                                                      context,
+                                                      leave,
+                                                      index,
+                                                    );
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    buildRowTitleValue(
+                                      title: "Start Date",
+                                      value: formatDateTimeAsDDMMMYYYY(
+                                        leave.startDate,
                                       ),
-                                    ],
-                                  ),
-                                  buildRowTitleValue(
-                                    title: "Start Date",
-                                    value: formatDateTimeAsDDMMMYYYY(
-                                      leave.startDate,
                                     ),
-                                  ),
-                                  buildRowTitleValue(
-                                    title: "End Date",
-                                    value: formatDateTimeAsDDMMMYYYY(
-                                      leave.endDate,
+                                    buildRowTitleValue(
+                                      title: "End Date",
+                                      value: formatDateTimeAsDDMMMYYYY(
+                                        leave.endDate,
+                                      ),
                                     ),
-                                  ),
-                                  buildRowTitleValue(
-                                    title: "No. Of Days",
-                                    value: leave.noOfDays.toString(),
-                                  ),
-                                  buildRowTitleValue(
-                                    title: "Reason",
-                                    value: leave.reason,
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-              );
-            },
-          ),
-        ],
+                                    buildRowTitleValue(
+                                      title: "No. Of Days",
+                                      value: leave.noOfDays.toString(),
+                                    ),
+                                    buildRowTitleValue(
+                                      title: "Reason",
+                                      value: leave.reason,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -547,7 +450,6 @@ class _LeaveScreenState extends State<LeaveScreen>
       tabs: _statusTabs.map((t) => t).toList(),
     );
   }
-
 }
 
 // HELPER CLASS TO STORE STATUS CONFIG

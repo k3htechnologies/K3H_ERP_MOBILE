@@ -215,14 +215,16 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
   }
 
   // <---- SORT DESIGNATION ---->
-  Future sortDesignation(
-    BuildContext context,
-    String value,
-    String direction,
-  ) async {
+  Future applyFilterAndSortDesignation({
+    required BuildContext context,
+    required String column,
+    required String direction,
+    required String designationName,
+  }) async {
     emit(
       state.copyWith(
-        currentSortColumn: value,
+        searchText: designationName,
+        currentSortColumn: column,
         currentSortDirection: direction,
         designationList: [],
       ),
@@ -892,5 +894,13 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
         }).toList();
 
     return mergedList;
+  }
+
+  int updateFilterCount(DesignationMasterState state) {
+    final hasSort =
+        state.currentSortColumn == "Designation Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([hasSort, state.searchText.trim().isNotEmpty]);
   }
 }

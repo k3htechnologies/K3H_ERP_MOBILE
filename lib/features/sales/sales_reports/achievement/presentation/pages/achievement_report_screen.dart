@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/achivement_drill_down_report.model.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -19,11 +20,12 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 import '../../../../../../core/encryption_manager.dart';
-import '../cubit/achievement.state.dart';
-import '../cubit/achievement_cubit.dart';
+import '../cubit/achievement_report_state.dart';
+import '../cubit/achievement_report_cubit.dart';
 
 class AchievementReportScreen extends StatefulWidget {
   const AchievementReportScreen({super.key});
@@ -35,11 +37,11 @@ class AchievementReportScreen extends StatefulWidget {
 
 class _AchievementReportScreenState extends State<AchievementReportScreen>
     with TickerProviderStateMixin {
-  late AchievementCubit _achievementCubit;
+  late AchievementReportCubit _achievementCubit;
   late AuthorizationModel _routeAuthorizationModel;
   TabController? _primaryTabController;
   TabController? _secondaryTabController;
-  late TextEditingController _searchTextC;
+  late TextEditingController _searchC;
   final ValueNotifier<String> _searchTextNotifier = ValueNotifier<String>(
     'Search By Project Name',
   );
@@ -59,10 +61,11 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
   Timer? _closingDebounce;
   late ScrollController _sourcingScrollController;
   Timer? _sourcingDebounce;
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   @override
   void initState() {
-    _achievementCubit = context.read<AchievementCubit>();
+    _achievementCubit = context.read<AchievementReportCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.achievementReport]!;
     _primaryTabController = TabController(length: 5, vsync: this);
@@ -78,7 +81,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
     );
     _primaryTabController!.addListener(_primaryTabListener);
     _secondaryTabController!.addListener(_secondaryTabListener);
-    _searchTextC = TextEditingController();
+    _searchC = TextEditingController();
     _onScroll();
     super.initState();
   }
@@ -87,13 +90,14 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
   void dispose() {
     _primaryTabController?.dispose();
     _secondaryTabController?.dispose();
-    _searchTextC.dispose();
+    _searchC.dispose();
     _filterTypeNotifier.dispose();
     _fromDateNotifier.dispose();
     _toDateNotifier.dispose();
     _projectScrollController.dispose();
     _closingScrollController.dispose();
     _sourcingScrollController.dispose();
+    _filterCount.dispose();
     super.dispose();
   }
 
@@ -154,7 +158,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
     if (isIndexChangeCheck) {
       if (_secondaryTabController?.indexIsChanging ?? false) return;
     }
-    _searchTextC.clear();
+    _searchC.clear();
     _achievementCubit.resetState();
 
     switch (_secondaryTabController?.index) {
@@ -190,7 +194,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
         break;
       default:
         _searchTextNotifier.value = 'Search By Project Name';
-        _searchTextC.clear();
+        _searchC.clear();
     }
   }
 
@@ -280,20 +284,26 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
             : state.currentSortColumn == "Employee Name"
             ? state.currentSortDirection
             : null;
+    _searchC.text = state.searchText;
 
+    final String initialSearchText = _searchC.text;
     final String? initialDirection = selectedDirection;
 
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
 
     bool applied = false;
+    bool manualClose = false;
 
     void updateApplyState(StateSetter innerState) {
       innerState(() {
-        applyEnabled.value = selectedDirection != initialDirection;
+        manualClose =
+            _searchC.text != initialSearchText ||
+            selectedDirection != initialDirection;
+        applyEnabled.value = manualClose;
       });
     }
 
-    DialogHelper.showCustomFilterBottomSheet(
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter - Achievement",
 
@@ -364,6 +374,19 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                     ),
                   ],
                 ),
+                verticalSpacing(height: 20),
+                CustomTextField(
+                  textController: _searchC,
+                  hint:
+                      _secondaryTabController?.index == 0
+                          ? "Enter Project Name"
+                          : "Enter Employee Name",
+                  title:
+                      _secondaryTabController?.index == 0
+                          ? "Project Name"
+                          : "Employee Name",
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
               ],
             ),
           );
@@ -372,10 +395,10 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
 
       onClear: () {
         selectedDirection = null;
-
+        _searchC.clear();
         _achievementCubit.applyAchievementFilterAndSort(
           context: context,
-
+          searchText: '',
           sortColumn: '',
           sortDirection: '',
           activeSecondaryTabIndex: _secondaryTabController?.index ?? 0,
@@ -393,6 +416,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                       ? "Project Name"
                       : "Employee Name")
                   : null,
+          searchText: _searchC.text.trim(),
           sortDirection: selectedDirection,
           activeSecondaryTabIndex: _secondaryTabController?.index ?? 0,
         );
@@ -403,8 +427,9 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
     );
 
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
-    if (!applied) {
+    if (!applied && manualClose) {
       selectedDirection = initialDirection;
+      _searchC.text = initialSearchText;
     }
   }
 
@@ -489,7 +514,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
           _buildSearchBar(),
           verticalSpacing(),
           Expanded(
-            child: BlocBuilder<AchievementCubit, AchievementState>(
+            child: BlocBuilder<AchievementReportCubit, AchievementState>(
               builder: (context, state) {
                 if ((state.isLoading ?? false) &&
                     state.projectAchievementReportList.isEmpty) {
@@ -504,7 +529,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                 }
                 return RefreshIndicator(
                   onRefresh: () async {
-                    _searchTextC.clear();
+                    _searchC.clear();
                     _achievementCubit.getProjectAchievementReport(
                       context: context,
                       pageNumber: 1,
@@ -547,7 +572,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                     child: Text(
                                       achievement.projectName,
                                       style: AppTextStyle.ts16M(
-                                        color: AppColor.primary,
+                                        color: AppColor.black,
                                       ),
                                     ),
                                   ),
@@ -562,7 +587,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                           goRouter.pushNamed(
                                             AppRoutes.managerAchievementReport,
                                             queryParameters: {
-                                              'type': 'closing',
+                                              'type': 'Closing',
                                               'filterType':
                                                   _filterTypeNotifier.value,
                                               'fromDate':
@@ -607,7 +632,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                           goRouter.pushNamed(
                                             AppRoutes.managerAchievementReport,
                                             queryParameters: {
-                                              'type': 'sourcing',
+                                              'type': 'Sourcing',
                                               'filterType':
                                                   _filterTypeNotifier.value,
                                               'fromDate':
@@ -650,31 +675,69 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                               /// WALKINS
                               ExpansionTile(
                                 tilePadding: EdgeInsets.zero,
-                                title: buildRowTitleValue(
+                                title: buildRowTitleCount(
                                   title: "Total Walkins",
-                                  value: achievement.totalWalkins.addCommas(),
+                                  value: achievement.totalWalkins.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        projectId: achievement.projectId,
+                                        projectName: achievement.projectName,
+                                        columnName: 'TOTAL WALKINS',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType.enquiry,
+                                      ),
                                 ),
                                 trailing: const Icon(Icons.keyboard_arrow_down),
                                 childrenPadding: EdgeInsets.zero,
                                 children: [
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "By CP",
-                                    value: achievement.walkinsByCp.addCommas(),
+                                    value: achievement.walkinsByCp.toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          projectId: achievement.projectId,
+                                          projectName: achievement.projectName,
+                                          columnName: 'WALKINS BY CP',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType.enquiry,
+                                        ),
                                   ),
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "Direct",
-                                    value:
-                                        achievement.walkinsDirect.addCommas(),
+                                    value: achievement.walkinsDirect.toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          projectId: achievement.projectId,
+                                          projectName: achievement.projectName,
+                                          columnName: 'WALKINS DIRECT',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType.enquiry,
+                                        ),
                                   ),
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "Fresh Visits",
                                     value:
-                                        achievement.totalFreshVisits
-                                            .addCommas(),
+                                        achievement.totalFreshVisits.toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          projectId: achievement.projectId,
+                                          projectName: achievement.projectName,
+                                          columnName: 'FRESH VISITS',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType.enquiry,
+                                        ),
                                   ),
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "Revisits",
-                                    value: achievement.revisits.addCommas(),
+                                    value: achievement.revisits.toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          projectId: achievement.projectId,
+                                          projectName: achievement.projectName,
+                                          columnName: 'REVISITS',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType.enquiry,
+                                        ),
                                   ),
                                 ],
                               ),
@@ -683,21 +746,44 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                               /// BOOKINGS
                               ExpansionTile(
                                 tilePadding: EdgeInsets.zero,
-                                title: buildRowTitleValue(
+                                title: buildRowTitleCount(
                                   title: "Total Booking",
-                                  value: achievement.totalBooking.addCommas(),
+                                  value: achievement.totalBooking.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        projectId: achievement.projectId,
+                                        projectName: achievement.projectName,
+                                        columnName: 'TOTAL BOOKING',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType.booking,
+                                      ),
                                 ),
                                 trailing: const Icon(Icons.keyboard_arrow_down),
                                 childrenPadding: EdgeInsets.zero,
                                 children: [
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "By CP",
-                                    value: achievement.bookingByCp.addCommas(),
+                                    value: achievement.bookingByCp.toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          projectId: achievement.projectId,
+                                          projectName: achievement.projectName,
+                                          columnName: 'BOOKING BY CP',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType.booking,
+                                        ),
                                   ),
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "Direct",
-                                    value:
-                                        achievement.bookingDirect.addCommas(),
+                                    value: achievement.bookingDirect.toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          projectId: achievement.projectId,
+                                          projectName: achievement.projectName,
+                                          columnName: 'BOOKING DIRECT',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType.booking,
+                                        ),
                                   ),
                                 ],
                               ),
@@ -707,24 +793,51 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                               /// IBM + OBM
                               ExpansionTile(
                                 tilePadding: EdgeInsets.zero,
-                                title: buildRowTitleValue(
+                                title: buildRowTitleCount(
                                   title: "IBM + OBM",
                                   singleLine: false,
                                   value:
                                       (achievement.totalIbm +
                                               achievement.totalObm)
-                                          .addCommas(),
+                                          .toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        projectId: achievement.projectId,
+                                        projectName: achievement.projectName,
+                                        columnName: "IBM + OBM",
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType
+                                                .channelPartner,
+                                      ),
                                 ),
                                 trailing: const Icon(Icons.keyboard_arrow_down),
                                 childrenPadding: EdgeInsets.zero,
                                 children: [
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "IBM",
-                                    value: achievement.totalIbm.addCommas(),
+                                    value: achievement.totalIbm.toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          projectId: achievement.projectId,
+                                          projectName: achievement.projectName,
+                                          columnName: 'IBM',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType
+                                                  .channelPartner,
+                                        ),
                                   ),
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "OBM",
-                                    value: achievement.totalObm.addCommas(),
+                                    value: achievement.totalObm.toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          projectId: achievement.projectId,
+                                          projectName: achievement.projectName,
+                                          columnName: 'OBM',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType
+                                                  .channelPartner,
+                                        ),
                                   ),
                                 ],
                               ),
@@ -734,12 +847,18 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                               /// TOTAL REVENUE
                               Padding(
                                 padding: EdgeInsets.only(top: 10),
-                                child: buildRowTitleValue(
-                                  title: "Total Revenue",
+                                child: buildRowTitleCount(
+                                  title: "Total Revenue (₹)",
                                   singleLine: false,
-                                  value:
-                                      (achievement.totalRevenue)
-                                          .toIndianCurrency(),
+                                  value: (achievement.totalRevenue).toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        projectId: achievement.projectId,
+                                        projectName: achievement.projectName,
+                                        columnName: 'TOTAL REVENUE',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType.booking,
+                                      ),
                                 ),
                               ),
                             ],
@@ -765,7 +884,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
           _buildSearchBar(),
           verticalSpacing(),
           Expanded(
-            child: BlocBuilder<AchievementCubit, AchievementState>(
+            child: BlocBuilder<AchievementReportCubit, AchievementState>(
               builder: (context, state) {
                 if ((state.isLoading ?? false) &&
                     state.closingAchievementReportList.isEmpty) {
@@ -780,7 +899,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                 }
                 return RefreshIndicator(
                   onRefresh: () async {
-                    _searchTextC.clear();
+                    _searchC.clear();
                     _achievementCubit.getClosingAchievementReport(
                       context: context,
                       pageNumber: 1,
@@ -820,7 +939,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                     TextSpan(
                                       text: achievement.employeeName,
                                       style: AppTextStyle.ts16M(
-                                        color: AppColor.primary,
+                                        color: AppColor.black,
                                       ),
                                     ),
                                     TextSpan(
@@ -838,31 +957,73 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                               /// WALKINS
                               ExpansionTile(
                                 tilePadding: EdgeInsets.zero,
-                                title: buildRowTitleValue(
+                                title: buildRowTitleCount(
                                   title: "Total Walkins",
-                                  value: achievement.totalWalkins.addCommas(),
+                                  value: achievement.totalWalkins.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeId: achievement.employeeId,
+                                        employeeName: achievement.employeeName,
+                                        columnName: 'TOTAL WALKINS',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType.enquiry,
+                                      ),
                                 ),
                                 trailing: const Icon(Icons.keyboard_arrow_down),
                                 childrenPadding: EdgeInsets.zero,
                                 children: [
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "By CP",
-                                    value: achievement.walkinsByCp.addCommas(),
+                                    value: achievement.walkinsByCp.toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          employeeId: achievement.employeeId,
+                                          employeeName:
+                                              achievement.employeeName,
+                                          columnName: 'WALKINS BY CP',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType.enquiry,
+                                        ),
                                   ),
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "Direct",
-                                    value:
-                                        achievement.walkinsDirect.addCommas(),
+                                    value: achievement.walkinsDirect.toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          employeeId: achievement.employeeId,
+                                          employeeName:
+                                              achievement.employeeName,
+                                          columnName: 'WALKINS DIRECT',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType.enquiry,
+                                        ),
                                   ),
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "Fresh Visits",
                                     value:
-                                        achievement.totalFreshVisits
-                                            .addCommas(),
+                                        achievement.totalFreshVisits.toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          employeeName:
+                                              achievement.employeeName,
+                                          employeeId: achievement.employeeId,
+                                          columnName: 'FRESH VISITS',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType.enquiry,
+                                        ),
                                   ),
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "Revisits",
-                                    value: achievement.revisits.addCommas(),
+                                    value: achievement.revisits.toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          employeeName:
+                                              achievement.employeeName,
+                                          employeeId: achievement.employeeId,
+                                          columnName: 'REVISITS',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType.enquiry,
+                                        ),
                                   ),
                                 ],
                               ),
@@ -871,21 +1032,46 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                               /// BOOKINGS
                               ExpansionTile(
                                 tilePadding: EdgeInsets.zero,
-                                title: buildRowTitleValue(
+                                title: buildRowTitleCount(
                                   title: "Total Booking",
-                                  value: achievement.totalBooking.addCommas(),
+                                  value: achievement.totalBooking.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeName: achievement.employeeName,
+                                        employeeId: achievement.employeeId,
+                                        columnName: 'TOTAL BOOKING',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType.booking,
+                                      ),
                                 ),
                                 trailing: const Icon(Icons.keyboard_arrow_down),
                                 childrenPadding: EdgeInsets.zero,
                                 children: [
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "By CP",
-                                    value: achievement.bookingByCp.addCommas(),
+                                    value: achievement.bookingByCp.toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          employeeName:
+                                              achievement.employeeName,
+                                          employeeId: achievement.employeeId,
+                                          columnName: 'BOOKING BY CP',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType.booking,
+                                        ),
                                   ),
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "Direct",
-                                    value:
-                                        achievement.bookingDirect.addCommas(),
+                                    value: achievement.bookingDirect.toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          employeeName:
+                                              achievement.employeeName,
+                                          employeeId: achievement.employeeId,
+                                          columnName: 'BOOKING DIRECT',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType.booking,
+                                        ),
                                   ),
                                 ],
                               ),
@@ -893,12 +1079,18 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                               Divider(height: 1, color: AppColor.grey50),
                               Padding(
                                 padding: EdgeInsets.only(top: 10),
-                                child: buildRowTitleValue(
-                                  title: "Total Revenue",
+                                child: buildRowTitleCount(
+                                  title: "Total Revenue (₹)",
                                   singleLine: false,
-                                  value:
-                                      (achievement.totalRevenue)
-                                          .toIndianCurrency(),
+                                  value: (achievement.totalRevenue).toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeName: achievement.employeeName,
+                                        employeeId: achievement.employeeId,
+                                        columnName: 'TOTAL REVENUE',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType.booking,
+                                      ),
                                 ),
                               ),
                             ],
@@ -924,7 +1116,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
           _buildSearchBar(),
           verticalSpacing(),
           Expanded(
-            child: BlocBuilder<AchievementCubit, AchievementState>(
+            child: BlocBuilder<AchievementReportCubit, AchievementState>(
               builder: (context, state) {
                 if ((state.isLoading ?? false) &&
                     state.sourcingAchievementReportList.isEmpty) {
@@ -939,7 +1131,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                 }
                 return RefreshIndicator(
                   onRefresh: () async {
-                    _searchTextC.clear();
+                    _searchC.clear();
                     _achievementCubit.getSourcingAchievementReport(
                       context: context,
                       pageNumber: 1,
@@ -982,7 +1174,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                     TextSpan(
                                       text: achievement.employeeName,
                                       style: AppTextStyle.ts16M(
-                                        color: AppColor.primary,
+                                        color: AppColor.black,
                                       ),
                                     ),
                                     TextSpan(
@@ -1004,22 +1196,57 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                 shape: const Border(),
                                 collapsedShape: const Border(),
                                 trailing: const Icon(Icons.keyboard_arrow_down),
-                                title: buildRowTitleValue(
+                                title: buildRowTitleCount(
                                   title: "Walkins",
-                                  value: achievement.walkinsByCp.addCommas(),
+                                  value: achievement.walkinsByCp.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeName: achievement.employeeName,
+                                        employeeId: achievement.employeeId,
+                                        columnName: 'TOTAL WALKINS',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType.enquiry,
+                                      ),
                                 ),
                                 children: [
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "By CP",
-                                    value: achievement.walkinsByCp.addCommas(),
+                                    value: achievement.walkinsByCp.toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          employeeName:
+                                              achievement.employeeName,
+                                          employeeId: achievement.employeeId,
+                                          columnName: 'WALKINS BY CP',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType.enquiry,
+                                        ),
                                   ),
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "Fresh Visits",
-                                    value: achievement.freshVisits.addCommas(),
+                                    value: achievement.freshVisits.toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          employeeName:
+                                              achievement.employeeName,
+                                          employeeId: achievement.employeeId,
+                                          columnName: 'FRESH VISITS',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType.enquiry,
+                                        ),
                                   ),
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "Revisits",
-                                    value: achievement.revisits.addCommas(),
+                                    value: achievement.revisits.toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          employeeName:
+                                              achievement.employeeName,
+                                          employeeId: achievement.employeeId,
+                                          columnName: 'REVISITS',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType.enquiry,
+                                        ),
                                   ),
                                 ],
                               ),
@@ -1033,22 +1260,50 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                 shape: const Border(),
                                 collapsedShape: const Border(),
                                 trailing: const Icon(Icons.keyboard_arrow_down),
-                                title: buildRowTitleValue(
+                                title: buildRowTitleCount(
                                   title: "Total Meetings",
-                                  value: achievement.totalMeetings.addCommas(),
+                                  value: achievement.totalMeetings.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeName: achievement.employeeName,
+                                        employeeId: achievement.employeeId,
+                                        columnName: 'TOTAL MEETING',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType
+                                                .channelPartner,
+                                      ),
                                 ),
                                 children: [
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "OBM (Fresh Visits)",
                                     value:
                                         achievement.totalObmFreshVisits
-                                            .addCommas(),
+                                            .toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          employeeName:
+                                              achievement.employeeName,
+                                          employeeId: achievement.employeeId,
+                                          columnName: 'TOTAL OBM FRESH VISITS',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType
+                                                  .channelPartner,
+                                        ),
                                   ),
-                                  buildRowTitleValue(
+                                  buildRowTitleCount(
                                     title: "OBM (Revisits)",
                                     value:
-                                        achievement.totalObmRevisits
-                                            .addCommas(),
+                                        achievement.totalObmRevisits.toString(),
+                                    onValueTap:
+                                        () => _navigateToAchievementDrillDown(
+                                          employeeName:
+                                              achievement.employeeName,
+                                          employeeId: achievement.employeeId,
+                                          columnName: 'TOTAL OBM REVISITS',
+                                          achievementDrillDownType:
+                                              AchievementDrillDownType
+                                                  .channelPartner,
+                                        ),
                                   ),
                                 ],
                               ),
@@ -1064,9 +1319,18 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                 shape: const Border(),
                                 collapsedShape: const Border(),
                                 trailing: const Icon(Icons.keyboard_arrow_down),
-                                title: buildRowTitleValue(
+                                title: buildRowTitleCount(
                                   title: "IBM",
-                                  value: achievement.totalIbm.addCommas(),
+                                  value: achievement.totalIbm.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeName: achievement.employeeName,
+                                        employeeId: achievement.employeeId,
+                                        columnName: 'IBM',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType
+                                                .channelPartner,
+                                      ),
                                 ),
                               ),
                               Divider(height: 1, color: AppColor.grey50),
@@ -1080,9 +1344,17 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                 shape: const Border(),
                                 collapsedShape: const Border(),
                                 trailing: const Icon(Icons.keyboard_arrow_down),
-                                title: buildRowTitleValue(
+                                title: buildRowTitleCount(
                                   title: "Bookings",
-                                  value: achievement.bookings.addCommas(),
+                                  value: achievement.bookings.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeName: achievement.employeeName,
+                                        employeeId: achievement.employeeId,
+                                        columnName: 'TOTAL BOOKING',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType.booking,
+                                      ),
                                 ),
                               ),
 
@@ -1091,12 +1363,18 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                               /// TOTAL REVENUE
                               Padding(
                                 padding: const EdgeInsets.only(top: 10),
-                                child: buildRowTitleValue(
-                                  title: "Total Revenue",
+                                child: buildRowTitleCount(
+                                  title: "Total Revenue (₹)",
                                   singleLine: false,
-                                  value:
-                                      achievement.totalRevenue
-                                          .toIndianCurrency(),
+                                  value: achievement.totalRevenue.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeName: achievement.employeeName,
+                                        employeeId: achievement.employeeId,
+                                        columnName: 'TOTAL REVENUE',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType.booking,
+                                      ),
                                 ),
                               ),
                             ],
@@ -1115,8 +1393,9 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
   }
 
   Widget _buildSearchBar() {
-    return BlocBuilder<AchievementCubit, AchievementState>(
+    return BlocBuilder<AchievementReportCubit, AchievementState>(
       builder: (context, state) {
+        _filterCount.value = _achievementCubit.updateFilterCount(state);
         return AnimatedBuilder(
           animation: Listenable.merge([
             _searchTextNotifier,
@@ -1140,9 +1419,10 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
               children: [
                 Expanded(
                   child: SearchWidget(
-                    textController: _searchTextC,
+                    textController: _searchC,
                     hintText: _searchTextNotifier.value,
                     isFilterOn: true,
+                    filterCountNotifier: _filterCount,
                     onFilterTap:
                         () => _showBottomSheetToFilterAchievement(context),
                     onSubmit: (String value) {
@@ -1173,6 +1453,51 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
             );
           },
         );
+      },
+    );
+  }
+
+  void _navigateToAchievementDrillDown({
+    int? projectId,
+    int? employeeId,
+    String? employeeName,
+    String? projectName,
+    required String columnName,
+    required AchievementDrillDownType achievementDrillDownType,
+  }) async {
+    final tabName = achievementTabs[_secondaryTabController?.index ?? 0];
+    await _achievementCubit.updateAchievementDrillDownType(
+      drillDownType: achievementDrillDownType,
+    );
+
+    goRouter.pushNamed(
+      AppRoutes.achievementDrillDownReport,
+      queryParameters: {
+        if (projectId != null)
+          'projectId': Uri.encodeQueryComponent(
+            EncryptionManager.encryptData(projectId.toString()),
+          ),
+        if (employeeId != null)
+          'employeeId': Uri.encodeQueryComponent(
+            EncryptionManager.encryptData(employeeId.toString()),
+          ),
+        if (employeeName != null)
+          'employeeName': Uri.encodeQueryComponent(
+            EncryptionManager.encryptData(employeeName),
+          ),
+        'tabName': Uri.encodeQueryComponent(
+          EncryptionManager.encryptData(tabName),
+        ),
+        'columnName': Uri.encodeQueryComponent(
+          EncryptionManager.encryptData(columnName),
+        ),
+        if (projectName != null)
+          'projectName': Uri.encodeQueryComponent(
+            EncryptionManager.encryptData(projectName),
+          ),
+        'filterType': Uri.encodeQueryComponent(
+          EncryptionManager.encryptData(_filterTypeNotifier.value),
+        ),
       },
     );
   }

@@ -44,6 +44,9 @@ class _LitigationScreenState extends State<LitigationScreen> {
       _filterProjectName,
       _filterCaseNumber,
       _filterCourtName;
+
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
+
   @override
   void initState() {
     super.initState();
@@ -60,9 +63,12 @@ class _LitigationScreenState extends State<LitigationScreen> {
   void dispose() {
     super.dispose();
     _searchC.dispose();
+    _filterCount.dispose();
     _filterProjectName.dispose();
     _filterCaseNumber.dispose();
     _filterCourtName.dispose();
+    scrollController.dispose();
+    _debounce?.cancel();
   }
 
   // INITIALISE TEXT EDITING CONTROLLERS
@@ -143,7 +149,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
       });
     }
 
-    DialogHelper.showCustomFilterBottomSheet(
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter - Litigation",
       contentWidget: StatefulBuilder(
@@ -261,6 +267,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
 
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
+      _searchC.clear();
       _filterCaseNumber.clear();
       _filterCourtName.clear();
       _filterProjectName.clear();
@@ -269,205 +276,217 @@ class _LitigationScreenState extends State<LitigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Litigation",
-        authorization: _routeAuthorizationModel,
-        searchHintText: "Search By Title",
-        onAddCallback: () async {
-          await goRouter.pushNamed(AppRoutes.addLitigation);
-          if (context.mounted) {
-            _litigationCubit.searchLitigation("", context);
-          }
-        },
-        onExportCallback: (value) {
-          if (_litigationCubit.state.litigationTotalRecords == 0) {
-            showErrorMessage(context, "Error", "No Data Found");
-            return;
-          }
-          _litigationCubit.exportExcelPdf(context, value);
-        },
-        textController: _searchC,
-        onSearchSubmit: (value) {
-          _litigationCubit.searchLitigation(value, context);
-        },
-        isFilterOn: true,
-        onFilterTap: () {
-          _showBottomSheetToFilterLitigation(context);
-        },
-      ),
-      body: BlocBuilder<LitigationCubit, LitigationState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.litigationList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.litigationList.isEmpty) {
-            return Center(
-              child: noDataWidget(message: "No Litigation Data found"),
-            );
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.litigationList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.litigationList.length) {
-                return state.litigationList.length <
-                        state.litigationTotalRecords
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var litigation = state.litigationList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () async {
-                              await goRouter.pushNamed(
-                                AppRoutes.viewLitigation,
-                                queryParameters: {
-                                  "litigation": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(litigation.toJson()),
+    return BlocListener<LitigationCubit, LitigationState>(
+      listener: (context, state) {
+        _filterCount.value = _litigationCubit.updateFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "Litigation",
+          authorization: _routeAuthorizationModel,
+          filterCountNotifier: _filterCount,
+          searchHintText: "Search By Title",
+          onAddCallback: () async {
+            await goRouter.pushNamed(AppRoutes.addLitigation);
+            if (context.mounted) {
+              _litigationCubit.searchLitigation("", context);
+            }
+          },
+          onExportCallback: (value) {
+            if (_litigationCubit.state.litigationTotalRecords == 0) {
+              showErrorMessage(context, "Error", "No Data Found");
+              return;
+            }
+            _litigationCubit.exportExcelPdf(context, value);
+          },
+          textController: _searchC,
+          onSearchSubmit: (value) {
+            _litigationCubit.searchLitigation(value, context);
+          },
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterLitigation(context);
+          },
+        ),
+        body: BlocBuilder<LitigationCubit, LitigationState>(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.litigationList.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.litigationList.isEmpty) {
+              return Center(
+                child: noDataWidget(message: "No Litigation Data found"),
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: state.litigationList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.litigationList.length) {
+                  return state.litigationList.length <
+                          state.litigationTotalRecords
+                      ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var litigation = state.litigationList[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () async {
+                                await goRouter.pushNamed(
+                                  AppRoutes.viewLitigation,
+                                  queryParameters: {
+                                    "litigation": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(litigation.toJson()),
+                                      ),
                                     ),
-                                  ),
-                                  'index': index.toString(),
-                                },
-                              );
-                              _litigationCubit.resetLitigationData();
-                            },
-                            child: Text(
-                              litigation.title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ).copyWith(
-                                decoration: TextDecoration.underline,
-                                decorationColor: AppColor.primary,
+                                    'index': index.toString(),
+                                  },
+                                );
+                                _litigationCubit.resetLitigationData();
+                              },
+                              child: Text(
+                                litigation.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
+                          const SizedBox(width: 8),
 
-                        if (_routeAuthorizationModel.isAction)
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (litigation.status.toLowerCase() != "closed")
-                                CustomButton(
-                                  backgroundColor: AppColor.lightBlue,
-                                  leading: const Icon(Icons.add, size: 18),
-                                  textColor: AppColor.primary,
-                                  text: 'Add Hearing',
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 6,
-                                    horizontal: 8,
+                          if (_routeAuthorizationModel.isAction)
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (litigation.status.toLowerCase() != "closed")
+                                  CustomButton(
+                                    backgroundColor: AppColor.lightBlue,
+                                    leading: const Icon(Icons.add, size: 18),
+                                    textColor: AppColor.primary,
+                                    text: 'Add Hearing',
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 6,
+                                      horizontal: 8,
+                                    ),
+                                    onPressed: () {
+                                      goRouter.pushNamed(
+                                        AppRoutes.addLitigationHearing,
+                                        queryParameters: {
+                                          "litigation":
+                                              Uri.encodeQueryComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(
+                                                    litigation.toJson(),
+                                                  ),
+                                                ),
+                                              ),
+                                        },
+                                      );
+                                    },
                                   ),
-                                  onPressed: () {
-                                    goRouter.pushNamed(
-                                      AppRoutes.addLitigationHearing,
-                                      queryParameters: {
-                                        "litigation": Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(litigation.toJson()),
-                                          ),
-                                        ),
-                                      },
-                                    );
-                                  },
-                                ),
 
-                              const SizedBox(width: 8),
-                              if (litigation.status.toLowerCase() != "closed")
-                                CustomIconButton.edit(
-                                  onPressed: () async {
-                                    await goRouter.pushNamed(
-                                      AppRoutes.addLitigation,
-                                      queryParameters: {
-                                        "litigation": Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(litigation.toJson()),
-                                          ),
-                                        ),
-                                        'index': index.toString(),
-                                      },
-                                    );
-                                  },
-                                ),
-                              if (litigation.isDelete) ...[
-                                const SizedBox(width: 6),
-                                CustomIconButton.delete(
-                                  onPressed: () {
-                                    _showPopupToDeleteLitigation(
-                                      context,
-                                      litigation,
-                                      index,
-                                    );
-                                  },
-                                ),
+                                const SizedBox(width: 8),
+                                if (litigation.status.toLowerCase() != "closed")
+                                  CustomIconButton.edit(
+                                    onPressed: () async {
+                                      await goRouter.pushNamed(
+                                        AppRoutes.addLitigation,
+                                        queryParameters: {
+                                          "litigation":
+                                              Uri.encodeQueryComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(
+                                                    litigation.toJson(),
+                                                  ),
+                                                ),
+                                              ),
+                                          'index': index.toString(),
+                                        },
+                                      );
+                                    },
+                                  ),
+                                if (litigation.isDelete) ...[
+                                  const SizedBox(width: 6),
+                                  CustomIconButton.delete(
+                                    onPressed: () {
+                                      _showPopupToDeleteLitigation(
+                                        context,
+                                        litigation,
+                                        index,
+                                      );
+                                    },
+                                  ),
+                                ],
                               ],
-                            ],
-                          ),
-                      ],
-                    ),
-                    verticalSpacing(height: 10),
-                    buildRowTitleValue(
-                      title: "Project",
-                      value: litigation.projectName,
-                    ),
-                    buildRowTitleValue(
-                      title: "Case / Petition / Dispute Number",
-                      value: litigation.caseNumber,
-                    ),
-                    buildRowTitleValue(
-                      title: "Case Type",
-                      value: litigation.caseType,
-                    ),
-                    buildRowTitleValue(
-                      title: "Date Off Filling",
-                      value: formatDateTimeAsDDMMMYYYY(
-                        litigation.dateOfFilling,
+                            ),
+                        ],
                       ),
-                    ),
-                    buildRowTitleValue(
-                      title: "Hearing Date",
-                      value:
-                          litigation.hearingDate != null
-                              ? formatDateTimeAsDDMMMYYYY(
-                                litigation.hearingDate!,
-                              )
-                              : '-',
-                    ),
-                    buildRowTitleValue(
-                      title: "Status",
-                      value: litigation.status,
-                      valueTextStyle: AppTextStyle.ts14M(
-                        color:
-                            (litigation.status.toLowerCase() == 'open')
-                                ? AppColor.green20
-                                : litigation.status.toLowerCase() == 'reopen'
-                                ? AppColor.holdYellowColor
-                                : AppColor.missingInformationRed,
+                      verticalSpacing(height: 10),
+                      buildRowTitleValue(
+                        title: "Project",
+                        value: litigation.projectName,
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                      buildRowTitleValue(
+                        title: "Case / Petition / Dispute Number",
+                        value: litigation.caseNumber,
+                      ),
+                      buildRowTitleValue(
+                        title: "Case Type",
+                        value: litigation.caseType,
+                      ),
+                      buildRowTitleValue(
+                        title: "Date Off Filling",
+                        value: formatDateTimeAsDDMMMYYYY(
+                          litigation.dateOfFilling,
+                        ),
+                      ),
+                      buildRowTitleValue(
+                        title: "Hearing Date",
+                        value:
+                            litigation.hearingDate != null
+                                ? formatDateTimeAsDDMMMYYYY(
+                                  litigation.hearingDate!,
+                                )
+                                : '-',
+                      ),
+                      buildRowTitleValue(
+                        title: "Status",
+                        value: litigation.status,
+                        valueTextStyle: AppTextStyle.ts14M(
+                          color:
+                              (litigation.status.toLowerCase() == 'open')
+                                  ? AppColor.green20
+                                  : litigation.status.toLowerCase() == 'reopen'
+                                  ? AppColor.holdYellowColor
+                                  : AppColor.missingInformationRed,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

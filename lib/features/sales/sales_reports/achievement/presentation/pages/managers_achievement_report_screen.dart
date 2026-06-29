@@ -3,19 +3,23 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/achivement_drill_down_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/project_achievement_report.model.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 import '../../../../../../style/app_color.dart';
-import '../cubit/achievement.state.dart';
-import '../cubit/achievement_cubit.dart';
+import '../cubit/achievement_report_state.dart';
+import '../cubit/achievement_report_cubit.dart';
 
 class ManagerAchievementReportScreen extends StatefulWidget {
   final String type;
@@ -39,24 +43,35 @@ class ManagerAchievementReportScreen extends StatefulWidget {
 
 class _ManagerAchievementReportScreenState
     extends State<ManagerAchievementReportScreen> {
-  late AchievementCubit _achievementCubit;
+  late AchievementReportCubit _achievementCubit;
+  late AuthorizationModel _routeAuthorizationModel;
   // PAGINATION
   late ScrollController _closingScrollController;
   Timer? _closingDebounce;
   late ScrollController _sourcingScrollController;
   Timer? _sourcingDebounce;
-  late TextEditingController _searchTextC;
-  late AuthorizationModel _routeAuthorizationModel;
+  late TextEditingController _searchC;
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   @override
   void initState() {
-    _achievementCubit = context.read<AchievementCubit>();
+    _achievementCubit = context.read<AchievementReportCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.achievementReport]!;
-    _searchTextC = TextEditingController();
+    _searchC = TextEditingController();
     _onScroll();
     _initializeData();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _closingScrollController.dispose();
+    _closingDebounce?.cancel();
+    _sourcingScrollController.dispose();
+    _sourcingDebounce?.cancel();
+    _filterCount.dispose();
+    super.dispose();
   }
 
   void _initializeData() {
@@ -155,14 +170,20 @@ class _ManagerAchievementReportScreenState
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
 
     bool applied = false;
+    _searchC.text = state.searchText;
+    bool manualClose = false;
 
+    final String initialEmployeeName = _searchC.text;
     void updateApplyState(StateSetter innerState) {
       innerState(() {
-        applyEnabled.value = selectedDirection != initialDirection;
+        manualClose =
+            _searchC.text.trim() != initialEmployeeName ||
+            selectedDirection != initialDirection;
+        applyEnabled.value = manualClose;
       });
     }
 
-    DialogHelper.showCustomFilterBottomSheet(
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter - Achievement",
 
@@ -228,6 +249,13 @@ class _ManagerAchievementReportScreenState
                     ),
                   ],
                 ),
+                verticalSpacing(height: 20),
+                CustomTextField(
+                  textController: _searchC,
+                  hint: "Enter Employee Name",
+                  title: "Employee Name",
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
               ],
             ),
           );
@@ -238,6 +266,7 @@ class _ManagerAchievementReportScreenState
         selectedDirection = null;
 
         _achievementCubit.applyManagerAchievementFilterAndSort(
+          employeeName: '',
           context: context,
           projectId: widget.projectAchievementReportModel.projectId,
           sortColumn: '',
@@ -253,6 +282,7 @@ class _ManagerAchievementReportScreenState
           toDate: widget.toDate,
           filterType: widget.filterType,
         );
+        _searchC.clear();
       },
 
       onApply: () {
@@ -261,6 +291,7 @@ class _ManagerAchievementReportScreenState
         _achievementCubit.applyManagerAchievementFilterAndSort(
           context: context,
           sortColumn: "Employee Name",
+          employeeName: _searchC.text.trim(),
           sortDirection: selectedDirection,
           activeSecondaryTabIndex:
               widget.type.toLowerCase() == "closing"
@@ -281,6 +312,7 @@ class _ManagerAchievementReportScreenState
 
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied) {
+      _searchC.text = initialEmployeeName;
       selectedDirection = initialDirection;
     }
   }
@@ -293,41 +325,50 @@ class _ManagerAchievementReportScreenState
             : widget.type.toLowerCase() == "sourcing"
             ? 1
             : 0;
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle:
-            widget.type == 'closing' ? 'Closing Managers' : 'Sourcing Managers',
-        authorization: _routeAuthorizationModel,
-        showMenuIcon: false,
-        textController: _searchTextC,
-        searchHintText: "Search By Employee Name",
-        isFilterOn: true,
-        onFilterTap: () => _showBottomSheetToFilterManagerAchievement(context),
-        onSearchSubmit: (String value) {
-          _achievementCubit.managerSearch(
-            context: context,
-            searchText: value,
-            filterType: widget.filterType,
-            reportTabIndex: reportTabIndex,
-            projectId: widget.projectAchievementReportModel.projectId,
-          );
-        },
-        onExportCallback: (v) {
-          _achievementCubit.exportManagerExcelPdf(
-            context: context,
-            exportType: v,
-            filterType: widget.filterType,
-            reportTabIndex: reportTabIndex,
-            projectId: widget.projectAchievementReportModel.projectId,
-          );
-        },
+    return BlocListener<AchievementReportCubit, AchievementState>(
+      listener: (context, state) {
+        _filterCount.value = _achievementCubit.updateManagerFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle:
+              widget.type.toLowerCase() == 'closing'
+                  ? 'Closing Managers'
+                  : 'Sourcing Managers',
+          authorization: _routeAuthorizationModel,
+          showMenuIcon: false,
+          textController: _searchC,
+          filterCountNotifier: _filterCount,
+          searchHintText: "Search By Employee Name",
+          isFilterOn: true,
+          onFilterTap:
+              () => _showBottomSheetToFilterManagerAchievement(context),
+          onSearchSubmit: (String value) {
+            _achievementCubit.managerSearch(
+              context: context,
+              searchText: value,
+              filterType: widget.filterType,
+              reportTabIndex: reportTabIndex,
+              projectId: widget.projectAchievementReportModel.projectId,
+            );
+          },
+          onExportCallback: (v) {
+            _achievementCubit.exportManagerExcelPdf(
+              context: context,
+              exportType: v,
+              filterType: widget.filterType,
+              reportTabIndex: reportTabIndex,
+              projectId: widget.projectAchievementReportModel.projectId,
+            );
+          },
+        ),
+        body:
+            widget.type.toLowerCase() == "closing"
+                ? _buildClosingAchievementTab()
+                : widget.type.toLowerCase() == "sourcing"
+                ? _buildSourcingAchievementTab()
+                : const SizedBox.shrink(),
       ),
-      body:
-          widget.type.toLowerCase() == "closing"
-              ? _buildClosingAchievementTab()
-              : widget.type.toLowerCase() == "sourcing"
-              ? _buildSourcingAchievementTab()
-              : const SizedBox.shrink(),
     );
   }
 
@@ -342,7 +383,7 @@ class _ManagerAchievementReportScreenState
             projectName: widget.projectAchievementReportModel.projectName,
           ),
           Expanded(
-            child: BlocBuilder<AchievementCubit, AchievementState>(
+            child: BlocBuilder<AchievementReportCubit, AchievementState>(
               builder: (context, state) {
                 if ((state.isLoading ?? false) &&
                     state.managerClosingAchievementReportList.isEmpty) {
@@ -390,7 +431,7 @@ class _ManagerAchievementReportScreenState
                                   TextSpan(
                                     text: achievement.employeeName,
                                     style: AppTextStyle.ts16M(
-                                      color: AppColor.primary,
+                                      color: AppColor.black,
                                     ),
                                   ),
                                   TextSpan(
@@ -415,22 +456,54 @@ class _ManagerAchievementReportScreenState
                               trailing: const Icon(Icons.keyboard_arrow_down),
                               childrenPadding: EdgeInsets.zero,
                               children: [
-                                buildRowTitleValue(
+                                buildRowTitleCount(
                                   title: "By CP",
-                                  value: achievement.walkinsByCp.addCommas(),
+                                  value: achievement.walkinsByCp.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeId: achievement.employeeId,
+                                        employeeName: achievement.employeeName,
+                                        columnName: 'WALKINS BY CP',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType.enquiry,
+                                      ),
                                 ),
-                                buildRowTitleValue(
+                                buildRowTitleCount(
                                   title: "Direct",
-                                  value: achievement.walkinsDirect.addCommas(),
+                                  value: achievement.walkinsDirect.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeId: achievement.employeeId,
+                                        employeeName: achievement.employeeName,
+                                        columnName: 'WALKINS DIRECT',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType.enquiry,
+                                      ),
                                 ),
-                                buildRowTitleValue(
+                                buildRowTitleCount(
                                   title: "Fresh Visits",
                                   value:
-                                      achievement.totalFreshVisits.addCommas(),
+                                      achievement.totalFreshVisits.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeName: achievement.employeeName,
+                                        employeeId: achievement.employeeId,
+                                        columnName: 'FRESH VISITS',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType.enquiry,
+                                      ),
                                 ),
-                                buildRowTitleValue(
+                                buildRowTitleCount(
                                   title: "Revisits",
-                                  value: achievement.revisits.addCommas(),
+                                  value: achievement.revisits.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeName: achievement.employeeName,
+                                        employeeId: achievement.employeeId,
+                                        columnName: 'REVISITS',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType.enquiry,
+                                      ),
                                 ),
                               ],
                             ),
@@ -439,20 +512,44 @@ class _ManagerAchievementReportScreenState
                             /// BOOKINGS
                             ExpansionTile(
                               tilePadding: EdgeInsets.zero,
-                              title: buildRowTitleValue(
+                              title: buildRowTitleCount(
                                 title: "Total Booking",
-                                value: achievement.totalBooking.addCommas(),
+                                value: achievement.totalBooking.toString(),
+                                onValueTap:
+                                    () => _navigateToAchievementDrillDown(
+                                      employeeName: achievement.employeeName,
+                                      employeeId: achievement.employeeId,
+                                      columnName: 'TOTAL BOOKING',
+                                      achievementDrillDownType:
+                                          AchievementDrillDownType.booking,
+                                    ),
                               ),
                               trailing: const Icon(Icons.keyboard_arrow_down),
                               childrenPadding: EdgeInsets.zero,
                               children: [
-                                buildRowTitleValue(
+                                buildRowTitleCount(
                                   title: "By CP",
-                                  value: achievement.bookingByCp.addCommas(),
+                                  value: achievement.bookingByCp.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeName: achievement.employeeName,
+                                        employeeId: achievement.employeeId,
+                                        columnName: 'BOOKING BY CP',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType.booking,
+                                      ),
                                 ),
-                                buildRowTitleValue(
+                                buildRowTitleCount(
                                   title: "Direct",
-                                  value: achievement.bookingDirect.addCommas(),
+                                  value: achievement.bookingDirect.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeName: achievement.employeeName,
+                                        employeeId: achievement.employeeId,
+                                        columnName: 'BOOKING DIRECT',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType.booking,
+                                      ),
                                 ),
                               ],
                             ),
@@ -460,12 +557,18 @@ class _ManagerAchievementReportScreenState
                             Divider(height: 1, color: AppColor.grey50),
                             Padding(
                               padding: EdgeInsets.only(top: 10),
-                              child: buildRowTitleValue(
-                                title: "Total Revenue",
+                              child: buildRowTitleCount(
+                                title: "Total Revenue (₹)",
                                 singleLine: false,
-                                value:
-                                    (achievement.totalRevenue)
-                                        .toIndianCurrency(),
+                                value: (achievement.totalRevenue).toString(),
+                                onValueTap:
+                                    () => _navigateToAchievementDrillDown(
+                                      employeeName: achievement.employeeName,
+                                      employeeId: achievement.employeeId,
+                                      columnName: 'TOTAL REVENUE',
+                                      achievementDrillDownType:
+                                          AchievementDrillDownType.booking,
+                                    ),
                               ),
                             ),
                           ],
@@ -493,7 +596,7 @@ class _ManagerAchievementReportScreenState
             projectName: widget.projectAchievementReportModel.projectName,
           ),
           Expanded(
-            child: BlocBuilder<AchievementCubit, AchievementState>(
+            child: BlocBuilder<AchievementReportCubit, AchievementState>(
               builder: (context, state) {
                 if ((state.isLoading ?? false) &&
                     state.managerSourcingAchievementReportList.isEmpty) {
@@ -545,7 +648,7 @@ class _ManagerAchievementReportScreenState
                                   TextSpan(
                                     text: achievement.employeeName,
                                     style: AppTextStyle.ts16M(
-                                      color: AppColor.primary,
+                                      color: AppColor.black,
                                     ),
                                   ),
                                   TextSpan(
@@ -568,21 +671,49 @@ class _ManagerAchievementReportScreenState
                               collapsedShape: const Border(),
                               trailing: const Icon(Icons.keyboard_arrow_down),
                               title: buildRowTitleValue(
-                                title: "Walkins",
-                                value: achievement.walkinsByCp.addCommas(),
+                                title: "Total Walkins",
+                                value:
+                                    (achievement.walkinsByCp +
+                                            achievement.freshVisits +
+                                            achievement.revisits)
+                                        .addCommas(),
                               ),
                               children: [
-                                buildRowTitleValue(
+                                buildRowTitleCount(
                                   title: "By CP",
-                                  value: achievement.walkinsByCp.addCommas(),
+                                  value: achievement.walkinsByCp.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeName: achievement.employeeName,
+                                        employeeId: achievement.employeeId,
+                                        columnName: 'WALKINS BY CP',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType.enquiry,
+                                      ),
                                 ),
-                                buildRowTitleValue(
+                                buildRowTitleCount(
                                   title: "Fresh Visits",
-                                  value: achievement.freshVisits.addCommas(),
+                                  value: achievement.freshVisits.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeName: achievement.employeeName,
+                                        employeeId: achievement.employeeId,
+                                        columnName: 'FRESH VISITS',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType.enquiry,
+                                      ),
                                 ),
-                                buildRowTitleValue(
+                                buildRowTitleCount(
                                   title: "Revisits",
-                                  value: achievement.revisits.addCommas(),
+                                  value: achievement.revisits.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeName: achievement.employeeName,
+                                        employeeId: achievement.employeeId,
+                                        columnName: 'REVISITS',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType.enquiry,
+                                      ),
                                 ),
                               ],
                             ),
@@ -594,21 +725,48 @@ class _ManagerAchievementReportScreenState
                               shape: const Border(),
                               collapsedShape: const Border(),
                               trailing: const Icon(Icons.keyboard_arrow_down),
-                              title: buildRowTitleValue(
+                              title: buildRowTitleCount(
                                 title: "Total Meetings",
-                                value: achievement.totalMeetings.addCommas(),
+                                value: achievement.totalMeetings.toString(),
+                                onValueTap:
+                                    () => _navigateToAchievementDrillDown(
+                                      employeeName: achievement.employeeName,
+                                      employeeId: achievement.employeeId,
+                                      columnName: 'TOTAL MEETING',
+                                      achievementDrillDownType:
+                                          AchievementDrillDownType
+                                              .channelPartner,
+                                    ),
                               ),
                               children: [
-                                buildRowTitleValue(
+                                buildRowTitleCount(
                                   title: "OBM (Fresh Visits)",
                                   value:
                                       achievement.totalObmFreshVisits
-                                          .addCommas(),
+                                          .toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeName: achievement.employeeName,
+                                        employeeId: achievement.employeeId,
+                                        columnName: 'TOTAL OBM FRESH VISITS',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType
+                                                .channelPartner,
+                                      ),
                                 ),
-                                buildRowTitleValue(
+                                buildRowTitleCount(
                                   title: "OBM (Revisits)",
                                   value:
-                                      achievement.totalObmRevisits.addCommas(),
+                                      achievement.totalObmRevisits.toString(),
+                                  onValueTap:
+                                      () => _navigateToAchievementDrillDown(
+                                        employeeName: achievement.employeeName,
+                                        employeeId: achievement.employeeId,
+                                        columnName: 'TOTAL OBM REVISITS',
+                                        achievementDrillDownType:
+                                            AchievementDrillDownType
+                                                .channelPartner,
+                                      ),
                                 ),
                               ],
                             ),
@@ -621,9 +779,18 @@ class _ManagerAchievementReportScreenState
                               shape: const Border(),
                               collapsedShape: const Border(),
                               trailing: const Icon(Icons.keyboard_arrow_down),
-                              title: buildRowTitleValue(
+                              title: buildRowTitleCount(
                                 title: "IBM",
-                                value: achievement.totalIbm.addCommas(),
+                                value: achievement.totalIbm.toString(),
+                                onValueTap:
+                                    () => _navigateToAchievementDrillDown(
+                                      employeeName: achievement.employeeName,
+                                      employeeId: achievement.employeeId,
+                                      columnName: 'IBM',
+                                      achievementDrillDownType:
+                                          AchievementDrillDownType
+                                              .channelPartner,
+                                    ),
                               ),
                             ),
                             Divider(height: 1, color: AppColor.grey50),
@@ -635,19 +802,34 @@ class _ManagerAchievementReportScreenState
                               shape: const Border(),
                               collapsedShape: const Border(),
                               trailing: const Icon(Icons.keyboard_arrow_down),
-                              title: buildRowTitleValue(
+                              title: buildRowTitleCount(
                                 title: "Bookings",
-                                value: achievement.bookings.addCommas(),
+                                value: achievement.bookings.toString(),
+                                onValueTap:
+                                    () => _navigateToAchievementDrillDown(
+                                      employeeName: achievement.employeeName,
+                                      employeeId: achievement.employeeId,
+                                      columnName: 'TOTAL BOOKING',
+                                      achievementDrillDownType:
+                                          AchievementDrillDownType.booking,
+                                    ),
                               ),
                             ),
                             Divider(height: 1, color: AppColor.grey50),
                             Padding(
                               padding: const EdgeInsets.only(top: 10),
-                              child: buildRowTitleValue(
-                                title: "Total Revenue",
+                              child: buildRowTitleCount(
+                                title: "Total Revenue (₹)",
                                 singleLine: false,
-                                value:
-                                    achievement.totalRevenue.toIndianCurrency(),
+                                value: achievement.totalRevenue.toString(),
+                                onValueTap:
+                                    () => _navigateToAchievementDrillDown(
+                                      employeeName: achievement.employeeName,
+                                      employeeId: achievement.employeeId,
+                                      columnName: 'TOTAL REVENUE',
+                                      achievementDrillDownType:
+                                          AchievementDrillDownType.booking,
+                                    ),
                               ),
                             ),
                           ],
@@ -661,6 +843,51 @@ class _ManagerAchievementReportScreenState
           ),
         ],
       ),
+    );
+  }
+
+  void _navigateToAchievementDrillDown({
+    int? employeeId,
+    String? employeeName,
+    String? projectName,
+    required String columnName,
+    required AchievementDrillDownType achievementDrillDownType,
+  }) async {
+    final tabName = widget.type;
+    await _achievementCubit.updateAchievementDrillDownType(
+      drillDownType: achievementDrillDownType,
+    );
+
+    goRouter.pushNamed(
+      AppRoutes.achievementDrillDownReport,
+      queryParameters: {
+        'projectId': Uri.encodeQueryComponent(
+          EncryptionManager.encryptData(
+            widget.projectAchievementReportModel.projectId.toString(),
+          ),
+        ),
+        if (employeeId != null)
+          'employeeId': Uri.encodeQueryComponent(
+            EncryptionManager.encryptData(employeeId.toString()),
+          ),
+        if (employeeName != null)
+          'employeeName': Uri.encodeQueryComponent(
+            EncryptionManager.encryptData(employeeName),
+          ),
+        'tabName': Uri.encodeQueryComponent(
+          EncryptionManager.encryptData(tabName),
+        ),
+        'columnName': Uri.encodeQueryComponent(
+          EncryptionManager.encryptData(columnName),
+        ),
+        if (projectName != null)
+          'projectName': Uri.encodeQueryComponent(
+            EncryptionManager.encryptData(projectName),
+          ),
+        'filterType': Uri.encodeQueryComponent(
+          EncryptionManager.encryptData(widget.filterType),
+        ),
+      },
     );
   }
 }

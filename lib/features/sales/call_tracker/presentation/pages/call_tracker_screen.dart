@@ -62,6 +62,8 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
   );
 
   DateTime? selectedRescheduleDate;
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
+
   @override
   void initState() {
     super.initState();
@@ -89,6 +91,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     _scrollControllerCallLog.dispose();
     _debounce?.cancel();
     _debounceCallLog?.cancel();
+    _filterCount.dispose();
     super.dispose();
   }
 
@@ -207,20 +210,38 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     _endDateNotifier.value = state.filterRescheduleToDate;
     _filterSourceC.text = state.filterSource ?? "";
 
+    String? selectedDirection =
+        state.currentSortColumn ==
+                (_tabController.index == 0
+                    ? "Customer Name"
+                    : "Sales Executive")
+            ? state.currentSortDirection
+            : null;
+
+    final String? initialDirection = selectedDirection;
+
     bool manualClose = false;
+    bool applied = false;
 
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
 
     void updateApplyState(StateSetter innerState) {
       innerState(() {
+        final bool onlyOneDateSet =
+            (_startDateNotifier.value != null &&
+                _endDateNotifier.value == null) ||
+            (_endDateNotifier.value != null &&
+                _startDateNotifier.value == null);
+
         manualClose =
             _searchC.text.trim() != state.searchText ||
             _filterMobileNoC.text.trim() != state.filterMobileNo ||
             _startDateNotifier.value != state.filterRescheduleFromDate ||
             _endDateNotifier.value != state.filterRescheduleToDate ||
-            _filterSourceC.text.trim() != state.filterSource;
+            _filterSourceC.text.trim() != (state.filterSource ?? "") ||
+            selectedDirection != initialDirection;
 
-        applyEnabled.value = manualClose;
+        applyEnabled.value = !onlyOneDateSet && manualClose;
       });
     }
 
@@ -230,11 +251,74 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
           _tabController.index == 0 ? "Filter Calling Data" : "Filter Call Log",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+
+            updateApplyState(innerState);
+          }
+
           return SingleChildScrollView(
+            padding: EdgeInsets.only(right: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  _tabController.index == 0
+                      ? "Sort By Customer Name"
+                      : "Sort By Sales Executive Name",
+                  style: AppTextStyle.ts14M(),
+                ),
+
                 verticalSpacing(),
+
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+
+                    horizontalSpacing(),
+
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+
+                verticalSpacing(height: 20),
+
                 CustomTextField(
                   textController: _searchC,
                   title:
@@ -247,6 +331,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                           : "Enter Receiver Name",
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
+
                 CustomTextField(
                   textController: _filterMobileNoC,
                   title: "Mobile Number",
@@ -266,7 +351,6 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                       initialDate: startDate,
                       setValue: (value) {
                         _startDateNotifier.value = value;
-
                         updateApplyState(innerState);
                       },
                       validator: (value) => null,
@@ -286,6 +370,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                                   ? "To Date"
                                   : "Reschedule To Date",
                           isRequired: false,
+                          startDate: _startDateNotifier.value,
                           initialDate: endDate,
                           setValue: (value) {
                             _endDateNotifier.value = value;
@@ -321,7 +406,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                     );
                   },
                 ),
-                // VISIBLE : FOR CALLING DATA ONLY
+
                 if (_tabController.index == 0)
                   CustomTextField(
                     textController: _filterSourceC,
@@ -337,11 +422,11 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
 
       onClear: () {
         _filterMobileNoC.clear();
-
         _startDateNotifier.value = null;
         _endDateNotifier.value = null;
         _searchC.clear();
         _filterSourceC.clear();
+
         _callTrackerCubit.applyFilterAndSort(
           context: context,
           mobileNumber: '',
@@ -350,12 +435,15 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
           name: "",
           projectId: _project.projectId,
           source: "",
+          sortColumn: "Created Date",
+          sortDirection: "DESC",
         );
       },
 
       onApply: () {
-        final startDate = _startDateNotifier.value;
+        applied = true;
 
+        final startDate = _startDateNotifier.value;
         final endDate = _endDateNotifier.value;
 
         if (startDate != null && endDate != null) {
@@ -386,12 +474,25 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
           rescheduleFromDate: startDate,
           rescheduleToDate: endDate,
           source: _tabController.index == 0 ? _filterSourceC.text.trim() : null,
+          sortColumn:
+              selectedDirection != null
+                  ? (_tabController.index == 0
+                      ? "Customer Name"
+                      : "Sales Executive")
+                  : null,
+          sortDirection: selectedDirection,
         );
       },
 
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
+
+    if (!applied && manualClose) {
+      _searchC.clear();
+      _filterMobileNoC.clear();
+      _filterSourceC.clear();
+    }
   }
 
   @override
@@ -452,6 +553,8 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
   Widget searchWidget() {
     return BlocBuilder<CallTrackerCubit, CallTrackerState>(
       builder: (context, state) {
+        _filterCount.value = _callTrackerCubit.updateFilterCount(state);
+
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
           child: Row(
@@ -459,6 +562,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
             children: [
               Expanded(
                 child: SearchWidget(
+                  filterCountNotifier: _filterCount,
                   textController: _searchC,
                   hintText:
                       state.currentTabIndex == 0
@@ -877,7 +981,7 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
     );
   }
 
-  Widget _header(CallLogModel callLog) {
+Widget _header(CallLogModel callLog) {
     return InkWell(
       onTap: () => setState(() => isExpanded = !isExpanded),
       child: Column(

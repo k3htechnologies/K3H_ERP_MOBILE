@@ -19,7 +19,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
-import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
 import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -47,7 +47,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
       _senderMobileNumberC,
       _receiverMobileNumberC;
 
-  DateTime? _selectedCreatedDate;
+  DateTime? _selectedFromDate, _selectedToDate;
 
   late ScrollController _inwardOutwardScrollController;
   Timer? _inwardOutwardDebounce;
@@ -55,6 +55,9 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
   Timer? _inwardDebounce;
   late ScrollController _outwardScrollController;
   Timer? _outwardDebounce;
+
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
+
   @override
   void initState() {
     _inwardOutwardRouteAuthorizationModel =
@@ -78,7 +81,10 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     _senderNameC.dispose();
     _receiverNameC.dispose();
     _documentTypeC.dispose();
-
+    _documentTitleC.dispose();
+    _statusC.dispose();
+    _senderMobileNumberC.dispose();
+    _receiverMobileNumberC.dispose();
     _inwardOutwardScrollController.dispose();
     _inwardScrollController.dispose();
     _outwardScrollController.dispose();
@@ -87,6 +93,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     _inwardDebounce?.cancel();
     _outwardDebounce?.cancel();
 
+    _filterCount.dispose();
     super.dispose();
   }
 
@@ -199,7 +206,8 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     final initialStatus = state.filterByStatus;
     final initialSenderMobileNumber = state.filterBySenderMobileNumber;
     final initialReceiverMobileNumber = state.filterByReceiverMobileNumber;
-    final initialCreatedDate = state.filterByCreatedDate;
+    final initialFromDate = state.filterByFromDate;
+    final initialToDate = state.filterByToDate;
 
     final String? initialDirection =
         state.currentSortColumn == "SystemGeneratedCode"
@@ -214,7 +222,8 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     _statusC.text = initialStatus;
     _senderMobileNumberC.text = initialSenderMobileNumber;
     _receiverMobileNumberC.text = initialReceiverMobileNumber;
-    _selectedCreatedDate = initialCreatedDate;
+    _selectedFromDate = initialFromDate;
+    _selectedToDate = initialToDate;
 
     String? selectedDirection = initialDirection;
 
@@ -224,6 +233,9 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
 
     void updateApplyState() {
+      final bool onlyOneDateSet =
+          (_selectedFromDate != null && _selectedToDate == null) ||
+          (_selectedToDate != null && _selectedFromDate == null);
       manualClose =
           (_searchC.text.trim() != initialDocumentId) ||
           (_senderNameC.text.trim() != initialSenderName) ||
@@ -233,13 +245,14 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
           (_statusC.text.trim() != initialStatus) ||
           (_senderMobileNumberC.text.trim() != initialSenderMobileNumber) ||
           (_receiverMobileNumberC.text.trim() != initialReceiverMobileNumber) ||
-          (_selectedCreatedDate != initialCreatedDate) ||
+          (_selectedFromDate != initialFromDate) ||
+          (_selectedToDate != initialToDate) ||
           (selectedDirection != initialDirection);
 
-      applyEnabled.value = manualClose;
+      applyEnabled.value = manualClose && !onlyOneDateSet;
     }
 
-    DialogHelper.showCustomFilterBottomSheet(
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter Inward Outward",
 
@@ -354,6 +367,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                   textController: _senderMobileNumberC,
                   title: "Sender Mobile Number",
                   hint: "Enter Sender Mobile Number",
+                  keyboardType: TextInputType.number,
                   onChangeFunction: (_) => updateApplyState(),
                 ),
 
@@ -361,15 +375,19 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                   textController: _receiverMobileNumberC,
                   title: "Receiver Mobile Number",
                   hint: "Enter Receiver Mobile Number",
+                  keyboardType: TextInputType.number,
                   onChangeFunction: (_) => updateApplyState(),
                 ),
 
-                CustomDatePicker(
-                  title: "Created Date",
-                  initialDate: _selectedCreatedDate,
-                  setValue: (date) {
+                CustomFromToDatePicker(
+                  fromDateTitle: "From Date",
+                  toDateTitle: "To Date",
+                  initialFromDate: _selectedFromDate,
+                  initialToDate: _selectedToDate,
+                  onToDateChanged: (DateTime? fromDate, DateTime? toDate) {
                     innerState(() {
-                      _selectedCreatedDate = date;
+                      _selectedFromDate = fromDate;
+                      _selectedToDate = toDate;
                       updateApplyState();
                     });
                   },
@@ -390,7 +408,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
         _senderMobileNumberC.clear();
         _receiverMobileNumberC.clear();
 
-        _selectedCreatedDate = null;
+        _selectedFromDate = null;
         selectedDirection = null;
 
         await _inwardOutwardCubit.applyInwardOutwardFilterAndSort(
@@ -412,7 +430,8 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
           status: _statusC.text.trim(),
           senderMobileNumber: _senderMobileNumberC.text.trim(),
           receiverMobileNumber: _receiverMobileNumberC.text.trim(),
-          createdDate: _selectedCreatedDate,
+          fromDate: _selectedFromDate,
+          toDate: _selectedToDate,
           sortColumn: selectedDirection != null ? "SystemGeneratedCode" : "",
           sortDirection: selectedDirection ?? "",
         );
@@ -432,7 +451,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
       _senderMobileNumberC.clear();
       _receiverMobileNumberC.clear();
 
-      _selectedCreatedDate = null;
+      _selectedFromDate = null;
       selectedDirection = null;
     }
   }
@@ -461,39 +480,48 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Inward Outward",
-        authorization: _inwardOutwardRouteAuthorizationModel,
-        searchHintText: "Search By Document Id",
-        textController: _searchC,
-        isFilterOn: true,
-        onFilterTap: () => _showBottomSheetToFilterInwardOutward(context),
-        onSearchSubmit: (v) {
-          _inwardOutwardCubit.searchInwardOutward(context, v);
-        },
-        onExportCallback: (v) {
-          _inwardOutwardCubit.exportExcelPdf(context, v);
-        },
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addInwardOutward);
-        },
-      ),
-      body: Column(
-        children: [
-          ChipStyleTabBar(controller: _tabController, tabs: inwardOutwardTabs),
-          Expanded(
-            child: TabBarView(
+    return BlocListener<InwardOutwardCubit, InwardOutwardState>(
+      listener: (context, state) {
+        _filterCount.value = _inwardOutwardCubit.updateFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "Inward Outward",
+          authorization: _inwardOutwardRouteAuthorizationModel,
+          searchHintText: "Search By Document Id",
+          textController: _searchC,
+          filterCountNotifier: _filterCount,
+          isFilterOn: true,
+          onFilterTap: () => _showBottomSheetToFilterInwardOutward(context),
+          onSearchSubmit: (v) {
+            _inwardOutwardCubit.searchInwardOutward(context, v);
+          },
+          onExportCallback: (v) {
+            _inwardOutwardCubit.exportExcelPdf(context, v);
+          },
+          onAddCallback: () {
+            goRouter.pushNamed(AppRoutes.addInwardOutward);
+          },
+        ),
+        body: Column(
+          children: [
+            ChipStyleTabBar(
               controller: _tabController,
-              physics: NeverScrollableScrollPhysics(),
-              children: [
-                inwardOutwardSection(),
-                inwardSection(),
-                outwardSection(),
-              ],
+              tabs: inwardOutwardTabs,
             ),
-          ),
-        ],
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                physics: NeverScrollableScrollPhysics(),
+                children: [
+                  inwardOutwardSection(),
+                  inwardSection(),
+                  outwardSection(),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

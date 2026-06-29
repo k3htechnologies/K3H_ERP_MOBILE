@@ -115,6 +115,7 @@ class EnquiryDatasourceImpl extends EnquiryDatasource {
         'data': List<EnquiryModel>.from(
           networkResponse["data"].map((e) => EnquiryModel.fromJson(e)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

@@ -221,12 +221,14 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
   // APPLY FILTER AND SORT
   Future<void> applyFilterAndSort({
     required BuildContext context,
+    required String filterAssetName,
     required String filterEmployeeName,
     String? sortColumn,
     String? sortDirection,
   }) async {
     emit(
       state.copyWith(
+        searchText: filterAssetName,
         filterEmployeeName: filterEmployeeName,
         currentSortColumn: sortColumn ?? state.currentSortColumn,
         currentSortDirection: sortDirection ?? state.currentSortDirection,
@@ -236,5 +238,18 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
     );
 
     await getAssetMappingList(context: context, pageNumber: 1);
+  }
+
+  int updateFilterCount(AssetMappingMasterState state) {
+    final hasSort =
+        state.currentSortColumn == "Asset Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterEmployeeName.trim().isNotEmpty,
+      hasSort,
+    ]);
   }
 }

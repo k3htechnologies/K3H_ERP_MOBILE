@@ -28,6 +28,10 @@ class EnquiryCubit extends Cubit<EnquiryState> {
 
   final UtilsRepository _utilsRepository = serviceLocator<UtilsRepository>();
 
+  Future resetState() async {
+    emit(EnquiryState.initial());
+  }
+
   // SEARCH
   void searchEnquiry(BuildContext context, String searchText, int projectId) {
     emit(
@@ -205,52 +209,324 @@ class EnquiryCubit extends Cubit<EnquiryState> {
 
   // <---- ADD / UPDATE ENQUIRY ---->
 
-  Future addUpdateEnquiry({
+  Future<void> addEnquiry({
     required BuildContext context,
-    int? index,
     required int projectId,
-    required Map<String, dynamic> body,
+    required String? enquiryTimeIn,
+    required String? enquiryTimeOut,
+    required String name,
+    required String mobileNumberCountryCode,
+    required String mobileNumber,
+    required String emailId,
+    DateTime? dateOfBirth,
+    required String accommodation,
+    required String occupationType,
+    required String source,
+    required String subSource,
+    required String subSubSource,
+    int? referralProjectId,
+    int? referralInventoryFlatId,
+    int? loyaltyProjectId,
+    int? loyaltyInventoryFlatId,
+    int? employeeReferenceEmployeeId,
+    int? channelPartnerTeamMemberId,
+    String? channelPartnerTeamMemberName,
+    String? channelPartnerTeamMemberMobileNumber,
+    String? channelPartnerTeamMemberMobileNumberCountryCode,
+    String? channelPartnerTeamMemberEmailId,
+    required String nationality,
+    required String countryOfResidence,
+    required String cityOfResidence,
+    required String currentLocation,
+    required String villageMasterId,
+    required String possessionType,
+    required double areaPreferred,
+    required String desiredFloorBand,
+    required String budget,
+    required String requirement,
+    required String requirementType,
+    required String customerClassification,
+    required String sourceOfFunding,
+    required String ethnicity,
+    required String finalStage,
+    required String finalStageDetail,
+    DateTime? enquiryDate,
+    DateTime? nextFollowUpDate,
+    required int salesAdvisorId,
+    required int sourcingManagerId,
+    required String remark,
+    required String timeline,
+    required String otp,
     required bool isIndian,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
-    var result = await _enquiryRepository.addUpdateEnquiry(body: body);
+    final Map<String, dynamic> payload = {
+      "EnquiryId": 0,
+      "ProjectId": projectId,
+      "EnquiryTimeIn": enquiryTimeIn,
+      "EnquiryTimeOut": enquiryTimeOut,
+      "Name": name,
+      "MobileNumberCountryCode": mobileNumberCountryCode,
+      "MobileNumber": mobileNumber,
+      "EmailId": emailId,
+
+      if (dateOfBirth != null) "DateOfBirth": dateOfBirth.toIso8601String(),
+
+      "Accommodation": accommodation,
+      "OccupationType": occupationType,
+      "Source": source,
+      "SubSource": subSource,
+      "SubSubSource": subSubSource,
+
+      if (referralProjectId != null) "ReferralProjectId": referralProjectId,
+
+      if (referralInventoryFlatId != null)
+        "ReferralInventoryFlatId": referralInventoryFlatId,
+
+      if (loyaltyProjectId != null) "LoyaltyProjectId": loyaltyProjectId,
+
+      if (loyaltyInventoryFlatId != null)
+        "LoyaltyInventoryFlatId": loyaltyInventoryFlatId,
+
+      if (employeeReferenceEmployeeId != null)
+        "EmployeeReferenceEmployeeId": employeeReferenceEmployeeId,
+
+      if (channelPartnerTeamMemberId != null)
+        "ChannelPartnerTeamMemberId": channelPartnerTeamMemberId,
+
+      if (channelPartnerTeamMemberId == null)
+        "ChannelPartnerTeamMemberName": channelPartnerTeamMemberName ?? "",
+
+      if (channelPartnerTeamMemberId == null)
+        "ChannelPartnerTeamMemberMobileNumber":
+            channelPartnerTeamMemberMobileNumber ?? "",
+
+      if (channelPartnerTeamMemberId == null)
+        "ChannelPartnerTeamMemberMobileNumberCountryCode":
+            channelPartnerTeamMemberMobileNumberCountryCode ?? "",
+
+      if (channelPartnerTeamMemberId == null)
+        "ChannelPartnerTeamMemberEmailId":
+            channelPartnerTeamMemberEmailId ?? "",
+
+      "Nationality": nationality,
+      "CountryOfResidence": countryOfResidence,
+      "CityOfResidence": cityOfResidence,
+      "CurrentLocation": currentLocation,
+      "VillageMasterId": villageMasterId,
+      "PossessionType": possessionType,
+      "AreaPreferred": areaPreferred,
+      "DesiredFloorBand": desiredFloorBand,
+      "Budget": budget,
+      "Requirement": requirement,
+      "RequirementType": requirementType,
+      "CustomerClassification": customerClassification,
+      "SourceOfFunding": sourceOfFunding,
+      "Ethnicity": ethnicity,
+      "FinalStage": finalStage,
+      "FinalStageDetail": finalStageDetail,
+      "EnquiryDate": enquiryDate?.toIso8601String(),
+      "NextFollowUpDate": nextFollowUpDate?.toIso8601String(),
+
+      "SalesAdvisorId": salesAdvisorId,
+      "SourcingManagerId": sourcingManagerId,
+      "Remark": remark,
+      "Timeline": timeline,
+      "OTP": otp,
+    };
+
+    final result = await _enquiryRepository.addUpdateEnquiry(body: payload);
 
     goRouter.pop();
 
     result.fold(
       (failure) {
         showErrorMessage(context, 'Error', failure.message);
-        return;
       },
-      (response) {
-        final newItem = response['data'][0] as EnquiryModel;
-
-        List<EnquiryModel> updatedList = List.from(state.enquiryList);
-
-        if (index != null) {
-          updatedList[index] = newItem;
-          if (state.isFromDashboard) {
-            emit(state.copyWith(searchText: ""));
-            getEnquiryList(context, 1, projectId);
-            emit(state.copyWith(isFromDashboard: false));
-          }
-        } else {
-          // CLOSE VERIFICATION DIALOG
-          if (isIndian) goRouter.pop();
-          emit(state.copyWith(searchText: ""));
-          getEnquiryList(context, 1, projectId);
+      (response) async {
+        if (isIndian) {
+          goRouter.pop(); // Close OTP Dialog
         }
 
-        emit(state.copyWith(enquiryList: updatedList));
+        emit(state.copyWith(searchText: ""));
+
         goRouter.pop();
-        showSuccessMessage(
-          context,
-          subTitle:
-              index != null
-                  ? 'Enquiry Updated Successfully'
-                  : 'Enquiry Added Successfully',
-        );
+        if (context.mounted) {
+          showSuccessMessage(
+            context,
+            subTitle: response['message'] ?? 'Enquiry Added Successfully',
+          );
+        }
+      },
+    );
+  }
+
+  Future<void> updateEnquiry({
+    required BuildContext context,
+    required int index,
+    required int enquiryId,
+    required String uniqueKey,
+    required int projectId,
+    required String? enquiryTimeIn,
+    required String? enquiryTimeOut,
+    required String name,
+    required String mobileNumberCountryCode,
+    required String mobileNumber,
+    required String emailId,
+    DateTime? dateOfBirth,
+    required String accommodation,
+    required String occupationType,
+    required String source,
+    required String subSource,
+    required String subSubSource,
+    int? referralProjectId,
+    int? referralInventoryFlatId,
+    int? loyaltyProjectId,
+    int? loyaltyInventoryFlatId,
+    int? employeeReferenceEmployeeId,
+    int? channelPartnerTeamMemberId,
+    String? channelPartnerTeamMemberName,
+    String? channelPartnerTeamMemberMobileNumber,
+    String? channelPartnerTeamMemberMobileNumberCountryCode,
+    String? channelPartnerTeamMemberEmailId,
+    required String nationality,
+    required String countryOfResidence,
+    required String cityOfResidence,
+    required String currentLocation,
+    required String villageMasterId,
+    required String possessionType,
+    required double areaPreferred,
+    required String desiredFloorBand,
+    required String budget,
+    required String requirement,
+    required String requirementType,
+    required String customerClassification,
+    required String sourceOfFunding,
+    required String ethnicity,
+    required String finalStage,
+    required String finalStageDetail,
+    DateTime? enquiryDate,
+    DateTime? nextFollowUpDate,
+    required int salesAdvisorId,
+    required int sourcingManagerId,
+    required String remark,
+    required String timeline,
+    required String otp,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    final Map<String, dynamic> payload = {
+      "EnquiryId": enquiryId,
+      "Uniquekey": uniqueKey,
+      "ProjectId": projectId,
+      "EnquiryTimeIn": enquiryTimeIn ?? "",
+      "EnquiryTimeOut": enquiryTimeOut ?? "",
+      "Name": name,
+      "MobileNumberCountryCode": mobileNumberCountryCode,
+      "MobileNumber": mobileNumber,
+      "EmailId": emailId,
+
+      if (dateOfBirth != null) "DateOfBirth": dateOfBirth.toIso8601String(),
+
+      "Accommodation": accommodation,
+      "OccupationType": occupationType,
+      "Source": source,
+      "SubSource": subSource,
+      "SubSubSource": subSubSource,
+
+      if (referralProjectId != null) "ReferralProjectId": referralProjectId,
+
+      if (referralInventoryFlatId != null)
+        "ReferralInventoryFlatId": referralInventoryFlatId,
+
+      if (loyaltyProjectId != null) "LoyaltyProjectId": loyaltyProjectId,
+
+      if (loyaltyInventoryFlatId != null)
+        "LoyaltyInventoryFlatId": loyaltyInventoryFlatId,
+
+      if (employeeReferenceEmployeeId != null)
+        "EmployeeReferenceEmployeeId": employeeReferenceEmployeeId,
+
+      if (channelPartnerTeamMemberId != null)
+        "ChannelPartnerTeamMemberId": channelPartnerTeamMemberId,
+
+      if (channelPartnerTeamMemberId == null)
+        "ChannelPartnerTeamMemberName": channelPartnerTeamMemberName ?? "",
+
+      if (channelPartnerTeamMemberId == null)
+        "ChannelPartnerTeamMemberMobileNumber":
+            channelPartnerTeamMemberMobileNumber ?? "",
+
+      if (channelPartnerTeamMemberId == null)
+        "ChannelPartnerTeamMemberMobileNumberCountryCode":
+            channelPartnerTeamMemberMobileNumberCountryCode ?? "",
+
+      if (channelPartnerTeamMemberId == null)
+        "ChannelPartnerTeamMemberEmailId":
+            channelPartnerTeamMemberEmailId ?? "",
+
+      "Nationality": nationality,
+      "CountryOfResidence": countryOfResidence,
+      "CityOfResidence": cityOfResidence,
+      "CurrentLocation": currentLocation,
+      "VillageMasterId": villageMasterId,
+      "PossessionType": possessionType,
+      "AreaPreferred": areaPreferred,
+      "DesiredFloorBand": desiredFloorBand,
+      "Budget": budget,
+      "Requirement": requirement,
+      "RequirementType": requirementType,
+      "CustomerClassification": customerClassification,
+      "SourceOfFunding": sourceOfFunding,
+      "Ethnicity": ethnicity,
+      "FinalStage": finalStage,
+      "FinalStageDetail": finalStageDetail,
+
+      if (enquiryDate != null) "EnquiryDate": enquiryDate.toIso8601String(),
+
+      if (nextFollowUpDate != null)
+        "NextFollowUpDate": nextFollowUpDate.toIso8601String(),
+
+      "SalesAdvisorId": salesAdvisorId,
+      "SourcingManagerId": sourcingManagerId,
+      "Remark": remark,
+      "Timeline": timeline,
+      "OTP": otp,
+    };
+
+    final result = await _enquiryRepository.addUpdateEnquiry(body: payload);
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) async {
+        final updatedEnquiry = response['data'][0] as EnquiryModel;
+
+        final updatedList = List<EnquiryModel>.from(state.enquiryList);
+
+        updatedList[index] = updatedEnquiry;
+
+        emit(state.copyWith(enquiryList: updatedList));
+
+        if (state.isFromDashboard) {
+          emit(state.copyWith(searchText: ""));
+
+          await getEnquiryList(context, 1, projectId);
+
+          emit(state.copyWith(isFromDashboard: false));
+        }
+        if (goRouter.canPop()) goRouter.pop();
+
+        if (context.mounted) {
+          showSuccessMessage(
+            context,
+            subTitle: response['message'] ?? 'Enquiry Updated Successfully',
+          );
+        }
       },
     );
   }
@@ -629,15 +905,21 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     );
   }
 
-  Future<List<EnquiryModel>> fetchEnquiryByMobileNo(
-    String? value, {
+  Future<List<EnquiryModel>> fetchEnquiryByMobileNo({
+    required String value,
+    required String mobileNumberCountryCode,
     required int projectId,
   }) async {
     final result = await _enquiryRepository.getEnquiryList(
       pageNumber: 1,
       projectId: projectId,
-      pageSize: 10,
-      queryParams: {"MobileNumber": value ?? "", "IsCheckPermission": false},
+      pageSize: 1,
+      queryParams: {
+        "MobileNumber": value,
+        "IsCheckPermission": true,
+        "MobileNumberCountryCode": mobileNumberCountryCode,
+        "NotCheckFinalStage": "LOST,BOOKING DONE,CANCELLED",
+      },
     );
 
     return result.fold((failure) => [], (response) {
@@ -645,5 +927,33 @@ class EnquiryCubit extends Cubit<EnquiryState> {
 
       return enquiry;
     });
+  }
+
+  int updateFilterCount() {
+    final hasSort =
+        state.currentSortColumn == "Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterSystemCode.trim().isNotEmpty,
+      state.filterMobileNumber.trim().isNotEmpty,
+      state.filterBudget.trim().isNotEmpty,
+      state.filterRequirementType.trim().isNotEmpty,
+      state.filterSource.trim().isNotEmpty,
+      state.filterSubSource.trim().isNotEmpty,
+      state.filterChannelPartnerMobile.trim().isNotEmpty,
+      state.filterNationality.trim().isNotEmpty,
+      state.filterCurrentLocation.trim().isNotEmpty,
+      state.filterCustomerClassification.trim().isNotEmpty,
+      state.filterEthnicity.trim().isNotEmpty,
+      state.filterSalesAdvisor.trim().isNotEmpty,
+      state.filterSourcingManager.trim().isNotEmpty,
+      state.filterAccommodation.trim().isNotEmpty,
+      state.filterFollowUpDays.trim().isNotEmpty,
+      state.filterFinalStage.trim().isNotEmpty,
+      state.filterStartDate != null && state.filterEndDate != null,
+      hasSort,
+    ]);
   }
 }

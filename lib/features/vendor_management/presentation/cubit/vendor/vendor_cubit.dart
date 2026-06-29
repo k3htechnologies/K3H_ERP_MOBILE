@@ -36,6 +36,11 @@ class VendorCubit extends Cubit<VendorState> {
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
       "CompanyName": state.filterByCompanyName,
       "CompanyType": state.filterByCompanyType,
+      "MobileNumber": state.filterByMobileNumber,
+      "CityName": state.filterByCity,
+      "GSTNumber": state.filterByGstNumber,
+      "AadharCardNumber": state.filterByAadhaarCardNumber,
+      "PanCardNumber": state.filterByPanCardNumber,
     };
 
     var result = await vendorRepository.getVendorsList(
@@ -125,8 +130,14 @@ class VendorCubit extends Cubit<VendorState> {
 
   Future sortVendor({
     required BuildContext context,
+    String? vendorName,
     String? companyType,
     String? companyName,
+    String? mobileNumber,
+    String? city,
+    String? gstNumber,
+    String? aadhaarCardNumber,
+    String? panCardNumber,
     String? sortColumn,
     String? sortDirection,
     bool? isClear,
@@ -134,8 +145,14 @@ class VendorCubit extends Cubit<VendorState> {
     if (isClear ?? false) {
       emit(
         state.copyWith(
+          searchText: "",
           filterByCompanyType: "",
           filterByCompanyName: "",
+          filterByMobileNumber: "",
+          filterByCity: "",
+          filterByGstNumber: "",
+          filterByAadhaarCardNumber: "",
+          filterByPanCardNumber: "",
           currentSortColumn: "Created Date",
           currentSortDirection: "DESC",
           currentPage: 1,
@@ -144,8 +161,15 @@ class VendorCubit extends Cubit<VendorState> {
     } else {
       emit(
         state.copyWith(
+          searchText: vendorName ?? state.searchText,
           filterByCompanyType: companyType ?? state.filterByCompanyType,
           filterByCompanyName: companyName ?? state.filterByCompanyName,
+          filterByMobileNumber: mobileNumber ?? state.filterByMobileNumber,
+          filterByCity: city ?? state.filterByCity,
+          filterByGstNumber: gstNumber ?? state.filterByGstNumber,
+          filterByAadhaarCardNumber:
+              aadhaarCardNumber ?? state.filterByAadhaarCardNumber,
+          filterByPanCardNumber: panCardNumber ?? state.filterByPanCardNumber,
           currentSortColumn: sortColumn ?? state.currentSortColumn,
           currentSortDirection: sortDirection ?? state.currentSortDirection,
           currentPage: 1,
@@ -201,5 +225,23 @@ class VendorCubit extends Cubit<VendorState> {
         );
       },
     );
+  }
+
+  int updateFilterCount(VendorState state) {
+    final hasSort =
+        state.currentSortColumn == "Vendor Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterByCompanyName.trim().isNotEmpty,
+      state.filterByCompanyType.trim().isNotEmpty,
+      state.filterByMobileNumber.trim().isNotEmpty,
+      state.filterByCity.trim().isNotEmpty,
+      state.filterByGstNumber.trim().isNotEmpty,
+      state.filterByAadhaarCardNumber.trim().isNotEmpty,
+      state.filterByPanCardNumber.trim().isNotEmpty,
+      hasSort,
+    ]);
   }
 }

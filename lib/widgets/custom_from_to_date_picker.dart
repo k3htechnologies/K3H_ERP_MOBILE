@@ -4,6 +4,8 @@ import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 class CustomFromToDatePicker extends StatefulWidget {
   final DateTime? initialFromDate;
   final DateTime? initialToDate;
+  final String? fromDateTitle;
+  final String? toDateTitle;
   final bool isRequired;
   final bool removeBottomMargin;
 
@@ -13,9 +15,11 @@ class CustomFromToDatePicker extends StatefulWidget {
     super.key,
     this.initialFromDate,
     this.initialToDate,
-    this.isRequired = true,
+    this.isRequired = false,
     required this.onToDateChanged,
     this.removeBottomMargin = true,
+    this.fromDateTitle = 'From',
+    this.toDateTitle = 'To',
   });
 
   @override
@@ -40,7 +44,7 @@ class _CustomFromToDatePickerState extends State<CustomFromToDatePicker> {
       children: [
         Expanded(
           child: CustomDatePicker(
-            title: "From",
+            title: widget.fromDateTitle,
             initialDate: fromDate,
             isRequired: widget.isRequired,
             endDate: toDate,
@@ -59,7 +63,7 @@ class _CustomFromToDatePickerState extends State<CustomFromToDatePicker> {
 
         Expanded(
           child: CustomDatePicker(
-            title: "To",
+            title: widget.toDateTitle,
             initialDate: toDate,
             isRequired: widget.isRequired,
             startDate: fromDate,

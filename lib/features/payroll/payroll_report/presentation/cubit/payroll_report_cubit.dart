@@ -153,6 +153,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
   }) async {
     emit(state.copyWith(isLoading: true));
     final queryParams = {
+      'EmployeeName': state.searchText,
       'StartDate': DateFormat('yyyy-MM-dd').format(startDate),
       'EndDate': DateFormat('yyyy-MM-dd').format(endDate),
       "isReport": true,
@@ -211,6 +212,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
   }) async {
     emit(state.copyWith(isLoading: true));
     final queryParams = {
+      'EmployeeName': state.searchText,
       'StartDate': DateFormat('yyyy-MM-dd').format(startDate),
       'EndDate': DateFormat('yyyy-MM-dd').format(endDate),
       "isReport": true,
@@ -270,6 +272,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
   }) async {
     emit(state.copyWith(isLoading: true));
     final queryParams = {
+      'EmployeeName': state.searchText,
       'StartDate': DateFormat('yyyy-MM-dd').format(startDate),
       'EndDate': DateFormat('yyyy-MM-dd').format(endDate),
       "isReport": true,
@@ -329,6 +332,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
   }) async {
     emit(state.copyWith(isLoading: true));
     final queryParams = {
+      'EmployeeName': state.searchText,
       'ResignationDateFrom': DateFormat('yyyy-MM-dd').format(startDate),
       'ResignationDateTo': DateFormat('yyyy-MM-dd').format(endDate),
       "isReport": true,
@@ -388,6 +392,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
   }) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
+      'EmployeeName': state.searchText,
       'StartDate': DateFormat('yyyy-MM-dd').format(startDate),
       'EndDate': DateFormat('yyyy-MM-dd').format(endDate),
       "isReport": true,
@@ -446,6 +451,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
         filterStartDate: null,
         filterEndDate: null,
         clearFilters: true,
+        searchText: '',
       ),
     );
 
@@ -613,10 +619,17 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
   // APPLY FILTER
   void applyFilterOnPayrollReport({
     required BuildContext context,
+    required String employeeName,
     DateTime? startDate,
     DateTime? endDate,
   }) {
-    emit(state.copyWith(filterStartDate: startDate, filterEndDate: endDate));
+    emit(
+      state.copyWith(
+        filterStartDate: startDate,
+        filterEndDate: endDate,
+        searchText: employeeName,
+      ),
+    );
 
     final DateTime start = startDate ?? DateTime.now();
     final DateTime end = endDate ?? DateTime.now();
@@ -1006,6 +1019,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
 
   // RESET INNER TAB INDEX FOR APPROVAL TAB
   void resetApprovalTab() {
+    emit(state.copyWith(searchText: ''));
     switch (state.currentTabIndex) {
       case 1: // Regularization
         emit(state.copyWith(regularizationInnerTabIndex: 0));
@@ -1142,5 +1156,12 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
         return list;
       },
     );
+  }
+
+  int updateFilterCount(PayrollReportState state) {
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      (state.filterStartDate != null && state.filterEndDate != null),
+    ]);
   }
 }

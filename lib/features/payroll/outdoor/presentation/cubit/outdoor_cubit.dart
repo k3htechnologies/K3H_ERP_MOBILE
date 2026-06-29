@@ -298,4 +298,10 @@ class OutdoorCubit extends Cubit<OutdoorState> {
     );
     getOutdoorList(context, 1);
   }
+
+  int updateFilterCount(OutdoorState state) {
+    return getActiveFilterCount([
+      (state.filterStartDate != null && state.filterEndDate != null),
+    ]);
+  }
 }

@@ -2,6 +2,7 @@ import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.mo
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance_regularization.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 abstract interface class AttendanceDataSource {
   Future<Map<String, dynamic>> apicallPullAttendance({
@@ -35,7 +36,7 @@ class AttendanceDataSourceImpl implements AttendanceDataSource {
     }) {
       String url =
           "Attendance/PullAttendance?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -78,7 +79,7 @@ class AttendanceDataSourceImpl implements AttendanceDataSource {
     }) {
       String url =
           "AttendanceRegularization/PullAttendanceRegularization?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

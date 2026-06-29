@@ -60,6 +60,9 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
   final ValueNotifier<Map<String, dynamic>?> _selectedNoOfOBM = ValueNotifier(
     null,
   );
+
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
+
   @override
   void initState() {
     super.initState();
@@ -73,13 +76,26 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
 
   @override
   void dispose() {
-    super.dispose();
     _searchC.dispose();
     _filterCompanyNameC.dispose();
+    _filterDesignationC.dispose();
+    _filterFirmTypeC.dispose();
+    _filterTypeC.dispose();
     _filterMobileNumberC.dispose();
+    _filterOfficeAddressC.dispose();
+    _filterGSTNumberC.dispose();
+    _filterRERANumberC.dispose();
+    _filterPANNumberC.dispose();
+    _filterAadhaarNumberC.dispose();
+    _filterSpecialityC.dispose();
+    _filterCityC.dispose();
     _filterVillageC.dispose();
+
+    _filterCount.dispose();
     scrollController.dispose();
     _debounce?.cancel();
+
+    super.dispose();
   }
 
   // INITIALIZE CONTROLLERS
@@ -210,7 +226,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
       });
     }
 
-    DialogHelper.showCustomFilterBottomSheet(
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter - Channel Partner",
       contentWidget: StatefulBuilder(
@@ -473,6 +489,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
 
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
+      _searchC.clear();
       _filterCompanyNameC.clear();
       _filterDesignationC.clear();
       _filterFirmTypeC.clear();
@@ -491,213 +508,226 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Channel Partner",
-        authorization: _routeAuthorizationModel,
-        textController: _searchC,
-        onSearchSubmit: (value) {
-          _channelPartnerCubit.searchChannelPartner(context, value);
-        },
-        searchHintText: "Search By Full Name",
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addChannelPartner);
-        },
-        onExportCallback: (value) {
-          if (_channelPartnerCubit.state.totalNumberOfRecord == 0) {
-            showErrorMessage(context, "Error", "No Data Found");
-            return;
-          }
-          _channelPartnerCubit.exportExcelPdf(context, value);
-        },
-        isFilterOn: true,
-        onFilterTap: () {
-          _showBottomSheetToFilterChannelPartner(context);
-        },
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
+    return BlocListener<ChannelPartnerCubit, ChannelPartnerState>(
+      listener: (context, state) {
+        _filterCount.value = _channelPartnerCubit.updateFilterCount();
+        if (state.searchText.trim().isEmpty) {
           _searchC.clear();
-          _channelPartnerCubit.searchChannelPartner(context, "");
-        },
-        child: BlocBuilder<ChannelPartnerCubit, ChannelPartnerState>(
-          builder: (context, state) {
-            if ((state.isLoading ?? true) && state.channelPartnerList.isEmpty) {
-              return Center(child: loader());
+        }
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "Channel Partner",
+          authorization: _routeAuthorizationModel,
+          textController: _searchC,
+          filterCountNotifier: _filterCount,
+          onSearchSubmit: (value) {
+            _channelPartnerCubit.searchChannelPartner(context, value);
+          },
+          searchHintText: "Search By Full Name",
+          onAddCallback: () {
+            goRouter.pushNamed(AppRoutes.addChannelPartner);
+          },
+          onExportCallback: (value) {
+            if (_channelPartnerCubit.state.totalNumberOfRecord == 0) {
+              showErrorMessage(context, "Error", "No Data Found");
+              return;
             }
-            if (state.channelPartnerList.isEmpty) {
-              return ListView(
-                physics: AlwaysScrollableScrollPhysics(),
-                children: [
-                  SizedBox(
-                    height: getActualHeight(context) * .7,
-                    child: Center(
-                      child: noDataWidget(message: "No Channel Partner found"),
-                    ),
-                  ),
-                ],
-              );
-            }
-            return ListView.builder(
-              controller: scrollController,
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              itemCount:
-                  _channelPartnerCubit.state.channelPartnerList.length + 1,
-              itemBuilder: (context, index) {
-                if (index == state.channelPartnerList.length) {
-                  return state.channelPartnerList.length <
-                          state.totalNumberOfRecord
-                      ? Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                      : const SizedBox.shrink();
-                }
-                var channelPartner = state.channelPartnerList[index];
-                return Container(
-                  margin: EdgeInsets.only(bottom: 10),
-                  padding: EdgeInsets.all(12),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    spacing: 5,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        spacing: 10,
-                        children: [
-                          Flexible(
-                            child: GestureDetector(
-                              onTap: () async {
-                                goRouter.pushNamed(
-                                  AppRoutes.channelPartnerView,
-                                  queryParameters: {
-                                    "channelPartner": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(channelPartner),
-                                      ),
-                                    ),
-                                  },
-                                );
-                              },
-                              child: Text(
-                                channelPartner.name,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Row(
-                            spacing: 10,
-                            children: [
-                              if (channelPartner.verifiedNonVerified
-                                      .toLowerCase() !=
-                                  'verified') ...[
-                                CustomIconButton(
-                                  onPressed: () {},
-                                  icon: Icon(
-                                    Icons.warning_amber_outlined,
-                                    color: AppColor.yellow,
-                                    size: 16,
-                                  ),
-                                  backgroundColor: AppColor.yellow.withValues(
-                                    alpha: .2,
-                                  ),
-                                ),
-                              ],
-                              if (_routeAuthorizationModel.isAction)
-                                CustomIconButton.edit(
-                                  onPressed: () async {
-                                    goRouter.pushNamed(
-                                      AppRoutes.addChannelPartner,
-                                      queryParameters: {
-                                        "channelPartner":
-                                            Uri.encodeQueryComponent(
-                                              EncryptionManager.encryptData(
-                                                jsonEncode(channelPartner),
-                                              ),
-                                            ),
-                                        "index": index.toString(),
-                                      },
-                                    );
-                                  },
-                                ),
-                            ],
-                          ),
-                        ],
+            _channelPartnerCubit.exportExcelPdf(context, value);
+          },
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterChannelPartner(context);
+          },
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            _searchC.clear();
+            _channelPartnerCubit.searchChannelPartner(context, "");
+          },
+          child: BlocBuilder<ChannelPartnerCubit, ChannelPartnerState>(
+            builder: (context, state) {
+              if ((state.isLoading ?? true) &&
+                  state.channelPartnerList.isEmpty) {
+                return Center(child: loader());
+              }
+              if (state.channelPartnerList.isEmpty) {
+                return ListView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: getActualHeight(context) * .7,
+                      child: Center(
+                        child: noDataWidget(
+                          message: "No Channel Partner found",
+                        ),
                       ),
-                      buildRowTitleValue(
-                        title: "CP Code  ",
-                        value: channelPartner.systemGeneratedCode,
-                        customValueWidget: Row(
+                    ),
+                  ],
+                );
+              }
+              return ListView.builder(
+                controller: scrollController,
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                itemCount:
+                    _channelPartnerCubit.state.channelPartnerList.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == state.channelPartnerList.length) {
+                    return state.channelPartnerList.length <
+                            state.totalNumberOfRecord
+                        ? Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : const SizedBox.shrink();
+                  }
+                  var channelPartner = state.channelPartnerList[index];
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 10),
+                    padding: EdgeInsets.all(12),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      spacing: 5,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          spacing: 10,
                           children: [
-                            Expanded(
-                              child: Text(
-                                channelPartner.systemGeneratedCode,
-                                style: AppTextStyle.ts14M(),
-                              ),
-                            ),
-                            horizontalSpacing(width: 2),
-                            InkWell(
-                              onTap: () {
-                                copy(
-                                  context: context,
-                                  text: channelPartner.systemGeneratedCode,
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(5),
-                                child: Icon(
-                                  Icons.copy,
-                                  size: 16,
-                                  color: AppColor.primary,
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () async {
+                                  goRouter.pushNamed(
+                                    AppRoutes.channelPartnerView,
+                                    queryParameters: {
+                                      "channelPartner":
+                                          Uri.encodeQueryComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(channelPartner),
+                                            ),
+                                          ),
+                                    },
+                                  );
+                                },
+                                child: Text(
+                                  channelPartner.name,
+                                  style: AppTextStyle.ts16M(
+                                    color: AppColor.primary,
+                                  ).copyWith(
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColor.primary,
+                                  ),
                                 ),
                               ),
+                            ),
+                            Row(
+                              spacing: 10,
+                              children: [
+                                if (channelPartner.verifiedNonVerified
+                                        .toLowerCase() !=
+                                    'verified') ...[
+                                  CustomIconButton(
+                                    onPressed: () {},
+                                    icon: Icon(
+                                      Icons.warning_amber_outlined,
+                                      color: AppColor.yellow,
+                                      size: 16,
+                                    ),
+                                    backgroundColor: AppColor.yellow.withValues(
+                                      alpha: .2,
+                                    ),
+                                  ),
+                                ],
+                                if (_routeAuthorizationModel.isAction)
+                                  CustomIconButton.edit(
+                                    onPressed: () async {
+                                      goRouter.pushNamed(
+                                        AppRoutes.addChannelPartner,
+                                        queryParameters: {
+                                          "channelPartner":
+                                              Uri.encodeQueryComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(channelPartner),
+                                                ),
+                                              ),
+                                          "index": index.toString(),
+                                        },
+                                      );
+                                    },
+                                  ),
+                              ],
                             ),
                           ],
                         ),
-                      ),
-
-                      buildRowTitleValue(
-                        title: "Company Name",
-                        value: channelPartner.companyName,
-                        singleLine: false,
-                      ),
-                      buildRowTitleValue(
-                        title: "Mobile Number",
-                        value: channelPartner.mobileNumber,
-                        customValueWidget: CustomClickToContactText(
-                          countryCode: channelPartner.mobileNumberCountryCode,
-                          value: channelPartner.mobileNumber,
+                        buildRowTitleValue(
+                          title: "CP Code  ",
+                          value: channelPartner.systemGeneratedCode,
+                          customValueWidget: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  channelPartner.systemGeneratedCode,
+                                  style: AppTextStyle.ts14M(),
+                                ),
+                              ),
+                              horizontalSpacing(width: 2),
+                              InkWell(
+                                onTap: () {
+                                  copy(
+                                    context: context,
+                                    text: channelPartner.systemGeneratedCode,
+                                  );
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5),
+                                  child: Icon(
+                                    Icons.copy,
+                                    size: 16,
+                                    color: AppColor.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      buildRowTitleValue(
-                        title: "RERA Number",
-                        value: channelPartner.reraNumber,
-                        singleLine: false,
-                      ),
-                      buildRowTitleValue(
-                        title: "No Of IBM",
-                        value: channelPartner.noOfIbm.toString(),
-                        singleLine: false,
-                      ),
-                      buildRowTitleValue(
-                        title: "No Of OBM",
-                        value: channelPartner.noOfObm.toString(),
-                        singleLine: false,
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
+
+                        buildRowTitleValue(
+                          title: "Company Name",
+                          value: channelPartner.companyName,
+                          singleLine: false,
+                        ),
+                        buildRowTitleValue(
+                          title: "Mobile Number",
+                          value: channelPartner.mobileNumber,
+                          customValueWidget: CustomClickToContactText(
+                            countryCode: channelPartner.mobileNumberCountryCode,
+                            value: channelPartner.mobileNumber,
+                          ),
+                        ),
+                        buildRowTitleValue(
+                          title: "RERA Number",
+                          value: channelPartner.reraNumber,
+                          singleLine: false,
+                        ),
+                        buildRowTitleValue(
+                          title: "No Of IBM",
+                          value: channelPartner.noOfIbm.toString(),
+                          singleLine: false,
+                        ),
+                        buildRowTitleValue(
+                          title: "No Of OBM",
+                          value: channelPartner.noOfObm.toString(),
+                          singleLine: false,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );

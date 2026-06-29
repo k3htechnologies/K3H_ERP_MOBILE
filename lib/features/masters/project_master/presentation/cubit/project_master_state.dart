@@ -40,7 +40,7 @@ class ProjectMasterState extends BaseState {
 
   final String filterProjectLocation;
   final String filterCTSNumber;
-  final String? filterProjectStatus;
+  final String filterProjectStatus;
   final String? filterVillage;
   final String? filterLiasoningArchitectName;
   final String? filterRERANumber;

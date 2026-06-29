@@ -73,8 +73,17 @@ class TenantCubit extends Cubit<TenantState> {
     required BuildContext context,
     required int projectId,
     required int buildingId,
+
     required String filterFlatType,
     required String filterFlatConfiguration,
+    String? filterFlatNumber,
+    String? filterApplicantName,
+    String? filterFlatCarpetAreaSqFt,
+    String? filterBuildingNumber,
+    String? filterWing,
+    String? filterFlat,
+    String? filterParkingNumber,
+
     String? sortColumn,
     String? sortDirection,
   }) async {
@@ -82,13 +91,22 @@ class TenantCubit extends Cubit<TenantState> {
       state.copyWith(
         filterFlatType: filterFlatType,
         filterFlatConfiguration: filterFlatConfiguration,
+        searchText: filterFlatNumber,
+        filterApplicantName: filterApplicantName ?? "",
+        filterFlatCarpetAreaSqFt: filterFlatCarpetAreaSqFt ?? "",
+        filterBuildingNumber: filterBuildingNumber ?? "",
+        filterWing: filterWing ?? "",
+        filterFlat: filterFlat ?? "",
+        filterParkingNumber: filterParkingNumber ?? "",
+
         currentSortColumn: sortColumn ?? state.currentSortColumn,
         currentSortDirection: sortDirection ?? state.currentSortDirection,
+
         buildingList: [],
         currentPage: 1,
       ),
     );
-
+    if (buildingId == 0) return;
     await getTenantList(
       context: context,
       projectId: projectId,
@@ -183,9 +201,15 @@ class TenantCubit extends Cubit<TenantState> {
     emit(state.copyWith(isLoading: true));
 
     Map<String, dynamic> queryParams = {
-      "FlatNumber": state.searchText,
       "FlatType": state.filterFlatType,
+      "ApplicantName": state.filterApplicantName,
       "FlatConfiguration": state.filterFlatConfiguration,
+      "FlatNumber": state.searchText,
+      "FlatCarpetAreaSqFt": state.filterFlatCarpetAreaSqFt,
+      "BuildingNumber": state.filterBuildingNumber,
+      "Wing": state.filterWing,
+      "Flat": state.filterFlat,
+      "ParkingNumber": state.filterParkingNumber,
       "IsCheckPermission": false,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
@@ -852,5 +876,25 @@ class TenantCubit extends Cubit<TenantState> {
         );
       },
     );
+  }
+
+  int updateFilterCount(TenantState state) {
+    final hasSort =
+        state.currentSortColumn == "Applicant Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterApplicantName.trim().isNotEmpty,
+      state.filterFlatType.trim().isNotEmpty,
+      state.filterFlatConfiguration.trim().isNotEmpty,
+      state.filterFlatCarpetAreaSqFt.trim().isNotEmpty,
+      state.filterBuildingNumber.trim().isNotEmpty,
+      state.filterWing.trim().isNotEmpty,
+      state.filterFlat.trim().isNotEmpty,
+      state.filterParkingNumber.trim().isNotEmpty,
+      hasSort,
+    ]);
   }
 }

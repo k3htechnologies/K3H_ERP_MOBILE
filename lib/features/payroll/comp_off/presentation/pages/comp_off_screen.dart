@@ -16,7 +16,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
-import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CompOffScreen extends StatefulWidget {
@@ -44,6 +44,7 @@ class _CompOffScreenState extends State<CompOffScreen> {
   final ValueNotifier<DateTime?> _endDateNotifier = ValueNotifier<DateTime?>(
     null,
   );
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   @override
   void initState() {
@@ -61,6 +62,8 @@ class _CompOffScreenState extends State<CompOffScreen> {
     scrollController.dispose();
     _startDateNotifier.dispose();
     _endDateNotifier.dispose();
+    _debounce?.cancel();
+    _filterCount.dispose();
   }
 
   // <---- PAGINATION ---->
@@ -116,11 +119,33 @@ class _CompOffScreenState extends State<CompOffScreen> {
   // COMP OFF FILTER
   Future<void> _showBottomSheetToFilterCompOff(BuildContext context) async {
     _prefillFilterFromState();
+
     final state = _compOffCubit.state;
-    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(
-      state.filterStartDate != null || state.filterEndDate != null,
-    );
-    DialogHelper.showCustomFilterBottomSheet(
+
+    final DateTime? initialStartDate = state.filterStartDate;
+    final DateTime? initialEndDate = state.filterEndDate;
+
+    bool manualClose = false;
+    bool applied = false;
+
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        final bool onlyOneDateSet =
+            (_startDateNotifier.value != null &&
+                _endDateNotifier.value == null) ||
+            (_endDateNotifier.value != null &&
+                _startDateNotifier.value == null);
+        manualClose =
+            _startDateNotifier.value != initialStartDate ||
+            _endDateNotifier.value != initialEndDate;
+
+        applyEnabled.value = manualClose && !onlyOneDateSet;
+      });
+    }
+
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter Comp-Off",
       contentWidget: StatefulBuilder(
@@ -129,66 +154,25 @@ class _CompOffScreenState extends State<CompOffScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               verticalSpacing(),
-              Row(
-                children: [
-                  Expanded(
-                    child: ValueListenableBuilder<DateTime?>(
-                      valueListenable: _startDateNotifier,
-                      builder: (context, startDate, child) {
-                        return CustomDatePicker(
-                          title: "Start Date",
-                          initialDate: startDate,
-                          setValue: (value) {
-                            _startDateNotifier.value = value;
-                            applyEnabled.value = true;
-                          },
-                          validator: (value) => null,
-                        );
-                      },
-                    ),
-                  ),
-                  horizontalSpacing(),
-                  Expanded(
-                    child: ValueListenableBuilder<DateTime?>(
-                      valueListenable: _endDateNotifier,
-                      builder: (context, endDate, child) {
-                        return ValueListenableBuilder<DateTime?>(
-                          valueListenable: _startDateNotifier,
-                          builder: (context, startDate, child) {
-                            return CustomDatePicker(
-                              title: "End Date",
-                              isRequired: false,
-                              initialDate: endDate,
-                              setValue: (value) {
-                                _endDateNotifier.value = value;
-                                applyEnabled.value = true;
-                              },
-                              validator: (value) {
-                                if (value == null) return null;
-                                if (startDate != null) {
-                                  final startDateOnly = DateTime(
-                                    startDate.year,
-                                    startDate.month,
-                                    startDate.day,
-                                  );
-                                  final endDateOnly = DateTime(
-                                    value.year,
-                                    value.month,
-                                    value.day,
-                                  );
-                                  if (endDateOnly.isBefore(startDateOnly)) {
-                                    return 'End Date cannot be before Start Date';
-                                  }
-                                }
-                                return null;
-                              },
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
+              AnimatedBuilder(
+                animation: Listenable.merge([
+                  _startDateNotifier,
+                  _endDateNotifier,
+                ]),
+                builder: (context, child) {
+                  return CustomFromToDatePicker(
+                    fromDateTitle: "From Date",
+                    toDateTitle: "To Date",
+                    initialFromDate: _startDateNotifier.value,
+                    initialToDate: _endDateNotifier.value,
+                    onToDateChanged: (DateTime? fromDate, DateTime? toDate) {
+                      _startDateNotifier.value = fromDate;
+                      _endDateNotifier.value = toDate;
+
+                      updateApplyState(innerState);
+                    },
+                  );
+                },
               ),
             ],
           );
@@ -197,62 +181,63 @@ class _CompOffScreenState extends State<CompOffScreen> {
       onClear: () {
         _startDateNotifier.value = null;
         _endDateNotifier.value = null;
-        _compOffCubit.clearFilterOnCompOff(context);
-      },
-      onApply: () {
-        final startDate = _startDateNotifier.value;
-        final endDate = _endDateNotifier.value;
-        if (startDate != null && endDate != null) {
-          final startOnly = DateTime(
-            startDate.year,
-            startDate.month,
-            startDate.day,
-          );
-          final endOnly = DateTime(endDate.year, endDate.month, endDate.day);
-          if (endOnly.isBefore(startOnly)) {
-            showErrorMessage(
-              context,
-              "Invalid dates",
-              "End Date cannot be before Start Date",
-            );
-            return;
-          }
-        }
+
         _compOffCubit.applyFilterOnCompOff(
           context: context,
-          startDate: startDate,
-          endDate: endDate,
+          startDate: null,
+          endDate: null,
+        );
+      },
+      onApply: () {
+        applied = true;
+
+        _compOffCubit.applyFilterOnCompOff(
+          context: context,
+          startDate: _startDateNotifier.value,
+          endDate: _endDateNotifier.value,
         );
       },
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
+
+    // Close without apply
+    if (!applied && manualClose) {
+      _startDateNotifier.value = initialStartDate;
+      _endDateNotifier.value = initialEndDate;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBarWithBackButton(
-        screenTitle: 'Comp Off',
-        authorization: _routeAuthorizationModel,
-        onExportCallback: (value) {
-          _compOffCubit.exportExcelPdf(context, value);
-        },
-        onAddCallback: () async {
-          await goRouter.pushNamed(AppRoutes.addCompOff);
-          if (context.mounted) {
-            await _compOffCubit.getCompOffList(context, 1);
-          }
-        },
-        isMenuButton: true,
-        onFilterTap: () {
-          _showBottomSheetToFilterCompOff(context);
-        },
-      ),
-      body: BlocBuilder<CompOffCubit, CompOffState>(
-        builder: (context, state) {
-          return Column(children: [Expanded(child: _buildBody(state))]);
-        },
+    return BlocListener<CompOffCubit, CompOffState>(
+      listener: (context, state) {
+        _filterCount.value = _compOffCubit.updateFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBarWithBackButton(
+          screenTitle: 'Comp Off',
+          authorization: _routeAuthorizationModel,
+          onExportCallback: (value) {
+            _compOffCubit.exportExcelPdf(context, value);
+          },
+          filterCountNotifier: _filterCount,
+          onAddCallback: () async {
+            await goRouter.pushNamed(AppRoutes.addCompOff);
+            if (context.mounted) {
+              await _compOffCubit.getCompOffList(context, 1);
+            }
+          },
+          isMenuButton: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterCompOff(context);
+          },
+        ),
+        body: BlocBuilder<CompOffCubit, CompOffState>(
+          builder: (context, state) {
+            return Column(children: [Expanded(child: _buildBody(state))]);
+          },
+        ),
       ),
     );
   }

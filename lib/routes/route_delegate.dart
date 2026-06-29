@@ -29,6 +29,14 @@ import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/add_
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_screen.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_view_screen.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/revert_inward_outward_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/channel_partner_sourcing.model.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/pages/achievement_drill_down_report_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/widget/achievement_drill_down_report_for_booking_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/widget/achievement_drill_down_report_for_channel_partner_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/widget/achievement_drill_down_report_for_enquiry_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/cubit/ibm_obm_report_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pages/ibm_obm_report_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pages/ibm_obm_report_view_screen.dart';
 import 'package:k3h_erp_app/widgets/coming_soon_screen.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.model.dart';
@@ -74,8 +82,8 @@ import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_dash
 import 'package:k3h_erp_app/features/inventory/presentation/pages/unit_distribution_status_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/unit_specification_view_screen.dart';
 import 'package:k3h_erp_app/features/inventory_reports/presentation/cubit/inventory_report_cubit.dart';
-import 'package:k3h_erp_app/features/inventory_reports/presentation/pages/inventory_overall_report.dart';
-import 'package:k3h_erp_app/features/inventory_reports/presentation/pages/inventory_report_overview.dart';
+import 'package:k3h_erp_app/features/inventory_reports/presentation/pages/inventory_overall_report_screen.dart';
+import 'package:k3h_erp_app/features/inventory_reports/presentation/pages/inventory_report_overview_screen.dart';
 import 'package:k3h_erp_app/features/legal/dashboard/presentation/cubit/litigation_dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/legal/dashboard/presentation/pages/litigation_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
@@ -386,14 +394,14 @@ import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/presentation/pages/add_payment_schedule_scheme_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/presentation/pages/payment_schedule_scheme_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/project_achievement_report.model.dart';
-import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/cubit/achievement_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/cubit/achievement_report_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/pages/managers_achievement_report_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/data/model/performance_report_closing.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/data/model/performance_report_sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/presentation/cubit/performance_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/presentation/pages/performance.screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/presentation/pages/view_performance.screen.dart';
-import 'package:k3h_erp_app/features/sales/sales_reports/performance/presentation/pages/performance._without_access_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/performance/presentation/pages/performance_without_access_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/cubit/sales_dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/sales_dashboard_screen.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
@@ -3352,7 +3360,7 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.inventoryParkingOverallReport,
               path: AppRoutes.inventoryParkingOverallReport,
               builder: (context, state) {
-                return InventoryOverallReport();
+                return InventoryOverallReportScreen();
               },
             ),
             GoRoute(
@@ -3367,7 +3375,9 @@ final GoRouter goRouter = GoRouter(
                     ) ??
                     0;
 
-                return InventoryOverallReportOverview(projectId: projectId);
+                return InventoryOverallReportOverviewScreen(
+                  projectId: projectId,
+                );
               },
             ),
           ],
@@ -4434,7 +4444,8 @@ final GoRouter goRouter = GoRouter(
                 return MultiBlocProvider(
                   providers: [
                     BlocProvider(create: (_) => PerformanceCubit()),
-                    BlocProvider(create: (_) => AchievementCubit()),
+                    BlocProvider(create: (_) => AchievementReportCubit()),
+                    BlocProvider(create: (_) => IbmObmReportCubit()),
                   ],
                   child: child,
                 );
@@ -4512,64 +4523,376 @@ final GoRouter goRouter = GoRouter(
                   builder: (context, state) {
                     return const AchievementReportScreen();
                   },
-                ),
-                GoRoute(
-                  name: AppRoutes.managerAchievementReport,
-                  path: AppRoutes.managerAchievementReport,
-                  builder: (context, state) {
-                    final type = state.uri.queryParameters['type'] ?? '';
-                    final filterType =
-                        state.uri.queryParameters['filterType'] ?? '';
-                    final fromDate =
-                        state.uri.queryParameters['fromDate'] ?? '';
-                    final toDate = state.uri.queryParameters['toDate'] ?? '';
-                    final parseFromDate =
-                        fromDate.isNotEmpty
-                            ? DateTime.parse(
-                              EncryptionManager.decryptData(
-                                Uri.decodeComponent(fromDate),
-                              ),
-                            )
-                            : null;
-                    final parseToDate =
-                        toDate.isNotEmpty
-                            ? DateTime.parse(
-                              EncryptionManager.decryptData(
-                                Uri.decodeComponent(toDate),
-                              ),
-                            )
-                            : null;
-                    final projectParam =
-                        state.uri.queryParameters['projectAchievement'];
+                  routes: [
+                    GoRoute(
+                      name: AppRoutes.managerAchievementReport,
+                      path: AppRoutes.managerAchievementReport,
+                      builder: (context, state) {
+                        final type = state.uri.queryParameters['type'] ?? '';
+                        final filterType =
+                            state.uri.queryParameters['filterType'] ?? '';
+                        final fromDate =
+                            state.uri.queryParameters['fromDate'] ?? '';
+                        final toDate =
+                            state.uri.queryParameters['toDate'] ?? '';
+                        final parseFromDate =
+                            fromDate.isNotEmpty
+                                ? DateTime.parse(
+                                  EncryptionManager.decryptData(
+                                    Uri.decodeComponent(fromDate),
+                                  ),
+                                )
+                                : null;
+                        final parseToDate =
+                            toDate.isNotEmpty
+                                ? DateTime.parse(
+                                  EncryptionManager.decryptData(
+                                    Uri.decodeComponent(toDate),
+                                  ),
+                                )
+                                : null;
+                        final projectParam =
+                            state.uri.queryParameters['projectAchievement'];
 
-                    ProjectAchievementReportModel? projectAchievement;
+                        ProjectAchievementReportModel? projectAchievement;
 
-                    if (projectParam != null && projectParam.isNotEmpty) {
-                      projectAchievement =
-                          ProjectAchievementReportModel.fromJson(
-                            jsonDecode(
-                              EncryptionManager.decryptData(
-                                Uri.decodeComponent(projectParam),
-                              ),
-                            ),
-                          );
-                    }
+                        if (projectParam != null && projectParam.isNotEmpty) {
+                          projectAchievement =
+                              ProjectAchievementReportModel.fromJson(
+                                jsonDecode(
+                                  EncryptionManager.decryptData(
+                                    Uri.decodeComponent(projectParam),
+                                  ),
+                                ),
+                              );
+                        }
 
-                    return ManagerAchievementReportScreen(
-                      type: type,
-                      filterType: filterType,
-                      fromDate: parseFromDate,
-                      toDate: parseToDate,
-                      projectAchievementReportModel: projectAchievement!,
-                    );
-                  },
+                        return ManagerAchievementReportScreen(
+                          type: type,
+                          filterType: filterType,
+                          fromDate: parseFromDate,
+                          toDate: parseToDate,
+                          projectAchievementReportModel: projectAchievement!,
+                        );
+                      },
+                    ),
+                    GoRoute(
+                      name: AppRoutes.achievementDrillDownReport,
+                      path: AppRoutes.achievementDrillDownReport,
+                      builder: (context, state) {
+                        final projectId =
+                            state.uri.queryParameters['projectId'] != null
+                                ? int.tryParse(
+                                      EncryptionManager.decryptData(
+                                        Uri.decodeComponent(
+                                          state
+                                              .uri
+                                              .queryParameters['projectId']!,
+                                        ),
+                                      ),
+                                    ) ??
+                                    0
+                                : null;
+
+                        final employeeId =
+                            state.uri.queryParameters['employeeId'] != null
+                                ? int.tryParse(
+                                      EncryptionManager.decryptData(
+                                        Uri.decodeComponent(
+                                          state
+                                              .uri
+                                              .queryParameters['employeeId']!,
+                                        ),
+                                      ),
+                                    ) ??
+                                    0
+                                : null;
+                        final employeeName =
+                            state.uri.queryParameters['employeeName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['employeeName']!,
+                                  ),
+                                )
+                                : '';
+                        final tabName =
+                            state.uri.queryParameters['tabName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['tabName']!,
+                                  ),
+                                )
+                                : '';
+
+                        final columnName =
+                            state.uri.queryParameters['columnName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['columnName']!,
+                                  ),
+                                )
+                                : '';
+
+                        final projectName =
+                            state.uri.queryParameters['projectName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['projectName']!,
+                                  ),
+                                )
+                                : null;
+                        final filterType =
+                            state.uri.queryParameters['filterType'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['filterType']!,
+                                  ),
+                                )
+                                : '';
+
+                        return AchievementDrillDownReportScreen(
+                          projectId: projectId,
+                          employeeId: employeeId,
+                          employeeName: employeeName,
+                          tabName: tabName,
+                          columnName: columnName,
+                          filterType: filterType,
+                          projectName: projectName,
+                        );
+                      },
+                    ),
+                    GoRoute(
+                      name: AppRoutes.achievementDrillDownReportForEnquiry,
+                      path: AppRoutes.achievementDrillDownReportForEnquiry,
+                      builder: (context, state) {
+                        final queryParameterEnquiry =
+                            state.uri.queryParameters['enquiry'];
+                        final enquiryModel =
+                            queryParameterEnquiry != null &&
+                                    queryParameterEnquiry.isNotEmpty
+                                ? EnquiryModel.fromJson(
+                                  jsonDecode(
+                                    EncryptionManager.decryptData(
+                                      Uri.decodeComponent(
+                                        queryParameterEnquiry,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                                : null;
+
+                        final employeeName =
+                            state.uri.queryParameters['employeeName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['employeeName']!,
+                                  ),
+                                )
+                                : '';
+                        final tabName =
+                            state.uri.queryParameters['tabName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['tabName']!,
+                                  ),
+                                )
+                                : '';
+
+                        final columnName =
+                            state.uri.queryParameters['columnName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['columnName']!,
+                                  ),
+                                )
+                                : '';
+
+                        final projectName =
+                            state.uri.queryParameters['projectName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['projectName']!,
+                                  ),
+                                )
+                                : '';
+
+                        return AchievementDrillDownReportForEnquiryScreen(
+                          enquiryModel: enquiryModel!,
+                          tabName: tabName,
+                          columnName: columnName,
+                          projectName: projectName,
+                          employeeName: employeeName,
+                        );
+                      },
+                    ),
+                    GoRoute(
+                      name:
+                          AppRoutes.achievementDrillDownReportForChannelPartner,
+                      path:
+                          AppRoutes.achievementDrillDownReportForChannelPartner,
+                      builder: (context, state) {
+                        final queryParameterChannelPartner =
+                            state.uri.queryParameters['channelPartner'];
+                        final channelPartnerModel =
+                            queryParameterChannelPartner != null &&
+                                    queryParameterChannelPartner.isNotEmpty
+                                ? ChannelPartnerSourcingModel.fromJson(
+                                  jsonDecode(
+                                    EncryptionManager.decryptData(
+                                      Uri.decodeComponent(
+                                        queryParameterChannelPartner,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                                : null;
+                        final employeeName =
+                            state.uri.queryParameters['employeeName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['employeeName']!,
+                                  ),
+                                )
+                                : '';
+                        final tabName =
+                            state.uri.queryParameters['tabName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['tabName']!,
+                                  ),
+                                )
+                                : '';
+
+                        final columnName =
+                            state.uri.queryParameters['columnName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['columnName']!,
+                                  ),
+                                )
+                                : '';
+
+                        final projectName =
+                            state.uri.queryParameters['projectName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['projectName']!,
+                                  ),
+                                )
+                                : '';
+                        return AchievementDrillDownReportForChannelPartnerScreen(
+                          channelPartnerModel: channelPartnerModel!,
+                          tabName: tabName,
+                          columnName: columnName,
+                          projectName: projectName,
+                          employeeName: employeeName,
+                        );
+                      },
+                    ),
+                    GoRoute(
+                      name: AppRoutes.achievementDrillDownReportForBooking,
+                      path: AppRoutes.achievementDrillDownReportForBooking,
+                      builder: (context, state) {
+                        final queryParameterBooking =
+                            state.uri.queryParameters['booking'];
+                        final bookingModel =
+                            queryParameterBooking != null &&
+                                    queryParameterBooking.isNotEmpty
+                                ? BookingModel.fromJson(
+                                  jsonDecode(
+                                    EncryptionManager.decryptData(
+                                      Uri.decodeComponent(
+                                        queryParameterBooking,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                                : null;
+                        final employeeName =
+                            state.uri.queryParameters['employeeName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['employeeName']!,
+                                  ),
+                                )
+                                : '';
+                        final tabName =
+                            state.uri.queryParameters['tabName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['tabName']!,
+                                  ),
+                                )
+                                : '';
+
+                        final columnName =
+                            state.uri.queryParameters['columnName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['columnName']!,
+                                  ),
+                                )
+                                : '';
+
+                        final projectName =
+                            state.uri.queryParameters['projectName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['projectName']!,
+                                  ),
+                                )
+                                : '';
+
+                        return AchievementDrillDownReportForBookingScreen(
+                          bookingModel: bookingModel!,
+                          tabName: tabName,
+                          columnName: columnName,
+                          projectName: projectName,
+                          employeeName: employeeName,
+                        );
+                      },
+                    ),
+                  ],
                 ),
                 GoRoute(
                   path: AppRoutes.ibmObmReport,
                   name: AppRoutes.ibmObmReport,
                   builder: (context, state) {
-                    return const ComingSoonScreen(title: "IBM OBM Report");
+                    return IbmObmReportScreen();
                   },
+                  routes: [
+                    GoRoute(
+                      path: AppRoutes.viewIbmObmReport,
+                      name: AppRoutes.viewIbmObmReport,
+                      builder: (context, state) {
+                        final employeeId =
+                            state.uri.queryParameters['employeeId'] != null
+                                ? int.tryParse(
+                                      EncryptionManager.decryptData(
+                                        Uri.decodeComponent(
+                                          state
+                                              .uri
+                                              .queryParameters['employeeId']!,
+                                        ),
+                                      ),
+                                    ) ??
+                                    0
+                                : 0;
+                        final employeeName =
+                            state.uri.queryParameters['employeeName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['employeeName']!,
+                                  ),
+                                )
+                                : '';
+                        return IbmObmReportViewScreen(
+                          employeeId: employeeId,
+                          employeeName: employeeName,
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),

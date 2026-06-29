@@ -1,3 +1,4 @@
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/achivement_drill_down_report.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -42,6 +43,24 @@ abstract interface class AchievementReportDatasource {
     required int pageNumber,
     required int pageSize,
     required String filterType,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Map<String, dynamic>> apiCallPullAchievementDrillDownReport({
+    required int pageNumber,
+    required int pageSize,
+    required String filterType,
+    required String tabName,
+    required String columnName,
+    required AchievementDrillDownType achivementDrillDownType,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Map<String, dynamic>> apiCallPullAchievementDrillDownReportForExport({
+    required int pageNumber,
+    required int pageSize,
+    required String filterType,
+    required String tabName,
+    required String columnName,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -282,6 +301,111 @@ class AchievementReportDatasourceImpl extends AchievementReportDatasource {
           pageNumber: pageNumber,
           pageSize: pageSize,
           filterType: filterType,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallPullAchievementDrillDownReport({
+    required int pageNumber,
+    required int pageSize,
+    required String filterType,
+    required String tabName,
+    required String columnName,
+    required AchievementDrillDownType achivementDrillDownType,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullAchievementDrillDownReportUrl({
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "AchievementReport/PullAchievementDrillDownReport"
+          "?pageSize=$pageSize"
+          "&pageNumber=$pageNumber"
+          "&TabName=$tabName"
+          "&ColumnName=${Uri.encodeQueryComponent(columnName)}"
+          "&FilterType=$filterType";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullAchievementDrillDownReportUrl(queryParams: queryParams),
+      );
+
+      final data = List<AchievementDrillDownReportModel>.from(
+        (networkResponse["data"] as List).map(
+          (e) => AchievementDrillDownReportModel.fromJson(
+            json: e as Map<String, dynamic>,
+            type: achivementDrillDownType,
+          ),
+        ),
+      );
+      return {
+        'data': data,
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'] ?? 0,
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apiCallPullAchievementDrillDownReport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          filterType: filterType,
+          tabName: tabName,
+          columnName: columnName,
+          queryParams: queryParams,
+          achivementDrillDownType: achivementDrillDownType,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallPullAchievementDrillDownReportForExport({
+    required int pageNumber,
+    required int pageSize,
+    required String filterType,
+    required String tabName,
+    required String columnName,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullAchievementDrillDownReportUrl({
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "AchievementReport/PullAchievementDrillDownReport"
+          "?pageSize=$pageSize"
+          "&pageNumber=$pageNumber"
+          "&TabName=$tabName"
+          "&ColumnName=${Uri.encodeQueryComponent(columnName)}"
+          "&FilterType=$filterType";
+
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullAchievementDrillDownReportUrl(queryParams: queryParams),
+      );
+
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'] ?? 0,
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apiCallPullAchievementDrillDownReportForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          filterType: filterType,
+          tabName: tabName,
+          columnName: columnName,
           queryParams: queryParams,
         );
       }

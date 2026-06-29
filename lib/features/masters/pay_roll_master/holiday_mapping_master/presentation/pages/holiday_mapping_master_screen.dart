@@ -45,6 +45,7 @@ class _HolidayMappingMasterScreenState
       _filterBranchNameC,
       _filterDepartmentNameC;
 
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
   @override
   void initState() {
     super.initState();
@@ -66,6 +67,9 @@ class _HolidayMappingMasterScreenState
     _searchC.dispose();
     _filterBranchNameC.dispose();
     _filterDepartmentNameC.dispose();
+    scrollController.dispose();
+    _debounce?.cancel();
+    _filterCount.dispose();
     super.dispose();
   }
 
@@ -119,7 +123,7 @@ class _HolidayMappingMasterScreenState
     BuildContext context,
   ) async {
     final state = _holidayMappingMasterCubit.state;
-
+    _searchC.text = state.searchText;
     _filterBranchNameC.text = state.filterBranchName;
     _filterDepartmentNameC.text = state.filterDepartmentName;
 
@@ -128,6 +132,7 @@ class _HolidayMappingMasterScreenState
             ? state.currentSortDirection
             : null;
 
+    final String initialHolidayName = _searchC.text;
     final String initialBranchName = _filterBranchNameC.text;
     final String initialDepartmentName = _filterDepartmentNameC.text;
     final String? initialDirection = selectedDirection;
@@ -145,6 +150,7 @@ class _HolidayMappingMasterScreenState
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
+            (_searchC.text.trim() != initialHolidayName) ||
             (_filterBranchNameC.text.trim() != initialBranchName) ||
             (_filterDepartmentNameC.text.trim() != initialDepartmentName) ||
             (selectedDirection != initialDirection) ||
@@ -170,7 +176,7 @@ class _HolidayMappingMasterScreenState
       });
     }
 
-    DialogHelper.showCustomFilterBottomSheet(
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter Holiday Mapping",
       contentWidget: StatefulBuilder(
@@ -234,6 +240,12 @@ class _HolidayMappingMasterScreenState
                     ],
                   ),
                   verticalSpacing(height: 20),
+                  CustomTextField(
+                    textController: _searchC,
+                    hint: "Enter Holiday Name",
+                    title: "Holiday Name",
+                    onChangeFunction: (_) => updateApplyState(innerState),
+                  ),
                   CustomTextField(
                     textController: _filterBranchNameC,
                     hint: "Enter Branch Name",
@@ -331,10 +343,12 @@ class _HolidayMappingMasterScreenState
       onClear: () {
         _filterBranchNameC.clear();
         _filterDepartmentNameC.clear();
+        _searchC.clear();
         _holidayMappingMasterCubit.applyFilterAndSort(
           context: context,
           filterFromHolidayDate: null,
           filterToHolidayDate: null,
+          filterHolidayName: '',
           sortColumn: "Created Date",
           sortDirection: "DESC",
           filterBranchName: '',
@@ -346,10 +360,11 @@ class _HolidayMappingMasterScreenState
           applied = true;
           _holidayMappingMasterCubit.applyFilterAndSort(
             context: context,
-            filterBranchName: _filterBranchNameC.text,
-            filterDepartmentName: _filterDepartmentNameC.text,
+            filterBranchName: _filterBranchNameC.text.trim(),
+            filterDepartmentName: _filterDepartmentNameC.text.trim(),
             filterFromHolidayDate: filterFromDate,
             filterToHolidayDate: filterToDate,
+            filterHolidayName: _searchC.text.trim(),
             sortColumn: selectedDirection != null ? "Holiday Name" : null,
             sortDirection: selectedDirection,
           );
@@ -361,6 +376,7 @@ class _HolidayMappingMasterScreenState
 
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
+      _searchC.clear();
       _filterBranchNameC.clear();
       _filterDepartmentNameC.clear();
     }
@@ -368,160 +384,172 @@ class _HolidayMappingMasterScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Holiday Mapping Master",
-        authorization: _routeAuthorizationModel,
-        onSearchSubmit: (value) {
-          _holidayMappingMasterCubit.searchHolidayMapping(value, context);
-        },
-        textController: _searchC,
-        searchHintText: "Search by Holiday Name",
-        onAddCallback: () async {
-          await goRouter.pushNamed(AppRoutes.addHolidayMappingMaster);
-          if (context.mounted) {
+    return BlocListener<HolidayMappingMasterCubit, HolidayMappingMasterState>(
+      listener: (context, state) {
+        _filterCount.value = _holidayMappingMasterCubit
+            .updateHolidayMappingFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "Holiday Mapping Master",
+          authorization: _routeAuthorizationModel,
+          filterCountNotifier: _filterCount,
+          onSearchSubmit: (value) {
+            _holidayMappingMasterCubit.searchHolidayMapping(value, context);
+          },
+          textController: _searchC,
+          searchHintText: "Search by Holiday Name",
+          onAddCallback: () async {
+            await goRouter.pushNamed(AppRoutes.addHolidayMappingMaster);
+            if (context.mounted) {
+              _holidayMappingMasterCubit.searchHolidayMapping("", context);
+            }
+          },
+          onExportCallback: (value) {
+            if (_holidayMappingMasterCubit.state.totalNumberOfRecord == 0) {
+              showErrorMessage(context, "Error", "No Data Found");
+              return;
+            }
+            _holidayMappingMasterCubit.exportExcelPdf(context, value);
+          },
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterHolidayMapping(context);
+          },
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            _searchC.clear();
             _holidayMappingMasterCubit.searchHolidayMapping("", context);
-          }
-        },
-        onExportCallback: (value) {
-          if (_holidayMappingMasterCubit.state.totalNumberOfRecord == 0) {
-            showErrorMessage(context, "Error", "No Data Found");
-            return;
-          }
-          _holidayMappingMasterCubit.exportExcelPdf(context, value);
-        },
-        isFilterOn: true,
-        onFilterTap: () {
-          _showBottomSheetToFilterHolidayMapping(context);
-        },
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _searchC.clear();
-          _holidayMappingMasterCubit.searchHolidayMapping("", context);
-        },
-        child: BlocBuilder<
-          HolidayMappingMasterCubit,
-          HolidayMappingMasterState
-        >(
-          builder: (context, state) {
-            if ((state.isLoading ?? true) && state.holidayMappingList.isEmpty) {
-              return Center(child: loader());
-            }
-            if (state.holidayMappingList.isEmpty) {
-              return ListView(
-                physics: AlwaysScrollableScrollPhysics(),
-                children: [
-                  SizedBox(
-                    height: getActualHeight(context) * .7,
-                    child: Center(
-                      child: noDataWidget(
-                        message: "No Holiday Mapping Data Found",
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            }
-            return ListView.builder(
-              controller: scrollController,
-              physics: AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              itemCount: state.holidayMappingList.length + 1,
-              itemBuilder: (context, index) {
-                if (index == state.holidayMappingList.length) {
-                  return state.holidayMappingList.length <
-                          state.totalNumberOfRecord
-                      ? const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                      : const SizedBox.shrink();
-                }
-                var holidayMapping = state.holidayMappingList[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(12),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: GestureDetector(
-                              onTap: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.viewHolidayMappingMaster,
-                                  queryParameters: {
-                                    "holidayMapping": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(holidayMapping.toJson()),
-                                      ),
-                                    ),
-                                  },
-                                );
-                              },
-                              child: Text(
-                                holidayMapping.holidayName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
-                                ),
-                              ),
+          },
+          child:
+              BlocBuilder<HolidayMappingMasterCubit, HolidayMappingMasterState>(
+                builder: (context, state) {
+                  if ((state.isLoading ?? true) &&
+                      state.holidayMappingList.isEmpty) {
+                    return Center(child: loader());
+                  }
+                  if (state.holidayMappingList.isEmpty) {
+                    return ListView(
+                      physics: AlwaysScrollableScrollPhysics(),
+                      children: [
+                        SizedBox(
+                          height: getActualHeight(context) * .7,
+                          child: Center(
+                            child: noDataWidget(
+                              message: "No Holiday Mapping Data Found",
                             ),
                           ),
-                          Row(
-                            children: [
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addHolidayMappingMaster,
-                                    queryParameters: {
-                                      "holidayMapping":
-                                          Uri.encodeQueryComponent(
-                                            EncryptionManager.encryptData(
-                                              jsonEncode(
-                                                holidayMapping.toJson(),
-                                              ),
-                                            ),
-                                          ),
-                                      'index': index.toString(),
-                                    },
-                                  );
-                                },
-                              ),
-                              horizontalSpacing(),
-                              CustomIconButton.delete(
-                                onPressed: () {
-                                  _showPopupToDeleteHolidayMappingMaster(
-                                    context,
-                                    holidayMapping,
-                                    state.currentPage,
-                                    index,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      verticalSpacing(height: 8),
-                      buildRowTitleValue(
-                        title: "Holiday Date",
-                        value: formatDateTimeAsDDMMMYYYY(
-                          holidayMapping.holidayDate,
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
+                      ],
+                    );
+                  }
+                  return ListView.builder(
+                    controller: scrollController,
+                    physics: AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    itemCount: state.holidayMappingList.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == state.holidayMappingList.length) {
+                        return state.holidayMappingList.length <
+                                state.totalNumberOfRecord
+                            ? const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                            : const SizedBox.shrink();
+                      }
+                      var holidayMapping = state.holidayMappingList[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(12),
+                        decoration: commonCardDecoration(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      await goRouter.pushNamed(
+                                        AppRoutes.viewHolidayMappingMaster,
+                                        queryParameters: {
+                                          "holidayMapping":
+                                              Uri.encodeQueryComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(
+                                                    holidayMapping.toJson(),
+                                                  ),
+                                                ),
+                                              ),
+                                        },
+                                      );
+                                    },
+                                    child: Text(
+                                      holidayMapping.holidayName,
+                                      style: AppTextStyle.ts16M(
+                                        color: AppColor.primary,
+                                      ).copyWith(
+                                        decoration: TextDecoration.underline,
+                                        decorationColor: AppColor.primary,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    CustomIconButton.edit(
+                                      onPressed: () async {
+                                        await goRouter.pushNamed(
+                                          AppRoutes.addHolidayMappingMaster,
+                                          queryParameters: {
+                                            "holidayMapping":
+                                                Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(
+                                                      holidayMapping.toJson(),
+                                                    ),
+                                                  ),
+                                                ),
+                                            'index': index.toString(),
+                                          },
+                                        );
+                                      },
+                                    ),
+                                    horizontalSpacing(),
+                                    CustomIconButton.delete(
+                                      onPressed: () {
+                                        _showPopupToDeleteHolidayMappingMaster(
+                                          context,
+                                          holidayMapping,
+                                          state.currentPage,
+                                          index,
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(height: 8),
+                            buildRowTitleValue(
+                              title: "Holiday Date",
+                              value: formatDateTimeAsDDMMMYYYY(
+                                holidayMapping.holidayDate,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
         ),
       ),
     );

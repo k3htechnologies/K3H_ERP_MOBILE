@@ -54,6 +54,7 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     if (isClear ?? false) {
       emit(
         state.copyWith(
+          channelPartnerList: [],
           searchText: "",
           filterByCompanyName: "",
           filterByDesignation: "",
@@ -78,6 +79,7 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     } else {
       emit(
         state.copyWith(
+          channelPartnerList: [],
           searchText: fullName ?? state.searchText,
           filterByCompanyName: companyName ?? state.filterByCompanyName,
           filterByDesignation: designation ?? state.filterByDesignation,
@@ -494,5 +496,31 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
 
       return partners;
     });
+  }
+
+  int updateFilterCount() {
+    final hasSort =
+        state.currentSortColumn == "Full Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterByCompanyName.trim().isNotEmpty,
+      state.filterByDesignation.trim().isNotEmpty,
+      state.filterByFirmType.trim().isNotEmpty,
+      state.filterByType.trim().isNotEmpty,
+      state.filterByMobileNumber.trim().isNotEmpty,
+      state.filterByOfficeAddress.trim().isNotEmpty,
+      state.filterByGSTNumber.trim().isNotEmpty,
+      state.filterByRERANumber.trim().isNotEmpty,
+      state.filterByPANNumber.trim().isNotEmpty,
+      state.filterByAadhaarNumber.trim().isNotEmpty,
+      state.filterBySpeciality.trim().isNotEmpty,
+      state.filterByCity.trim().isNotEmpty,
+      state.filterByVillage.trim().isNotEmpty,
+      state.filterByNoOfIBM.trim().isNotEmpty,
+      state.filterByNoOfOBM.trim().isNotEmpty,
+      hasSort,
+    ]);
   }
 }

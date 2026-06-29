@@ -241,11 +241,13 @@ class HolidayMasterCubit extends Cubit<HolidayMasterState> {
 
   Future<void> applyFilterAndSort({
     required BuildContext context,
+    required String holidayName,
     String? sortColumn,
     String? sortDirection,
   }) async {
     emit(
       state.copyWith(
+        searchText: holidayName,
         currentSortColumn: sortColumn ?? state.currentSortColumn,
         currentSortDirection: sortDirection ?? state.currentSortDirection,
         holidays: [],
@@ -254,5 +256,14 @@ class HolidayMasterCubit extends Cubit<HolidayMasterState> {
     );
 
     await getHolidayList(context: context, pageNumber: 1);
+  }
+
+  int updateFilterCount(HolidayMasterState state) {
+    final hasSort =
+        state.currentSortColumn == "Holiday Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+
+    return getActiveFilterCount([state.searchText.trim().isNotEmpty, hasSort]);
   }
 }

@@ -22,7 +22,8 @@ import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
-import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class PayrollReportScreen extends StatefulWidget {
@@ -93,6 +94,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   final ValueNotifier<DateTime?> _endDateNotifier = ValueNotifier<DateTime?>(
     null,
   );
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   @override
   void initState() {
@@ -181,6 +183,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
       if (!_leaveTabController.indexIsChanging) {
         final innerIndex = _leaveTabController.index;
+
         _payrollReportCubit.onLeaveInnerTabChanged(innerIndex);
 
         _payrollReportCubit.getLeaveList(
@@ -331,7 +334,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     // DISPOSE DATE FILTERS
     _startDateNotifier.dispose();
     _endDateNotifier.dispose();
-
+    _filterCount.dispose();
     super.dispose();
   }
 
@@ -449,6 +452,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         _selectedDateNotifier.value;
     final endDate =
         _payrollReportCubit.state.filterEndDate ?? _selectedDateNotifier.value;
+    _searchC.clear();
     _payrollReportCubit.resetApprovalTab();
 
     switch (index) {
@@ -870,6 +874,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     final s = _payrollReportCubit.state;
     _startDateNotifier.value = s.filterStartDate;
     _endDateNotifier.value = s.filterEndDate;
+    _searchC.text = s.searchText;
   }
 
   // PAYROLL REPORT FILTER
@@ -878,10 +883,29 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   ) async {
     _prefillFilterFromState();
     final state = _payrollReportCubit.state;
-    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(
-      state.filterStartDate != null || state.filterEndDate != null,
-    );
-    DialogHelper.showCustomFilterBottomSheet(
+
+    final String initialEmployeeName = _searchC.text;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    bool manualClose = false;
+    bool applied = false;
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        final bool onlyOneDateSet =
+            (_startDateNotifier.value != null &&
+                _endDateNotifier.value == null) ||
+            (_endDateNotifier.value != null &&
+                _startDateNotifier.value == null);
+
+        manualClose =
+            _searchC.text.trim() != initialEmployeeName.trim() ||
+            _startDateNotifier.value != state.filterStartDate ||
+            _endDateNotifier.value != state.filterEndDate;
+
+        applyEnabled.value = !onlyOneDateSet && manualClose;
+      });
+    }
+
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter Payroll Master",
       contentWidget: StatefulBuilder(
@@ -890,66 +914,25 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               verticalSpacing(),
-              Row(
-                children: [
-                  Expanded(
-                    child: ValueListenableBuilder<DateTime?>(
-                      valueListenable: _startDateNotifier,
-                      builder: (context, startDate, child) {
-                        return CustomDatePicker(
-                          title: "Start Date",
-                          initialDate: startDate,
-                          setValue: (value) {
-                            _startDateNotifier.value = value;
-                            applyEnabled.value = true;
-                          },
-                          validator: (value) => null,
-                        );
-                      },
-                    ),
-                  ),
-                  horizontalSpacing(),
-                  Expanded(
-                    child: ValueListenableBuilder<DateTime?>(
-                      valueListenable: _endDateNotifier,
-                      builder: (context, endDate, child) {
-                        return ValueListenableBuilder<DateTime?>(
-                          valueListenable: _startDateNotifier,
-                          builder: (context, startDate, child) {
-                            return CustomDatePicker(
-                              title: "End Date",
-                              isRequired: false,
-                              initialDate: endDate,
-                              setValue: (value) {
-                                _endDateNotifier.value = value;
-                                applyEnabled.value = true;
-                              },
-                              validator: (value) {
-                                if (value == null) return null;
-                                if (startDate != null) {
-                                  final startDateOnly = DateTime(
-                                    startDate.year,
-                                    startDate.month,
-                                    startDate.day,
-                                  );
-                                  final endDateOnly = DateTime(
-                                    value.year,
-                                    value.month,
-                                    value.day,
-                                  );
-                                  if (endDateOnly.isBefore(startDateOnly)) {
-                                    return 'End Date cannot be before Start Date';
-                                  }
-                                }
-                                return null;
-                              },
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
+              CustomFromToDatePicker(
+                fromDateTitle: 'Start Date',
+                toDateTitle: 'End Date',
+                initialFromDate: _startDateNotifier.value,
+                initialToDate: _endDateNotifier.value,
+                isRequired: false,
+                removeBottomMargin: false,
+                onToDateChanged: (DateTime? fromDate, DateTime? toDate) {
+                  _startDateNotifier.value = fromDate;
+                  _endDateNotifier.value = toDate;
+
+                  updateApplyState(innerState);
+                },
+              ),
+              CustomTextField(
+                textController: _searchC,
+                hint: "Enter Employee Name",
+                title: "Employee Name",
+                onChangeFunction: (_) => updateApplyState(innerState),
               ),
             ],
           );
@@ -958,9 +941,11 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
       onClear: () {
         _startDateNotifier.value = null;
         _endDateNotifier.value = null;
+        _searchC.clear();
         _payrollReportCubit.clearFilterOnPayrollReport(context);
       },
       onApply: () {
+        applied = true;
         final startDate = _startDateNotifier.value;
         final endDate = _endDateNotifier.value;
         if (startDate != null && endDate != null) {
@@ -983,123 +968,134 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           context: context,
           startDate: startDate,
           endDate: endDate,
+          employeeName: _searchC.text.trim(),
         );
       },
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
+    if (!applied && manualClose) {
+      _searchC.clear();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.greyBackground,
-      appBar: CustomAppBar(
-        screenTitle: "Report",
-        authorization: AuthorizationModel(),
-        onSearchSubmit: (value) {
-          _payrollReportCubit.searchPayrollReport(context, value);
-        },
-        textController: _searchC,
-        isFilterOn: true,
-        onFilterTap: () {
-          _showBottomSheetToFilterPayrollReport(context);
-        },
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ChipStyleTabBar(
-            controller: _tabController,
-            tabs: [
-              "Attendance",
-              "Regularize",
-              "Comp-Off",
-              "Leave",
-              "Outdoor",
-              "Resignation",
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20.0),
-            child: BlocBuilder<PayrollReportCubit, PayrollReportState>(
-              builder: (context, state) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      InkWell(
-                        onTap: _onBackArrowClicked,
-                        child: Icon(
-                          Icons.arrow_back_ios,
-                          size: 18,
-                          color: AppColor.black.withValues(alpha: .5),
-                        ),
-                      ),
-                      horizontalSpacing(width: 20),
-
-                      ValueListenableBuilder<DateTime>(
-                        valueListenable: _selectedDateNotifier,
-                        builder: (context, date, _) {
-                          final startDate = state.filterStartDate;
-                          final endDate = state.filterEndDate;
-
-                          if (startDate != null && endDate != null) {
-                            return Text(
-                              "${formatDateTimeAsDDMMMYYYY(startDate)} - "
-                              "${formatDateTimeAsDDMMMYYYY(endDate)}",
-                              style: AppTextStyle.ts14M(),
-                            );
-                          }
-
-                          if (startDate != null && endDate == null) {
-                            return Text(
-                              formatDateTimeAsDDMMMYYYY(startDate),
-                              style: AppTextStyle.ts14M(),
-                            );
-                          }
-
-                          return Text(
-                            formatDateTimeAsDDMMMYYYY(date),
-                            style: AppTextStyle.ts14M(),
-                          );
-                        },
-                      ),
-
-                      horizontalSpacing(width: 20),
-
-                      InkWell(
-                        onTap: _onForwardArrowClicked,
-                        child: Icon(
-                          Icons.arrow_forward_ios,
-                          size: 18,
-                          color: AppColor.black.withValues(alpha: .5),
-                        ),
-                      ),
-
-                      Spacer(),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-          Expanded(
-            child: TabBarView(
+    return BlocListener<PayrollReportCubit, PayrollReportState>(
+      listener: (context, state) {
+        _filterCount.value = _payrollReportCubit.updateFilterCount(state);
+      },
+      child: Scaffold(
+        backgroundColor: AppColor.greyBackground,
+        appBar: CustomAppBar(
+          screenTitle: "Report",
+          searchHintText: 'Search By Employee Name',
+          authorization: AuthorizationModel(),
+          onSearchSubmit: (value) {
+            _payrollReportCubit.searchPayrollReport(context, value);
+          },
+          filterCountNotifier: _filterCount,
+          textController: _searchC,
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterPayrollReport(context);
+          },
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ChipStyleTabBar(
               controller: _tabController,
-              physics: NeverScrollableScrollPhysics(),
-              children: [
-                buildAttendanceSection(),
-                buildRegularizeSection(),
-                buildCompOffSection(),
-                buildLeaveSection(),
-                buildOutdoorSection(),
-                buildResignationSection(),
+              tabs: [
+                "Attendance",
+                "Regularize",
+                "Comp-Off",
+                "Leave",
+                "Outdoor",
+                "Resignation",
               ],
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20.0),
+              child: BlocBuilder<PayrollReportCubit, PayrollReportState>(
+                builder: (context, state) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        InkWell(
+                          onTap: _onBackArrowClicked,
+                          child: Icon(
+                            Icons.arrow_back_ios,
+                            size: 18,
+                            color: AppColor.black.withValues(alpha: .5),
+                          ),
+                        ),
+                        horizontalSpacing(width: 20),
+
+                        ValueListenableBuilder<DateTime>(
+                          valueListenable: _selectedDateNotifier,
+                          builder: (context, date, _) {
+                            final startDate = state.filterStartDate;
+                            final endDate = state.filterEndDate;
+
+                            if (startDate != null && endDate != null) {
+                              return Text(
+                                "${formatDateTimeAsDDMMMYYYY(startDate)} - "
+                                "${formatDateTimeAsDDMMMYYYY(endDate)}",
+                                style: AppTextStyle.ts14M(),
+                              );
+                            }
+
+                            if (startDate != null && endDate == null) {
+                              return Text(
+                                formatDateTimeAsDDMMMYYYY(startDate),
+                                style: AppTextStyle.ts14M(),
+                              );
+                            }
+
+                            return Text(
+                              formatDateTimeAsDDMMMYYYY(date),
+                              style: AppTextStyle.ts14M(),
+                            );
+                          },
+                        ),
+
+                        horizontalSpacing(width: 20),
+
+                        InkWell(
+                          onTap: _onForwardArrowClicked,
+                          child: Icon(
+                            Icons.arrow_forward_ios,
+                            size: 18,
+                            color: AppColor.black.withValues(alpha: .5),
+                          ),
+                        ),
+
+                        Spacer(),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                physics: NeverScrollableScrollPhysics(),
+                children: [
+                  buildAttendanceSection(),
+                  buildRegularizeSection(),
+                  buildCompOffSection(),
+                  buildLeaveSection(),
+                  buildOutdoorSection(),
+                  buildResignationSection(),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

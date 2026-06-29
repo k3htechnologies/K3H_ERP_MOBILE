@@ -20,6 +20,10 @@ class BrokerageCubit extends Cubit<BrokerageState> {
   final BrokerageRepository _brokerageRepository =
       serviceLocator<BrokerageRepository>();
 
+  void resetState() {
+    emit(BrokerageState.initial());
+  }
+
   Future clearInvoiceAndPayment() async {
     emit(
       state.copyWith(
@@ -570,6 +574,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
   void applyFilterAndSort({
     required BuildContext context,
     required int projectId,
+    required String filterCpName,
     required String filterCpCompany,
     required String filterCpMobileNo,
     required String filterApplicantName,
@@ -584,6 +589,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
   }) {
     emit(
       state.copyWith(
+        searchText: filterCpName,
         filterCpCompany: filterCpCompany,
         filterCpMobileNo: filterCpMobileNo,
         filterApplicantName: filterApplicantName,
@@ -634,5 +640,21 @@ class BrokerageCubit extends Cubit<BrokerageState> {
         );
       },
     );
+  }
+
+  int updateFilterCount(BrokerageState state) {
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterCpCompany.trim().isNotEmpty,
+      state.filterCpMobileNo.trim().isNotEmpty,
+      state.filterApplicantName.trim().isNotEmpty,
+      state.filterApplicantMobileNo.trim().isNotEmpty,
+      state.filterWing.trim().isNotEmpty,
+      state.filterFlat.trim().isNotEmpty,
+      state.filterFloor.trim().isNotEmpty,
+      state.filterAgreementValue > 0,
+      state.filterBookingType.trim().isNotEmpty,
+      state.filterByFromDate != null && state.filterByToDate != null,
+    ]);
   }
 }

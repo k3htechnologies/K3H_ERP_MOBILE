@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -44,7 +45,7 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         filterBySenderMobileNumber: "",
         filterByReceiverMobileNumber: "",
         filterByStatus: "",
-        filterByCreatedDate: null,
+        filterByFromDate: null,
         inwardOutwardList: [],
         inwardList: [],
         outwardList: [],
@@ -83,7 +84,8 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
     String? status,
     String? senderMobileNumber,
     String? receiverMobileNumber,
-    DateTime? createdDate,
+    DateTime? fromDate,
+    DateTime? toDate,
     String? sortColumn,
     String? sortDirection,
     bool? isClear,
@@ -99,7 +101,8 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
           filterByStatus: "",
           filterBySenderMobileNumber: "",
           filterByReceiverMobileNumber: "",
-          filterByCreatedDate: null,
+          filterByFromDate: null,
+          filterByToDate: null,
           currentSortColumn: "",
           currentSortDirection: "",
           inwardOutwardCurrentPage: 1,
@@ -118,7 +121,8 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
               senderMobileNumber ?? state.filterBySenderMobileNumber,
           filterByReceiverMobileNumber:
               receiverMobileNumber ?? state.filterByReceiverMobileNumber,
-          filterByCreatedDate: createdDate ?? state.filterByCreatedDate,
+          filterByFromDate: fromDate ?? state.filterByFromDate,
+          filterByToDate: toDate ?? state.filterByToDate,
           currentSortColumn: sortColumn ?? state.currentSortColumn,
           currentSortDirection: sortDirection ?? state.currentSortDirection,
           inwardOutwardCurrentPage: 1,
@@ -145,7 +149,14 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         "SenderMobileNumber": state.filterBySenderMobileNumber,
         "ReceiverMobileNumber": state.filterBySenderMobileNumber,
         "DeliveryStatus": state.filterByStatus,
-        "CreatedDate": state.filterByCreatedDate,
+        "FromDate":
+            state.filterByFromDate != null
+                ? DateFormat('yyyy-MM-dd').format(state.filterByFromDate!)
+                : "",
+        "ToDate":
+            state.filterByToDate != null
+                ? DateFormat('yyyy-MM-dd').format(state.filterByToDate!)
+                : "",
       },
     );
 
@@ -192,7 +203,14 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         "SenderMobileNumber": state.filterBySenderMobileNumber,
         "ReceiverMobileNumber": state.filterBySenderMobileNumber,
         "DeliveryStatus": state.filterByStatus,
-        "CreatedDate": state.filterByCreatedDate,
+        "FromDate":
+            state.filterByFromDate != null
+                ? DateFormat('yyyy-MM-dd').format(state.filterByFromDate!)
+                : "",
+        "ToDate":
+            state.filterByToDate != null
+                ? DateFormat('yyyy-MM-dd').format(state.filterByToDate!)
+                : "",
         "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
       },
     );
@@ -239,7 +257,14 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         "SenderMobileNumber": state.filterBySenderMobileNumber,
         "ReceiverMobileNumber": state.filterBySenderMobileNumber,
         "DeliveryStatus": state.filterByStatus,
-        "CreatedDate": state.filterByCreatedDate,
+        "FromDate":
+            state.filterByFromDate != null
+                ? DateFormat('yyyy-MM-dd').format(state.filterByFromDate!)
+                : "",
+        "ToDate":
+            state.filterByToDate != null
+                ? DateFormat('yyyy-MM-dd').format(state.filterByToDate!)
+                : "",
       },
     );
 
@@ -868,5 +893,25 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         );
       },
     );
+  }
+
+  int updateFilterCount(InwardOutwardState state) {
+    final hasSort =
+        state.currentSortColumn == "SystemGeneratedCode" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterByDocumentType.trim().isNotEmpty,
+      state.filterBySenderName.trim().isNotEmpty,
+      state.filterByReceiverName.trim().isNotEmpty,
+      state.filterByDocumentTitle.trim().isNotEmpty,
+      state.filterByStatus.trim().isNotEmpty,
+      state.filterBySenderMobileNumber.trim().isNotEmpty,
+      state.filterByReceiverMobileNumber.trim().isNotEmpty,
+      state.filterByFromDate != null && state.filterByToDate != null,
+      hasSort,
+    ]);
   }
 }

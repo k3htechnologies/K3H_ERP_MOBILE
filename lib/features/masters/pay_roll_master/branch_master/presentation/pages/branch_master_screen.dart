@@ -42,6 +42,8 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
       _filterBranchCodeC,
       _filterBranchLocationC;
 
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
+
   @override
   void initState() {
     super.initState();
@@ -60,6 +62,9 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
     _searchC.dispose();
     _filterBranchCodeC.dispose();
     _filterBranchLocationC.dispose();
+    scrollController.dispose();
+    _debounce?.cancel();
+    _filterCount.dispose();
     super.dispose();
   }
 
@@ -119,12 +124,13 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
 
     _filterBranchCodeC.text = state.filterBranchCode;
     _filterBranchLocationC.text = state.filterBranchLocation;
+    _searchC.text = state.searchText;
 
     String? selectedDirection =
         state.currentSortColumn == "Branch Name"
             ? state.currentSortDirection
             : null;
-
+    final String initialBranchName = _searchC.text;
     final String initialBranchCode = _filterBranchCodeC.text;
     final String initialBranchLocation = _filterBranchLocationC.text;
     final String? initialDirection = selectedDirection;
@@ -136,6 +142,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
+            (_searchC.text.trim() != initialBranchName) ||
             (_filterBranchCodeC.text.trim() != initialBranchCode) ||
             (_filterBranchLocationC.text.trim() != initialBranchLocation) ||
             (selectedDirection != initialDirection);
@@ -144,7 +151,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
       });
     }
 
-    DialogHelper.showCustomFilterBottomSheet(
+    await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter Branch",
       contentWidget: StatefulBuilder(
@@ -160,7 +167,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Sort By Branch Code", style: AppTextStyle.ts14M()),
+                Text("Sort By Branch Name", style: AppTextStyle.ts14M()),
                 verticalSpacing(),
                 Row(
                   children: [
@@ -205,7 +212,12 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
                 ),
 
                 verticalSpacing(height: 20),
-
+                CustomTextField(
+                  title: "Branch Name",
+                  hint: "Enter Branch Name",
+                  textController: _searchC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
                 CustomTextField(
                   title: "Branch Code",
                   hint: "Enter Branch Code",
@@ -231,7 +243,9 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
           filterBranchLocation: "",
           sortColumn: "Created Date",
           sortDirection: "DESC",
+          branchName: '',
         );
+        _searchC.clear();
       },
       onApply: () {
         applied = true;
@@ -241,6 +255,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
           filterBranchLocation: _filterBranchLocationC.text,
           sortColumn: selectedDirection != null ? "Branch Name" : null,
           sortDirection: selectedDirection,
+          branchName: _searchC.text.trim(),
         );
       },
       isApplyEnabled: applyEnabled.value,
@@ -255,158 +270,168 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Branch Master",
-        authorization: _routeAuthorizationModel,
-        onSearchSubmit: (value) {
-          _branchMasterCubit.searchBranch(value, context);
-        },
-        textController: _searchC,
-        searchHintText: "Search  by Branch Name",
-        onAddCallback: () async {
-          await goRouter.pushNamed(AppRoutes.addBranchMaster);
-          if (context.mounted) {
+    return BlocListener<BranchMasterCubit, BranchMasterState>(
+      listener: (context, state) {
+        _filterCount.value = _branchMasterCubit.updateFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "Branch Master",
+          authorization: _routeAuthorizationModel,
+          onSearchSubmit: (value) {
+            _branchMasterCubit.searchBranch(value, context);
+          },
+          filterCountNotifier: _filterCount,
+          textController: _searchC,
+          searchHintText: "Search  by Branch Name",
+          onAddCallback: () async {
+            await goRouter.pushNamed(AppRoutes.addBranchMaster);
+            if (context.mounted) {
+              _branchMasterCubit.searchBranch("", context);
+            }
+          },
+          onExportCallback: (value) {
+            if (_branchMasterCubit.state.totalNumberOfRecord == 0) {
+              showErrorMessage(context, "Error", "No Data Found");
+              return;
+            }
+            _branchMasterCubit.exportExcelPdf(context, value);
+          },
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterBranch(context);
+          },
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            _searchC.clear();
             _branchMasterCubit.searchBranch("", context);
-          }
-        },
-        onExportCallback: (value) {
-          if (_branchMasterCubit.state.totalNumberOfRecord == 0) {
-            showErrorMessage(context, "Error", "No Data Found");
-            return;
-          }
-          _branchMasterCubit.exportExcelPdf(context, value);
-        },
-        isFilterOn: true,
-        onFilterTap: () {
-          _showBottomSheetToFilterBranch(context);
-        },
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _searchC.clear();
-          _branchMasterCubit.searchBranch("", context);
-        },
-        child: BlocBuilder<BranchMasterCubit, BranchMasterState>(
-          builder: (context, state) {
-            if ((state.isLoading ?? true) && state.branchList.isEmpty) {
-              return Center(child: loader());
-            }
-            if (state.branchList.isEmpty) {
-              return ListView(
-                physics: AlwaysScrollableScrollPhysics(),
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    child: Center(
-                      child: noDataWidget(message: "No Branch Data Found"),
+          },
+          child: BlocBuilder<BranchMasterCubit, BranchMasterState>(
+            builder: (context, state) {
+              if ((state.isLoading ?? true) && state.branchList.isEmpty) {
+                return Center(child: loader());
+              }
+              if (state.branchList.isEmpty) {
+                return ListView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height,
+                      child: Center(
+                        child: noDataWidget(message: "No Branch Data Found"),
+                      ),
                     ),
-                  ),
-                ],
-              );
-            }
-            return ListView.builder(
-              controller: scrollController,
-              physics: AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              itemCount: state.branchList.length + 1,
-              itemBuilder: (context, index) {
-                if (index == state.branchList.length) {
-                  return state.branchList.length < state.totalNumberOfRecord
-                      ? const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                      : const SizedBox.shrink();
-                }
-                var branch = state.branchList[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(12),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: GestureDetector(
-                              onTap: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.viewBranchMaster,
-                                  queryParameters: {
-                                    "branchMaster": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(branch.toJson()),
-                                      ),
-                                    ),
-                                  },
-                                );
-                              },
-                              child: Text(
-                                branch.branchName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Row(
-                            spacing: 10,
-                            children: [
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addBranchMaster,
+                  ],
+                );
+              }
+              return ListView.builder(
+                controller: scrollController,
+                physics: AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                itemCount: state.branchList.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == state.branchList.length) {
+                    return state.branchList.length < state.totalNumberOfRecord
+                        ? const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : const SizedBox.shrink();
+                  }
+                  var branch = state.branchList[index];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(12),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () {
+                                  goRouter.pushNamed(
+                                    AppRoutes.viewBranchMaster,
                                     queryParameters: {
                                       "branchMaster": Uri.encodeQueryComponent(
                                         EncryptionManager.encryptData(
                                           jsonEncode(branch.toJson()),
                                         ),
                                       ),
-                                      'index': index.toString(),
                                     },
                                   );
                                 },
+                                child: Text(
+                                  branch.branchName,
+                                  style: AppTextStyle.ts16M(
+                                    color: AppColor.primary,
+                                  ).copyWith(
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColor.primary,
+                                  ),
+                                ),
                               ),
-                              CustomIconButton.delete(
-                                isDisabled: branch.numberOfEmployee != 0,
-                                onPressed: () {
-                                  _showPopupToDeleteAssetMappingMaster(
-                                    context,
-                                    branch,
-                                    state.currentPage,
-                                    index,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      verticalSpacing(height: 8),
-                      buildRowTitleValue(
-                        title: "Branch Code",
-                        value: branch.branchCode,
-                      ),
-                      buildRowTitleValue(
-                        title: "Location",
-                        value: branch.location,
-                      ),
-                      buildRowTitleValue(
-                        title: "Employee Count",
-                        value: branch.numberOfEmployee.toString(),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
+                            ),
+                            Row(
+                              spacing: 10,
+                              children: [
+                                CustomIconButton.edit(
+                                  onPressed: () async {
+                                    await goRouter.pushNamed(
+                                      AppRoutes.addBranchMaster,
+                                      queryParameters: {
+                                        "branchMaster":
+                                            Uri.encodeQueryComponent(
+                                              EncryptionManager.encryptData(
+                                                jsonEncode(branch.toJson()),
+                                              ),
+                                            ),
+                                        'index': index.toString(),
+                                      },
+                                    );
+                                  },
+                                ),
+                                CustomIconButton.delete(
+                                  isDisabled: branch.numberOfEmployee != 0,
+                                  onPressed: () {
+                                    _showPopupToDeleteAssetMappingMaster(
+                                      context,
+                                      branch,
+                                      state.currentPage,
+                                      index,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(height: 8),
+                        buildRowTitleValue(
+                          title: "Branch Code",
+                          value: branch.branchCode,
+                        ),
+                        buildRowTitleValue(
+                          title: "Location",
+                          value: branch.location,
+                        ),
+                        buildRowTitleValue(
+                          title: "Employee Count",
+                          value: branch.numberOfEmployee.toString(),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );

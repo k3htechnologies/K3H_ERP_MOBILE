@@ -66,10 +66,10 @@ final class PerformanceState extends BaseState {
       performanceReportClosingModel:
           performanceReportClosingModel ?? this.performanceReportClosingModel,
       closingTotalNumberOfRecordPerformanceReport:
-      closingTotalNumberOfRecordPerformanceReport ??
+          closingTotalNumberOfRecordPerformanceReport ??
           this.closingTotalNumberOfRecordPerformanceReport,
       closingCurrentPagePerformanceReport:
-      closingCurrentPagePerformanceReport ??
+          closingCurrentPagePerformanceReport ??
           this.closingCurrentPagePerformanceReport,
       performanceReportSourcingModel:
           performanceReportSourcingModel ?? this.performanceReportSourcingModel,
@@ -77,11 +77,13 @@ final class PerformanceState extends BaseState {
           sourcingTotalNumberOfRecordPerformanceReport ??
           this.sourcingTotalNumberOfRecordPerformanceReport,
       sourcingCurrentPagePerformanceReport:
-      sourcingCurrentPagePerformanceReport ??
+          sourcingCurrentPagePerformanceReport ??
           this.sourcingCurrentPagePerformanceReport,
       currentTabIndexFirst: currentTabIndexFirst ?? this.currentTabIndexFirst,
-      currentTabIndexSecond: currentTabIndexSecond ?? this.currentTabIndexSecond,
-      currentTabIndexForView: currentTabIndexForView ?? this.currentTabIndexForView,
+      currentTabIndexSecond:
+          currentTabIndexSecond ?? this.currentTabIndexSecond,
+      currentTabIndexForView:
+          currentTabIndexForView ?? this.currentTabIndexForView,
       searchText: searchText ?? this.searchText,
       filterStartDate:
           filterStartDate == _noChange

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/achivement_drill_down_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/project_achievement_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/sourcing_achievement_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/repository/achievement_report.repository.dart';
@@ -8,10 +9,10 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import '../../../../../../di/app_dependencies.dart';
 import '../../../../../../utils/common_function.dart';
 import '../../data/model/closing_achievement_report.model.dart';
-import 'achievement.state.dart';
+import 'achievement_report_state.dart';
 
-class AchievementCubit extends Cubit<AchievementState> {
-  AchievementCubit() : super(AchievementState.initial());
+class AchievementReportCubit extends Cubit<AchievementState> {
+  AchievementReportCubit() : super(AchievementState.initial());
   final AchievementReportRepository _achievementRepository =
       serviceLocator<AchievementReportRepository>();
 
@@ -378,12 +379,14 @@ class AchievementCubit extends Cubit<AchievementState> {
 
   Future applyAchievementFilterAndSort({
     required BuildContext context,
+    required String searchText,
     String? sortColumn,
     String? sortDirection,
     required int activeSecondaryTabIndex,
   }) async {
     emit(
       state.copyWith(
+        searchText: searchText,
         currentSortColumn: sortColumn ?? '',
         currentSortDirection: sortDirection ?? '',
         currentProjectAchievementReportPageNumber: 1,
@@ -421,6 +424,7 @@ class AchievementCubit extends Cubit<AchievementState> {
 
   Future applyManagerAchievementFilterAndSort({
     required BuildContext context,
+    required String employeeName,
     String? sortColumn,
     String? sortDirection,
     required int activeSecondaryTabIndex,
@@ -431,6 +435,7 @@ class AchievementCubit extends Cubit<AchievementState> {
   }) async {
     emit(
       state.copyWith(
+        managerSearchText: employeeName,
         managerCurrentSortColumn: sortColumn ?? '',
         managerCurrentSortDirection: sortDirection ?? '',
         managerClosingAchievementReportPageNumber: 1,
@@ -726,5 +731,134 @@ class AchievementCubit extends Cubit<AchievementState> {
         );
       },
     );
+  }
+
+  Future updateAchievementDrillDownType({
+    required AchievementDrillDownType drillDownType,
+  }) async {
+    emit(
+      state.copyWith(
+        achievementDrillDownReportList: [],
+        achievementDrillDownTotalNumberOfRecord: 0,
+        currentAchievementDrillDownReportPageNumber: 1,
+        drillDownType: drillDownType,
+      ),
+    );
+  }
+
+  Future<void> getAchievementDrillDownReportList({
+    required BuildContext context,
+    required int pageNumber,
+    int? projectId,
+    int? employeeId,
+    required String tabName,
+    required String columnName,
+    required String filterType,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+    var queryParams = {"ProjectId": projectId, "EmployeeId": employeeId};
+    var result = await _achievementRepository.getAchievementDrillDownReport(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      tabName: tabName.toUpperCase(),
+      columnName: columnName,
+      filterType: filterType,
+      achivementDrillDownType: state.drillDownType,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final newData = List<AchievementDrillDownReportModel>.from(
+          response['data'] ?? [],
+        );
+
+        final updatedList =
+            pageNumber == 1
+                ? newData
+                : [...state.achievementDrillDownReportList, ...newData];
+
+        emit(
+          state.copyWith(
+            achievementDrillDownReportList: updatedList,
+            achievementDrillDownTotalNumberOfRecord:
+                response['totalNumberOfRecord'],
+            currentAchievementDrillDownReportPageNumber: pageNumber,
+            isLoading: false,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> exportAchievementDrillDownExcelPdf(
+    BuildContext context,
+    String exportType, {
+    int? projectId,
+    int? employeeId,
+    required String tabName,
+    required String columnName,
+    required String filterType,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    var result = await _achievementRepository
+        .getAchievementDrillDownReportForExport(
+          pageNumber: 1,
+          pageSize: state.achievementDrillDownTotalNumberOfRecord,
+          tabName: tabName,
+          columnName: columnName,
+          filterType: filterType,
+          queryParams: {
+            "ExportType": exportType,
+            "ProjectId": projectId,
+            "EmployeeId": employeeId,
+          },
+        );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "${toTitleCase(columnName)} ${DateTime.now()}.pdf"
+              : "${toTitleCase(columnName)} ${DateTime.now()}.xlsx",
+        );
+      },
+    );
+  }
+
+  int updateFilterCount(AchievementState state) {
+    final hasSort =
+        (state.currentSortColumn == "Project Name" ||
+            state.currentSortColumn == "Employee Name") &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([state.searchText.trim().isNotEmpty, hasSort]);
+  }
+
+  int updateManagerFilterCount(AchievementState state) {
+    final hasSort =
+        (state.managerCurrentSortColumn == "Employee Name") &&
+        (state.managerCurrentSortDirection == "ASC" ||
+            state.managerCurrentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.managerSearchText.trim().isNotEmpty,
+      hasSort,
+    ]);
   }
 }

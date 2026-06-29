@@ -376,20 +376,36 @@ class WeekOffMappingMasterCubit extends Cubit<WeekOffMappingMasterState> {
 
   void applyFilterAndSort({
     required BuildContext context,
+    required String filterWeekOffPolicyName,
     String? filterDepartmentName,
     String? filterEmployeeName,
     String? sortColumn,
     String? sortDirection,
   }) {
     final newState = state.copyWith(
+      searchText: filterWeekOffPolicyName,
       filterDepartmentName: filterDepartmentName ?? "",
       filterEmployeeName: filterEmployeeName ?? "",
       currentSortColumn: sortColumn ?? state.currentSortColumn,
       currentSortDirection: sortDirection ?? state.currentSortDirection,
       currentPage: 1,
+      weekOffMappingList: [],
     );
 
     emit(newState);
     getWeekOffMappingList(context: context, pageNumber: 1);
+  }
+
+  int updateFilterCount(WeekOffMappingMasterState state) {
+    final hasSort =
+        state.currentSortColumn == "Week Off Policy Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterDepartmentName.trim().isNotEmpty,
+      state.filterEmployeeName.trim().isNotEmpty,
+      hasSort,
+    ]);
   }
 }

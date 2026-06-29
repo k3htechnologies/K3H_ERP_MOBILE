@@ -94,7 +94,12 @@ class PerformanceCubit extends Cubit<PerformanceState> {
           start = currentMonday.add(const Duration(days: 1));
           end = currentMonday.add(const Duration(days: 7));
         }
-
+        emit(
+          state.copyWith(
+            filterStartDate: DateTime(start.year, start.month, start.day),
+            filterEndDate: DateTime(end.year, end.month, end.day),
+          ),
+        );
         return {
           "from": DateTime(start.year, start.month, start.day),
           "to": DateTime(end.year, end.month, end.day),
@@ -104,6 +109,12 @@ class PerformanceCubit extends Cubit<PerformanceState> {
         final start = DateTime(now.year, now.month, 1);
 
         final end = DateTime(now.year, now.month + 1, 0);
+        emit(
+          state.copyWith(
+            filterStartDate: DateTime(start.year, start.month, start.day),
+            filterEndDate: DateTime(end.year, end.month, end.day),
+          ),
+        );
 
         return {"from": start, "to": DateTime(end.year, end.month, end.day)};
 
@@ -111,6 +122,12 @@ class PerformanceCubit extends Cubit<PerformanceState> {
         final start = DateTime(now.year, 1, 1);
 
         final end = DateTime(now.year, now.month, now.day);
+        emit(
+          state.copyWith(
+            filterStartDate: DateTime(start.year, start.month, start.day),
+            filterEndDate: DateTime(end.year, end.month, end.day),
+          ),
+        );
 
         return {"from": start, "to": end};
 
@@ -124,6 +141,7 @@ class PerformanceCubit extends Cubit<PerformanceState> {
     required int projectId,
     required String reportType,
     required String periodType,
+    required String employeeName,
     DateTime? filterFromDate,
     DateTime? filterToDate,
   }) async {
@@ -131,6 +149,7 @@ class PerformanceCubit extends Cubit<PerformanceState> {
       state.copyWith(
         filterStartDate: filterFromDate,
         filterEndDate: filterToDate,
+        searchText: employeeName,
         performanceReportClosingModel: [],
         performanceReportSourcingModel: [],
         closingCurrentPagePerformanceReport: 1,
@@ -264,6 +283,7 @@ class PerformanceCubit extends Cubit<PerformanceState> {
       final auto = getAutoDateRange(periodType);
       fromDate = auto["from"];
       toDate = auto["to"];
+      // emit(state.co)
     }
 
     queryParams["FromDate"] = DateFormat('yyyy-MM-dd').format(fromDate!);
@@ -360,5 +380,13 @@ class PerformanceCubit extends Cubit<PerformanceState> {
         );
       },
     );
+  }
+
+  int updateFilterCount(PerformanceState state) {
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterStartDate != null,
+      state.filterEndDate != null,
+    ]);
   }
 }

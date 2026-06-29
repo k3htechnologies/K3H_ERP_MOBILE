@@ -42,12 +42,9 @@ class LeaveCubit extends Cubit<LeaveState> {
                 ? _statusTabs[state.currentTabIndex]
                 : "");
     final Map<String, dynamic> queryParams = {
-      if (state.leaveTypeList.isNotEmpty) "LeaveType": state.searchText,
+      "LeaveType": state.searchText,
       if (status.isNotEmpty) "Status": status,
     };
-    if (state.filterLeaveType != null && state.filterLeaveType!.isNotEmpty) {
-      queryParams["LeaveType"] = state.filterLeaveType!;
-    }
     if (state.filterStartDate != null) {
       queryParams["StartDate"] = DateFormat(
         'yyyy-MM-dd',
@@ -278,6 +275,9 @@ class LeaveCubit extends Cubit<LeaveState> {
     emit(
       state.copyWith(
         currentTabIndex: index,
+        filterEndDate: null,
+        filterStartDate: null,
+        searchText: '',
         leaveList: [],
         currentPage: 1,
         totalNumberOfRecord: 0,
@@ -299,7 +299,7 @@ class LeaveCubit extends Cubit<LeaveState> {
   }) {
     emit(
       state.copyWith(
-        filterLeaveType: leaveType,
+        searchText: leaveType ?? "",
         filterStartDate: startDate,
         filterEndDate: endDate,
         leaveList: [],
@@ -354,5 +354,12 @@ class LeaveCubit extends Cubit<LeaveState> {
         };
       },
     );
+  }
+
+  int updateFilterCount(LeaveState state) {
+    return getActiveFilterCount([
+      state.searchText.isNotEmpty,
+      (state.filterStartDate != null && state.filterEndDate != null),
+    ]);
   }
 }

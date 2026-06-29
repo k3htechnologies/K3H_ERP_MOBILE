@@ -26,7 +26,7 @@ dependencies:
   # HANDLING RESPONSE
   fpdart: ^1.1.1
   # Responsive Builder
-  responsive_builder: ^0.7.0
+  # responsive_builder: ^0.7.0
   # DATE FORMATTER
   intl: ^0.20.2
   # FILE PICKER
@@ -35,7 +35,7 @@ dependencies:
   # NETWORK IMAGES
   cached_network_image: ^3.4.1
   # GESTURE HANDLING IN WEB
-  universal_html: ^2.2.3
+  # universal_html: ^2.2.3
   # PATH PROVIDER
   path_provider: ^2.1.5
   path: ^1.9.1
@@ -46,9 +46,9 @@ dependencies:
   # LOCAL STORAGE
   shared_preferences: ^2.5.3
   # OTP FIELDS
-  pinput: ^5.0.1
+  # pinput: ^5.0.1
   # SWITCH
-  flutter_advanced_switch: ^3.1.0
+  # flutter_advanced_switch: ^3.1.0
   # TO SHOW SVG IMAGES
   flutter_svg: ^2.1.0
   # ENCRYPTION - DECRYPTION
@@ -61,15 +61,15 @@ dependencies:
   # FOR GROUP BY
   collection: ^1.19.1
   # FOR EXCEL DOWNLOAD
-  excel: ^4.0.6
-  file_saver: ^0.2.14
+  # excel: ^4.0.6
+  # file_saver: ^0.2.14
   universal_platform: ^1.1.0
   # INNER BOX SHADOW
   flutter_inset_shadow: ^2.0.3
   # FOR VIEWING PDF ON SCREEN
   pdfrx: ^1.3.5
   # CIRCULAR PROGRESS INDICATOR
-  simple_circular_progress_bar: ^1.0.2
+  # simple_circular_progress_bar: ^1.0.2
   # CUSTOM PAGINATED DROPDOWN
   dropdown_search: ^6.0.2
   # HTML RENDERING
@@ -90,7 +90,7 @@ dependencies:
   geolocator: ^14.0.2
   # GEO CODING
   geocoding: ^4.0.0
-  syncfusion_flutter_sliders: ^32.2.4
+  # syncfusion_flutter_sliders: ^32.2.4
   # FOR GOOGLE/APPLE MAPS
   google_maps_flutter: ^2.14.2
   # TO DRAW A POLYLINE
@@ -120,9 +120,11 @@ dependencies:
 
   flutter_background_service: ^5.1.0
   flutter_screenutil: ^5.9.3
-  device_preview: ^1.3.1
+  # device_preview: ^1.3.1
   country_flags: ^4.1.2
   mime: ^2.0.0
+  syncfusion_flutter_datagrid: ^32.2.9
+  syncfusion_flutter_core: ^32.2.9
 
   
 # DEV DEPENDENCIES

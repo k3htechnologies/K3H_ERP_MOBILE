@@ -39,6 +39,7 @@ class CompOffState extends BaseState {
     filterStartDate: null,
     filterEndDate: null,
   );
+  static const _noChange = Object();
 
   CompOffState copyWith({
     bool? isLoading,
@@ -52,9 +53,8 @@ class CompOffState extends BaseState {
     String? reason,
     bool clearWorkedDate = false,
     bool clearCompOffDate = false,
-    DateTime? filterStartDate,
-    DateTime? filterEndDate,
-    bool clearFilters = false,
+    Object? filterStartDate = _noChange,
+    Object? filterEndDate = _noChange,
   }) {
     return CompOffState(
       isLoading: isLoading ?? this.isLoading,
@@ -67,9 +67,13 @@ class CompOffState extends BaseState {
       compOffDate: clearCompOffDate ? null : (compOffDate ?? this.compOffDate),
       reason: reason ?? this.reason,
       filterStartDate:
-          clearFilters ? null : (filterStartDate ?? this.filterStartDate),
+          filterStartDate == _noChange
+              ? this.filterStartDate
+              : filterStartDate as DateTime?,
       filterEndDate:
-          clearFilters ? null : (filterEndDate ?? this.filterEndDate),
+          filterEndDate == _noChange
+              ? this.filterEndDate
+              : filterEndDate as DateTime?,
     );
   }
 

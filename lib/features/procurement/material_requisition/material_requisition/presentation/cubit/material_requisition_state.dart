@@ -12,6 +12,8 @@ final class MaterialRequisitionState extends BaseState {
   final String filterByMaterialRequisitionStatus;
   final DateTime? filterByFromDate;
   final DateTime? filterByToDate;
+  final String currentSortColumn;
+  final String currentSortDirection;
 
   const MaterialRequisitionState({
     super.isLoading,
@@ -26,6 +28,8 @@ final class MaterialRequisitionState extends BaseState {
     required this.filterByMaterialRequisitionStatus,
     required this.filterByFromDate,
     required this.filterByToDate,
+    required this.currentSortColumn,
+    required this.currentSortDirection,
   });
 
   factory MaterialRequisitionState.initial() {
@@ -42,6 +46,8 @@ final class MaterialRequisitionState extends BaseState {
       filterByMaterialRequisitionStatus: "",
       filterByFromDate: null,
       filterByToDate: null,
+      currentSortColumn: '',
+      currentSortDirection: '',
     );
   }
 
@@ -55,6 +61,8 @@ final class MaterialRequisitionState extends BaseState {
     int? currentPage,
     String? searchText,
     MaterialRequisitionModel? materialRequisitionOverview,
+    String? currentSortColumn,
+    String? currentSortDirection,
 
     Object? filterByMaterialRequisitionStage = _noChange,
     Object? filterByMaterialRequisitionStatus = _noChange,
@@ -100,6 +108,8 @@ final class MaterialRequisitionState extends BaseState {
           filterByToDate == _noChange
               ? this.filterByToDate
               : filterByToDate as DateTime?,
+      currentSortColumn: currentSortColumn ?? this.currentSortColumn,
+      currentSortDirection: currentSortDirection ?? this.currentSortDirection,
     );
   }
 
