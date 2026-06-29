@@ -225,12 +225,15 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                       margin: EdgeInsets.only(bottom: 10),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.info_outline,
-                            color: AppColor.error,
-                            size: 14,
+                          Padding(
+                            padding: EdgeInsets.only(top: 2.h),
+                            child: Icon(
+                              Icons.info_outline,
+                              color: AppColor.error,
+                              size: 14,
+                            ),
                           ),
                           horizontalSpacing(width: 5),
                           Expanded(

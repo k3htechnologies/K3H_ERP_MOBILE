@@ -216,7 +216,9 @@ class _AddAssetMappingMasterScreenState
       pageNumber: pageNumber,
       pageSize: 15,
       queryParams:
-          value != null && value.isNotEmpty ? {"AssetName": value,"Status":"Available"} : {"Status":"Available"},
+          value != null && value.isNotEmpty
+              ? {"AssetName": value, "Status": "Available"}
+              : {"Status": "Available"},
     );
 
     return result.fold(
@@ -238,6 +240,7 @@ class _AddAssetMappingMasterScreenState
                   "assetType": asset.assetType,
                   "assetBrand": asset.assetBrand,
                   "serialNumber": asset.serialNumber,
+                  "purchaseDate": asset.purchaseDate,
                 };
               }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
@@ -246,7 +249,7 @@ class _AddAssetMappingMasterScreenState
     );
   }
 
-// SUBMIT FORM
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -258,8 +261,7 @@ class _AddAssetMappingMasterScreenState
     final isInactive = _isInactiveNotifier.value;
 
     final returnDate = isInactive ? _returnDateNotifier.value : null;
-    final conditionOnReturn =
-    isInactive ? _conditionOnReturnC.text.trim() : '';
+    final conditionOnReturn = isInactive ? _conditionOnReturnC.text.trim() : '';
 
     if (selectedEmployee.isEmpty) {
       showErrorMessage(context, 'Error', 'Please select an employee');
@@ -343,9 +345,13 @@ class _AddAssetMappingMasterScreenState
                             CustomMultipleSelectPopup(
                               title: 'Asset',
                               hintText: "Select Asset",
-                              isReadOnly: _isEditMode
-                                  ? !(widget.assetMapping?.isEditAllowedForAssetAndEmployee ?? false)
-                                  : false,
+                              isReadOnly:
+                                  _isEditMode
+                                      ? !(widget
+                                              .assetMapping
+                                              ?.isEditAllowedForAssetAndEmployee ??
+                                          false)
+                                      : false,
                               isRequired: true,
                               isMultiSelect: false,
                               initialValue: selectedAsset,
@@ -435,6 +441,22 @@ class _AddAssetMappingMasterScreenState
                                         ),
                                       ],
                                     ),
+                                    Row(
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Purchase Date",
+                                          value:
+                                              selectedAsset
+                                                          .first["purchaseDate"] !=
+                                                      null
+                                                  ? formatDateTimeAsDDMMMYYYY(
+                                                    selectedAsset
+                                                        .first["purchaseDate"],
+                                                  )
+                                                  : "-",
+                                        ),
+                                      ],
+                                    ),
                                   ],
                                 ),
                               ),
@@ -453,9 +475,13 @@ class _AddAssetMappingMasterScreenState
                             CustomMultipleSelectPopup(
                               title: 'Employee',
                               hintText: "Select Employee",
-                              isReadOnly: _isEditMode
-                                  ? !(widget.assetMapping?.isEditAllowedForAssetAndEmployee ?? false)
-                                  : false,
+                              isReadOnly:
+                                  _isEditMode
+                                      ? !(widget
+                                              .assetMapping
+                                              ?.isEditAllowedForAssetAndEmployee ??
+                                          false)
+                                      : false,
                               isRequired: true,
                               isMultiSelect: false,
                               initialValue: selectedEmployee,
@@ -546,9 +572,20 @@ class _AddAssetMappingMasterScreenState
                                     ),
                                     Row(
                                       children: [
-                                        buildColumnTitleValue(title: "Joining Date", value: selectedEmployee.first["joiningDate"]!=null? formatDateTimeAsDDMMMYYYY(selectedEmployee.first["joiningDate"]):"-")
+                                        buildColumnTitleValue(
+                                          title: "Joining Date",
+                                          value:
+                                              selectedEmployee
+                                                          .first["joiningDate"] !=
+                                                      null
+                                                  ? formatDateTimeAsDDMMMYYYY(
+                                                    selectedEmployee
+                                                        .first["joiningDate"],
+                                                  )
+                                                  : "-",
+                                        ),
                                       ],
-                                    )
+                                    ),
                                   ],
                                 ),
                               ),
@@ -572,6 +609,30 @@ class _AddAssetMappingMasterScreenState
                             if (value == null) {
                               return "Assigned Date is required";
                             }
+                            // CHECK JOINING DATE
+                            if (_selectedEmployeeNotifier.value.isNotEmpty) {
+                              final joiningDate =
+                                  _selectedEmployeeNotifier
+                                      .value
+                                      .first["joiningDate"];
+
+                              if (value.isBefore(joiningDate)) {
+                                return "Assigned Date must be greater than or equal to Joining Date";
+                              }
+                            }
+
+                            // CHECK PURCHASE DATE
+                            if (_selectedAssetNotifier.value.isNotEmpty) {
+                              final purchaseDate =
+                                  _selectedAssetNotifier
+                                      .value
+                                      .first["purchaseDate"];
+
+                              if (value.isBefore(purchaseDate)) {
+                                return "Assigned Date must be greater than or equal to Purchase Date";
+                              }
+                            }
+
                             return null;
                           },
                         );
@@ -619,8 +680,7 @@ class _AddAssetMappingMasterScreenState
                                   CustomCheckBox(
                                     isSelected: isInactive,
                                     onChanged: (value) {
-                                      _isInactiveNotifier.value =
-                                          value;
+                                      _isInactiveNotifier.value = value;
 
                                       if (!(value)) {
                                         _returnDateNotifier.value = null;
@@ -647,7 +707,7 @@ class _AddAssetMappingMasterScreenState
                                   ),
                                   validator: (value) {
                                     if ((value == null ||
-                                        value.trim().isEmpty) &&
+                                            value.trim().isEmpty) &&
                                         isInactive) {
                                       return "Condition on Return is required";
                                     }
