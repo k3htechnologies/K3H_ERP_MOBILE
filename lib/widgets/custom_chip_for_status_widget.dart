@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 
 class StatusConfig {
@@ -61,8 +60,8 @@ Widget commonStatusWidget({
   if (statusConfig == null) {
     return statusChip(
       status,
-      AppColor.lightGreyBackground,
-      AppColor.black,
+      const Color(0x261D1D1D),
+      const Color(0xFF333333),
       textStyle: textStyle ?? defaultStyle,
     );
   }

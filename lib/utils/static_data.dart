@@ -154,13 +154,14 @@ List<Map<String, dynamic>> stageTypeList = const [
   {'zAttributesId': 3, 'DisplayName': 'Re - Visit Proposed'},
   {'zAttributesId': 4, 'DisplayName': 'Re - Visit Scheduled'},
   {'zAttributesId': 5, 'DisplayName': 'Re - Visit'},
-  {'zAttributesId': 6, 'DisplayName': 'Negotiation'},
-  {'zAttributesId': 7, 'DisplayName': 'Unit Selection / Blocked'},
-  {'zAttributesId': 8, 'DisplayName': 'Booking Done'},
-  {'zAttributesId': 9, 'DisplayName': 'Blocked'},
-  {'zAttributesId': 10, 'DisplayName': 'Cancelled'},
-  {'zAttributesId': 11, 'DisplayName': 'Retention'},
-  {'zAttributesId': 12, 'DisplayName': 'Lost'},
+  {'zAttributesId': 6, 'DisplayName': 'Repeat Re - Visit'},
+  {'zAttributesId': 7, 'DisplayName': 'Negotiation'},
+  {'zAttributesId': 8, 'DisplayName': 'Unit Selection / Blocked'},
+  {'zAttributesId': 9, 'DisplayName': 'Booking Done'},
+  {'zAttributesId': 10, 'DisplayName': 'Blocked'},
+  {'zAttributesId': 11, 'DisplayName': 'Cancelled'},
+  {'zAttributesId': 12, 'DisplayName': 'Retention'},
+  {'zAttributesId': 13, 'DisplayName': 'Lost'},
 ];
 
 List<Map<String, dynamic>> finalStageDetailsList = const [

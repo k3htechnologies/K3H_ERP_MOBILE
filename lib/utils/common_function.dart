@@ -799,7 +799,7 @@ String queryParamsFormatter({required Map<String, dynamic>? queryParams}) {
   String url = '';
   queryParams?.forEach((key, value) {
     if (value != null && value.toString().trim().isNotEmpty) {
-      url += "&$key=$value";
+      url += "&$key=${Uri.encodeQueryComponent(value.toString())}";
     }
   });
   return url;

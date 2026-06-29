@@ -1293,6 +1293,8 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       'Site Visit',
       'Re - Visit Proposed',
       'Re - Visit Scheduled',
+      'Re - Visit',
+      'Repeat Re - Visit',
       'Negotiation',
       'Unit Selection / Blocked',
       'Blocked',

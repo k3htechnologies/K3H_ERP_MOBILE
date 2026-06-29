@@ -68,6 +68,11 @@ final Map<String, StatusConfig> enquiryStatusConfig = {
     textColor: Color(0xFF7F1D1D),
   ),
 
+  'repeat re - visit': StatusConfig(
+    backgroundColor: Color(0xFFDBEAFE),
+    textColor: Color(0xFF1D4ED8),
+  ),
+
   'unit selection / blocked': StatusConfig(
     backgroundColor: Color(0xFFFECACA),
     textColor: Color(0xFF7F1D1D),

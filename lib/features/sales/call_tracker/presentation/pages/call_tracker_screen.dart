@@ -981,7 +981,7 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
     );
   }
 
-  Widget _header(CallLogModel callLog) {
+Widget _header(CallLogModel callLog) {
     return InkWell(
       onTap: () => setState(() => isExpanded = !isExpanded),
       child: Column(

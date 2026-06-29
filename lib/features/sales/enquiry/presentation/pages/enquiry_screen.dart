@@ -84,6 +84,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
   void initState() {
     super.initState();
     _enquiryCubit = context.read<EnquiryCubit>();
+    _enquiryCubit.resetState();
     _project = getProject();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.enquiry]!;
@@ -632,7 +633,32 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         _selectedSourceNotifier.value = null;
         _selectedSubSourceNotifier.value = null;
 
-        await clearFilter();
+        _enquiryCubit.applyEnquiryFilterAndSort(
+          context: context,
+          projectId: _project.projectId,
+          filterEnquiryName: "",
+          filterStartDate: null,
+          filterEndDate: null,
+          filterSystemCode: '',
+          filterMobileNumber: '',
+          filterBudget: '',
+          filterRequirementType: '',
+          filterSource: '',
+          filterSubSource: '',
+          filterChannelPartnerMobile: '',
+          filterNationality: '',
+          filterCurrentLocation: '',
+          filterCustomerClassification: '',
+          filterEthnicity: '',
+          filterSalesAdvisor: '',
+          filterSourcingManager: '',
+          filterAccommodation: '',
+          filterFollowUpDays: '',
+          filterFinalStage: '',
+          sortColumn: "",
+          sortDirection: "",
+        );
+
         _searchC.clear();
       },
 
@@ -704,34 +730,6 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     }
   }
 
-  Future<void> clearFilter() async {
-    _enquiryCubit.applyEnquiryFilterAndSort(
-      context: context,
-      projectId: _project.projectId,
-      filterEnquiryName: "",
-      filterStartDate: null,
-      filterEndDate: null,
-      filterSystemCode: '',
-      filterMobileNumber: '',
-      filterBudget: '',
-      filterRequirementType: '',
-      filterSource: '',
-      filterSubSource: '',
-      filterChannelPartnerMobile: '',
-      filterNationality: '',
-      filterCurrentLocation: '',
-      filterCustomerClassification: '',
-      filterEthnicity: '',
-      filterSalesAdvisor: '',
-      filterSourcingManager: '',
-      filterAccommodation: '',
-      filterFollowUpDays: '',
-      filterFinalStage: '',
-      sortColumn: "",
-      sortDirection: "",
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<EnquiryCubit, EnquiryState>(
@@ -765,22 +763,25 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
           },
           onProjectChangeCallback: (value) async {
             _project = value;
-            await clearFilter();
+            await _enquiryCubit.resetState();
             if (context.mounted) {
-              _enquiryCubit.searchEnquiry(context, "", value.projectId);
+              _enquiryCubit.getEnquiryList(context, 1, value.projectId);
             }
           },
           isFilterOn: true,
           onFilterTap: () {
             _showBottomSheetToFilterEnquiry(context);
           },
-          onAddCallback: () {
+          onAddCallback: () async {
             if (_project.projectId == 0) {
               showErrorMessage(context, "Error", "Please select a project");
               return;
             }
 
-            goRouter.pushNamed(AppRoutes.addEnquiry);
+            await goRouter.pushNamed(AppRoutes.addEnquiry);
+            if (context.mounted) {
+              _enquiryCubit.searchEnquiry(context, "", _project.projectId);
+            }
           },
         ),
         body: BlocBuilder<EnquiryCubit, EnquiryState>(
@@ -1036,11 +1037,9 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                                           title: "Stage",
                                           value: enquiry.finalStage,
                                           customValueWidget:
-                                              enquiry.finalStage.isNotEmpty
-                                                  ? enquiryStatusWidget(
-                                                    enquiry.finalStage,
-                                                  )
-                                                  : null,
+                                              enquiryStatusWidget(
+                                                enquiry.finalStage,
+                                              ),
                                         ),
                                       ],
                                     ),

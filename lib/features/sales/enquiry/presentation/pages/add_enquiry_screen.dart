@@ -340,6 +340,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             : null;
 
     // NRI FIELDS
+    _enquiryCubit.onSelectedOptionChanged(model.nationality);
     _countryOfResidenceC.text = model.countryOfResidence;
     _cityOfResidenceC.text = model.cityOfResidence;
 
@@ -689,95 +690,232 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       requirementTypeValue = "";
     }
 
-    final payload = {
-      "EnquiryId": _isEditMode ? widget.enquiryModel!.enquiryId : 0,
-      if (_isEditMode) "Uniquekey": widget.enquiryModel!.uniquekey,
-      "ProjectId": getProject().projectId,
-      "EnquiryTimeIn": _timeInC,
-      "EnquiryTimeOut": _timeOutC,
-      "Name": _nameC.text.trim(),
-      "MobileNumberCountryCode": selectedMobileNoCountry.value.code,
-      "MobileNumber": _mobileC.text.trim(),
-      "EmailId": _emailC.text.trim(),
-      "DateOfBirth": _dateOfBirthNotifier.value?.toIso8601String(),
-      "Accommodation": getDisplayOrEmpty(_selectedAccommodationNotifier.value),
-      "OccupationType": getDisplayOrEmpty(_selectedOccupationType.value),
-      "Source": source,
-      "SubSource": getDisplayOrEmpty(_selectedSubSourceNotifier.value),
-      "SubSubSource": subSubSource,
-      if (_selectedProjectNotifier.value.isNotEmpty &&
-          subSource.toLowerCase().contains('Reference'.toLowerCase()))
-        "ReferralProjectId":
-            _selectedProjectNotifier.value.first["zAttributesId"],
-      if (_selectedProjectNotifier.value.isNotEmpty &&
-          subSource.toLowerCase().contains('Reference'.toLowerCase()))
-        "ReferralInventoryFlatId":
-            _selectedFlatNotifier.value.first["zAttributesId"],
-      if (_selectedProjectNotifier.value.isNotEmpty &&
-          subSource.toLowerCase().contains('Loyalty'.toLowerCase()))
-        "LoyaltyProjectId":
-            _selectedProjectNotifier.value.first["zAttributesId"],
-      if (_selectedFlatNotifier.value.isNotEmpty &&
-          subSource.toLowerCase().contains('Loyalty'.toLowerCase()))
-        "LoyaltyInventoryFlatId":
-            _selectedFlatNotifier.value.first["zAttributesId"],
-      if (_selectedEmployeeNotifier.value.isNotEmpty &&
-          subSource.toLowerCase().contains('Employee Reference'.toLowerCase()))
-        "EmployeeReferenceEmployeeId":
-            _selectedEmployeeNotifier.value.first["zAttributesId"],
-      if (_selectedTeamMemberNotifier.value.isNotEmpty)
-        "ChannelPartnerTeamMemberId":
+    if (_isEditMode) {
+      await _enquiryCubit.updateEnquiry(
+        context: context,
+        index: widget.index,
+        enquiryId: widget.enquiryModel!.enquiryId,
+        uniqueKey: widget.enquiryModel!.uniquekey,
+        projectId: getProject().projectId,
+        enquiryTimeIn: _timeInC,
+        enquiryTimeOut: _timeOutC,
+        name: _nameC.text.trim(),
+        mobileNumberCountryCode: selectedMobileNoCountry.value.code,
+        mobileNumber: _mobileC.text.trim(),
+        emailId: _emailC.text.trim(),
+        dateOfBirth: _dateOfBirthNotifier.value,
+        accommodation: getDisplayOrEmpty(_selectedAccommodationNotifier.value),
+        occupationType: getDisplayOrEmpty(_selectedOccupationType.value),
+        source: source,
+        subSource: getDisplayOrEmpty(_selectedSubSourceNotifier.value),
+        subSubSource: subSubSource,
+
+        referralProjectId:
+            _selectedProjectNotifier.value.isNotEmpty &&
+                    subSource.toLowerCase().contains('reference')
+                ? _selectedProjectNotifier.value.first["zAttributesId"]
+                : null,
+
+        referralInventoryFlatId:
+            _selectedFlatNotifier.value.isNotEmpty &&
+                    subSource.toLowerCase().contains('reference')
+                ? _selectedFlatNotifier.value.first["zAttributesId"]
+                : null,
+
+        loyaltyProjectId:
+            _selectedProjectNotifier.value.isNotEmpty &&
+                    subSource.toLowerCase().contains('loyalty')
+                ? _selectedProjectNotifier.value.first["zAttributesId"]
+                : null,
+
+        loyaltyInventoryFlatId:
+            _selectedFlatNotifier.value.isNotEmpty &&
+                    subSource.toLowerCase().contains('loyalty')
+                ? _selectedFlatNotifier.value.first["zAttributesId"]
+                : null,
+
+        employeeReferenceEmployeeId:
+            _selectedEmployeeNotifier.value.isNotEmpty &&
+                    subSource.toLowerCase().contains('employee reference')
+                ? _selectedEmployeeNotifier.value.first["zAttributesId"]
+                : null,
+
+        channelPartnerTeamMemberId:
             _selectedTeamMemberNotifier.value.isNotEmpty
                 ? _selectedTeamMemberNotifier.value.first["zAttributesId"]
-                : 0,
-      if (_selectedTeamMemberNotifier.value.isEmpty)
-        "ChannelPartnerTeamMemberName": _teamMemberNameC.text.trim(),
-      if (_selectedTeamMemberNotifier.value.isEmpty)
-        "ChannelPartnerTeamMemberMobileNumber": _teamMemberMobileC.text.trim(),
-      if (_selectedTeamMemberNotifier.value.isEmpty)
-        "ChannelPartnerTeamMemberMobileNumberCountryCode":
-            selectedTeamMemberMobileNoCountry.value.code,
-      if (_selectedTeamMemberNotifier.value.isEmpty)
-        "ChannelPartnerTeamMemberEmailId": _teamMemberEmailC.text.trim(),
-      "Nationality": _enquiryCubit.state.selectedNationality,
-      "CountryOfResidence": _countryOfResidenceC.text.trim(),
-      "CityOfResidence": _cityOfResidenceC.text.trim(),
-      "CurrentLocation": _locationC.text.trim(),
-      "VillageMasterId": selectedVillages,
-      "PossessionType": getDisplayOrEmpty(_selectedPossessionType.value),
-      "AreaPreferred": double.tryParse(_areaPrefC.text.trim()) ?? 0,
-      "DesiredFloorBand": getDisplayOrEmpty(_selectedFloorBand.value),
-      "Budget": _selectedBudgetInCr.value?["DisplayName"] ?? "",
-      "Requirement": getDisplayOrEmpty(_selectedRequirementNotifier.value),
-      "RequirementType": requirementTypeValue,
-      "CustomerClassification": customerClassification,
-      "SourceOfFunding": getDisplayOrEmpty(_selectedFunding.value),
-      "Ethnicity": getDisplayOrEmpty(_selectedEthnicity.value),
-      "FinalStage": getDisplayOrEmpty(_selectedFinalStage.value),
-      "FinalStageDetail": getDisplayOrEmpty(_selectedFinalStageDetail.value),
-      "EnquiryDate": _enquiryDate?.toIso8601String(),
-      "NextFollowUpDate": _nextFollowUpDate?.toIso8601String(),
-      "SalesAdvisorId":
-          _selectedSaleAdvisorNotifier.value.isNotEmpty
-              ? _selectedSaleAdvisorNotifier.value.first["zAttributesId"]
-              : 0,
-      "SourcingManagerId":
-          _selectedSourcingManager.isNotEmpty
-              ? _selectedSourcingManager.first["zAttributesId"]
-              : 0,
-      "Remark": _remarkC.text.trim(),
-      "Timeline": timeline,
-      "OTP": otpController.text.trim(),
-    };
+                : null,
 
-    //  SUBMIT ENQUIRY AFTER OTP VERIFICATION
-    await _enquiryCubit.addUpdateEnquiry(
-      context: context,
-      body: payload,
-      projectId: _project.projectId,
-      isIndian: selectedMobileNoCountry.value.countryCode == "IN",
-      index: _isEditMode ? widget.index : null,
-    );
+        channelPartnerTeamMemberName: _teamMemberNameC.text.trim(),
+
+        channelPartnerTeamMemberMobileNumber: _teamMemberMobileC.text.trim(),
+
+        channelPartnerTeamMemberMobileNumberCountryCode:
+            selectedTeamMemberMobileNoCountry.value.code,
+
+        channelPartnerTeamMemberEmailId: _teamMemberEmailC.text.trim(),
+
+        nationality: _enquiryCubit.state.selectedNationality,
+
+        countryOfResidence: _countryOfResidenceC.text.trim(),
+
+        cityOfResidence: _cityOfResidenceC.text.trim(),
+
+        currentLocation: _locationC.text.trim(),
+
+        villageMasterId: selectedVillages,
+
+        possessionType: getDisplayOrEmpty(_selectedPossessionType.value),
+
+        areaPreferred: double.tryParse(_areaPrefC.text.trim()) ?? 0,
+
+        desiredFloorBand: getDisplayOrEmpty(_selectedFloorBand.value),
+
+        budget: _selectedBudgetInCr.value?["DisplayName"] ?? "",
+
+        requirement: getDisplayOrEmpty(_selectedRequirementNotifier.value),
+
+        requirementType: requirementTypeValue,
+
+        customerClassification: customerClassification,
+
+        sourceOfFunding: getDisplayOrEmpty(_selectedFunding.value),
+
+        ethnicity: getDisplayOrEmpty(_selectedEthnicity.value),
+
+        finalStage: getDisplayOrEmpty(_selectedFinalStage.value),
+
+        finalStageDetail: getDisplayOrEmpty(_selectedFinalStageDetail.value),
+
+        enquiryDate: _enquiryDate,
+        nextFollowUpDate: _nextFollowUpDate,
+
+        salesAdvisorId:
+            _selectedSaleAdvisorNotifier.value.isNotEmpty
+                ? _selectedSaleAdvisorNotifier.value.first["zAttributesId"]
+                : 0,
+
+        sourcingManagerId:
+            _selectedSourcingManager.isNotEmpty
+                ? _selectedSourcingManager.first["zAttributesId"]
+                : 0,
+
+        remark: _remarkC.text.trim(),
+        timeline: timeline,
+        otp: otpController.text.trim(),
+      );
+    } else {
+      await _enquiryCubit.addEnquiry(
+        context: context,
+        projectId: getProject().projectId,
+        enquiryTimeIn: _timeInC,
+        enquiryTimeOut: _timeOutC,
+        name: _nameC.text.trim(),
+        mobileNumberCountryCode: selectedMobileNoCountry.value.code,
+        mobileNumber: _mobileC.text.trim(),
+        emailId: _emailC.text.trim(),
+        dateOfBirth: _dateOfBirthNotifier.value,
+        accommodation: getDisplayOrEmpty(_selectedAccommodationNotifier.value),
+        occupationType: getDisplayOrEmpty(_selectedOccupationType.value),
+        source: source,
+        subSource: getDisplayOrEmpty(_selectedSubSourceNotifier.value),
+        subSubSource: subSubSource,
+
+        referralProjectId:
+            _selectedProjectNotifier.value.isNotEmpty &&
+                    subSource.toLowerCase().contains('reference')
+                ? _selectedProjectNotifier.value.first["zAttributesId"]
+                : null,
+
+        referralInventoryFlatId:
+            _selectedFlatNotifier.value.isNotEmpty &&
+                    subSource.toLowerCase().contains('reference')
+                ? _selectedFlatNotifier.value.first["zAttributesId"]
+                : null,
+
+        loyaltyProjectId:
+            _selectedProjectNotifier.value.isNotEmpty &&
+                    subSource.toLowerCase().contains('loyalty')
+                ? _selectedProjectNotifier.value.first["zAttributesId"]
+                : null,
+
+        loyaltyInventoryFlatId:
+            _selectedFlatNotifier.value.isNotEmpty &&
+                    subSource.toLowerCase().contains('loyalty')
+                ? _selectedFlatNotifier.value.first["zAttributesId"]
+                : null,
+
+        employeeReferenceEmployeeId:
+            _selectedEmployeeNotifier.value.isNotEmpty &&
+                    subSource.toLowerCase().contains('employee reference')
+                ? _selectedEmployeeNotifier.value.first["zAttributesId"]
+                : null,
+
+        channelPartnerTeamMemberId:
+            _selectedTeamMemberNotifier.value.isNotEmpty
+                ? _selectedTeamMemberNotifier.value.first["zAttributesId"]
+                : null,
+
+        channelPartnerTeamMemberName: _teamMemberNameC.text.trim(),
+
+        channelPartnerTeamMemberMobileNumber: _teamMemberMobileC.text.trim(),
+
+        channelPartnerTeamMemberMobileNumberCountryCode:
+            selectedTeamMemberMobileNoCountry.value.code,
+
+        channelPartnerTeamMemberEmailId: _teamMemberEmailC.text.trim(),
+
+        nationality: _enquiryCubit.state.selectedNationality,
+
+        countryOfResidence: _countryOfResidenceC.text.trim(),
+
+        cityOfResidence: _cityOfResidenceC.text.trim(),
+
+        currentLocation: _locationC.text.trim(),
+
+        villageMasterId: selectedVillages,
+
+        possessionType: getDisplayOrEmpty(_selectedPossessionType.value),
+
+        areaPreferred: double.tryParse(_areaPrefC.text.trim()) ?? 0,
+
+        desiredFloorBand: getDisplayOrEmpty(_selectedFloorBand.value),
+
+        budget: _selectedBudgetInCr.value?["DisplayName"] ?? "",
+
+        requirement: getDisplayOrEmpty(_selectedRequirementNotifier.value),
+
+        requirementType: requirementTypeValue,
+
+        customerClassification: customerClassification,
+
+        sourceOfFunding: getDisplayOrEmpty(_selectedFunding.value),
+
+        ethnicity: getDisplayOrEmpty(_selectedEthnicity.value),
+
+        finalStage: getDisplayOrEmpty(_selectedFinalStage.value),
+
+        finalStageDetail: getDisplayOrEmpty(_selectedFinalStageDetail.value),
+
+        enquiryDate: _enquiryDate,
+        nextFollowUpDate: _nextFollowUpDate,
+
+        salesAdvisorId:
+            _selectedSaleAdvisorNotifier.value.isNotEmpty
+                ? _selectedSaleAdvisorNotifier.value.first["zAttributesId"]
+                : 0,
+
+        sourcingManagerId:
+            _selectedSourcingManager.isNotEmpty
+                ? _selectedSourcingManager.first["zAttributesId"]
+                : 0,
+
+        remark: _remarkC.text.trim(),
+        timeline: timeline,
+        otp: otpController.text.trim(),
+
+        isIndian: selectedMobileNoCountry.value.countryCode == "IN",
+      );
+    }
   }
 
   String getDisplayOrEmpty(Map<String, dynamic>? item) {
@@ -1100,10 +1238,22 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                 isRequired: true,
                 showCountryDropdown: true,
                 selectedCountry: value,
-                onCountryChanged: (country) {
+                onCountryChanged: (country) async {
                   if (country == null) return;
 
                   selectedMobileNoCountry.value = country;
+                  if (_mobileC.text.isNotEmpty &&
+                      country.mobileLength == _mobileC.text.length) {
+                    _isMobileNoAlreadyExist.value =
+                        (await _enquiryCubit.fetchEnquiryByMobileNo(
+                          value: _mobileC.text.trim(),
+                          mobileNumberCountryCode:
+                              selectedMobileNoCountry.value.code,
+                          projectId: _project.projectId,
+                        )).isNotEmpty;
+                  } else {
+                    _isMobileNoAlreadyExist.value = false;
+                  }
                 },
                 onChangeFunction: (value) async {
                   final country = selectedMobileNoCountry.value;
@@ -1112,7 +1262,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                       country.mobileLength == value.length) {
                     _isMobileNoAlreadyExist.value =
                         (await _enquiryCubit.fetchEnquiryByMobileNo(
-                          _mobileC.text.trim(),
+                          value: _mobileC.text.trim(),
+                          mobileNumberCountryCode:
+                              selectedMobileNoCountry.value.code,
                           projectId: _project.projectId,
                         )).isNotEmpty;
                   } else {
