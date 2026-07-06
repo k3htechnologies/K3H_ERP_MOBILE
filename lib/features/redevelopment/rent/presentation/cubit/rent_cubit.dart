@@ -15,9 +15,9 @@ import 'package:k3h_erp_app/features/redevelopment/rent/data/model/payment_ledge
 import 'package:k3h_erp_app/features/redevelopment/rent/data/model/rent.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/data/repository/rent.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 
 part 'rent_state.dart';
 

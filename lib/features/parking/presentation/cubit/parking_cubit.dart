@@ -6,7 +6,7 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/parking/data/repository/parking.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'parking_state.dart';

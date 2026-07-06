@@ -7,7 +7,7 @@ import 'package:k3h_erp_app/features/masters/employee_master/data/repository/emp
 import 'package:k3h_erp_app/features/project_management/approved_bank/data/model/approved_bank_folder.model.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/data/repository/approved_bank.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'approved_bank_folder_state.dart';

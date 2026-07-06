@@ -1,7 +1,7 @@
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 class TenantModel {
   int tenantId;

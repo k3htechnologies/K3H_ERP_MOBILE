@@ -1,5 +1,5 @@
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_closure.model.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 class LitigationModel {
   int litigationId;

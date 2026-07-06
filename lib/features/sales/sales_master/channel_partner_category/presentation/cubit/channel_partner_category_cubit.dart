@@ -7,7 +7,7 @@ import 'package:k3h_erp_app/features/sales/sales_master/channel_partner_category
 import 'package:k3h_erp_app/features/sales/sales_master/channel_partner_category/data/repository/channel_partner_category.repository.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/channel_partner_category/presentation/cubit/channel_partner_category_state.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 class ChannelPartnerCategoryCubit extends Cubit<ChannelPartnerCategoryState> {

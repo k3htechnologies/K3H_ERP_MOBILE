@@ -3,7 +3,7 @@ import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/paid_brokerage_booking.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class BrokerageDatasource {
   Future<Map<String, dynamic>> apicallPullBrokerageBooking({

@@ -5,7 +5,7 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/other_charges/data/model/other_charges.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/other_charges/data/repository/other_charges.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'other_charges_state.dart';

@@ -11,9 +11,9 @@ import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry_followup.m
 import 'package:k3h_erp_app/features/sales/enquiry/data/repository/enquiry.repository.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_state.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 
 class EnquiryCubit extends Cubit<EnquiryState> {
   // INITIAL STATE

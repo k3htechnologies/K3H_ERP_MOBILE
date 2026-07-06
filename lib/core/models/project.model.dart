@@ -1,7 +1,7 @@
 import 'package:k3h_erp_app/core/models/bank_details.model.dart';
 import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 class ProjectModel {
   int projectId;

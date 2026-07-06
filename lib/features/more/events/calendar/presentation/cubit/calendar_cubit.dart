@@ -14,7 +14,7 @@ import 'package:k3h_erp_app/features/more/events/calendar/data/models/calendar_e
 import 'package:k3h_erp_app/features/more/events/calendar/data/repository/calendar.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 part 'calendar_state.dart';
 

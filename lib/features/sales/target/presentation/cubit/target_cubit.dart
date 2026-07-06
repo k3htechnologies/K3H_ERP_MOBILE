@@ -5,7 +5,7 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/target/data/model/sales_target_closing.model.dart';
 import 'package:k3h_erp_app/features/sales/target/data/model/sales_target_sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/target/data/repository/target.repository.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 part 'target_state.dart';
 
 class TargetCubit extends Cubit<TargetState> {

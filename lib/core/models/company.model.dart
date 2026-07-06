@@ -1,5 +1,5 @@
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 class CompanyModel {
   int companyId;

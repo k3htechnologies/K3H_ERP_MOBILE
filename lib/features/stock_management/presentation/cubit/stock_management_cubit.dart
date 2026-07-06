@@ -6,7 +6,7 @@ import 'package:k3h_erp_app/features/stock_management/data/model/stock_managemen
 import 'package:k3h_erp_app/features/stock_management/data/model/stock_management_history.model.dart';
 import 'package:k3h_erp_app/features/stock_management/data/model/stock_management_summary.model.dart';
 import 'package:k3h_erp_app/features/stock_management/data/repository/stock_management.repository.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 part 'stock_management_state.dart';
 

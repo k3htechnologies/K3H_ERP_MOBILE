@@ -2,7 +2,7 @@ import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry_followup.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class EnquiryDatasource {
   Future<Map<String, dynamic>> apiCallPullEnquiry({

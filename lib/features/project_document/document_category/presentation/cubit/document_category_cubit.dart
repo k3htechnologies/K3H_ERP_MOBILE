@@ -5,7 +5,7 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/data/model/document_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/data/repository/document_category.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'document_category_state.dart';

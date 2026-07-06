@@ -9,7 +9,7 @@ import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hear
 import 'package:k3h_erp_app/features/legal/litigation/data/repository/litigation.repository.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigation_state.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 class LitigationCubit extends Cubit<LitigationState> {

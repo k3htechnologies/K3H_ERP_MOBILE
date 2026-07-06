@@ -1,7 +1,7 @@
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/model/terms_and_conditions.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class TermsAndConditionsDatasource {
   Future<Map<String, dynamic>> apicallPullTermsAndConditionsMaster({

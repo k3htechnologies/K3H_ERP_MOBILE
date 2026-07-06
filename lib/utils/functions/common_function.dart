@@ -5,26 +5,21 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
-import 'package:k3h_erp_app/core/models/module.model.dart';
-import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/custom_file_preview_dialogue_content.dart';
 import 'package:k3h_erp_app/widgets/custom_snack_bar.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
-
-import '../core/models/project.model.dart';
+export 'common_date_function.dart';
+export 'common_extension_helpers.dart';
 
 // Function to return width
 double getActualWidth(BuildContext context) {
@@ -110,69 +105,7 @@ T parseValue<T>(Map<String, dynamic> json, String key) {
   }
 }
 
-// FOR ATTENDANCE DATETIME
-DateTime? parseApiDate(String? value) {
-  if (value == null || value.isEmpty) return null;
-
-  final dt = DateTime.parse(value);
-  return DateTime(
-    dt.year,
-    dt.month,
-    dt.day,
-    dt.hour,
-    dt.minute,
-    dt.second,
-    dt.millisecond,
-  );
-}
-
-// <---- UPDATE ROUTE AUTHORIZATION
-Future<void> updateRouteAuthorization(List<ModuleModel> moduleData) async {
-  // UPDATE THE MAP IN ISOLATE
-  final updatedRouteMap = await compute(
-    _processRouteAuthorizationModules,
-    moduleData,
-  );
-
-  final defaultMap = Authorization.routeAuthorizationMap;
-
-  Authorization.routeAuthorizationMap = {...defaultMap, ...updatedRouteMap};
-}
-
-Map<String, AuthorizationModel> _processRouteAuthorizationModules(
-  List<ModuleModel> modules,
-) {
-  final updatedMap = <String, AuthorizationModel>{};
-
-  for (var module in modules) {
-    for (var subModule in module.subModuleData) {
-      updatedMap[subModule.path] = AuthorizationModel(
-        isAccess: true,
-        isAction: subModule.isAction,
-        isExport: subModule.isExport,
-        isView: subModule.isView,
-      );
-      if (subModule.subSubModuleData.isNotEmpty) {
-        for (var subSubModule in subModule.subSubModuleData) {
-          updatedMap[subSubModule.path] = AuthorizationModel(
-            isAccess:
-                subSubModule.isAction ||
-                subSubModule.isExport ||
-                subSubModule.isView,
-            isAction: subSubModule.isAction,
-            isExport: subSubModule.isExport,
-            isView: subSubModule.isView,
-          );
-        }
-      }
-    }
-  }
-
-  return updatedMap;
-}
-
-// <---- LOCATION PERMISSION
-
+// LOCATION PERMISSION
 Future<void> handleLocationPermission() async {
   bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
@@ -254,103 +187,6 @@ Future showErrorMessage(
 bool isValidMobileNumber(String value) {
   final RegExp regex = RegExp(r'^[6-9]\d{9}$');
   return regex.hasMatch(value);
-}
-
-// DATE FORMATTERS (MOSTLY USED)
-String formatDateTimeAsDDMMMYYYY(DateTime? date, {String? separator}) {
-  if (date == null) return "-";
-
-  if (date.year == 1970) return "-";
-
-  return DateFormat(
-    'dd${separator ?? '-'}MMM${separator ?? '-'}yyyy',
-  ).format(date);
-}
-
-// DATE FORMATTERS
-String formatDate(DateTime? date) {
-  if (date == null) return "";
-  if (date.year == 1970) return "-";
-  return DateFormat("dd MMM yyyy, hh:mm a").format(date);
-}
-
-// TIME FORMATTERS
-String formatTime(DateTime? date) {
-  if (date == null) return "";
-  return DateFormat("hh:mma").format(date);
-}
-
-/// Converts API time string (HH:mm:ss or HH:mm) to 12-hour format (h:mm am/pm).
-///
-/// Examples:
-/// "10:31:32" -> "10:31 am"
-/// "18:05:00" -> "6:05 pm"
-/// "09:00:00" -> "9:00 am"
-///
-/// Handles:
-/// - null
-/// - empty string
-/// - invalid formats
-/// - API returning "{}" or unexpected values
-String formatApiTimeToAmPm(String? timeString) {
-  // 🔒 Null / empty safety (common in your API)
-  if (timeString == null || timeString.isEmpty || timeString == "{}") {
-    return "-";
-  }
-
-  try {
-    // Split API time: "HH:mm:ss"
-    final parts = timeString.split(':');
-
-    if (parts.length < 2) return "-";
-
-    final hour = int.tryParse(parts[0]) ?? 0;
-    final minute = int.tryParse(parts[1]) ?? 0;
-
-    // Create DateTime using today's date + API time
-    final now = DateTime.now();
-    final dateTime = DateTime(now.year, now.month, now.day, hour, minute);
-
-    // Format to: 9:12 am (NO leading zero on hour)
-    return DateFormat('h:mm a').format(dateTime).toLowerCase();
-  } catch (e) {
-    // 🛡 Prevent UI crash if backend sends invalid value
-    return "-";
-  }
-}
-
-/// Converts decimal hours (double/int/num) from API into readable duration.
-///
-/// Examples:
-/// 0.183333  -> "11m"
-/// 1.5       -> "1h 30m"
-/// 4.366666  -> "4h 22m"
-/// 8.0       -> "8h"
-/// 0         -> "0h"
-///
-/// Safe for mixed API types (int, double, null).
-String formatDecimalHours(num? hours) {
-  // Null or invalid safety (ERP APIs often send null/0)
-  if (hours == null) return "-";
-
-  // Convert hours to total minutes
-  final totalMinutes = (hours * 60).round();
-
-  final h = totalMinutes ~/ 60;
-  final m = totalMinutes % 60;
-
-  // Only minutes (e.g. 0.18 hrs)
-  if (h == 0 && m > 0) {
-    return "${m}m";
-  }
-
-  // Only hours (e.g. 8.0 hrs)
-  if (m == 0) {
-    return "${h}h";
-  }
-
-  // Hours + minutes (e.g. 4.36 hrs)
-  return "${h}h ${m}m";
 }
 
 /// Converts API working hours string (H:mm or HH:mm) into Duration.
@@ -447,7 +283,6 @@ void showFilePreviewDialog(
 }
 
 // <--- COMMON STYLE --->
-
 BoxDecoration commonCardDecoration() => BoxDecoration(
   color: AppColor.white,
   borderRadius: BorderRadius.circular(8),
@@ -472,169 +307,6 @@ BoxDecoration commonCardDecoration() => BoxDecoration(
     ),
   ],
 );
-
-// TimeOfDay -> "HH:mm"
-String formatTimeOfDayHHmm(TimeOfDay? time) {
-  if (time == null) return "HH:mm";
-
-  return '${time.hour.toString().padLeft(2, '0')}:'
-      '${time.minute.toString().padLeft(2, '0')}';
-}
-
-// "HH:mm" -> TimeOfDay
-TimeOfDay? parseTimeOfDayFromHHmm(String? value) {
-  if (value == null || value.isEmpty) return null;
-
-  try {
-    final parts = value.split(':');
-
-    if (parts.length < 2) return null;
-
-    final hour = int.parse(parts[0]);
-    final minute = int.parse(parts[1]);
-
-    return TimeOfDay(hour: hour, minute: minute);
-  } catch (_) {
-    return null;
-  }
-}
-
-int convertHHmmToMinutes(String? value) {
-  if (value == null || value.isEmpty) return 0;
-
-  final parts = value.split(':');
-  if (parts.length < 2) return 0;
-
-  final hours = int.tryParse(parts[0]) ?? 0;
-  final minutes = int.tryParse(parts[1]) ?? 0;
-
-  return (hours * 60) + minutes;
-}
-
-String normalizeTime(String? time) {
-  if (time == null || time.isEmpty) return "";
-  return time.split(':').take(2).join(':');
-}
-
-int toMinutes(String? time) {
-  final t = parseTimeOfDayFromHHmm(time);
-  if (t == null) return 0;
-  return t.hour * 60 + t.minute;
-}
-
-String toHHmm(int minutes) {
-  final h = minutes ~/ 60;
-  final m = minutes % 60;
-  return "${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}";
-}
-
-int getDiffInMinutes(String? start, String? end) {
-  if (start == null || end == null) return 0;
-
-  int startMin = toMinutes(start);
-  int endMin = toMinutes(end);
-
-  int diff = endMin - startMin;
-  if (diff < 0) diff += 24 * 60;
-
-  return diff;
-}
-
-String dateFormatterDDMMYYYYDAY(
-  DateTime date, {
-  bool isDayNotRequired = false,
-}) {
-  try {
-    if (isDayNotRequired) {
-      return DateFormat('dd MMMM yyyy').format(date);
-    }
-    return DateFormat('dd MMMM yyyy, EEEE').format(date);
-  } catch (_) {
-    return '';
-  }
-}
-
-String formatDateToDayMonthOnly(DateTime? date) {
-  if (date == null) return '';
-
-  return DateFormat('dd MMM').format(date);
-}
-
-String dateFormatterHhMmAm(DateTime dateTime) {
-  return DateFormat('hh:mma').format(dateTime).toLowerCase();
-}
-
-String formatDateTimeForApi(DateTime d) {
-  return DateFormat('yyyy-MM-dd').format(d);
-}
-
-/// Formats a time string (HH:mm:ss or HH:mm) into only hours with AM/PM.
-///
-/// Example:
-/// "18:00:00" -> "06 pm"
-/// "09:30:00" -> "09 am"
-/// "10:31:32" -> "10 am"
-///
-/// This is API-safe because backend sometimes sends:
-/// - "18:00:00"
-/// - "09:00:00"
-/// - null
-/// - empty string
-///
-/// It prevents crashes and avoids showing "12 am" incorrectly.
-String dateFormatterHourOnly(String? timeString) {
-  if (timeString == null || timeString.isEmpty || timeString == "{}") {
-    return "-";
-  }
-
-  try {
-    final parts = timeString.split(':');
-
-    final hour = int.tryParse(parts[0]) ?? 0;
-    final minute = parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0;
-
-    final now = DateTime.now();
-
-    final dateTime = DateTime(now.year, now.month, now.day, hour, minute);
-
-    return DateFormat('h:mm a').format(dateTime).toLowerCase();
-  } catch (_) {
-    return "-";
-  }
-}
-
-String formatDateToDayMonth(DateTime dt) {
-  Map<int, String> weekMap = {
-    1: "Mon",
-    2: "Tue",
-    3: "Wed",
-    4: "Thu",
-    5: "Fri",
-    6: "Sat",
-    7: "Sun",
-  };
-  Map<int, String> monthMap = {
-    1: "Jan",
-    2: "Feb",
-    3: "Mar",
-    4: "Apr",
-    5: "May",
-    6: "Jun",
-    7: "Jul",
-    8: "Aug",
-    9: "Sep",
-    10: "Oct",
-    11: "Nov",
-    12: "Dec",
-  };
-  String ans = "";
-  ans += weekMap[dt.weekday]!;
-  ans += ", ";
-  ans += dt.day.toString().padLeft(2, "0");
-  ans += " ";
-  ans += monthMap[dt.month]!;
-  return ans;
-}
 
 // FOR AGE CALCULATION
 String calculateAge(DateTime? dateOfBirth) {
@@ -745,13 +417,6 @@ void copy({required BuildContext context, required String text}) async {
   }
 }
 
-UserModel getCurrentUser() {
-  var userJson = jsonDecode(
-    LocalStorageManager().getString(StorageKey.currentUser) ?? "",
-  );
-  return UserModel.fromJson(userJson);
-}
-
 // HELPER: Find item in list by DisplayName
 Map<String, dynamic>? findItem(List<Map<String, dynamic>> list, String value) {
   if (value.isEmpty) {
@@ -765,36 +430,6 @@ Map<String, dynamic>? findItem(List<Map<String, dynamic>> list, String value) {
   );
 }
 
-extension MaterialItemExtension on MaterialRequisitionQuotationDatum {
-  double get amountValue {
-    if (amount > 0) return amount;
-    return materialQuantity * materialPerUnit;
-  }
-
-  double get taxPercent => cgst + sgst + ugst + tgst;
-
-  double get taxAmount => amountValue * taxPercent / 100;
-
-  double get grandTotal => amountValue + taxAmount;
-}
-
-extension FinalizeVendorExtension on FinalizeVendorForComparisonModel {
-  List<MaterialRequisitionQuotationDatum> get allItems =>
-      materialRequisitionQuotationTermsData
-          .expand((t) => t.materialRequisitionQuotationData)
-          .toList();
-
-  double get baseTotal => allItems.fold(0.0, (sum, e) => sum + e.amountValue);
-
-  double get taxTotal => allItems.fold(0.0, (sum, e) => sum + e.taxAmount);
-
-  double get grandTotal => allItems.fold(0.0, (sum, e) => sum + e.grandTotal);
-
-  double get paid => paidAmount ?? 0;
-
-  double get pendingAmount => grandTotal - paid;
-}
-
 String queryParamsFormatter({required Map<String, dynamic>? queryParams}) {
   String url = '';
   queryParams?.forEach((key, value) {
@@ -803,98 +438,6 @@ String queryParamsFormatter({required Map<String, dynamic>? queryParams}) {
     }
   });
   return url;
-}
-
-Future<void> loadAndSelectProjectById(int projectId) async {
-  // GET PROJECT LIST FROM LOCAL STORAGE
-  final projectsJson = LocalStorageManager().getString(StorageKey.projectList);
-
-  if (projectsJson == null || projectsJson.isEmpty) {
-    return;
-  }
-
-  // DECODE JSON TO LIST OF PROJECTS
-  final List<dynamic> decodedList = jsonDecode(projectsJson);
-
-  final List<ProjectModel> projects =
-      decodedList.map((e) => ProjectModel.fromJson(e)).toList();
-
-  // FIND THE PROJECT WITH THE GIVEN ID
-  final ProjectModel? selectedProject = projects
-      .cast<ProjectModel?>()
-      .firstWhere(
-        (project) => project?.projectId == projectId,
-        orElse: () => null,
-      );
-
-  // IF FOUND, SAVE TO LOCAL STORAGE AS SELECTED PROJECT
-  if (selectedProject != null) {
-    LocalStorageManager().setString(
-      StorageKey.selectedProject,
-      jsonEncode(selectedProject.toJson()),
-    );
-  }
-}
-
-List<Map<String, dynamic>> get projectList {
-  final projectsJson = LocalStorageManager().getString(StorageKey.projectList);
-
-  if (projectsJson == null || projectsJson.isEmpty) {
-    return [];
-  }
-
-  final List<dynamic> decodedList = jsonDecode(projectsJson);
-
-  return decodedList.map<Map<String, dynamic>>((e) {
-    final project = ProjectModel.fromJson(e);
-
-    return {
-      "zAttributesId": project.projectId,
-      "DisplayName": project.projectName,
-    };
-  }).toList();
-}
-
-extension IndianCurrencyExtension on num {
-  String toIndianCurrency() {
-    return '₹ ${_format()}';
-  }
-
-  String addCommas() {
-    return _format();
-  }
-
-  String _format() {
-    bool hasDecimal = this % 1 != 0;
-
-    String numberStr = hasDecimal ? toStringAsFixed(2) : toInt().toString();
-
-    List<String> parts = numberStr.split('.');
-
-    String integerPart = parts[0];
-    String decimalPart = parts.length > 1 ? '.${parts[1]}' : '';
-
-    if (integerPart.length <= 3) {
-      return '$integerPart$decimalPart';
-    }
-
-    String lastThree = integerPart.substring(integerPart.length - 3);
-
-    String remaining = integerPart.substring(0, integerPart.length - 3);
-
-    String grouped = remaining.replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{2})+(?!\d))'),
-      (match) => '${match[1]},',
-    );
-
-    return '$grouped,$lastThree$decimalPart';
-  }
-}
-
-bool isCurrentDay(String dayName) {
-  final today = DateFormat('EEEE').format(DateTime.now());
-
-  return today.toLowerCase() == dayName.toLowerCase();
 }
 
 String toTitleCase(String columnName) {
@@ -907,13 +450,6 @@ String toTitleCase(String columnName) {
 
 int getActiveFilterCount(List<bool> filters) {
   return filters.where((e) => e).length;
-}
-
-extension DateFormattingExtension on DateTime? {
-  String? get apiDate {
-    if (this == null) return "";
-    return DateFormat('yyyy-MM-dd').format(this!);
-  }
 }
 
 String formatToKLCr(num value) {

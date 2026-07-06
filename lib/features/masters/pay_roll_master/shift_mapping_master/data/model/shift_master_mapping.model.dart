@@ -1,5 +1,5 @@
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/data/model/shift_master.model.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 class ShiftMappingModel extends ShiftMasterModel {
   final int shiftManagementMasterMappingId;

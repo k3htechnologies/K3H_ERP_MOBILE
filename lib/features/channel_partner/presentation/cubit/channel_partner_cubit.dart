@@ -7,7 +7,7 @@ import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner_dashboard.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/repository/channel_partner.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'channel_partner_state.dart';

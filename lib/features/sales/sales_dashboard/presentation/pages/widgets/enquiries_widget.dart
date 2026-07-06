@@ -5,7 +5,7 @@ import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/cubit/sa
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/widgets/common_sales_dashboard_widgets.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';

@@ -5,7 +5,7 @@ import 'package:k3h_erp_app/features/project_document/approval_category/data/mod
 import 'package:k3h_erp_app/features/project_document/approval_category/data/repository/approval_category.repository.dart';
 import 'package:k3h_erp_app/features/project_document/approval_category/presentation/cubit/approval_category_state.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {

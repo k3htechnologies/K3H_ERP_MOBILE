@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 BranchMasterModel branchMasterModelFromJson(String str) =>
     BranchMasterModel.fromJson(json.decode(str));

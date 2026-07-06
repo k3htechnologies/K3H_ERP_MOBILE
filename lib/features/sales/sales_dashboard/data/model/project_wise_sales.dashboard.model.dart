@@ -1,5 +1,5 @@
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/project_achievement_report.model.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 class ProjectWiseSalesDashboardModel {
   final List<Table0> table0;

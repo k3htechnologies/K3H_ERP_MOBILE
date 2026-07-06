@@ -17,7 +17,6 @@ class BrokerageState extends BaseState {
   final String filterApplicantMobileNo;
   final String filterWing;
   final String filterFlat;
-  final String filterFloor;
   final double filterAgreementValue;
   final String filterBookingType;
   final DateTime? filterByFromDate;
@@ -41,7 +40,6 @@ class BrokerageState extends BaseState {
     required this.filterApplicantMobileNo,
     required this.filterWing,
     required this.filterFlat,
-    required this.filterFloor,
     required this.filterAgreementValue,
     required this.filterBookingType,
     required this.filterByFromDate,
@@ -66,7 +64,6 @@ class BrokerageState extends BaseState {
     filterApplicantMobileNo: '',
     filterWing: '',
     filterFlat: '',
-    filterFloor: '',
     filterAgreementValue: 0,
     filterBookingType: '',
     filterByFromDate: null,
@@ -92,7 +89,6 @@ class BrokerageState extends BaseState {
     Object? filterApplicantMobileNo = _noChange,
     Object? filterWing = _noChange,
     Object? filterFlat = _noChange,
-    Object? filterFloor = _noChange,
     Object? filterAgreementValue = _noChange,
     Object? filterBookingType = _noChange,
     Object? filterByFromDate = _noChange,
@@ -145,9 +141,6 @@ class BrokerageState extends BaseState {
       filterFlat:
           filterFlat == _noChange ? this.filterFlat : filterFlat as String,
 
-      filterFloor:
-          filterFloor == _noChange ? this.filterFloor : filterFloor as String,
-
       filterAgreementValue:
           filterAgreementValue == _noChange
               ? this.filterAgreementValue
@@ -189,7 +182,6 @@ class BrokerageState extends BaseState {
     filterApplicantMobileNo,
     filterWing,
     filterFlat,
-    filterFloor,
     filterAgreementValue,
     filterBookingType,
     filterByFromDate,

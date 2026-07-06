@@ -5,7 +5,7 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_encashment_ma
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_encashment_master/data/repository/leave_encashment_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_encashment_master/presentation/cubit/leave_encashment_master_state.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 class LeaveEncashmentMasterCubit extends Cubit<LeaveEncashmentMasterState> {

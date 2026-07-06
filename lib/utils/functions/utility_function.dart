@@ -1,7 +1,11 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
+import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 
 ProjectModel getProject() {
@@ -140,4 +144,106 @@ ProjectModel getProject() {
       projectWithBankDetailsData: [],
     );
   }
+}
+
+List<Map<String, dynamic>> get projectList {
+  final projectsJson = LocalStorageManager().getString(StorageKey.projectList);
+
+  if (projectsJson == null || projectsJson.isEmpty) {
+    return [];
+  }
+
+  final List<dynamic> decodedList = jsonDecode(projectsJson);
+
+  return decodedList.map<Map<String, dynamic>>((e) {
+    final project = ProjectModel.fromJson(e);
+
+    return {
+      "zAttributesId": project.projectId,
+      "DisplayName": project.projectName,
+    };
+  }).toList();
+}
+
+UserModel getCurrentUser() {
+  var userJson = jsonDecode(
+    LocalStorageManager().getString(StorageKey.currentUser) ?? "",
+  );
+  return UserModel.fromJson(userJson);
+}
+
+Future<void> loadAndSelectProjectById(int projectId) async {
+  // GET PROJECT LIST FROM LOCAL STORAGE
+  final projectsJson = LocalStorageManager().getString(StorageKey.projectList);
+
+  if (projectsJson == null || projectsJson.isEmpty) {
+    return;
+  }
+
+  // DECODE JSON TO LIST OF PROJECTS
+  final List<dynamic> decodedList = jsonDecode(projectsJson);
+
+  final List<ProjectModel> projects =
+      decodedList.map((e) => ProjectModel.fromJson(e)).toList();
+
+  // FIND THE PROJECT WITH THE GIVEN ID
+  final ProjectModel? selectedProject = projects
+      .cast<ProjectModel?>()
+      .firstWhere(
+        (project) => project?.projectId == projectId,
+        orElse: () => null,
+      );
+
+  // IF FOUND, SAVE TO LOCAL STORAGE AS SELECTED PROJECT
+  if (selectedProject != null) {
+    LocalStorageManager().setString(
+      StorageKey.selectedProject,
+      jsonEncode(selectedProject.toJson()),
+    );
+  }
+}
+
+// <---- UPDATE ROUTE AUTHORIZATION
+Future<void> updateRouteAuthorization(List<ModuleModel> moduleData) async {
+  // UPDATE THE MAP IN ISOLATE
+  final updatedRouteMap = await compute(
+    _processRouteAuthorizationModules,
+    moduleData,
+  );
+
+  final defaultMap = Authorization.routeAuthorizationMap;
+
+  Authorization.routeAuthorizationMap = {...defaultMap, ...updatedRouteMap};
+}
+
+Map<String, AuthorizationModel> _processRouteAuthorizationModules(
+  List<ModuleModel> modules,
+) {
+  final updatedMap = <String, AuthorizationModel>{};
+
+  for (var module in modules) {
+    for (var subModule in module.subModuleData) {
+      updatedMap[subModule.path] = AuthorizationModel(
+        isAccess: true,
+        isAction: subModule.isAction,
+        isExport: subModule.isExport,
+        isView: subModule.isView,
+      );
+      if (subModule.subSubModuleData.isNotEmpty) {
+        for (var subSubModule in subModule.subSubModuleData) {
+          updatedMap[subSubModule.path] = AuthorizationModel(
+            isAccess:
+                subSubModule.isAction ||
+                subSubModule.isExport ||
+                subSubModule.isView,
+            isAction: subSubModule.isAction,
+            isExport: subSubModule.isExport,
+            isView: subSubModule.isView,
+          );
+        }
+      }
+    }
+  }
+
+  return updatedMap;
 }

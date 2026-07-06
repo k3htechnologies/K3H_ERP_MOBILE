@@ -13,9 +13,9 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 
 class ProjectListScreen extends StatefulWidget {
@@ -51,13 +51,6 @@ class _ProjectListMobileScreenState extends State<ProjectListScreen> {
           StorageKey.menu,
           jsonEncode(data["menuData"] as List<ModuleModel>),
         );
-        // _localStorageManager.setString(
-        //   StorageKey.moduleAction,
-        //   jsonEncode(
-        //     data["materialRequisitionModulesPermissionsData"]
-        //         as List<ModuleActionPermissionModel>,
-        //   ),
-        // );
         await updateRouteAuthorization(data["menuData"] as List<ModuleModel>);
         return true;
       },

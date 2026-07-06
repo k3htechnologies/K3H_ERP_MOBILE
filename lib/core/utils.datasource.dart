@@ -8,7 +8,7 @@ import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/models/village.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 
 import 'local_storage_manager.dart';

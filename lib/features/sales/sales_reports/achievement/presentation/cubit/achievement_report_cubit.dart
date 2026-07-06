@@ -7,7 +7,7 @@ import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/reposi
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import '../../../../../../di/app_dependencies.dart';
-import '../../../../../../utils/common_function.dart';
+import '../../../../../../utils/functions/common_function.dart';
 import '../../data/model/closing_achievement_report.model.dart';
 import 'achievement_report_state.dart';
 

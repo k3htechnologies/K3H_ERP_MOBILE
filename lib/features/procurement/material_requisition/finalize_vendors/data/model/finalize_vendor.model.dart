@@ -1,6 +1,6 @@
 import 'package:k3h_erp_app/features/procurement/data/model/sub_material.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 class RequisitionVendorModel extends VendorModel {
   final bool isApproval;

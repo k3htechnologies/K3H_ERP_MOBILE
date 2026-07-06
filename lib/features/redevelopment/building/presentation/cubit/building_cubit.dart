@@ -8,7 +8,7 @@ import 'package:k3h_erp_app/features/redevelopment/building/data/model/building_
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building_document.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/repository/building.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'building_state.dart';

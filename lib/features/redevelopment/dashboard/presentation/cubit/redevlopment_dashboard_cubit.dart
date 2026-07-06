@@ -4,7 +4,7 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/redevelopment/dashboard/data/model/redevelopment_dashboard.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/dashboard/data/repository/redevelopment.dashboard_repository.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 part 'redevlopment_dashboard_state.dart';
 

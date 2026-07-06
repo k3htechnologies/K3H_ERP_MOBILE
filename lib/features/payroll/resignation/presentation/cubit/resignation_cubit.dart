@@ -6,7 +6,7 @@ import 'package:k3h_erp_app/features/payroll/resignation/data/model/resignation.
 import 'package:k3h_erp_app/features/payroll/resignation/data/repository/resignation.repository.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/cubit/resignation_state.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:bloc/bloc.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 

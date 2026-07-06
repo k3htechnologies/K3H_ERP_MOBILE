@@ -5,7 +5,7 @@ import 'package:k3h_erp_app/features/project_document/rera_document_category/dat
 import 'package:k3h_erp_app/features/project_document/rera_document_category/data/repository/rera_document_category.repository.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/presentation/cubit/rera_document_category_state.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {

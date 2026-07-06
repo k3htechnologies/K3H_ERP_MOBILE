@@ -7,7 +7,7 @@ import 'package:k3h_erp_app/features/payroll/comp_off/data/model/comp_off.model.
 import 'package:k3h_erp_app/features/payroll/comp_off/data/model/comp_off_dates.model.dart';
 import 'package:k3h_erp_app/features/payroll/comp_off/data/repository/comp_off.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'comp_off_state.dart';

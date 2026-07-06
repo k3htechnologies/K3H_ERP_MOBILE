@@ -4,7 +4,7 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_dashboard/data/model/payroll_dashboard_model.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_dashboard/data/respository/payroll_dashboard_repository.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 part 'payroll_dashboard_state.dart';
 

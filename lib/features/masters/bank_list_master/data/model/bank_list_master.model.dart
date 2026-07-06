@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 BankListMasterModel bankListMasterModelFromJson(String str) => BankListMasterModel.fromJson(json.decode(str));
 

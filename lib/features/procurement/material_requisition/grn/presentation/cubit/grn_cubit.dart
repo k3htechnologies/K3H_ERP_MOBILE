@@ -8,7 +8,7 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/model/grn.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/repository/grn.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'grn_state.dart';

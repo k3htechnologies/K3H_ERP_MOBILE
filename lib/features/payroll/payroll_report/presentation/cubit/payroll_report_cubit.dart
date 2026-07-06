@@ -18,7 +18,7 @@ import 'package:k3h_erp_app/features/payroll/payroll_report/data/model/payroll_r
 import 'package:k3h_erp_app/features/payroll/payroll_report/data/repository/payroll_report.repository.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/data/model/resignation.model.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/data/repository/resignation.repository.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 part 'payroll_report_state.dart';
 

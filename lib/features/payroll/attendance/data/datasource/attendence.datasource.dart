@@ -2,7 +2,7 @@ import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.mo
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance_regularization.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class AttendanceDataSource {
   Future<Map<String, dynamic>> apicallPullAttendance({

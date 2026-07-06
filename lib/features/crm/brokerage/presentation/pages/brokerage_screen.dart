@@ -11,10 +11,12 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
@@ -46,7 +48,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
       _filterApplicantMobileNoC,
       _filterWingC,
       _filterFlatC,
-      _filterFloorC,
       _filterAgreementValueC,
       _filterBookingTypeC;
 
@@ -83,7 +84,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
     _filterApplicantMobileNoC.dispose();
     _filterWingC.dispose();
     _filterFlatC.dispose();
-    _filterFloorC.dispose();
     _filterAgreementValueC.dispose();
     _filterBookingTypeC.dispose();
     _filterCount.dispose();
@@ -100,7 +100,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
     _filterApplicantMobileNoC = TextEditingController();
     _filterWingC = TextEditingController();
     _filterFlatC = TextEditingController();
-    _filterFloorC = TextEditingController();
     _filterAgreementValueC = TextEditingController();
     _filterBookingTypeC = TextEditingController();
   }
@@ -137,7 +136,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
     _filterApplicantMobileNoC.text = s.filterApplicantMobileNo;
     _filterWingC.text = s.filterWing;
     _filterFlatC.text = s.filterFlat;
-    _filterFloorC.text = s.filterFloor;
 
     _filterAgreementValueC.text =
         s.filterAgreementValue == 0 ? '' : s.filterAgreementValue.toString();
@@ -163,7 +161,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                 s.filterApplicantMobileNo ||
             _filterWingC.text.trim() != s.filterWing ||
             _filterFlatC.text.trim() != s.filterFlat ||
-            _filterFloorC.text.trim() != s.filterFloor ||
             (_filterAgreementValueC.text.isEmpty
                     ? 0
                     : double.tryParse(_filterAgreementValueC.text) ?? 0) !=
@@ -182,6 +179,7 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           return SingleChildScrollView(
+            padding: EdgeInsets.only(right: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -202,8 +200,9 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
 
                 CustomTextField(
                   textController: _filterCpMobileNoC,
-                  title: "CP Mobile No",
-                  hint: 'Enter CP Mobile No',
+                  title: "CP Mobile Number",
+                  hint: 'Enter CP Mobile Number',
+                  inputFormatterList: InputValidator.digit(10),
                   keyboardType: TextInputType.phone,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
@@ -217,8 +216,9 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
 
                 CustomTextField(
                   textController: _filterApplicantMobileNoC,
-                  title: "Applicant Mobile No",
-                  hint: 'Enter Applicant Mobile No',
+                  title: "Applicant Mobile Number",
+                  hint: 'Enter Applicant Mobile Number',
+                  inputFormatterList: InputValidator.digit(10),
                   keyboardType: TextInputType.phone,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
@@ -234,13 +234,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                   textController: _filterFlatC,
                   title: "Flat",
                   hint: 'Enter Flat',
-                  onChangeFunction: (_) => updateApplyState(innerState),
-                ),
-
-                CustomTextField(
-                  textController: _filterFloorC,
-                  title: "Floor",
-                  hint: 'Enter Floor',
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
 
@@ -343,7 +336,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
         _filterApplicantMobileNoC.clear();
         _filterWingC.clear();
         _filterFlatC.clear();
-        _filterFloorC.clear();
         _filterAgreementValueC.clear();
         _filterBookingTypeC.clear();
         _searchC.clear();
@@ -363,7 +355,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
           filterApplicantMobileNo: '',
           filterWing: '',
           filterFlat: '',
-          filterFloor: '',
           filterAgreementValue: 0,
           filterBookingType: '',
         );
@@ -407,7 +398,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
           filterApplicantMobileNo: _filterApplicantMobileNoC.text.trim(),
           filterWing: _filterWingC.text.trim(),
           filterFlat: _filterFlatC.text.trim(),
-          filterFloor: _filterFloorC.text.trim(),
           filterAgreementValue:
               double.tryParse(_filterAgreementValueC.text.trim()) ?? 0,
           filterBookingType: _filterBookingTypeC.text.trim(),
@@ -420,7 +410,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
     if (!applied && manualClose) {
       _searchC.clear();
       _filterWingC.clear();
-      _filterFloorC.clear();
       _filterFlatC.clear();
       _filterCpMobileNoC.clear();
       _filterCpCompanyC.clear();
@@ -452,6 +441,10 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
           },
           textController: _searchC,
           onExportCallback: (value) {
+            if (_brokerageCubit.state.totalNumberOfRecord == 0) {
+              showErrorMessage(context, "Error", "No Data Found");
+              return;
+            }
             _brokerageCubit.exportExcelPdf(context, value, _project.projectId);
           },
           onProjectChangeCallback: (value) {
@@ -486,7 +479,7 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                           return Expanded(
                             child: Center(
                               child: noDataWidget(
-                                message: "No Brokerage Booking Data Found",
+                                message: "No Brokerage Data Found",
                               ),
                             ),
                           );
@@ -562,12 +555,17 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                     ],
                                   ),
                                   buildRowTitleValue(
-                                    title: "Company Name",
+                                    title: "CP Company",
                                     value: brokerage.channelPartnerCompany,
                                   ),
                                   buildRowTitleValue(
                                     title: "Mobile No.",
                                     value: brokerage.channelPartnerMobileNumber,
+                                    customValueWidget: CustomClickToContactText(
+                                      countryCode: "+91",
+                                      value:
+                                          brokerage.channelPartnerMobileNumber,
+                                    ),
                                   ),
                                   buildRowTitleValue(
                                     title: "Brokerage Amount",

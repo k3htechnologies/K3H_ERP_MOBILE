@@ -9,7 +9,7 @@ import 'package:k3h_erp_app/features/more/inward_outward/data/model/sender_detai
 import 'package:k3h_erp_app/features/more/inward_outward/data/repository/inward_outward.repository.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inward_outward_state.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 class InwardOutwardCubit extends Cubit<InwardOutwardState> {

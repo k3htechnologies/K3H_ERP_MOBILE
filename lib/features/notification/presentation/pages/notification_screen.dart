@@ -8,9 +8,10 @@ import 'package:k3h_erp_app/features/notification/presentation/cubit/notificatio
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
+import '../../../../utils/functions/common_function.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});

@@ -2,7 +2,7 @@ import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner_dashboard.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class ChannelPartnerDatasource {
   Future<Map<String, dynamic>> apicallPullChannelPartnerMaster({

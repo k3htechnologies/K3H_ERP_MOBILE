@@ -9,9 +9,9 @@ import 'package:k3h_erp_app/features/masters/bank_list_master/data/model/bank_li
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/cubit/project_master_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
-import 'package:k3h_erp_app/utils/static_data.dart';
+import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
@@ -104,23 +104,16 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
       ];
 
       final acType = widget.bankDetailsModel!.acType.toLowerCase();
-      if (acType.contains('current')) {
-        selectedAccountType.value = accountTypeList[0]; // Current
-      } else if (acType.contains('demat')) {
-        selectedAccountType.value = accountTypeList[1]; // DEMAT
-      } else if (acType.contains('fixed')) {
-        selectedAccountType.value = accountTypeList[2]; // Fixed
-      } else if (acType.contains('salary')) {
-        selectedAccountType.value = accountTypeList[3]; // Salary
-      } else if (acType.contains('savings')) {
-        selectedAccountType.value = accountTypeList[4]; // Savings
-      } else {
-        selectedAccountType.value = accountTypeList[0]; // Select
-      }
+      selectedAccountType.value = accountTypeList.firstWhere(
+        (acT) =>
+            acT['DisplayName'].toString().toLowerCase() == acType.toLowerCase(),
+        orElse: () => accountTypeList[0],
+      );
       if (widget.bankDetailsModel?.natureOfAccount != "") {
         selectedNatureOfAccount.value = natureOfAccountList.firstWhere(
           (nature) =>
-              nature['DisplayName'] == widget.bankDetailsModel?.natureOfAccount,
+              nature['DisplayName'].toString().toLowerCase() ==
+              widget.bankDetailsModel?.natureOfAccount.toLowerCase(),
           orElse: () => natureOfAccountList[0],
         );
       }

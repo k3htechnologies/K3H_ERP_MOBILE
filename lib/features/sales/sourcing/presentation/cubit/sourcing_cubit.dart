@@ -7,7 +7,7 @@ import 'package:k3h_erp_app/features/channel_partner/data/repository/channel_par
 import 'package:k3h_erp_app/features/sales/sourcing/data/model/sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/data/repository/sourcing.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'sourcing_state.dart';

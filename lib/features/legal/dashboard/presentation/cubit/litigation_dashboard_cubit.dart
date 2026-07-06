@@ -4,7 +4,7 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/legal/dashboard/data/model/litigation_dashboard.model.dart';
 import 'package:k3h_erp_app/features/legal/dashboard/data/repository/litigation_dashboard.repository.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 part 'litigation_dashboard_state.dart';
 

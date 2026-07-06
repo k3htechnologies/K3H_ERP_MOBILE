@@ -2,7 +2,7 @@ import 'package:k3h_erp_app/features/sales/sales_dashboard/data/model/project_wi
 import 'package:k3h_erp_app/features/sales/sales_dashboard/data/model/sales.dashboard.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class SalesDashboardDatasource {
   Future<Map<String, dynamic>> apiCallPullSalesDashboard({

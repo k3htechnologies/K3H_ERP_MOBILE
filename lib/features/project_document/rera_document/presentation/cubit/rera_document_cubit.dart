@@ -9,9 +9,9 @@ import 'package:k3h_erp_app/features/project_document/rera_document_category/dat
 import 'package:k3h_erp_app/features/project_document/rera_document_category/data/repository/rera_document_category.repository.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 
 class RERADocumentCubit extends Cubit<RERADocumentState> {
   RERADocumentCubit() : super(RERADocumentState.initial());

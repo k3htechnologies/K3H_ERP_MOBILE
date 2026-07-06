@@ -8,7 +8,7 @@ import 'package:k3h_erp_app/features/sales/call_tracker/data/model/call_log.mode
 import 'package:k3h_erp_app/features/sales/call_tracker/data/model/calling_data.model.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/data/repository/call_tracker.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'call_tracker_state.dart';

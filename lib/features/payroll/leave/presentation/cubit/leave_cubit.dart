@@ -8,7 +8,7 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/d
 import 'package:k3h_erp_app/features/payroll/leave/data/repository/leave.repository.dart';
 import 'package:k3h_erp_app/features/payroll/leave/model/leave.model.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'leave_state.dart';

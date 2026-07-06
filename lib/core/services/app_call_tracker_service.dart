@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 
 class AppInitiatedCallEntry {
   final String phoneNumber;

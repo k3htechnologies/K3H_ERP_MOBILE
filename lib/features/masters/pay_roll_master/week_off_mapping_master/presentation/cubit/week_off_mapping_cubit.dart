@@ -11,7 +11,7 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_ma
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/data/model/week_off_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/data/repository/week_off_master.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 class WeekOffMappingMasterCubit extends Cubit<WeekOffMappingMasterState> {

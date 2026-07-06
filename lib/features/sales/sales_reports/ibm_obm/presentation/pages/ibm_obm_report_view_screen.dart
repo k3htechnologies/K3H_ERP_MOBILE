@@ -9,9 +9,9 @@ import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/cu
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pages/widget/ibm_obm_report_datagrid.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/utils/static_data.dart';
+import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';

@@ -10,7 +10,7 @@ import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.mode
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant_document.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/repository/tenant.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'tenant_state.dart';

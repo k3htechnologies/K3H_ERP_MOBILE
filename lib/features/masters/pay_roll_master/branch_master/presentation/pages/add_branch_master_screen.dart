@@ -8,7 +8,7 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/prese
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/add_bank_details_screen.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart'
     hide UpperCaseTextFormatter;
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';

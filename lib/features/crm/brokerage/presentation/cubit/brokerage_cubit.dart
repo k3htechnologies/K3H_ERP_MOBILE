@@ -8,7 +8,7 @@ import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/paid_brokerage_booking.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/repository/brokerage.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'brokerage_state.dart';
@@ -100,7 +100,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       "ApplicantName": state.filterApplicantName,
       "Wing": state.filterWing,
       "Flat": state.filterFlat,
-      "Floor": state.filterFloor,
       if (state.filterAgreementValue != 0)
         "AgreementValue": state.filterAgreementValue,
       "BookingType": state.filterBookingType,
@@ -581,7 +580,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     required String filterApplicantMobileNo,
     required String filterWing,
     required String filterFlat,
-    required String filterFloor,
     required double filterAgreementValue,
     required String filterBookingType,
     required DateTime? filterByFromDate,
@@ -596,7 +594,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
         filterApplicantMobileNo: filterApplicantMobileNo,
         filterWing: filterWing,
         filterFlat: filterFlat,
-        filterFloor: filterFloor,
         filterAgreementValue: filterAgreementValue,
         filterBookingType: filterBookingType,
         filterByFromDate: filterByFromDate,
@@ -651,7 +648,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       state.filterApplicantMobileNo.trim().isNotEmpty,
       state.filterWing.trim().isNotEmpty,
       state.filterFlat.trim().isNotEmpty,
-      state.filterFloor.trim().isNotEmpty,
       state.filterAgreementValue > 0,
       state.filterBookingType.trim().isNotEmpty,
       state.filterByFromDate != null,

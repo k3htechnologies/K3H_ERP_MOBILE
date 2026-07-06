@@ -6,7 +6,7 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover_checklist/data/model/flat_handover_checklist.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover_checklist/data/repository/flat_handover_checklist.repository.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 part 'flat_handover_checklist_state.dart';
 

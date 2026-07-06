@@ -24,9 +24,9 @@ import 'package:k3h_erp_app/features/sales/sales_master/other_charges/data/repos
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule/data/model/payment_schedule.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule/data/respository/payment_schedule.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 
 part 'booking_state.dart';
 

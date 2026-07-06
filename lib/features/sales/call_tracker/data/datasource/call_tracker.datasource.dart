@@ -2,7 +2,7 @@ import 'package:k3h_erp_app/features/sales/call_tracker/data/model/call_log.mode
 import 'package:k3h_erp_app/features/sales/call_tracker/data/model/calling_data.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class CallTrackerDataSource {
   Future<Map<String, dynamic>> apicallPullCallingData({

@@ -11,7 +11,7 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_maste
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/data/repository/shift_master_mapping.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/presentation/cubit/shift_master_mapping_state.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {

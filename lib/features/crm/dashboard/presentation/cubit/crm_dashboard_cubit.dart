@@ -4,7 +4,7 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/crm/dashboard/data/model/crm_dashboard.model.dart';
 import 'package:k3h_erp_app/features/crm/dashboard/data/repository/crm_dashboard.repository.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 part 'crm_dashboard_state.dart';
 

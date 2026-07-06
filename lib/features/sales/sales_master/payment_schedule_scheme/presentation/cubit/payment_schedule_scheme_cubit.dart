@@ -7,9 +7,9 @@ import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/presentation/cubit/payment_schedule_scheme_state.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/project_inventory_structure.model.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 
 class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
   PaymentScheduleSchemeCubit() : super(PaymentScheduleSchemeState.initial());

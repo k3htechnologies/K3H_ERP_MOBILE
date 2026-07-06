@@ -8,7 +8,7 @@ import 'package:k3h_erp_app/features/masters/department_master/data/model/depart
 import 'package:k3h_erp_app/features/payroll/outdoor/data/model/outdoor.model.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/data/repository/outdoor.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'outdoor_state.dart';

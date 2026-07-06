@@ -6,7 +6,7 @@ import 'package:k3h_erp_app/features/sales/sales_reports/performance/data/model/
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/data/model/performance_report_closing.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/data/repository/performance_report.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'performance_state.dart';
