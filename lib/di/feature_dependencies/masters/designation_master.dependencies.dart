@@ -11,7 +11,7 @@ void registerDesignationMasterDependencies(GetIt serviceLocator) {
     DesignationRepositoryImpl(serviceLocator<DesignationMasterDatasource>()),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<DesignationMasterCubit>(
     DesignationMasterCubit(),
   );

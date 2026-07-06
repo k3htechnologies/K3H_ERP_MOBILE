@@ -104,7 +104,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
     _remarkC.clear();
   }
 
-  // <---- DELETE DEPARTMENT ---->
+  // DELETE DEPARTMENT
   Future<void> _showPopupToDeleteRemark(
     BuildContext context,
     SourcingModel obj,
@@ -890,34 +890,35 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                               ),
                                             ),
 
-                                            Visibility(
-                                              visible:
-                                                  index == 0 &&
-                                                  (item.isAction &&
-                                                      _routeAuthorizationModel
-                                                          .isAction),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  CustomIconButton.edit(
-                                                    onPressed: () {
-                                                      _showBottomSheetToUpdateRemark(
-                                                        context,
-                                                        item,
-                                                      );
-                                                    },
-                                                  ),
-                                                  horizontalSpacing(),
-                                                  CustomIconButton.delete(
-                                                    onPressed: () {
-                                                      _showPopupToDeleteRemark(
-                                                        context,
-                                                        item,
-                                                      );
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                CustomIconButton.edit(
+                                                  isDisabled:
+                                                      !(item.isAction &&
+                                                          _routeAuthorizationModel
+                                                              .isAction),
+                                                  onPressed: () {
+                                                    _showBottomSheetToUpdateRemark(
+                                                      context,
+                                                      item,
+                                                    );
+                                                  },
+                                                ),
+                                                horizontalSpacing(),
+                                                CustomIconButton.delete(
+                                                  isDisabled:
+                                                      !(item.isAction &&
+                                                          _routeAuthorizationModel
+                                                              .isAction),
+                                                  onPressed: () {
+                                                    _showPopupToDeleteRemark(
+                                                      context,
+                                                      item,
+                                                    );
+                                                  },
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),

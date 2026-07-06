@@ -646,9 +646,11 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                _caseField(
-                                  "Hearing Date",
-                                  formatDateTimeAsDDMMMYYYY(item.hearingDate),
+                                Expanded(
+                                  child: _caseField(
+                                    "Hearing Date",
+                                    formatDateTimeAsDDMMMYYYY(item.hearingDate),
+                                  ),
                                 ),
                                 horizontalSpacing(width: 20.0),
                                 Expanded(

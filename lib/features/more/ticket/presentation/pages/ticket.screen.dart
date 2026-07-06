@@ -72,7 +72,7 @@ class _TicketScreenState extends State<TicketScreen> {
     _filterStatus = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -136,7 +136,7 @@ class _TicketScreenState extends State<TicketScreen> {
 
     DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Ticket",
+      title: "Filter - Ticket",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           return Form(
@@ -234,7 +234,7 @@ class _TicketScreenState extends State<TicketScreen> {
     }
   }
 
-  // <---- DELETE TICKET ---->
+  // DELETE TICKET
   Future<void> _showPopupToDeleteDepartmentMaster(
     BuildContext context,
     TicketModel obj,

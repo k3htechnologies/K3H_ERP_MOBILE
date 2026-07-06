@@ -13,6 +13,6 @@ void registerCalendarDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<CalendarCubit>(CalendarCubit());
 }

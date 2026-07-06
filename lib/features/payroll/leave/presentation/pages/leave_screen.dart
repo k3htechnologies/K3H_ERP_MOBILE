@@ -115,7 +115,7 @@ class _LeaveScreenState extends State<LeaveScreen>
     _searchC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -133,7 +133,7 @@ class _LeaveScreenState extends State<LeaveScreen>
     });
   }
 
-  // <---- DELETE LEAVE ---->
+  // DELETE LEAVE
   Future<void> _showPopupToDeleteLeave(
     BuildContext context,
     LeaveModel obj,
@@ -183,7 +183,7 @@ class _LeaveScreenState extends State<LeaveScreen>
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Leave",
+      title: "Filter - Leave",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           return Column(

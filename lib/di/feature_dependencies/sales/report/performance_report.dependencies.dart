@@ -14,6 +14,6 @@ void registerPerformanceReportDependencies(GetIt serviceLocator) {
     ),
   );
 
-  //<---- CUBIT ---->
+  //<---- CUBIT
   serviceLocator.registerSingleton<PerformanceCubit>(PerformanceCubit());
 }

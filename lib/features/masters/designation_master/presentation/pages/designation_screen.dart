@@ -64,14 +64,14 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
     _filterCount.dispose();
   }
 
-  // <---- INITIALIZING TEXT CONTROLLERS ---->
+  // INITIALIZING TEXT CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
     _designationC = TextEditingController();
     _noticePeriodC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     // SCROLL LISTENER
@@ -93,7 +93,7 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
     });
   }
 
-  // <---- DELETE DESIGNATION ---->
+  // DELETE DESIGNATION
   Future<void> _showPopupToDeleteDesignationMaster(
     int designationMasterId,
     String uniqueKey,

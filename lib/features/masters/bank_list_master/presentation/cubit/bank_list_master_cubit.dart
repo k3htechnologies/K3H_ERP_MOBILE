@@ -44,7 +44,7 @@ class BankListMasterCubit extends Cubit<BankListMasterState> {
     );
   }
 
-  // <---- SEARCH BANK ---->
+  // SEARCH BANK
   Future searchBank(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, bankList: []));
     await getBankList(context, 1, 20);

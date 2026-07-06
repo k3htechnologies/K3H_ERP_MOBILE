@@ -14,8 +14,6 @@ void registerBranchMasterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
-  serviceLocator.registerSingleton<BranchMasterCubit>(
-    BranchMasterCubit(),
-  );
+  //- CUBITS -
+  serviceLocator.registerSingleton<BranchMasterCubit>(BranchMasterCubit());
 }

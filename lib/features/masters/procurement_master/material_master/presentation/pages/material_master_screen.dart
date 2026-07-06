@@ -62,7 +62,7 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
     _searchC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -84,7 +84,7 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
     });
   }
 
-  // <---- DELETE MATERIAL ---->
+  // DELETE MATERIAL
   Future<void> _showPopupToDeleteMaterialMaster(
     BuildContext context,
     MaterialMasterModel material,
@@ -265,7 +265,7 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
     );
   }
 
-  // <---- BUILD INFO CHIP ---->
+  // BUILD INFO CHIP
   Widget _buildInfoChip({required String label, required String value}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

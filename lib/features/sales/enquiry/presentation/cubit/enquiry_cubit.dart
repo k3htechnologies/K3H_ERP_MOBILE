@@ -49,12 +49,12 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     emit(state.copyWith(selectedNationality: value));
   }
 
-  // <---- CLEAR CHANNEL PARTNER MODEL ---->
+  // CLEAR CHANNEL PARTNER MODEL
   void clearChannelPartner() {
     emit(state.copyWith(clearChannelPartner: true, selectedNationality: null));
   }
 
-  // <---- CLEAR ENQUIRY FOLLOWUP ---->
+  // CLEAR ENQUIRY FOLLOWUP
   Future<void> clearEnquiryFollowUp() async {
     emit(state.copyWith(enquiryFollowUpList: [], isLoading: true));
   }
@@ -68,7 +68,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     );
   }
 
-  // <---- GET ENQUIRY LIST ---->
+  // GET ENQUIRY LIST
   Future getEnquiryList(
     BuildContext context,
     int pageNumber,
@@ -207,7 +207,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     );
   }
 
-  // <---- ADD / UPDATE ENQUIRY ---->
+  // ADD / UPDATE ENQUIRY
 
   Future<void> addEnquiry({
     required BuildContext context,
@@ -609,7 +609,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -644,7 +644,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     );
   }
 
-  // <---- GET ENQUIRY FOLLOWUPS ---->
+  // GET ENQUIRY FOLLOWUPS
   Future<void> fetchEnquiryFollowUps({
     required int enquiryId,
 
@@ -670,7 +670,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     );
   }
 
-  // <---- ADD / UPDATE ENQUIRY FOLLOWUPS ---->
+  // ADD / UPDATE ENQUIRY FOLLOWUPS
   Future addUpdateEnquiryFollowUp({
     required BuildContext context,
     int? index,
@@ -717,7 +717,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     );
   }
 
-  // <---- DELETE ENQUIRY  ---->
+  // DELETE ENQUIRY
   Future<void> deleteEnquiry({
     required int index,
     required EnquiryModel enquiryModel,
@@ -757,7 +757,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     );
   }
 
-  // <---- DELETE ENQUIRY FOLLOWUP ---->
+  // DELETE ENQUIRY FOLLOWUP
   Future<void> deleteFollowUp({
     required int index,
     required EnquiryFollowUpModel followUpModel,
@@ -798,7 +798,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     );
   }
 
-  // <---- FILTER ENQUIRY ---->
+  // FILTER ENQUIRY
   Future<void> applyEnquiryFilterAndSort({
     required BuildContext context,
     required DateTime? filterStartDate,
@@ -854,7 +854,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     getEnquiryList(context, 1, projectId);
   }
 
-  // <---- GET SINGLE ENQUIRY BY ID ---->
+  // GET SINGLE ENQUIRY BY ID
   Future<void> getEnquiryById({
     required int enquiryId,
     required int projectId,
@@ -952,7 +952,8 @@ class EnquiryCubit extends Cubit<EnquiryState> {
       state.filterAccommodation.trim().isNotEmpty,
       state.filterFollowUpDays.trim().isNotEmpty,
       state.filterFinalStage.trim().isNotEmpty,
-      state.filterStartDate != null && state.filterEndDate != null,
+      state.filterStartDate != null,
+      state.filterEndDate != null,
       hasSort,
     ]);
   }

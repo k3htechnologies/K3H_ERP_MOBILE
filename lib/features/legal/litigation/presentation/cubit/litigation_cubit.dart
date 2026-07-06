@@ -17,7 +17,7 @@ class LitigationCubit extends Cubit<LitigationState> {
   final LitigationRepository _litigationRepository =
       serviceLocator<LitigationRepository>();
 
-  // <---- FILTER COMPANY ---->
+  // FILTER COMPANY
   Future applyLitigationFilterAndSort({
     required BuildContext context,
     String? title,

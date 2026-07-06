@@ -61,7 +61,7 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
     _searchC.dispose();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -82,7 +82,7 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
     });
   }
 
-  // <---- DELETE LEAVE ENCASHMENT  ---->
+  // DELETE LEAVE ENCASHMENT
   Future<void> _showPopupToDeleteLeaveEncashmentMaster(
     BuildContext context,
     LeaveEncashmentMasterModel obj,

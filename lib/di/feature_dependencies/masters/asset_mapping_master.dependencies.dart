@@ -10,14 +10,13 @@ void registerAssetMappingMasterDependencies(GetIt serviceLocator) {
 
   serviceLocator.registerSingleton<AssetMasterMappingRepository>(
     AssetMasterMappingRepositoryImpl(
-      assetMasterMappingDatasource: serviceLocator<AssetMasterMappingDatasource>(),
+      assetMasterMappingDatasource:
+          serviceLocator<AssetMasterMappingDatasource>(),
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<AssetMappingMasterCubit>(
     AssetMappingMasterCubit(),
   );
 }
-
-

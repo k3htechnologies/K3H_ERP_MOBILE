@@ -57,7 +57,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
     _onScroll();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

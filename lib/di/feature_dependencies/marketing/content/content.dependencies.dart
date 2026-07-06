@@ -12,7 +12,7 @@ void registerContentDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<ContentFolderCubit>(ContentFolderCubit());
 
   serviceLocator.registerSingleton<ContentDocumentCubit>(

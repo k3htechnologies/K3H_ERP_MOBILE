@@ -168,6 +168,7 @@ class AppRoutes {
 
   // SALES BOOKING
   static String salesDashboard = "/salesDashboard";
+  static String projectWiseSalesDashboard = "/projectWiseSalesDashboard";
   static String booking = "/booking";
   static String addBooking = "/addBooking";
   static String viewBooking = "/viewBooking";

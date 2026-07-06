@@ -53,13 +53,13 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
     _departmentCodeC.dispose();
   }
 
-  // <---- INITIALIZE TEXT EDITING CONTROLLERS ---->
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _departmentNameC = TextEditingController();
     _departmentCodeC = TextEditingController();
   }
 
-  // <---- PREFILL DEPARTMENT ---->
+  // PREFILL DEPARTMENT
   void _prefillDialogueToAddUpdateDepartmentMaster(
     DepartmentModel departmentModel,
   ) {
@@ -67,7 +67,7 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
     _departmentCodeC.text = departmentModel.departmentCode;
   }
 
-  // <---- API CALLS TO ADD/UPDATE DEPARTMENT ---->
+  // API CALLS TO ADD/UPDATE DEPARTMENT
   Future<void> _addUpdateDepartment(
     BuildContext context,
     DepartmentModel? departmentModel,

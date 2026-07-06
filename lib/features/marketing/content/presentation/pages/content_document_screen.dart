@@ -86,7 +86,7 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
     _searchC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

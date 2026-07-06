@@ -14,7 +14,7 @@ void registerHolidayMappingMasterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<HolidayMappingMasterCubit>(
     HolidayMappingMasterCubit(),
   );

@@ -71,7 +71,7 @@ class _ClassificationParameterScreenState
     scrollController.dispose();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -96,7 +96,7 @@ class _ClassificationParameterScreenState
     });
   }
 
-  // <---- DELETE CLASSIFICATION PARAMETER ---->
+  // DELETE CLASSIFICATION PARAMETER
   Future<void> _showPopupToDeleteClassificationParameter(
     BuildContext context,
     ClassificationParameterModel obj,

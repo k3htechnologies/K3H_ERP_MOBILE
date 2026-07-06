@@ -14,7 +14,7 @@ void registerMaterialRequisitionDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<MaterialRequisitionCubit>(
     MaterialRequisitionCubit(),
   );

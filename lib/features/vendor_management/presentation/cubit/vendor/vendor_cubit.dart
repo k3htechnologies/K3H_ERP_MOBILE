@@ -21,13 +21,13 @@ class VendorCubit extends Cubit<VendorState> {
   CompanyMasterRepository companyMasterRepository =
       serviceLocator<CompanyMasterRepository>();
 
-  // <---- SEARCH VENDOR ---->
+  // SEARCH VENDOR
   Future searchVendor(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, vendorList: []));
     await getVendors(context, 1);
   }
 
-  // <---- GET VENDORS LIST ---->
+  // GET VENDORS LIST
   Future getVendors(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
 
@@ -79,7 +79,7 @@ class VendorCubit extends Cubit<VendorState> {
     );
   }
 
-  // <---- DELETE VENDOR  ---->
+  // DELETE VENDOR
   Future deleteVendor({
     required BuildContext context,
     required int vendorId,
@@ -126,7 +126,7 @@ class VendorCubit extends Cubit<VendorState> {
     }
   }
 
-  // <--- SORT VENDOR ---->
+  // <--- SORT VENDOR
 
   Future sortVendor({
     required BuildContext context,
@@ -180,7 +180,7 @@ class VendorCubit extends Cubit<VendorState> {
     await getVendors(context, 1);
   }
 
-  // <---- FILTER CP ---->
+  // FILTER CP
   Future filterVendor({
     required BuildContext context,
     required String companyName,
@@ -196,7 +196,7 @@ class VendorCubit extends Cubit<VendorState> {
     await getVendors(context, state.currentPage);
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await vendorRepository.exportVendor(

@@ -754,9 +754,16 @@ class AchievementReportCubit extends Cubit<AchievementState> {
     required String tabName,
     required String columnName,
     required String filterType,
+    DateTime? fromDate,
+    DateTime? toDate,
   }) async {
     emit(state.copyWith(isLoading: true));
-    var queryParams = {"ProjectId": projectId, "EmployeeId": employeeId};
+    var queryParams = {
+      "ProjectId": projectId,
+      "EmployeeId": employeeId,
+      "FromDate": fromDate.apiDate,
+      "ToDate": toDate.apiDate,
+    };
     var result = await _achievementRepository.getAchievementDrillDownReport(
       pageNumber: pageNumber,
       pageSize: 10,

@@ -71,7 +71,7 @@ class _ViewApprovalDocumentScreenState
     super.dispose();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

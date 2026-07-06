@@ -54,7 +54,7 @@ class _BankListScreenState extends State<BankListScreen> {
     _searchC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

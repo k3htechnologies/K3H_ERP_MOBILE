@@ -11,6 +11,6 @@ void registerMaterialRequisitionInvoiceDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<InvoiceCubit>(InvoiceCubit());
 }

@@ -22,13 +22,13 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     emit(state.copyWith(searchText: ""));
   }
 
-  // <---- SEARCH CHANNEL PARTNER ---->
+  // SEARCH CHANNEL PARTNER
   Future searchChannelPartner(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, channelPartnerList: []));
     await getChannelPartnerList(context, 1);
   }
 
-  // <---- FILTER CP ---->
+  // FILTER CP
   Future applyChannelPartnerFilterAndSort({
     required BuildContext context,
     String? fullName,
@@ -107,7 +107,7 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     await getChannelPartnerList(context, 1);
   }
 
-  // <---- GET CHANNEL PARTNER LIST ---->
+  // GET CHANNEL PARTNER LIST
   Future getChannelPartnerList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
@@ -161,7 +161,7 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     );
   }
 
-  // <---- ADD CHANNEL PARTNER ---->
+  // ADD CHANNEL PARTNER
   Future addChannelPartner({
     required BuildContext context,
     required int channelPartnerId,
@@ -284,7 +284,7 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     );
   }
 
-  // <---- ADD CHANNEL PARTNER ---->
+  // ADD CHANNEL PARTNER
   Future updateChannelPartner({
     required BuildContext context,
     required int channelPartnerId,
@@ -422,7 +422,7 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _channelPartnerRepository.exportChannelPartner(
@@ -456,7 +456,7 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     );
   }
 
-  // <---- GET CHANNEL PARTNER LIST ---->
+  // GET CHANNEL PARTNER LIST
   Future getChannelPartnerDashboardList(BuildContext context) async {
     emit(state.copyWith(isLoading: true));
 

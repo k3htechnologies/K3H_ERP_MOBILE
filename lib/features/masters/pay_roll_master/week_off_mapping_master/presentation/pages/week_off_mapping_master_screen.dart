@@ -77,7 +77,7 @@ class _WeekOffMappingMasterScreenState
     _filterEmployeeNameC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

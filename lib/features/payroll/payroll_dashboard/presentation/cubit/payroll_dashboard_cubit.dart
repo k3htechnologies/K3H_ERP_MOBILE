@@ -15,7 +15,7 @@ class PayrollDashboardCubit extends Cubit<PayrollDashboardState> {
   final PayrollDashboardRepository _payrollDashboardRepository =
       serviceLocator<PayrollDashboardRepository>();
 
-  // <---- GET PAYROLL DASHBOARD LIST ---->
+  // GET PAYROLL DASHBOARD LIST
   Future<void> getPayrollDashboardList(
     BuildContext context,
     int pageNumber,

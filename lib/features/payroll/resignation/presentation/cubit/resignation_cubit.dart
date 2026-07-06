@@ -17,7 +17,7 @@ class ResignationCubit extends Cubit<ResignationState> {
   final ResignationRepository _resignationRepository =
       serviceLocator<ResignationRepository>();
 
-  // <---- GET RESIGNATION LIST ---->
+  // GET RESIGNATION LIST
   Future getResignationList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     var result = await _resignationRepository.getResignationList(

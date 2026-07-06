@@ -14,7 +14,7 @@ void registerRERADocumentCategoryDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<RERADocumentCategoryCubit>(
     RERADocumentCategoryCubit(),
   );

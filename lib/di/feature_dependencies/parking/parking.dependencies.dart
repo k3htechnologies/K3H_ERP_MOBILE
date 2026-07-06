@@ -11,6 +11,6 @@ void registerParkingDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<ParkingCubit>(ParkingCubit());
 }

@@ -13,6 +13,6 @@ void registerRERADocumentDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<RERADocumentCubit>(RERADocumentCubit());
 }

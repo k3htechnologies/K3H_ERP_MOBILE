@@ -17,12 +17,12 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
   final ContentRepository _contentRepository =
       serviceLocator<ContentRepository>();
 
-  // <---- RESET STATE ---->
+  // RESET STATE
   void resetState() {
     emit(ContentDocumentState.initial());
   }
 
-  // <---- GET MARKETING CONTENT LIST ---->
+  // GET MARKETING CONTENT LIST
   Future getContentDocumentList(
     BuildContext context,
     int pageNumber,
@@ -70,7 +70,7 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
     );
   }
 
-  // <---- ADD MARKETING CONTENT --->
+  // ADD MARKETING CONTENT --->
   Future<bool> addMarketingContent(
     BuildContext context, {
     required int projectId,
@@ -137,7 +137,7 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
     );
   }
 
-  // <---- UPDATE MARKETING CONTENT --->
+  // UPDATE MARKETING CONTENT --->
   Future<void> updateMarketingContent(
     BuildContext context, {
     required int projectId,
@@ -196,7 +196,7 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
     );
   }
 
-  // <---- DELETE MARKETING CONTENT ---->
+  // DELETE MARKETING CONTENT
   Future<bool> deleteMarketingContent({
     required BuildContext context,
     required int marketingContentId,
@@ -250,7 +250,7 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
     );
   }
 
-  // <---- SEARCH LITIGATION ---->
+  // SEARCH LITIGATION
   Future searchContentDocument(
     BuildContext context,
     String value,
@@ -267,7 +267,7 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
     );
   }
 
-  // <---- SORT CONTENT DOCUMENT ---->
+  // SORT CONTENT DOCUMENT
   Future sortContentDocument(
     BuildContext context,
     String value,

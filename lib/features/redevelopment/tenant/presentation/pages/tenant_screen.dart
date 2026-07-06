@@ -225,7 +225,7 @@ class _TenantScreenState extends State<TenantScreen> {
     };
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController.addListener(() {
       if (!scrollController.hasClients) return;
@@ -301,7 +301,7 @@ class _TenantScreenState extends State<TenantScreen> {
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Tenant",
+      title: "Filter - Tenant",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {

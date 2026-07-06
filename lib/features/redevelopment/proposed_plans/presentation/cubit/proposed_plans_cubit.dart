@@ -18,7 +18,7 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
   final ProposedPlansRepository _proposedPlansRepository =
       serviceLocator<ProposedPlansRepository>();
 
-  // <---- GET PROPOSED PLANS LIST ---->
+  // GET PROPOSED PLANS LIST
   Future getDepartmentList(BuildContext context, int projectId) async {
     emit(state.copyWith(isLoading: true));
     if (projectId == 0) {

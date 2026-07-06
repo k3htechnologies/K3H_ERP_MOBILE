@@ -165,7 +165,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     super.dispose();
   }
 
-  // <---- TAB CHANGE ---->
+  // TAB CHANGE
   void _handleTabChange() {
     final index = _tabController.index;
     final selectedTab = _tabs[index];
@@ -182,7 +182,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     }
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     employeeScrollController = ScrollController();
     employeeScrollController.addListener(() {
@@ -204,7 +204,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     });
   }
 
-  // <---- COMPANY PAGINATION ---->
+  // COMPANY PAGINATION
   void _onCompanyScroll() {
     companyScrollController = ScrollController();
     companyScrollController.addListener(() {
@@ -226,7 +226,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     });
   }
 
-  // <---- BANK PAGINATION ---->
+  // BANK PAGINATION
   void _onBankScroll() {
     bankScrollController = ScrollController();
     bankScrollController.addListener(() {
@@ -1255,7 +1255,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     );
   }
 
-  // <---- SHOW EMPLOYEE SELECTION BOTTOM SHEET ---->
+  // SHOW EMPLOYEE SELECTION BOTTOM SHEET
   Future<void> _showEmployeeSelectionBottomSheet(BuildContext context) async {
     final currentEmployees =
         _projectMasterCubit.state.employeeByProjectOriginal;
@@ -1323,7 +1323,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     }
   }
 
-  // <---- SHOW DELETE EMPLOYEE DIALOG ---->
+  // SHOW DELETE EMPLOYEE DIALOG
   Future<void> _showDeleteEmployeeDialog(
     BuildContext context,
     UserModel employee,
@@ -2079,7 +2079,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     );
   }
 
-  // <---- SHOW COMPANY SELECTION BOTTOM SHEET ---->
+  // SHOW COMPANY SELECTION BOTTOM SHEET
   Future<void> _showCompanySelectionBottomSheet(BuildContext context) async {
     final currentCompanies = _projectMasterCubit.state.companyByProject;
     final initialValue =
@@ -2138,7 +2138,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     }
   }
 
-  // <---- NAVIGATE TO ADD BANK DETAILS SCREEN ---->
+  // NAVIGATE TO ADD BANK DETAILS SCREEN
   void _navigateToAddBankDetails(BuildContext context) {
     final projectJson = jsonEncode(widget.project.toJson());
     final encryptedProject = EncryptionManager.encryptData(projectJson);
@@ -2149,7 +2149,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     );
   }
 
-  // <---- NAVIGATE TO EDIT BANK DETAILS SCREEN ---->
+  // NAVIGATE TO EDIT BANK DETAILS SCREEN
   void _navigateToEditBankDetails(BuildContext context, BankDetailsModel bank) {
     final projectJson = jsonEncode(widget.project.toJson());
     final encryptedProject = EncryptionManager.encryptData(projectJson);
@@ -2166,7 +2166,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     );
   }
 
-  // <---- SHOW DELETE BANK DIALOG ---->
+  // SHOW DELETE BANK DIALOG
   Future<void> _showDeleteBankDialog(
     BuildContext context,
     BankDetailsModel bank,
@@ -2187,7 +2187,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     }
   }
 
-  // <---- SHOW DELETE MODULE PERMISSION DIALOG ---->
+  // SHOW DELETE MODULE PERMISSION DIALOG
   Future<void> _showDeleteModulePermissionDialog(
     BuildContext context,
     ModulesWorkflowApprovalModel module,

@@ -13,7 +13,7 @@ void registerStockManagementrDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<StockManagementCubit>(
     StockManagementCubit(),
   );

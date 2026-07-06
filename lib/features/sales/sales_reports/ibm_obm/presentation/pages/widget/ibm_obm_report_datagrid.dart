@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -51,6 +52,8 @@ class IbmObmReportDataSource extends DataGridSource {
                     style:
                         index == 0
                             ? AppTextStyle.ts14R()
+                            : cell.value > 0
+                            ? AppTextStyle.ts14SB(color: AppColor.green)
                             : AppTextStyle.ts14M(),
                   ),
                 ),

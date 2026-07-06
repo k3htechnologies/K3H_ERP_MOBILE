@@ -187,7 +187,7 @@ class _LeaveCreditConfigurationMasterScreenState
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Leave Credit Configuration",
+      title: "Filter - Leave Credit Configuration",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           return Form(

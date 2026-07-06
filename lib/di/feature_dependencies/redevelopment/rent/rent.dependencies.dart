@@ -10,6 +10,6 @@ void registerRentDependencies(GetIt serviceLocator) {
     RentRepositoryImpl(rentDatasource: serviceLocator<RentDatasource>()),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<RentCubit>(RentCubit());
 }

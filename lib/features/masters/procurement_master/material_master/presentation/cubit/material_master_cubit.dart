@@ -17,13 +17,13 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
   final MaterialMasterRepository _materialMasterRepository =
       serviceLocator<MaterialMasterRepository>();
 
-  // <---- SEARCH MATERIAL ---->
+  // SEARCH MATERIAL
   Future searchMaterial(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, materialList: []));
     await getMaterialMasterList(context, 1, 20);
   }
 
-  // <---- GET MATERIAL MASTER ---->
+  // GET MATERIAL MASTER
   Future getMaterialMasterList(
     BuildContext context,
     int pageNumber,
@@ -63,7 +63,7 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
     );
   }
 
-  // <---- ADD MATERIAL MASTER ---->
+  // ADD MATERIAL MASTER
   Future addMaterialMaster({
     required BuildContext context,
     required String materialName,
@@ -92,7 +92,7 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
     );
   }
 
-  // <---- UPDATE MATERIAL MASTER ---->
+  // UPDATE MATERIAL MASTER
   Future updateMaterialMaster({
     required BuildContext context,
     required String materialName,
@@ -135,7 +135,7 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
     );
   }
 
-  // <---- DELETE MATERIAL MASTER ---->
+  // DELETE MATERIAL MASTER
   Future deleteMaterialMaster({
     required BuildContext context,
     required int materialMasterId,
@@ -170,7 +170,7 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _materialMasterRepository.exportMaterial(

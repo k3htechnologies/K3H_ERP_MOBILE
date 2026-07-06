@@ -13,6 +13,6 @@ void registerInwardOutwardependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<InwardOutwardCubit>(InwardOutwardCubit());
 }

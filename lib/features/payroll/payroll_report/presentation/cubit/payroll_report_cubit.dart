@@ -49,13 +49,13 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     emit(state.copyWith(searchText: value.trim()));
   }
 
-  // <---- SEARCH PAYROLL REPORT ---->
+  // SEARCH PAYROLL REPORT
   Future searchPayrollReport(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, attendanceList: []));
     await getPayrollReportList(context, 1);
   }
 
-  // <---- GET COMP OFF LIST ---->
+  // GET COMP OFF LIST
   Future getPayrollReportList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {};
@@ -99,7 +99,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     );
   }
 
-  // <---- GET ATTENDANCE LIST ---->
+  // GET ATTENDANCE LIST
   Future getAttendanceList(
     BuildContext context,
     int pageNumber, {
@@ -109,8 +109,8 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     emit(state.copyWith(isLoading: true));
     final queryParams = {
       'EmployeeName': state.searchText,
-      'StartDate': DateFormat('yyyy-MM-dd').format(startDate),
-      'EndDate': DateFormat('yyyy-MM-dd').format(endDate),
+      'StartDate': startDate.apiDate,
+      'EndDate': endDate.apiDate,
       'isReport': true,
     };
     var result = await _attendanceRepository.getAttendanceList(
@@ -143,7 +143,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     );
   }
 
-  // <---- GET LEAVE LIST ---->
+  // GET LEAVE LIST
   Future getLeaveList({
     required BuildContext context,
     required int pageNumber,
@@ -154,8 +154,8 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     emit(state.copyWith(isLoading: true));
     final queryParams = {
       'EmployeeName': state.searchText,
-      'StartDate': DateFormat('yyyy-MM-dd').format(startDate),
-      'EndDate': DateFormat('yyyy-MM-dd').format(endDate),
+      'StartDate': startDate.apiDate,
+      'EndDate': endDate.apiDate,
       "isReport": true,
       "canApprove": canApprove,
     };
@@ -202,7 +202,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     );
   }
 
-  // <---- GET COMP OFF LIST ---->
+  // GET COMP OFF LIST
   Future getCompOffList({
     required BuildContext context,
     required int pageNumber,
@@ -213,8 +213,8 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     emit(state.copyWith(isLoading: true));
     final queryParams = {
       'EmployeeName': state.searchText,
-      'StartDate': DateFormat('yyyy-MM-dd').format(startDate),
-      'EndDate': DateFormat('yyyy-MM-dd').format(endDate),
+      'StartDate': startDate.apiDate,
+      'EndDate': endDate.apiDate,
       "isReport": true,
       "canApprove": canApprove,
     };
@@ -262,7 +262,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     );
   }
 
-  // <---- GET OUTDOOR LIST ---->
+  // GET OUTDOOR LIST
   Future getOutdoorList({
     required BuildContext context,
     required int pageNumber,
@@ -273,8 +273,8 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     emit(state.copyWith(isLoading: true));
     final queryParams = {
       'EmployeeName': state.searchText,
-      'StartDate': DateFormat('yyyy-MM-dd').format(startDate),
-      'EndDate': DateFormat('yyyy-MM-dd').format(endDate),
+      'StartDate': startDate.apiDate,
+      'EndDate': endDate.apiDate,
       "isReport": true,
       "canApprove": canApprove,
     };
@@ -322,7 +322,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     );
   }
 
-  // <---- GET RESIGNATION LIST ---->
+  // GET RESIGNATION LIST
   Future getResignationList({
     required BuildContext context,
     required int pageNumber,
@@ -333,8 +333,8 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     emit(state.copyWith(isLoading: true));
     final queryParams = {
       'EmployeeName': state.searchText,
-      'ResignationDateFrom': DateFormat('yyyy-MM-dd').format(startDate),
-      'ResignationDateTo': DateFormat('yyyy-MM-dd').format(endDate),
+      'ResignationDateFrom': startDate.apiDate,
+      'ResignationDateTo': endDate.apiDate,
       "isReport": true,
       "canApprove": canApprove,
     };
@@ -382,7 +382,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     );
   }
 
-  // <---- GET ATTENDANCE REGULARIZATION LIST ---->
+  // GET ATTENDANCE REGULARIZATION LIST
   Future getAttendanceRegularizationList({
     required BuildContext context,
     required int pageNumber,
@@ -393,8 +393,8 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
       'EmployeeName': state.searchText,
-      'StartDate': DateFormat('yyyy-MM-dd').format(startDate),
-      'EndDate': DateFormat('yyyy-MM-dd').format(endDate),
+      'StartDate': startDate.apiDate,
+      'EndDate': endDate.apiDate,
       "isReport": true,
       "canApprove": canApprove,
     };
@@ -1161,7 +1161,8 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
   int updateFilterCount(PayrollReportState state) {
     return getActiveFilterCount([
       state.searchText.trim().isNotEmpty,
-      (state.filterStartDate != null && state.filterEndDate != null),
+      state.filterStartDate != null,
+      state.filterEndDate != null,
     ]);
   }
 }

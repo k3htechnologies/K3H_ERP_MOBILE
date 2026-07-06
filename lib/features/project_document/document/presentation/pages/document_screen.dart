@@ -78,7 +78,7 @@ class _DocumentScreenState extends State<DocumentScreen>
     _documentC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

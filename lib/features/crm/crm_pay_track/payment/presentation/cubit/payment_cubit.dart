@@ -35,7 +35,7 @@ class PaymentCubit extends Cubit<PaymentState> {
   // PROJECT MASTER REPO
   final ProjectMasterRepository _projectMasterRepository =
       serviceLocator<ProjectMasterRepository>();
-  // <---- GET PAY TRACK LIST ---->
+  // GET PAY TRACK LIST
   Future getPaymentScheduleList(
     BuildContext context,
     int projectId,
@@ -103,7 +103,7 @@ class PaymentCubit extends Cubit<PaymentState> {
     );
   }
 
-  // <---- GET PAYMENT LEDGER LIST ---->
+  // GET PAYMENT LEDGER LIST
   Future getPaymentLedgerList(
     BuildContext context,
     int bookingId,
@@ -128,7 +128,7 @@ class PaymentCubit extends Cubit<PaymentState> {
     );
   }
 
-  // <---- GET PAYMENT LEDGER SUMMARY LIST ---->
+  // GET PAYMENT LEDGER SUMMARY LIST
   Future getPaymentLedgerSummaryList(
     BuildContext context,
     int bookingId,
@@ -161,7 +161,7 @@ class PaymentCubit extends Cubit<PaymentState> {
     );
   }
 
-  // <---- ADD PAYMENT LEDGER ---->
+  // ADD PAYMENT LEDGER
   Future addPaymentLedgerMaster({
     required BuildContext context,
     required String bookingId,
@@ -232,7 +232,7 @@ class PaymentCubit extends Cubit<PaymentState> {
     );
   }
 
-  // <---- DELETE LEDGER ---->
+  // DELETE LEDGER
   Future deletePayTrackPaymentLedger({
     required BuildContext context,
     required int payTrackPaymentLedgerId,
@@ -268,7 +268,7 @@ class PaymentCubit extends Cubit<PaymentState> {
     );
   }
 
-  // <---- OTHER CHARGES DROPDOWN ---->
+  // OTHER CHARGES DROPDOWN
   Future<Map<String, dynamic>> getOtherChargesList(
     int pageNumber,
     int projectId, {
@@ -302,7 +302,7 @@ class PaymentCubit extends Cubit<PaymentState> {
     );
   }
 
-  // <---- BANK DROPDOWN ---->
+  // BANK DROPDOWN
   Future<Map<String, dynamic>> getBankList(
     int pageNumber, {
     String? value,
@@ -334,7 +334,7 @@ class PaymentCubit extends Cubit<PaymentState> {
     );
   }
 
-  // <---- PROJECT WISE BANK DROPDOWN ---->\
+  // PROJECT WISE BANK DROPDOWN \
   Future<Map<String, dynamic>> getProjectWithBankDropdown(
     int pageNumber, {
     String? value,
@@ -460,7 +460,7 @@ class PaymentCubit extends Cubit<PaymentState> {
     );
   }
 
-  // <---- EXPORT PAYMENT LEDGER ---->
+  // EXPORT PAYMENT LEDGER
   Future exportPaymentLedger(
     BuildContext context,
     int bookingId,

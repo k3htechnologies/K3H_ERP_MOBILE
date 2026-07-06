@@ -41,106 +41,112 @@ class _ChannelPartnerDashboardScreenState
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ChannelPartnerCubit, ChannelPartnerState>(
-      builder: (context, state) {
-        if (state.isLoading!) {
-          return Center(child: loader());
-        }
-        final channelPartnerDashboardModel = state.channelPartnerDashboardModel;
-        final table0 = channelPartnerDashboardModel?.table0.first;
-        return Scaffold(
-          backgroundColor: AppColor.lightGreyBackground,
-          appBar: CustomAppBarWithBackButton(
-            screenTitle: "Channel Partner Dashboard",
-            isMenuButton: true,
-            showNotification: true,
-            authorization: AuthorizationModel(),
-          ),
-          body: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (_routeAuthorizationModel.isAction) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        CustomButton(
-                          leading: Icon(
-                            Icons.add,
-                            size: 18,
-                            color: AppColor.white,
+    return Scaffold(
+      backgroundColor: AppColor.lightGreyBackground,
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: "Channel Partner Dashboard",
+        isMenuButton: true,
+        showNotification: true,
+        authorization: AuthorizationModel(),
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _channelPartnerCubit.getChannelPartnerDashboardList(context);
+        },
+        child: BlocBuilder<ChannelPartnerCubit, ChannelPartnerState>(
+          builder: (context, state) {
+            if (state.isLoading!) {
+              return Center(child: loader());
+            }
+            final channelPartnerDashboardModel =
+                state.channelPartnerDashboardModel;
+            final table0 = channelPartnerDashboardModel?.table0.first;
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (_routeAuthorizationModel.isAction) ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          CustomButton(
+                            leading: Icon(
+                              Icons.add,
+                              size: 18,
+                              color: AppColor.white,
+                            ),
+                            text: "Add Channel Partner",
+                            onPressed: () {
+                              goRouter.pushNamed(AppRoutes.addChannelPartner);
+                            },
                           ),
-                          text: "Add Channel Partner",
-                          onPressed: () {
-                            goRouter.pushNamed(AppRoutes.addChannelPartner);
-                          },
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(),
-                  ],
+                        ],
+                      ),
+                      verticalSpacing(),
+                    ],
 
-                  _buildTotalCasesWidget(
-                    context,
-                    bgColor: AppColor.blueBgColor,
-                    title: "Total Channel Partner",
-                    titleColor: AppColor.lightBlue,
-                    value: table0?.totalChannelPartner ?? 0,
-                    valueColor: AppColor.white,
-                  ),
-                  verticalSpacing(height: 16.0),
-                  _buildTotalCasesWidget(
-                    context,
-                    bgColor: AppColor.white,
-                    title: "Enquiry By CP",
-                    titleColor: AppColor.greyTitleAndValueColor.withValues(
-                      alpha: 0.5,
+                    _buildTotalCasesWidget(
+                      context,
+                      bgColor: AppColor.blueBgColor,
+                      title: "Total Channel Partner",
+                      titleColor: AppColor.lightBlue,
+                      value: table0?.totalChannelPartner ?? 0,
+                      valueColor: AppColor.white,
                     ),
-                    value: table0?.activeChannelPartner ?? 0,
-                    subText: "this month",
-                    valueColor: AppColor.greyTitleAndValueColor,
-                  ),
-                  verticalSpacing(height: 16.0),
-                  _buildTotalCasesWidget(
-                    context,
-                    bgColor: AppColor.white,
-                    title: "CP Onboard",
-                    titleColor: AppColor.greyTitleAndValueColor.withValues(
-                      alpha: 0.5,
+                    verticalSpacing(height: 16.0),
+                    _buildTotalCasesWidget(
+                      context,
+                      bgColor: AppColor.white,
+                      title: "Enquiry By CP",
+                      titleColor: AppColor.greyTitleAndValueColor.withValues(
+                        alpha: 0.5,
+                      ),
+                      value: table0?.activeChannelPartner ?? 0,
+                      subText: "this month",
+                      valueColor: AppColor.greyTitleAndValueColor,
                     ),
-                    value: table0?.thisMonthAddedChannelPartner ?? 0,
-                    valueColor: AppColor.greyTitleAndValueColor,
-                    subText: "this month",
-                  ),
-                  verticalSpacing(height: 16.0),
-                  _buildTotalCasesWidget(
-                    context,
-                    bgColor: Color(0xffFFECEC),
-                    title: "Missing Information",
-                    titleColor: AppColor.greyTitleAndValueColor.withValues(
-                      alpha: 0.5,
+                    verticalSpacing(height: 16.0),
+                    _buildTotalCasesWidget(
+                      context,
+                      bgColor: AppColor.white,
+                      title: "CP Onboard",
+                      titleColor: AppColor.greyTitleAndValueColor.withValues(
+                        alpha: 0.5,
+                      ),
+                      value: table0?.thisMonthAddedChannelPartner ?? 0,
+                      valueColor: AppColor.greyTitleAndValueColor,
+                      subText: "this month",
                     ),
-                    value: table0?.missingInfoChannelPartner ?? 0,
-                    valueColor: AppColor.missingInformationRed,
-                    borderColor: AppColor.missingInformationRed,
-                  ),
-                  verticalSpacing(height: 16.0),
-                  // CHANNEL PARTNER DISTRIBUTION WIDGET
-                  _buildChannelPartnerDistributionWidget(context),
-                  verticalSpacing(height: 16.0),
-                  // RECENTLY ADDED CHANNEL PARTNER WIDGET
-                  _buildRecentlyAddedChannelPartnerWidget(context),
-                  verticalSpacing(height: 16.0),
-                  // MISSING DETAILS WIDGET
-                  _buildMissingDetailsWidget(context),
-                ],
+                    verticalSpacing(height: 16.0),
+                    _buildTotalCasesWidget(
+                      context,
+                      bgColor: Color(0xffFFECEC),
+                      title: "Missing Information",
+                      titleColor: AppColor.greyTitleAndValueColor.withValues(
+                        alpha: 0.5,
+                      ),
+                      value: table0?.missingInfoChannelPartner ?? 0,
+                      valueColor: AppColor.missingInformationRed,
+                      borderColor: AppColor.missingInformationRed,
+                    ),
+                    verticalSpacing(height: 16.0),
+                    // CHANNEL PARTNER DISTRIBUTION WIDGET
+                    _buildChannelPartnerDistributionWidget(context),
+                    verticalSpacing(height: 16.0),
+                    // RECENTLY ADDED CHANNEL PARTNER WIDGET
+                    _buildRecentlyAddedChannelPartnerWidget(context),
+                    verticalSpacing(height: 16.0),
+                    // MISSING DETAILS WIDGET
+                    _buildMissingDetailsWidget(context),
+                  ],
+                ),
               ),
-            ),
-          ),
-        );
-      },
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -336,9 +342,6 @@ class _ChannelPartnerDashboardScreenState
                   final index = entry.key;
                   final item = entry.value;
 
-                  final widthFactor =
-                      maxValue == 0 ? 0.0 : item.totalChannelPartner / maxValue;
-
                   return Padding(
                     padding: EdgeInsets.only(
                       bottom: index == table3.length - 1 ? 0 : 14.0,
@@ -360,6 +363,11 @@ class _ChannelPartnerDashboardScreenState
                         Expanded(
                           child: LayoutBuilder(
                             builder: (context, constraints) {
+                              final widthFactor =
+                                  maxValue == 0
+                                      ? 0.0
+                                      : item.totalChannelPartner / maxValue;
+
                               final calculatedWidth =
                                   constraints.maxWidth *
                                   widthFactor.clamp(0.0, 1.0);
@@ -367,13 +375,30 @@ class _ChannelPartnerDashboardScreenState
                               final valueText =
                                   item.totalChannelPartner.toString();
 
-                              // Medium values should still display inside
-                              final showInside = item.totalChannelPartner >= 25;
+                              // Show text inside only if the bar is actually wide enough
+                              final showInside = calculatedWidth >= 60;
 
-                              final barWidth =
+                              const outsideTextWidth = 32.0;
+                              const gap = 8.0;
+
+                              final availableBarWidth =
                                   showInside
-                                      ? math.max(calculatedWidth, 50.w)
-                                      : calculatedWidth;
+                                      ? constraints.maxWidth
+                                      : constraints.maxWidth -
+                                          outsideTextWidth -
+                                          gap;
+
+                              double barWidth =
+                                  availableBarWidth *
+                                  widthFactor.clamp(0.0, 1.0);
+
+                              // Ensure small non-zero values are still visible
+                              if (item.totalChannelPartner > 0) {
+                                barWidth = math.max(barWidth, 12.0);
+                              }
+
+                              // Prevent overflow
+                              barWidth = barWidth.clamp(0.0, availableBarWidth);
 
                               return SizedBox(
                                 height: 36.h,
@@ -385,21 +410,20 @@ class _ChannelPartnerDashboardScreenState
                                       ),
                                       width: barWidth,
                                       height: 36.h,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color: AppColor.primary.withValues(
-                                          alpha: 0.35,
-                                        ),
-                                      ),
                                       alignment: Alignment.centerRight,
                                       padding: EdgeInsets.symmetric(
                                         horizontal: 12.w,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColor.primary.withValues(
+                                          alpha: 0.35,
+                                        ),
+                                        borderRadius: BorderRadius.circular(10),
                                       ),
                                       child:
                                           showInside
                                               ? Text(
                                                 valueText,
-                                                maxLines: 1,
                                                 style: AppTextStyle.ts16SB(
                                                   color: AppColor.primary,
                                                 ),
@@ -408,12 +432,14 @@ class _ChannelPartnerDashboardScreenState
                                     ),
 
                                     if (!showInside) ...[
-                                      SizedBox(width: 8.w),
-                                      Text(
-                                        valueText,
-                                        maxLines: 1,
-                                        style: AppTextStyle.ts16SB(
-                                          color: AppColor.primary,
+                                      SizedBox(width: gap),
+                                      SizedBox(
+                                        width: outsideTextWidth,
+                                        child: Text(
+                                          valueText,
+                                          style: AppTextStyle.ts16SB(
+                                            color: AppColor.primary,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -506,6 +532,37 @@ class _ChannelPartnerDashboardScreenState
                               value: addedChannelPartner.systemGeneratedCode,
                               valueTextStyle: AppTextStyle.ts14M(
                                 color: AppColor.greyTitleAndValueColor,
+                              ),
+                              customValueWidget: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    addedChannelPartner.systemGeneratedCode,
+                                    style: AppTextStyle.ts14M(),
+                                  ),
+
+                                  horizontalSpacing(width: 2),
+                                  InkWell(
+                                    onTap: () {
+                                      copy(
+                                        context: context,
+                                        text:
+                                            addedChannelPartner
+                                                .systemGeneratedCode,
+                                      );
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(5),
+                                      child: Icon(
+                                        Icons.copy,
+                                        size: 16,
+                                        color: AppColor.primary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             verticalSpacing(height: 16),

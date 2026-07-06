@@ -14,10 +14,6 @@ void registerUOMMasterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
-  serviceLocator.registerSingleton<UOMMasterCubit>(
-    UOMMasterCubit(),
-  );
+  //- CUBITS -
+  serviceLocator.registerSingleton<UOMMasterCubit>(UOMMasterCubit());
 }
-
-

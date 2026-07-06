@@ -20,7 +20,7 @@ class BuildingCubit extends Cubit<BuildingState> {
   final BuildingRepository _buildingRepository =
       serviceLocator<BuildingRepository>();
 
-  // <---- ON TAB CHANGED ---->
+  // ON TAB CHANGED
   void onTabChanged(
     int index,
     BuildContext context,
@@ -42,7 +42,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     }
   }
 
-  // <---- SEARCH BUILDING ---->
+  // SEARCH BUILDING
   Future searchBuilding(
     BuildContext context,
     int projectId,
@@ -75,7 +75,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     await getBuildingList(context, 1, projectId);
   }
 
-  // <---- GET ASSET LIST ---->
+  // GET ASSET LIST
   Future getBuildingList(
     BuildContext context,
     int pageNumber,
@@ -130,7 +130,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     );
   }
 
-  // <---- GET BUILDING DETAILS ---->
+  // GET BUILDING DETAILS
   Future<void> getBuildingDetails({
     required BuildContext context,
     required int buildingId,
@@ -168,7 +168,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     );
   }
 
-  // <---- GET BUILDING DOCUMENT LIST ---->
+  // GET BUILDING DOCUMENT LIST
   Future getBuildingDocumentList(
     BuildContext context,
     int projectId,
@@ -221,7 +221,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     );
   }
 
-  /// <---- GET CHILD BUILDING DOCUMENTS (NO STATE MUTATION) ---->
+  /// <---- GET CHILD BUILDING DOCUMENTS (NO STATE MUTATION)
   Future<List<BuildingDocumentModel>> getBuildingChildDocuments(
     BuildContext context,
     int projectId,
@@ -254,7 +254,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     );
   }
 
-  // <---- ADD BUILDING DOCUMENT ---->
+  // ADD BUILDING DOCUMENT
   Future addBuildingDocument({
     required BuildContext context,
     required int projectId,
@@ -312,7 +312,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     );
   }
 
-  // <---- ADD/UPDATE BUILDING DOCUMENT ---->
+  // ADD/UPDATE BUILDING DOCUMENT
   Future updateBuildingDocument({
     required BuildContext context,
     required int buildingDocumentId,
@@ -385,7 +385,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     );
   }
 
-  // <---- ADD BUILDING ---->
+  // ADD BUILDING
   Future addBuilding(
     BuildContext context,
     int projectId,
@@ -411,7 +411,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     );
   }
 
-  // <---- UPDATE BUILDING ---->
+  // UPDATE BUILDING
   Future updateBuilding(
     BuildContext context,
     int projectId,
@@ -452,7 +452,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     );
   }
 
-  // <---- DELETE BUILDING ---->
+  // DELETE BUILDING
   Future deleteBuilding(
     int projectId,
     RedevelopmentBuildingModel buildingModel,
@@ -497,7 +497,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     );
   }
 
-  // <---- EXPORT ---->
+  // EXPORT
   Future exportExcelPdf(
     BuildContext context,
     String exportType,
@@ -533,7 +533,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     );
   }
 
-  // <---- UPDATE BUILDING DETAILS ---->
+  // UPDATE BUILDING DETAILS
   Future<void> updateBuildingDetails({
     required BuildContext context,
     required Map<String, dynamic> buildingDetailsData,

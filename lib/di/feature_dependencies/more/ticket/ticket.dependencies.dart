@@ -9,6 +9,6 @@ void registerTicketDependencies(GetIt serviceLocator) {
     TicketRepositoryImpl(ticketDatasource: serviceLocator<TicketDatasource>()),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<TicketCubit>(TicketCubit());
 }

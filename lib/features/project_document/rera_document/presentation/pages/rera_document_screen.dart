@@ -75,7 +75,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     _reraDocumentC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

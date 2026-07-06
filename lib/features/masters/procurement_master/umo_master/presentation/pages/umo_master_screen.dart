@@ -56,7 +56,7 @@ class _UOMMasterScreenState extends State<UOMMasterScreen> {
     _searchC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

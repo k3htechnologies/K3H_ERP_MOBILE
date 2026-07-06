@@ -23,8 +23,7 @@ class ProjectListScreen extends StatefulWidget {
   const ProjectListScreen({super.key, required this.projectList});
 
   @override
-  State<ProjectListScreen> createState() =>
-      _ProjectListMobileScreenState();
+  State<ProjectListScreen> createState() => _ProjectListMobileScreenState();
 }
 
 class _ProjectListMobileScreenState extends State<ProjectListScreen> {
@@ -32,22 +31,22 @@ class _ProjectListMobileScreenState extends State<ProjectListScreen> {
   final LocalStorageManager _localStorageManager = LocalStorageManager();
   late UserModel userModel;
 
-  // <---- MENU PROJECT WISE ---->
+  // MENU PROJECT WISE
   Future getMenuForCurrentUser() async {
     var result = await _utilsRepository.getMenu(
       employeeId:
-      UserModel.fromJson(
-        jsonDecode(
-          LocalStorageManager().getString(StorageKey.currentUser) ?? '',
-        ),
-      ).employeeId,
+          UserModel.fromJson(
+            jsonDecode(
+              LocalStorageManager().getString(StorageKey.currentUser) ?? '',
+            ),
+          ).employeeId,
     );
     return result.fold(
-          (failure) {
+      (failure) {
         // Handle failure
         return false;
       },
-          (data) async {
+      (data) async {
         _localStorageManager.setString(
           StorageKey.menu,
           jsonEncode(data["menuData"] as List<ModuleModel>),
@@ -71,8 +70,7 @@ class _ProjectListMobileScreenState extends State<ProjectListScreen> {
       StorageKey.selectedProject,
       jsonEncode(widget.projectList[index]),
     );
-    var result = await getMenuForCurrentUser(
-    );
+    var result = await getMenuForCurrentUser();
     goRouter.pop();
     if (result) {
       // NAVIGATE TO DASHBAORD
@@ -118,7 +116,7 @@ class _ProjectListMobileScreenState extends State<ProjectListScreen> {
       body: ListView.builder(
         padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
         itemCount:
-        widget.projectList.length + 4, // +4 for empty space at the end
+            widget.projectList.length + 4, // +4 for empty space at the end
         itemBuilder: (context, index) {
           if (index >= widget.projectList.length) {
             return SizedBox(height: 10); // Empty space at the end
@@ -143,40 +141,40 @@ class _ProjectListMobileScreenState extends State<ProjectListScreen> {
                   children: [
                     project.projectPhotoUrl.isNotEmpty
                         ? Container(
-                      clipBehavior: Clip.hardEdge,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: NetworkImageWidget(
-                        imageUrl: project.projectPhotoUrl,
-                        width: 84,
-                        height: 69,
-                        fit: BoxFit.cover,
-                        errorWidget: Container(
-                          color: Colors.grey[300],
+                          clipBehavior: Clip.hardEdge,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: NetworkImageWidget(
+                            imageUrl: project.projectPhotoUrl,
+                            width: 84,
+                            height: 69,
+                            fit: BoxFit.cover,
+                            errorWidget: Container(
+                              color: Colors.grey[300],
+                              width: 84,
+                              height: 69,
+                              child: Icon(
+                                Icons.image_not_supported,
+                                size: 20,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                          ),
+                        )
+                        : Container(
                           width: 84,
                           height: 69,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.0),
+                            color: Colors.grey[300],
+                          ),
                           child: Icon(
                             Icons.image_not_supported,
                             size: 20,
                             color: Colors.grey[700],
                           ),
                         ),
-                      ),
-                    )
-                        : Container(
-                      width: 84,
-                      height: 69,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.0),
-                        color: Colors.grey[300],
-                      ),
-                      child: Icon(
-                        Icons.image_not_supported,
-                        size: 20,
-                        color: Colors.grey[700],
-                      ),
-                    ),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

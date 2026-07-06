@@ -13,7 +13,7 @@ enum StateType {
   companyPartnerLoading,
   employeeMasterListState,
   employeeMasterModuleAccessState,
-  // <---- SALES ---->
+  // SALES
   channelPartnerBookingState,
   // CALL TRACKER
   callingData,

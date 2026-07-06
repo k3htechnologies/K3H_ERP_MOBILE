@@ -15,7 +15,7 @@ void registerTermsAndConditionsMasterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<TermsAndConditionsCubit>(
     TermsAndConditionsCubit(),
   );

@@ -14,7 +14,7 @@ void registerLeaveCreditConfigurationMasterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<LeaveCreditConfigurationMasterCubit>(
     LeaveCreditConfigurationMasterCubit(),
   );

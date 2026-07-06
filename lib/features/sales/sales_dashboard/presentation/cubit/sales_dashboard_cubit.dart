@@ -1,8 +1,9 @@
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/sales/sales_dashboard/data/model/project_wise_sales.dashboard.model.dart'
+    hide Table0;
 import 'package:k3h_erp_app/features/sales/sales_dashboard/data/model/sales.dashboard.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/data/repository/sales.dashboard.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -18,19 +19,29 @@ class SalesDashboardCubit extends Cubit<SalesDashboardState> {
   final SalesDashboardRepository _salesDashboardRepository =
       serviceLocator<SalesDashboardRepository>();
 
-  void onTabChanged(int index, BuildContext context) {
-    emit(state.copyWith(currentTabIndex: index));
+  Future clearSalesDashboardData() async {
+    emit(
+      state.copyWith(salesDashboardList: [], projectWiseSalesDashboardList: []),
+    );
   }
 
-  // <---- GET Dashboard LIST ---->
-  Future getSalesDashboardList(BuildContext context, int? projectId) async {
+  // GET Dashboard LIST
+  Future getSalesDashboardList({
+    required BuildContext context,
+    required int projectId,
+    required String filterType,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) async {
     emit(state.copyWith(isLoading: true));
 
-    final int finalProjectId =
-        (projectId == null || projectId == 0) ? 0 : projectId;
-
     var result = await _salesDashboardRepository.getSalesDashboardList(
-      projectId: finalProjectId,
+      projectId: projectId,
+      queryParams: {
+        "FilterType": filterType.toUpperCase(),
+        "FromDate": fromDate?.apiDate,
+        "ToDate": toDate?.apiDate,
+      },
     );
 
     result.fold(
@@ -43,9 +54,7 @@ class SalesDashboardCubit extends Cubit<SalesDashboardState> {
 
         emit(
           state.copyWith(
-            salesData: model,
             salesDashboardList: model != null ? [model] : [],
-            salesDashboardListForFilter: model != null ? [model] : [],
             isLoading: false,
           ),
         );
@@ -53,79 +62,78 @@ class SalesDashboardCubit extends Cubit<SalesDashboardState> {
     );
   }
 
-  // <---- MARK TIME OUT ENQUIRY ---->
-  Future markTimeOutEnquiry({
+  // MARK TIME OUT ENQUIRY
+  Future<void> markTimeOutEnquiry({
     required BuildContext context,
     required int enquiryId,
     required int projectId,
+    DateTime? toDate,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-    Map<String, dynamic> requestBody = {
-      "EnquiryId": enquiryId,
-      "ProjectId": projectId,
-    };
-    var addResult = await _salesDashboardRepository.markTimeOutEnquiry(
+
+    final requestBody = {"EnquiryId": enquiryId, "ProjectId": projectId};
+
+    final addResult = await _salesDashboardRepository.markTimeOutEnquiry(
       body: requestBody,
     );
+
     goRouter.pop();
+
     addResult.fold(
       (failure) {
+        debugPrint("API Failed: ${failure.message}");
         showErrorMessage(context, 'Error', failure.message);
-        return;
       },
       (response) {
+        final dashboard = state.salesDashboardList.first;
+
+        final updatedTable0 = List<Table0>.from(dashboard.table0)
+          ..removeWhere((e) => e.enquiryId == enquiryId);
+
+        final updatedDashboard = dashboard.copyWith(table0: updatedTable0);
+
+        final updatedSalesDashboardList = [updatedDashboard];
+
+        emit(state.copyWith(salesDashboardList: updatedSalesDashboardList));
+
         showSuccessMessage(context, subTitle: response['message']);
-        getSalesDashboardList(context, projectId);
       },
     );
   }
 
-  Future localSearch(String query, int index) async {
+  Future<void> getProjectWiseSalesDashboard({
+    required BuildContext context,
+    required int projectId,
+    required String filterType,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) async {
     emit(state.copyWith(isLoading: true));
-    if (index == 0) {
-      List<Table3> filteredSourcingList =
-          state.salesDashboardList.first.table3
-              .where(
-                (item) => item.employeeName.toLowerCase().contains(
-                  query.toLowerCase(),
-                ),
-              )
-              .toList();
-      List<SalesDashboardModel> updatedList =
-          state.salesDashboardList.map((model) {
-            if (model.table3.isNotEmpty) {
-              return model.copyWith(table3: filteredSourcingList);
-            }
-            return model;
-          }).toList();
-      emit(
-        state.copyWith(
-          salesDashboardListForFilter: updatedList,
-          isLoading: false,
-        ),
-      );
-    } else if (index == 1) {
-      List<Table2> filteredClosingList =
-          state.salesDashboardList.first.table2
-              .where(
-                (item) => item.employeeName.toLowerCase().contains(
-                  query.toLowerCase(),
-                ),
-              )
-              .toList();
-      List<SalesDashboardModel> updatedList =
-          state.salesDashboardList.map((model) {
-            if (model.table2.isNotEmpty) {
-              return model.copyWith(table2: filteredClosingList);
-            }
-            return model;
-          }).toList();
-      emit(
-        state.copyWith(
-          salesDashboardListForFilter: updatedList,
-          isLoading: false,
-        ),
-      );
-    }
+
+    var result = await _salesDashboardRepository.getProjectWiseSalesDashboard(
+      projectId: projectId,
+      queryParams: {
+        "FilterType": filterType.toUpperCase(),
+        "FromDate": fromDate?.apiDate,
+        "ToDate": toDate?.apiDate,
+      },
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final ProjectWiseSalesDashboardModel? model = response['data'];
+
+        emit(
+          state.copyWith(
+            projectWiseSalesDashboardList: model != null ? [model] : [],
+            isLoading: false,
+          ),
+        );
+      },
+    );
   }
 }

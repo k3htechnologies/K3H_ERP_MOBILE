@@ -13,6 +13,6 @@ void registerHolidayMasterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<HolidayMasterCubit>(HolidayMasterCubit());
 }

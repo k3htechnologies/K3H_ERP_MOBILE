@@ -81,7 +81,7 @@ class _ApprovedBankFieScreenState extends State<ApprovedBankFieScreen> {
     _titleC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

@@ -11,6 +11,6 @@ void registerCompOffDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<CompOffCubit>(CompOffCubit());
 }

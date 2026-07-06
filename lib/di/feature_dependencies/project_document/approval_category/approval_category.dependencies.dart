@@ -13,7 +13,7 @@ void registerApprovalCategoryDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<ApprovalCategoryCubit>(
     ApprovalCategoryCubit(),
   );

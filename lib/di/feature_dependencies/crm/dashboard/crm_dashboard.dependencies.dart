@@ -13,6 +13,6 @@ void registerCrmDashboardDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<CrmDashboardCubit>(CrmDashboardCubit());
 }

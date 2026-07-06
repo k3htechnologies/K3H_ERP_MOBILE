@@ -75,7 +75,7 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
     _filterDepartmentC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -153,7 +153,7 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Shift Mapping",
+      title: "Filter - Shift Mapping",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {

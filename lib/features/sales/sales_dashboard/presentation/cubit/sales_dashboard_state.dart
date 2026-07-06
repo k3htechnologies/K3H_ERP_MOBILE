@@ -1,50 +1,38 @@
 part of 'sales_dashboard_cubit.dart';
 
 final class SalesDashboardState extends BaseState {
-  final SalesDashboardModel? salesData;
   final List<SalesDashboardModel> salesDashboardList;
-  final List<SalesDashboardModel> salesDashboardListForFilter;
-  final int currentTabIndex;
+  final List<ProjectWiseSalesDashboardModel> projectWiseSalesDashboardList;
+
   const SalesDashboardState({
     super.isLoading,
-    this.salesData,
     required this.salesDashboardList,
-    required this.salesDashboardListForFilter,
-    required this.currentTabIndex,
+    required this.projectWiseSalesDashboardList,
   });
 
   factory SalesDashboardState.initial() => SalesDashboardState(
     isLoading: true,
     salesDashboardList: [],
-    salesDashboardListForFilter: [],
-    currentTabIndex: 0,
+    projectWiseSalesDashboardList: [],
   );
 
   SalesDashboardState copyWith({
     bool? isLoading,
-    int? totalNumberOfRecord,
-    int? currentPage,
-    SalesDashboardModel? salesData,
     List<SalesDashboardModel>? salesDashboardList,
-    List<SalesDashboardModel>? salesDashboardListForFilter,
-    int? currentTabIndex,
+    List<ProjectWiseSalesDashboardModel>? projectWiseSalesDashboardList,
   }) {
     return SalesDashboardState(
       isLoading: isLoading ?? this.isLoading,
-      salesData: salesData ?? this.salesData,
       salesDashboardList: salesDashboardList ?? this.salesDashboardList,
-      currentTabIndex: currentTabIndex ?? this.currentTabIndex,
-      salesDashboardListForFilter:
-          salesDashboardListForFilter ?? this.salesDashboardListForFilter,
+      projectWiseSalesDashboardList:
+          projectWiseSalesDashboardList ?? this.projectWiseSalesDashboardList,
     );
   }
 
   @override
   List<Object?> get props => [
     isLoading,
-    salesData,
     salesDashboardList,
-    currentTabIndex,
-    salesDashboardListForFilter,
+    projectWiseSalesDashboardList,
   ];
 }

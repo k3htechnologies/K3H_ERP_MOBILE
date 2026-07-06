@@ -98,7 +98,7 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
     _remarkC.text = widget.materialDetails!.remark;
   }
 
-  // <---- DROPDOWN FUNCTIONS ---->
+  // DROPDOWN FUNCTIONS
   Future<void> getMaterialSubMaterialUOMMaster() async {
     DialogHelper.showProcessingOverlay(context);
     var result = await utilsRepository

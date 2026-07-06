@@ -524,7 +524,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     }
   }
 
-  // <---- ATTENDANCE PAGINATION ---->
+  // ATTENDANCE PAGINATION
   void _setupAttendancePagination() {
     _attendanceScrollController.addListener(() {
       final state = _payrollReportCubit.state;
@@ -554,7 +554,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     });
   }
 
-  // <---- REGULARIZATION PAGINATION ---->
+  // REGULARIZATION PAGINATION
   void _setupRegularizationPagination() {
     _regularizationReportController.addListener(() {
       final state = _payrollReportCubit.state;
@@ -588,7 +588,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     });
   }
 
-  // <---- COMPOFF PAGINATION ---->
+  // COMPOFF PAGINATION
   void _setupCompOffPagination() {
     _compOffReportController.addListener(() {
       final state = _payrollReportCubit.state;
@@ -617,7 +617,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     });
   }
 
-  // <---- LEAVE PAGINATION ---->
+  // LEAVE PAGINATION
   void _setupLeavePagination() {
     _leaveReportController.addListener(() {
       final state = _payrollReportCubit.state;
@@ -646,7 +646,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     });
   }
 
-  // <---- OUTDOOR PAGINATION ---->
+  // OUTDOOR PAGINATION
   void _setupOutdoorPagination() {
     _outdoorReportController.addListener(() {
       final state = _payrollReportCubit.state;
@@ -676,7 +676,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     });
   }
 
-  // <---- RESIGNATION PAGINATION ---->
+  // RESIGNATION PAGINATION
   void _setupResignationPagination() {
     _resignationReportController.addListener(() {
       final state = _payrollReportCubit.state;
@@ -708,7 +708,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     });
   }
 
-  // <---- LEAVE APPROVAL PAGINATION ---->
+  // LEAVE APPROVAL PAGINATION
   void _setupLeaveApprovalPagination() {
     _leaveApprovalController.addListener(() {
       final state = _payrollReportCubit.state;
@@ -739,7 +739,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     });
   }
 
-  // <---- COMPOFF APPROVAL PAGINATION ---->
+  // COMPOFF APPROVAL PAGINATION
   void _setupCompOffApprovalPagination() {
     _compOffApprovalController.addListener(() {
       final state = _payrollReportCubit.state;
@@ -770,7 +770,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     });
   }
 
-  // <---- OUTDOOR APPROVAL PAGINATION ---->
+  // OUTDOOR APPROVAL PAGINATION
   void _setupOutdoorApprovalPagination() {
     _outdoorApprovalController.addListener(() {
       final state = _payrollReportCubit.state;
@@ -801,7 +801,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     });
   }
 
-  // <---- RESIGNATION APPROVAL PAGINATION ---->
+  // RESIGNATION APPROVAL PAGINATION
   void _setupResignationApprovalPagination() {
     _resignationApprovalController.addListener(() {
       final state = _payrollReportCubit.state;
@@ -835,7 +835,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     });
   }
 
-  // <---- REGULARIZATION APPROVAL PAGINATION ---->
+  // REGULARIZATION APPROVAL PAGINATION
   void _setupRegularizationApprovalPagination() {
     _regularizationApprovalController.addListener(() {
       final state = _payrollReportCubit.state;
@@ -907,7 +907,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Payroll Master",
+      title: "Filter - Payroll Master",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           return Column(

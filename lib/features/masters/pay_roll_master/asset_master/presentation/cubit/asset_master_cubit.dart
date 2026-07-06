@@ -41,7 +41,7 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
     }
   }
 
-  // <---- SEARCH ASSET ---->
+  // SEARCH ASSET
   void searchAsset(String value, BuildContext context) {
     emit(
       state.copyWith(
@@ -85,7 +85,7 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
     await getAssetsList(context: context, pageNumber: 1);
   }
 
-  // <---- GET ASSET LIST ---->
+  // GET ASSET LIST
   Future getAssetsList({
     required BuildContext context,
     required int pageNumber,
@@ -133,7 +133,7 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
     );
   }
 
-  // <---- ADD ASSET ---->
+  // ADD ASSET
   Future addAsset({
     required BuildContext context,
     required String assetName,
@@ -196,7 +196,7 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
     );
   }
 
-  // <---- UPDATE ASSET ---->
+  // UPDATE ASSET
   Future updateAsset({
     required int index,
     required BuildContext context,
@@ -272,7 +272,7 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
     );
   }
 
-  // <---- DELETE ASSET ---->
+  // DELETE ASSET
   Future deleteAsset(
     AssetMasterModel asset,
     BuildContext context,
@@ -309,7 +309,7 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
     );
   }
 
-  // <---- EXPORT ---->
+  // EXPORT
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
 

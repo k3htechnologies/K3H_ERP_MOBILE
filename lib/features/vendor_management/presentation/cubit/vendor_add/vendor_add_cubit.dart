@@ -27,7 +27,7 @@ class VendorAddCubit extends Cubit<VendorAddState> {
 
   UtilsRepository utilsRepository = serviceLocator<UtilsRepository>();
 
-  // <---- DROPDOWN FUNCTIONS ---->
+  // DROPDOWN FUNCTIONS
   Future<Map<String, dynamic>> getMaterialSubMaterialUOMMaster(
     BuildContext context,
   ) async {
@@ -82,7 +82,7 @@ class VendorAddCubit extends Cubit<VendorAddState> {
     );
   }
 
-  // <---- ADD VENDOR  ---->
+  // ADD VENDOR
   Future addVendor({
     required BuildContext context,
     required String companyName,
@@ -170,7 +170,7 @@ class VendorAddCubit extends Cubit<VendorAddState> {
     );
   }
 
-  // <---- UPDATE VENDOR  ---->
+  // UPDATE VENDOR
   Future updateVendor({
     required int index,
     required VendorModel? vendor,

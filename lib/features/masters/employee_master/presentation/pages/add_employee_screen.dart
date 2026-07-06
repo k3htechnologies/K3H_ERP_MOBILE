@@ -757,7 +757,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     };
   }
 
-  // <---- ADD UPDATE EMPLOYEE ---->
+  // ADD UPDATE EMPLOYEE
   Future<void> _handleSubmit() async {
     if (!mounted) {
       return;
@@ -973,7 +973,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     );
   }
 
-  // <---- BASIC DETAILS SECTION ---->
+  // BASIC DETAILS SECTION
   Widget _buildBasicDetailsSection() {
     return Form(
       key: _formKeys[0],
@@ -1255,7 +1255,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     );
   }
 
-  // <---- EMPLOYEE INFO SECTION ---->
+  // EMPLOYEE INFO SECTION
   Widget _buildEmployeeInfoSection() {
     return Form(
       key: _formKeys[1],
@@ -1455,7 +1455,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     );
   }
 
-  // <---- ADDRESS SECTION ---->
+  // ADDRESS SECTION
   Widget _buildAddressSection() {
     return Form(
       key: _formKeys[2],
@@ -1521,7 +1521,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     );
   }
 
-  // <---- BANK DETAILS SECTION ---->
+  // BANK DETAILS SECTION
   Widget _buildBankDetailsSection() {
     return Form(
       key: _formKeys[3],

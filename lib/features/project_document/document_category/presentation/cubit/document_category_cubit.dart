@@ -16,7 +16,7 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
   final DocumentCategoryRepository _documentCategoryRepository =
       serviceLocator<DocumentCategoryRepository>();
 
-  // <---- SEARCH CATEGORY ---->
+  // SEARCH CATEGORY
   Future searchCategory(
     BuildContext context,
     int projectId,
@@ -32,7 +32,7 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
     await getDocumentCategoryList(context, 1, projectId);
   }
 
-  // <---- CLEAR DOCUMENT CATEGORY LIST ---->
+  // CLEAR DOCUMENT CATEGORY LIST
   void clearDocumentCategory() {
     try {
       emit(
@@ -49,7 +49,7 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
     }
   }
 
-  // <---- GET DOCUMENT CATEGORY LIST ---->
+  // GET DOCUMENT CATEGORY LIST
   Future getDocumentCategoryList(
     BuildContext context,
     int pageNumber,
@@ -100,7 +100,7 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
     );
   }
 
-  // <---- DELETE DOCUMENT CATEGORY  ---->
+  // DELETE DOCUMENT CATEGORY
   Future deleteDocumentCategory(
     int projectId,
     DocumentCategoryModel documentCategoryModel,
@@ -216,7 +216,7 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(
     BuildContext context,
     String exportType,

@@ -15,7 +15,7 @@ class SettingDashboardCubit extends Cubit<SettingDashboardState> {
   final SettingDashbaordRepository _settingDashbaordRepository =
       serviceLocator<SettingDashbaordRepository>();
 
-  // <---- GET Dashboard LIST ---->
+  // GET Dashboard LIST
   Future getSettingDashboardList(BuildContext context) async {
     emit(state.copyWith(isLoading: true));
 

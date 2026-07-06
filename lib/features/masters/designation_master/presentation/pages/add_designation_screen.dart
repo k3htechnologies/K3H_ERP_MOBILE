@@ -54,14 +54,14 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
     }
   }
 
-  // <---- INITIALIZE TEXT EDITING CONTROLLERS ---->
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _designationNameC = TextEditingController();
     _noticePeriodC = TextEditingController();
     _probationPeriodC = TextEditingController();
   }
 
-  // <---- PREFILL DESIGNATION ---->
+  // PREFILL DESIGNATION
   void _prefillDialogueToAddUpdateDesignationMaster(
     DesignationMasterModel designationModel,
   ) {
@@ -70,7 +70,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
     _probationPeriodC.text = designationModel.probationPeriod.toString();
   }
 
-  // <---- API CALLS TO ADD/UPDATE DESIGNATION ---->
+  // API CALLS TO ADD/UPDATE DESIGNATION
   Future<void> _addUpdateDesignation(
     BuildContext context,
     DesignationMasterModel? designationModel,
@@ -159,7 +159,9 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                           return 'Notice Period is required';
                         }
                         final numValue = int.tryParse(value);
-                        if (numValue == null || numValue < 1 || numValue > 999) {
+                        if (numValue == null ||
+                            numValue < 1 ||
+                            numValue > 999) {
                           return 'Enter a valid number (1 to 999)';
                         }
                         return null;
@@ -177,7 +179,9 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                           return 'Probation Period is required';
                         }
                         final numValue = int.tryParse(value);
-                        if (numValue == null || numValue < 1 || numValue > 999) {
+                        if (numValue == null ||
+                            numValue < 1 ||
+                            numValue > 999) {
                           return 'Enter a valid number (1 to 999)';
                         }
                         return null;

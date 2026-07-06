@@ -66,7 +66,7 @@ class _CompOffScreenState extends State<CompOffScreen> {
     _filterCount.dispose();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -87,7 +87,7 @@ class _CompOffScreenState extends State<CompOffScreen> {
     });
   }
 
-  // <---- DELETE COMP OFF ---->
+  // DELETE COMP OFF
   Future<void> _showPopupToDeleteDepartmentMaster(
     BuildContext context,
     CompOffModel obj,
@@ -147,7 +147,7 @@ class _CompOffScreenState extends State<CompOffScreen> {
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Comp-Off",
+      title: "Filter - Comp-Off",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           return Column(

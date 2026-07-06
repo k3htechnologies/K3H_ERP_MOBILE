@@ -35,7 +35,7 @@ class LitigationDashboardCubit extends Cubit<LitigationDashboardState> {
     emit(state.copyWith(selectedRangeIndex: index));
   }
 
-  // <---- GET Dashboard LIST ---->
+  // GET Dashboard LIST
   Future getLitigationDashboardList(BuildContext context, int projectId) async {
     emit(state.copyWith(isLoading: true));
 

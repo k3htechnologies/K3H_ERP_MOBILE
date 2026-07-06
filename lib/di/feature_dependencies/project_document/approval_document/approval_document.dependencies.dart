@@ -13,7 +13,7 @@ void registerApprovalDocumentDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<ApprovalDocumentCubit>(
     ApprovalDocumentCubit(),
   );

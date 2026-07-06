@@ -116,7 +116,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
     _filterVillageC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

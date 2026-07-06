@@ -68,7 +68,7 @@ class _BranchAssociationMasterScreenState
     _searchC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -89,7 +89,7 @@ class _BranchAssociationMasterScreenState
     });
   }
 
-  // <---- DELETE ASSET MAPPING ---->
+  // DELETE ASSET MAPPING
   Future<void> _showPopupToDeleteBranchAssociationMaster(
     BuildContext context,
     BranchAssociationModel obj,

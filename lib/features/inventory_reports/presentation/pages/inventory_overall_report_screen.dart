@@ -43,7 +43,7 @@ class _InventoryOverallReportScreenState
     super.initState();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

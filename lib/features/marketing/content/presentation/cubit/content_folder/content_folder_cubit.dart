@@ -16,7 +16,7 @@ class ContentFolderCubit extends Cubit<ContentFolderState> {
   final ContentRepository _contentRepository =
       serviceLocator<ContentRepository>();
 
-  // <---- GET MARKETING FOLDER LIST ---->
+  // GET MARKETING FOLDER LIST
   Future getMarketingFolderList(
     BuildContext context,
     int pageNumber,
@@ -58,7 +58,7 @@ class ContentFolderCubit extends Cubit<ContentFolderState> {
     );
   }
 
-  // <---- DELETE CONTENT FOLDER ---->
+  // DELETE CONTENT FOLDER
   Future deleteContentFolder({
     required BuildContext context,
     required int marketingContentFolderId,
@@ -94,7 +94,7 @@ class ContentFolderCubit extends Cubit<ContentFolderState> {
     );
   }
 
-  // <---- SEARCH CONTENT FOLDER ---->
+  // SEARCH CONTENT FOLDER
   Future searchContentFolder(
     BuildContext context,
     String value,
@@ -104,7 +104,7 @@ class ContentFolderCubit extends Cubit<ContentFolderState> {
     await getMarketingFolderList(context, 1, 1000, projectId);
   }
 
-  // <---- ADD CONTENT FOLDER ---->
+  // ADD CONTENT FOLDER
   Future addContentFolder({
     required BuildContext context,
     required int projectId,

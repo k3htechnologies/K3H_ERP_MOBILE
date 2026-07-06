@@ -15,10 +15,8 @@ void registerSubMaterialMasterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<SubMaterialMasterCubit>(
     SubMaterialMasterCubit(),
   );
 }
-
-

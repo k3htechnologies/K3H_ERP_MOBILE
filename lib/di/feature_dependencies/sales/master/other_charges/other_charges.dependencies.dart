@@ -13,6 +13,6 @@ void registerOtherChargesDependencies(GetIt serviceLocator) {
     ),
   );
 
-  //<---- CUBIT ---->
+  //<---- CUBIT
   serviceLocator.registerSingleton<OtherChargesCubit>(OtherChargesCubit());
 }

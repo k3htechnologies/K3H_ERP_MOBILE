@@ -66,7 +66,7 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
     );
   }
 
-  // <---- GET SINGLE ENQUIRY BY ID ---->
+  // GET SINGLE ENQUIRY BY ID
   Future<void> getEnquiryById({
     required int enquiryId,
     required int projectId,

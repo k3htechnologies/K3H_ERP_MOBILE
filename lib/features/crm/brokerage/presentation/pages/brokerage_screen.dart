@@ -105,7 +105,7 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
     _filterBookingTypeC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -467,108 +467,134 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
           },
           child: BlocBuilder<BrokerageCubit, BrokerageState>(
             builder: (context, state) {
-              if ((state.isLoading ?? true) && state.brokerageList.isEmpty) {
-                return Center(child: loader());
-              }
-              if (state.brokerageList.isEmpty) {
-                return ListView(
-                  physics: AlwaysScrollableScrollPhysics(),
-                  children: [
-                    SizedBox(
-                      height: getActualHeight(context) * .7,
-                      child: Center(
-                        child: noDataWidget(
-                          message: "No Brokerage Booking Data Found",
-                        ),
-                      ),
+              return Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: showSiteSelectedWidget(
+                      projectName: _project.projectName,
                     ),
-                  ],
-                );
-              }
-              return ListView.builder(
-                controller: scrollController,
-
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                itemCount: _brokerageCubit.state.brokerageList.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == state.brokerageList.length) {
-                    return state.brokerageList.length <
-                            state.totalNumberOfRecord
-                        ? Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Center(child: CircularProgressIndicator()),
-                        )
-                        : const SizedBox.shrink();
-                  }
-                  var brokerage = state.brokerageList[index];
-                  return Container(
-                    margin: EdgeInsets.only(bottom: 10),
-                    padding: EdgeInsets.all(12),
-                    decoration: commonCardDecoration(),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () async {
-                                  await _brokerageCubit.resetSearch();
-                                  await _brokerageCubit
-                                      .clearInvoiceAndPayment();
-                                  goRouter.pushNamed(
-                                    AppRoutes.viewBrokerage,
-                                    queryParameters: {
-                                      "brokerage": Uri.encodeQueryComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(brokerage.toJson()),
-                                        ),
-                                      ),
-                                    },
-                                  );
-                                },
-                                child: Text(
-                                  brokerage.channelPartnerName,
-                                  style: AppTextStyle.ts16M(
-                                    color: AppColor.primary,
-                                  ).copyWith(
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: AppColor.primary,
-                                  ),
-                                ),
+                  ),
+                  Expanded(
+                    child: Builder(
+                      builder: (context) {
+                        if ((state.isLoading ?? true) &&
+                            state.brokerageList.isEmpty) {
+                          return Center(child: loader());
+                        }
+                        if (state.brokerageList.isEmpty) {
+                          return Expanded(
+                            child: Center(
+                              child: noDataWidget(
+                                message: "No Brokerage Booking Data Found",
                               ),
                             ),
-                          ],
-                        ),
-                        buildRowTitleValue(
-                          title: "Company Name",
-                          value: brokerage.channelPartnerCompany,
-                        ),
-                        buildRowTitleValue(
-                          title: "Mobile No.",
-                          value: brokerage.channelPartnerMobileNumber,
-                        ),
-                        buildRowTitleValue(
-                          title: "Brokerage Amount",
-                          value: brokerage.brokerageAmount.toIndianCurrency(),
-                        ),
-                        buildRowTitleValue(
-                          title: "Raised Invoice Amount",
-                          value: 0.toIndianCurrency(),
-                        ),
+                          );
+                        }
+                        return ListView.builder(
+                          controller: scrollController,
 
-                        buildRowTitleValue(
-                          title: "Paid Amount",
-                          value:
-                              brokerage.paidBrokerageAmount.toIndianCurrency(),
-                        ),
-                      ],
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          itemCount:
+                              _brokerageCubit.state.brokerageList.length + 1,
+                          itemBuilder: (context, index) {
+                            if (index == state.brokerageList.length) {
+                              return state.brokerageList.length <
+                                      state.totalNumberOfRecord
+                                  ? Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  )
+                                  : const SizedBox.shrink();
+                            }
+                            var brokerage = state.brokerageList[index];
+                            return Container(
+                              margin: EdgeInsets.only(bottom: 10),
+                              padding: EdgeInsets.all(12),
+                              decoration: commonCardDecoration(),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () async {
+                                            await _brokerageCubit.resetSearch();
+                                            await _brokerageCubit
+                                                .clearInvoiceAndPayment();
+                                            goRouter.pushNamed(
+                                              AppRoutes.viewBrokerage,
+                                              queryParameters: {
+                                                "brokerage":
+                                                    Uri.encodeQueryComponent(
+                                                      EncryptionManager.encryptData(
+                                                        jsonEncode(
+                                                          brokerage.toJson(),
+                                                        ),
+                                                      ),
+                                                    ),
+                                              },
+                                            );
+                                          },
+                                          child: Text(
+                                            brokerage.channelPartnerName,
+                                            style: AppTextStyle.ts16M(
+                                              color: AppColor.primary,
+                                            ).copyWith(
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              decorationColor: AppColor.primary,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  buildRowTitleValue(
+                                    title: "Company Name",
+                                    value: brokerage.channelPartnerCompany,
+                                  ),
+                                  buildRowTitleValue(
+                                    title: "Mobile No.",
+                                    value: brokerage.channelPartnerMobileNumber,
+                                  ),
+                                  buildRowTitleValue(
+                                    title: "Brokerage Amount",
+                                    value:
+                                        brokerage.brokerageAmount
+                                            .toIndianCurrency(),
+                                  ),
+                                  buildRowTitleValue(
+                                    title: "Raised Invoice Amount",
+                                    value: 0.toIndianCurrency(),
+                                  ),
+
+                                  buildRowTitleValue(
+                                    title: "Paid Amount",
+                                    value:
+                                        brokerage.paidBrokerageAmount
+                                            .toIndianCurrency(),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+                ],
               );
             },
           ),

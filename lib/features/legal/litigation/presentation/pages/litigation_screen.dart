@@ -79,7 +79,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
     _filterCourtName = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -100,7 +100,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
     });
   }
 
-  // <---- DELETE LIGATION ---->
+  // DELETE LIGATION
   Future<void> _showPopupToDeleteLitigation(
     BuildContext context,
     LitigationModel obj,

@@ -70,12 +70,12 @@ class _AddSubMaterialMasterScreenState
     super.dispose();
   }
 
-  // <---- INITIALIZE TEXT EDITING CONTROLLERS ---->
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingControllers() {
     _subMaterialNameC = TextEditingController();
   }
 
-  // <---- PREFILL FORM ---->
+  // PREFILL FORM
   void _prefillForm(SubMaterialMasterModel subMaterial) {
     _subMaterialNameC.text = subMaterial.subMaterialName;
     _selectedMaterial = [
@@ -92,7 +92,7 @@ class _AddSubMaterialMasterScreenState
     ];
   }
 
-  // <---- FETCH MATERIAL LIST FOR DROPDOWN ---->
+  // FETCH MATERIAL LIST FOR DROPDOWN
   Future<Map<String, dynamic>> _fetchMaterialList(
     int pageNumber, {
     String? value,
@@ -123,7 +123,7 @@ class _AddSubMaterialMasterScreenState
     );
   }
 
-  // <---- FETCH UOM LIST FOR DROPDOWN ---->
+  // FETCH UOM LIST FOR DROPDOWN
   Future<Map<String, dynamic>> _fetchUOMList(
     int pageNumber, {
     String? value,
@@ -154,7 +154,7 @@ class _AddSubMaterialMasterScreenState
     );
   }
 
-  // <---- ADD/UPDATE SUB MATERIAL ---->
+  // ADD/UPDATE SUB MATERIAL
   Future<void> _addUpdateSubMaterial() async {
     if (_formKey.currentState!.validate()) {
       if (_selectedMaterial == null || _selectedMaterial!.isEmpty) {

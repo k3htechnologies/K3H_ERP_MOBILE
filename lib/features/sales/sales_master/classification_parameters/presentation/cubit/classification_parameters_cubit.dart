@@ -23,7 +23,7 @@ class ClassificationParametersCubit
 
   final UtilsRepository _utilsRepository = serviceLocator<UtilsRepository>();
 
-  // <---- GET CLASSIFICATION PARAMETERS LIST ---->
+  // GET CLASSIFICATION PARAMETERS LIST
   Future getClassificationParametersList(
     BuildContext context,
     int pageNumber,
@@ -71,7 +71,7 @@ class ClassificationParametersCubit
     );
   }
 
-  // <---- ADD CLASSIFICATION PARAMETER ---->
+  // ADD CLASSIFICATION PARAMETER
   Future addUpdateClassificationParameters({
     required BuildContext context,
 
@@ -116,7 +116,7 @@ class ClassificationParametersCubit
     );
   }
 
-  // <---- DELETE CLASSIFICATION PARAMETERS ---->
+  // DELETE CLASSIFICATION PARAMETERS
   Future deleteClassificationParameters({
     required BuildContext context,
     required int classificationParameterId,
@@ -203,7 +203,7 @@ class ClassificationParametersCubit
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(
     BuildContext context,
     String exportType,

@@ -10,6 +10,6 @@ void registerTenantMasterDependencies(GetIt serviceLocator) {
     TenantRepositoryImpl(tenantDatasource: serviceLocator<TenantDatasource>()),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<TenantCubit>(TenantCubit());
 }

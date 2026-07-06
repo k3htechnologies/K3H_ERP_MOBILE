@@ -15,6 +15,6 @@ void registerDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<RegisterCubit>(RegisterCubit());
 }

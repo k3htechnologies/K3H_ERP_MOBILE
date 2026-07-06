@@ -14,7 +14,7 @@ void registerClassificationParameterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  //<---- CUBIT ---->
+  //<---- CUBIT
   serviceLocator.registerSingleton<ClassificationParametersCubit>(
     ClassificationParametersCubit(),
   );

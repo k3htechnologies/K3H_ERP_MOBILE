@@ -68,7 +68,7 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
     _searchC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -137,7 +137,7 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Week Off",
+      title: "Filter - Week Off",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {

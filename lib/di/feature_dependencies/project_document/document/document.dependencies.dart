@@ -13,6 +13,6 @@ void registerDocumentDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<DocumentCubit>(DocumentCubit());
 }

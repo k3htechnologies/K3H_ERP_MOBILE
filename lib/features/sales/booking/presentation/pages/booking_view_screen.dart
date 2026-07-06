@@ -1410,7 +1410,10 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Flat Alteration Remarks", style: AppTextStyle.ts16SB()),
+                Text(
+                  "Unit / Modulation / Customization Remark",
+                  style: AppTextStyle.ts16SB(),
+                ),
                 Row(
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,

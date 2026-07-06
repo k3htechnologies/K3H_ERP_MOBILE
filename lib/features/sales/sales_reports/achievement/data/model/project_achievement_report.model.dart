@@ -14,6 +14,7 @@ class ProjectAchievementReportModel {
   double totalRevenue;
   int totalIbm;
   int totalObm;
+  String projectPhotoURL;
 
   ProjectAchievementReportModel({
     required this.projectId,
@@ -29,12 +30,14 @@ class ProjectAchievementReportModel {
     required this.totalRevenue,
     required this.totalIbm,
     required this.totalObm,
+    required this.projectPhotoURL,
   });
 
   factory ProjectAchievementReportModel.fromJson(Map<String, dynamic> json) =>
       ProjectAchievementReportModel(
         projectId: parseValue<int>(json, "ProjectId"),
         projectName: parseValue<String>(json, "ProjectName"),
+        projectPhotoURL: parseValue<String>(json, "ProjectPhotoURL"),
         totalWalkins: parseValue<int>(json, "TotalWalkins"),
         walkinsByCp: parseValue<int>(json, "WalkinsByCP"),
         walkinsDirect: parseValue<int>(json, "WalkinsDirect"),
@@ -51,6 +54,7 @@ class ProjectAchievementReportModel {
   Map<String, dynamic> toJson() => {
     "ProjectId": projectId,
     "ProjectName": projectName,
+    "ProjectPhotoURL": projectPhotoURL,
     "TotalWalkins": totalWalkins,
     "WalkinsByCP": walkinsByCp,
     "WalkinsDirect": walkinsDirect,

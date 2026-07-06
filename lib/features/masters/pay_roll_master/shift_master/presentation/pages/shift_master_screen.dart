@@ -68,7 +68,7 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
     _searchC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

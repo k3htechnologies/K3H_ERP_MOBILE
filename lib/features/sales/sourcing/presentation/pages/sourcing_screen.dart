@@ -124,7 +124,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
     _filterVillageC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

@@ -13,6 +13,6 @@ void registerResignationDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<ResignationCubit>(ResignationCubit());
 }

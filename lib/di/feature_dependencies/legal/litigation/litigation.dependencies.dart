@@ -13,6 +13,6 @@ void registerLitigationDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<LitigationCubit>(LitigationCubit());
 }

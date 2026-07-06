@@ -52,9 +52,10 @@ class _IbmObmReportViewScreenState extends State<IbmObmReportViewScreen> {
 
     _ibmObmReportCubit = context.read<IbmObmReportCubit>();
     _filterCount.value = getActiveFilterCount([
-      (_ibmObmReportCubit.state.viewFilterByYear.trim().isNotEmpty) ||
-          (_ibmObmReportCubit.state.viewFilterByFromDate != null &&
-              (_ibmObmReportCubit.state.viewFilterByToDate != null)),
+      (_ibmObmReportCubit.state.viewFilterByReportType.trim().isNotEmpty),
+      (_ibmObmReportCubit.state.viewFilterByYear.trim().isNotEmpty),
+      (_ibmObmReportCubit.state.viewFilterByFromDate != null),
+      (_ibmObmReportCubit.state.viewFilterByToDate != null),
     ]);
     _ibmObmReportCubit.getIbmObmReportForView(
       employeeId: widget.employeeId,
@@ -269,8 +270,10 @@ class _IbmObmReportViewScreenState extends State<IbmObmReportViewScreen> {
     );
 
     _filterCount.value = getActiveFilterCount([
-      (selectedYear.trim().isNotEmpty ||
-          (selectedFromDate != null && selectedToDate != null)),
+      selectedReportType.trim().isNotEmpty,
+      selectedYear.trim().isNotEmpty,
+      selectedFromDate != null,
+      selectedToDate != null,
     ]);
     if (!applied) {
       _startDateNotifier.value = initialFromDate;

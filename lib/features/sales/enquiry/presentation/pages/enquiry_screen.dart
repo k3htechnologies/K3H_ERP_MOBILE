@@ -215,7 +215,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     _finalStageC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -237,7 +237,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     });
   }
 
-  // <---- FILTER ENQUIRY ---->
+  // FILTER ENQUIRY
   Future<void> _showBottomSheetToFilterEnquiry(BuildContext context) async {
     final state = _enquiryCubit.state;
 
@@ -341,7 +341,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Enquiry",
+      title: "Filter - Enquiry",
 
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
@@ -1015,7 +1015,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                                           singleLine: false,
                                           customValueWidget:
                                               followUpStatusTextWidget(
-                                                enquiry.nextFollowUpDate,
+                                                enquiry.enquiryFollowUpDays,
                                               ),
                                         ),
                                         buildRowTitleValue(

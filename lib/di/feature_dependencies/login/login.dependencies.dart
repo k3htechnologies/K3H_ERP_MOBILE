@@ -13,6 +13,6 @@ void registerLoginDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<LoginCubit>(LoginCubit());
 }

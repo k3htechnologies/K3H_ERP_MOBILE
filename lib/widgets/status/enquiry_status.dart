@@ -9,7 +9,7 @@ final Map<String, StatusConfig> enquiryStatusConfig = {
   ),
 
   'blocked': StatusConfig(
-    backgroundColor: const Color(0xFFCC00FF).withValues(alpha: 0.29),
+    backgroundColor: Color(0xFFE9C4F8),
     textColor: const Color(0xFF561F64),
   ),
 
@@ -54,8 +54,8 @@ final Map<String, StatusConfig> enquiryStatusConfig = {
   ),
 
   'follow - up': StatusConfig(
-    backgroundColor: Color(0x4AFFA500),
-    textColor: Color(0xFFFF6600),
+    backgroundColor: Color(0xFFFFDEC7),
+    textColor: Color(0xFF7E4604),
   ),
 
   're - visit': StatusConfig(
@@ -74,7 +74,7 @@ final Map<String, StatusConfig> enquiryStatusConfig = {
   ),
 
   'unit selection / blocked': StatusConfig(
-    backgroundColor: Color(0xFFFECACA),
-    textColor: Color(0xFF7F1D1D),
+    backgroundColor: const Color(0xFFF3E8FF),
+    textColor: const Color(0xFF6B21A8),
   ),
 };

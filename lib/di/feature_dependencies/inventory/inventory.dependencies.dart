@@ -13,6 +13,6 @@ void registerInventoryDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<InventoryCubit>(InventoryCubit());
 }

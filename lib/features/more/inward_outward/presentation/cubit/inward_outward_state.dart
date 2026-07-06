@@ -6,14 +6,6 @@ class InwardOutwardState extends BaseState {
   final int inwardOutwardTotalRecords;
   final int inwardOutwardCurrentPage;
 
-  final List<InwardOutwardModel> inwardList;
-  final int inwardTotalRecords;
-  final int inwardCurrentPage;
-
-  final List<InwardOutwardModel> outwardList;
-  final int outwardTotalRecords;
-  final int outwardCurrentPage;
-
   final String searchText;
   final int currentTabIndex;
 
@@ -35,12 +27,6 @@ class InwardOutwardState extends BaseState {
     required this.inwardOutwardList,
     required this.inwardOutwardTotalRecords,
     required this.inwardOutwardCurrentPage,
-    required this.inwardList,
-    required this.inwardTotalRecords,
-    required this.inwardCurrentPage,
-    required this.outwardList,
-    required this.outwardTotalRecords,
-    required this.outwardCurrentPage,
     required this.searchText,
     required this.currentTabIndex,
     required this.filterBySenderName,
@@ -63,14 +49,13 @@ class InwardOutwardState extends BaseState {
     inwardOutwardTotalRecords: 0,
     inwardOutwardCurrentPage: 1,
 
-    inwardList: [],
-    inwardTotalRecords: 0,
-    inwardCurrentPage: 1,
+    // inwardList: [],
+    // inwardTotalRecords: 0,
+    // inwardCurrentPage: 1,
 
-    outwardList: [],
-    outwardTotalRecords: 0,
-    outwardCurrentPage: 1,
-
+    // outwardList: [],
+    // outwardTotalRecords: 0,
+    // outwardCurrentPage: 1,
     searchText: "",
     currentTabIndex: 0,
 
@@ -93,12 +78,6 @@ class InwardOutwardState extends BaseState {
     List<InwardOutwardModel>? inwardOutwardList,
     int? inwardOutwardTotalRecords,
     int? inwardOutwardCurrentPage,
-    List<InwardOutwardModel>? inwardList,
-    int? inwardTotalRecords,
-    int? inwardCurrentPage,
-    List<InwardOutwardModel>? outwardList,
-    int? outwardTotalRecords,
-    int? outwardCurrentPage,
     String? searchText,
     int? currentTabIndex,
     String? filterBySenderName,
@@ -121,15 +100,6 @@ class InwardOutwardState extends BaseState {
           inwardOutwardTotalRecords ?? this.inwardOutwardTotalRecords,
       inwardOutwardCurrentPage:
           inwardOutwardCurrentPage ?? this.inwardOutwardCurrentPage,
-
-      inwardList: inwardList ?? this.inwardList,
-      inwardTotalRecords: inwardTotalRecords ?? this.inwardTotalRecords,
-      inwardCurrentPage: inwardCurrentPage ?? this.inwardCurrentPage,
-
-      outwardList: outwardList ?? this.outwardList,
-      outwardTotalRecords: outwardTotalRecords ?? this.outwardTotalRecords,
-      outwardCurrentPage: outwardCurrentPage ?? this.outwardCurrentPage,
-
       searchText: searchText ?? this.searchText,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
 
@@ -163,15 +133,6 @@ class InwardOutwardState extends BaseState {
     inwardOutwardList,
     inwardOutwardTotalRecords,
     inwardOutwardCurrentPage,
-
-    inwardList,
-    inwardTotalRecords,
-    inwardCurrentPage,
-
-    outwardList,
-    outwardTotalRecords,
-    outwardCurrentPage,
-
     searchText,
     currentTabIndex,
 

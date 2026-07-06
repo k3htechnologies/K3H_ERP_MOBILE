@@ -13,6 +13,6 @@ void registerWeekOffMasterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<WeekOffMasterCubit>(WeekOffMasterCubit());
 }

@@ -13,7 +13,7 @@ void registerLeaveTypeMasterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<LeaveTypeMasterCubit>(
     LeaveTypeMasterCubit(),
   );

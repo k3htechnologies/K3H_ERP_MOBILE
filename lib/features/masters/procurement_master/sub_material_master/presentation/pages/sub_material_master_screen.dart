@@ -64,7 +64,7 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
     _searchC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -86,7 +86,7 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
     });
   }
 
-  // <---- DELETE SUB MATERIAL ---->
+  // DELETE SUB MATERIAL
   Future<void> _showPopupToDeleteSubMaterialMaster(
     BuildContext context,
     SubMaterialMasterModel subMaterial,

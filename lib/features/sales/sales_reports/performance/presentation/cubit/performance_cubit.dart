@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/data/model/performance_report_sourcing.model.dart';
@@ -18,7 +17,7 @@ class PerformanceCubit extends Cubit<PerformanceState> {
   final PerformanceReportRepository _performanceReportRepository =
       serviceLocator<PerformanceReportRepository>();
 
-  // <---- SEARCH SALES TARGET ---->
+  // SEARCH SALES TARGET
   Future<void> searchPerformanceReport(
     BuildContext context,
     int projectId,
@@ -180,7 +179,7 @@ class PerformanceCubit extends Cubit<PerformanceState> {
     emit(state.copyWith(currentTabIndexForView: index));
   }
 
-  // <---- GET SOURCING TARGET LIST ---->
+  // GET SOURCING TARGET LIST
   Future getPerformanceSourcingReportList({
     required BuildContext context,
     required int projectId,
@@ -213,8 +212,8 @@ class PerformanceCubit extends Cubit<PerformanceState> {
       toDate = auto["to"];
     }
 
-    queryParams["FromDate"] = DateFormat('yyyy-MM-dd').format(fromDate!);
-    queryParams["ToDate"] = DateFormat('yyyy-MM-dd').format(toDate!);
+    queryParams["FromDate"] = fromDate?.apiDate;
+    queryParams["ToDate"] = toDate?.apiDate;
     emit(state.copyWith(isLoading: true));
 
     var result = await _performanceReportRepository
@@ -253,7 +252,7 @@ class PerformanceCubit extends Cubit<PerformanceState> {
     );
   }
 
-  // <---- GET CLOSING TARGET LIST ---->
+  // GET CLOSING TARGET LIST
   Future getPerformanceClosingReportList({
     required BuildContext context,
     required int projectId,
@@ -286,8 +285,8 @@ class PerformanceCubit extends Cubit<PerformanceState> {
       // emit(state.co)
     }
 
-    queryParams["FromDate"] = DateFormat('yyyy-MM-dd').format(fromDate!);
-    queryParams["ToDate"] = DateFormat('yyyy-MM-dd').format(toDate!);
+    queryParams["FromDate"] = fromDate?.apiDate;
+    queryParams["ToDate"] = toDate?.apiDate;
 
     emit(state.copyWith(isLoading: true));
 
@@ -326,7 +325,7 @@ class PerformanceCubit extends Cubit<PerformanceState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(
     BuildContext context,
     String exportType,
@@ -350,14 +349,14 @@ class PerformanceCubit extends Cubit<PerformanceState> {
                 "EmployeeName": state.searchText,
                 "ExportType": exportType,
                 "PeriodType": periodType,
-                "FromDate": DateFormat('yyyy-MM-dd').format(fromDate!),
-                "ToDate": DateFormat('yyyy-MM-dd').format(toDate!),
+                "FromDate": fromDate?.apiDate,
+                "ToDate": toDate?.apiDate,
               }
               : {
                 "ExportType": exportType,
                 "PeriodType": periodType,
-                "FromDate": DateFormat('yyyy-MM-dd').format(fromDate!),
-                "ToDate": DateFormat('yyyy-MM-dd').format(toDate!),
+                "FromDate": fromDate?.apiDate,
+                "ToDate": toDate?.apiDate,
               },
     );
     goRouter.pop();

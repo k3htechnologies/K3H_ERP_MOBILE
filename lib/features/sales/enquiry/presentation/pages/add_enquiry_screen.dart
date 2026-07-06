@@ -1544,9 +1544,12 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                         LengthLimitingTextInputFormatter(18),
                       ],
                       validator: (val) {
-                        if (val == null || val.trim().isEmpty) {
+                        if (val == null ||
+                            val.trim().isEmpty ||
+                            val.length != 18) {
                           return "Channel Partner code is required";
                         }
+
                         if (!_isChannelPartnerAlreadyExist.value &&
                             !_isEditMode) {
                           return "No Channel Partner found for this Channel Partner Code";

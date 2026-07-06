@@ -19,7 +19,7 @@ class TargetCubit extends Cubit<TargetState> {
     emit(state.copyWith(selectedMonth: month));
   }
 
-  // <---- SEARCH SALES TARGET ---->
+  // SEARCH SALES TARGET
   Future<void> searchSalesTarget(
     BuildContext context,
     int projectId,
@@ -67,7 +67,7 @@ class TargetCubit extends Cubit<TargetState> {
     );
   }
 
-  // <---- GET SOURCING TARGET LIST ---->
+  // GET SOURCING TARGET LIST
   Future getSalesTargetSourcingList({
     required BuildContext context,
     required int projectId,
@@ -126,7 +126,7 @@ class TargetCubit extends Cubit<TargetState> {
     );
   }
 
-  // <---- GET CLOSING TARGET LIST ---->
+  // GET CLOSING TARGET LIST
   Future getSalesTargetClosingList({
     required BuildContext context,
     required int projectId,

@@ -14,7 +14,7 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
   final ApprovalCategoryRepository _documentCategoryRepository =
       serviceLocator<ApprovalCategoryRepository>();
 
-  // <---- GET APPROVE DOCUMENT CATEGORY LIST ---->
+  // GET APPROVE DOCUMENT CATEGORY LIST
   Future getApprovalapprovalCategoryList(
     BuildContext context,
     int pageNumber,
@@ -65,7 +65,7 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
     );
   }
 
-  // <---- SEARCH CATEGORY ---->
+  // SEARCH CATEGORY
   Future searchCategory(
     BuildContext context,
     int projectId,
@@ -81,7 +81,7 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
     await getApprovalapprovalCategoryList(context, 1, projectId);
   }
 
-  // <---- CLEAR APPROVE DOCUMENT CATEGORY LIST ---->
+  // CLEAR APPROVE DOCUMENT CATEGORY LIST
   void clearApprovalDocumentCategory() {
     try {
       emit(
@@ -98,7 +98,7 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
     }
   }
 
-  // <---- DELETE APPROVE DOCUMENT CATEGORY  ---->
+  // DELETE APPROVE DOCUMENT CATEGORY
   Future deleteApprovalDocumentCategory(
     int projectId,
     ApprovalDocumentCategoryModel approvalCategoryModel,
@@ -214,7 +214,7 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(
     BuildContext context,
     String exportType,

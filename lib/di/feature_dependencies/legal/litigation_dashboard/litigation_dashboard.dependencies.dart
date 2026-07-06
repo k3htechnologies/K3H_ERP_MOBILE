@@ -14,7 +14,7 @@ void registerLitigationDashboardDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<LitigationDashboardCubit>(
     LitigationDashboardCubit(),
   );

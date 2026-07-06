@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -14,6 +12,7 @@ class EmployeeAttendanceScreen extends StatefulWidget {
   final String title;
   final String? subTitle;
   final Map<String, dynamic> queryParams;
+  final List<dynamic> allEmployees;
 
   const EmployeeAttendanceScreen({
     super.key,
@@ -21,6 +20,7 @@ class EmployeeAttendanceScreen extends StatefulWidget {
     required this.title,
     this.subTitle,
     required this.queryParams,
+    required this.allEmployees,
   });
 
   @override
@@ -31,13 +31,9 @@ class EmployeeAttendanceScreen extends StatefulWidget {
 class _EmployeeAttendanceScreenState extends State<EmployeeAttendanceScreen> {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DashboardCubit, DashboardState>(
-      builder: (context, state) {
-        if (state.isLoading == true) {
-          return loader();
-        }
-
-        final allEmployees = state.userData?.table0 ?? [];
+    return Builder(
+      builder: (context) {
+        final allEmployees = widget.allEmployees;
 
         final list =
             allEmployees.where((e) {

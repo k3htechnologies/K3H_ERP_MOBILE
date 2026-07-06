@@ -53,7 +53,7 @@ class _AddBankScreenState extends State<AddBankScreen> {
     super.dispose();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

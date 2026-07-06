@@ -1498,6 +1498,22 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
         'filterType': Uri.encodeQueryComponent(
           EncryptionManager.encryptData(_filterTypeNotifier.value),
         ),
+        'fromDate':
+            _fromDateNotifier.value != null
+                ? Uri.encodeQueryComponent(
+                  EncryptionManager.encryptData(
+                    _fromDateNotifier.value!.toIso8601String(),
+                  ),
+                )
+                : '',
+        'toDate':
+            _toDateNotifier.value != null
+                ? Uri.encodeQueryComponent(
+                  EncryptionManager.encryptData(
+                    _toDateNotifier.value!.toIso8601String(),
+                  ),
+                )
+                : '',
       },
     );
   }

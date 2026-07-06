@@ -17,7 +17,7 @@ class UOMMasterCubit extends Cubit<UOMMasterState> {
   final UOMMasterRepository _uomMasterRepository =
       serviceLocator<UOMMasterRepository>();
 
-  // <---- GET UOM MASTER ---->
+  // GET UOM MASTER
   Future getUOMMasterList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {"Uom": state.searchText};
@@ -52,13 +52,13 @@ class UOMMasterCubit extends Cubit<UOMMasterState> {
     );
   }
 
-  // <---- SEARCH UOM ---->
+  // SEARCH UOM
   Future searchUOM(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, uomList: []));
     await getUOMMasterList(context, 1);
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _uomMasterRepository.exportUMO(

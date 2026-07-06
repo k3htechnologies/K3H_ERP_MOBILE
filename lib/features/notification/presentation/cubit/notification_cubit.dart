@@ -15,7 +15,7 @@ class NotificationCubit extends Cubit<NotificationState> {
   final NotificationRepository _notificationRepository =
       serviceLocator<NotificationRepository>();
 
-  // <---- PULL NOTIFICATION ---->
+  // PULL NOTIFICATION
   Future getNotification({
     required BuildContext context,
     required int pageNumber,
@@ -54,7 +54,7 @@ class NotificationCubit extends Cubit<NotificationState> {
     );
   }
 
-  // <----- READ NOTIFICATION ----->
+  //- READ NOTIFICATION -
   Future<void> readNotification({
     required int projectId,
     required String notificationIds,

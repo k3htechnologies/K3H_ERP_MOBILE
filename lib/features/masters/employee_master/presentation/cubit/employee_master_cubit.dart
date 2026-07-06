@@ -47,7 +47,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   final BranchAssociationMasterRepository _branchAssociationMasterRepository =
       serviceLocator<BranchAssociationMasterRepository>();
 
-  // <---- SEARCH EMPLOYEE ---->
+  // SEARCH EMPLOYEE
   Future searchEmployee(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, employeeMasterList: []));
     await getEmployeeMasterList(context, 1);
@@ -125,27 +125,27 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     await getEmployeeMasterList(context, 1);
   }
 
-  // <---- CLEAR DEPARTMENT LIST ---->
+  // CLEAR DEPARTMENT LIST
   void clearDepartmentList() {
     emit(state.copyWith(departmentList: [], departmentTotalCount: 0));
   }
 
-  // <---- CLEAR DEPARTMENT LIST ---->
+  // CLEAR DEPARTMENT LIST
   void clearCompanyNameList() {
     emit(state.copyWith(departmentList: [], departmentTotalCount: 0));
   }
 
-  // <---- CLEAR DESIGNATION LIST ---->
+  // CLEAR DESIGNATION LIST
   void clearDesignationList() {
     emit(state.copyWith(departmentList: [], departmentTotalCount: 0));
   }
 
-  // <---- CLEAR BRANCH LIST ---->
+  // CLEAR BRANCH LIST
   void clearBranchList() {
     emit(state.copyWith(departmentList: [], departmentTotalCount: 0));
   }
 
-  // <---- GET EMPLOYEE MASTER LIST ---->
+  // GET EMPLOYEE MASTER LIST
   Future getEmployeeMasterList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
 
@@ -209,7 +209,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  // <---- GET EMPLOYEE DOCUMENT LIST ---->
+  // GET EMPLOYEE DOCUMENT LIST
   Future getEmployeeDocumentList(
     BuildContext context,
     int pageNumber,
@@ -240,7 +240,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  // <---- GET EMPLOYEE ASSET LIST ---->
+  // GET EMPLOYEE ASSET LIST
   Future getEmployeeAssetList(
     BuildContext context,
     int pageNumber,
@@ -271,7 +271,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  // <---- GET EMPLOYEE SHIFT MANAGEMENT LIST ---->
+  // GET EMPLOYEE SHIFT MANAGEMENT LIST
   Future getShiftManagementList(
     BuildContext context,
     int pageNumber,
@@ -307,7 +307,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  // <---- GET EMPLOYEE WEEK OFF MAPPING LIST ---->
+  // GET EMPLOYEE WEEK OFF MAPPING LIST
   Future getWeekOffMappingList(
     BuildContext context,
     int pageNumber,
@@ -342,7 +342,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  // <---- ADD EMPLOYEE MASTER ---->
+  // ADD EMPLOYEE MASTER
   Future addEmployeeMaster({
     required BuildContext context,
     required String firstName,
@@ -432,7 +432,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  // <---- UPDATE EMPLOYEE MASTER ---->
+  // UPDATE EMPLOYEE MASTER
   Future updateEmployeeMaster({
     required BuildContext context,
     required int employeeMasterId,
@@ -533,7 +533,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  // <---- UPDATE EMPLOYEE DOCUMENT ---->
+  // UPDATE EMPLOYEE DOCUMENT
   Future updateEmployeeDocument({
     required BuildContext context,
     required int employeeDocumentId,
@@ -626,7 +626,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  // <---- COMPANY DROPDOWN ---->
+  // COMPANY DROPDOWN
   Future<void> getCompanies(
     BuildContext context,
     int pageNumber,
@@ -670,7 +670,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  // <---- DEPARTMENT DROPDOWN ---->
+  // DEPARTMENT DROPDOWN
   Future<void> getDepartmentList(
     BuildContext context,
     int pageNumber,
@@ -714,7 +714,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  // <---- DESIGNATION DROPDOWN ---->
+  // DESIGNATION DROPDOWN
   Future<void> getDesignationList(
     BuildContext context,
     int pageNumber,
@@ -758,7 +758,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  // <---- REPORTING PERSON DROPDOWN ---->
+  // REPORTING PERSON DROPDOWN
   Future<void> getEmployee(
     BuildContext context,
     int pageNumber,
@@ -804,7 +804,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  // <---- BRANCH MASTER DROPDOWN ---->
+  // BRANCH MASTER DROPDOWN
   Future<void> getBranch(
     BuildContext context,
     int pageNumber,
@@ -848,7 +848,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await employeeMasterRepository.exportEmployee(
@@ -903,7 +903,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  // <---- GET EMPLOYEE EXPERIENCE DETAILS LIST ---->
+  // GET EMPLOYEE EXPERIENCE DETAILS LIST
   Future getEmployeeExperienceDetailsList(
     BuildContext context,
     int pageNumber,
@@ -944,7 +944,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  // <---- GET EMPLOYEE EDUCATION DETAILS LIST ---->
+  // GET EMPLOYEE EDUCATION DETAILS LIST
   Future getEmployeeEducationDetailsList(
     BuildContext context,
     int pageNumber,
@@ -985,7 +985,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  // <---- GET BRANCH ASSOCIATION LIST ---->
+  // GET BRANCH ASSOCIATION LIST
   Future getBranchAssociationList(
     BuildContext context,
     int pageNumber,
@@ -1037,7 +1037,8 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
       state.filterBranchName.trim().isNotEmpty,
       state.filterIsProbation.isNotEmpty,
       state.filterIdCardIssue.isNotEmpty,
-      (state.filterDOBFrom != null && state.filterDOBTo != null),
+      state.filterDOBFrom != null,
+      state.filterDOBTo != null,
       hasSort,
     ]);
   }

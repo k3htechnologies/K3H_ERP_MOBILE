@@ -13,7 +13,7 @@ void registerDeductionMasterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<DeductionMasterCubit>(
     DeductionMasterCubit(),
   );

@@ -717,6 +717,101 @@ class _DropdownListState extends State<DropdownList> {
             onSubmit: (string) async => await search(string),
           ),
         ),
+        if (widget.isMultiSelect)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                InkWell(
+                  onTap: () {
+                    final isAllSelected =
+                        tempDataListForSearch.isNotEmpty &&
+                        _localSelectedValues.length ==
+                            tempDataListForSearch
+                                .where((e) => e['zAttributesId'] != -1)
+                                .length;
+
+                    setState(() {
+                      if (isAllSelected) {
+                        // Clear All
+                        _localSelectedValues.clear();
+
+                        for (int i = 0; i < tempDataListForSearch.length; i++) {
+                          tempDataListForSearch[i] = {
+                            ...tempDataListForSearch[i],
+                            'isChecked': false,
+                          };
+                        }
+                      } else {
+                        // Select All
+                        _localSelectedValues =
+                            tempDataListForSearch
+                                .where((e) => e['zAttributesId'] != -1)
+                                .map((e) => Map<String, dynamic>.from(e))
+                                .toList();
+
+                        for (int i = 0; i < tempDataListForSearch.length; i++) {
+                          tempDataListForSearch[i] = {
+                            ...tempDataListForSearch[i],
+                            'isChecked': true,
+                          };
+                        }
+                      }
+                    });
+                  },
+                  child: Row(
+                    children: [
+                      Icon(
+                        tempDataListForSearch.isNotEmpty &&
+                                _localSelectedValues.length ==
+                                    tempDataListForSearch
+                                        .where((e) => e['zAttributesId'] != -1)
+                                        .length
+                            ? Icons.check_box
+                            : Icons.check_box_outline_blank,
+                        color: AppColor.primary,
+                        size: 22,
+                      ),
+                      const SizedBox(width: 8),
+                      Text("Select All", style: AppTextStyle.ts14R()),
+                    ],
+                  ),
+                ),
+
+                TextButton(
+                  onPressed:
+                      _localSelectedValues.isEmpty
+                          ? null
+                          : () {
+                            setState(() {
+                              _localSelectedValues.clear();
+
+                              for (
+                                int i = 0;
+                                i < tempDataListForSearch.length;
+                                i++
+                              ) {
+                                tempDataListForSearch[i] = {
+                                  ...tempDataListForSearch[i],
+                                  'isChecked': false,
+                                };
+                              }
+                            });
+                          },
+                  child: Text(
+                    "Clear All",
+                    style: AppTextStyle.ts14R(
+                      color:
+                          _localSelectedValues.isEmpty
+                              ? AppColor.grey
+                              : AppColor.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         isLoading && tempDataListForSearch.isEmpty
             ? const Expanded(child: Center(child: CircularProgressIndicator()))
             : tempDataListForSearch.isEmpty

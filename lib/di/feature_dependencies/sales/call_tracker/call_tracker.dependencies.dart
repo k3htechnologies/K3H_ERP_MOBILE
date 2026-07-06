@@ -17,6 +17,6 @@ void registerCallTrackerDependencies(GetIt serviceLocator) {
     ),
   );
 
-  //<---- CUBIT ---->
+  //<---- CUBIT
   serviceLocator.registerSingleton<CallTrackerCubit>(CallTrackerCubit());
 }

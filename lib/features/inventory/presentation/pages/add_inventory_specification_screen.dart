@@ -386,7 +386,7 @@ class _AddInventorySpecificationScreenState
     }
   }
 
-  // <---- DELETE DIALOG ---->
+  // DELETE DIALOG
   Future<void> _showPopupToDeleteUnitSpecification(int index) async {
     var result = await DialogHelper.deleteDialog(
       context,

@@ -1,6 +1,8 @@
+import 'package:k3h_erp_app/features/sales/sales_dashboard/data/model/project_wise_sales.dashboard.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/data/model/sales.dashboard.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 abstract interface class SalesDashboardDatasource {
   Future<Map<String, dynamic>> apiCallPullSalesDashboard({
@@ -9,6 +11,10 @@ abstract interface class SalesDashboardDatasource {
   });
   Future<Map<String, dynamic>> apicallMarkTimeOutEnquiry({
     required Map<String, dynamic> body,
+  });
+  Future<Map<String, dynamic>> apiCallPullProjectWiseSalesDashboard({
+    required int projectId,
+    Map<String, dynamic>? queryParams,
   });
 }
 
@@ -22,7 +28,7 @@ class SalesDashboardDatasourceImpl extends SalesDashboardDatasource {
   }) async {
     String pullSalesDashboardUrl({Map<String, dynamic>? queryParams}) {
       String url = "SalesDashboard/PullSalesDashboard?ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -44,6 +50,42 @@ class SalesDashboardDatasourceImpl extends SalesDashboardDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         return apiCallPullSalesDashboard(
+          queryParams: queryParams,
+          projectId: projectId,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallPullProjectWiseSalesDashboard({
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullProjectWiseSalesDashboardUrl({
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "SalesDashboard/PullProjectWiseSalesDashboard?ProjectId=$projectId";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullProjectWiseSalesDashboardUrl(queryParams: queryParams),
+      );
+
+      return {
+        'data': ProjectWiseSalesDashboardModel.fromJson(
+          networkResponse["data"],
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'] ?? 0,
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apiCallPullProjectWiseSalesDashboard(
           queryParams: queryParams,
           projectId: projectId,
         );

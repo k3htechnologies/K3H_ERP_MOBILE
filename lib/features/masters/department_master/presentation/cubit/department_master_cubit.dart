@@ -18,13 +18,13 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
   final DepartmentMasterRepository _departmentMasterRepository =
       serviceLocator<DepartmentMasterRepository>();
 
-  // <---- SEARCH DEPARTMENT ---->
+  // SEARCH DEPARTMENT
   Future searchDepartment(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, departmentList: []));
     await getDepartmentList(context, 1);
   }
 
-  // <---- SORT DEPARTMENT ---->
+  // SORT DEPARTMENT
   Future applyFilterAndSortDepartment({
     required BuildContext context,
     required String column,
@@ -42,7 +42,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
     await getDepartmentList(context, 1);
   }
 
-  // <---- GET DEPARTMENT LIST ---->
+  // GET DEPARTMENT LIST
   Future getDepartmentList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
@@ -79,7 +79,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
     );
   }
 
-  // <---- ADD DEPARTMENT ---->
+  // ADD DEPARTMENT
   Future addDepartmentMaster({
     required BuildContext context,
     required String departmentCode,
@@ -107,7 +107,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
     );
   }
 
-  // <---- UPDATE DEPARTMENT ---->
+  // UPDATE DEPARTMENT
   Future updateDepartmentMaster({
     required BuildContext context,
     required int departmentMasterId,
@@ -151,7 +151,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
     );
   }
 
-  // <---- DELETE DEPARTMENT ---->
+  // DELETE DEPARTMENT
   Future deleteDepartmentMaster({
     required BuildContext context,
     required int departmentMasterId,
@@ -195,7 +195,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _departmentMasterRepository.exportDepartment(
