@@ -354,7 +354,7 @@ class TicketCubit extends Cubit<TicketState> {
     );
   }
 
-  // <---- DELETE DEPARTMENT ---->
+  // DELETE DEPARTMENT
   Future deleteTicket({
     required BuildContext context,
     required int ticketId,
@@ -398,7 +398,7 @@ class TicketCubit extends Cubit<TicketState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
 

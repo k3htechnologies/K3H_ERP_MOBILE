@@ -10,11 +10,12 @@ void registerBranchAssociationMasterDependencies(GetIt serviceLocator) {
 
   serviceLocator.registerSingleton<BranchAssociationMasterRepository>(
     BranchAssociationMasterRepositoryImpl(
-      branchAssociationMasterDataSource: serviceLocator<BranchAssociationMasterDatasource>(),
+      branchAssociationMasterDataSource:
+          serviceLocator<BranchAssociationMasterDatasource>(),
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<BranchAssociationMasterCubit>(
     BranchAssociationMasterCubit(),
   );

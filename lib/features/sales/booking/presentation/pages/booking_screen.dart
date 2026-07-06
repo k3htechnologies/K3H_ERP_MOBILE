@@ -111,7 +111,7 @@ class _BookingScreenState extends State<BookingScreen> {
     _bookingTypeC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

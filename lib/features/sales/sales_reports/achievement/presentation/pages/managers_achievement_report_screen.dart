@@ -887,6 +887,22 @@ class _ManagerAchievementReportScreenState
         'filterType': Uri.encodeQueryComponent(
           EncryptionManager.encryptData(widget.filterType),
         ),
+        'fromDate':
+            widget.fromDate != null
+                ? Uri.encodeQueryComponent(
+                  EncryptionManager.encryptData(
+                    widget.fromDate!.toIso8601String(),
+                  ),
+                )
+                : '',
+        'toDate':
+            widget.toDate != null
+                ? Uri.encodeQueryComponent(
+                  EncryptionManager.encryptData(
+                    widget.toDate!.toIso8601String(),
+                  ),
+                )
+                : '',
       },
     );
   }

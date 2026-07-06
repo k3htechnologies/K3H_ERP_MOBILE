@@ -13,7 +13,7 @@ class UtilsCubit extends Cubit<UtilsState> {
   UtilsCubit() : super(UtilsState.initial());
   final utilsRepository = serviceLocator<UtilsRepository>();
 
-  // <---- SEND MODULE BASED OTP FOR VERIFICATION ---->
+  // SEND MODULE BASED OTP FOR VERIFICATION
   Future<void> sendOTPModuleBased({
     required BuildContext context,
     required String mobileNumber,
@@ -45,7 +45,7 @@ class UtilsCubit extends Cubit<UtilsState> {
     );
   }
 
-  // <----MODULES WORKFLOW APPROVAL  ---->
+  //MODULES WORKFLOW APPROVAL
   Future<bool> updateModulesWorkflowApproval({
     required BuildContext context,
     required String moduleName,

@@ -64,7 +64,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
     );
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

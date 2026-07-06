@@ -41,7 +41,7 @@ class _UnitDistributionStatusScreenState
   late ScrollController scrollController;
   Timer? _debounce;
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

@@ -13,6 +13,6 @@ void registerRedevelopmentDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<BuildingCubit>(BuildingCubit());
 }

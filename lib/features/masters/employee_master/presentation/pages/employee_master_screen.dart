@@ -98,7 +98,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
     _filterBranchName = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     _scrollController = ScrollController();
     _scrollController.addListener(() {
@@ -200,7 +200,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Employee",
+      title: "Filter - Employee",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {

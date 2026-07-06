@@ -23,7 +23,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
   final DesignationMasterRepository _designationMasterRepository =
       serviceLocator<DesignationMasterRepository>();
 
-  // <---- GET DESIGNATION LIST ---->
+  // GET DESIGNATION LIST
   Future getDesignationList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
@@ -64,7 +64,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     );
   }
 
-  // <---- ADD DESIGNATION ---->
+  // ADD DESIGNATION
   Future addDesignationMaster({
     required BuildContext context,
     required String designationName,
@@ -98,7 +98,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     );
   }
 
-  // <---- UPDATE DESIGNATION ---->
+  // UPDATE DESIGNATION
   Future updateDesignationMaster({
     required BuildContext context,
     required int designationMasterId,
@@ -156,7 +156,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     );
   }
 
-  // <---- DELETE DESIGNATION ---->
+  // DELETE DESIGNATION
   Future deleteDesignationMaster({
     required BuildContext context,
     required int designationMasterId,
@@ -208,13 +208,13 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     );
   }
 
-  // <---- SEARCH DESIGNATION ---->
+  // SEARCH DESIGNATION
   Future searchDesignation(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, designationList: []));
     await getDesignationList(context, 1);
   }
 
-  // <---- SORT DESIGNATION ---->
+  // SORT DESIGNATION
   Future applyFilterAndSortDesignation({
     required BuildContext context,
     required String column,
@@ -232,7 +232,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     await getDesignationList(context, 1);
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _designationMasterRepository.exportDesignation(
@@ -268,7 +268,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     );
   }
 
-  // <---- GET MODULES PERMISSIONS ---->
+  // GET MODULES PERMISSIONS
   Future getModulesPermissions(
     BuildContext context,
     int designationMasterId,
@@ -360,7 +360,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     );
   }
 
-  // <---- UPDATE MODULES PERMISSIONS ---->
+  // UPDATE MODULES PERMISSIONS
   Future updateModulesPermissions({
     required BuildContext context,
     required int designationMasterId,
@@ -478,7 +478,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     );
   }
 
-  // <---- CHECK IF ALL MODULES ARE SELECTED ---->
+  // CHECK IF ALL MODULES ARE SELECTED
   Future<bool> isAllModulesSelected(
     List<ModuleModel> modulesPermissionsList,
   ) async {
@@ -494,7 +494,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     );
   }
 
-  // <---- PERMISSION UPDATE JSON ---->
+  // PERMISSION UPDATE JSON
   String getPermissionUpdateJson() {
     List<Map<String, dynamic>> result = [];
 
@@ -806,7 +806,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     return [list, list.every((e) => e.isSelected)];
   }
 
-  // <---- MERGE MODULE LISTS TO PRESERVE UNSAVED CHANGES ---->
+  // MERGE MODULE LISTS TO PRESERVE UNSAVED CHANGES
   List<ModuleModel> _mergeModuleLists({
     required List<ModuleModel> existingList,
     required List<ModuleModel> apiList,

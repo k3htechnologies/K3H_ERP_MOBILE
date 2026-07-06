@@ -123,7 +123,7 @@ class _TargetScreenState extends State<TargetScreen>
     _searchC.text = "";
     _startDateNotifier.value = null;
     _endDateNotifier.value = null;
-
+    _monthNotifier.value = null;
     _targetCubit.onTabChanged(index, context);
     // _monthNotifier.value = null;
     _callMonthFilterAPI();
@@ -205,7 +205,7 @@ class _TargetScreenState extends State<TargetScreen>
     return "${m.month.toString().padLeft(2, '0')}-${m.year}";
   }
 
-  // <---- IMPORT SALES TARGET SAMPLE FILE FOR WEB ---->
+  // IMPORT SALES TARGET SAMPLE FILE FOR WEB
   Future<bool> salesTargetSampleExcelImportSourcing(
     BuildContext context,
   ) async {

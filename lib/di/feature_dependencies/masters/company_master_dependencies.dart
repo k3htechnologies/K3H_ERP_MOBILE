@@ -15,7 +15,7 @@ void registerCompanyMasterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<CompanyMasterCubit>(CompanyMasterCubit());
   serviceLocator.registerSingleton<CompanyMasterAddCubit>(
     CompanyMasterAddCubit(),

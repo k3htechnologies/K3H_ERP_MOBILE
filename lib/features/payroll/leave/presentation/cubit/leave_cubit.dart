@@ -26,13 +26,13 @@ class LeaveCubit extends Cubit<LeaveState> {
     "Rejected",
   ];
 
-  // <---- SEARCH LEAVE ---->
+  // SEARCH LEAVE
   Future searchOutdoor(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, leaveList: []));
     await getLeaveList(context, 1);
   }
 
-  // <---- GET LEAVE LIST ---->
+  // GET LEAVE LIST
   Future getLeaveList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     final status =
@@ -85,7 +85,7 @@ class LeaveCubit extends Cubit<LeaveState> {
     );
   }
 
-  // <---- APPLY LEAVE ---->
+  // APPLY LEAVE
   Future<void> applyLeave({
     required BuildContext context,
     required String leaveTypeMasterId,
@@ -138,7 +138,7 @@ class LeaveCubit extends Cubit<LeaveState> {
     );
   }
 
-  // <---- UPDATE LEAVE ---->
+  // UPDATE LEAVE
   Future<void> updateLeave({
     required int index,
     required BuildContext context,
@@ -202,7 +202,7 @@ class LeaveCubit extends Cubit<LeaveState> {
     );
   }
 
-  // <---- DELETE LEAVE ---->
+  // DELETE LEAVE
   Future deleteLeave({
     required BuildContext context,
     required int leaveId,
@@ -242,7 +242,7 @@ class LeaveCubit extends Cubit<LeaveState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -290,7 +290,7 @@ class LeaveCubit extends Cubit<LeaveState> {
     emit(state.copyWith(currentTabIndexViewScreen: index));
   }
 
-  // <---- APPLY FILTER ON LEAVE ---->
+  // APPLY FILTER ON LEAVE
   void applyFilterOnLeave(
     BuildContext context, {
     String? leaveType,
@@ -359,7 +359,8 @@ class LeaveCubit extends Cubit<LeaveState> {
   int updateFilterCount(LeaveState state) {
     return getActiveFilterCount([
       state.searchText.isNotEmpty,
-      (state.filterStartDate != null && state.filterEndDate != null),
+      state.filterStartDate != null,
+      state.filterEndDate != null,
     ]);
   }
 }

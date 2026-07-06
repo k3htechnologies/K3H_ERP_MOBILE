@@ -13,7 +13,7 @@ void registerPayrollDashboardDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<PayrollDashboardCubit>(
     PayrollDashboardCubit(),
   );

@@ -52,7 +52,7 @@ class CommonFileViewer extends StatefulWidget {
 class _CommonFileViewerState extends State<CommonFileViewer> {
   late PageController _pageController;
   final ValueNotifier<int> _currentPageNotifier = ValueNotifier<int>(0);
-
+  bool _isDownloading = false;
   @override
   void initState() {
     super.initState();
@@ -99,43 +99,20 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
         widget.fileBytes![index].isNotEmpty;
   }
 
-  // Future<void> downloadFile(String url, {Uint8List? bytes}) async {
-  //   final fileName = getFileName(url);
-  //
-  //   try {
-  //     Uint8List? fileData = bytes;
-  //
-  //     // If no bytes and it's a network URL → download it
-  //     if (fileData == null && url.startsWith("http")) {
-  //       final uri = Uri.parse(url);
-  //       final request = await HttpClient().getUrl(uri);
-  //       final response = await request.close();
-  //       fileData = await consolidateHttpClientResponseBytes(response);
-  //     }
-  //
-  //     if (fileData == null) {
-  //       return;
-  //     }
-  //
-  //     final dir = await getTemporaryDirectory();
-  //     final filePath = '${dir.path}/$fileName';
-  //
-  //     final file = File(filePath);
-  //     await file.writeAsBytes(fileData, flush: true);
-  //
-  //     await OpenFilex.open(filePath);
-  //   } catch (e) {
-  //     debugPrint("Download error: $e");
-  //   }
-  // }
-
   Future<void> downloadFile(String url, {Uint8List? bytes}) async {
-    final fileName = getFileName(url);
+    // Prevent multiple downloads
+    if (_isDownloading) return;
+
+    if (mounted) {
+      setState(() => _isDownloading = true);
+    }
 
     try {
+      final fileName = getFileName(url);
+
       Uint8List? fileData = bytes;
 
-      // If bytes not provided → download
+      // Download if bytes not provided
       if (fileData == null && url.startsWith("http")) {
         final uri = Uri.parse(url);
         final request = await HttpClient().getUrl(uri);
@@ -145,7 +122,6 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
 
       if (fileData == null) return;
 
-      // CHECK FILE TYPE
       if (isImage(url)) {
         final dir = await getTemporaryDirectory();
         final filePath = '${dir.path}/$fileName';
@@ -155,20 +131,12 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
 
         final result = await GallerySaver.saveImage(file.path);
 
-        if (result == true) {
-          if (mounted) {
-            showSuccessMessage(
-              context,
-              subTitle: "Saved to Downloads: $filePath",
-            );
-          }
-        } else {
-          debugPrint("Failed to save");
+        if (result == true && mounted) {
+          showSuccessMessage(context, subTitle: "Image saved successfully");
         }
       } else {
-        // 📄 PDF / OTHER FILE → SAVE TO DOWNLOADS
-
         final dir = Directory('/storage/emulated/0/Download');
+
         if (!await dir.exists()) {
           await dir.create(recursive: true);
         }
@@ -178,20 +146,21 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
         final file = File(filePath);
         await file.writeAsBytes(fileData, flush: true);
 
-        debugPrint("Saved to Downloads: $filePath");
         if (mounted) {
-          showSuccessMessage(
-            context,
-            subTitle: "Saved to Downloads: $filePath",
-          );
+          showSuccessMessage(context, subTitle: "Saved to Downloads");
         }
-
-        await Future.delayed(const Duration(milliseconds: 500));
 
         await OpenFilex.open(filePath);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint("Download error: $e");
+      debugPrintStack(stackTrace: stackTrace);
+    } finally {
+      if (mounted) {
+        setState(() => _isDownloading = false);
+      } else {
+        _isDownloading = false;
+      }
     }
   }
 
@@ -364,6 +333,7 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
                     CustomIconButton(
                       backgroundColor: AppColor.lightGreen,
                       onPressed: () async {
+                        if (_isDownloading) return;
                         final url = widget.urls[_currentPageNotifier.value];
                         final bytes =
                             widget.fileBytes != null &&

@@ -13,6 +13,6 @@ void registerChannelPartnerDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<ChannelPartnerCubit>(ChannelPartnerCubit());
 }

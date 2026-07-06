@@ -89,7 +89,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
     }
   }
 
-  // <---- GET CALLING DATA LIST ---->
+  // GET CALLING DATA LIST
   Future getCallingDataList(
     BuildContext context,
     int pageNumber,
@@ -229,7 +229,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
     );
   }
 
-  // <---- GET CALLING DATA LIST ---->
+  // GET CALLING DATA LIST
   Future getCallLogList(
     BuildContext context,
     int pageNumber,
@@ -283,7 +283,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
     );
   }
 
-  // <---- UPDATE CALL LOG ---->
+  // UPDATE CALL LOG
   Future updateCallLog({
     required BuildContext context,
     required int callLogId,
@@ -339,7 +339,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
     );
   }
 
-  // <---- DELETE CALL LOG ---->
+  // DELETE CALL LOG
   Future deleteCallLog({
     required BuildContext context,
     required int callLogId,
@@ -405,7 +405,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportCallingDataExcelPdf(
     BuildContext context,
     String exportType,
@@ -479,9 +479,7 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
   int updateFilterCount(CallTrackerState state) {
     final hasSort =
         state.currentSortColumn ==
-            (state.currentTabIndex == 0
-                ? "Customer Name"
-                : "Sales Executive") &&
+            (state.currentTabIndex == 0 ? "Customer Name" : "Receiver Name") &&
         (state.currentSortDirection == "ASC" ||
             state.currentSortDirection == "DESC");
 

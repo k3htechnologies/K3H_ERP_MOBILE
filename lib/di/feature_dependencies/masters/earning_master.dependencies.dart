@@ -13,6 +13,6 @@ void registerEarningMasterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<EarningMasterCubit>(EarningMasterCubit());
 }

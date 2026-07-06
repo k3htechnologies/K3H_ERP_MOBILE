@@ -81,7 +81,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     _filterSerialNumberC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -102,7 +102,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     });
   }
 
-  // <---- DELETE ASSET MAPPING ---->
+  // DELETE ASSET MAPPING
   Future<void> _showPopupToDeleteAssetMaster(
     BuildContext context,
     AssetMasterModel obj,
@@ -164,7 +164,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Asset",
+      title: "Filter - Asset",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {
@@ -490,7 +490,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     );
   }
 
-  // <---- BUILD STATUS WIDGET ---->
+  // BUILD STATUS WIDGET
   Widget _buildStatusWidget(String status) {
     if (status.isEmpty) return const SizedBox.shrink();
 

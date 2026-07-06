@@ -13,6 +13,6 @@ void registerNotificationDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<NotificationCubit>(NotificationCubit());
 }

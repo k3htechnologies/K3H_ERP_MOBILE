@@ -75,7 +75,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
     _filterBranchLocationC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -96,7 +96,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
     });
   }
 
-  // <---- DELETE ASSET MAPPING ---->
+  // DELETE ASSET MAPPING
   Future<void> _showPopupToDeleteAssetMappingMaster(
     BuildContext context,
     BranchMasterModel obj,
@@ -118,7 +118,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
     }
   }
 
-  // <---- FILTER BRANCH ---->
+  // FILTER BRANCH
   Future<void> _showBottomSheetToFilterBranch(BuildContext context) async {
     final state = _branchMasterCubit.state;
 
@@ -153,7 +153,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Branch",
+      title: "Filter - Branch",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {

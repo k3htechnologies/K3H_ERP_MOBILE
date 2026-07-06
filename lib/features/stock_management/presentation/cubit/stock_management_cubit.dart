@@ -17,13 +17,13 @@ class StockManagementCubit extends Cubit<StockManagementState> {
   final StockManagementRepository _stockManagementRepository =
       serviceLocator<StockManagementRepository>();
 
-  // <---- SEARCH CHANNEL PARTNER ---->
+  // SEARCH CHANNEL PARTNER
   Future searchStock(BuildContext context, String value, int projectId) async {
     emit(state.copyWith(searchText: value, stockList: []));
     await getStockList(context, 1, projectId);
   }
 
-  // <---- GET STOCK LIST ---->
+  // GET STOCK LIST
   Future getStockList(
     BuildContext context,
     int pageNumber,
@@ -61,7 +61,7 @@ class StockManagementCubit extends Cubit<StockManagementState> {
     );
   }
 
-  // <---- GET STOCK HISTORY LIST ---->
+  // GET STOCK HISTORY LIST
   Future getStockHistoryList(
     BuildContext context,
     int pageNumber,
@@ -106,7 +106,7 @@ class StockManagementCubit extends Cubit<StockManagementState> {
     );
   }
 
-  // <---- GET STOCK SUMMARY LIST ---->
+  // GET STOCK SUMMARY LIST
   Future getStockSummaryList(
     BuildContext context,
     int pageNumber,
@@ -235,7 +235,7 @@ class StockManagementCubit extends Cubit<StockManagementState> {
     );
   }
 
-  // <---- GET STOCK LIST ---->
+  // GET STOCK LIST
   Future stocksForExportPDF(
     BuildContext context,
     int projectId,

@@ -11,6 +11,6 @@ void registerBookingDependencies(GetIt serviceLocator) {
     ),
   );
 
-  //<---- CUBIT ---->
+  //<---- CUBIT
   serviceLocator.registerSingleton<BookingCubit>(BookingCubit());
 }

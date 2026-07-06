@@ -23,7 +23,7 @@ class DocumentCubit extends Cubit<DocumentState> {
   final DocumentRepository _documentRepository =
       serviceLocator<DocumentRepository>();
 
-  // <---- GET CATEGORY LIST ---->
+  // GET CATEGORY LIST
   Future getCategoryList(
     BuildContext context,
     int pageNumber,
@@ -85,7 +85,7 @@ class DocumentCubit extends Cubit<DocumentState> {
     );
   }
 
-  // <---- GET PROJECT DOCUMENT ---->
+  // GET PROJECT DOCUMENT
   Future getProjectDocumentList({
     required BuildContext context,
     required int pageNumber,
@@ -428,7 +428,7 @@ class DocumentCubit extends Cubit<DocumentState> {
     getProjectDocumentList(context: context, pageNumber: 1);
   }
 
-  // <---- DELETE DOCUMENT CATEGORY  ---->
+  // DELETE DOCUMENT CATEGORY
   Future deleteDocument(
     DocumentModel document,
     BuildContext context,

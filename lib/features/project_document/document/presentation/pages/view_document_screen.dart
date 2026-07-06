@@ -70,7 +70,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
     super.dispose();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

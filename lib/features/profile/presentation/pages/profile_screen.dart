@@ -123,7 +123,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         user.accountNo.trim().isNotEmpty;
   }
 
-  // <---- ADD / UPDATE EDUCATION ---->
+  // ADD / UPDATE EDUCATION
   Future<void> _showBottomSheetToAddUpdateEducation(
     BuildContext context, {
     EmployeeEducationDetailsModel? education,
@@ -240,7 +240,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  // <---- DELETE EMPLOYEE EDUCAtION DETAILS ---->
+  // DELETE EMPLOYEE EDUCAtION DETAILS
   Future<void> _showPopupToDeleteEmployeeEducationDetails(
     BuildContext context,
     EmployeeEducationDetailsModel obj,
@@ -261,7 +261,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
   }
 
-  // <---- ADD / UPDATE EXPERIENCE ---->
+  // ADD / UPDATE EXPERIENCE
   Future<void> _showBottomSheetToAddUpdateExperience(
     BuildContext context, {
     EmployeeExperienceDetailsModel? experience,
@@ -376,7 +376,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  // <---- DELETE EMPLOYEE EXPERIENCE DETAILS ---->
+  // DELETE EMPLOYEE EXPERIENCE DETAILS
   Future<void> _showPopupToDeleteEmployeeExperienceDetails(
     BuildContext context,
     EmployeeExperienceDetailsModel obj,
@@ -397,7 +397,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
   }
 
-  // <---- DELETE EMPLOYEE EXPERIENCE DETAILS ---->
+  // DELETE EMPLOYEE EXPERIENCE DETAILS
   Future<void> _showPopupToSetMpin(UserModel user) async {
     DialogHelper.showCustomDialogue(
       context,

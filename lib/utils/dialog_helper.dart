@@ -25,7 +25,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import '../core/country_code.dart';
 
 class DialogHelper {
-  // <----PROCESSING DIALOG ---->
+  //PROCESSING DIALOG
   static void showProcessingOverlay(BuildContext context) {
     showGeneralDialog(
       context: context,
@@ -89,7 +89,7 @@ class DialogHelper {
     CustomSnackBar.showTopSnackBar(context, title: message, isError: true);
   }
 
-  // <--- MENU CHANGED ERROR DIALOG ---->
+  // <--- MENU CHANGED ERROR DIALOG
   static Future<void> showMenuChangedErrorDialog({
     required BuildContext context,
   }) async {
@@ -152,7 +152,7 @@ class DialogHelper {
     );
   }
 
-  // <---- DELETE DIALOG ---->
+  // DELETE DIALOG
   static Future<bool> deleteDialog(
     BuildContext context,
     String title,
@@ -874,7 +874,7 @@ class DialogHelper {
     );
   }
 
-  // <--- IMPORT  DIALOG ---->
+  // <--- IMPORT  DIALOG
   static Future<Map<String, dynamic>?> showDeleteAllConfirmationDialog({
     required BuildContext context,
   }) async {

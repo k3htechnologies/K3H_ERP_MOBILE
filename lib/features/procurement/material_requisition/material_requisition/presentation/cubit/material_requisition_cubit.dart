@@ -580,7 +580,8 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
       state.searchText.trim().isNotEmpty,
       state.filterByMaterialRequisitionStage.trim().isNotEmpty,
       state.filterByMaterialRequisitionStatus.trim().isNotEmpty,
-      state.filterByFromDate != null && state.filterByToDate != null,
+      state.filterByFromDate != null,
+      state.filterByToDate != null,
       hasSort,
     ]);
   }

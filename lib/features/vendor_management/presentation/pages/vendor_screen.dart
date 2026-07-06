@@ -114,7 +114,7 @@ class _VendorScreenState extends State<VendorScreen> {
     _filterPanCardNumberC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -183,7 +183,7 @@ class _VendorScreenState extends State<VendorScreen> {
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Vendor",
+      title: "Filter - Vendor",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {

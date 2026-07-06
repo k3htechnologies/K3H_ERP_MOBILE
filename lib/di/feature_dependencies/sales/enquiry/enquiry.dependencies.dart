@@ -11,6 +11,6 @@ void registerEnquiryDependencies(GetIt serviceLocator) {
     ),
   );
 
-  //<---- CUBIT ---->
+  //<---- CUBIT
   serviceLocator.registerSingleton<EnquiryCubit>(EnquiryCubit());
 }

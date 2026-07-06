@@ -68,7 +68,7 @@ Widget buildRowTitleCount({
     title: title,
     value: value,
     customValueWidget: InkWell(
-      onTap: onValueTap,
+      onTap: (double.tryParse(value) ?? 0) > 0 ? onValueTap : null,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
         child: Text(
@@ -361,44 +361,19 @@ Widget infoCard(
 }
 
 // GETTER FOR FOLLOWUP STATUS
-Widget followUpStatusTextWidget(DateTime? nextFollowUpDate) {
-  String getFollowUpStatus(DateTime? nextFollowUpDate) {
-    if (nextFollowUpDate == null) return "No Follow up";
-
-    final DateTime today = DateTime.now();
-
-    if (nextFollowUpDate.year == 1970) {
-      return "No Follow up";
-    }
-
-    final DateTime currentDate = DateTime(today.year, today.month, today.day);
-
-    final DateTime followUpDate = DateTime(
-      nextFollowUpDate.year,
-      nextFollowUpDate.month,
-      nextFollowUpDate.day,
-    );
-
-    final int difference = followUpDate.difference(currentDate).inDays;
-
-    if (difference == 0) {
-      return "Today";
-    } else if (difference > 0) {
-      return "Follow up in $difference day(s)";
-    } else {
-      return "Follow up overdue by ${difference.abs()} day(s)";
-    }
+Widget followUpStatusTextWidget(String? enquiryFollowUpDays) {
+  if (enquiryFollowUpDays == null || enquiryFollowUpDays.isEmpty) {
+    return Text("-", style: AppTextStyle.ts14M());
   }
-
-  final String status = getFollowUpStatus(nextFollowUpDate);
+  final String status = enquiryFollowUpDays.toLowerCase();
 
   Color statusColor;
 
   switch (status) {
-    case "No Follow up":
+    case "no follow up":
       statusColor = AppColor.black;
       break;
-    case "Today":
+    case var s when s.toLowerCase().contains("today"):
       statusColor = Color(0xFF1AA0DB);
       break;
     case var s when s.toLowerCase().contains("overdue"):
@@ -408,7 +383,10 @@ Widget followUpStatusTextWidget(DateTime? nextFollowUpDate) {
       statusColor = AppColor.green;
   }
 
-  return Text(status, style: AppTextStyle.ts14M(color: statusColor));
+  return Text(
+    enquiryFollowUpDays,
+    style: AppTextStyle.ts14M(color: statusColor),
+  );
 }
 
 Widget buildRowWrapper({required Widget child}) {

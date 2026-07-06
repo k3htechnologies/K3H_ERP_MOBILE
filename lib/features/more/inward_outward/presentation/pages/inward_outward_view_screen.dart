@@ -115,11 +115,11 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
                   spacing: 10,
                   children: [
                     buildColumnTitleValue(
-                      title: "Document Mode",
+                      title: "Document Type",
                       value: inwardOutward.documentType,
                     ),
                     buildColumnTitleValue(
-                      title: "Document Type",
+                      title: "Delivery Type",
                       value: inwardOutward.deliveryType,
                     ),
                   ],
@@ -230,7 +230,8 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
                       title: "Mobile No.",
                       value: inwardOutward.senderMobileNumber,
                       customValueWidget: CustomClickToContactText(
-                        countryCode: "+91",
+                        countryCode:
+                            inwardOutward.senderMobileNumberCountryCode,
                         value: inwardOutward.senderMobileNumber,
                       ),
                     ),
@@ -276,7 +277,8 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
                       title: "Mobile No.",
                       value: inwardOutward.receiverMobileNumber,
                       customValueWidget: CustomClickToContactText(
-                        countryCode: "+91",
+                        countryCode:
+                            inwardOutward.receiverMobileNumberCountryCode,
                         value: inwardOutward.receiverMobileNumber,
                       ),
                     ),
@@ -746,6 +748,7 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
               buildRowTitleValue(
                 title: "Remark",
                 fixesWidth: 60.w,
+                singleLine: false,
                 value: revert.revertRemark,
               ),
             ],

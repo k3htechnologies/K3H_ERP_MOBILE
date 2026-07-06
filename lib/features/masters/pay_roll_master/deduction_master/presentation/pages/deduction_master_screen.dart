@@ -63,7 +63,7 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
     _searchC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -84,7 +84,7 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
     });
   }
 
-  // <---- DELETE ASSET MAPPING ---->
+  // DELETE ASSET MAPPING
   Future<void> _showPopupToDeleteAssetMappingMaster(
     BuildContext context,
     DeductionMasterModel obj,

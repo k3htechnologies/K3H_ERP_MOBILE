@@ -654,7 +654,8 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       state.filterFloor.trim().isNotEmpty,
       state.filterAgreementValue > 0,
       state.filterBookingType.trim().isNotEmpty,
-      state.filterByFromDate != null && state.filterByToDate != null,
+      state.filterByFromDate != null,
+      state.filterByToDate != null,
     ]);
   }
 }

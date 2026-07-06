@@ -29,6 +29,9 @@ class AchievementDrillDownReportScreen extends StatefulWidget {
   final String columnName;
   final String? projectName;
   final String filterType;
+  final DateTime? fromDate;
+  final DateTime? toDate;
+  final AchievementDrillDownType? achievementDrillDownType;
   const AchievementDrillDownReportScreen({
     super.key,
     this.projectId,
@@ -38,6 +41,9 @@ class AchievementDrillDownReportScreen extends StatefulWidget {
     required this.tabName,
     required this.columnName,
     required this.filterType,
+    this.achievementDrillDownType,
+    this.fromDate,
+    this.toDate,
   });
 
   @override
@@ -55,19 +61,33 @@ class _AchievementDrillDownReportScreenState
   @override
   void initState() {
     _achievementCubit = context.read<AchievementReportCubit>();
+    _loadData();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.achievementReport]!;
-    _achievementCubit.getAchievementDrillDownReportList(
-      context: context,
-      pageNumber: 1,
-      projectId: widget.projectId,
-      tabName: widget.tabName,
-      columnName: widget.columnName,
-      filterType: widget.filterType,
-      employeeId: widget.employeeId,
-    );
+
     _onScroll();
     super.initState();
+  }
+
+  Future _loadData() async {
+    if (widget.achievementDrillDownType != null) {
+      await _achievementCubit.updateAchievementDrillDownType(
+        drillDownType: widget.achievementDrillDownType!,
+      );
+    }
+    if (mounted) {
+      _achievementCubit.getAchievementDrillDownReportList(
+        context: context,
+        pageNumber: 1,
+        projectId: widget.projectId,
+        tabName: widget.tabName,
+        columnName: widget.columnName,
+        filterType: widget.filterType,
+        employeeId: widget.employeeId,
+        fromDate: widget.fromDate,
+        toDate: widget.toDate,
+      );
+    }
   }
 
   void _onScroll() {
@@ -93,6 +113,8 @@ class _AchievementDrillDownReportScreenState
             columnName: widget.columnName,
             filterType: widget.filterType,
             employeeId: widget.employeeId,
+            fromDate: widget.fromDate,
+            toDate: widget.toDate,
           );
         });
       }
@@ -331,7 +353,7 @@ class _AchievementDrillDownReportScreenState
                 enquiry.nextFollowUpDate?.toIso8601String() ?? 'No Follow up',
             singleLine: false,
             customValueWidget: followUpStatusTextWidget(
-              enquiry.nextFollowUpDate,
+              enquiry.enquiryFollowUpDays,
             ),
           ),
           buildRowTitleValue(

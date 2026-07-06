@@ -181,7 +181,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
-  // <---- GET EMPLOYEE MASTER LIST ---->
+  // GET EMPLOYEE MASTER LIST
   Future getEmployeeMasterList(
     int pageNumber,
     int pageSize,
@@ -228,7 +228,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  // <---- GET EMPLOYEE DOCUMENT LIST ---->
+  // GET EMPLOYEE DOCUMENT LIST
   Future getEmployeeDocumentList(
     BuildContext context,
     int pageNumber,
@@ -256,7 +256,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  // <---- GET EMPLOYEE ASSET LIST ---->
+  // GET EMPLOYEE ASSET LIST
   Future getEmployeeAssetList(
     BuildContext context,
     int pageNumber,
@@ -291,7 +291,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  // <---- GET EMPLOYEE SHIFT MANAGEMENT LIST ---->
+  // GET EMPLOYEE SHIFT MANAGEMENT LIST
   Future getShiftManagementList(
     BuildContext context,
     int pageNumber,
@@ -331,7 +331,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  // <---- GET EMPLOYEE WEEK OFF MAPPING LIST ---->
+  // GET EMPLOYEE WEEK OFF MAPPING LIST
   Future getWeekOffMappingList(
     BuildContext context,
     int pageNumber,
@@ -371,7 +371,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  // <---- GET EMPLOYEE EDUCATION DETAILS LIST ---->
+  // GET EMPLOYEE EDUCATION DETAILS LIST
   Future getEmployeeEducationDetailsList(
     BuildContext context,
     int pageNumber,
@@ -412,7 +412,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  // <---- ADD DEPARTMENT ---->
+  // ADD DEPARTMENT
   Future addEmployeeEducationDetails({
     required BuildContext context,
     required String employeeId,
@@ -453,7 +453,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  // <---- UPDATE DEPARTMENT ---->
+  // UPDATE DEPARTMENT
   Future updateEmployeeEducationDetails({
     required BuildContext context,
     required int employeeEducationDetailsId,
@@ -507,7 +507,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  // <---- DELETE EMPLOYEE EDUCATION DETAILS ---->
+  // DELETE EMPLOYEE EDUCATION DETAILS
   Future deleteEmployeeEducationDetails({
     required BuildContext context,
     required int employeeEducationDetailsId,
@@ -550,7 +550,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  // <---- GET EMPLOYEE EXPERIENCE DETAILS LIST ---->
+  // GET EMPLOYEE EXPERIENCE DETAILS LIST
   Future getEmployeeExperienceDetailsList(
     BuildContext context,
     int pageNumber,
@@ -591,7 +591,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  // <---- ADD EXPERIENCE DETAILS ---->
+  // ADD EXPERIENCE DETAILS
   Future addEmployeeExperienceDetails({
     required BuildContext context,
     required String employeeId,
@@ -632,7 +632,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  // <---- UPDATE EXPERIENCE DETAILS ---->
+  // UPDATE EXPERIENCE DETAILS
   Future updateEmployeeExperienceDetails({
     required BuildContext context,
     required int employeeExperienceDetailsId,
@@ -686,7 +686,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  // <---- DELETE EMPLOYEE EXPERIENCE DETAILS ---->
+  // DELETE EMPLOYEE EXPERIENCE DETAILS
   Future deleteEmployeeExperienceDetails({
     required BuildContext context,
     required int employeeExperienceDetailsId,
@@ -729,7 +729,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  // <---- GET BRANCH ASSOCIATION LIST ---->
+  // GET BRANCH ASSOCIATION LIST
   Future getBranchAssociationList(
     BuildContext context,
     int pageNumber,
@@ -797,7 +797,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
-  // <---- UPDATE EMPLOYEE DOCUMENT ---->
+  // UPDATE EMPLOYEE DOCUMENT
   Future updateEmployeeDocument({
     required BuildContext context,
     required int employeeDocumentId,
@@ -848,7 +848,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  // <---- UPDATE USER BASIC DETAILS ---->
+  // UPDATE USER BASIC DETAILS
   Future updateUserBasicDetails({
     required BuildContext context,
     required Map<String, dynamic> body,

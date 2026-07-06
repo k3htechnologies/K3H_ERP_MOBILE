@@ -13,7 +13,7 @@ void registerDepartmentMasterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<DepartmentMasterCubit>(
     DepartmentMasterCubit(),
   );

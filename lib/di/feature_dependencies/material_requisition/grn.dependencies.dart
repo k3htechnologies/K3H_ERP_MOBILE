@@ -9,6 +9,6 @@ void registerMaterialRequisitionGRNDependencies(GetIt serviceLocator) {
     GrnRepositoryImpl(grnDatasource: serviceLocator<GrnDatasource>()),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<GrnCubit>(GrnCubit());
 }

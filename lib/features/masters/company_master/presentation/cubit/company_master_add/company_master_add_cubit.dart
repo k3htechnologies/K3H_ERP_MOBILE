@@ -18,7 +18,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
   final CompanyMasterRepository _companyMasterRepository =
       serviceLocator<CompanyMasterRepository>();
 
-  // <---- ADD COMPANY ---->
+  // ADD COMPANY
   Future<void> addCompanyMaster({
     required BuildContext context,
     required String companyName,
@@ -258,7 +258,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
     );
   }
 
-  // <---- RESET COMPANY PARTNER ---->
+  // RESET COMPANY PARTNER
   void resetCompanyPartner({List<CompanyPartnerModel>? companyPartner}) {
     emit(
       state.copyWith(
@@ -269,7 +269,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
     );
   }
 
-  // <---- ADD UPDATE COMPANY PARTNER ---->
+  // ADD UPDATE COMPANY PARTNER
   void addUpdateCompanyPartnerData(
     CompanyPartnerModel companyData, {
     required BuildContext context,
@@ -290,7 +290,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
     );
   }
 
-  // <---- DELETE COMPANY PARTNER ---->
+  // DELETE COMPANY PARTNER
   void deleteCompanyPartnerData(BuildContext context, int index) {
     final currentList = List<CompanyPartnerModel>.from(state.companyPartner);
     currentList.removeAt(index);
@@ -308,7 +308,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
     );
   }
 
-  // <---- UPDATE COMPANY ---->
+  // UPDATE COMPANY
   Future<void> updateCompanyMaster({
     required BuildContext context,
     required int companyId,

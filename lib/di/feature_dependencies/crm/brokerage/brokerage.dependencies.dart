@@ -13,8 +13,6 @@ void registerBrokerageDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
-  serviceLocator.registerSingleton<BrokerageCubit>(
-    BrokerageCubit(),
-  );
+  //- CUBITS -
+  serviceLocator.registerSingleton<BrokerageCubit>(BrokerageCubit());
 }

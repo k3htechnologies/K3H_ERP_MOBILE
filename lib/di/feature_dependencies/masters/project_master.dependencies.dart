@@ -13,8 +13,8 @@ void registerProjectMasterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
- /* serviceLocator.registerSingleton<CompanyMasterCubit>(CompanyMasterCubit());
+  //- CUBITS -
+  /* serviceLocator.registerSingleton<CompanyMasterCubit>(CompanyMasterCubit());
   serviceLocator.registerSingleton<CompanyMasterAddCubit>(
     CompanyMasterAddCubit(),
   );*/

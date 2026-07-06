@@ -19,7 +19,7 @@ class CompOffCubit extends Cubit<CompOffState> {
   final CompOffRepository _compOffRepository =
       serviceLocator<CompOffRepository>();
 
-  // <---- GET COMP OFF LIST ---->
+  // GET COMP OFF LIST
   Future getCompOffList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {};
@@ -63,7 +63,7 @@ class CompOffCubit extends Cubit<CompOffState> {
     );
   }
 
-  // <---- ADD COMP OFF ---->
+  // ADD COMP OFF
   Future addCompOff({
     required BuildContext context,
     required DateTime compOffDate,
@@ -93,7 +93,7 @@ class CompOffCubit extends Cubit<CompOffState> {
     );
   }
 
-  // <---- UPDATE COMP OFF ---->
+  // UPDATE COMP OFF
   Future updateCompOff({
     required BuildContext context,
     required int compOffId,
@@ -138,7 +138,7 @@ class CompOffCubit extends Cubit<CompOffState> {
     );
   }
 
-  // <---- DELETE COMP OFF ---->
+  // DELETE COMP OFF
   Future deleteCompOff({
     required BuildContext context,
     required int compOffId,
@@ -182,7 +182,7 @@ class CompOffCubit extends Cubit<CompOffState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> queryParams = {};
@@ -220,7 +220,7 @@ class CompOffCubit extends Cubit<CompOffState> {
     );
   }
 
-  // <---- GET COMP OFF DATES LIST ---->
+  // GET COMP OFF DATES LIST
   Future getCompOffDatesList(
     BuildContext context,
     int pageNumber,
@@ -253,28 +253,28 @@ class CompOffCubit extends Cubit<CompOffState> {
     );
   }
 
-  // <---- SET WORKED DATE ---->
+  // SET WORKED DATE
   void setWorkedDate(DateTime? date) {
     emit(state.copyWith(workedDate: date, clearWorkedDate: false));
   }
 
-  // <---- SET COMP OFF DATE ---->
+  // SET COMP OFF DATE
   void setCompOffDate(DateTime? date) {
     emit(state.copyWith(compOffDate: date, clearCompOffDate: false));
   }
 
-  // <---- CLEAR WORKED DATE ---->
+  // CLEAR WORKED DATE
   void clearWorkedDate() {
     // When worked date is cleared, also clear comp-off date
     emit(state.copyWith(clearWorkedDate: true, clearCompOffDate: true));
   }
 
-  // <---- CLEAR COMP OFF DATE ---->
+  // CLEAR COMP OFF DATE
   void clearCompOffDate() {
     emit(state.copyWith(clearCompOffDate: true));
   }
 
-  // <---- SET REASON ---->
+  // SET REASON
   void setReason(String reason) {
     emit(state.copyWith(reason: reason));
   }
@@ -283,7 +283,7 @@ class CompOffCubit extends Cubit<CompOffState> {
     emit(state.copyWith(currentTabIndex: index));
   }
 
-  // <---- APPLY FILTER ON COMP OFF ---->
+  // APPLY FILTER ON COMP OFF
   void applyFilterOnCompOff({
     required BuildContext context,
     DateTime? startDate,
@@ -302,7 +302,8 @@ class CompOffCubit extends Cubit<CompOffState> {
 
   int updateFilterCount(CompOffState state) {
     return getActiveFilterCount([
-      (state.filterStartDate != null && state.filterEndDate != null),
+      state.filterStartDate != null,
+      state.filterEndDate != null,
     ]);
   }
 }

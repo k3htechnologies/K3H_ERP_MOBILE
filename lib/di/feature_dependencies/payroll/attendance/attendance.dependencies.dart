@@ -13,6 +13,6 @@ void registerAttendanceDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<AttendanceCubit>(AttendanceCubit());
 }

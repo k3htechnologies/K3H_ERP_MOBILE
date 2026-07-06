@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -36,6 +35,10 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
   }) async {
     emit(
       state.copyWith(
+        isLoading: true,
+        inwardOutwardList: [],
+        inwardOutwardCurrentPage: 1,
+        inwardOutwardTotalRecords: 0,
         currentTabIndex: currentTabIndex,
         searchText: "",
         filterByDocumentType: "",
@@ -46,9 +49,6 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         filterByReceiverMobileNumber: "",
         filterByStatus: "",
         filterByFromDate: null,
-        inwardOutwardList: [],
-        inwardList: [],
-        outwardList: [],
       ),
     );
     await handleApiCall(context: context);
@@ -147,16 +147,10 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
         "DocumentTitle": state.filterByDocumentTitle,
         "SenderMobileNumber": state.filterBySenderMobileNumber,
-        "ReceiverMobileNumber": state.filterBySenderMobileNumber,
+        "ReceiverMobileNumber": state.filterByReceiverMobileNumber,
         "DeliveryStatus": state.filterByStatus,
-        "FromDate":
-            state.filterByFromDate != null
-                ? DateFormat('yyyy-MM-dd').format(state.filterByFromDate!)
-                : "",
-        "ToDate":
-            state.filterByToDate != null
-                ? DateFormat('yyyy-MM-dd').format(state.filterByToDate!)
-                : "",
+        "FromDate": state.filterByFromDate.apiDate,
+        "ToDate": state.filterByToDate.apiDate,
       },
     );
 
@@ -201,16 +195,10 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         "DocumentType": "Inward",
         "DocumentTitle": state.filterByDocumentTitle,
         "SenderMobileNumber": state.filterBySenderMobileNumber,
-        "ReceiverMobileNumber": state.filterBySenderMobileNumber,
+        "ReceiverMobileNumber": state.filterByReceiverMobileNumber,
         "DeliveryStatus": state.filterByStatus,
-        "FromDate":
-            state.filterByFromDate != null
-                ? DateFormat('yyyy-MM-dd').format(state.filterByFromDate!)
-                : "",
-        "ToDate":
-            state.filterByToDate != null
-                ? DateFormat('yyyy-MM-dd').format(state.filterByToDate!)
-                : "",
+        "FromDate": state.filterByFromDate.apiDate,
+        "ToDate": state.filterByToDate.apiDate,
         "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
       },
     );
@@ -227,13 +215,15 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         );
 
         final updatedList =
-            pageNumber == 1 ? newData : [...state.inwardList, ...newData];
+            pageNumber == 1
+                ? newData
+                : [...state.inwardOutwardList, ...newData];
 
         emit(
           state.copyWith(
-            inwardList: updatedList,
-            inwardTotalRecords: response["totalNumberOfRecord"] ?? 0,
-            inwardCurrentPage: pageNumber,
+            inwardOutwardList: updatedList,
+            inwardOutwardTotalRecords: response["totalNumberOfRecord"] ?? 0,
+            inwardOutwardCurrentPage: pageNumber,
             isLoading: false,
           ),
         );
@@ -255,16 +245,10 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
         "DocumentTitle": state.filterByDocumentTitle,
         "SenderMobileNumber": state.filterBySenderMobileNumber,
-        "ReceiverMobileNumber": state.filterBySenderMobileNumber,
+        "ReceiverMobileNumber": state.filterByReceiverMobileNumber,
         "DeliveryStatus": state.filterByStatus,
-        "FromDate":
-            state.filterByFromDate != null
-                ? DateFormat('yyyy-MM-dd').format(state.filterByFromDate!)
-                : "",
-        "ToDate":
-            state.filterByToDate != null
-                ? DateFormat('yyyy-MM-dd').format(state.filterByToDate!)
-                : "",
+        "FromDate": state.filterByFromDate.apiDate,
+        "ToDate": state.filterByToDate.apiDate,
       },
     );
 
@@ -280,13 +264,15 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         );
 
         final updatedList =
-            pageNumber == 1 ? newData : [...state.outwardList, ...newData];
+            pageNumber == 1
+                ? newData
+                : [...state.inwardOutwardList, ...newData];
 
         emit(
           state.copyWith(
-            outwardList: updatedList,
-            outwardTotalRecords: response["totalNumberOfRecord"] ?? 0,
-            outwardCurrentPage: pageNumber,
+            inwardOutwardList: updatedList,
+            inwardOutwardTotalRecords: response["totalNumberOfRecord"] ?? 0,
+            inwardOutwardCurrentPage: pageNumber,
             isLoading: false,
           ),
         );
@@ -314,59 +300,21 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) async {
-        switch (state.currentTabIndex) {
-          case 0:
-            final updatedList = List<InwardOutwardModel>.from(
-              state.inwardOutwardList,
-            );
-            updatedList.removeAt(index);
+        final updatedList = List<InwardOutwardModel>.from(
+          state.inwardOutwardList,
+        );
+        updatedList.removeAt(index);
 
-            emit(
-              state.copyWith(
-                inwardOutwardList: updatedList,
-                isLoading: false,
-                inwardOutwardTotalRecords:
-                    state.inwardOutwardTotalRecords > 0
-                        ? state.inwardOutwardTotalRecords - 1
-                        : 0,
-              ),
-            );
-            break;
-
-          case 1:
-            final updatedList = List<InwardOutwardModel>.from(state.inwardList);
-            updatedList.removeAt(index);
-
-            emit(
-              state.copyWith(
-                inwardList: updatedList,
-                isLoading: false,
-                inwardTotalRecords:
-                    state.inwardTotalRecords > 0
-                        ? state.inwardTotalRecords - 1
-                        : 0,
-              ),
-            );
-            break;
-
-          case 2:
-            final updatedList = List<InwardOutwardModel>.from(
-              state.outwardList,
-            );
-            updatedList.removeAt(index);
-
-            emit(
-              state.copyWith(
-                outwardList: updatedList,
-                isLoading: false,
-                outwardTotalRecords:
-                    state.outwardTotalRecords > 0
-                        ? state.outwardTotalRecords - 1
-                        : 0,
-              ),
-            );
-            break;
-        }
+        emit(
+          state.copyWith(
+            inwardOutwardList: updatedList,
+            isLoading: false,
+            inwardOutwardTotalRecords:
+                state.inwardOutwardTotalRecords > 0
+                    ? state.inwardOutwardTotalRecords - 1
+                    : 0,
+          ),
+        );
         if (context.mounted) {
           showSuccessMessage(
             context,
@@ -432,10 +380,12 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
       "InVoiceDate": invoiceDate,
       "SenderName": senderName,
       "SenderAddress": senderAddress,
+      "SenderMobileNumberCountryCode": senderMobileNumberCountryCode,
       "SenderMobileNumber": senderMobileNumber,
       "SenderEmailId": senderEmailId,
       "ReceiverName": receiverName,
       "ReceiverAddress": receiverAddress,
+      "ReceiverMobileNumberCountryCode": receiverMobileNumberCountryCode,
       "ReceiverMobileNumber": receiverMobileNumber,
       "ReceiverEmailId": receiverEmailId,
       "RemoveDocumentURL": documentURL.deletedFileList,
@@ -554,7 +504,6 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
     required String acknowledgementRemark,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
     Map<String, String> body = {
       "InwardOutwardId": inwardOutwardId.toString(),
       "UniqueKey": uniqueKey,
@@ -569,7 +518,7 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
       "SenderEmailId": senderEmailId,
       "ReceiverName": receiverName,
       "ReceiverAddress": receiverAddress,
-      "MobileNumberCountryCode": receiverMobileNumberCountryCode,
+      "ReceiverMobileNumberCountryCode": receiverMobileNumberCountryCode,
       "ReceiverMobileNumber": receiverMobileNumber,
       "ReceiverEmailId": receiverEmailId,
       "RemoveDocumentURL": documentURL.deletedFileList,
@@ -661,28 +610,38 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
             break;
 
           case 1:
-            if (state.inwardList.isNotEmpty &&
-                index < state.inwardList.length) {
+            if (state.inwardOutwardList.isNotEmpty &&
+                index < state.inwardOutwardList.length) {
               final updatedList = List<InwardOutwardModel>.from(
-                state.inwardList,
+                state.inwardOutwardList,
               );
 
               updatedList[index] = updatedInwardOutward;
 
-              emit(state.copyWith(isLoading: false, inwardList: updatedList));
+              emit(
+                state.copyWith(
+                  isLoading: false,
+                  inwardOutwardList: updatedList,
+                ),
+              );
             }
             break;
 
           case 2:
-            if (state.outwardList.isNotEmpty &&
-                index < state.outwardList.length) {
+            if (state.inwardOutwardList.isNotEmpty &&
+                index < state.inwardOutwardList.length) {
               final updatedList = List<InwardOutwardModel>.from(
-                state.outwardList,
+                state.inwardOutwardList,
               );
 
               updatedList[index] = updatedInwardOutward;
 
-              emit(state.copyWith(isLoading: false, outwardList: updatedList));
+              emit(
+                state.copyWith(
+                  isLoading: false,
+                  inwardOutwardList: updatedList,
+                ),
+              );
             }
             break;
           default:
@@ -767,28 +726,38 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
             break;
 
           case 1:
-            if (state.inwardList.isNotEmpty &&
-                index < state.inwardList.length) {
+            if (state.inwardOutwardList.isNotEmpty &&
+                index < state.inwardOutwardList.length) {
               final updatedList = List<InwardOutwardModel>.from(
-                state.inwardList,
+                state.inwardOutwardList,
               );
 
               updatedList[index] = updatedInwardOutward;
 
-              emit(state.copyWith(isLoading: false, inwardList: updatedList));
+              emit(
+                state.copyWith(
+                  isLoading: false,
+                  inwardOutwardList: updatedList,
+                ),
+              );
             }
             break;
 
           case 2:
-            if (state.outwardList.isNotEmpty &&
-                index < state.outwardList.length) {
+            if (state.inwardOutwardList.isNotEmpty &&
+                index < state.inwardOutwardList.length) {
               final updatedList = List<InwardOutwardModel>.from(
-                state.outwardList,
+                state.inwardOutwardList,
               );
 
               updatedList[index] = updatedInwardOutward;
 
-              emit(state.copyWith(isLoading: false, outwardList: updatedList));
+              emit(
+                state.copyWith(
+                  isLoading: false,
+                  inwardOutwardList: updatedList,
+                ),
+              );
             }
             break;
           default:
@@ -846,8 +815,8 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
 
     int totalRecords = switch (state.currentTabIndex) {
       0 => state.inwardOutwardTotalRecords,
-      1 => state.inwardTotalRecords,
-      2 => state.outwardTotalRecords,
+      1 => state.inwardOutwardTotalRecords,
+      2 => state.inwardOutwardTotalRecords,
       _ => state.inwardOutwardTotalRecords,
     };
 
@@ -897,7 +866,7 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
 
   int updateFilterCount(InwardOutwardState state) {
     final hasSort =
-        state.currentSortColumn == "SystemGeneratedCode" &&
+        state.currentSortColumn == "Document Id" &&
         (state.currentSortDirection == "ASC" ||
             state.currentSortDirection == "DESC");
 
@@ -910,7 +879,8 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
       state.filterByStatus.trim().isNotEmpty,
       state.filterBySenderMobileNumber.trim().isNotEmpty,
       state.filterByReceiverMobileNumber.trim().isNotEmpty,
-      state.filterByFromDate != null && state.filterByToDate != null,
+      state.filterByFromDate != null,
+      state.filterByToDate != null,
       hasSort,
     ]);
   }

@@ -14,6 +14,6 @@ void registerProposedPlansDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<ProposedPlansCubit>(ProposedPlansCubit());
 }

@@ -15,6 +15,6 @@ void registerMaterialRequisitionPurchaseOrderDependencies(
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<PurchaseOrderCubit>(PurchaseOrderCubit());
 }

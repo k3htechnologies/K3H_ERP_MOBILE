@@ -12,6 +12,6 @@ void registerEmployeeMasterDependencies(GetIt serviceLocator) {
     EmployeeMasterRepositoryImp(serviceLocator<EmployeeMasterDataSource>()),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<EmployeeMasterCubit>(EmployeeMasterCubit());
 }

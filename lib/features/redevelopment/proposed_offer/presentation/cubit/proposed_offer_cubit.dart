@@ -33,7 +33,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
   final ProposedOfferRepository _proposedOfferRepository =
       serviceLocator<ProposedOfferRepository>();
 
-  // <---- GET BUILDING LIST ---->
+  // GET BUILDING LIST
   Future<List<RedevelopmentBuildingModel>> getBuildingList(
     BuildContext context,
     int pageNumber,
@@ -106,7 +106,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
 
   // < ---------------------------------------------------------------------------------------------------------- >
 
-  // <---- PULL EXTRA CARPET AREA ---->
+  // PULL EXTRA CARPET AREA
   Future pullExtraCarpetArea({
     required int projectId,
     required int buildingId,
@@ -138,7 +138,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     );
   }
 
-  // <---- ADD UPDATE EXTRA CARPET AREA ---->
+  // ADD UPDATE EXTRA CARPET AREA
   Future<void> addUpdateExtraCarpetArea(
     BuildContext context, {
     required int buildingId,
@@ -185,7 +185,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
 
   // < ---------------------------------------------------------------------------------------------------------- >
 
-  // <---- PULL CORPUS DETAILS ---->
+  // PULL CORPUS DETAILS
   Future pullCorpusDetails({
     required int projectId,
     required int buildingId,
@@ -218,7 +218,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     );
   }
 
-  // <---- ADD UPDATE CORPUS DETAILS ---->
+  // ADD UPDATE CORPUS DETAILS
   Future<void> addUpdateCorpusDetails(
     BuildContext context, {
     required int buildingId,
@@ -278,7 +278,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
 
   // < ---------------------------------------------------------------------------------------------------------- >
 
-  // <---- PULL SHIFTING DETAILS ---->
+  // PULL SHIFTING DETAILS
   Future pullShiftingDetails({
     required int projectId,
     required int buildingId,
@@ -312,7 +312,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     );
   }
 
-  // <---- ADD UPDATE SHIFTING DETAILS ---->
+  // ADD UPDATE SHIFTING DETAILS
   Future<void> addUpdateShiftingDetails(
     BuildContext context, {
     required int buildingId,
@@ -372,7 +372,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
 
   // < ---------------------------------------------------------------------------------------------------------- >
 
-  // <---- PULL LIEN TO SOCIETY DETAILS ---->
+  // PULL LIEN TO SOCIETY DETAILS
 
   Future pullLienToSocietyDetails({
     required int projectId,
@@ -407,7 +407,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     );
   }
 
-  // <---- ADD UPDATE LIEN TO SOCIETY DETAILS ---->
+  // ADD UPDATE LIEN TO SOCIETY DETAILS
   Future<void> addUpdateLienToSocietyDetails(
     BuildContext context, {
     required int buildingId,
@@ -474,7 +474,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
 
   // < ---------------------------------------------------------------------------------------------------------- >
 
-  // <---- PULL SECURITY DEPOSIT DETAILS ---->
+  // PULL SECURITY DEPOSIT DETAILS
   Future pullSecurityDepositDetails({
     required int projectId,
     required int buildingId,
@@ -508,7 +508,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     );
   }
 
-  // <---- ADD UPDATE SECURITY DEPOSIT DETAILS ---->
+  // ADD UPDATE SECURITY DEPOSIT DETAILS
   Future<void> addUpdateSecurityDepositDetails(
     BuildContext context, {
     required int buildingId,
@@ -567,7 +567,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
 
   // < ---------------------------------------------------------------------------------------------------------- >
 
-  // <---- PULL PARKING ALLOTMENT ---->
+  // PULL PARKING ALLOTMENT
   Future<bool> pullParkingAllotment({
     required int projectId,
     required int buildingId,
@@ -601,7 +601,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     );
   }
 
-  // <---- ADD UPDATE PARKING ALLOTMENT ---->
+  // ADD UPDATE PARKING ALLOTMENT
   Future<void> addUpdateParkingAllotment(
     BuildContext context, {
     required int buildingId,
@@ -647,7 +647,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
 
   // < ---------------------------------------------------------------------------------------------------------- >
 
-  // <---- PULL GST ON EXISTING PLUS FREE AREA ---->
+  // PULL GST ON EXISTING PLUS FREE AREA
   Future pullGSTonExistingPlusFreeArea({
     required int projectId,
     required int buildingId,
@@ -681,7 +681,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     );
   }
 
-  // <---- ADD UPDATE GST ON EXISTING PLUS FREE AREA ---->
+  // ADD UPDATE GST ON EXISTING PLUS FREE AREA
   Future<void> addUpdateGSTonExistingPlusFreeArea(
     BuildContext context, {
     required int buildingId,
@@ -731,7 +731,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
 
   // < ---------------------------------------------------------------------------------------------------------- >
 
-  // <---- PULL PROJECT COMPLETION ---->
+  // PULL PROJECT COMPLETION
   Future<bool> pullProjectCompletion({
     required int projectId,
     required int buildingId,
@@ -765,7 +765,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     );
   }
 
-  // <---- ADD UPDATE PROJECT COMPLETION ---->
+  // ADD UPDATE PROJECT COMPLETION
   Future<void> addUpdateProjectCompletion(
     BuildContext context, {
     required int buildingId,
@@ -810,7 +810,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
 
   // < ---------------------------------------------------------------------------------------------------------- >
 
-  // <---- PULL RENT DETAILS ---->
+  // PULL RENT DETAILS
   Future pullRentDetails({
     required BuildContext context,
     required int pageNumber,
@@ -840,7 +840,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     );
   }
 
-  // <---- ADD RENT DETAILS ---->
+  // ADD RENT DETAILS
   Future<void> addUpdateRentDetails(
     BuildContext context, {
     required int buildingId,
@@ -900,7 +900,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     );
   }
 
-  // <---- UPDATE RENT DETAILS ---->
+  // UPDATE RENT DETAILS
   Future<void> updateRentDetails(
     BuildContext context, {
     required int buildingId,
@@ -954,7 +954,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     );
   }
 
-  // <---- DELETE RENT DETAILS  ---->
+  // DELETE RENT DETAILS
   Future deleteRentDetails({
     required BuildContext context,
     required int proposedOfferRentDetailsId,

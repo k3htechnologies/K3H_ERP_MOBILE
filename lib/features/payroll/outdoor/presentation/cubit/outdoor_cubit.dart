@@ -20,13 +20,13 @@ class OutdoorCubit extends Cubit<OutdoorState> {
   final OutdoorRepository _outdoorRepository =
       serviceLocator<OutdoorRepository>();
 
-  // <---- SEARCH OUTDOOR ---->
+  // SEARCH OUTDOOR
   Future searchOutdoor(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, outdoorList: []));
     await getOutdoorList(context, 1);
   }
 
-  // <---- GET OUTDOOR LIST ---->
+  // GET OUTDOOR LIST
   Future getOutdoorList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     var queryParams = {
@@ -69,7 +69,7 @@ class OutdoorCubit extends Cubit<OutdoorState> {
     );
   }
 
-  // <---- UPDATE OUTDOOR ATTENDANCE ---->
+  // UPDATE OUTDOOR ATTENDANCE
   Future addUpdateConclusion({
     required BuildContext context,
     required int outdoorId,
@@ -120,7 +120,7 @@ class OutdoorCubit extends Cubit<OutdoorState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _outdoorRepository.exportOutdoor(
@@ -151,12 +151,12 @@ class OutdoorCubit extends Cubit<OutdoorState> {
     );
   }
 
-  // <---- CLEAR EMPLOYEE LIST ---->
+  // CLEAR EMPLOYEE LIST
   void clearEmployeeList() {
     emit(state.copyWith(employeeList: [], employeeTotalCount: 0));
   }
 
-  // <---- ADD OUTDOOR ---->
+  // ADD OUTDOOR
   Future<void> addOutdoor({
     required BuildContext context,
     required String outDoorDate,
@@ -212,7 +212,7 @@ class OutdoorCubit extends Cubit<OutdoorState> {
     );
   }
 
-  // <---- UPDATE OUTDOOR ---->
+  // UPDATE OUTDOOR
   Future<void> updateOutdoor({
     required int index,
     required BuildContext context,
@@ -301,7 +301,8 @@ class OutdoorCubit extends Cubit<OutdoorState> {
 
   int updateFilterCount(OutdoorState state) {
     return getActiveFilterCount([
-      (state.filterStartDate != null && state.filterEndDate != null),
+      state.filterStartDate != null,
+      state.filterEndDate != null,
     ]);
   }
 }

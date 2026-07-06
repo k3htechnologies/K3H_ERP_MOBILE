@@ -17,7 +17,7 @@ class AuthorizationModel {
 class Authorization {
   static Map<String, AuthorizationModel> routeAuthorizationMap = {
     AppRoutes.dashboardScreen: AuthorizationModel(isAccess: true),
-    // <---- MASTERS ---->
+    // MASTERS
     // COMPANY SETUP
     AppRoutes.departmentMaster: AuthorizationModel(),
     AppRoutes.companyMaster: AuthorizationModel(),
@@ -31,30 +31,30 @@ class Authorization {
     AppRoutes.activityMaster: AuthorizationModel(),
     AppRoutes.contractMaster: AuthorizationModel(),
     AppRoutes.subMaterialMaster: AuthorizationModel(),
-    // <---- PROCUREMENT ---->
+    // PROCUREMENT
     // MATERIAL REQUISITION
     AppRoutes.materialRequisition: AuthorizationModel(),
-    // <---- VENDOR ---->
+    // VENDOR
     AppRoutes.vendor: AuthorizationModel(),
-    // <---- INVENTORY ---->
+    // INVENTORY
     AppRoutes.inventory: AuthorizationModel(),
     AppRoutes.parking: AuthorizationModel(),
 
-    // <---- REDEVELOPMENT ---->
+    // REDEVELOPMENT
     AppRoutes.building: AuthorizationModel(),
     AppRoutes.proposedOffer: AuthorizationModel(),
     AppRoutes.rent: AuthorizationModel(),
     AppRoutes.tenant: AuthorizationModel(),
-    // <---- SALES ---->
+    // SALES
     AppRoutes.callTracker: AuthorizationModel(),
     AppRoutes.enquiry: AuthorizationModel(),
     AppRoutes.booking: AuthorizationModel(),
     AppRoutes.otherCharges: AuthorizationModel(),
     AppRoutes.classificationParameter: AuthorizationModel(),
-    // <---- CHANNEL PARTNER ---->
+    // CHANNEL PARTNER
     AppRoutes.channelPartner: AuthorizationModel(),
 
-    // <---- HRM ---->
+    // HRM
     AppRoutes.assetMaster: AuthorizationModel(),
     AppRoutes.assetMappingMaster: AuthorizationModel(),
     AppRoutes.branchMaster: AuthorizationModel(),

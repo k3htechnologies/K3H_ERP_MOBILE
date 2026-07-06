@@ -1614,11 +1614,25 @@ class _DashboardScreenState extends State<DashboardScreen>
                                   await _dashboardCubit.resetUnits();
                                   await goRouter.pushNamed(
                                     AppRoutes.employeeAttendanceScreen,
-                                    extra: context.read<DashboardCubit>(),
+
                                     queryParameters: {
                                       "type": Uri.encodeComponent(
                                         EncryptionManager.encryptData(
                                           "PRESENT",
+                                        ),
+                                      ),
+                                      "employeeList": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(
+                                            (context
+                                                        .read<DashboardCubit>()
+                                                        .state
+                                                        .userData
+                                                        ?.table0 ??
+                                                    [])
+                                                .map((e) => e.toJson())
+                                                .toList(),
+                                          ),
                                         ),
                                       ),
                                       "title": Uri.encodeComponent(
@@ -1641,10 +1655,23 @@ class _DashboardScreenState extends State<DashboardScreen>
                                   await _dashboardCubit.resetUnits();
                                   await goRouter.pushNamed(
                                     AppRoutes.employeeAttendanceScreen,
-                                    extra: context.read<DashboardCubit>(),
                                     queryParameters: {
                                       "type": Uri.encodeComponent(
                                         EncryptionManager.encryptData("ABSENT"),
+                                      ),
+                                      "employeeList": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(
+                                            (context
+                                                        .read<DashboardCubit>()
+                                                        .state
+                                                        .userData
+                                                        ?.table0 ??
+                                                    [])
+                                                .map((e) => e.toJson())
+                                                .toList(),
+                                          ),
+                                        ),
                                       ),
                                       "title": Uri.encodeComponent(
                                         EncryptionManager.encryptData(
@@ -1666,10 +1693,24 @@ class _DashboardScreenState extends State<DashboardScreen>
                                   await _dashboardCubit.resetUnits();
                                   await goRouter.pushNamed(
                                     AppRoutes.employeeAttendanceScreen,
-                                    extra: context.read<DashboardCubit>(),
+
                                     queryParameters: {
                                       "type": Uri.encodeComponent(
                                         EncryptionManager.encryptData("LEAVE"),
+                                      ),
+                                      "employeeList": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(
+                                            (context
+                                                        .read<DashboardCubit>()
+                                                        .state
+                                                        .userData
+                                                        ?.table0 ??
+                                                    [])
+                                                .map((e) => e.toJson())
+                                                .toList(),
+                                          ),
+                                        ),
                                       ),
                                       "title": Uri.encodeComponent(
                                         EncryptionManager.encryptData(

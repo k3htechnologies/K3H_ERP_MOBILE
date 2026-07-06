@@ -11,6 +11,10 @@ abstract interface class SalesDashboardRepository {
   Future<Either<Failure, Map<String, dynamic>>> markTimeOutEnquiry({
     required Map<String, dynamic> body,
   });
+  Future<Either<Failure, Map<String, dynamic>>> getProjectWiseSalesDashboard({
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class SalesDashboardRepositoryImpl extends SalesDashboardRepository {
@@ -26,6 +30,23 @@ class SalesDashboardRepositoryImpl extends SalesDashboardRepository {
         projectId: projectId,
         queryParams: queryParams,
       );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getProjectWiseSalesDashboard({
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await salesDashboardDatasource
+          .apiCallPullProjectWiseSalesDashboard(
+            projectId: projectId,
+            queryParams: queryParams,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

@@ -15,7 +15,7 @@ class RedevlopmentDashboardCubit extends Cubit<RedevlopmentDashboardState> {
   final RedevelopmentDashboardRepository _redevelopmentDashboardRepository =
       serviceLocator<RedevelopmentDashboardRepository>();
 
-  // <---- GET Dashboard LIST ---->
+  // GET Dashboard LIST
   Future getRedevelopmentDashboardList(
     BuildContext context,
     int projectId, {

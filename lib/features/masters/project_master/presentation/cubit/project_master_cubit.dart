@@ -42,7 +42,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   // UTILS REPO
   final UtilsRepository utilsRepository = serviceLocator<UtilsRepository>();
 
-  // <--- RESET PROJECT DETAILS STATE VARIABLE AS SAME CUBIT ISUSED THERE ---->
+  // <--- RESET PROJECT DETAILS STATE VARIABLE AS SAME CUBIT ISUSED THERE
   void resetProjectDetailsStateVariable() {
     emit(
       state.copyWith(
@@ -53,13 +53,13 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  // <---- SEARCH PROJECT ---->
+  // SEARCH PROJECT
   Future searchProject(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, projectList: []));
     await getProjectList(context: context, pageNumber: 1);
   }
 
-  // <---- TAB CHANGED ---->
+  // TAB CHANGED
   void onTabChanged(
     BuildContext context,
     ProjectDetailsTab tab, {
@@ -98,7 +98,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     }
   }
 
-  // <--- SORT VENDOR ---->
+  // <--- SORT VENDOR
   Future sortProject({
     required BuildContext context,
     String? projectName,
@@ -159,7 +159,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     await getProjectList(context: context, pageNumber: 1);
   }
 
-  // <---- PULL PROJECTS ---->
+  // PULL PROJECTS
   Future getProjectList({
     required BuildContext context,
     required int pageNumber,
@@ -210,7 +210,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  // <---- ADD PROJECTS ---->
+  // ADD PROJECTS
   Future addProject({
     required BuildContext context,
     required String projectName,
@@ -349,7 +349,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  // <---- UPDATE PROJECTS ---->
+  // UPDATE PROJECTS
   Future updateProject({
     required BuildContext context,
     required int projectId,
@@ -509,7 +509,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  // <---- UPDATE PROJECT IN LOCAL STORAGE ---->
+  // UPDATE PROJECT IN LOCAL STORAGE
   Future<void> _updateProjectInLocalStorage(ProjectModel updatedProject) async {
     try {
       final localStorageManager = LocalStorageManager();
@@ -560,7 +560,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     }
   }
 
-  // <---- ADD COMPANY RESPECTED TO PROJECTS ---->
+  // ADD COMPANY RESPECTED TO PROJECTS
   Future<void> getProjectWithCompany({
     required BuildContext context,
     required int projectId,
@@ -592,7 +592,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  // <---- GET PAGINATED COMPANY LIST (CLIENT-SIDE) ---->
+  // GET PAGINATED COMPANY LIST (CLIENT-SIDE)
   List<CompanyModel> getPaginatedCompanyList() {
     const int pageSize = 10;
     final int startIndex = (state.currentPageCompany - 1) * pageSize;
@@ -610,7 +610,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  // <---- LOAD MORE COMPANIES (CLIENT-SIDE PAGINATION) ---->
+  // LOAD MORE COMPANIES (CLIENT-SIDE PAGINATION)
   void loadMoreCompanies() {
     const int pageSize = 10;
     final int totalPages = (state.companyByProject.length / pageSize).ceil();
@@ -620,7 +620,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     }
   }
 
-  // <---- ADD BANK RESPECTED TO PROJECTS ---->
+  // ADD BANK RESPECTED TO PROJECTS
   Future<void> getProjectWithBankDetails({
     required BuildContext context,
     required int projectId,
@@ -675,7 +675,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  // <---- GET PAGINATED BANK LIST (CLIENT-SIDE) ---->
+  // GET PAGINATED BANK LIST (CLIENT-SIDE)
   List<BankDetailsModel> getPaginatedBankList() {
     const int pageSize = 10;
 
@@ -691,7 +691,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  // <---- LOAD MORE BANKS (CLIENT-SIDE PAGINATION) ---->
+  // LOAD MORE BANKS (CLIENT-SIDE PAGINATION)
   void loadMoreBanks() {
     const int pageSize = 10;
     final int totalPages = (state.bankByProject.length / pageSize).ceil();
@@ -701,7 +701,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     }
   }
 
-  // <---- ADD EMPLOYEE RESPECT TO PROJECTS ---->
+  // ADD EMPLOYEE RESPECT TO PROJECTS
   Future<void> getProjectWithEmployee({
     required BuildContext context,
     required int projectId,
@@ -739,7 +739,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  // <---- GET PAGINATED EMPLOYEE LIST (CLIENT-SIDE) ---->
+  // GET PAGINATED EMPLOYEE LIST (CLIENT-SIDE)
   List<UserModel> getPaginatedEmployeeList() {
     const int pageSize = 10;
 
@@ -755,7 +755,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  // <---- LOAD MORE EMPLOYEES (CLIENT-SIDE PAGINATION) ---->
+  // LOAD MORE EMPLOYEES (CLIENT-SIDE PAGINATION)
   void loadMoreEmployees() {
     const int pageSize = 10;
     final int totalPages = (state.employeeByProject.length / pageSize).ceil();
@@ -765,7 +765,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     }
   }
 
-  // <---- ADD UPDATE BANK DETAILS RESPECT TO PROJECT ---->
+  // ADD UPDATE BANK DETAILS RESPECT TO PROJECT
   Future<void> addUpdateProjectWithBankDetails({
     required Map<String, dynamic> bankRequestBody,
     required String projectId,
@@ -791,7 +791,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  // <---- DELETE BANK RESPECT TO PROJECT ---->
+  // DELETE BANK RESPECT TO PROJECT
   Future<void> deleteProjectWithBankDetails({
     required BuildContext context,
     required int projectWithBankDetailsId,
@@ -821,7 +821,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  // <---- FETCH COMPANY MASTER LIST ---->
+  // FETCH COMPANY MASTER LIST
   Future<List<CompanyModel>> getCompanies({
     required int pageNumber,
     required int pageSize,
@@ -864,7 +864,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     return companyList;
   }
 
-  // <---- FETCH EMPLOYEE MASTER LIST ---->
+  // FETCH EMPLOYEE MASTER LIST
   Future<List<UserModel>> getEmployeeMasterList({
     required int pageNumber,
     required int pageSize,
@@ -907,7 +907,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     return employeeList;
   }
 
-  // <----- ADD UPDATE COMPANY RESPECT WITH PROJECT ----->
+  //- ADD UPDATE COMPANY RESPECT WITH PROJECT -
   Future<void> addUpdateProjectWithCompany({
     required String projectId,
     required String uniqueKey,
@@ -941,7 +941,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  // <----- ADD UPDATE EMPLOYEE RESPECT WITH PROJECT ----->
+  //- ADD UPDATE EMPLOYEE RESPECT WITH PROJECT -
   Future<void> addUpdateProjectWithEmployee({
     required String projectId,
     required String uniqueKey,
@@ -980,7 +980,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  // <---- DELETE BANK RESPECT TO PROJECT ---->
+  // DELETE BANK RESPECT TO PROJECT
   Future<void> deleteProjectWithEmployee({
     required BuildContext context,
     required int projectId,
@@ -1010,7 +1010,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  // <---- EXPORT EXCEL OR PDF ---->
+  // EXPORT EXCEL OR PDF
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _projectMasterRepository.exportProject(

@@ -2,6 +2,7 @@ class AppAssets {
   static const String gifPath = "assets/images";
   static const String pngPath = "assets/images";
   static const String svgPath = "assets/icons";
+  static const String salesSvgPath = "assets/icons/sales";
   static const String sideDrawerIconsPath = "assets/sideDrawer";
 
   //PNG IMAGES
@@ -157,68 +158,68 @@ class AppAssets {
   static const String projectModule = "$sideDrawerIconsPath/projectModule.svg";
   static const String reraSubmodule = "$sideDrawerIconsPath/reraSubmodule.svg";
   static const String approvedBankSubmodule =
-      "$sideDrawerIconsPath/approvedBankSubmodule.svg";
+      "$sideDrawerIconsPath/approvedBankSubmodule.svg"; //UNUSED
   static const String targetSubmodule =
-      "$sideDrawerIconsPath/targetSubmodule.svg";
+      "$sideDrawerIconsPath/targetSubmodule.svg"; //UNUSED
   static const String sourcingSubmodule =
-      "$sideDrawerIconsPath/sourcingSubmodule.svg";
+      "$sideDrawerIconsPath/sourcingSubmodule.svg"; //UNUSED
   static const String brokerageSubmodule =
-      "$sideDrawerIconsPath/brokerageSubmodule.svg";
+      "$sideDrawerIconsPath/brokerageSubmodule.svg"; //UNUSED
 
   // -- INVENTORY
   static const String inventoryModule =
-      "$sideDrawerIconsPath/inventoryModule.svg";
-  static const String apartment = "$svgPath/apartment.svg";
-  static const String ladder = "$svgPath/ladder.svg";
-  static const String wing = "$svgPath/wing.svg";
-  static const String door = "$svgPath/door.svg";
+      "$sideDrawerIconsPath/inventoryModule.svg"; //UNUSED
+  static const String apartment = "$svgPath/apartment.svg"; //UNUSED
+  static const String ladder = "$svgPath/ladder.svg"; //UNUSED
+  static const String wing = "$svgPath/wing.svg"; //UNUSED
+  static const String door = "$svgPath/door.svg"; //UNUSED
   static const String car = "$svgPath/car.svg";
   static const String inventoryApprovalIcon =
-      "$svgPath/inventoryApprovalIcon.svg";
+      "$svgPath/inventoryApprovalIcon.svg"; //UNUSED
 
   // -- SETTINGS
   static const String settingsModule =
-      "$sideDrawerIconsPath/settingsModule.svg";
+      "$sideDrawerIconsPath/settingsModule.svg"; //UNUSED
 
   // -- REDEVELOPMENT
   static const String redevelopmentModule =
-      "$sideDrawerIconsPath/redevelopmentModule.svg";
+      "$sideDrawerIconsPath/redevelopmentModule.svg"; //UNUSED
 
   // -- COMPANY SETUP
   static const String companySetupSubmodule =
-      "$sideDrawerIconsPath/companySetupSubmodule.svg";
+      "$sideDrawerIconsPath/companySetupSubmodule.svg"; //UNUSED
   static const String companySubSubmodule =
-      "$sideDrawerIconsPath/companySubSubmodule.svg";
+      "$sideDrawerIconsPath/companySubSubmodule.svg"; //UNUSED
   static const String departmentSubSubmodule =
-      "$sideDrawerIconsPath/departmentSubSubmodule.svg";
+      "$sideDrawerIconsPath/departmentSubSubmodule.svg"; //UNUSED
   static const String designationSubSubmodule =
-      "$sideDrawerIconsPath/designationSubSubmodule.svg";
+      "$sideDrawerIconsPath/designationSubSubmodule.svg"; //UNUSED
   static const String employeeSubSubmodule =
-      "$sideDrawerIconsPath/employeeSubSubmodule.svg";
+      "$sideDrawerIconsPath/employeeSubSubmodule.svg"; //UNUSED
   static const String termsAndConditionsSubSubmodule =
-      "$sideDrawerIconsPath/termsAndConditionsSubSubmodule.svg";
+      "$sideDrawerIconsPath/termsAndConditionsSubSubmodule.svg"; //UNUSED
 
   // -- PROJECT SETUP
   static const String projectSubmodule =
-      "$sideDrawerIconsPath/projectSubmodule.svg";
+      "$sideDrawerIconsPath/projectSubmodule.svg"; //UNUSED
 
   // -- VENDOR MANAGEMENT
   static const String vendorManagementSubmodule =
-      "$sideDrawerIconsPath/vendorManagementSubmodule.svg";
+      "$sideDrawerIconsPath/vendorManagementSubmodule.svg"; //UNUSED
 
   // -- PROCUREMENT MASTER
   static const String procurementMasterSubmodule =
-      "$sideDrawerIconsPath/procurementMasterSubmodule.svg";
+      "$sideDrawerIconsPath/procurementMasterSubmodule.svg"; //UNUSED
   static const String materialSubSubmodule =
       "$sideDrawerIconsPath/materialSubSubmodule.svg";
   static const String subMaterialSubSubmodule =
-      "$sideDrawerIconsPath/subMaterialSubSubmodule.svg";
+      "$sideDrawerIconsPath/subMaterialSubSubmodule.svg"; //UNUSED
   static const String contractSubSubmodule =
-      "$sideDrawerIconsPath/contractSubSubmodule.svg";
+      "$sideDrawerIconsPath/contractSubSubmodule.svg"; //UNUSED
   static const String activitySubSubmodule =
-      "$sideDrawerIconsPath/activitySubSubmodule.svg";
+      "$sideDrawerIconsPath/activitySubSubmodule.svg"; //UNUSED
 
-  // REDEVELOPMENT
+  // REDEVELOPMENT (UNUSED)
   static const String buildingSubmodule =
       "$sideDrawerIconsPath/buildingSubmodule.svg";
   static const String tenantSubmodule =
@@ -229,8 +230,9 @@ class AppAssets {
 
   // -- SALES
   static const String otherCharges =
-      "$sideDrawerIconsPath/otherChargesSubmodule.svg";
-  static const String booking = "$sideDrawerIconsPath/bookingSubmodule.svg";
+      "$sideDrawerIconsPath/otherChargesSubmodule.svg"; // UNUSED
+  static const String booking =
+      "$sideDrawerIconsPath/bookingSubmodule.svg"; //UNUSED
   static const String whatsAppIcon = "$sideDrawerIconsPath/whatsapp.svg";
 
   // GIF

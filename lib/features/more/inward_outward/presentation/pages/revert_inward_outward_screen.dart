@@ -76,7 +76,7 @@ class _RevertInwardOutwardScreenState extends State<RevertInwardOutwardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Revert Inward Outward",
+        screenTitle: "Revert",
         authorization: AuthorizationModel(),
       ),
       body: Container(

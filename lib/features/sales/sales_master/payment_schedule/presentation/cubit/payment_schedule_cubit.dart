@@ -191,32 +191,17 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
     result.fold(
       (failure) => showErrorMessage(context, 'Error', failure.message),
       (response) {
-        final updatedItem = response['data'][0] as PaymentScheduleMasterModel;
-
-        final updatedList = List<PaymentScheduleMasterModel>.from(
-          state.paymentScheduleMasterList,
-        );
-
-        updatedList[index] = updatedItem;
-
-        emit(
-          state.copyWith(
-            paymentScheduleMasterList: updatedList,
-            totalCumulativePercentage: cumulativePercentage,
-          ),
-        );
-
+        getPaymentScheduleMasterList(context, 1, scheme: state.selectedScheme!);
         showSuccessMessage(
           context,
           subTitle: "Payment Schedule updated successfully",
         );
-
         goRouter.pop();
       },
     );
   }
 
-  // <---- DELETE PAYMENT SCHEDULE  ---->
+  // DELETE PAYMENT SCHEDULE
   Future deletePaymentSchedule(
     int index,
     PaymentScheduleMasterModel paymentScheduleMasterModel,

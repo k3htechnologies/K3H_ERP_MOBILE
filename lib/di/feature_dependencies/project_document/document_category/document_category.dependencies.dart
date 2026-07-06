@@ -13,7 +13,7 @@ void registerDocumentCategoryDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<DocumentCategoryCubit>(
     DocumentCategoryCubit(),
   );

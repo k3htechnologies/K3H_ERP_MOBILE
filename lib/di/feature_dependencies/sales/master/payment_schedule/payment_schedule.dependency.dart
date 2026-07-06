@@ -14,7 +14,7 @@ void registerPaymentScheduleDependencies(GetIt serviceLocator) {
     ),
   );
 
-  //<---- CUBIT ---->
+  //<---- CUBIT
   serviceLocator.registerSingleton<PaymentScheduleCubit>(
     PaymentScheduleCubit(),
   );

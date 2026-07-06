@@ -49,7 +49,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
     super.dispose();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

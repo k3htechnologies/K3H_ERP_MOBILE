@@ -15,6 +15,6 @@ void registerMaterialRequisitionFinalizeVendorDependencies(
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<FinalizeVendorCubit>(FinalizeVendorCubit());
 }

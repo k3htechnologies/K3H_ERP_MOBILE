@@ -34,7 +34,7 @@ class LeaveCreditConfigurationMasterCubit
     return encodedList;
   }
 
-  // <---- SEARCH DEPARTMENT ---->
+  // SEARCH DEPARTMENT
   Future searchLeaveCreditConfiguration(
     BuildContext context,
     String value,
@@ -45,7 +45,7 @@ class LeaveCreditConfigurationMasterCubit
     await getLeaveCreditConfigurationList(context, 1);
   }
 
-  // <---- GET DEPARTMENT LIST ---->
+  // GET DEPARTMENT LIST
   Future getLeaveCreditConfigurationList(
     BuildContext context,
     int pageNumber,
@@ -98,7 +98,7 @@ class LeaveCreditConfigurationMasterCubit
     );
   }
 
-  // <---- ADD LEAVE CREDIT DEBIT MASTER ---->
+  // ADD LEAVE CREDIT DEBIT MASTER
   Future addLeaveCreditConfigurationMaster({
     required BuildContext context,
     required String leavePeriodMode,
@@ -135,7 +135,7 @@ class LeaveCreditConfigurationMasterCubit
     );
   }
 
-  // <---- UPDATE LEAVE CREDIT DEBIT MASTER ---->
+  // UPDATE LEAVE CREDIT DEBIT MASTER
   Future updateLeaveCreditConfigurationMaster({
     required BuildContext context,
     required int leaveCreditConfigurationId,
@@ -195,7 +195,7 @@ class LeaveCreditConfigurationMasterCubit
     );
   }
 
-  // <---- DELETE DEPARTMENT ---->
+  // DELETE DEPARTMENT
   Future deleteLeaveCreditConfigurationMaster({
     required BuildContext context,
     required int leaveCreditConfigurationId,
@@ -240,7 +240,7 @@ class LeaveCreditConfigurationMasterCubit
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _leaveCreditConfigurationMasterRepository
@@ -275,7 +275,7 @@ class LeaveCreditConfigurationMasterCubit
     );
   }
 
-  // <---- GET LEAVE TYPE LIST ---->
+  // GET LEAVE TYPE LIST
   Future<void> getLeaveTypeList(
     BuildContext context,
     int pageNumber,
@@ -341,7 +341,7 @@ class LeaveCreditConfigurationMasterCubit
         state.filterToLeaveCreditDate != null;
 
     final isValidDateRange =
-        hasDateFilter &&  
+        hasDateFilter &&
         !state.filterFromLeaveCreditDate!.isAfter(
           DateTime(
             state.filterToLeaveCreditDate!.year,

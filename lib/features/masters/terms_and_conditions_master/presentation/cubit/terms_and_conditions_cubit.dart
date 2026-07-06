@@ -23,7 +23,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     );
   }
 
-  // <---- GET MATERIAL REQUISITION LIST ---->
+  // GET MATERIAL REQUISITION LIST
   Future getMaterialRequisitionTermsAndConditionList(
     BuildContext context,
     int pageNumber, {
@@ -72,7 +72,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     );
   }
 
-  // <---- GET BOOKING LIST ---->
+  // GET BOOKING LIST
   Future getBookingTermsAndConditionList(
     BuildContext context,
     int pageNumber, {
@@ -120,7 +120,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     );
   }
 
-  // <---- ADD MATERIAL REQUISITION ---->
+  // ADD MATERIAL REQUISITION
   Future addMaterialRequisition({
     required BuildContext context,
     required String name,
@@ -152,7 +152,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     );
   }
 
-  // <---- UPDATE MATERIAL REQUISITION ---->
+  // UPDATE MATERIAL REQUISITION
   Future updateMaterialRequisition({
     required BuildContext context,
     required int termsAndConditionId,
@@ -204,7 +204,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     );
   }
 
-  // <---- ADD BOOKING ---->
+  // ADD BOOKING
   Future addBooking({
     required BuildContext context,
     required String name,
@@ -236,7 +236,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     );
   }
 
-  // <---- UPDATE BOOKING ---->
+  // UPDATE BOOKING
   Future updateBooking({
     required BuildContext context,
     required int termsAndConditionId,
@@ -288,7 +288,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     );
   }
 
-  // <---- DELETE MATERIAL REQUISITION ---->
+  // DELETE MATERIAL REQUISITION
   Future deleteMaterialRequisition({
     required BuildContext context,
     required int termsAndConditionsMasterId,
@@ -333,7 +333,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     );
   }
 
-  // <---- DELETE BOOKING ---->
+  // DELETE BOOKING
   Future deleteBooking({
     required BuildContext context,
     required int termsAndConditionsMasterId,
@@ -378,7 +378,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     );
   }
 
-  // <---- SEARCH BOOKING ---->
+  // SEARCH BOOKING
   Future searchBooking(BuildContext context, String value) async {
     emit(
       state.copyWith(
@@ -389,7 +389,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     await getBookingTermsAndConditionList(context, 1, searchOverride: value);
   }
 
-  // <---- SEARCH MATERIAL REQUISITION ---->
+  // SEARCH MATERIAL REQUISITION
   Future searchMaterialRequisition(BuildContext context, String value) async {
     emit(
       state.copyWith(
@@ -404,7 +404,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdfMaterialRequisition(
     BuildContext context,
     String exportType,
@@ -444,7 +444,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdfBooking(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _termsAndConditionsMasterRepository

@@ -67,7 +67,7 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
     _searchC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -88,7 +88,7 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
     });
   }
 
-  // <---- DELETE DEPARTMENT ---->
+  // DELETE DEPARTMENT
   Future<void> _showPopupToDeleteDepartmentMaster(
     BuildContext context,
     DepartmentModel obj,

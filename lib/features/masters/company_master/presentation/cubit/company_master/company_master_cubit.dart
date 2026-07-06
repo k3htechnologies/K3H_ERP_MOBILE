@@ -17,13 +17,13 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
   final CompanyMasterRepository _companyMasterRepository =
       serviceLocator<CompanyMasterRepository>();
 
-  // <---- SEARCH COMPANY ---->
+  // SEARCH COMPANY
   Future searchCompany(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, companyList: [], isLoading: true));
     await getCompanyMaster(context, 1);
   }
 
-  // <---- FILTER COMPANY ---->
+  // FILTER COMPANY
   Future applyCompanyFilterAndSort({
     required BuildContext context,
     String? companyName,
@@ -66,7 +66,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     await getCompanyMaster(context, 1);
   }
 
-  // <---- GET COMPANIES ---->
+  // GET COMPANIES
   Future<void> getCompanyMaster(BuildContext context, int pageNumber) async {
     // Clear list on fresh load to avoid duplicates (e.g., after add)
     emit(
@@ -121,7 +121,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     );
   }
 
-  // <---- DELETE COMPANY ---->
+  // DELETE COMPANY
   Future<void> deleteCompanyMaster({
     required BuildContext context,
     required int companyMasterId,
@@ -161,7 +161,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     );
   }
 
-  // <---- ADD COMPANY ---->
+  // ADD COMPANY
   Future<void> addCompanyMaster({
     required BuildContext context,
     required String companyName,
@@ -389,14 +389,14 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     );
   }
 
-  // <---- UPDATE COMPANY AFTER EDIT ---->
+  // UPDATE COMPANY AFTER EDIT
   void updateCompany(CompanyModel company, int index) {
     final updatedList = List<CompanyModel>.from(state.companyList);
     updatedList[index] = company;
     emit(state.copyWith(companyList: updatedList));
   }
 
-  // <---- PREFILL COMPANY DATA ---->
+  // PREFILL COMPANY DATA
   void prefillData(CompanyModel data) {
     emit(
       state.copyWith(
@@ -413,7 +413,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     );
   }
 
-  // <---- EXPORT EXCEL OR PDF ---->
+  // EXPORT EXCEL OR PDF
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _companyMasterRepository.exportCompany(

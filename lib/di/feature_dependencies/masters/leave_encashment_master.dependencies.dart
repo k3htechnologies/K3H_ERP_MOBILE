@@ -14,7 +14,7 @@ void registerLeaveEncashmentDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<LeaveEncashmentMasterCubit>(
     LeaveEncashmentMasterCubit(),
   );

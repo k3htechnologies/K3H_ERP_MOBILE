@@ -8,11 +8,9 @@ void registerLeaveDependencies(GetIt serviceLocator) {
     LeaveDatasourceDataSourceImpl(),
   );
   serviceLocator.registerSingleton<LeaveRepository>(
-    LeaveRepositoryImpl(
-      leaveDatasource: serviceLocator<LeaveDatasource>(),
-    ),
+    LeaveRepositoryImpl(leaveDatasource: serviceLocator<LeaveDatasource>()),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<LeaveCubit>(LeaveCubit());
 }

@@ -13,7 +13,7 @@ void registerSettingDashboardDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<SettingDashboardCubit>(
     SettingDashboardCubit(),
   );

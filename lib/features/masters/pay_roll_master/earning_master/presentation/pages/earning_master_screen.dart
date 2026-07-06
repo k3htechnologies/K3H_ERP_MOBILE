@@ -63,7 +63,7 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
     _searchC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -84,7 +84,7 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
     });
   }
 
-  // <---- DELETE EARNING ---->
+  // DELETE EARNING
   Future<void> _showPopupToDeleteEarningMaster(
     BuildContext context,
     EarningMasterModel obj,

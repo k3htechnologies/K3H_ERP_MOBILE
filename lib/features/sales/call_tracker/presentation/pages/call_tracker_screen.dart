@@ -212,9 +212,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
 
     String? selectedDirection =
         state.currentSortColumn ==
-                (_tabController.index == 0
-                    ? "Customer Name"
-                    : "Sales Executive")
+                (_tabController.index == 0 ? "Customer Name" : "Receiver Name")
             ? state.currentSortDirection
             : null;
 
@@ -248,7 +246,9 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     await DialogHelper.showCustomFilterBottomSheet(
       context,
       title:
-          _tabController.index == 0 ? "Filter Calling Data" : "Filter Call Log",
+          _tabController.index == 0
+              ? "Filter - Calling Data"
+              : "Filter - Call Log",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {
@@ -267,7 +267,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                 Text(
                   _tabController.index == 0
                       ? "Sort By Customer Name"
-                      : "Sort By Sales Executive Name",
+                      : "Sort By Receiver Name",
                   style: AppTextStyle.ts14M(),
                 ),
 
@@ -478,7 +478,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
               selectedDirection != null
                   ? (_tabController.index == 0
                       ? "Customer Name"
-                      : "Sales Executive")
+                      : "Receiver Name")
                   : null,
           sortDirection: selectedDirection,
         );
@@ -713,9 +713,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                                         Expanded(
                                           child: Text(
                                             callingData.name,
-                                            style: AppTextStyle.ts14M(
-                                              color: AppColor.primary,
-                                            ),
+                                            style: AppTextStyle.ts14SB(),
                                           ),
                                         ),
                                         CustomIconButton.edit(
@@ -981,7 +979,7 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
     );
   }
 
-Widget _header(CallLogModel callLog) {
+  Widget _header(CallLogModel callLog) {
     return InkWell(
       onTap: () => setState(() => isExpanded = !isExpanded),
       child: Column(
@@ -991,7 +989,8 @@ Widget _header(CallLogModel callLog) {
               Expanded(
                 child: Text(callLog.receiverName, style: AppTextStyle.ts14SB()),
               ),
-              callLogStatusWidget(callLog.status),
+              if (callLog.status.isNotEmpty)
+                callLogStatusWidget(callLog.status),
               horizontalSpacing(width: 6),
               AnimatedRotation(
                 turns: isExpanded ? 0.5 : 0,

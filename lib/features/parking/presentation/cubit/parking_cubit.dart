@@ -18,7 +18,7 @@ class ParkingCubit extends Cubit<ParkingState> {
   final ParkingRepository _parkingRepository =
       serviceLocator<ParkingRepository>();
 
-  // <----LOCAL SEARCH PARKING ---->
+  //LOCAL SEARCH PARKING
   Future searchParking(
     BuildContext context,
     String value,
@@ -379,7 +379,7 @@ class ParkingCubit extends Cubit<ParkingState> {
     );
   }
 
-  // <---- UPDATE PARKING ---->
+  // UPDATE PARKING
   Future updateParking({
     required BuildContext context,
     required int parkingId,

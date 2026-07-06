@@ -42,7 +42,7 @@ class RentCubit extends Cubit<RentState> {
   // RENT REPOSITORY
   final RentRepository _rentRepository = serviceLocator<RentRepository>();
 
-  // <---- GET BUILDING LIST ---->
+  // GET BUILDING LIST
   Future getBuildingList(
     BuildContext context,
     int pageNumber,
@@ -108,7 +108,7 @@ class RentCubit extends Cubit<RentState> {
     );
   }
 
-  // <---- GET BANK LIST ---->
+  // GET BANK LIST
   Future<Map<String, dynamic>> getBankList(
     int pageNumber, {
     String? value,
@@ -147,7 +147,7 @@ class RentCubit extends Cubit<RentState> {
     );
   }
 
-  // <---- GET PROJECT WITH BANK DETAILS ---->
+  // GET PROJECT WITH BANK DETAILS
   Future<Map<String, dynamic>> getProjectWithBankDropdown(
     int pageNumber, {
     String? value,
@@ -183,7 +183,7 @@ class RentCubit extends Cubit<RentState> {
     );
   }
 
-  // <---- PULL RENT DETAILS (For Tenure List) ---->
+  // PULL RENT DETAILS (For Tenure List)
   Future pullRentDetails({
     required BuildContext context,
     required int projectId,
@@ -206,7 +206,7 @@ class RentCubit extends Cubit<RentState> {
     );
   }
 
-  // <---- EXTRACT TENURE LIST FROM RENT DETAILS ---->
+  // EXTRACT TENURE LIST FROM RENT DETAILS
   void extractTenureList(String chargeType) {
     final List<RentDetailsModel> rentDetailsList = state.rentDetails;
 
@@ -230,7 +230,7 @@ class RentCubit extends Cubit<RentState> {
     emit(state.copyWith(tenureList: tenureList));
   }
 
-  // <---- PULL CHARGES DETAILS ---->
+  // PULL CHARGES DETAILS
   Future pullChargesDetails({
     required BuildContext context,
     required int pageNumber,
@@ -381,7 +381,7 @@ class RentCubit extends Cubit<RentState> {
     );
   }
 
-  // <---- ADD PAYMENT TRACKING RENT ---->
+  // ADD PAYMENT TRACKING RENT
   Future addPayTrackRent({
     required BuildContext context,
     required int payTrackRentId,
@@ -478,7 +478,7 @@ class RentCubit extends Cubit<RentState> {
     );
   }
 
-  // <---- UPDATE PAYMENT TRACKING RENT (reference: employee updateEmployeeMaster) ---->
+  // UPDATE PAYMENT TRACKING RENT (reference: employee updateEmployeeMaster)
   Future updatePayTrackRent({
     required BuildContext context,
     required int payTrackRentId,
@@ -594,7 +594,7 @@ class RentCubit extends Cubit<RentState> {
     );
   }
 
-  // <---- GET PAY TRACK RENT LIST ---->
+  // GET PAY TRACK RENT LIST
   Future getPayTrackRentList(
     BuildContext context,
     int tenantId,
@@ -625,7 +625,7 @@ class RentCubit extends Cubit<RentState> {
     );
   }
 
-  // <---- DELETE PAY TRACK RENT ---->
+  // DELETE PAY TRACK RENT
   Future deletePayTrackRent({
     required BuildContext context,
     required int payTrackRentId,

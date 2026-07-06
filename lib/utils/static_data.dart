@@ -486,3 +486,10 @@ List<Map<String, dynamic>> year = const [
   {"zAttributesId": 17, "DisplayName": "2041"},
   {"zAttributesId": 18, "DisplayName": "2042"},
 ];
+
+List<String> projectWiseSalesAchievementTabs = const [
+  'Overview',
+  'Closing Target',
+  'Sourcing Target',
+  'Channel Partner ',
+];

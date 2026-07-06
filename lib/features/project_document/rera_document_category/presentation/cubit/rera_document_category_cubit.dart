@@ -18,7 +18,7 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
     emit(state.copyWith(searchText: ""));
   }
 
-  // <---- GET RERA DOCUMENT CATEGORY LIST ---->
+  // GET RERA DOCUMENT CATEGORY LIST
   Future getRERADocumentCategoryList(
     BuildContext context,
     int pageNumber,
@@ -69,7 +69,7 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
     );
   }
 
-  // <---- SEARCH CATEGORY ---->
+  // SEARCH CATEGORY
   Future searchCategory(
     BuildContext context,
     int projectId,
@@ -85,7 +85,7 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
     await getRERADocumentCategoryList(context, 1, projectId);
   }
 
-  // <---- CLEAR RERA DOCUMENT CATEGORY LIST ---->
+  // CLEAR RERA DOCUMENT CATEGORY LIST
   void clearDocumentCategory() {
     try {
       emit(
@@ -102,7 +102,7 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
     }
   }
 
-  // <---- DELETE RERA DOCUMENT CATEGORY  ---->
+  // DELETE RERA DOCUMENT CATEGORY
   Future deleteRERADocumentCategory(
     int projectId,
     RERADocumentCategoryModel reraDocumentCategoryModel,
@@ -217,7 +217,7 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(
     BuildContext context,
     String exportType,

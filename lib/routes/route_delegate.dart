@@ -23,12 +23,15 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_chan
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
+import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/data/model/inward_outward.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inward_outward_cubit.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/add_inward_outward_screen.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_screen.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_view_screen.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/revert_inward_outward_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/project_wise_sales_achievement_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/achivement_drill_down_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/channel_partner_sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/pages/achievement_drill_down_report_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/widget/achievement_drill_down_report_for_booking_screen.dart';
@@ -401,7 +404,6 @@ import 'package:k3h_erp_app/features/sales/sales_reports/performance/data/model/
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/presentation/cubit/performance_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/presentation/pages/performance.screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/presentation/pages/view_performance.screen.dart';
-import 'package:k3h_erp_app/features/sales/sales_reports/performance/presentation/pages/performance_without_access_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/cubit/sales_dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/sales_dashboard_screen.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
@@ -622,7 +624,6 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.employeeAttendanceScreen,
               path: AppRoutes.employeeAttendanceScreen,
               builder: (context, state) {
-                final dashboardCubit = state.extra as DashboardCubit;
                 final queryParamsData =
                     state.uri.queryParameters['queryParams'];
 
@@ -660,15 +661,30 @@ final GoRouter goRouter = GoRouter(
                           ),
                         )
                         : null;
+                final queryParameterEmployeeList =
+                    state.uri.queryParameters['employeeList'];
 
-                return BlocProvider.value(
-                  value: dashboardCubit,
-                  child: EmployeeAttendanceScreen(
-                    type: type,
-                    title: title,
-                    subTitle: subTitle,
-                    queryParams: queryParams,
-                  ),
+                final List<Table0> allEmployees =
+                    queryParameterEmployeeList != null
+                        ? (jsonDecode(
+                                  EncryptionManager.decryptData(
+                                    Uri.decodeQueryComponent(
+                                      queryParameterEmployeeList,
+                                    ),
+                                  ),
+                                )
+                                as List)
+                            .map(
+                              (e) => Table0.fromJson(e as Map<String, dynamic>),
+                            )
+                            .toList()
+                        : [];
+                return EmployeeAttendanceScreen(
+                  type: type,
+                  title: title,
+                  subTitle: subTitle,
+                  queryParams: queryParams,
+                  allEmployees: allEmployees,
                 );
               },
             ),
@@ -4649,7 +4665,46 @@ final GoRouter goRouter = GoRouter(
                                   ),
                                 )
                                 : '';
+                        final AchievementDrillDownType?
+                        achievementDrillDownType;
 
+                        final typeParam =
+                            state
+                                .uri
+                                .queryParameters['achievementDrillDownType'];
+
+                        if (typeParam != null && typeParam.isNotEmpty) {
+                          final type = EncryptionManager.decryptData(
+                            Uri.decodeComponent(typeParam),
+                          );
+
+                          achievementDrillDownType = AchievementDrillDownType
+                              .values
+                              .firstWhere((e) => e.name == type);
+                        } else {
+                          achievementDrillDownType = null;
+                        }
+
+                        final fromDate =
+                            state.uri.queryParameters['fromDate'] ?? '';
+                        final toDate =
+                            state.uri.queryParameters['toDate'] ?? '';
+                        final parseFromDate =
+                            fromDate.isNotEmpty
+                                ? DateTime.parse(
+                                  EncryptionManager.decryptData(
+                                    Uri.decodeComponent(fromDate),
+                                  ),
+                                )
+                                : null;
+                        final parseToDate =
+                            toDate.isNotEmpty
+                                ? DateTime.parse(
+                                  EncryptionManager.decryptData(
+                                    Uri.decodeComponent(toDate),
+                                  ),
+                                )
+                                : null;
                         return AchievementDrillDownReportScreen(
                           projectId: projectId,
                           employeeId: employeeId,
@@ -4658,6 +4713,9 @@ final GoRouter goRouter = GoRouter(
                           columnName: columnName,
                           filterType: filterType,
                           projectName: projectName,
+                          achievementDrillDownType: achievementDrillDownType,
+                          fromDate: parseFromDate,
+                          toDate: parseToDate,
                         );
                       },
                     ),
@@ -4955,6 +5013,7 @@ final GoRouter goRouter = GoRouter(
                   providers: [
                     BlocProvider(create: (_) => SalesDashboardCubit()),
                     BlocProvider(create: (_) => BookingCubit()),
+                    BlocProvider(create: (_) => AchievementReportCubit()),
                   ],
                   child: child,
                 );
@@ -4966,6 +5025,66 @@ final GoRouter goRouter = GoRouter(
                   builder: (context, state) {
                     return const SalesDashboardScreen();
                   },
+                  routes: [
+                    GoRoute(
+                      name: AppRoutes.projectWiseSalesDashboard,
+                      path: AppRoutes.projectWiseSalesDashboard,
+                      builder: (context, state) {
+                        final projectId =
+                            int.tryParse(
+                              EncryptionManager.decryptData(
+                                Uri.decodeComponent(
+                                  state.uri.queryParameters['projectId'] ?? '',
+                                ),
+                              ),
+                            ) ??
+                            0;
+                        final projectName =
+                            state.uri.queryParameters['projectName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['projectName']!,
+                                  ),
+                                )
+                                : '';
+                        final filterType =
+                            state.uri.queryParameters['filterType'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['filterType']!,
+                                  ),
+                                )
+                                : '';
+                        final fromDate =
+                            state.uri.queryParameters['fromDate'] ?? '';
+                        final toDate =
+                            state.uri.queryParameters['toDate'] ?? '';
+                        final parseFromDate =
+                            fromDate.isNotEmpty
+                                ? DateTime.parse(
+                                  EncryptionManager.decryptData(
+                                    Uri.decodeComponent(fromDate),
+                                  ),
+                                )
+                                : null;
+                        final parseToDate =
+                            toDate.isNotEmpty
+                                ? DateTime.parse(
+                                  EncryptionManager.decryptData(
+                                    Uri.decodeComponent(toDate),
+                                  ),
+                                )
+                                : null;
+                        return ProjectWiseSalesAchievementScreen(
+                          projectId: projectId,
+                          filterType: filterType,
+                          fromDate: parseFromDate,
+                          toDate: parseToDate,
+                          projectName: projectName,
+                        );
+                      },
+                    ),
+                  ],
                 ),
                 GoRoute(
                   name: AppRoutes.booking,
@@ -5101,13 +5220,6 @@ final GoRouter goRouter = GoRouter(
                       subTitle: subTitle,
                       items: approvalList,
                     );
-                  },
-                ),
-                GoRoute(
-                  name: AppRoutes.salesPerformanceReport,
-                  path: AppRoutes.salesPerformanceReport,
-                  builder: (context, state) {
-                    return const PerformanceWithoutAccessScreen();
                   },
                 ),
               ],

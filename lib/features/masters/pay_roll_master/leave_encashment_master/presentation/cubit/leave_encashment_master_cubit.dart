@@ -14,7 +14,7 @@ class LeaveEncashmentMasterCubit extends Cubit<LeaveEncashmentMasterState> {
   final LeaveEncashmentMasterRepository leaveEncashmentMasterRepository =
       serviceLocator<LeaveEncashmentMasterRepository>();
 
-  // <---- SEARCH LEAVE ENCASHMENT ---->
+  // SEARCH LEAVE ENCASHMENT
   Future searchLeaveEnhancement(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, leaveEncashmentList: []));
     await getLeaveEncashmentList(context: context, pageNumber: 1);

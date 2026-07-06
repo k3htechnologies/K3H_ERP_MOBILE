@@ -13,6 +13,6 @@ void registerShiftMasterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<ShiftMasterCubit>(ShiftMasterCubit());
 }

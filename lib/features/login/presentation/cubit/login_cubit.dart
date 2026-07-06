@@ -161,6 +161,7 @@ class LoginCubit extends Cubit<LoginState> {
 
         // NAVIGATE
         if (context.mounted) {
+          goRouter.pop();
           goRouter.go(AppRoutes.dashboardScreen);
           showSuccessMessage(context, subTitle: "Login Successfully");
         }
@@ -219,12 +220,9 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> fetchAndStoreMenu(BuildContext context, UserModel user) async {
-    DialogHelper.showProcessingOverlay(context);
-
     final result = await utilsRepository.getMenu(employeeId: user.employeeId);
     await result.fold(
       (failure) async {
-        goRouter.pop();
         showErrorMessage(context, "Menu Error", failure.message);
       },
       (data) async {
@@ -236,7 +234,6 @@ class LoginCubit extends Cubit<LoginState> {
         );
 
         await updateRouteAuthorization(menuList);
-        goRouter.pop();
       },
     );
   }

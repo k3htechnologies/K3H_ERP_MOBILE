@@ -17,13 +17,13 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
   final SubMaterialMasterRepository _subMaterialMasterRepository =
       serviceLocator<SubMaterialMasterRepository>();
 
-  // <---- SEARCH SUB MATERIAL ---->
+  // SEARCH SUB MATERIAL
   Future searchSubMaterial(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, subMaterialList: []));
     await getSubMaterialMasterList(context, 1, 10);
   }
 
-  // <---- GET SUB MATERIAL MASTER LIST ---->
+  // GET SUB MATERIAL MASTER LIST
   Future getSubMaterialMasterList(
     BuildContext context,
     int pageNumber,
@@ -62,7 +62,7 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
     );
   }
 
-  // <---- ADD SUB MATERIAL ---->
+  // ADD SUB MATERIAL
   Future addSubMaterialMaster({
     required BuildContext context,
     required String subMaterialName,
@@ -95,7 +95,7 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
     );
   }
 
-  // <---- UPDATE SUB MATERIAL ---->
+  // UPDATE SUB MATERIAL
   Future updateSubMaterialMaster({
     required BuildContext context,
     required int subMaterialMasterId,
@@ -143,7 +143,7 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
     );
   }
 
-  // <---- DELETE SUB MATERIAL ---->
+  // DELETE SUB MATERIAL
   Future deleteSubMaterialMaster({
     required BuildContext context,
     required int subMaterialMasterId,
@@ -192,7 +192,7 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _subMaterialMasterRepository.exportSubmaterial(

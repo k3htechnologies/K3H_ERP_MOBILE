@@ -21,7 +21,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
   final RERADocumentRepository _reraDocumentRepository =
       serviceLocator<RERADocumentRepository>();
 
-  // <---- GET CATEGORY LIST ---->
+  // GET CATEGORY LIST
   Future getCategoryList(
     BuildContext context,
     int pageNumber,
@@ -83,7 +83,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
     );
   }
 
-  // <---- GET PROJECT RERA DOCUMENT ---->
+  // GET PROJECT RERA DOCUMENT
   Future getRERADocumentList({
     required BuildContext context,
     required int pageNumber,
@@ -466,7 +466,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
     getRERADocumentList(context: context, pageNumber: 1);
   }
 
-  // <---- DELETE RERA DOCUMENT FROM CATEGORY  ---->
+  // DELETE RERA DOCUMENT FROM CATEGORY
   Future deleteDocument(
     RERADocumentModel document,
     int projectRERADocumentCategoryId,

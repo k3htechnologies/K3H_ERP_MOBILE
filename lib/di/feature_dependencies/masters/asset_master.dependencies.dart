@@ -14,10 +14,6 @@ void registerAssetMasterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
-  serviceLocator.registerSingleton<AssetMasterCubit>(
-    AssetMasterCubit(),
-  );
+  //- CUBITS -
+  serviceLocator.registerSingleton<AssetMasterCubit>(AssetMasterCubit());
 }
-
-

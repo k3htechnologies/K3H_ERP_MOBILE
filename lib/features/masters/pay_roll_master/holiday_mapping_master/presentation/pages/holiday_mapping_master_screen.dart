@@ -80,7 +80,7 @@ class _HolidayMappingMasterScreenState
     _filterDepartmentNameC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -101,7 +101,7 @@ class _HolidayMappingMasterScreenState
     });
   }
 
-  // <---- DELETE HOLIDAY MAPPING  ---->
+  // DELETE HOLIDAY MAPPING
   Future<void> _showPopupToDeleteHolidayMappingMaster(
     BuildContext context,
     HolidayMappingModel obj,
@@ -178,7 +178,7 @@ class _HolidayMappingMasterScreenState
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Holiday Mapping",
+      title: "Filter - Holiday Mapping",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {

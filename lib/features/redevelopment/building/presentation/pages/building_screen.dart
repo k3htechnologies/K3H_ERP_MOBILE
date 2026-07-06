@@ -145,7 +145,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Building",
+      title: "Filter - Building",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {

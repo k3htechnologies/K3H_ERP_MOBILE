@@ -42,7 +42,7 @@ class _FilesScreenState extends State<FilesScreen> {
     );
   }
 
-  // <---- DELETE DEPARTMENT ---->
+  // DELETE DEPARTMENT
   Future<void> _showPopupToDeleteFiles(
     BuildContext context,
     PayTrackBookingFilesModel obj,

@@ -21,7 +21,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
   final ApprovalDocumentRepository _documentRepository =
       serviceLocator<ApprovalDocumentRepository>();
 
-  // <---- GET CATEGORY LIST ---->
+  // GET CATEGORY LIST
   Future getCategoryList(
     BuildContext context,
     int pageNumber,
@@ -86,7 +86,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
     );
   }
 
-  // <---- GET PROJECT DOCUMENT ---->
+  // GET PROJECT DOCUMENT
   Future getProjectApprovalDocumentList({
     required BuildContext context,
     required int pageNumber,
@@ -437,7 +437,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
     getProjectApprovalDocumentList(context: context, pageNumber: 1);
   }
 
-  // <---- DELETE DOCUMENT CATEGORY  ---->
+  // DELETE DOCUMENT CATEGORY
   Future deleteApprovalDocument(
     ApprovalDocumentModel document,
     BuildContext context,

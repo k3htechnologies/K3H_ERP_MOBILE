@@ -473,7 +473,7 @@ class InventoryCubit extends Cubit<InventoryState> {
     };
   }
 
-  // <---- GET Dashboard LIST ---->
+  // GET Dashboard LIST
   Future getInventoryDashboardList(BuildContext context, int projectId) async {
     emit(state.copyWith(isLoading: true));
 

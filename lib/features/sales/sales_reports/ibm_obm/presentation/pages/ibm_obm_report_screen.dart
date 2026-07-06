@@ -580,10 +580,22 @@ class _IbmObmReportScreenState extends State<IbmObmReportScreen> {
                                   buildColumnTitleValue(
                                     title: "Total IBM",
                                     value: totalIbm.toString(),
+                                    valueTextStyle:
+                                        totalIbm > 0
+                                            ? AppTextStyle.ts14SB(
+                                              color: AppColor.green,
+                                            )
+                                            : AppTextStyle.ts14M(),
                                   ),
                                   buildColumnTitleValue(
                                     title: "Total OBM",
                                     value: totalObm.toString(),
+                                    valueTextStyle:
+                                        totalObm > 0
+                                            ? AppTextStyle.ts14SB(
+                                              color: AppColor.green,
+                                            )
+                                            : AppTextStyle.ts14M(),
                                   ),
                                 ],
                               ),

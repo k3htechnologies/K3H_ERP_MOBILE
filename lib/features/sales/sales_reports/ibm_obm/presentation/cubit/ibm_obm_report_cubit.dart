@@ -258,8 +258,10 @@ class IbmObmReportCubit extends Cubit<IbmObmReportState> {
     return getActiveFilterCount([
       state.searchText.trim().isNotEmpty,
       state.filterByProjectId != null,
-      state.filterByYear.trim().isNotEmpty ||
-          (state.filterByFromDate != null && state.filterByToDate != null),
+      state.filterByReportType.isNotEmpty,
+      state.filterByYear.trim().isNotEmpty,
+      state.filterByFromDate != null,
+      state.filterByToDate != null,
       hasSort,
     ]);
   }

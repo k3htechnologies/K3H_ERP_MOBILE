@@ -312,7 +312,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     }
   }
 
-  // <---- DELETE COMPANY PARTNER ---->
+  // DELETE COMPANY PARTNER
   Future<void> _showPopupToDeleteCompanyPartner(
     BuildContext context,
     int index,

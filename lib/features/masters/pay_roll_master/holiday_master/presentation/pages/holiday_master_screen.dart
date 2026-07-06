@@ -65,7 +65,7 @@ class _HolidayMasterScreenState extends State<HolidayMasterScreen> {
     _searchC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -86,7 +86,7 @@ class _HolidayMasterScreenState extends State<HolidayMasterScreen> {
     });
   }
 
-  // <---- DELETE HOLIDAY ---->
+  // DELETE HOLIDAY
   Future<void> _showPopupToDeleteHolidayMaster(
     BuildContext context,
     HolidayMasterModel obj,

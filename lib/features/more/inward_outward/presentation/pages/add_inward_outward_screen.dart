@@ -111,7 +111,8 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
 
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes
-            .inwardOutwardAcknowledgement]!;
+            .inwardOutwardAcknowledgement] ??
+        AuthorizationModel();
     _initializeTextEditingControllers();
 
     _selectedEmployeeNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
@@ -191,7 +192,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
 
     _documentTitleC.text = data.documentTitle;
     _date = data.inwardOutwardDate;
-    _invoiceNoC.text = data.invoiceNumber;
+    if (data.invoiceNumber != "0") _invoiceNoC.text = data.invoiceNumber;
     _invoiceDate = data.invoiceDate;
     _amountC.text = data.amount != 0 ? data.amount.toString() : "";
 
@@ -276,14 +277,43 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
         data.acknowledgementURL.isNotEmpty
             ? data.acknowledgementURL.split(",")
             : [];
+
+    if (data.senderMobileNumberCountryCode.isNotEmpty) {
+      _selectedSenderCountry.value = countryList.firstWhere(
+        (e) => e.code == data.senderMobileNumberCountryCode,
+        orElse:
+            () => CountryCode(
+              name: "India",
+              code: "+91",
+              countryCode: "IN",
+              mobileLength: 10,
+              regex: RegExp(r'^[6-9]\d{9}$'),
+            ),
+      );
+    }
+    if (data.receiverMobileNumberCountryCode.isNotEmpty) {
+      _selectedReceiverCountry.value = countryList.firstWhere(
+        (e) => e.code == data.receiverMobileNumberCountryCode,
+        orElse:
+            () => CountryCode(
+              name: "India",
+              code: "+91",
+              countryCode: "IN",
+              mobileLength: 10,
+              regex: RegExp(r'^[6-9]\d{9}$'),
+            ),
+      );
+    }
   }
 
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+
     if (_isEditMode) {
       final inwardOutward = widget.inwardOutwardModel!;
+
       _inwardOutwardCubit.updateInwardOutward(
         context: context,
         inwardOutwardId: inwardOutward.inwardOutwardId,
@@ -581,6 +611,10 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                             _senderNameC.text = senderDetails.first.name;
                             _senderEmailIdC.text = senderDetails.first.emailId;
                             _senderAddressC.text = senderDetails.first.address;
+                          } else {
+                            _senderNameC.clear();
+                            _senderEmailIdC.clear();
+                            _senderAddressC.clear();
                           }
                         }
                       },
@@ -597,14 +631,14 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                         final mobile = value?.trim() ?? "";
                         final country = _selectedSenderCountry.value;
                         if (value == null || value.isEmpty) {
-                          return "Mobile Number is required";
+                          return "Sender Mobile Number is required";
                         }
                         if (mobile.isNotEmpty) {
                           // LENGTH AND REGEX VALIDATION
                           if ((mobile.length != country.mobileLength) ||
                               country.regex != null &&
                                   !country.regex!.hasMatch(mobile)) {
-                            return "Invalid Mobile Number";
+                            return "Invalid Sender Mobile Number";
                           }
                           if (_receiverMobileNumberC.text.trim() == mobile) {
                             return "Sender and Receiver mobile numbers should not be the same.";
@@ -621,6 +655,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   title: "Name",
                   isRequired: true,
                   hint: "Enter Sender Name",
+                  inputFormatterList: [LengthLimitingTextInputFormatter(50)],
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return "Sender Name is required";
@@ -640,10 +675,10 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   hint: "Enter Sender Email-Id",
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Email-Id is required";
+                      return "Sender Email-Id is required";
                     }
                     if (!InputValidator.isValidEmail(value)) {
-                      return "Invalid Email Id";
+                      return "Sender Invalid Email Id";
                     }
                     if (_receiverEmailIdC.text.trim().toLowerCase() ==
                         value.trim().toLowerCase()) {
@@ -657,6 +692,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   title: "Address",
                   isRequired: true,
                   hint: "Enter Sender Address",
+                  inputFormatterList: [LengthLimitingTextInputFormatter(100)],
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return "Sender Address is required";
@@ -685,6 +721,24 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                         if (country == null) return;
                         _selectedReceiverCountry.value = country;
                       },
+                      onChangeFunction: (v) async {
+                        final country = _selectedSenderCountry.value;
+                        if (country.mobileLength == v.length) {
+                          final receiverDetails = await _inwardOutwardCubit
+                              .fetchSenderReceiverByMobile(v);
+                          if (receiverDetails.isNotEmpty) {
+                            _receiverNameC.text = receiverDetails.first.name;
+                            _receiverEmailIdC.text =
+                                receiverDetails.first.emailId;
+                            _receiverAddressC.text =
+                                receiverDetails.first.address;
+                          } else {
+                            _receiverNameC.clear();
+                            _receiverEmailIdC.clear();
+                            _receiverAddressC.clear();
+                          }
+                        }
+                      },
                       inputFormatterList: [
                         LengthLimitingTextInputFormatter(value.mobileLength),
                         FilteringTextInputFormatter.digitsOnly,
@@ -693,14 +747,14 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                         final mobile = value?.trim() ?? "";
                         final country = _selectedReceiverCountry.value;
                         if (value == null || value.isEmpty) {
-                          return "Mobile Number is required";
+                          return "Receiver Mobile Number is required";
                         }
                         if (mobile.isNotEmpty) {
                           // LENGTH AND REGEX VALIDATION
                           if ((mobile.length != country.mobileLength) ||
                               country.regex != null &&
                                   !country.regex!.hasMatch(mobile)) {
-                            return "Invalid Mobile Number";
+                            return "Invalid Receiver Mobile Number";
                           }
                           if (_senderMobileNumberC.text.trim() == mobile) {
                             return "Sender and Receiver mobile numbers should not be the same.";
@@ -716,9 +770,10 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   title: "Name",
                   isRequired: true,
                   hint: "Enter Receiver Name",
+                  inputFormatterList: [LengthLimitingTextInputFormatter(50)],
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Sender Name is required";
+                      return "Receiver Name is required";
                     }
                     if (_senderNameC.text.trim().toLowerCase() ==
                         value.trim().toLowerCase()) {
@@ -735,10 +790,10 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   hint: "Enter Receiver Email-Id",
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Email-Id is required";
+                      return "Receiver Email-Id is required";
                     }
                     if (!InputValidator.isValidEmail(value)) {
-                      return "Invalid Email Id";
+                      return "Receiver Invalid Email Id";
                     }
                     if (_senderEmailIdC.text.trim().toLowerCase() ==
                         value.trim().toLowerCase()) {
@@ -752,6 +807,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   title: "Address",
                   isRequired: true,
                   hint: "Enter Receiver Address",
+                  inputFormatterList: [LengthLimitingTextInputFormatter(100)],
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return "Receiver Address is required";
@@ -800,6 +856,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   title: "Document Description",
                   isRequired: true,
                   hint: "Enter Document Description",
+                  inputFormatterList: [LengthLimitingTextInputFormatter(50)],
                   validator: (value) {
                     if (value == null || value.toString().trim().isEmpty) {
                       return "Document Description is required";
@@ -818,7 +875,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                         CustomMultipleSelectPopup(
                           title: 'Assign Employee',
                           isRequired: true,
-                          hintText: "Select Assign Employee",
+                          hintText: "Select Employee",
                           isMultiSelect: true,
                           initialValue: selectedEmployee,
                           dataList: const [],
@@ -880,6 +937,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                     title: 'Acknowledged By',
                     textController: _receivedByC,
                     hint: "Enter Acknowledged By",
+                    inputFormatterList: [LengthLimitingTextInputFormatter(50)],
                   ),
                   CustomSignatureWidget(
                     title: "Acknowledger's Signature",
@@ -899,7 +957,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "Document",
+                    title: "Attachment",
                     filePickType: FilePickType.both,
                     initialFileList: selectedAcknowledgementFile.fileNameList,
 
@@ -921,6 +979,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   CustomTextField(
                     title: 'Handover To',
                     textController: _handoverToC,
+                    inputFormatterList: [LengthLimitingTextInputFormatter(50)],
                     hint: "Enter Name",
                   ),
                   CustomDatePicker(
@@ -933,6 +992,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   CustomTextField(
                     title: 'Remark',
                     textController: _remarkC,
+                    inputFormatterList: [LengthLimitingTextInputFormatter(50)],
                     hint: "Enter Remark",
                     maxLines: 3,
                     minLines: 3,

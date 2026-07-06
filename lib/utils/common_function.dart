@@ -126,7 +126,7 @@ DateTime? parseApiDate(String? value) {
   );
 }
 
-// <---- UPDATE ROUTE AUTHORIZATION ---->
+// <---- UPDATE ROUTE AUTHORIZATION
 Future<void> updateRouteAuthorization(List<ModuleModel> moduleData) async {
   // UPDATE THE MAP IN ISOLATE
   final updatedRouteMap = await compute(
@@ -171,7 +171,7 @@ Map<String, AuthorizationModel> _processRouteAuthorizationModules(
   return updatedMap;
 }
 
-// <---- LOCATION PERMISSION ---->
+// <---- LOCATION PERMISSION
 
 Future<void> handleLocationPermission() async {
   bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -405,7 +405,7 @@ Duration calculateShiftDuration(DateTime? shiftStart, DateTime? shiftEnd) {
   return diff;
 }
 
-// <---- EXPORT AND DOWNLOAD FILE FOR MOBILE ---->
+// <---- EXPORT AND DOWNLOAD FILE FOR MOBILE
 Future<void> exportExcelOrPdfMobile(String base64, String fileName) async {
   try {
     Uint8List bytes = base64Decode(base64);
@@ -651,7 +651,7 @@ String calculateAge(DateTime? dateOfBirth) {
   return age.toString();
 }
 
-// <---- IMPORT SAMPLE FILE FOR WEB ---->
+// <---- IMPORT SAMPLE FILE FOR WEB
 Future<bool> sampleExcelImport(BuildContext context, String tableName) async {
   final UtilsRepository utilsRepository = serviceLocator<UtilsRepository>();
   try {
@@ -677,7 +677,7 @@ Future<bool> sampleExcelImport(BuildContext context, String tableName) async {
   }
 }
 
-// <---- IMPORT FILE FOR WEB ---->
+// <---- IMPORT FILE FOR WEB
 Future<bool> importExcel(
   BuildContext context,
   Map<String, String> body,
@@ -907,4 +907,32 @@ String toTitleCase(String columnName) {
 
 int getActiveFilterCount(List<bool> filters) {
   return filters.where((e) => e).length;
+}
+
+extension DateFormattingExtension on DateTime? {
+  String? get apiDate {
+    if (this == null) return "";
+    return DateFormat('yyyy-MM-dd').format(this!);
+  }
+}
+
+String formatToKLCr(num value) {
+  if (value >= 10000000) {
+    final result = value / 10000000;
+    return "₹${result.toStringAsFixed(value % 10000000 == 0 ? 0 : 1)} CR";
+  }
+
+  if (value >= 100000) {
+    final result = value / 100000;
+    return "₹${result.toStringAsFixed(value % 100000 == 0 ? 0 : 1)} L";
+  }
+
+  if (value >= 1000) {
+    final result = value / 1000;
+    return "₹${result.toStringAsFixed(value % 1000 == 0 ? 0 : 1)} K";
+  }
+  if (value == 0) {
+    return "₹0";
+  }
+  return "₹$value";
 }

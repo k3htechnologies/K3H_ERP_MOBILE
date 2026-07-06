@@ -18,12 +18,12 @@ class ApprovedBankFileCubit extends Cubit<ApprovedBankFileState> {
   final ApprovedBankRepository _approvedBankRepository =
       serviceLocator<ApprovedBankRepository>();
 
-  // <---- RESET STATE ---->
+  // RESET STATE
   void resetState() {
     emit(ApprovedBankFileState.initial());
   }
 
-  // <---- GET APPROVED BANK FILE LIST ---->
+  // GET APPROVED BANK FILE LIST
   Future getApprovedBankFileList(
     BuildContext context,
     int pageNumber,
@@ -68,7 +68,7 @@ class ApprovedBankFileCubit extends Cubit<ApprovedBankFileState> {
     );
   }
 
-  // <---- ADD APPROVED BANK FILE ---->
+  // ADD APPROVED BANK FILE
   Future<bool> addApprovedBankFile({
     required BuildContext context,
     required String projectId,
@@ -132,7 +132,7 @@ class ApprovedBankFileCubit extends Cubit<ApprovedBankFileState> {
     );
   }
 
-  // <---- UPDATE APPROVED BANK FILE ---->
+  // UPDATE APPROVED BANK FILE
   Future updateApprovedBankFile({
     required BuildContext context,
     required String approvedBankFileId,
@@ -189,7 +189,7 @@ class ApprovedBankFileCubit extends Cubit<ApprovedBankFileState> {
     );
   }
 
-  // <---- SEARCH FILE ---->
+  // SEARCH FILE
   Future searchFile(
     BuildContext context,
     String value,
@@ -206,7 +206,7 @@ class ApprovedBankFileCubit extends Cubit<ApprovedBankFileState> {
     );
   }
 
-  // <---- SORT FILE ---->
+  // SORT FILE
   Future sortFile(
     BuildContext context,
     String value,
@@ -230,7 +230,7 @@ class ApprovedBankFileCubit extends Cubit<ApprovedBankFileState> {
     );
   }
 
-  // <---- DELETE APPROVED BANK FILE ---->
+  // DELETE APPROVED BANK FILE
   Future<bool> deleteApprovedBankFile({
     required BuildContext context,
     required int approvedBankFileId,

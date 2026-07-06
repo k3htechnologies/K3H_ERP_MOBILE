@@ -47,7 +47,7 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
     );
   }
 
-  // <---- DELETE DEPARTMENT ---->
+  // DELETE DEPARTMENT
   Future<void> _showPopupToDeletePayTrackRent(
     BuildContext context,
     PaymentLedgerModel obj,

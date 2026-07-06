@@ -14,6 +14,6 @@ void registerProposedOfferDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<ProposedOfferCubit>(ProposedOfferCubit());
 }

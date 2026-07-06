@@ -13,6 +13,6 @@ void registerSalesDashboardDependencies(GetIt serviceLocator) {
     ),
   );
 
-  //<---- CUBIT ---->
+  //<---- CUBIT
   serviceLocator.registerSingleton<SalesDashboardCubit>(SalesDashboardCubit());
 }

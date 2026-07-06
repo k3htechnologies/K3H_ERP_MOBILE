@@ -62,19 +62,19 @@ class _AddTermsAndConditionsScreenState
     _descriptionC.dispose();
   }
 
-  // <---- INITIALIZE TEXT EDITING CONTROLLERS ---->
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingControllers() {
     _nameC = TextEditingController();
     _descriptionC = TextEditingController();
   }
 
-  // <---- PREFILL FORM ---->
+  // PREFILL FORM
   void _prefillForm(TermsAndConditionsModel termsAndConditions) {
     _nameC.text = termsAndConditions.title;
     _descriptionC.text = termsAndConditions.description;
   }
 
-  // <---- ADD/UPDATE TERMS AND CONDITIONS ---->
+  // ADD/UPDATE TERMS AND CONDITIONS
   Future<void> _addUpdateTermsAndConditions() async {
     if (_formKey.currentState!.validate()) {
       if (_descriptionC.text.trim().isEmpty) {
@@ -191,7 +191,7 @@ class _AddTermsAndConditionsScreenState
                       onFormattedTextChanged: (value) {
                         _descriptionC.text = value;
                       },
-                      validator: (value){
+                      validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'Description is required';
                         }

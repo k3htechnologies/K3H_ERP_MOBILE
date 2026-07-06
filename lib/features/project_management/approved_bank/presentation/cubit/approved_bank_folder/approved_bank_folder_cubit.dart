@@ -21,7 +21,7 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
 
-  // <---- GET APPROVED BANK FOLDER LIST ---->
+  // GET APPROVED BANK FOLDER LIST
   Future getApprovedBankFolderList(
     BuildContext context,
     int pageNumber,
@@ -94,7 +94,7 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
     );
   }
 
-  // <---- SEARCH FOLDER ---->
+  // SEARCH FOLDER
   Future searchFolder(BuildContext context, String value, int projectId) async {
     emit(state.copyWith(searchTextFolder: value, approvedBankFolderList: []));
     await getApprovedBankFolderList(context, 1, 1000, projectId);
@@ -107,7 +107,7 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
     await getBankList(context, 1);
   }
 
-  // <---- ADD APPROVED BANK FOLDER ---->
+  // ADD APPROVED BANK FOLDER
   Future addApproveBankFolder({
     required BuildContext context,
     required int projectId,
@@ -135,7 +135,7 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
     );
   }
 
-  // <---- DELETE APPROVED BANK FOLDER ---->
+  // DELETE APPROVED BANK FOLDER
   Future deleteApprovedBankFolder({
     required BuildContext context,
     required int approvedBankFolderId,

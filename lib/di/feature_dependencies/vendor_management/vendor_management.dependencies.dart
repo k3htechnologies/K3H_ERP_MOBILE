@@ -10,7 +10,7 @@ void registerVendorManagementDependencies(GetIt serviceLocator) {
     VendorRepositoryImpl(vendorDatasource: serviceLocator<VendorDatasource>()),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<VendorCubit>(VendorCubit());
 
   serviceLocator.registerSingleton<VendorAddCubit>(VendorAddCubit());

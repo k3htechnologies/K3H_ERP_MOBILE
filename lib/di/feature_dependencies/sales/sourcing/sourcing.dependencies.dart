@@ -4,13 +4,15 @@ import 'package:k3h_erp_app/features/sales/sourcing/data/repository/sourcing.rep
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
 
 void registerSourcingDependencies(GetIt serviceLocator) {
-  serviceLocator.registerSingleton<SourcingDatasource>(SourcingDatasourceImpl());
+  serviceLocator.registerSingleton<SourcingDatasource>(
+    SourcingDatasourceImpl(),
+  );
   serviceLocator.registerSingleton<SourcingRepository>(
     SourcingRepositoryImpl(
       sourcingDatasource: serviceLocator<SourcingDatasource>(),
     ),
   );
 
-  //<---- CUBIT ---->
+  //<---- CUBIT
   serviceLocator.registerSingleton<SourcingCubit>(SourcingCubit());
 }

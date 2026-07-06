@@ -44,7 +44,7 @@ class _ResignationScreenState extends State<ResignationScreen> {
     _resignationCubit.getResignationList(context, 1);
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -65,7 +65,7 @@ class _ResignationScreenState extends State<ResignationScreen> {
     });
   }
 
-  // <---- DELETE RESIGNATION ---->
+  // DELETE RESIGNATION
   Future<void> _showPopupToDeleteResignation(
     BuildContext context,
     ResignationModel obj,

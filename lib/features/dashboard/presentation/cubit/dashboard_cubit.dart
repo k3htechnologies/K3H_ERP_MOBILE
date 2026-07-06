@@ -40,7 +40,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     );
   }
 
-  // <---- GET ATTENDANCE LIST ---->
+  // GET ATTENDANCE LIST
   Future getAttendanceList(
     BuildContext context,
     int pageNumber,
@@ -177,7 +177,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     );
   }
 
-  // <---- GET Dashboard LIST ---->
+  // GET Dashboard LIST
   Future getDashboardList(BuildContext context) async {
     emit(state.copyWith(isLoading: true));
 

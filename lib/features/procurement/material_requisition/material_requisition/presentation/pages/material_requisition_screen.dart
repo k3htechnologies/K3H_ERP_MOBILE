@@ -180,7 +180,7 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Material Requisition",
+      title: "Filter - Material Requisition",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           return SingleChildScrollView(

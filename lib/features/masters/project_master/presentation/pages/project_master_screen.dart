@@ -120,7 +120,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
     _filterRERANumberC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {

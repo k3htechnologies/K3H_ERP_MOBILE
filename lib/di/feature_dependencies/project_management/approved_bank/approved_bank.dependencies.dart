@@ -5,15 +5,19 @@ import 'package:k3h_erp_app/features/project_management/approved_bank/presentati
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_folder/approved_bank_folder_cubit.dart';
 
 void registerApprovedBankDependencies(GetIt serviceLocator) {
-  serviceLocator.registerSingleton<ApprovedBankDatasource>(ApprovedBankDatasourceImpl());
+  serviceLocator.registerSingleton<ApprovedBankDatasource>(
+    ApprovedBankDatasourceImpl(),
+  );
   serviceLocator.registerSingleton<ApprovedBankRepository>(
     ApprovedBankRepositoryImpl(
       approvedBankDatasource: serviceLocator<ApprovedBankDatasource>(),
     ),
   );
 
-  // <----- CUBITS ----->
-  serviceLocator.registerSingleton<ApprovedBankFolderCubit>(ApprovedBankFolderCubit());
+  //- CUBITS -
+  serviceLocator.registerSingleton<ApprovedBankFolderCubit>(
+    ApprovedBankFolderCubit(),
+  );
 
   serviceLocator.registerSingleton<ApprovedBankFileCubit>(
     ApprovedBankFileCubit(),

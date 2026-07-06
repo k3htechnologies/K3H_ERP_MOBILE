@@ -16,12 +16,12 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
   final BranchMasterRepository _branchMasterRepository =
       serviceLocator<BranchMasterRepository>();
 
-  // <---- RESET STATE ---->
+  // RESET STATE
   void resetState() {
     emit(BranchMasterState.initial());
   }
 
-  // <---- SEARCH BRANCH (same as AssetMapping) ---->
+  // SEARCH BRANCH (same as AssetMapping)
   void searchBranch(String value, BuildContext context) {
     emit(
       state.copyWith(
@@ -35,7 +35,7 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
     getBranchList(context: context, pageNumber: 1);
   }
 
-  // <---- GET BRANCH LIST ---->
+  // GET BRANCH LIST
   Future getBranchList({
     required BuildContext context,
     required int pageNumber,
@@ -80,7 +80,7 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
     );
   }
 
-  // <---- ADD BRANCH ---->
+  // ADD BRANCH
   Future addBranchMaster({
     required BuildContext context,
     required String branchCode,
@@ -113,7 +113,7 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
     );
   }
 
-  // <---- UPDATE BRANCH ---->
+  // UPDATE BRANCH
   Future updateBranchMaster({
     required BuildContext context,
     required int branchMasterId,
@@ -159,7 +159,7 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
     );
   }
 
-  // <---- DELETE BRANCH ---->
+  // DELETE BRANCH
   Future deleteBranchMaster({
     required BuildContext context,
     required int branchMasterId,
@@ -197,7 +197,7 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
     );
   }
 
-  // <---- EXPORT ---->
+  // EXPORT
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
 

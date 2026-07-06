@@ -55,19 +55,19 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
     super.dispose();
   }
 
-  // <---- INITIALIZE TEXT EDITING CONTROLLERS ---->
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingControllers() {
     _materialNameC = TextEditingController();
     _materialCodeC = TextEditingController();
   }
 
-  // <---- PREFILL FORM ---->
+  // PREFILL FORM
   void _prefillForm(MaterialMasterModel material) {
     _materialNameC.text = material.materialName;
     _materialCodeC.text = material.materialCode;
   }
 
-  // <---- ADD/UPDATE MATERIAL ---->
+  // ADD/UPDATE MATERIAL
   Future<void> _addUpdateMaterial() async {
     if (_formKey.currentState!.validate()) {
       if (_isEditMode) {

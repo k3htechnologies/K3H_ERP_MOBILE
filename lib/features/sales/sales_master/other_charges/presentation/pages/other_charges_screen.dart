@@ -61,7 +61,7 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
     _searchC.dispose();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -83,7 +83,7 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
     });
   }
 
-  // <---- DELETE DEPARTMENT ---->
+  // DELETE DEPARTMENT
   Future<void> _showPopupToDeleteOtherCharges(
     BuildContext context,
     int projectId,

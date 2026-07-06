@@ -13,6 +13,6 @@ void registerPayrollReportDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<PayrollReportCubit>(PayrollReportCubit());
 }

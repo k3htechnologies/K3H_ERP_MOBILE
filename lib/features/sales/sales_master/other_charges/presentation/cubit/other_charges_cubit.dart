@@ -17,7 +17,7 @@ class OtherChargesCubit extends Cubit<OtherChargesState> {
   final OtherChargesRepository _otherChargesRepository =
       serviceLocator<OtherChargesRepository>();
 
-  // <---- SEARCH OTHER CHARGES ---->
+  // SEARCH OTHER CHARGES
   Future searchOtherCharges(
     BuildContext context,
     String value,
@@ -27,7 +27,7 @@ class OtherChargesCubit extends Cubit<OtherChargesState> {
     await getOtherChargesList(context, 1, projectId);
   }
 
-  // <---- GET OTHER CHARGES LIST ---->
+  // GET OTHER CHARGES LIST
   Future getOtherChargesList(
     BuildContext context,
     int pageNumber,
@@ -76,7 +76,7 @@ class OtherChargesCubit extends Cubit<OtherChargesState> {
     );
   }
 
-  // <---- ADD OTHER CHARGES ---->
+  // ADD OTHER CHARGES
   Future addOtherCharges({
     required BuildContext context,
     required int projectId,
@@ -112,7 +112,7 @@ class OtherChargesCubit extends Cubit<OtherChargesState> {
     );
   }
 
-  // <---- UPDATE OTHER CHARGES ---->
+  // UPDATE OTHER CHARGES
   Future updateOtherCharges({
     required BuildContext context,
     required int otherChargesId,
@@ -166,7 +166,7 @@ class OtherChargesCubit extends Cubit<OtherChargesState> {
     );
   }
 
-  // <---- DELETE OTHER CHARGES ---->
+  // DELETE OTHER CHARGES
   Future deleteOtherCharges({
     required BuildContext context,
     required int projectId,
@@ -213,7 +213,7 @@ class OtherChargesCubit extends Cubit<OtherChargesState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
+  // EXPORT EXCEL PDF
   Future exportExcelPdf(
     BuildContext context,
     String exportType,

@@ -70,7 +70,7 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
     _conclusionC = TextEditingController();
   }
 
-  // <---- PAGINATION ---->
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -119,7 +119,7 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
 
     DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Outdoor",
+      title: "Filter - Outdoor",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           return Form(

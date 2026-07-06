@@ -24,7 +24,7 @@ class TenantCubit extends Cubit<TenantState> {
   // TENANT REPOSITORY
   final TenantRepository _tenantRepository = serviceLocator<TenantRepository>();
 
-  // <---- ON TAB CHANGED ---->
+  // ON TAB CHANGED
   void onTabChanged(
     int index,
     BuildContext context,
@@ -45,7 +45,7 @@ class TenantCubit extends Cubit<TenantState> {
     }
   }
 
-  // <---- SEARCH TENANT ---->
+  // SEARCH TENANT
   void searchTenant(
     String value,
     BuildContext context,
@@ -115,7 +115,7 @@ class TenantCubit extends Cubit<TenantState> {
     );
   }
 
-  // <---- GET BUILDING LIST ---->
+  // GET BUILDING LIST
   Future<List<RedevelopmentBuildingModel>> getBuildingList(
     BuildContext context,
     int pageNumber,
@@ -191,7 +191,7 @@ class TenantCubit extends Cubit<TenantState> {
     return buildingList;
   }
 
-  // <---- GET TENANT LIST ---->
+  // GET TENANT LIST
   Future getTenantList({
     required BuildContext context,
     required int projectId,
@@ -246,7 +246,7 @@ class TenantCubit extends Cubit<TenantState> {
     );
   }
 
-  // <---- GET TENANT DOCUMENT LIST ---->
+  // GET TENANT DOCUMENT LIST
   Future<void> getTenantDocumentList({
     required BuildContext context,
     int? tenantId,
@@ -281,7 +281,7 @@ class TenantCubit extends Cubit<TenantState> {
     );
   }
 
-  // <---- ADD TENANT ---->
+  // ADD TENANT
   Future addTenant({
     required BuildContext context,
     required String projectId,
@@ -464,7 +464,7 @@ class TenantCubit extends Cubit<TenantState> {
     );
   }
 
-  // <---- UPDATE TENANT ---->
+  // UPDATE TENANT
   Future updateTenant({
     required BuildContext context,
     required String projectId,
@@ -668,7 +668,7 @@ class TenantCubit extends Cubit<TenantState> {
     );
   }
 
-  // <---- DELETE TENANT ---->
+  // DELETE TENANT
   Future deleteTenant(
     int projectId,
     int buildingId,
@@ -719,7 +719,7 @@ class TenantCubit extends Cubit<TenantState> {
     );
   }
 
-  // <---- EXPORT ---->
+  // EXPORT
   Future exportExcelPdf(
     BuildContext context,
     String exportType,
@@ -757,7 +757,7 @@ class TenantCubit extends Cubit<TenantState> {
     );
   }
 
-  // <---- ADD TENaNT DOCUMENT ---->
+  // ADD TENaNT DOCUMENT
   Future addTenantDocument({
     required BuildContext context,
     required int tenantId,
@@ -815,7 +815,7 @@ class TenantCubit extends Cubit<TenantState> {
     );
   }
 
-  // <---- ADD/UPDATE BUILDING DOCUMENT ---->
+  // ADD/UPDATE BUILDING DOCUMENT
   Future updateTenantDocument({
     required BuildContext context,
     required int tenantDocumentId,

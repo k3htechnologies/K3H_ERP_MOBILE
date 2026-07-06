@@ -39,7 +39,7 @@ class SourcingCubit extends Cubit<SourcingState> {
     emit(state.copyWith(selectedFilter: value));
   }
 
-  // <---- SEARCH CHANNEL PARTNER ---->
+  // SEARCH CHANNEL PARTNER
   Future searchChannelPartner(
     BuildContext context,
     String value, {
@@ -53,7 +53,7 @@ class SourcingCubit extends Cubit<SourcingState> {
     emit(state.copyWith(sourcingList: []));
   }
 
-  // <---- FILTER CP SOURCING ---->
+  // FILTER CP SOURCING
   Future applyChannelPartnerSourcingFilterAndSort({
     required BuildContext context,
     required int projectId,
@@ -135,7 +135,7 @@ class SourcingCubit extends Cubit<SourcingState> {
     await getChannelPartnerList(context, 1, projectId);
   }
 
-  // <---- GET SOURCING LIST ---->
+  // GET SOURCING LIST
   Future getSourcingList(
     BuildContext context,
     int pageNumber,
@@ -170,7 +170,7 @@ class SourcingCubit extends Cubit<SourcingState> {
     );
   }
 
-  // <---- GET CHANNEL PARTNER LIST ---->
+  // GET CHANNEL PARTNER LIST
   Future getChannelPartnerList(
     BuildContext context,
     int pageNumber,
@@ -230,7 +230,7 @@ class SourcingCubit extends Cubit<SourcingState> {
     );
   }
 
-  // <---- ADD REMARK ---->
+  // ADD REMARK
   Future addRemark({
     required BuildContext context,
     required int channelPartnerId,
@@ -268,7 +268,7 @@ class SourcingCubit extends Cubit<SourcingState> {
     );
   }
 
-  // <---- UPDATE REMARK ---->
+  // UPDATE REMARK
   Future updateRemark({
     required BuildContext context,
     required int channelPartnerSourcingId,
@@ -311,7 +311,7 @@ class SourcingCubit extends Cubit<SourcingState> {
     );
   }
 
-  // <---- DELETE REMARK ---->
+  // DELETE REMARK
   Future deleteDepartmentMaster({
     required BuildContext context,
     required int channelPartnerSourcingId,

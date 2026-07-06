@@ -14,7 +14,7 @@ void registerShiftMappingMasterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  // <----- CUBITS ----->
+  //- CUBITS -
   serviceLocator.registerSingleton<ShiftMappingMasterCubit>(
     ShiftMappingMasterCubit(),
   );
