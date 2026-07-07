@@ -409,3 +409,22 @@ const yearValues = [
   '2041',
   '2042',
 ];
+
+const supportValues = [
+  "Below The Line (BTL)",
+  "Paper Insert",
+  "Standee Require",
+  "Video Recording",
+];
+
+const paymentModeValues = [
+  "Cheque",
+  "Demand Draft",
+  "IMPS",
+  "NEFT",
+  "Online Transfer",
+  "RTGS",
+  "UPI",
+];
+
+const paymentTypeValues = ["Full", "Partial"];

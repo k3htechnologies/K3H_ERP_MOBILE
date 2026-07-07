@@ -217,6 +217,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
       );
       return {
         'data': networkResponse['data'],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -342,6 +343,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
       );
       return {
         'data': networkResponse['data'],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

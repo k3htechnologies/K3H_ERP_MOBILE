@@ -1198,7 +1198,11 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                 trailing: const Icon(Icons.keyboard_arrow_down),
                                 title: buildRowTitleCount(
                                   title: "Walkins",
-                                  value: achievement.walkinsByCp.toString(),
+                                  value:
+                                      (achievement.walkinsByCp +
+                                              achievement.freshVisits +
+                                              achievement.revisits)
+                                          .toString(),
                                   onValueTap:
                                       () => _navigateToAchievementDrillDown(
                                         employeeName: achievement.employeeName,

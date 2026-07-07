@@ -307,7 +307,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                     hint: "Enter Account Number",
                     isRequired: true,
                     keyboardType: TextInputType.number,
-                    inputFormatterList: InputValidator.digit(20),
+                    inputFormatterList: InputValidator.digit(18),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return "Account Number is required";

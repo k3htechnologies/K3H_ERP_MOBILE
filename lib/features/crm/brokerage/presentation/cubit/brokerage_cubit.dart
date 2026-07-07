@@ -423,7 +423,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       "BankListMasterId": bankListMasterId,
       "PaymentType": paymentType,
       "AmountPaid": amountPaid,
-      "TDSAmount": tDSAmount,
+      "TDSAmount": tDSAmount.trim().isEmpty ? "0" : tDSAmount,
       "TransactionNumber": transactionNumber,
     };
 
@@ -551,7 +551,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
         return;
       },
       (response) {
-        showSuccessMessage(context, subTitle: 'Payment Deleted Successfully');
         final updatedList = List<PaidBrokerageBookingModel>.from(
           state.brokeragePaidList,
         );
@@ -566,6 +565,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
                     : 0,
           ),
         );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -604,11 +604,12 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     getBrokerageBookingList(context, 1, projectId);
   }
 
-  Future exportExcelPdf(
-    BuildContext context,
-    String exportType,
-    int projectId,
-  ) async {
+  Future exportExcelPdf({
+    required BuildContext context,
+    required String exportType,
+    required int projectId,
+    int? bookingId,
+  }) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _brokerageRepository.exportBrokerageBooking(
       pageNumber: 1,
@@ -616,8 +617,12 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       projectId: projectId,
       queryParams:
           state.searchText != ""
-              ? {"ApplicantName": state.searchText, "ExportType": exportType}
-              : {"ExportType": exportType},
+              ? {
+                "ApplicantName": state.searchText,
+                "ExportType": exportType,
+                "BookingId": bookingId,
+              }
+              : {"ExportType": exportType, "BookingId": bookingId},
     );
     goRouter.pop();
     result.fold(
@@ -632,8 +637,8 @@ class BrokerageCubit extends Cubit<BrokerageState> {
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "Brokerage Booking ${DateTime.now()}.pdf"
-              : "Brokerage Booking ${DateTime.now()}.xlsx",
+              ? "${bookingId != null ? 'Invoice Paid Summary' : 'Brokerage Booking'} ${DateTime.now()}.pdf"
+              : "${bookingId != null ? 'Invoice Paid Summary' : 'Brokerage Booking'} ${DateTime.now()}.xlsx",
         );
       },
     );

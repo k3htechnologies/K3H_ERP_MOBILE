@@ -40,6 +40,10 @@ import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentatio
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/cubit/ibm_obm_report_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pages/ibm_obm_report_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pages/ibm_obm_report_view_screen.dart';
+import 'package:k3h_erp_app/features/tax_tracker/presentation/cubit/tax_tracker_cubit.dart';
+import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/add_tax_tracker.screen.dart';
+import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/tax_tracker.screen.dart';
+import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/view_tax_tracker.screen.dart';
 import 'package:k3h_erp_app/widgets/coming_soon_screen.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.model.dart';
@@ -47,7 +51,7 @@ import 'package:k3h_erp_app/features/crm/brokerage/presentation/cubit/brokerage_
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/add_brokerage_invoice_screen.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/add_brokerage_payment.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/brokerage_screen.dart';
-import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/view_brokerage_screen.dart';
+import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/brokerage_view_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/cubit/files_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/pages/add_files.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/pages/add_flat_handover.screen.dart';
@@ -6676,7 +6680,7 @@ final GoRouter goRouter = GoRouter(
                         )
                         : null;
 
-                return ViewBrokerageScreen(brokerageModel: brokerage!);
+                return BrokerageViewScreen(brokerageModel: brokerage!);
               },
             ),
             GoRoute(
@@ -6725,12 +6729,25 @@ final GoRouter goRouter = GoRouter(
                           ),
                         )
                         : 0;
+                final queryParameterBrokerage =
+                    state.uri.queryParameters['brokerage'];
 
+                final BrokerageModel? brokerage =
+                    queryParameterBrokerage != null
+                        ? BrokerageModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterBrokerage),
+                            ),
+                          ),
+                        )
+                        : null;
                 return AddBrokerageInvoiceScreen(
                   brokerageInvoiceModel: invoice,
                   index: index,
                   projectId: projectId,
                   bookingId: bookingId,
+                  brokerageModel: brokerage!,
                 );
               },
             ),
@@ -6758,6 +6775,43 @@ final GoRouter goRouter = GoRouter(
               },
             ),
           ],
+        ),
+      ],
+    ),
+    // TAX TRACKER
+    ShellRoute(
+      builder: (context, state, child) {
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => TaxTrackerCubit()),
+            BlocProvider(create: (_) => EmployeeMasterCubit()),
+            BlocProvider(create: (_) => CompanyMasterCubit()),
+          ],
+          child: child,
+        );
+      },
+      routes: [
+        GoRoute(
+          name: AppRoutes.taxTracker,
+          path: AppRoutes.taxTracker,
+          builder: (context, state) {
+            return const TaxTrackerScreen();
+          },
+        ),
+        GoRoute(
+          name: AppRoutes.addTaxTracker,
+          path: AppRoutes.addTaxTracker,
+          builder: (context, state) {
+            return const AddTaxTrackerScreen();
+          },
+        ),
+
+        GoRoute(
+          name: AppRoutes.viewTaxTracker,
+          path: AppRoutes.viewTaxTracker,
+          builder: (context, state) {
+            return const ViewTaxTrackerScreen();
+          },
         ),
       ],
     ),

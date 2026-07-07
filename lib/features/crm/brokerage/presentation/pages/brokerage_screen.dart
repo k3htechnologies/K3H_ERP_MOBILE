@@ -445,7 +445,11 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
               showErrorMessage(context, "Error", "No Data Found");
               return;
             }
-            _brokerageCubit.exportExcelPdf(context, value, _project.projectId);
+            _brokerageCubit.exportExcelPdf(
+              context: context,
+              exportType: value,
+              projectId: _project.projectId,
+            );
           },
           onProjectChangeCallback: (value) {
             _project = value;
@@ -506,6 +510,7 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                   : const SizedBox.shrink();
                             }
                             var brokerage = state.brokerageList[index];
+
                             return Container(
                               margin: EdgeInsets.only(bottom: 10),
                               padding: EdgeInsets.all(12),
@@ -562,9 +567,46 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                     title: "Mobile No.",
                                     value: brokerage.channelPartnerMobileNumber,
                                     customValueWidget: CustomClickToContactText(
-                                      countryCode: "+91",
+                                      countryCode:
+                                          brokerage
+                                              .channelPartnerMobileNumberCountryCode,
                                       value:
                                           brokerage.channelPartnerMobileNumber,
+                                    ),
+                                  ),
+                                  buildRowTitleValue(
+                                    title: "Enquiry Code",
+                                    value: brokerage.systemGeneratedCode,
+                                    singleLine: false,
+                                    customValueWidget: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            brokerage.systemGeneratedCode,
+                                            style: AppTextStyle.ts14M(),
+                                          ),
+                                        ),
+                                        horizontalSpacing(width: 2),
+                                        InkWell(
+                                          onTap: () {
+                                            copy(
+                                              context: context,
+                                              text:
+                                                  brokerage.systemGeneratedCode,
+                                            );
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(5),
+                                            child: Icon(
+                                              Icons.copy,
+                                              size: 16,
+                                              color: AppColor.primary,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                   buildRowTitleValue(
@@ -575,14 +617,128 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                   ),
                                   buildRowTitleValue(
                                     title: "Raised Invoice Amount",
-                                    value: 0.toIndianCurrency(),
+                                    value:
+                                        brokerage.invoiceAmount
+                                            .toIndianCurrency(),
                                   ),
 
                                   buildRowTitleValue(
                                     title: "Paid Amount",
                                     value:
-                                        brokerage.paidBrokerageAmount
+                                        brokerage.paymentPaidAmount
                                             .toIndianCurrency(),
+                                  ),
+                                  buildRowTitleValue(
+                                    title: "Agreement Amount (₹)",
+                                    value:
+                                        brokerage.agreementValue
+                                            .toIndianCurrency(),
+                                  ),
+                                  verticalSpacing(height: 10),
+                                  ExpansionTile(
+                                    tilePadding: const EdgeInsets.symmetric(
+                                      horizontal: 6.0,
+                                    ),
+                                    childrenPadding: EdgeInsets.zero,
+                                    backgroundColor: AppColor.lightBlue,
+                                    collapsedBackgroundColor:
+                                        AppColor.lightBlue,
+                                    expandedCrossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    iconColor: AppColor.black,
+                                    collapsedIconColor: AppColor.black,
+                                    shape: const Border(),
+                                    collapsedShape: const Border(),
+                                    title: Text(
+                                      "Unit Summary",
+                                      style: AppTextStyle.ts14M(),
+                                    ),
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            /// UNIT
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: _titleValue(
+                                                    "Applicant Name",
+                                                    brokerage.applicantName,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+
+                                            verticalSpacing(),
+
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: _titleValue(
+                                                    "Building",
+                                                    brokerage.buildingNumber,
+                                                  ),
+                                                ),
+                                                horizontalSpacing(),
+                                                Expanded(
+                                                  child: _titleValue(
+                                                    "Wing",
+                                                    brokerage.wing.isEmpty
+                                                        ? "-"
+                                                        : brokerage.wing,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            verticalSpacing(),
+
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: _titleValue(
+                                                    "Flat",
+                                                    brokerage.flat,
+                                                  ),
+                                                ),
+                                                horizontalSpacing(),
+                                                Expanded(
+                                                  child: _titleValue(
+                                                    "Type",
+                                                    brokerage.flatType,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            verticalSpacing(),
+
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: _titleValue(
+                                                    "Configuration",
+                                                    brokerage.flatConfiguration,
+                                                  ),
+                                                ),
+                                                horizontalSpacing(),
+                                                Expanded(
+                                                  child: _titleValue(
+                                                    "RERA Carpet Area (Sq FT)",
+                                                    brokerage.reraCarpetAreaSqFt
+                                                        .toString(),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            verticalSpacing(),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -598,6 +754,22 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _titleValue(String title, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: AppTextStyle.ts12M(
+            color: AppColor.black.withValues(alpha: 0.5),
+          ),
+        ),
+        verticalSpacing(height: 6),
+        Text(value, style: AppTextStyle.ts14M()),
+      ],
     );
   }
 }

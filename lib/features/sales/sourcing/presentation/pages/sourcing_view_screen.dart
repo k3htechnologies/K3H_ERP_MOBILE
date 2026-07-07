@@ -12,6 +12,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -53,16 +54,9 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
-  late Map<String, dynamic> selectedSupport;
-
-  // STATIC SUPPORT LIST
-  List<Map<String, dynamic>> supportList = [
-    {"zAttributesId": -1, "DisplayName": "Select Support"},
-    {"zAttributesId": 1, "DisplayName": "Below The Line (BTL)"},
-    {"zAttributesId": 2, "DisplayName": "Paper Insert"},
-    {"zAttributesId": 3, "DisplayName": "Standee Require"},
-    {"zAttributesId": 4, "DisplayName": "Video Recording"},
-  ];
+  final ValueNotifier<Map<String, dynamic>?> selectedSupport = ValueNotifier(
+    null,
+  );
 
   @override
   void initState() {
@@ -72,7 +66,6 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.sourcing]!;
     _remarkC = TextEditingController();
-    selectedSupport = supportList.first;
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
   }
@@ -100,7 +93,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
 
   // CLEAR BOTTOM SHEET
   void _clearBottomSheet() {
-    selectedSupport = supportList.first;
+    selectedSupport.value = null;
     _remarkC.clear();
   }
 
@@ -132,10 +125,16 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
   ) async {
     // Prefill values
     _remarkC.text = obj.sourcingRemark ?? "";
-    selectedSupport = supportList.firstWhere(
-      (e) => e["DisplayName"] == (obj.support ?? ""),
-      orElse: () => supportList.first,
-    );
+    if (obj.support.isNotEmpty) {
+      selectedSupport.value = supportList.firstWhere(
+        (e) =>
+            e["DisplayName"].toString().toLowerCase() ==
+            (obj.support).toLowerCase(),
+        orElse: () => supportList.first,
+      );
+    } else {
+      selectedSupport.value = null;
+    }
     bool isIBM = (obj.ibmObm ?? "").toUpperCase() == "IBM";
 
     await DialogHelper.showCustomBottomSheet(
@@ -203,16 +202,21 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                 ),
 
                 // SUPPORT
-                CustomDropDownWidget(
-                  title: "Support",
-                  hintText: "Select Support",
-                  dataList: supportList,
-                  initialValue: selectedSupport,
-                  onSelected: (value) {
-                    selectedSupport = value;
-                  },
-                  onValueClear: () {
-                    selectedSupport = supportList.first;
+                ValueListenableBuilder(
+                  valueListenable: selectedSupport,
+                  builder: (context, selectedSupportV, child) {
+                    return CustomDropDownWidget(
+                      title: "Support",
+                      hintText: "Select Support",
+                      dataList: supportList,
+                      initialValue: selectedSupportV,
+                      onSelected: (value) {
+                        selectedSupport.value = value;
+                      },
+                      onValueClear: () {
+                        selectedSupport.value = null;
+                      },
+                    );
                   },
                 ),
               ],
@@ -308,15 +312,20 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                 ),
 
                 // SUPPORT
-                CustomDropDownWidget(
-                  title: "Support",
-                  hintText: "Select Support",
-                  dataList: supportList,
-                  onSelected: (value) {
-                    selectedSupport = value;
-                  },
-                  onValueClear: () {
-                    selectedSupport = supportList.first;
+                ValueListenableBuilder(
+                  valueListenable: selectedSupport,
+                  builder: (context, selectedSupportV, child) {
+                    return CustomDropDownWidget(
+                      title: "Support",
+                      hintText: "Select Support",
+                      dataList: supportList,
+                      onSelected: (value) {
+                        selectedSupport.value = value;
+                      },
+                      onValueClear: () {
+                        selectedSupport.value = null;
+                      },
+                    );
                   },
                 ),
               ],
@@ -347,9 +356,9 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
         projectId: widget.projectId,
         remark: _remarkC.text,
         support:
-            selectedSupport["zAttributesId"] == -1
+            selectedSupport.value == null
                 ? ""
-                : selectedSupport["DisplayName"],
+                : selectedSupport.value?["DisplayName"],
       );
     } else {
       _sourcingCubit.updateRemark(
@@ -362,9 +371,9 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
         projectId: widget.projectId,
         remark: _remarkC.text,
         support:
-            selectedSupport["zAttributesId"] == -1
+            selectedSupport.value == null
                 ? ""
-                : selectedSupport["DisplayName"],
+                : selectedSupport.value?["DisplayName"],
       );
     }
   }
@@ -836,6 +845,14 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                           final item = displayList[index];
 
                           final isLast = index == displayList.length - 1;
+                          final isModifiedInLast2Days =
+                              !DateUtils.dateOnly(
+                                item.modifiedDate ?? item.createdDate!,
+                              ).isBefore(
+                                DateUtils.dateOnly(
+                                  DateTime.now(),
+                                ).subtract(const Duration(days: 2)),
+                              );
 
                           return IntrinsicHeight(
                             child: Row(
@@ -897,7 +914,8 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                                   isDisabled:
                                                       !(item.isAction &&
                                                           _routeAuthorizationModel
-                                                              .isAction),
+                                                              .isAction &&
+                                                          isModifiedInLast2Days),
                                                   onPressed: () {
                                                     _showBottomSheetToUpdateRemark(
                                                       context,
@@ -910,7 +928,8 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                                   isDisabled:
                                                       !(item.isAction &&
                                                           _routeAuthorizationModel
-                                                              .isAction),
+                                                              .isAction &&
+                                                          isModifiedInLast2Days),
                                                   onPressed: () {
                                                     _showPopupToDeleteRemark(
                                                       context,
@@ -975,7 +994,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                         ),
 
                                         const SizedBox(height: 4),
-                                        if ((item.support ?? "").isNotEmpty)
+                                        if (item.support.isNotEmpty)
                                           buildRowTitleValueNormal(
                                             title: "Support",
                                             value: item.support.toString(),

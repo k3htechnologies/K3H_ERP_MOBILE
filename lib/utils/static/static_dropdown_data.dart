@@ -201,3 +201,14 @@ final List<Map<String, dynamic>> ibmObmReportType = createAttributeList(
 
 final List<Map<String, dynamic>> year = createAttributeList(yearValues);
 
+final List<Map<String, dynamic>> supportList = createAttributeList(
+  supportValues,
+);
+
+final List<Map<String, dynamic>> paymentModeList = createAttributeList(
+  paymentModeValues,
+);
+
+final List<Map<String, dynamic>> paymentTypeList = createAttributeList(
+  paymentTypeValues,
+);

@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
@@ -48,22 +49,6 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
   late ValueNotifier<List<Map<String, dynamic>>> _selectedPaymentModeNotifier;
   late ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier;
   late ValueNotifier<List<Map<String, dynamic>>> _selectedPaymentTypeNotifier;
-
-  // PAYMENT MODE LIST
-  final List<Map<String, dynamic>> _paymentModeList = [
-    {"zAttributesId": 1, "DisplayName": "Cheque"},
-    {"zAttributesId": 2, "DisplayName": "Demand Draft"},
-    {"zAttributesId": 3, "DisplayName": "IMPS"},
-    {"zAttributesId": 4, "DisplayName": "Online Transfer"},
-    {"zAttributesId": 5, "DisplayName": "RTGS"},
-    {"zAttributesId": 6, "DisplayName": "UPI"},
-  ];
-
-  // PAYMENT TYPE LIST
-  final List<Map<String, dynamic>> _paymentTypeList = [
-    {"zAttributesId": 1, "DisplayName": "Full"},
-    {"zAttributesId": 2, "DisplayName": "Partial"},
-  ];
 
   // FILE VARIABLES
   MultiFilePickerModel selectedTransactionOrChequeFile = MultiFilePickerModel(
@@ -171,7 +156,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                           selectedPaymentMode.isNotEmpty
                               ? selectedPaymentMode.first
                               : null,
-                      dataList: _paymentModeList,
+                      dataList: paymentModeList,
                       onSelected: (value) {
                         _selectedPaymentModeNotifier.value = [value];
                       },
@@ -224,7 +209,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                           selectedPaymentType.isNotEmpty
                               ? selectedPaymentType.first
                               : null,
-                      dataList: _paymentTypeList,
+                      dataList: paymentTypeList,
                       onSelected: (value) {
                         _selectedPaymentTypeNotifier.value = [value];
                         if (value['DisplayName'] == 'Full') {
@@ -301,18 +286,11 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                 ),
                 CustomTextField(
                   textController: _tdsAmountC,
-                  isRequired: true,
                   title: "TDS Amount",
                   hint: "Enter TDS Amount",
                   keyboardType: TextInputType.numberWithOptions(),
                   inputFormatterList: InputValidator.decimal(2),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "TDS Amount is required";
-                    }
-                    return null;
-                  },
-                ),
+                ),  
                 CustomTextField(
                   textController: _transactionNumberC,
                   isRequired: true,

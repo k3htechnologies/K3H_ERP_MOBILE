@@ -4,9 +4,14 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 
 class CustomExportButton extends StatefulWidget {
+  final bool isDisabled;
   final Function(String) onExport;
 
-  const CustomExportButton({super.key, required this.onExport});
+  const CustomExportButton({
+    super.key,
+    required this.onExport,
+    this.isDisabled = false,
+  });
 
   @override
   State<CustomExportButton> createState() => _CustomExportButtonState();
@@ -129,10 +134,11 @@ class _CustomExportButtonState extends State<CustomExportButton> {
       child: CustomIconButton(
         key: _buttonKey,
         onPressed: _toggleOverlay,
+        isDisable: widget.isDisabled,
         icon: Icon(
           Icons.file_download_outlined,
           size: 16,
-          color: AppColor.darkGreen,
+          color: widget.isDisabled ? AppColor.grey2 : AppColor.darkGreen,
         ),
         backgroundColor: AppColor.lightGreen,
       ),

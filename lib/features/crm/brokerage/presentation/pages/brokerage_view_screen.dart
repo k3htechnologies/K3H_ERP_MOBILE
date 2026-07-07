@@ -19,6 +19,7 @@ import 'package:k3h_erp_app/utils/common_enums.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_export_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -27,15 +28,15 @@ import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class ViewBrokerageScreen extends StatefulWidget {
+class BrokerageViewScreen extends StatefulWidget {
   final BrokerageModel brokerageModel;
-  const ViewBrokerageScreen({super.key, required this.brokerageModel});
+  const BrokerageViewScreen({super.key, required this.brokerageModel});
 
   @override
-  State<ViewBrokerageScreen> createState() => _ViewBrokerageScreenState();
+  State<BrokerageViewScreen> createState() => _BrokerageViewScreenState();
 }
 
-class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
+class _BrokerageViewScreenState extends State<BrokerageViewScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
   late UtilsCubit _utilsCubit;
@@ -164,7 +165,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a Invoice ?',
+      'You are about to delete a Brokerage Invoice ?',
       'Deleting this Invoice will permanently remove all associated data.',
     );
     if (result && context.mounted) {
@@ -195,6 +196,9 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
     }
   }
 
+  double get raisedInvoiceTotal => _brokerageCubit.state.brokerageInvoiceList
+      .fold(0.0, (sum, e) => sum + e.invoiceAmount);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -206,6 +210,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         child: Column(
           spacing: 10,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ChipStyleTabBar(
               margin: EdgeInsets.zero,
@@ -230,42 +235,97 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
                     textController: _searchC,
                   ),
                 ),
-                AnimatedBuilder(
-                  animation: _tabController,
-                  builder: (context, _) {
-                    return (_tabController.index == 0)
-                        ? CustomIconButton(
-                          isDisable: !_invoiceRouteAuthorizationModel.isAction,
-                          onPressed: () {
-                            goRouter.pushNamed(
-                              AppRoutes.addBrokerageInvoice,
-                              queryParameters: {
-                                "bookingId": Uri.encodeQueryComponent(
-                                  EncryptionManager.encryptData(
-                                    widget.brokerageModel.bookingId.toString(),
+                BlocBuilder<BrokerageCubit, BrokerageState>(
+                  builder: (context, state) {
+                    return AnimatedBuilder(
+                      animation: _tabController,
+                      builder: (context, _) {
+                        final disableAdd =
+                            raisedInvoiceTotal ==
+                            widget.brokerageModel.brokerageAmount;
+                        return (_tabController.index == 0)
+                            ? Row(
+                              spacing: 10,
+                              children: [
+                                CustomIconButton(
+                                  isDisable:
+                                      !_invoiceRouteAuthorizationModel
+                                          .isAction ||
+                                      disableAdd,
+                                  onPressed: () {
+                                    goRouter.pushNamed(
+                                      AppRoutes.addBrokerageInvoice,
+                                      queryParameters: {
+                                        "bookingId": Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            widget.brokerageModel.bookingId
+                                                .toString(),
+                                          ),
+                                        ),
+                                        "projectId": Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            widget.brokerageModel.projectId
+                                                .toString(),
+                                          ),
+                                        ),
+                                        "brokerage": Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(
+                                              widget.brokerageModel.toJson(),
+                                            ),
+                                          ),
+                                        ),
+                                      },
+                                    );
+                                  },
+                                  icon: Icon(
+                                    Icons.add,
+                                    size: 16,
+                                    color:
+                                        !_invoiceRouteAuthorizationModel
+                                                    .isAction ||
+                                                disableAdd
+                                            ? AppColor.grey2
+                                            : AppColor.primary,
                                   ),
                                 ),
-                                "projectId": Uri.encodeQueryComponent(
-                                  EncryptionManager.encryptData(
-                                    widget.brokerageModel.projectId.toString(),
-                                  ),
+                                CustomExportButton(
+                                  isDisabled:
+                                      !_invoiceRouteAuthorizationModel.isExport,
+                                  onExport: (v) {
+                                    _brokerageCubit.exportExcelPdf(
+                                      context: context,
+                                      exportType: v,
+                                      projectId:
+                                          widget.brokerageModel.projectId,
+                                      bookingId:
+                                          widget.brokerageModel.bookingId,
+                                    );
+                                  },
                                 ),
+                              ],
+                            )
+                            : CustomExportButton(
+                              isDisabled:
+                                  !_makePaymentRouteAuthorizationModel.isExport,
+                              onExport: (v) {
+                                _brokerageCubit.exportExcelPdf(
+                                  context: context,
+                                  exportType: v,
+                                  projectId: widget.brokerageModel.projectId,
+                                  bookingId: widget.brokerageModel.bookingId,
+                                );
                               },
                             );
-                          },
-                          icon: Icon(
-                            Icons.add,
-                            size: 16,
-                            color:
-                                _invoiceRouteAuthorizationModel.isAction
-                                    ? AppColor.primary
-                                    : AppColor.grey,
-                          ),
-                        )
-                        : SizedBox.shrink();
+                      },
+                    );
                   },
                 ),
               ],
+            ),
+            Text(
+              widget.brokerageModel.applicantName,
+              style: AppTextStyle.ts14M(),
             ),
             Expanded(
               child: TabBarView(
@@ -370,6 +430,13 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
                                               ),
                                             ),
                                         'index': index.toString(),
+                                        "brokerage": Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(
+                                              widget.brokerageModel.toJson(),
+                                            ),
+                                          ),
+                                        ),
                                       },
                                     );
                                   },
@@ -427,9 +494,8 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
                         child:
                             isExpanded
                                 ? _invoiceDetailCard(invoice)
-                                : invoice.approvalStatus.toLowerCase().contains(
-                                  'approved',
-                                )
+                                : invoice.approvalStatus.toLowerCase() ==
+                                    'approved'
                                 ? Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
@@ -575,10 +641,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
                 "Invoice Details",
                 style: AppTextStyle.ts14M(color: AppColor.black),
               ),
-              buildRowTitleValue(
-                title: "Amount",
-                value: invoice.invoiceAmount.toIndianCurrency(),
-              ),
+
               Row(
                 children: [
                   buildColumnTitleValue(
@@ -590,7 +653,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
               Row(
                 children: [
                   buildColumnTitleValue(
-                    title: "Account Name",
+                    title: "Account Holder Name",
                     value: invoice.accountName,
                   ),
                 ],
@@ -744,7 +807,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
           return Center(child: CircularProgressIndicator());
         }
         if (state.brokeragePaidList.isEmpty) {
-          return Center(child: noDataWidget(message: 'No Invoice Data Found.'));
+          return Center(child: noDataWidget(message: 'No Payment Data Found.'));
         }
         return ListView.builder(
           controller: _paymentScrollController,

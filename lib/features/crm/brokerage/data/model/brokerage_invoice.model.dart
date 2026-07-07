@@ -15,7 +15,7 @@ class BrokerageInvoiceModel {
   String ifscCode;
   double invoiceAmount;
   double paymentAmount;
-  DateTime dueDate;
+  DateTime? dueDate;
   String remark;
   int createdById;
   String createdBy;
@@ -41,7 +41,7 @@ class BrokerageInvoiceModel {
     required this.ifscCode,
     required this.invoiceAmount,
     required this.paymentAmount,
-    required this.dueDate,
+    this.dueDate,
     required this.remark,
     required this.createdById,
     required this.createdBy,
@@ -69,7 +69,7 @@ class BrokerageInvoiceModel {
       ifscCode: parseValue<String>(json, "IFSCCode"),
       invoiceAmount: parseValue<double>(json, "InvoiceAmount"),
       paymentAmount: parseValue<double>(json, "PaymentAmount"),
-      dueDate: DateTime.parse(json["DueDate"]),
+      dueDate: json["DueDate"] == null ? null : DateTime.parse(json["DueDate"]),
       remark: parseValue<String>(json, "Remark"),
       createdById: parseValue<int>(json, "CreatedById"),
       createdBy: parseValue<String>(json, "CreatedBy"),
@@ -100,7 +100,7 @@ class BrokerageInvoiceModel {
     "IFSCCode": ifscCode,
     "InvoiceAmount": invoiceAmount,
     "PaymentAmount": paymentAmount,
-    "DueDate": dueDate.toIso8601String(),
+    "DueDate": dueDate?.toIso8601String(),
     "Remark": remark,
     "CreatedById": createdById,
     "CreatedBy": createdBy,

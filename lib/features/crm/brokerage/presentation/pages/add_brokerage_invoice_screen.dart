@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.model.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/presentation/cubit/brokerage_cubit.dart';
 import 'package:k3h_erp_app/features/masters/bank_list_master/data/model/bank_list_master.model.dart';
@@ -22,10 +23,12 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class AddBrokerageInvoiceScreen extends StatefulWidget {
   final int bookingId;
   final int projectId;
+  final BrokerageModel brokerageModel;
   final BrokerageInvoiceModel? brokerageInvoiceModel;
   final int? index;
   const AddBrokerageInvoiceScreen({
     super.key,
+    required this.brokerageModel,
     this.brokerageInvoiceModel,
     this.index,
     required this.bookingId,
@@ -179,9 +182,15 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                   title: "Invoice Number",
                   hint: "Enter Invoice Number",
                   isRequired: true,
+                  inputFormatterList: InputValidator.digit(15),
+                  keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return "Invoice Number is required";
+                    }
+                    if (value.trim().isNotEmpty &&
+                        !InputValidator.isValidInvoiceNumber(value.trim())) {
+                      return "Invoice Number cannot be zero.";
                     }
                     return null;
                   },
@@ -200,7 +209,7 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                   },
                 ),
                 CustomMultiFilePicker(
-                  title: "Invoice",
+                  title: "Invoice Document",
                   isRequired: true,
                   filePickType: FilePickType.both,
                   initialFileList: _invoiceDocument.fileNameList,
@@ -255,12 +264,12 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                   },
                 ),
                 CustomTextField(
-                  title: "Account Name",
-                  hint: "Enter Account Name",
+                  title: "Account Holder Name",
+                  hint: "Enter Account Holder Name",
                   isRequired: true,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Account Name is required";
+                      return "Account Holder Name is required";
                     }
                     return null;
                   },
@@ -271,7 +280,7 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                   hint: "Enter Account Number",
                   isRequired: true,
                   keyboardType: TextInputType.number,
-                  inputFormatterList: InputValidator.digit(20),
+                  inputFormatterList: InputValidator.digit(18),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return "Account Number is required";
@@ -306,34 +315,24 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                     if (value == null || value.trim().isEmpty) {
                       return "Invoice Amount is required";
                     }
+                    if ((double.tryParse(value) ?? 0) >
+                        widget.brokerageModel.brokerageAmount) {
+                      return "Invoice amount exceeds the brokerage amount.";
+                    }
                     return null;
                   },
                   textController: _invoiceAmountC,
                 ),
                 CustomDatePicker(
                   title: 'Due Date',
-                  isRequired: true,
                   initialDate: dueDate,
                   setValue: (value) => dueDate = value,
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Due Date is required';
-                    }
-                    return null;
-                  },
                 ),
                 CustomTextField(
                   title: "Remark",
                   hint: "Enter Remark",
                   minLines: 3,
                   maxLines: 3,
-                  isRequired: true,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Remark is required";
-                    }
-                    return null;
-                  },
                   textController: _remarkC,
                 ),
               ],
@@ -373,7 +372,7 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                   accountNumber: _accountNumberC.text.trim(),
                   iFSCCode: _ifscCodeC.text.trim(),
                   invoiceAmount: _invoiceAmountC.text.trim(),
-                  dueDate: dueDate!.toIso8601String(),
+                  dueDate: dueDate?.toIso8601String() ?? "",
                   remark: _remarkC.text.trim(),
                   invoiceFiles: _invoiceDocument,
                   index: widget.index!,
@@ -392,7 +391,7 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                   accountNumber: _accountNumberC.text.trim(),
                   iFSCCode: _ifscCodeC.text.trim(),
                   invoiceAmount: _invoiceAmountC.text.trim(),
-                  dueDate: dueDate!.toIso8601String(),
+                  dueDate: dueDate?.toIso8601String() ?? "",
                   remark: _remarkC.text.trim(),
                   invoiceFiles: _invoiceDocument,
                 );
