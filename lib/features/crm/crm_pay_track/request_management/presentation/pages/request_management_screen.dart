@@ -800,6 +800,184 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                           ],
                         ),
                       ),
+                      Container(
+                        margin: EdgeInsets.only(bottom: 10.0),
+                        padding: EdgeInsets.all(16.0),
+                        decoration: commonCardDecoration(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Cancellation Summary",
+                              style: AppTextStyle.ts14SB(),
+                            ),
+                            verticalSpacing(),
+                            Container(
+                              padding: EdgeInsets.all(16.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.0),
+                                border: Border.all(
+                                  color: AppColor.primary.withValues(
+                                    alpha: 0.3,
+                                  ),
+                                  width: 0.8,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: buildColumnTitleValueNormal(
+                                          title: "Cancelled Date",
+                                          value: formatDateTimeAsDDMMMYYYY(
+                                            bookingData.cancelledDate,
+                                          ),
+                                        ),
+                                      ),
+                                      horizontalSpacing(),
+                                      Expanded(
+                                        child: buildColumnTitleValueNormal(
+                                          title: "Cancelled By",
+                                          value: bookingData.cancelledBy,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  verticalSpacing(),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: buildColumnTitleValueNormal(
+                                          title: "Remark",
+                                          value: bookingData.cancelRemark,
+                                        ),
+                                      ),
+                                      horizontalSpacing(),
+                                      Expanded(
+                                        child: buildColumnTitleValueNormal(
+                                          title: "Proof Of Document",
+                                          value: bookingData.cancelledBy,
+                                          customValueWidget:
+                                              CustomButton.documentOutline(
+                                                onPressed: () {
+                                                  if (bookingData
+                                                      .proofOfDocumentUrl
+                                                      .isNotEmpty) {
+                                                    showFilePreviewDialog(
+                                                      context,
+                                                      title:
+                                                          "Proof Of Document",
+                                                      bookingData
+                                                          .proofOfDocumentUrl
+                                                          .split(","),
+                                                    );
+                                                  }
+                                                },
+                                                isDisable:
+                                                    booking
+                                                        .proofOfDocumentUrl
+                                                        .isEmpty,
+                                              ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(bottom: 10.0),
+                        padding: EdgeInsets.all(16.0),
+                        decoration: commonCardDecoration(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Refund Amount Details",
+                              style: AppTextStyle.ts14SB(),
+                            ),
+                            verticalSpacing(),
+                            Container(
+                              padding: EdgeInsets.all(16.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.0),
+                                border: Border.all(
+                                  color: AppColor.primary.withValues(
+                                    alpha: 0.3,
+                                  ),
+                                  width: 0.8,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: buildColumnTitleValueNormal(
+                                          title: "Total Refunded",
+                                          value:
+                                              bookingData
+                                                  .totalAmountRefundedAgainstBooking
+                                                  .toIndianCurrency(),
+                                        ),
+                                      ),
+                                      horizontalSpacing(),
+                                      Expanded(
+                                        child: buildColumnTitleValueNormal(
+                                          title: "Paid",
+                                          value:
+                                              bookingData
+                                                  .totalAmountRefundedAgainstBooking
+                                                  .toIndianCurrency(),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  verticalSpacing(),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: buildColumnTitleValueNormal(
+                                          title: "Pending",
+                                          value:
+                                              bookingData
+                                                  .totalAmountRefundedAgainstBooking
+                                                  .toIndianCurrency(),
+                                        ),
+                                      ),
+                                      horizontalSpacing(),
+                                      Expanded(
+                                        child: buildColumnTitleValueNormal(
+                                          title: "Refund Status",
+                                          value: bookingData.approvalStatus,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),

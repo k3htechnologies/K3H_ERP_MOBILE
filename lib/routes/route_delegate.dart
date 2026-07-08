@@ -26,7 +26,6 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/payment_schedule_demand_letter_summary.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/cancel_booking.screen.dart';
-import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/sales_attendance.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/data/model/inward_outward.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inward_outward_cubit.dart';
@@ -427,10 +426,6 @@ import 'package:k3h_erp_app/features/stock_management/presentation/cubit/stock_m
 import 'package:k3h_erp_app/features/stock_management/presentation/pages/add_stock_management.screen.dart';
 import 'package:k3h_erp_app/features/stock_management/presentation/pages/stock_management.screen.dart';
 import 'package:k3h_erp_app/features/stock_management/presentation/pages/view_stock_management.screen.dart';
-import 'package:k3h_erp_app/features/tax_tracker/presentation/cubit/tax_tracker_cubit.dart';
-import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/add_tax_tracker.screen.dart';
-import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/tax_tracker.screen.dart';
-import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/view_tax_tracker.screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';

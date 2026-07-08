@@ -107,7 +107,7 @@ class BookingModel {
   String proofOfDocumentUrl;
   String cancelBookingApprovalStatus;
   int refundedPaymentLedgerCount;
-bool isFinalRegistrationCompleted;
+  bool isFinalRegistrationCompleted;
 
   BookingModel({
     required this.bookingId,
@@ -212,6 +212,7 @@ bool isFinalRegistrationCompleted;
     required this.proofOfDocumentUrl,
     required this.cancelBookingApprovalStatus,
     required this.refundedPaymentLedgerCount,
+    required this.isFinalRegistrationCompleted,
   });
   factory BookingModel.fromJson(
     Map<String, dynamic> json, {
@@ -424,6 +425,10 @@ bool isFinalRegistrationCompleted;
     refundedPaymentLedgerCount: parseValue<int>(
       json,
       "RefundedPaymentLedgerCount",
+    ),
+    isFinalRegistrationCompleted: parseValue(
+      json,
+      "IsFinalRegistrationCompleted",
     ),
   );
 
