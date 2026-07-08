@@ -1,6 +1,8 @@
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger_summary.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/booking_applicant_modification_request.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/flat_alteration_requests.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/parking_modification_request.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/refund_amount_payment_ledger.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
@@ -46,6 +48,15 @@ abstract interface class RequestManagementDatasource {
   Future<Map<String, dynamic>>
   apicallAmountRefundedAgainstBookingAddUpdateRefundedAmount({
     required Map<String, dynamic> body,
+  });
+  Future<Map<String, dynamic>> apicallPullRefundedAmountLedger({
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Map<String, dynamic>> apicallAddUpdateRefundedAmountLedger({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   });
 }
 
@@ -342,6 +353,84 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
       if (error is TokenExpiredException) {
         return apicallAmountRefundedAgainstBookingAddUpdateRefundedAmount(
           body: body,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullRefundedAmountLedger({
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String url({
+      required int projectId,
+      required int bookingId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String finalUrl =
+          "AmountRefundedAgainstBooking/PullRefundedAmountLedger?ProjectId=$projectId&BookingId=$bookingId";
+
+      queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
+      return finalUrl;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        url(
+          projectId: projectId,
+          bookingId: bookingId,
+          queryParams: queryParams,
+        ),
+      );
+
+      return {
+        'data': List<RefundedAmountLedgerModel>.from(
+          networkResponse["data"].map(
+            (e) => RefundedAmountLedgerModel.fromJson(e),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallPullRefundedAmountLedger(
+          projectId: projectId,
+          bookingId: bookingId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateRefundedAmountLedger({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    String url = "AmountRefundedAgainstBooking/AddUpdateRefundedAmountLedger";
+
+    try {
+      var networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(url, fileList, body);
+
+      return {
+        'data': List<PayTrackPaymentLedgerSummaryModel>.from(
+          networkResponse["data"].map(
+            (e) => PayTrackPaymentLedgerSummaryModel.fromJson(e),
+          ),
+        ),
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallAddUpdateRefundedAmountLedger(
+          body: body,
+          fileList: fileList,
         );
       }
       rethrow;

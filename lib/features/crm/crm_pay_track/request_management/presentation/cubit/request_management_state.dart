@@ -9,6 +9,8 @@ class RequestManagementState extends BaseState {
   bookingApplicantModificationRequestModel;
   final List<FlatAlterationRequestsModel> flatAlterationRequestsModel;
   final List<BookingModel> refundRequestList;
+  final bool showRefundPaymentLedgerTab;
+  final List<RefundedAmountLedgerModel> refundAmountLedgerList;
   const RequestManagementState({
     super.isLoading,
     required this.bookingData,
@@ -18,6 +20,8 @@ class RequestManagementState extends BaseState {
     required this.bookingApplicantModificationRequestModel,
     required this.flatAlterationRequestsModel,
     required this.refundRequestList,
+    required this.showRefundPaymentLedgerTab,
+    required this.refundAmountLedgerList,
   });
 
   factory RequestManagementState.initial() => RequestManagementState(
@@ -29,6 +33,8 @@ class RequestManagementState extends BaseState {
     bookingApplicantModificationRequestModel: [],
     flatAlterationRequestsModel: [],
     refundRequestList: [],
+    showRefundPaymentLedgerTab: false,
+    refundAmountLedgerList: [],
   );
 
   RequestManagementState copyWith({
@@ -41,6 +47,8 @@ class RequestManagementState extends BaseState {
     bookingApplicantModificationRequestModel,
     List<FlatAlterationRequestsModel>? flatAlterationRequestsModel,
     List<BookingModel>? refundRequestList,
+    bool? showRefundPaymentLedgerTab,
+    List<RefundedAmountLedgerModel>? refundAmountLedgerList,
   }) {
     return RequestManagementState(
       isLoading: isLoading ?? this.isLoading,
@@ -57,6 +65,10 @@ class RequestManagementState extends BaseState {
       flatAlterationRequestsModel:
           flatAlterationRequestsModel ?? this.flatAlterationRequestsModel,
       refundRequestList: refundRequestList ?? this.refundRequestList,
+      showRefundPaymentLedgerTab:
+          showRefundPaymentLedgerTab ?? this.showRefundPaymentLedgerTab,
+      refundAmountLedgerList:
+          refundAmountLedgerList ?? this.refundAmountLedgerList,
     );
   }
 
@@ -70,5 +82,7 @@ class RequestManagementState extends BaseState {
     bookingApplicantModificationRequestModel,
     flatAlterationRequestsModel,
     refundRequestList,
+    showRefundPaymentLedgerTab,
+    refundAmountLedgerList,
   ];
 }

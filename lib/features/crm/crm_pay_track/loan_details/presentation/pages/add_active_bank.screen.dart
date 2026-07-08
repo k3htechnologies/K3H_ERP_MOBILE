@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/data/model/loan_details.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/presentation/cubit/loan_details_cubit.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_cubit.dart';
 import 'package:k3h_erp_app/features/masters/bank_list_master/data/model/bank_list_master.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -15,6 +16,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
+import 'package:k3h_erp_app/widgets/speech_to_text/speech_to_text.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -228,7 +230,7 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
                   hint: "Enter Account Number",
                   isRequired: true,
                   keyboardType: TextInputType.number,
-                  inputFormatterList: InputValidator.digit(20),
+                  inputFormatterList: InputValidator.digit(18),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return "Account Number is required";
@@ -242,16 +244,35 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
                   hint: "Enter Loan Sanction Amount",
                   isRequired: true,
                   keyboardType: TextInputType.numberWithOptions(),
-                  inputFormatterList: InputValidator.decimal(2),
+                  inputFormatterList: InputValidator.digitWithDecimal(
+                    maxDigitsBeforeDecimal: 16,
+                  ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return "Loan Sanction Amount is required";
                     }
+
+                    final enteredAmount = double.tryParse(
+                      value.replaceAll(',', ''),
+                    );
+
+                    if (enteredAmount == null) {
+                      return "Please enter a valid amount";
+                    }
+
+                    final totalAmount =
+                        context.read<PaymentCubit>().totalAgreementAmount;
+
+                    if (enteredAmount > totalAmount) {
+                      return "Loan Sanction Amount cannot be greater than "
+                          "Total Unit Cost (${totalAmount.toIndianCurrency()})";
+                    }
+
                     return null;
                   },
                 ),
                 CustomDatePicker(
-                  title: "Santion Date",
+                  title: "Sanction Date",
                   isRequired: true,
                   initialDate: sanctionDate,
                   setValue: (value) => sanctionDate = value,
@@ -269,6 +290,7 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
                   minLines: 3,
                   maxLines: 10,
                   isRequired: true,
+                  suffixWidget: SpeechToTextIcon(controller: _addressC),
                   inputFormatterList: [LengthLimitingTextInputFormatter(200)],
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {

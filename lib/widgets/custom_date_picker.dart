@@ -108,15 +108,27 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 4,
       children: [
         if (widget.title != null)
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.title!, style: AppTextStyle.ts14R()),
-              widget.isRequired == true
-                  ? Text("*", style: AppTextStyle.ts14R(color: AppColor.error))
-                  : SizedBox(),
+              Flexible(
+                child: Text(
+                  widget.title!,
+                  style: AppTextStyle.ts14R(),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
+              ),
+              if (widget.isRequired == true)
+                Padding(
+                  padding: const EdgeInsets.only(left: 2),
+                  child: Text(
+                    "*",
+                    style: AppTextStyle.ts14R(color: AppColor.error),
+                  ),
+                ),
             ],
           ),
         FormField<DateTime>(

@@ -18,6 +18,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -26,12 +27,16 @@ class PayTrackViewScreen extends StatefulWidget {
   final int projectId;
   final int bookingId;
   final int enquiryId;
+  final String bookingApprovalStatus;
+  final String approvalStatus;
   const PayTrackViewScreen({
     super.key,
     required this.applicantName,
     required this.projectId,
     required this.bookingId,
     required this.enquiryId,
+    required this.bookingApprovalStatus,
+    required this.approvalStatus,
   });
 
   @override
@@ -135,6 +140,9 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                     PaymentScreen(
                       projectId: widget.projectId,
                       bookingId: widget.bookingId,
+                      applicantName: widget.applicantName,
+                      bookingApprovalStatus: widget.bookingApprovalStatus,
+                      approvalStatus: widget.approvalStatus,
                     ),
                     RequestManagementScreen(
                       projectId: widget.projectId,
@@ -184,11 +192,18 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
       return const Center(child: CircularProgressIndicator());
     }
     final bool isDirectWalking = enquiry.source == "Direct Walkin";
+    final source = enquiry.source.toLowerCase().replaceAll("-", "").trim();
+
+    final bool isDirectWalkingForCPDetails =
+        source == "direct walkin" || source == "directwalkin";
 
     final bool isAdvertisement = enquiry.subSource == "Advertisement";
     final isHtml =
         booking.termsAndConditionsDescription.contains('<') &&
         booking.termsAndConditionsDescription.contains('>');
+    final pendingAmount =
+        booking.totalAmountRefundedAgainstBooking -
+        booking.refundedAmountOnTillDate;
     return SingleChildScrollView(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
       child: Column(
@@ -200,6 +215,17 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             widget.applicantName,
             style: AppTextStyle.ts16M(color: AppColor.primary),
           ),
+          Row(
+            children: [
+              Expanded(child: CustomButton(text: "Message", onPressed: () {})),
+              horizontalSpacing(),
+              CustomButton(
+                text: "Update Registration Date & Parking",
+                onPressed: () {},
+              ),
+            ],
+          ),
+
           Container(
             decoration: BoxDecoration(
               color: AppColor.lightBlue,
@@ -226,17 +252,14 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildColumnTitleValue(
-                      title: "Name",
-                      value: booking.applicantName,
-                    ),
+                    buildColumnTitleValue(title: "Name", value: enquiry.name),
                     buildColumnTitleValue(
                       title: "Mobile No.",
-                      value:
-                          booking
-                              .bookingApplicantData
-                              .first
-                              .applicantMobileNumber,
+                      value: enquiry.mobileNumber,
+                      customValueWidget: CustomClickToContactText(
+                        countryCode: enquiry.mobileNumberCountryCode,
+                        value: enquiry.mobileNumber,
+                      ),
                     ),
                   ],
                 ),
@@ -288,45 +311,87 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
               ],
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              color: AppColor.lightBlue,
-              borderRadius: BorderRadius.circular(8),
+          if (!isDirectWalkingForCPDetails)
+            Container(
+              decoration: BoxDecoration(
+                color: AppColor.lightBlue,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: EdgeInsets.all(16),
+              child: Column(
+                spacing: 10.0,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "CP Code",
+                        value: enquiry.channelPartnerCode,
+                      ),
+                      horizontalSpacing(),
+                      buildColumnTitleValue(
+                        title: "CP E-mail ID",
+                        value: enquiry.channelPartnerEmailId,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "CP Name",
+                        value: enquiry.channelPartnerName,
+                      ),
+                      horizontalSpacing(),
+                      buildColumnTitleValue(
+                        title: "CP Mobile No.",
+                        value: enquiry.channelPartnerMobileNumber,
+                        customValueWidget: CustomClickToContactText(
+                          countryCode:
+                              enquiry.channelPartnerMobileNumberCountryCode,
+                          value: enquiry.channelPartnerMobileNumber,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "CP Team Member Name",
+                        value: enquiry.channelPartnerTeamMemberName,
+                      ),
+                      horizontalSpacing(),
+                      buildColumnTitleValue(
+                        title: "CP Team Mobile No.",
+                        value: enquiry.channelPartnerTeamMemberMobileNumber,
+                        customValueWidget: CustomClickToContactText(
+                          countryCode:
+                              enquiry
+                                  .channelPartnerTeamMemberMobileNumberCountryCode,
+                          value: enquiry.channelPartnerTeamMemberMobileNumber,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "CP Team E-Mail ID",
+                        value: enquiry.channelPartnerTeamMemberEmailId,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 10.0,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Channel Partner",
-                      value: enquiry.channelPartnerName,
-                    ),
-                    buildColumnTitleValue(
-                      title: "CP Mobile",
-                      value: enquiry.channelPartnerMobileNumber,
-                    ),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "CP Team Member",
-                      value: enquiry.channelPartnerTeamMemberName,
-                    ),
-                    buildColumnTitleValue(
-                      title: "CP Team Mobile",
-                      value: enquiry.channelPartnerTeamMemberMobileNumber,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+
           Container(
             height: 450,
             margin: EdgeInsets.only(bottom: 10),
@@ -344,12 +409,14 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                     itemCount: booking.bookingApplicantData.length,
                     itemBuilder: (_, index) {
                       final applicant = booking.bookingApplicantData[index];
+
                       return infoCard(
                         bgColor: AppColor.white,
                         borderColor: AppColor.primary,
 
                         titleWidget: Row(
                           spacing: 5,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
@@ -369,10 +436,20 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                           {
                             "title": "Mobile Number",
                             "value": applicant.applicantMobileNumber,
+                            "widget": CustomClickToContactText(
+                              countryCode:
+                                  applicant.applicantMobileNumberCountryCode,
+                              value: applicant.applicantMobileNumber,
+                              type: ContactType.phone,
+                            ),
                           },
                           {
                             "title": "Email ID",
                             "value": applicant.applicantEmailId,
+                            "widget": CustomClickToContactText(
+                              value: applicant.applicantEmailId,
+                              type: ContactType.email,
+                            ),
                           },
                           {
                             "title": "Aadhaar Card No.",
@@ -385,11 +462,13 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                               onPressed: () {
                                 if (applicant.aadharCardURL.isNotEmpty) {
                                   showFilePreviewDialog(
+                                    title: "Aadhaar Card",
                                     context,
                                     applicant.aadharCardURL.split(","),
                                   );
                                 }
                               },
+
                               isDisable: applicant.aadharCardURL.isEmpty,
                             ),
                           },
@@ -398,13 +477,14 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                             "value": applicant.panNumber,
                           },
                           {
-                            "title": "PAN Card.",
+                            "title": "PAN Card",
                             "value": applicant.panCardURL,
                             "widget": CustomButton.documentOutline(
                               onPressed: () {
                                 if (applicant.panCardURL.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "PAN Card",
                                     applicant.panCardURL.split(","),
                                   );
                                 }
@@ -424,6 +504,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                 if (applicant.drivingLicenseURL.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Driving License",
                                     applicant.drivingLicenseURL.split(","),
                                   );
                                 }
@@ -443,6 +524,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                 if (applicant.votingIdURL.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Voting ID",
                                     applicant.votingIdURL.split(","),
                                   );
                                 }
@@ -462,6 +544,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                 if (applicant.passportURL.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Passport",
                                     applicant.passportURL.split(","),
                                   );
                                 }
@@ -478,6 +561,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                 if (applicant.gstNumberURL.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "GST Certificate",
                                     applicant.gstNumberURL.split(","),
                                   );
                                 }
@@ -493,6 +577,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                 if (applicant.cancelledChequeUrl.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Cancelled Cheque",
                                     applicant.cancelledChequeUrl.split(","),
                                   );
                                 }
@@ -508,6 +593,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                 if (applicant.poaurl.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "POA (if NRI Execution)",
                                     applicant.poaurl.split(","),
                                   );
                                 }
@@ -523,6 +609,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                 if (applicant.incomeForm16Itrurl.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Income Docs (Form 16 / ITR)",
                                     applicant.incomeForm16Itrurl.split(","),
                                   );
                                 }
@@ -538,6 +625,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                 if (applicant.nreNroBankDetailsUrl.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "NRE / NRO Bank Details",
                                     applicant.nreNroBankDetailsUrl.split(","),
                                   );
                                 }
@@ -553,6 +641,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                 if (applicant.nomineeFormUrl.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Nominee Form",
                                     applicant.nomineeFormUrl.split(","),
                                   );
                                 }
@@ -570,6 +659,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                     .isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Statement Of Source Of Funds",
                                     applicant.statementOfSourceOfFundsURL.split(
                                       ",",
                                     ),
@@ -589,6 +679,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                 if (applicant.paymentProofURL.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Payment Proof",
                                     applicant.paymentProofURL.split(","),
                                   );
                                 }
@@ -604,6 +695,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                 if (applicant.photoURL.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Profile Photo",
                                     applicant.photoURL.split(","),
                                   );
                                 }
@@ -698,7 +790,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
           ),
           // PARKING SECTION
           Container(
-            height: 450,
+            height: 350,
             margin: EdgeInsets.only(bottom: 10),
             decoration: commonCardDecoration(),
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -710,7 +802,11 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                 Expanded(
                   child:
                       booking.parkingData.isEmpty
-                          ? Center(child: noDataWidget(message: 'No Parking'))
+                          ? Center(
+                            child: noDataWidget(
+                              message: 'No Parking Data Found',
+                            ),
+                          )
                           : ListView.builder(
                             padding: EdgeInsets.symmetric(
                               horizontal: 2,
@@ -731,8 +827,16 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   spacing: 10,
                                   children: [
+                                    Text(
+                                      "Parking ${index + 1}",
+                                      style: AppTextStyle.ts14SB(
+                                        color: AppColor.greyTitleAndValueColor
+                                            .withValues(alpha: 0.4),
+                                      ),
+                                    ),
                                     Row(
                                       spacing: 5,
                                       crossAxisAlignment:
@@ -784,6 +888,21 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                           CrossAxisAlignment.start,
                                       children: [
                                         buildColumnTitleValue(
+                                          title: "Size",
+                                          value: parking.parkingSubType,
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Dimensions",
+                                          value: parking.parkingDimensions,
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      spacing: 5,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
                                           title: "EV Charging",
                                           value:
                                               parking.isEVChargingAvailable
@@ -820,6 +939,23 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                       value: formatDateTimeAsDDMMMYYYY(
                         booking.registrationDate,
                       ),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Final Registration Date",
+                      value: formatDateTimeAsDDMMMYYYY(
+                        booking.finalRegistrationDate,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Final Registration Completed",
+                      value:
+                          booking.isFinalRegistrationCompleted ? "Yes" : "No",
                     ),
                     buildColumnTitleValue(
                       title: "Handover Type",
@@ -1095,7 +1231,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                           )
                           : Center(
                             child: noDataWidget(
-                              message: "No Charges Available",
+                              message: "No Other Charges Available",
                               iconSize: 180,
                             ),
                           ),
@@ -1105,7 +1241,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
           ),
           // PAYMENT SCHEDULE SECTION
           Container(
-            height: 450,
+            height: 250,
             margin: EdgeInsets.only(bottom: 10),
             decoration: commonCardDecoration(),
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -1114,6 +1250,33 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
               children: [
                 Text("Payment Schedule", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Scheme",
+                        style: AppTextStyle.ts14SB(
+                          color: AppColor.greyTitleAndValueColor.withValues(
+                            alpha: 0.4,
+                          ),
+                        ),
+                      ),
+                      TextSpan(
+                        text: " : ",
+                        style: AppTextStyle.ts14SB(
+                          color: AppColor.greyTitleAndValueColor.withValues(
+                            alpha: 0.4,
+                          ),
+                        ),
+                      ),
+                      TextSpan(
+                        text: booking.paymentScheduleScheme,
+                        style: AppTextStyle.ts14SB(),
+                      ),
+                    ],
+                  ),
+                ),
+                verticalSpacing(),
                 Expanded(
                   child: ListView.builder(
                     padding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
@@ -1121,6 +1284,9 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                     itemCount: booking.bookingPaymentScheduleData.length,
                     itemBuilder: (context, index) {
                       final payment = booking.bookingPaymentScheduleData[index];
+                      final totalAmountWithTDS =
+                          payment.paymentScheduleAmount -
+                          payment.paymentScheduleTDSAmount;
                       return Container(
                         decoration: BoxDecoration(
                           border: Border.all(
@@ -1139,13 +1305,9 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                               spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                buildColumnTitleValue(
-                                  title: "Type",
-                                  value: payment.type,
-                                ),
                                 payment.type.contains("Date")
                                     ? buildColumnTitleValue(
-                                      title: "Date",
+                                      title: "Date / Type",
                                       value:
                                           payment.date != null
                                               ? formatDateTimeAsDDMMMYYYY(
@@ -1169,7 +1331,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                       "${payment.paymentSchedulePercentage} %",
                                 ),
                                 buildColumnTitleValue(
-                                  title: "Amount (₹)",
+                                  title: "Amount Without TDS (₹)",
                                   value:
                                       payment.paymentScheduleAmount
                                           .toIndianCurrency(),
@@ -1191,6 +1353,16 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                   value:
                                       payment.paymentScheduleTDSAmount
                                           .toIndianCurrency(),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Amount With TDS (₹)",
+                                  value: totalAmountWithTDS.toIndianCurrency(),
                                 ),
                               ],
                             ),
@@ -1339,6 +1511,128 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
               },
             ),
           ),
+          // CANCELLATION SUMMARY
+          Container(
+            decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Cancellation Summary", style: AppTextStyle.ts16SB()),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Cancelled Date",
+                        value: formatDateTimeAsDDMMMYYYY(booking.cancelledDate),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Cancelled By",
+                        value: booking.cancelledBy,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Remark",
+                        value: booking.cancelRemark,
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Proof Of Document",
+                        value: booking.cancelledBy,
+                        customValueWidget: CustomButton.documentOutline(
+                          onPressed: () {
+                            if (booking.proofOfDocumentUrl.isNotEmpty) {
+                              showFilePreviewDialog(
+                                context,
+                                title: "Proof Of Document",
+                                booking.proofOfDocumentUrl.split(","),
+                              );
+                            }
+                          },
+                          isDisable: booking.proofOfDocumentUrl.isEmpty,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // REFUND AMOUNT DETAILS
+          Container(
+            decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Refund Amount Details", style: AppTextStyle.ts16SB()),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Total Refunded",
+                        value:
+                            booking.totalAmountRefundedAgainstBooking
+                                .toIndianCurrency(),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Paid",
+                        value:
+                            booking.refundedAmountOnTillDate.toIndianCurrency(),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Pending",
+                        value: pendingAmount.toIndianCurrency(),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Refund Status",
+                        value: booking.approvalStatus,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
           Container(
             decoration: commonCardDecoration(),
             margin: EdgeInsets.only(bottom: 10),
@@ -1403,7 +1697,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                 state.payTrackCallLogList.isEmpty
                     ? Center(
                       child: noDataWidget(
-                        message: "No Call Logs Available",
+                        message: "No Call Logs Found",
                         iconSize: 180,
                       ),
                     )

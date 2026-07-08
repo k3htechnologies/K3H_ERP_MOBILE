@@ -24,7 +24,8 @@ abstract interface class BookingRepository {
     Map<String, dynamic>? queryParams,
   });
   Future<Either<Failure, Map<String, dynamic>>> cancelBooking({
-    required Map<String, dynamic> body,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   });
   Future<Either<Failure, Map<String, dynamic>>> exportBooking({
     required int pageNumber,
@@ -107,10 +108,14 @@ class BookingRepositoryImpl extends BookingRepository {
   //  CANCEL BOOKING
   @override
   Future<Either<Failure, Map<String, dynamic>>> cancelBooking({
-    required Map<String, dynamic> body,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   }) async {
     try {
-      var result = await bookingDatasource.apiCallCancelBooking(body: body);
+      var result = await bookingDatasource.apiCallCancelBooking(
+        body: body,
+        fileList: fileList,
+      );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

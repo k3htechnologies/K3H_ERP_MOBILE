@@ -48,6 +48,16 @@ abstract interface class RequestManagementRepository {
   addAmountRefundedAgainstBookingAddUpdateRefundedAmount({
     required Map<String, dynamic> body,
   });
+  Future<Either<Failure, Map<String, dynamic>>> getRefundedAmountLedgerList({
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateRefundedAmountLedger({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
 }
 
 class RequestManagementRepositoryImpl extends RequestManagementRepository {
@@ -187,6 +197,39 @@ class RequestManagementRepositoryImpl extends RequestManagementRepository {
           .apicallAmountRefundedAgainstBookingAddUpdateRefundedAmount(
             body: body,
           );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getRefundedAmountLedgerList({
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await flatAlterationRequestDatasource
+          .apicallPullRefundedAmountLedger(
+            projectId: projectId,
+            bookingId: bookingId,
+            queryParams: queryParams,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateRefundedAmountLedger({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    try {
+      var result = await flatAlterationRequestDatasource
+          .apicallAddUpdateRefundedAmountLedger(body: body, fileList: fileList);
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

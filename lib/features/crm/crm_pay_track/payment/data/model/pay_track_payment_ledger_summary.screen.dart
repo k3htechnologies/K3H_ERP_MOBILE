@@ -20,6 +20,7 @@ class PayTrackPaymentLedgerSummaryModel {
   String transactionChequeDemandDraftNumber;
   String transactionChequeDemandDraftUrl;
   DateTime transactionChequeDemandDraftDate;
+  bool isBookingAmount;
   String approvalStatus;
   bool isApproval;
   String paymentReceiptUrl;
@@ -29,6 +30,12 @@ class PayTrackPaymentLedgerSummaryModel {
   int modifiedById;
   String modifiedBy;
   DateTime modifiedDate;
+  String projectName;
+  String applicantName;
+  String applicantMobileNumber;
+  String applicantEmailId;
+  String projectNatureOfAccount;
+  String projectAcType;
 
   PayTrackPaymentLedgerSummaryModel({
     required this.payTrackPaymentLedgerId,
@@ -50,6 +57,7 @@ class PayTrackPaymentLedgerSummaryModel {
     required this.transactionChequeDemandDraftNumber,
     required this.transactionChequeDemandDraftUrl,
     required this.transactionChequeDemandDraftDate,
+    required this.isBookingAmount,
     required this.approvalStatus,
     required this.isApproval,
     required this.paymentReceiptUrl,
@@ -59,6 +67,12 @@ class PayTrackPaymentLedgerSummaryModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.projectName,
+    required this.applicantName,
+    required this.applicantMobileNumber,
+    required this.applicantEmailId,
+    required this.projectNatureOfAccount,
+    required this.projectAcType,
   });
 
   factory PayTrackPaymentLedgerSummaryModel.fromJson(
@@ -92,6 +106,7 @@ class PayTrackPaymentLedgerSummaryModel {
         json["TransactionChequeDemandDraftDate"] != null
             ? DateTime.parse(json["TransactionChequeDemandDraftDate"])
             : DateTime.now(),
+    isBookingAmount: parseValue<bool>(json, "IsBookingAmount"),
     approvalStatus: parseValue<String>(json, "ApprovalStatus"),
     isApproval: parseValue<bool>(json, "IsApproval"),
     paymentReceiptUrl: parseValue<String>(json, "PaymentReceiptURL"),
@@ -107,6 +122,12 @@ class PayTrackPaymentLedgerSummaryModel {
         json["ModifiedDate"] != null
             ? DateTime.parse(json["ModifiedDate"])
             : DateTime.now(),
+    projectName: parseValue<String>(json, "ProjectName"),
+    applicantName: parseValue<String>(json, "ApplicantName"),
+    applicantMobileNumber: parseValue<String>(json, "ApplicantMobileNumber"),
+    applicantEmailId: parseValue<String>(json, "ApplicantEmailId"),
+    projectNatureOfAccount: parseValue<String>(json, "ProjectNatureOfAccount"),
+    projectAcType: parseValue<String>(json, "ProjectAcType"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -130,6 +151,7 @@ class PayTrackPaymentLedgerSummaryModel {
     "TransactionChequeDemandDraftURL": transactionChequeDemandDraftUrl,
     "TransactionChequeDemandDraftDate":
         transactionChequeDemandDraftDate.toIso8601String(),
+    "IsBookingAmount": isBookingAmount,
     "ApprovalStatus": approvalStatus,
     "IsApproval": isApproval,
     "PaymentReceiptURL": paymentReceiptUrl,
@@ -139,5 +161,11 @@ class PayTrackPaymentLedgerSummaryModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate.toIso8601String(),
+    "ProjectName": projectName,
+    "ApplicantName": applicantName,
+    "ApplicantMobileNumber": applicantMobileNumber,
+    "ApplicantEmailId": applicantEmailId,
+    "ProjectNatureOfAccount": projectNatureOfAccount,
+    "ProjectAcType": projectAcType,
   };
 }

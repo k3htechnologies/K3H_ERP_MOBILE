@@ -6,11 +6,13 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 class DocumentPreviewText extends StatelessWidget {
   final String text;
   final String fileUrl;
+  final String? title;
 
   const DocumentPreviewText({
     super.key,
     required this.text,
     required this.fileUrl,
+    this.title,
   });
 
   @override
@@ -20,7 +22,7 @@ class DocumentPreviewText extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (hasFile) {
-          showFilePreviewDialog(context, fileUrl.split(","));
+          showFilePreviewDialog(context, title: title, fileUrl.split(","));
         }
       },
       child: Text(

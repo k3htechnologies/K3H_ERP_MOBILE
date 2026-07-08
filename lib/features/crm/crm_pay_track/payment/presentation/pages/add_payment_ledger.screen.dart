@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger_summary.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_cubit.dart';
 import 'package:k3h_erp_app/features/masters/bank_list_master/data/model/bank_list_master.model.dart';
@@ -11,6 +12,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -22,8 +24,13 @@ import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddPaymentLedgerScreen extends StatefulWidget {
-  final List<PayTrackPaymentLedgerSummaryModel> paymentLedgerList;
-  const AddPaymentLedgerScreen({super.key, required this.paymentLedgerList});
+  final List<PayTrackPaymentLedgerModel> paymentLedger;
+  final PayTrackPaymentLedgerSummaryModel? editPaymentLedger;
+  const AddPaymentLedgerScreen({
+    super.key,
+    required this.paymentLedger,
+    this.editPaymentLedger,
+  });
 
   @override
   State<AddPaymentLedgerScreen> createState() => _AddPaymentLedgerScreenState();
@@ -52,27 +59,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
       _ifscCodeC,
       _branchC,
       _accountTypeC;
-  List<Map<String, dynamic>> paymentForList = [
-    {"zAttributesId": 1, "DisplayName": "Agreement Value"},
-    {"zAttributesId": 2, "DisplayName": "Agreement Value GST"},
-    {"zAttributesId": 3, "DisplayName": "Agreement Value TDS"},
-    {"zAttributesId": 4, "DisplayName": "Other Charges Value"},
-    {"zAttributesId": 5, "DisplayName": "Other Charges GST"},
-    {"zAttributesId": 6, "DisplayName": "Registration Fees"},
-    {"zAttributesId": 7, "DisplayName": "Stamp Duty"},
-  ];
-  final List<Map<String, dynamic>> _paymentModeList = [
-    {"zAttributesId": 1, "DisplayName": "Cash"},
-    {"zAttributesId": 2, "DisplayName": "Cheque"},
-    {"zAttributesId": 3, "DisplayName": "Bank Transfer"},
-    {"zAttributesId": 4, "DisplayName": "UPI"},
-    {"zAttributesId": 5, "DisplayName": "NEFT"},
-    {"zAttributesId": 6, "DisplayName": "RTGS"},
-  ];
-  List<Map<String, dynamic>> paymentReceivedFormList = [
-    {"zAttributesId": 1, "DisplayName": "Bank"},
-    {"zAttributesId": 2, "DisplayName": "Owner"},
-  ];
+
   MultiFilePickerModel selectedChequeForPopUpFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
@@ -82,7 +69,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
   DateTime? transactionDate;
 
   //EDIT MODE
-  bool get _isEditMode => widget.paymentLedgerList.isNotEmpty;
+  bool get _isEditMode => widget.editPaymentLedger != null;
   @override
   void initState() {
     super.initState();
@@ -100,7 +87,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
         ValueNotifier<List<Map<String, dynamic>>>([]);
     _initializeControllers();
     if (_isEditMode) {
-      _prefillPaymentLedger(widget.paymentLedgerList);
+      _prefillPaymentLedger(widget.editPaymentLedger!);
     }
   }
 
@@ -132,8 +119,9 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
     _accountTypeC = TextEditingController();
   }
 
-  void _prefillPaymentLedger(List<PayTrackPaymentLedgerSummaryModel> list) {
-    final item = list.first;
+  void _prefillPaymentLedger(PayTrackPaymentLedgerSummaryModel list) {
+    if (!_isEditMode) return;
+    final item = list;
     final paymentFor = paymentForList.firstWhere(
       (e) => e['DisplayName'] == item.paymentFor,
       orElse: () => paymentForList.first,
@@ -176,9 +164,9 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
 
     transactionDate = item.transactionChequeDemandDraftDate;
 
-    _selectedPaymentModeNotifier.value = _paymentModeList.firstWhere(
+    _selectedPaymentModeNotifier.value = paymentModeList.firstWhere(
       (e) => (e['DisplayName'] as String?) == item.paymentMode,
-      orElse: () => _paymentModeList.first,
+      orElse: () => paymentModeList.first,
     );
     selectedChequeForPopUpFile.fileNameList =
         item.paymentReceiptUrl.isEmpty ? [] : item.paymentReceiptUrl.split(",");
@@ -241,9 +229,9 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
     _paymentCubit.addPaymentLedgerMaster(
       context: context,
 
-      bookingId: widget.paymentLedgerList.first.bookingId.toString(),
+      bookingId: widget.paymentLedger.first.bookingId.toString(),
 
-      projectId: widget.paymentLedgerList.first.projectId.toString(),
+      projectId: widget.paymentLedger.first.projectId.toString(),
 
       bookingOtherChargesId: "0",
 
@@ -262,10 +250,11 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
 
       projectBankListMasterId:
           _selectedProjectBankNameNotifier.value.isNotEmpty
-              ? _selectedProjectBankNameNotifier.value.first["BankListMasterId"]
+              ? _selectedProjectBankNameNotifier
+                  .value
+                  .first["ProjectWithBankDetailsId"]
                   .toString()
               : "0",
-
       receivedAmount: _receivedAmountC.text.trim(),
 
       transactionChequeDemandDraftNumber:
@@ -312,7 +301,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                       builder: (context, value, child) {
                         return CustomDropDownWidget(
                           title: "Payment For",
-                          hintText: "Select Payment",
+                          hintText: "Select Payment For",
                           dataList: paymentForList,
                           initialValue: selectedPaymentFor.value,
                           onSelected: (value) {
@@ -320,47 +309,25 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
 
                             final selectedName = value["DisplayName"];
 
-                            final matchedLedger = widget.paymentLedgerList
+                            final matchedLedger = widget.paymentLedger
                                 .firstWhere(
                                   (e) => e.paymentFor == selectedName,
                                   orElse:
-                                      () => PayTrackPaymentLedgerSummaryModel(
-                                        payTrackPaymentLedgerId: 0,
-                                        uniquekey: '',
+                                      () => PayTrackPaymentLedgerModel(
                                         bookingId: 0,
                                         projectId: 0,
-                                        bookingOtherChargesId: 0,
-                                        chargeName: '',
                                         paymentFor: '',
-                                        paymentMode: '',
-                                        paymentReceivedFrom: '',
-                                        bankListMasterId: 0,
-                                        bankName: '',
-                                        projectBankListMasterId: 0,
-                                        projectBankName: '',
-                                        projectAccountNumber: '',
-                                        projectIfscCode: '',
+                                        totalAmount: 0,
                                         receivedAmount: 0,
-                                        transactionChequeDemandDraftNumber: '',
-                                        transactionChequeDemandDraftUrl: '',
-                                        transactionChequeDemandDraftDate:
-                                            DateTime.now(),
-                                        approvalStatus: '',
-                                        isApproval: false,
-                                        paymentReceiptUrl: '',
-                                        createdById: 0,
-                                        createdBy: '',
-                                        createdDate: DateTime.now(),
-                                        modifiedById: 0,
-                                        modifiedBy: '',
-                                        modifiedDate: DateTime.now(),
+                                        uploadedPaymentLedgerCount: 0,
+                                        approvalPendingPaymentLedgerCount: 0,
                                       ),
                                 );
 
-                            totalAmountVN.value = matchedLedger.receivedAmount;
+                            totalAmountVN.value = matchedLedger.totalAmount;
                             paidAmountVN.value = matchedLedger.receivedAmount;
                             pendingAmountVN.value =
-                                matchedLedger.receivedAmount -
+                                matchedLedger.totalAmount -
                                 matchedLedger.receivedAmount;
                           },
                           onValueClear: () {
@@ -418,14 +385,17 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                                           Expanded(
                                             child: buildColumnTitleValueNormal(
                                               title: "Paid Amount",
-                                              value: paidAmount.toIndianCurrency(),
+                                              value:
+                                                  paidAmount.toIndianCurrency(),
                                             ),
                                           ),
                                           horizontalSpacing(),
                                           Expanded(
                                             child: buildColumnTitleValueNormal(
                                               title: "Pending Amount",
-                                              value: pendingAmount.toIndianCurrency(),
+                                              value:
+                                                  pendingAmount
+                                                      .toIndianCurrency(),
                                             ),
                                           ),
                                         ],
@@ -447,7 +417,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                           hintText: "Select Payment Mode",
                           isRequired: true,
                           initialValue: selectedPaymentMode,
-                          dataList: _paymentModeList,
+                          dataList: paymentModeList,
                           onSelected: (value) {
                             _selectedPaymentModeNotifier.value = value;
                           },
@@ -468,7 +438,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                       builder: (context, selectedBank, _) {
                         return CustomMultipleSelectPopup(
                           title: 'Bank Name',
-                          hintText: "Select Bank",
+                          hintText: "Select Bank Name",
                           isRequired: true,
                           isMultiSelect: false,
                           initialValue: selectedBank,
@@ -506,7 +476,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Payment Received is required";
+                              return "Payment Received From is required";
                             }
                             return null;
                           },
@@ -515,7 +485,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                     ),
                     CustomTextField(
                       textController: _receivedAmountC,
-                      hint: "Received Amount",
+                      hint: "Enter Received Amount",
                       title: "Received Amount (₹)",
                       isRequired: true,
                       keyboardType: TextInputType.numberWithOptions(),
@@ -524,12 +494,20 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                         if (value == null || value.trim().isEmpty) {
                           return "Received Amount is required";
                         }
+
+                        final receivedAmount = double.tryParse(value) ?? 0;
+                        final remainingAmount = pendingAmountVN.value;
+
+                        if (receivedAmount > remainingAmount) {
+                          return "Amount cannot exceed remaining ${remainingAmount.toIndianCurrency()}";
+                        }
+
                         return null;
                       },
                     ),
                     CustomTextField(
                       textController: _transactionOrChequeNumberC,
-                      hint: "Enter Transaction / Cheque / Demand Draft No.",
+                      hint: "Enter Transaction / Cheque / Demand Draft No. ",
                       title: "Transaction / Cheque / Demand Draft No.",
                       isRequired: true,
                       keyboardType: TextInputType.number,
@@ -542,16 +520,14 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                       },
                     ),
                     CustomMultiFilePicker(
-                      title: "Upload Cheque",
+                      title: "Transaction / Cheque / Demand Draft Image",
                       isRequired: true,
                       filePickType: FilePickType.both,
                       initialFileList: selectedChequeForPopUpFile.fileNameList,
-
                       onFilePickedCallback: (bytesList, fileNameList) {
                         selectedChequeForPopUpFile.fileNameList = fileNameList;
                         selectedChequeForPopUpFile.fileBytesList = bytesList;
                       },
-
                       onFileDeleteCallback: (
                         fileBytesList,
                         fileNameList,
@@ -563,17 +539,16 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                         selectedChequeForPopUpFile.deletedFileList =
                             deletedFile;
                       },
-
                       validator: (fileList) {
                         if (fileList == null || fileList.isEmpty) {
-                          return "Cheque is required";
+                          return "Transaction / Cheque / Demand Draft Image is required";
                         }
 
                         return null;
                       },
                     ),
                     CustomDatePicker(
-                      title: "Demand Draft Date",
+                      title: "Transaction / Cheque / Demand Draft Date",
                       hint: "Transaction / Cheque / Demand Draft Date",
                       isRequired: true,
                       initialDate: transactionDate,
@@ -595,7 +570,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Our Bank Details",
+                      "Developer Bank Details",
                       style: AppTextStyle.ts14M(
                         color: AppColor.black.withValues(alpha: 0.5),
                       ),
@@ -644,7 +619,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
 
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Bank Name is required";
+                              return "Project Bank Name is required";
                             }
                             return null;
                           },

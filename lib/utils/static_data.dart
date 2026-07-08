@@ -448,3 +448,29 @@ final List<Map<String, dynamic>> ibmObmRangeFilter = [
 ];
 
 final filterTypes = ["TODAY", "WEEKLY", "MONTHLY", "DATEWISE", "OVERALL"];
+List<Map<String, dynamic>> paymentForList = [
+  {"zAttributesId": 1, "DisplayName": "Stamp Duty"},
+  {"zAttributesId": 2, "DisplayName": "Registration Fees"},
+  {"zAttributesId": 3, "DisplayName": "Agreement Value (Without TDS)"},
+  {"zAttributesId": 4, "DisplayName": "Agreement Value GST"},
+  {"zAttributesId": 5, "DisplayName": "Agreement Value TDS"},
+  {"zAttributesId": 6, "DisplayName": "Other Charges Value"},
+  {"zAttributesId": 7, "DisplayName": "Other Charges GST"},
+];
+final List<Map<String, dynamic>> paymentModeList = [
+  {"zAttributesId": 1, "DisplayName": "Cheque"},
+  {"zAttributesId": 2, "DisplayName": "Demand Draft"},
+  {"zAttributesId": 3, "DisplayName": "IMPS"},
+  {"zAttributesId": 4, "DisplayName": "NEFT"},
+  {"zAttributesId": 5, "DisplayName": "Online Transfer"},
+  {"zAttributesId": 6, "DisplayName": "RTGS"},
+  {"zAttributesId": 7, "DisplayName": "UPI"},
+];
+List<Map<String, dynamic>> paymentReceivedFormList = [
+  {"zAttributesId": 1, "DisplayName": "Bank"},
+  {"zAttributesId": 2, "DisplayName": "Owner"},
+];
+
+final List<Map<String, dynamic>> amountTypeList = [
+  {"zAttributesId": 1, "DisplayName": "Agreement Amount"},
+];

@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger_summary.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_state.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -54,6 +55,15 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
       ),
       body: BlocBuilder<PaymentCubit, PaymentState>(
         builder: (context, state) {
+          if (state.isLoading ?? true) {
+            return loader();
+          }
+
+          if (state.payTrackPaymentLedgerSummaryList.isEmpty) {
+            return Center(
+              child: noDataWidget(message: "No data found", iconSize: 180.0),
+            );
+          }
           return SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
             child: Column(
@@ -96,9 +106,17 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
-                                child: _buildRow(
-                                  "Amount",
-                                  summary.receivedAmount.toIndianCurrency(),
+                                child: buildRowTitleValue(
+                                  title: "Agreement Value (Without TDS)",
+                                  value:
+                                      summary.receivedAmount.toIndianCurrency(),
+                                  customValueWidget: DocumentPreviewText(
+                                    title: "Agreement Value (Without TDS)",
+                                    text:
+                                        summary.receivedAmount
+                                            .toIndianCurrency(),
+                                    fileUrl: summary.paymentReceiptUrl,
+                                  ),
                                 ),
                               ),
                               horizontalSpacing(),
@@ -143,7 +161,11 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                               children: [
                                 buildRowTitleValue(
                                   title: "Payment Mode",
-                                  value: summary.paymentFor,
+                                  value: summary.paymentMode,
+                                ),
+                                buildRowTitleValue(
+                                  title: "Booking Amount",
+                                  value: summary.isBookingAmount ? "Yes" : "No",
                                 ),
                                 ApproveRejectWidget(
                                   isActionAlreadyPerformed:
@@ -183,7 +205,7 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                           context: context,
                                           moduleName:
                                               'PAY TRACK LEDGER APPROVAL',
-                                          id: summary.bookingId,
+                                          id: summary.payTrackPaymentLedgerId,
                                           projectId: summary.projectId,
                                           isApproved: false,
                                           remark: remark.trim(),
@@ -195,7 +217,7 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                         .getApprovalLogHistory(
                                           context: context,
                                           projectId: summary.projectId,
-                                          id: summary.bookingId,
+                                          id: summary.payTrackPaymentLedgerId,
                                           moduleName:
                                               'PAY TRACK LEDGER APPROVAL',
                                         );
@@ -224,6 +246,7 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                   popupTitle: "PAY TRACK LEDGER APPROVAL",
                                 ),
                                 Container(
+                                  width: double.infinity,
                                   padding: EdgeInsets.all(16.0),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(8.0),
@@ -241,7 +264,7 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "Our Bank Details",
+                                        "Developer Bank Details",
                                         style: AppTextStyle.ts14M(
                                           color: AppColor.black.withValues(
                                             alpha: 0.5,
@@ -250,7 +273,7 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                       ),
                                       buildColumnTitleValueNormal(
                                         title: "Bank Name",
-                                        value: summary.bankName,
+                                        value: summary.projectBankName,
                                       ),
                                       buildColumnTitleValueNormal(
                                         title: "Account Number",
@@ -259,6 +282,14 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                       buildColumnTitleValueNormal(
                                         title: "IFSC Code",
                                         value: summary.projectIfscCode,
+                                      ),
+                                      buildColumnTitleValueNormal(
+                                        title: "Nature Of Account",
+                                        value: summary.projectNatureOfAccount,
+                                      ),
+                                      buildColumnTitleValueNormal(
+                                        title: "Account Type",
+                                        value: summary.projectAcType,
                                       ),
                                     ],
                                   ),
@@ -281,7 +312,7 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "Opposite Party Bank Details",
+                                        "Customer Bank Details",
                                         style: AppTextStyle.ts14M(
                                           color: AppColor.black.withValues(
                                             alpha: 0.5,
@@ -396,37 +427,6 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildRow(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: AppTextStyle.ts14R(
-                color: AppColor.black.withValues(alpha: 0.5),
-              ),
-            ),
-          ),
-          Text(
-            ":   ",
-            style: AppTextStyle.ts14R(
-              color: AppColor.black.withValues(alpha: 0.5),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: AppTextStyle.ts14M(color: AppColor.black),
-            ),
-          ),
-        ],
       ),
     );
   }

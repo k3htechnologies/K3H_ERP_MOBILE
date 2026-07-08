@@ -620,7 +620,7 @@ class _ViewBrokerageScreenState extends State<ViewBrokerageScreen>
                 ],
               ),
               Divider(height: 1, color: AppColor.grey50),
-              Text("Action Details", style: AppTextStyle.ts14M()),
+              Text("k", style: AppTextStyle.ts14M()),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

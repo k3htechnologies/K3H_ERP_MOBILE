@@ -7,6 +7,7 @@ class PayTrackModel {
   int enquiryId;
   String systemGeneratedCode;
   String applicantName;
+  String applicantMobileNumberCountryCode;
   String applicantMobileNumber;
   String bookingType;
   int inventoryFlatId;
@@ -19,29 +20,30 @@ class PayTrackModel {
   int reraCarpetAreaSqFt;
   String flatConfiguration;
   DateTime registrationDate;
-  int agreementValue;
-  int receivedAgreementValue;
+  double agreementValue;
+  double receivedAgreementValue;
   double agreementValueGstAmount;
-  int receivedAgreementValueGstAmount;
+  double receivedAgreementValueGstAmount;
   double stampDutyAmount;
-  int receivedStampDutyAmount;
+  double receivedStampDutyAmount;
   double registrationFees;
-  int receivedRegistrationFees;
+  double receivedRegistrationFees;
   double agreementValueTds;
-  int receivedAgreementValueTds;
-  int otherChargesAmount;
-  int receivedOtherChargesAmount;
-  int otherChargesGstAmount;
-  int receivedOtherChargesGstAmount;
+  double receivedAgreementValueTds;
+  double otherChargesAmount;
+  double receivedOtherChargesAmount;
+  double otherChargesGstAmount;
+  double receivedOtherChargesGstAmount;
   String approvalStatus;
-  int totalAmountReceivedAgainstBooking;
-  int totalAmountRefundedAgainstBooking;
-  int refundedAmountOnTillDate;
+  double totalAmountReceivedAgainstBooking;
+  double totalAmountRefundedAgainstBooking;
+  double refundedAmountOnTillDate;
   bool flatAlterationRequestIsApproval;
   String flatAlterationRequestApprovalStatus;
   bool parkingModificationRequestIsApproval;
   String parkingModificationRequestApprovalStatus;
   bool bookingApplicantModificationRequestIsApproval;
+  String bookingApprovalStatus;
   String bookingApplicantModificationRequestApprovalStatus;
   int tenantId;
 
@@ -52,6 +54,7 @@ class PayTrackModel {
     required this.enquiryId,
     required this.systemGeneratedCode,
     required this.applicantName,
+    required this.applicantMobileNumberCountryCode,
     required this.applicantMobileNumber,
     required this.bookingType,
     required this.inventoryFlatId,
@@ -87,6 +90,7 @@ class PayTrackModel {
     required this.parkingModificationRequestIsApproval,
     required this.parkingModificationRequestApprovalStatus,
     required this.bookingApplicantModificationRequestIsApproval,
+    required this.bookingApprovalStatus,
     required this.bookingApplicantModificationRequestApprovalStatus,
     required this.tenantId,
   });
@@ -98,6 +102,10 @@ class PayTrackModel {
     enquiryId: parseValue<int>(json, "EnquiryId"),
     systemGeneratedCode: parseValue<String>(json, "SystemGeneratedCode"),
     applicantName: parseValue<String>(json, "ApplicantName"),
+    applicantMobileNumberCountryCode: parseValue<String>(
+      json,
+      "ApplicantMobileNumberCountryCode",
+    ),
     applicantMobileNumber: parseValue<String>(json, "ApplicantMobileNumber"),
     bookingType: parseValue<String>(json, "BookingType"),
     inventoryFlatId: parseValue<int>(json, "InventoryFlatId"),
@@ -110,45 +118,54 @@ class PayTrackModel {
     reraCarpetAreaSqFt: parseValue<int>(json, "ReraCarpetAreaSqFt"),
     flatConfiguration: parseValue<String>(json, "FlatConfiguration"),
     registrationDate: parseValue<DateTime>(json, "RegistrationDate"),
-    agreementValue: parseValue<int>(json, "AgreementValue"),
-    receivedAgreementValue: parseValue<int>(json, "ReceivedAgreementValue"),
+    agreementValue: parseValue<double>(json, "AgreementValue"),
+    receivedAgreementValue: parseValue<double>(json, "ReceivedAgreementValue"),
     agreementValueGstAmount: parseValue<double>(
       json,
       "AgreementValueGstAmount",
     ),
-    receivedAgreementValueGstAmount: parseValue<int>(
+    receivedAgreementValueGstAmount: parseValue<double>(
       json,
       "ReceivedAgreementValueGstAmount",
     ),
     stampDutyAmount: parseValue<double>(json, "StampDutyAmount"),
-    receivedStampDutyAmount: parseValue<int>(json, "ReceivedStampDutyAmount"),
-    registrationFees: parseValue<double>(json, "RegistrationFees"),
-    receivedRegistrationFees: parseValue<int>(json, "ReceivedRegistrationFees"),
-    agreementValueTds: parseValue<double>(json, "AgreementValueTds"),
-    receivedAgreementValueTds: parseValue<int>(
+    receivedStampDutyAmount: parseValue<double>(
       json,
-      "ReceivedAgreementValueTds",
+      "ReceivedStampDutyAmount",
     ),
-    otherChargesAmount: parseValue<int>(json, "OtherChargesAmount"),
-    receivedOtherChargesAmount: parseValue<int>(
+    registrationFees: parseValue<double>(json, "RegistrationFees"),
+    receivedRegistrationFees: parseValue<double>(
+      json,
+      "ReceivedRegistrationFees",
+    ),
+    agreementValueTds: parseValue<double>(json, "AgreementValueTDS"),
+    receivedAgreementValueTds: parseValue<double>(
+      json,
+      "ReceivedAgreementValueTDS",
+    ),
+    otherChargesAmount: parseValue<double>(json, "OtherChargesAmount"),
+    receivedOtherChargesAmount: parseValue<double>(
       json,
       "ReceivedOtherChargesAmount",
     ),
-    otherChargesGstAmount: parseValue<int>(json, "OtherChargesGstAmount"),
-    receivedOtherChargesGstAmount: parseValue<int>(
+    otherChargesGstAmount: parseValue<double>(json, "OtherChargesGstAmount"),
+    receivedOtherChargesGstAmount: parseValue<double>(
       json,
       "ReceivedOtherChargesGstAmount",
     ),
     approvalStatus: parseValue<String>(json, "ApprovalStatus"),
-    totalAmountReceivedAgainstBooking: parseValue<int>(
+    totalAmountReceivedAgainstBooking: parseValue<double>(
       json,
       "TotalAmountReceivedAgainstBooking",
     ),
-    totalAmountRefundedAgainstBooking: parseValue<int>(
+    totalAmountRefundedAgainstBooking: parseValue<double>(
       json,
       "TotalAmountRefundedAgainstBooking",
     ),
-    refundedAmountOnTillDate: parseValue<int>(json, "RefundedAmountOnTillDate"),
+    refundedAmountOnTillDate: parseValue<double>(
+      json,
+      "RefundedAmountOnTillDate",
+    ),
     flatAlterationRequestIsApproval: parseValue<bool>(
       json,
       "FlatAlterationRequestIsApproval",
@@ -169,6 +186,7 @@ class PayTrackModel {
       json,
       "BookingApplicantModificationRequestIsApproval",
     ),
+    bookingApprovalStatus: parseValue<String>(json, "BookingApprovalStatus"),
     bookingApplicantModificationRequestApprovalStatus: parseValue<String>(
       json,
       "BookingApplicantModificationRequestApprovalStatus",
@@ -183,6 +201,7 @@ class PayTrackModel {
     "EnquiryId": enquiryId,
     "SystemGeneratedCode": systemGeneratedCode,
     "ApplicantName": applicantName,
+    "ApplicantMobileNumberCountryCode": applicantMobileNumberCountryCode,
     "ApplicantMobileNumber": applicantMobileNumber,
     "BookingType": bookingType,
     "InventoryFlatId": inventoryFlatId,
@@ -195,24 +214,27 @@ class PayTrackModel {
     "ReraCarpetAreaSqFt": reraCarpetAreaSqFt,
     "FlatConfiguration": flatConfiguration,
     "RegistrationDate": registrationDate.toIso8601String(),
-    "AgreementValue": agreementValue,
-    "ReceivedAgreementValue": receivedAgreementValue,
-    "AgreementValueGstAmount": agreementValueGstAmount,
-    "ReceivedAgreementValueGstAmount": receivedAgreementValueGstAmount,
-    "StampDutyAmount": stampDutyAmount,
-    "ReceivedStampDutyAmount": receivedStampDutyAmount,
-    "RegistrationFees": registrationFees,
-    "ReceivedRegistrationFees": receivedRegistrationFees,
-    "AgreementValueTds": agreementValueTds,
-    "ReceivedAgreementValueTds": receivedAgreementValueTds,
-    "OtherChargesAmount": otherChargesAmount,
-    "ReceivedOtherChargesAmount": receivedOtherChargesAmount,
-    "OtherChargesGstAmount": otherChargesGstAmount,
-    "ReceivedOtherChargesGstAmount": receivedOtherChargesGstAmount,
+    "AgreementValue": agreementValue.toDouble(),
+    "ReceivedAgreementValue": receivedAgreementValue.toDouble(),
+    "AgreementValueGstAmount": agreementValueGstAmount.toDouble(),
+    "ReceivedAgreementValueGstAmount":
+        receivedAgreementValueGstAmount.toDouble(),
+    "StampDutyAmount": stampDutyAmount.toDouble(),
+    "ReceivedStampDutyAmount": receivedStampDutyAmount.toDouble(),
+    "RegistrationFees": registrationFees.toDouble(),
+    "ReceivedRegistrationFees": receivedRegistrationFees.toDouble(),
+    "AgreementValueTDS": agreementValueTds.toDouble(),
+    "ReceivedAgreementValueTDS": receivedAgreementValueTds.toDouble(),
+    "OtherChargesAmount": otherChargesAmount.toDouble(),
+    "ReceivedOtherChargesAmount": receivedOtherChargesAmount.toDouble(),
+    "OtherChargesGstAmount": otherChargesGstAmount.toDouble(),
+    "ReceivedOtherChargesGstAmount": receivedOtherChargesGstAmount.toDouble(),
     "ApprovalStatus": approvalStatus,
-    "TotalAmountReceivedAgainstBooking": totalAmountReceivedAgainstBooking,
-    "TotalAmountRefundedAgainstBooking": totalAmountRefundedAgainstBooking,
-    "RefundedAmountOnTillDate": refundedAmountOnTillDate,
+    "TotalAmountReceivedAgainstBooking":
+        totalAmountReceivedAgainstBooking.toDouble(),
+    "TotalAmountRefundedAgainstBooking":
+        totalAmountRefundedAgainstBooking.toDouble(),
+    "RefundedAmountOnTillDate": refundedAmountOnTillDate.toDouble(),
     "FlatAlterationRequestIsApproval": flatAlterationRequestIsApproval,
     "FlatAlterationRequestApprovalStatus": flatAlterationRequestApprovalStatus,
     "ParkingModificationRequestIsApproval":
@@ -221,6 +243,7 @@ class PayTrackModel {
         parkingModificationRequestApprovalStatus,
     "BookingApplicantModificationRequestIsApproval":
         bookingApplicantModificationRequestIsApproval,
+    "BookingApprovalStatus": bookingApprovalStatus,
     "BookingApplicantModificationRequestApprovalStatus":
         bookingApplicantModificationRequestApprovalStatus,
     "TenantId": tenantId,

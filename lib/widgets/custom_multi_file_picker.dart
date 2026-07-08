@@ -564,14 +564,24 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
             children: [
               if (widget.title != null)
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.title!, style: AppTextStyle.ts14R()),
-                    widget.isRequired == true
-                        ? Text(
+                    Flexible(
+                      child: Text(
+                        widget.title!,
+                        style: AppTextStyle.ts14R(),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                    ),
+                    if (widget.isRequired == true)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 2),
+                        child: Text(
                           "*",
                           style: AppTextStyle.ts14R(color: AppColor.error),
-                        )
-                        : SizedBox(),
+                        ),
+                      ),
                   ],
                 ),
               FormField<List<Uint8List>>(

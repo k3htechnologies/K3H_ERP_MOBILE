@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
@@ -12,9 +11,13 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class PayTrackScreen extends StatefulWidget {
@@ -27,16 +30,39 @@ class PayTrackScreen extends StatefulWidget {
 class _PayTrackScreenState extends State<PayTrackScreen> {
   late PayTrackCubit _payTrackCubit;
   late ProjectModel _selectedProject;
-  late TextEditingController _searchC;
+  late TextEditingController _searchC,
+      _filterApplicantNameC,
+      _filterMobileNumberC,
+      _filterWingC,
+      _filterUnitC,
+      _filterFloorC,
+      _filterConfigurationC,
+      _filterAgreementValueC,
+      _filterBookingTypeC;
   // PAGINATION
   late ScrollController scrollController;
+
+  // AUTHORIZATION
+  late AuthorizationModel _routeAuthorizationModel;
   Timer? _debounce;
+
+  bool isFinalRegistrationCompleted = false;
+
+  final ValueNotifier<DateTime?> _startDateNotifier = ValueNotifier<DateTime?>(
+    null,
+  );
+  final ValueNotifier<DateTime?> _endDateNotifier = ValueNotifier<DateTime?>(
+    null,
+  );
   @override
   void initState() {
     super.initState();
     _payTrackCubit = context.read<PayTrackCubit>();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.payTrackMaster]!;
     _selectedProject = getProject();
-    _searchC = TextEditingController();
+    initializeControllers();
+
     _payTrackCubit.getPayTrackList(context, 1, _selectedProject.projectId);
     _onScroll();
   }
@@ -44,9 +70,29 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
   @override
   void dispose() {
     _searchC.dispose();
+    _filterApplicantNameC.dispose();
+    _filterMobileNumberC.dispose();
+    _filterWingC.dispose();
+    _filterUnitC.dispose();
+    _filterFloorC.dispose();
+    _filterConfigurationC.dispose();
+    _filterAgreementValueC.dispose();
+    _filterBookingTypeC.dispose();
     scrollController.dispose();
     _debounce?.cancel();
     super.dispose();
+  }
+
+  initializeControllers() {
+    _searchC = TextEditingController();
+    _filterApplicantNameC = TextEditingController();
+    _filterMobileNumberC = TextEditingController();
+    _filterWingC = TextEditingController();
+    _filterUnitC = TextEditingController();
+    _filterFloorC = TextEditingController();
+    _filterConfigurationC = TextEditingController();
+    _filterAgreementValueC = TextEditingController();
+    _filterBookingTypeC = TextEditingController();
   }
 
   // <---- PAGINATION ---->
@@ -71,12 +117,294 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
     });
   }
 
+  Future<void> _showBottomSheetToFilterPayTrack(BuildContext context) async {
+    final state = _payTrackCubit.state;
+
+    _searchC.text = state.searchText;
+    _filterApplicantNameC.text = state.filterByApplicantName;
+    _filterMobileNumberC.text = state.filterByMobileNumber;
+    _filterWingC.text = state.filterByWing;
+    _filterUnitC.text = state.filterByUnit;
+    _filterFloorC.text = state.filterByFloor;
+    _filterConfigurationC.text = state.filterByConfiguration;
+    _filterAgreementValueC.text = state.filterByAgreementValue;
+    _filterBookingTypeC.text = state.filterByBookingType;
+    _startDateNotifier.value = state.filterByFromDate;
+    _endDateNotifier.value = state.filterByToDate;
+    final String initialFullNameName = _searchC.text;
+    final String initialApplicantName = _filterApplicantNameC.text;
+    final String initialMobileNumber = _filterMobileNumberC.text;
+    final bool initialRegistrationCompleted =
+        state.isFinalRegistrationCompleted ?? false;
+    final String initialWing = _filterWingC.text;
+    final String initialUnit = _filterUnitC.text;
+    final String initialFloor = _filterFloorC.text;
+    final String initialConfiguration = _filterConfigurationC.text;
+    final String initialAgreementValue = _filterAgreementValueC.text;
+    final String initialBookingType = _filterBookingTypeC.text;
+
+    final DateTime? initialFromDate = _startDateNotifier.value;
+    final DateTime? initialToDate = _endDateNotifier.value;
+
+    bool manualClose = false;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    bool applied = false;
+    bool registrationCompleted = state.isFinalRegistrationCompleted ?? false;
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            (_searchC.text.trim() != initialFullNameName) ||
+            (_filterApplicantNameC.text.trim() != initialApplicantName) ||
+            (_filterMobileNumberC.text.trim() != initialMobileNumber) ||
+            (registrationCompleted != initialRegistrationCompleted) ||
+            (_filterWingC.text.trim() != initialWing) ||
+            (_filterUnitC.text.trim() != initialUnit) ||
+            (_filterFloorC.text.trim() != initialFloor) ||
+            (_filterConfigurationC.text.trim() != initialConfiguration) ||
+            (_filterAgreementValueC.text.trim() != initialAgreementValue) ||
+            (_filterBookingTypeC.text.trim() != initialBookingType) ||
+            (_startDateNotifier.value != initialFromDate) ||
+            (_endDateNotifier.value != initialToDate);
+
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter - Pay Track",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(right: 15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomTextField(
+                  title: "Applicant Name",
+                  hint: "Enter Applicant Name",
+                  textController: _filterApplicantNameC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Applicant Mobile Number",
+                  hint: "Enter Applicant Mobile Number",
+                  textController: _filterMobileNumberC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Final Registration Completed"),
+                    Switch(
+                      value: registrationCompleted,
+                      onChanged: (value) {
+                        innerState(() {
+                          registrationCompleted = value;
+                        });
+
+                        updateApplyState(innerState);
+                      },
+                    ),
+                  ],
+                ),
+                CustomTextField(
+                  title: "Wing",
+                  hint: "Enter Wing",
+                  textController: _filterWingC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Unit",
+                  hint: "Enter Unit",
+                  textController: _filterUnitC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Floor",
+                  hint: "Enter Floor",
+                  textController: _filterFloorC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Configuration",
+                  hint: "Enter Configuration",
+                  textController: _filterConfigurationC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ValueListenableBuilder<DateTime?>(
+                        valueListenable: _startDateNotifier,
+                        builder: (context, startDate, child) {
+                          return CustomDatePicker(
+                            title: "From Date",
+                            initialDate: startDate,
+                            setValue: (value) {
+                              _startDateNotifier.value = value;
+
+                              updateApplyState(innerState);
+                            },
+                            validator: (value) => null,
+                          );
+                        },
+                      ),
+                    ),
+
+                    horizontalSpacing(),
+
+                    Expanded(
+                      child: ValueListenableBuilder<DateTime?>(
+                        valueListenable: _endDateNotifier,
+                        builder: (context, endDate, child) {
+                          return ValueListenableBuilder<DateTime?>(
+                            valueListenable: _startDateNotifier,
+                            builder: (context, startDate, child) {
+                              return CustomDatePicker(
+                                title: "To Date",
+                                isRequired: false,
+                                initialDate: endDate,
+                                setValue: (value) {
+                                  _endDateNotifier.value = value;
+
+                                  updateApplyState(innerState);
+                                },
+                                validator: (value) {
+                                  if (value == null) {
+                                    return null;
+                                  }
+
+                                  if (startDate != null) {
+                                    final startDateOnly = DateTime(
+                                      startDate.year,
+                                      startDate.month,
+                                      startDate.day,
+                                    );
+
+                                    final endDateOnly = DateTime(
+                                      value.year,
+                                      value.month,
+                                      value.day,
+                                    );
+
+                                    if (endDateOnly.isBefore(startDateOnly)) {
+                                      return 'To Date cannot be before From Date';
+                                    }
+                                  }
+
+                                  return null;
+                                },
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                CustomTextField(
+                  title: "Agreement Value",
+                  hint: "Enter Agreement Value",
+                  textController: _filterAgreementValueC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Booking Type",
+                  hint: "Enter Booking Type",
+                  textController: _filterBookingTypeC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+
+      onClear: () {
+        _filterApplicantNameC.clear();
+        _filterMobileNumberC.clear();
+        _filterWingC.clear();
+        _filterUnitC.clear();
+        _filterFloorC.clear();
+        _filterConfigurationC.clear();
+        _filterAgreementValueC.clear();
+        _filterBookingTypeC.clear();
+        _startDateNotifier.value = null;
+        _endDateNotifier.value = null;
+        _searchC.clear();
+        _payTrackCubit.applyChannelPartnerFilterAndSort(
+          context: context,
+          isClear: true,
+        );
+      },
+
+      onApply: () {
+        applied = true;
+
+        final startDate = _startDateNotifier.value;
+
+        final endDate = _endDateNotifier.value;
+
+        if (startDate != null && endDate != null) {
+          final startOnly = DateTime(
+            startDate.year,
+            startDate.month,
+            startDate.day,
+          );
+
+          final endOnly = DateTime(endDate.year, endDate.month, endDate.day);
+
+          if (endOnly.isBefore(startOnly)) {
+            showErrorMessage(
+              context,
+              "Invalid dates",
+              "To Date cannot be before From Date",
+            );
+
+            return;
+          }
+        }
+
+        _payTrackCubit.applyChannelPartnerFilterAndSort(
+          context: context,
+          applicantName: _filterApplicantNameC.text.trim(),
+          mobileNumber: _filterMobileNumberC.text.trim(),
+          isFinalRegistrationCompleted: registrationCompleted,
+          wing: _filterWingC.text.trim(),
+          unit: _filterUnitC.text.trim(),
+          floor: _filterFloorC.text.trim(),
+          configuration: _filterConfigurationC.text.trim(),
+          agreementValue: _filterAgreementValueC.text.trim(),
+          bookingType: _filterBookingTypeC.text.trim(),
+          filterByFromDate: _startDateNotifier.value,
+          filterByToDate: _endDateNotifier.value,
+        );
+      },
+
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
+    if (!applied && manualClose) {
+      _filterApplicantNameC.clear();
+      _filterMobileNumberC.clear();
+      _filterWingC.clear();
+      _filterUnitC.clear();
+      _filterFloorC.clear();
+      _filterConfigurationC.clear();
+      _filterAgreementValueC.clear();
+      _filterBookingTypeC.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
         screenTitle: 'Pay Track',
-        authorization: AuthorizationModel(),
+        authorization: _routeAuthorizationModel,
         onProjectChangeCallback: (value) {
           _selectedProject = value;
           _payTrackCubit.getPayTrackList(
@@ -85,15 +413,52 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
             _selectedProject.projectId,
           );
         },
-        searchHintText: "Search by Name",
-        onSearchSubmit: (value) {},
+        onExportCallback: (value) {
+          if (_payTrackCubit.state.totalNumberOfRecord == 0) {
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
+          _payTrackCubit.exportExcelPdf(context, value);
+        },
+        searchHintText: "Search by Applicant Name",
+        onSearchSubmit: (value) {
+          _payTrackCubit.searchPayTrack(
+            context,
+            _selectedProject.projectId,
+            value,
+          );
+        },
         textController: _searchC,
+        isFilterOn: true,
+        onFilterTap: () {
+          _showBottomSheetToFilterPayTrack(context);
+        },
       ),
       body: BlocBuilder<PayTrackCubit, PayTrackState>(
         builder: (context, state) {
+          if ((state.isLoading ?? false) && state.payTrackList.isEmpty) {
+            return Center(child: loader());
+          }
+          if (state.payTrackList.isEmpty) {
+            return ListView(
+              physics: AlwaysScrollableScrollPhysics(),
+              children: [
+                SizedBox(
+                  height: getActualHeight(context) * .7,
+                  child: Center(
+                    child: noDataWidget(
+                      message: "No Pay Track Booking Data Found",
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
           return ListView.builder(
             controller: scrollController,
-            itemCount: state.payTrackList.length,
+            itemCount:
+                state.payTrackList.length +
+                (state.payTrackList.length < state.totalNumberOfRecord ? 1 : 0),
             shrinkWrap: true,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             itemBuilder: (context, index) {
@@ -118,9 +483,11 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                   "paid": payTrack.receivedRegistrationFees,
                 },
                 {
-                  "type": "Agreement Value",
-                  "total": payTrack.agreementValue,
-                  "paid": payTrack.receivedAgreementValue,
+                  "type": "Agreement Value (Without TDS)",
+                  "total": payTrack.agreementValue - payTrack.agreementValueTds,
+                  "paid":
+                      payTrack.receivedAgreementValue -
+                      payTrack.receivedAgreementValueTds,
                 },
                 {
                   "type": "Agreement Value GST",
@@ -156,6 +523,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                 totalPaidAmount += paid;
                 totalPendingAmount += pending;
               }
+
               return Container(
                 padding: EdgeInsets.all(16.0),
                 margin: EdgeInsets.only(bottom: 10.0),
@@ -193,6 +561,16 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                                     payTrack.enquiryId.toString(),
                                   ),
                                 ),
+                                "bookingStatus": Uri.encodeQueryComponent(
+                                  EncryptionManager.encryptData(
+                                    payTrack.bookingApprovalStatus,
+                                  ),
+                                ),
+                                "approvalStatus": Uri.encodeQueryComponent(
+                                  EncryptionManager.encryptData(
+                                    payTrack.approvalStatus,
+                                  ),
+                                ),
                               },
                             );
                           },
@@ -212,6 +590,10 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                     buildRowTitleValue(
                       title: "Mobile No.",
                       value: payTrack.applicantMobileNumber.toString(),
+                      customValueWidget: CustomClickToContactText(
+                        countryCode: payTrack.applicantMobileNumberCountryCode,
+                        value: payTrack.applicantMobileNumber,
+                      ),
                     ),
                     buildRowTitleValue(
                       title: "Registration Date",
@@ -219,7 +601,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                         payTrack.registrationDate,
                       ),
                     ),
-                    buildRowTitleValue(title: "Flat", value: payTrack.flat),
+                    buildRowTitleValue(title: "Unit", value: payTrack.flat),
                     ExpansionTile(
                       tilePadding: EdgeInsets.symmetric(horizontal: 6.0),
                       childrenPadding: EdgeInsets.zero,
@@ -264,11 +646,10 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                                           child: _buildSummaryItem(
                                             type: item["type"],
                                             totalAmount:
-                                                "₹${total.toStringAsFixed(2)}",
-                                            paidAmount:
-                                                "₹${paid.toStringAsFixed(2)}",
+                                                total.toIndianCurrency(),
+                                            paidAmount: paid.toIndianCurrency(),
                                             pendingAmount:
-                                                "₹${pending.toStringAsFixed(2)}",
+                                                pending.toIndianCurrency(),
                                           ),
                                         );
                                       }),
@@ -314,7 +695,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                                         children: [
                                           _summaryRow(
                                             "Total Amount",
-                                            "₹${totalAmount.toStringAsFixed(2)}",
+                                            totalAmount.toIndianCurrency(),
                                           ),
                                           verticalSpacing(height: 6),
                                           Divider(
@@ -326,8 +707,9 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                                           ),
                                           verticalSpacing(height: 6),
                                           _summaryRow(
-                                            "Total Pending Amount",
-                                            "₹${totalPendingAmount.toStringAsFixed(2)}",
+                                            "Total Outstanding Amount",
+                                            totalPendingAmount
+                                                .toIndianCurrency(),
                                             valueColor: AppColor.orange,
                                           ),
                                           verticalSpacing(height: 6),
@@ -341,7 +723,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                                           verticalSpacing(height: 6),
                                           _summaryRow(
                                             "Grand Total",
-                                            "₹${totalPaidAmount.toStringAsFixed(2)}",
+                                            totalPaidAmount.toIndianCurrency(),
                                             isBold: true,
                                             valueColor: AppColor.green,
                                           ),
@@ -373,16 +755,19 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
     Color? valueColor,
   }) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style:
-              isBold
-                  ? AppTextStyle.ts14B()
-                  : AppTextStyle.ts14R(
-                    color: AppColor.black.withValues(alpha: 0.5),
-                  ),
+        Expanded(
+          child: Text(
+            title,
+            style:
+                isBold
+                    ? AppTextStyle.ts14B()
+                    : AppTextStyle.ts14R(
+                      color: AppColor.black.withValues(alpha: 0.5),
+                    ),
+          ),
         ),
         Text(value, style: AppTextStyle.ts14M(color: valueColor)),
       ],
@@ -411,7 +796,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
           children: [
             Expanded(child: _titleValue("Paid Amount", paidAmount)),
             horizontalSpacing(),
-            Expanded(child: _titleValue("Pending Amount", pendingAmount)),
+            Expanded(child: _titleValue("Outstanding Amount", pendingAmount)),
           ],
         ),
         verticalSpacing(),

@@ -55,6 +55,7 @@ class BookingModel {
   String handoverType;
   DateTime registrationDate;
   DateTime? finalRegistrationDate;
+  bool isFinalRegistrationCompleted;
   String modeOfPayment;
   double bookingAmount;
   String chequeRTGSNumber;
@@ -89,6 +90,24 @@ class BookingModel {
   String bookingApplicantModificationRequestApprovalStatus;
   int numberOfParking;
   bool isApplicableOtherCharge;
+  String applicantMobileNumberCountryCode;
+  String applicantMobileNumber;
+  String channelPartnerMobileNumberCountryCode;
+  double referralPercentage;
+  double referralAmount;
+  String finalRegistrationUrl;
+  double agreementValueTds;
+  double agreementValueGstPercentage;
+  double agreementValueGstAmount;
+  String chequeRtgsNumber;
+  DateTime? chequeRtgsDate;
+  int cancelledById;
+  String cancelledBy;
+  DateTime? cancelledDate;
+  String cancelRemark;
+  String proofOfDocumentUrl;
+  String cancelBookingApprovalStatus;
+  int refundedPaymentLedgerCount;
 
   BookingModel({
     required this.bookingId,
@@ -142,6 +161,7 @@ class BookingModel {
     required this.handoverType,
     required this.registrationDate,
     this.finalRegistrationDate,
+    required this.isFinalRegistrationCompleted,
     required this.modeOfPayment,
     required this.bookingAmount,
     required this.chequeRTGSNumber,
@@ -176,6 +196,24 @@ class BookingModel {
     required this.bookingApplicantModificationRequestApprovalStatus,
     required this.numberOfParking,
     required this.isApplicableOtherCharge,
+    required this.applicantMobileNumberCountryCode,
+    required this.applicantMobileNumber,
+    required this.channelPartnerMobileNumberCountryCode,
+    required this.referralPercentage,
+    required this.referralAmount,
+    required this.finalRegistrationUrl,
+    required this.agreementValueTds,
+    required this.agreementValueGstPercentage,
+    required this.agreementValueGstAmount,
+    required this.chequeRtgsNumber,
+    required this.chequeRtgsDate,
+    required this.cancelledById,
+    required this.cancelledBy,
+    required this.cancelledDate,
+    required this.cancelRemark,
+    required this.proofOfDocumentUrl,
+    required this.cancelBookingApprovalStatus,
+    required this.refundedPaymentLedgerCount,
   });
   factory BookingModel.fromJson(
     Map<String, dynamic> json, {
@@ -260,6 +298,10 @@ class BookingModel {
         json['FinalRegistrationDate'] != null
             ? parseValue<DateTime>(json, "FinalRegistrationDate")
             : null,
+    isFinalRegistrationCompleted: parseValue<bool>(
+      json,
+      "IsFinalRegistrationCompleted",
+    ),
     modeOfPayment: parseValue<String>(json, "ModeOfPayment"),
     bookingAmount: parseValue<double>(json, "BookingAmount"),
     chequeRTGSNumber: parseValue<String>(json, "ChequeRTGSNumber"),
@@ -347,6 +389,48 @@ class BookingModel {
       "BookingApplicantModificationRequestApprovalStatus",
     ),
     numberOfParking: parseValue<int>(json, "NumberOfParking"),
+    applicantMobileNumberCountryCode: parseValue<String>(
+      json,
+      "ApplicantMobileNumberCountryCode",
+    ),
+    applicantMobileNumber: parseValue<String>(json, "ApplicantMobileNumber"),
+    channelPartnerMobileNumberCountryCode: parseValue<String>(
+      json,
+      "ChannelPartnerMobileNumberCountryCode",
+    ),
+    referralPercentage: parseValue<double>(json, "ReferralPercentage"),
+    referralAmount: parseValue<double>(json, "ReferralAmount"),
+    finalRegistrationUrl: parseValue<String>(json, "FinalRegistrationURL"),
+    agreementValueTds: parseValue<double>(json, "AgreementValueTDS"),
+    agreementValueGstPercentage: parseValue<double>(
+      json,
+      "AgreementValueGSTPercentage",
+    ),
+    agreementValueGstAmount: parseValue<double>(
+      json,
+      "AgreementValueGSTAmount",
+    ),
+    chequeRtgsNumber: parseValue<String>(json, "ChequeRTGSNumber"),
+    chequeRtgsDate:
+        json["ChequeRTGSDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "ChequeRTGSDate"),
+    cancelledById: parseValue<int>(json, "CancelledById"),
+    cancelledBy: parseValue<String>(json, "CancelledBy"),
+    cancelledDate:
+        json["CancelledDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "CancelledDate"),
+    cancelRemark: parseValue<String>(json, "CancelRemark"),
+    proofOfDocumentUrl: parseValue<String>(json, "ProofOfDocumentURL"),
+    cancelBookingApprovalStatus: parseValue<String>(
+      json,
+      "CancelBookingApprovalStatus",
+    ),
+    refundedPaymentLedgerCount: parseValue<int>(
+      json,
+      "RefundedPaymentLedgerCount",
+    ),
   );
 
   Map<String, dynamic> toJson() => {
@@ -441,7 +525,22 @@ class BookingModel {
     "BookingApplicantModificationRequestApprovalStatus":
         bookingApplicantModificationRequestApprovalStatus,
     "NumberOfParking": numberOfParking,
-    "FinalRegistrationDate": finalRegistrationDate,
+    "FinalRegistrationDate": finalRegistrationDate?.toIso8601String(),
+    "IsFinalRegistrationCompleted": isFinalRegistrationCompleted,
+    "ApplicantMobileNumberCountryCode": applicantMobileNumberCountryCode,
+    "ApplicantMobileNumber": applicantMobileNumber,
+    "ChannelPartnerMobileNumberCountryCode":
+        channelPartnerMobileNumberCountryCode,
+    "ReferralPercentage": referralPercentage,
+    "ReferralAmount": referralAmount,
+    "FinalRegistrationURL": finalRegistrationUrl,
+    "CancelledById": cancelledById,
+    "CancelledBy": cancelledBy,
+    "CancelledDate": cancelledDate?.toIso8601String(),
+    "CancelRemark": cancelRemark,
+    "ProofOfDocumentURL": proofOfDocumentUrl,
+    "CancelBookingApprovalStatus": cancelBookingApprovalStatus,
+    "RefundedPaymentLedgerCount": refundedPaymentLedgerCount,
   };
 }
 

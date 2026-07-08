@@ -23,7 +23,8 @@ abstract interface class BookingDatasource {
     Map<String, dynamic>? queryParams,
   });
   Future<Map<String, dynamic>> apiCallCancelBooking({
-    required Map<String, dynamic> body,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   });
   Future<Map<String, dynamic>> apiCallPullBookingForExport({
     required int pageNumber,
@@ -177,21 +178,24 @@ class BookingDatasourceImpl extends BookingDatasource {
   //  CANCEL BOOKING
   @override
   Future<Map<String, dynamic>> apiCallCancelBooking({
-    required Map<String, dynamic> body,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   }) async {
     String closeBookingUrl = "Booking/CancelBooking";
     try {
-      var networkResponse = await baseClient.postRequestWithAuthentication(
-        closeBookingUrl,
-        body,
-      );
+      var networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(
+            closeBookingUrl,
+            fileList,
+            body,
+          );
       return {
         'data': networkResponse["data"],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apiCallCancelBooking(body: body);
+        apiCallCancelBooking(body: body, fileList: fileList);
       }
       rethrow;
     }

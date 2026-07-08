@@ -23,6 +23,9 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_chan
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/payment_schedule_demand_letter_summary.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/cancel_booking.screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/sales_attendance.screen.dart';
 import 'package:k3h_erp_app/widgets/coming_soon_screen.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage.model.dart';
@@ -47,7 +50,7 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/pa
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger_summary.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/add_payment_ledger.screen.dart';
-import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/make_payment.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/make_payment.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/view_payment_ledger.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/add_applicant_details_requests.screen.dart';
@@ -5818,6 +5821,11 @@ final GoRouter goRouter = GoRouter(
                     state.uri.queryParameters['enquiryId'];
                 final queryParameterApplicantName =
                     state.uri.queryParameters['applicantName'];
+                final queryParameterBookingStatus =
+                    state.uri.queryParameters['bookingStatus'];
+                final queryParameterApprovalStatus =
+                    state.uri.queryParameters['approvalStatus'];
+
                 final projectId =
                     queryParameterProjectId != null &&
                             queryParameterProjectId.isNotEmpty
@@ -5852,11 +5860,27 @@ final GoRouter goRouter = GoRouter(
                           Uri.decodeComponent(queryParameterApplicantName),
                         )
                         : "";
+                final bookingStatus =
+                    queryParameterBookingStatus != null &&
+                            queryParameterBookingStatus.isNotEmpty
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterBookingStatus),
+                        )
+                        : "";
+                final approvalStatus =
+                    queryParameterApprovalStatus != null &&
+                            queryParameterApprovalStatus.isNotEmpty
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterApprovalStatus),
+                        )
+                        : "";
                 return PayTrackViewScreen(
                   applicantName: applicantName,
                   projectId: projectId,
                   bookingId: bookingId,
                   enquiryId: enquiryId,
+                  bookingApprovalStatus: bookingStatus,
+                  approvalStatus: approvalStatus,
                 );
               },
             ),
@@ -5972,31 +5996,53 @@ final GoRouter goRouter = GoRouter(
                 );
               },
             ),
+
+            GoRoute(
+              path: AppRoutes.paymentScheduleDemandSummary,
+              name: AppRoutes.paymentScheduleDemandSummary,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>;
+
+                return PaymentScheduleDemandLetterSummary(
+                  projectId: extra["projectId"] as int,
+                  bookingId: extra["bookingId"] as int,
+                  bookingPaymentScheduleId:
+                      extra["bookingPaymentScheduleId"] as int,
+                  stageName: extra["stageName"] as String,
+                  applicantName: extra["applicantName"] as String,
+                );
+              },
+            ),
             GoRoute(
               path: AppRoutes.addPaymentLedger,
               name: AppRoutes.addPaymentLedger,
               builder: (context, state) {
-                final paymentLedgerParam =
-                    state.uri.queryParameters['paymentLedger'];
+                List<PayTrackPaymentLedgerModel> paymentLedger = [];
 
-                List<PayTrackPaymentLedgerSummaryModel> paymentLedgerList = [];
+                final ledgerParam = state.uri.queryParameters["paymentLedger"];
 
-                if (paymentLedgerParam != null &&
-                    paymentLedgerParam.isNotEmpty) {
-                  final decodedData = jsonDecode(
-                    Uri.decodeComponent(paymentLedgerParam),
-                  );
-
-                  paymentLedgerList =
-                      (decodedData as List)
-                          .map(
-                            (e) =>
-                                PayTrackPaymentLedgerSummaryModel.fromJson(e),
-                          )
+                if (ledgerParam != null && ledgerParam.isNotEmpty) {
+                  paymentLedger =
+                      (jsonDecode(Uri.decodeComponent(ledgerParam)) as List)
+                          .map((e) => PayTrackPaymentLedgerModel.fromJson(e))
                           .toList();
                 }
+
+                PayTrackPaymentLedgerSummaryModel? editPaymentLedger;
+
+                final editParam =
+                    state.uri.queryParameters["editPaymentLedger"];
+
+                if (editParam != null && editParam.isNotEmpty) {
+                  editPaymentLedger =
+                      PayTrackPaymentLedgerSummaryModel.fromJson(
+                        jsonDecode(Uri.decodeComponent(editParam)),
+                      );
+                }
+
                 return AddPaymentLedgerScreen(
-                  paymentLedgerList: paymentLedgerList,
+                  paymentLedger: paymentLedger,
+                  editPaymentLedger: editPaymentLedger,
                 );
               },
             ),
@@ -6043,6 +6089,7 @@ final GoRouter goRouter = GoRouter(
                         transactionChequeDemandDraftNumber: "",
                         transactionChequeDemandDraftUrl: "",
                         transactionChequeDemandDraftDate: DateTime.now(),
+                        isBookingAmount: false,
                         approvalStatus: "",
                         isApproval: false,
                         paymentReceiptUrl: "",
@@ -6052,6 +6099,12 @@ final GoRouter goRouter = GoRouter(
                         modifiedById: 0,
                         modifiedBy: "",
                         modifiedDate: DateTime.now(),
+                        projectName: '',
+                        applicantName: '',
+                        applicantMobileNumber: '',
+                        applicantEmailId: '',
+                        projectNatureOfAccount: '',
+                        projectAcType: '',
                       ),
                 );
               },
@@ -6066,6 +6119,16 @@ final GoRouter goRouter = GoRouter(
                 return AddRefundScreen(booking: booking);
               },
             ),
+            GoRoute(
+              path: AppRoutes.cancelBookingScreen,
+              name: AppRoutes.cancelBookingScreen,
+              builder: (context, state) {
+                final booking = state.extra as BookingModel;
+
+                return CancelBookingScreen(booking: booking);
+              },
+            ),
+
             GoRoute(
               path: AppRoutes.addApplicantDetailsRequests,
               name: AppRoutes.addApplicantDetailsRequests,
@@ -6096,10 +6159,12 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.modifiedRequestsMakePayment,
               builder: (context, state) {
                 final extra = state.extra as Map<String, dynamic>;
+                print(extra["refundData"]);
                 return ModifiedRequestsMakePaymentScreen(
                   uniquekey: extra["uniquekey"],
                   bookingId: extra["bookingId"],
                   projectId: extra["projectId"],
+                  refundData: extra["refundData"],
                 );
               },
             ),
