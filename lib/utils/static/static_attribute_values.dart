@@ -428,3 +428,5 @@ const paymentModeValues = [
 ];
 
 const paymentTypeValues = ["Full", "Partial"];
+
+const financialYearValues = ["2025-26", "2026-27", "2027-28"];

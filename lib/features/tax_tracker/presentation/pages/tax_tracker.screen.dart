@@ -112,8 +112,7 @@ class _TaxTrackerScreenState extends State<TaxTrackerScreen> {
             CustomMultipleSelectPopup(
               hintText: "Select Financial Year",
               isMultiSelect: false,
-              // dataList: financialYearList,
-              dataList: year,
+              dataList: financialYearList,
               onSelected: (value) {
                 _selectedCompany = value;
               },
