@@ -216,3 +216,11 @@ final List<Map<String, dynamic>> paymentTypeList = createAttributeList(
 final List<Map<String, dynamic>> financialYearList = createAttributeList(
   financialYearValues,
 );
+
+final List<Map<String, dynamic>> paymentReceivedFormList = createAttributeList(
+  paymentReceivedFormValues,
+);
+
+final List<Map<String, dynamic>> paymentForList = createAttributeList(
+  paymentForValues,
+);

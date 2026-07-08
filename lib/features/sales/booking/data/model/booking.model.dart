@@ -57,7 +57,6 @@ class BookingModel {
   String handoverType;
   DateTime registrationDate;
   DateTime? finalRegistrationDate;
-  bool isFinalRegistrationCompleted;
   String modeOfPayment;
   double bookingAmount;
   String chequeRTGSNumber;
@@ -92,8 +91,6 @@ class BookingModel {
   String bookingApplicantModificationRequestApprovalStatus;
   int numberOfParking;
   bool isApplicableOtherCharge;
-  String applicantMobileNumberCountryCode;
-  String applicantMobileNumber;
   String channelPartnerMobileNumberCountryCode;
   double referralPercentage;
   double referralAmount;
@@ -110,6 +107,7 @@ class BookingModel {
   String proofOfDocumentUrl;
   String cancelBookingApprovalStatus;
   int refundedPaymentLedgerCount;
+bool isFinalRegistrationCompleted;
 
   BookingModel({
     required this.bookingId,
@@ -164,7 +162,6 @@ class BookingModel {
     required this.handoverType,
     required this.registrationDate,
     this.finalRegistrationDate,
-    required this.isFinalRegistrationCompleted,
     required this.modeOfPayment,
     required this.bookingAmount,
     required this.chequeRTGSNumber,
@@ -199,8 +196,6 @@ class BookingModel {
     required this.bookingApplicantModificationRequestApprovalStatus,
     required this.numberOfParking,
     required this.isApplicableOtherCharge,
-    required this.applicantMobileNumberCountryCode,
-    required this.applicantMobileNumber,
     required this.channelPartnerMobileNumberCountryCode,
     required this.referralPercentage,
     required this.referralAmount,
@@ -306,10 +301,6 @@ class BookingModel {
         json['FinalRegistrationDate'] != null
             ? parseValue<DateTime>(json, "FinalRegistrationDate")
             : null,
-    isFinalRegistrationCompleted: parseValue<bool>(
-      json,
-      "IsFinalRegistrationCompleted",
-    ),
     modeOfPayment: parseValue<String>(json, "ModeOfPayment"),
     bookingAmount: parseValue<double>(json, "BookingAmount"),
     chequeRTGSNumber: parseValue<String>(json, "ChequeRTGSNumber"),
@@ -397,11 +388,6 @@ class BookingModel {
       "BookingApplicantModificationRequestApprovalStatus",
     ),
     numberOfParking: parseValue<int>(json, "NumberOfParking"),
-    applicantMobileNumberCountryCode: parseValue<String>(
-      json,
-      "ApplicantMobileNumberCountryCode",
-    ),
-    applicantMobileNumber: parseValue<String>(json, "ApplicantMobileNumber"),
     channelPartnerMobileNumberCountryCode: parseValue<String>(
       json,
       "ChannelPartnerMobileNumberCountryCode",
@@ -535,10 +521,8 @@ class BookingModel {
     "BookingApplicantModificationRequestApprovalStatus":
         bookingApplicantModificationRequestApprovalStatus,
     "NumberOfParking": numberOfParking,
-    "FinalRegistrationDate": finalRegistrationDate?.toIso8601String(),
+    "FinalRegistrationDate": finalRegistrationDate,
     "IsFinalRegistrationCompleted": isFinalRegistrationCompleted,
-    "ApplicantMobileNumberCountryCode": applicantMobileNumberCountryCode,
-    "ApplicantMobileNumber": applicantMobileNumber,
     "ChannelPartnerMobileNumberCountryCode":
         channelPartnerMobileNumberCountryCode,
     "ReferralPercentage": referralPercentage,

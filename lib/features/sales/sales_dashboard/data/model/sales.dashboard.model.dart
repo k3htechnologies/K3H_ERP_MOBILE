@@ -79,26 +79,26 @@ class SalesDashboardModel {
 }
 
 class Table0 {
-  String systemGeneratedCode;
-  String projectName;
-  int projectId;
-  String name;
-  String mobileNumberCountryCode;
-  String mobileNumber;
-  DateTime enquiryDate;
-  String enquiryTimeIn;
-  String salesAdvisor;
-  String sourcingManager;
-  int canTimeOut;
-  int enquiryId;
+  final String systemGeneratedCode;
+  final String projectName;
+  final int projectId;
+  final String name;
+  final String mobileNumber;
+  final String mobileNumberCountryCode;
+  final DateTime enquiryDate;
+  final String enquiryTimeIn;
+  final String salesAdvisor;
+  final String sourcingManager;
+  final int canTimeOut;
+  final int enquiryId;
 
   Table0({
     required this.systemGeneratedCode,
     required this.projectName,
     required this.projectId,
     required this.name,
-    required this.mobileNumberCountryCode,
     required this.mobileNumber,
+    required this.mobileNumberCountryCode,
     required this.enquiryDate,
     required this.enquiryTimeIn,
     required this.salesAdvisor,
@@ -112,11 +112,11 @@ class Table0 {
     projectName: parseValue<String>(json, "ProjectName"),
     projectId: parseValue<int>(json, "ProjectId"),
     name: parseValue<String>(json, "Name"),
+    mobileNumber: parseValue<String>(json, "MobileNumber"),
     mobileNumberCountryCode: parseValue<String>(
       json,
       "MobileNumberCountryCode",
     ),
-    mobileNumber: parseValue<String>(json, "MobileNumber"),
     enquiryDate: parseValue<DateTime>(json, "EnquiryDate"),
     enquiryTimeIn: parseValue<String>(json, "EnquiryTimeIn"),
     salesAdvisor: parseValue<String>(json, "SalesAdvisor"),
@@ -127,10 +127,10 @@ class Table0 {
 
   Map<String, dynamic> toJson() => {
     "SystemGeneratedCode": systemGeneratedCode,
+    "MobileNumberCountryCode": mobileNumberCountryCode,
     "ProjectName": projectName,
     "ProjectId": projectId,
     "Name": name,
-    "MobileNumberCountryCode": mobileNumberCountryCode,
     "MobileNumber": mobileNumber,
     "EnquiryDate": enquiryDate.toIso8601String(),
     "EnquiryTimeIn": enquiryTimeIn,
@@ -142,42 +142,41 @@ class Table0 {
 }
 
 class Table1 {
-  String systemGeneratedCode;
-  String projectName;
-  int projectId;
-  String name;
-  String mobileNumber;
-  String mobileNumberCountryCode;
-  String enquiryFollowUpDays;
-  String finalStage;
-  DateTime? nextFollowUpDate;
-  String salesAdvisor;
-  int isAction;
-  String sourcingManager;
-  DateTime createdDate;
-  int enquiryId;
+  final String systemGeneratedCode;
+  final String projectName;
+  final String name;
+  final String mobileNumberCountryCode;
+  final String mobileNumber;
+  final String enquiryFollowUpDays;
+  final String finalStage;
+  final DateTime? nextFollowUpDate;
+  final String salesAdvisor;
+  final String sourcingManager;
+  final DateTime createdDate;
+  final int enquiryId;
+  final int projectId;
+  final int isAction;
 
   Table1({
     required this.systemGeneratedCode,
     required this.projectName,
-    required this.projectId,
     required this.name,
     required this.mobileNumber,
-    required this.mobileNumberCountryCode,
     required this.enquiryFollowUpDays,
     required this.finalStage,
     required this.nextFollowUpDate,
     required this.salesAdvisor,
-    required this.isAction,
     required this.sourcingManager,
     required this.createdDate,
     required this.enquiryId,
+    required this.mobileNumberCountryCode,
+    required this.isAction,
+    required this.projectId,
   });
 
   factory Table1.fromJson(Map<String, dynamic> json) => Table1(
     systemGeneratedCode: parseValue<String>(json, "SystemGeneratedCode"),
     projectName: parseValue<String>(json, "ProjectName"),
-    projectId: parseValue<int>(json, "ProjectId"),
     name: parseValue<String>(json, "Name"),
     mobileNumber: parseValue<String>(json, "MobileNumber"),
     mobileNumberCountryCode: parseValue<String>(
@@ -186,127 +185,141 @@ class Table1 {
     ),
     enquiryFollowUpDays: parseValue<String>(json, "EnquiryFollowUpDays"),
     finalStage: parseValue<String>(json, "FinalStage"),
-    nextFollowUpDate: parseValue<DateTime>(json, "NextFollowUpDate"),
+    nextFollowUpDate:
+        (json["NextFollowUpDate"].isEmpty ?? false)
+            ? null
+            : parseValue<DateTime>(json, "NextFollowUpDate"),
     salesAdvisor: parseValue<String>(json, "SalesAdvisor"),
-    isAction: parseValue<int>(json, "IsAction"),
     sourcingManager: parseValue<String>(json, "SourcingManager"),
     createdDate: parseValue<DateTime>(json, "CreatedDate"),
     enquiryId: parseValue<int>(json, "EnquiryId"),
+    isAction: parseValue<int>(json, "IsAction"),
+    projectId: parseValue<int>(json, "ProjectId"),
   );
 
   Map<String, dynamic> toJson() => {
     "SystemGeneratedCode": systemGeneratedCode,
     "ProjectName": projectName,
-    "ProjectId": projectId,
     "Name": name,
-    "MobileNumber": mobileNumber,
     "MobileNumberCountryCode": mobileNumberCountryCode,
+    "MobileNumber": mobileNumber,
     "EnquiryFollowUpDays": enquiryFollowUpDays,
     "FinalStage": finalStage,
     "NextFollowUpDate": nextFollowUpDate?.toIso8601String(),
     "SalesAdvisor": salesAdvisor,
-    "IsAction": isAction,
     "SourcingManager": sourcingManager,
     "CreatedDate": createdDate.toIso8601String(),
     "EnquiryId": enquiryId,
+    "IsAction": isAction,
+    "ProjectId": projectId,
   };
 }
 
-class Table4 {
-  int totalEmployees;
-  int presentCount;
-  int onLeaveCount;
-  int absentCount;
+class Table2 {
+  final int employeeId;
+  final String employeeName;
+  final String designationName;
+  final int walkinsByCp;
+  final int actualWalkinsByCp;
+  final double performanceWalkinsByCp;
+  final int walkinsDirect;
+  final int actualWalkinsDirect;
+  final double performanceWalkinsDirect;
+  final int freshVisits;
+  final int actualFreshVisits;
+  final double performanceFreshVisits;
+  final int revisits;
+  final int actualRevisits;
+  final double performanceRevisits;
+  final int bookingByCp;
+  final int actualBookingByCp;
+  final double performanceBookingByCp;
+  final int bookingDirect;
+  final int actualBookingDirect;
+  final double performanceBookingDirect;
+  final int totalRecords;
+  final String message;
 
-  Table4({
-    required this.totalEmployees,
-    required this.presentCount,
-    required this.onLeaveCount,
-    required this.absentCount,
-  });
-
-  factory Table4.fromJson(Map<String, dynamic> json) => Table4(
-    totalEmployees: parseValue<int>(json, "TotalEmployees"),
-    presentCount: parseValue<int>(json, "PresentCount"),
-    onLeaveCount: parseValue<int>(json, "OnLeaveCount"),
-    absentCount: parseValue<int>(json, "AbsentCount"),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "TotalEmployees": totalEmployees,
-    "PresentCount": presentCount,
-    "OnLeaveCount": onLeaveCount,
-    "AbsentCount": absentCount,
-  };
-}
-
-class Table5 {
-  int projectId;
-  String projectName;
-  int totalWalkins;
-  int walkinsByCp;
-  int walkinsDirect;
-  int totalFreshVisits;
-  int revisits;
-  int bookingByCp;
-  int bookingDirect;
-  int totalBooking;
-  double totalRevenue;
-  int totalIbm;
-  int totalObm;
-  int totalRecords;
-  String message;
-
-  Table5({
-    required this.projectId,
-    required this.projectName,
-    required this.totalWalkins,
+  Table2({
+    required this.employeeId,
+    required this.employeeName,
+    required this.designationName,
     required this.walkinsByCp,
+    required this.actualWalkinsByCp,
+    required this.performanceWalkinsByCp,
     required this.walkinsDirect,
-    required this.totalFreshVisits,
+    required this.actualWalkinsDirect,
+    required this.performanceWalkinsDirect,
+    required this.freshVisits,
+    required this.actualFreshVisits,
+    required this.performanceFreshVisits,
     required this.revisits,
+    required this.actualRevisits,
+    required this.performanceRevisits,
     required this.bookingByCp,
+    required this.actualBookingByCp,
+    required this.performanceBookingByCp,
     required this.bookingDirect,
-    required this.totalBooking,
-    required this.totalRevenue,
-    required this.totalIbm,
-    required this.totalObm,
+    required this.actualBookingDirect,
+    required this.performanceBookingDirect,
     required this.totalRecords,
     required this.message,
   });
 
-  factory Table5.fromJson(Map<String, dynamic> json) => Table5(
-    projectId: parseValue<int>(json, "ProjectId"),
-    projectName: parseValue<String>(json, "ProjectName"),
-    totalWalkins: parseValue<int>(json, "TotalWalkins"),
+  factory Table2.fromJson(Map<String, dynamic> json) => Table2(
+    employeeId: parseValue<int>(json, "EmployeeId"),
+    employeeName: parseValue<String>(json, "EmployeeName"),
+    designationName: parseValue<String>(json, "DesignationName"),
     walkinsByCp: parseValue<int>(json, "WalkinsByCP"),
+    actualWalkinsByCp: parseValue<int>(json, "ActualWalkinsByCP"),
+    performanceWalkinsByCp: parseValue<double>(json, "PerformanceWalkinsByCP"),
     walkinsDirect: parseValue<int>(json, "WalkinsDirect"),
-    totalFreshVisits: parseValue<int>(json, "TotalFreshVisits"),
+    actualWalkinsDirect: parseValue<int>(json, "ActualWalkinsDirect"),
+    performanceWalkinsDirect: parseValue<double>(
+      json,
+      "PerformanceWalkinsDirect",
+    ),
+    freshVisits: parseValue<int>(json, "FreshVisits"),
+    actualFreshVisits: parseValue<int>(json, "ActualFreshVisits"),
+    performanceFreshVisits: parseValue<double>(json, "PerformanceFreshVisits"),
     revisits: parseValue<int>(json, "Revisits"),
+    actualRevisits: parseValue<int>(json, "ActualRevisits"),
+    performanceRevisits: parseValue<double>(json, "PerformanceRevisits"),
     bookingByCp: parseValue<int>(json, "BookingByCP"),
+    actualBookingByCp: parseValue<int>(json, "ActualBookingByCP"),
+    performanceBookingByCp: parseValue<double>(json, "PerformanceBookingByCP"),
     bookingDirect: parseValue<int>(json, "BookingDirect"),
-    totalBooking: parseValue<int>(json, "TotalBooking"),
-    totalRevenue: parseValue<double>(json, "TotalRevenue"),
-    totalIbm: parseValue<int>(json, "TotalIBM"),
-    totalObm: parseValue<int>(json, "TotalOBM"),
+    actualBookingDirect: parseValue<int>(json, "ActualBookingDirect"),
+    performanceBookingDirect: parseValue<double>(
+      json,
+      "PerformanceBookingDirect",
+    ),
     totalRecords: parseValue<int>(json, "TotalRecords"),
     message: parseValue<String>(json, "Message"),
   );
 
   Map<String, dynamic> toJson() => {
-    "ProjectId": projectId,
-    "ProjectName": projectName,
-    "TotalWalkins": totalWalkins,
+    "EmployeeId": employeeId,
+    "EmployeeName": employeeName,
+    "DesignationName": designationName,
     "WalkinsByCP": walkinsByCp,
+    "ActualWalkinsByCP": actualWalkinsByCp,
+    "PerformanceWalkinsByCP": performanceWalkinsByCp,
     "WalkinsDirect": walkinsDirect,
-    "TotalFreshVisits": totalFreshVisits,
+    "ActualWalkinsDirect": actualWalkinsDirect,
+    "PerformanceWalkinsDirect": performanceWalkinsDirect,
+    "FreshVisits": freshVisits,
+    "ActualFreshVisits": actualFreshVisits,
+    "PerformanceFreshVisits": performanceFreshVisits,
     "Revisits": revisits,
+    "ActualRevisits": actualRevisits,
+    "PerformanceRevisits": performanceRevisits,
     "BookingByCP": bookingByCp,
+    "ActualBookingByCP": actualBookingByCp,
+    "PerformanceBookingByCP": performanceBookingByCp,
     "BookingDirect": bookingDirect,
-    "TotalBooking": totalBooking,
-    "TotalRevenue": totalRevenue,
-    "TotalIBM": totalIbm,
-    "TotalOBM": totalObm,
+    "ActualBookingDirect": actualBookingDirect,
+    "PerformanceBookingDirect": performanceBookingDirect,
     "TotalRecords": totalRecords,
     "Message": message,
   };
@@ -368,31 +381,123 @@ class Table3 {
   final int totalRecords;
   final String message;
 
-  Table7({
-    required this.name,
-    required this.department,
+  Table3({
+    required this.employeeId,
+    required this.employeeName,
     required this.designationName,
-    required this.employeeCode,
-    required this.status,
-    required this.punchIn,
-    required this.punchOut,
-    required this.emailId,
+    required this.walkinsByCP,
+    required this.actualWalkinsByCP,
+    required this.performanceWalkinsByCP,
+    required this.freshVisits,
+    required this.actualFreshVisits,
+    required this.performanceFreshVisits,
+    required this.revisits,
+    required this.actualRevisits,
+    required this.performanceRevisits,
+    required this.bookings,
+    required this.actualBookings,
+    required this.performanceBookings,
+    required this.totalMeetings,
+    required this.actualTotalMeetings,
+    required this.performanceTotalMeetings,
+    required this.totalOBM,
+    required this.actualTotalOBM,
+    required this.performanceTotalOBM,
+    required this.totalOBMFreshVisits,
+    required this.actualTotalOBMFreshVisits,
+    required this.performanceTotalOBMFreshVisits,
+    required this.totalOBMRevisits,
+    required this.actualTotalOBMRevisits,
+    required this.performanceTotalOBMRevisits,
+    required this.totalIBM,
+    required this.actualTotalIBM,
+    required this.performanceTotalIBM,
+    required this.uniqueCPs,
+    required this.actualUniqueCPs,
+    required this.performanceUniqueCPs,
+    required this.activeCP,
+    required this.actualActiveCP,
+    required this.performanceActiveCP,
+    required this.newCP,
+    required this.actualNewCP,
+    required this.performanceNewCP,
+    required this.totalRecords,
+    required this.message,
   });
 
-  factory Table7.fromJson(Map<String, dynamic> json) => Table7(
-    name: parseValue<String>(json, "Name"),
-    department: parseValue<String>(json, "Department"),
+  factory Table3.fromJson(Map<String, dynamic> json) => Table3(
+    employeeId: parseValue<int>(json, "EmployeeId"),
+    employeeName: parseValue<String>(json, "EmployeeName"),
     designationName: parseValue<String>(json, "DesignationName"),
-    employeeCode: parseValue<String>(json, "EmployeeCode"),
-    status: parseValue<String>(json, "Status"),
-    punchIn: parseValue<String>(json, "PunchIn"),
-    punchOut: parseValue<String>(json, "PunchOut"),
-    emailId: parseValue<String>(json, "EmailId"),
+
+    walkinsByCP: parseValue<int>(json, "WalkinsByCP"),
+    actualWalkinsByCP: parseValue<int>(json, "ActualWalkinsByCP"),
+    performanceWalkinsByCP: parseValue<double>(json, "PerformanceWalkinsByCP"),
+
+    freshVisits: parseValue<int>(json, "FreshVisits"),
+    actualFreshVisits: parseValue<int>(json, "ActualFreshVisits"),
+    performanceFreshVisits: parseValue<double>(json, "PerformanceFreshVisits"),
+
+    revisits: parseValue<int>(json, "Revisits"),
+    actualRevisits: parseValue<int>(json, "ActualRevisits"),
+    performanceRevisits: parseValue<double>(json, "PerformanceRevisits"),
+
+    bookings: parseValue<int>(json, "Bookings"),
+    actualBookings: parseValue<int>(json, "ActualBookings"),
+    performanceBookings: parseValue<double>(json, "PerformanceBookings"),
+
+    totalMeetings: parseValue<int>(json, "TotalMeetings"),
+    actualTotalMeetings: parseValue<int>(json, "ActualTotalMeetings"),
+    performanceTotalMeetings: parseValue<double>(
+      json,
+      "PerformanceTotalMeetings",
+    ),
+
+    totalOBM: parseValue<int>(json, "TotalOBM"),
+    actualTotalOBM: parseValue<int>(json, "ActualTotalOBM"),
+    performanceTotalOBM: parseValue<double>(json, "PerformanceTotalOBM"),
+
+    totalOBMFreshVisits: parseValue<int>(json, "TotalOBMFreshVisits"),
+    actualTotalOBMFreshVisits: parseValue<int>(
+      json,
+      "ActualTotalOBMFreshVisits",
+    ),
+    performanceTotalOBMFreshVisits: parseValue<double>(
+      json,
+      "PerformanceTotalOBMFreshVisits",
+    ),
+
+    totalOBMRevisits: parseValue<int>(json, "TotalOBMRevisits"),
+    actualTotalOBMRevisits: parseValue<int>(json, "ActualTotalOBMRevisits"),
+    performanceTotalOBMRevisits: parseValue<double>(
+      json,
+      "PerformanceTotalOBMRevisits",
+    ),
+
+    totalIBM: parseValue<int>(json, "TotalIBM"),
+    actualTotalIBM: parseValue<int>(json, "ActualTotalIBM"),
+    performanceTotalIBM: parseValue<double>(json, "PerformanceTotalIBM"),
+
+    uniqueCPs: parseValue<int>(json, "UniqueCPs"),
+    actualUniqueCPs: parseValue<int>(json, "ActualUniqueCPs"),
+    performanceUniqueCPs:
+        parseValue<num>(json, "PerformanceUniqueCPs").toDouble(),
+
+    activeCP: parseValue<int>(json, "ActiveCP"),
+    actualActiveCP: parseValue<int>(json, "ActualActiveCP"),
+    performanceActiveCP: parseValue<double>(json, "PerformanceActiveCP"),
+
+    newCP: parseValue<int>(json, "NewCP"),
+    actualNewCP: parseValue<int>(json, "ActualNewCP"),
+    performanceNewCP: parseValue<double>(json, "PerformanceNewCP"),
+
+    totalRecords: parseValue<int>(json, "TotalRecords"),
+    message: parseValue<String>(json, "Message"),
   );
 
   Map<String, dynamic> toJson() => {
-    "Name": name,
-    "Department": department,
+    "EmployeeId": employeeId,
+    "EmployeeName": employeeName,
     "DesignationName": designationName,
     "WalkinsByCP": walkinsByCP,
     "ActualWalkinsByCP": actualWalkinsByCP,

@@ -109,41 +109,6 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
     super.dispose();
   }
 
-  //  FETCH PROJECTS
-  Future<Map<String, dynamic>> _fetchProjects(
-    int pageNumber, {
-    String? value,
-  }) async {
-    final result = await _projectMasterRepository.getProjectList(
-      pageNumber: pageNumber,
-      pageSize: 15,
-      queryParams:
-          value != null && value.isNotEmpty
-              ? {"ProjectName": value, "EmployeeId": _user!.employeeId}
-              : {"EmployeeId": _user!.employeeId},
-    );
-
-    return result.fold(
-      (failure) => {
-        "itemList": <Map<String, dynamic>>[],
-        "totalNumberOfRecord": 0,
-      },
-      (response) {
-        final project = response['data'] as List<ProjectModel>;
-
-        return {
-          "itemList":
-              project.map((pr) {
-                return {
-                  "zAttributesId": pr.projectId,
-                  "DisplayName": pr.projectName,
-                };
-              }).toList(),
-          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
-        };
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {

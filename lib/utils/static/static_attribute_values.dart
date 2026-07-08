@@ -430,3 +430,14 @@ const paymentModeValues = [
 const paymentTypeValues = ["Full", "Partial"];
 
 const financialYearValues = ["2025-26", "2026-27", "2027-28"];
+
+const paymentReceivedFormValues = ["Bank", "Owner"];
+const paymentForValues = [
+  "Stamp Duty",
+  "Registration Fees",
+  "Agreement Value (Without TDS)",
+  "Agreement Value GST",
+  "Agreement Value TDS",
+  "Other Charges Value",
+  "Other Charges GST",
+];
