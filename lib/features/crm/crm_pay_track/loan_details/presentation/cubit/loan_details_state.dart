@@ -10,6 +10,7 @@ class LoanDetailsState extends BaseState {
   final int currentPage;
   final int totalNumberOfRecord;
   final String searchText;
+  final Map<int, List<PayTrackBookingFilesModel>> bankDocumentMap;
 
   const LoanDetailsState({
     super.isLoading,
@@ -20,6 +21,7 @@ class LoanDetailsState extends BaseState {
     required this.currentPage,
     required this.totalNumberOfRecord,
     required this.searchText,
+    required this.bankDocumentMap,
   });
 
   factory LoanDetailsState.initial() => LoanDetailsState(
@@ -31,6 +33,7 @@ class LoanDetailsState extends BaseState {
     totalNumberOfRecord: 0,
     searchText: "",
     isLoading: true,
+    bankDocumentMap: {},
   );
 
   LoanDetailsState copyWith({
@@ -44,6 +47,7 @@ class LoanDetailsState extends BaseState {
     String? searchText,
     String? currentSortColumn,
     String? currentSortDirection,
+    Map<int, List<PayTrackBookingFilesModel>>? bankDocumentMap,
   }) {
     return LoanDetailsState(
       bankDocumentList: bankDocumentList ?? this.bankDocumentList,
@@ -53,6 +57,7 @@ class LoanDetailsState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       searchText: searchText ?? this.searchText,
+      bankDocumentMap: bankDocumentMap ?? this.bankDocumentMap,
     );
   }
 
@@ -65,5 +70,6 @@ class LoanDetailsState extends BaseState {
     bankDocuments,
     currentPage,
     totalNumberOfRecord,
+    bankDocumentMap,
   ];
 }

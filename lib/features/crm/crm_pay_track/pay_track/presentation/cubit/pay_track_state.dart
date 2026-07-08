@@ -16,6 +16,17 @@ class PayTrackState extends BaseState {
   final BookingModel? bookingData;
   final EnquiryModel? currentEnquiryDetails;
   final bool isFetchingEnquiryDetails;
+  final String filterByApplicantName;
+  final String filterByMobileNumber;
+  final String filterByWing;
+  final String filterByUnit;
+  final String filterByFloor;
+  final bool? isFinalRegistrationCompleted;
+  final String filterByConfiguration;
+  final String filterByAgreementValue;
+  final String filterByBookingType;
+  final DateTime? filterByFromDate;
+  final DateTime? filterByToDate;
 
   const PayTrackState({
     super.isLoading,
@@ -30,6 +41,17 @@ class PayTrackState extends BaseState {
     required this.bookingData,
     required this.currentEnquiryDetails,
     required this.isFetchingEnquiryDetails,
+    required this.filterByApplicantName,
+    required this.filterByMobileNumber,
+    required this.filterByWing,
+    required this.filterByUnit,
+    required this.filterByFloor,
+    required this.isFinalRegistrationCompleted,
+    required this.filterByConfiguration,
+    required this.filterByAgreementValue,
+    required this.filterByBookingType,
+    required this.filterByFromDate,
+    required this.filterByToDate,
   });
 
   factory PayTrackState.initial() => PayTrackState(
@@ -45,8 +67,19 @@ class PayTrackState extends BaseState {
     bookingData: null,
     currentEnquiryDetails: null,
     isFetchingEnquiryDetails: false,
+    filterByApplicantName: "",
+    filterByMobileNumber: "",
+    filterByWing: "",
+    filterByUnit: "",
+    filterByFloor: "",
+    isFinalRegistrationCompleted: null,
+    filterByConfiguration: "",
+    filterByAgreementValue: "",
+    filterByBookingType: "",
+    filterByFromDate: null,
+    filterByToDate: null,
   );
-
+  static const _noChange = Object();
   PayTrackState copyWith({
     bool? isLoading,
 
@@ -55,6 +88,18 @@ class PayTrackState extends BaseState {
     int? currentPage,
     int? totalNumberOfRecord,
     String? searchText,
+
+    String? filterByApplicantName,
+    String? filterByMobileNumber,
+    String? filterByWing,
+    String? filterByUnit,
+    String? filterByFloor,
+    bool? isFinalRegistrationCompleted,
+    String? filterByConfiguration,
+    String? filterByAgreementValue,
+    String? filterByBookingType,
+    Object? filterByFromDate = _noChange,
+    Object? filterByToDate = _noChange,
     String? currentSortColumn,
     String? currentSortDirection,
     PayTrackModel? payTrackOverview,
@@ -68,6 +113,29 @@ class PayTrackState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       searchText: searchText ?? this.searchText,
+
+      filterByApplicantName:
+          filterByApplicantName ?? this.filterByApplicantName,
+      filterByMobileNumber: filterByMobileNumber ?? this.filterByMobileNumber,
+      filterByWing: filterByWing ?? this.filterByWing,
+      filterByUnit: filterByUnit ?? this.filterByUnit,
+      filterByFloor: filterByFloor ?? this.filterByFloor,
+      isFinalRegistrationCompleted:
+          isFinalRegistrationCompleted ?? this.isFinalRegistrationCompleted,
+      filterByConfiguration:
+          filterByConfiguration ?? this.filterByConfiguration,
+      filterByAgreementValue:
+          filterByAgreementValue ?? this.filterByAgreementValue,
+      filterByBookingType: filterByBookingType ?? this.filterByBookingType,
+      filterByFromDate:
+          filterByFromDate == _noChange
+              ? this.filterByFromDate
+              : filterByFromDate as DateTime?,
+
+      filterByToDate:
+          filterByToDate == _noChange
+              ? this.filterByToDate
+              : filterByToDate as DateTime?,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
       payTrackOverview: payTrackOverview ?? this.payTrackOverview,
@@ -87,6 +155,19 @@ class PayTrackState extends BaseState {
     payTrackCallLogList,
     currentPage,
     totalNumberOfRecord,
+    searchText,
+
+    filterByApplicantName,
+    filterByMobileNumber,
+    filterByWing,
+    filterByUnit,
+    filterByFloor,
+    isFinalRegistrationCompleted,
+    filterByConfiguration,
+    filterByAgreementValue,
+    filterByBookingType,
+    filterByFromDate,
+    filterByToDate,
     currentSortColumn,
     currentSortDirection,
     payTrackOverview,

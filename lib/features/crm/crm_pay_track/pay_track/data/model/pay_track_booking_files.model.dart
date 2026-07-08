@@ -65,7 +65,7 @@ class PayTrackBookingFilesModel {
     "FileName": fileName,
     "FileType": fileType,
     "IsMaster": isMaster,
-    "PayTrackBookingFilesUrl": payTrackBookingFilesUrl,
+    "PayTrackBookingFilesURL": payTrackBookingFilesUrl,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

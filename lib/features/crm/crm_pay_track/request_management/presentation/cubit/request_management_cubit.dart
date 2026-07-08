@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/booking_applicant_modification_request.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/flat_alteration_requests.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/parking_modification_request.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/refund_amount_payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/repository/request_management.repository.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/repository/booking.repository.dart';
@@ -59,7 +60,14 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
 
         final booking = list.isNotEmpty ? list.first : null;
 
-        emit(state.copyWith(isLoading: false, bookingData: booking));
+        emit(
+          state.copyWith(
+            isLoading: false,
+            bookingData: booking,
+            showRefundPaymentLedgerTab:
+                booking?.approvalStatus.trim().toUpperCase() == "REFUND",
+          ),
+        );
 
         return booking;
       },
@@ -218,16 +226,35 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
     required int bookingId,
     required int inventoryFlatId,
     required String parkingId,
+    required String cancelRemark,
+    required MultiFilePickerModel proofDocument,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-    Map<String, dynamic> requestBody = {
-      "BookingId": bookingId,
-      "Uniquekey": uniquekey,
-      "ProjectId": projectId,
-      "InventoryFlatId": inventoryFlatId,
+    Map<String, String> requestBody = {
+      "BookingId": bookingId.toString(),
+      "ProjectId": projectId.toString(),
+      "CancelRemark": cancelRemark,
+      "InventoryFlatId": inventoryFlatId.toString(),
       "ParkingId": parkingId,
+      "Uniquekey": uniquekey,
+      "RemoveProofOfDocumentURL": proofDocument.deletedFileList,
     };
-    var result = await _bookingRepository.cancelBooking(body: requestBody);
+    final List<Map<String, dynamic>> fileList = [];
+
+    for (int i = 0; i < proofDocument.fileNameList.length; i++) {
+      if (proofDocument.fileNameList[i].contains("http")) continue;
+
+      fileList.add({
+        "key": "ProofOfDocumentURL",
+        "value": proofDocument.fileBytesList[i],
+        "fileName": proofDocument.fileNameList[i],
+      });
+    }
+
+    var result = await _bookingRepository.cancelBooking(
+      body: requestBody,
+      fileList: fileList,
+    );
     goRouter.pop();
 
     result.fold(
@@ -239,6 +266,7 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
           context,
           subTitle: response['message'] ?? "Booking cancelled successfully",
         );
+        goRouter.pop();
 
         await getBookingById(context, 1, projectId, bookingId);
       },
@@ -377,6 +405,7 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
         );
 
         await getBookingById(context, 1, projectId, bookingId);
+        emit(state.copyWith(showRefundPaymentLedgerTab: true));
       },
     );
   }
@@ -510,6 +539,100 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
           projectId,
         );
         goRouter.pop();
+      },
+    );
+  }
+
+  Future getRefundAmountPaymentLedger(
+    BuildContext context,
+    int projectId,
+    int bookingId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    var result = await _requestManagementRepository.getRefundedAmountLedgerList(
+      bookingId: bookingId,
+      projectId: projectId,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        emit(
+          state.copyWith(
+            isLoading: false,
+            refundAmountLedgerList: response['data'],
+          ),
+        );
+      },
+    );
+  }
+
+  Future refundAmountPaymentLedger({
+    required BuildContext context,
+    required int refundedAmountLedgerId,
+    required String uniquekey,
+    required int bookingId,
+    required int projectId,
+    required String paymentMode,
+    required String projectBankListMasterId,
+    required String accountHolderName,
+    required String bankListMasterId,
+    required String accountNumber,
+    required String ifscCode,
+    required String refundedAmount,
+    required String transactionChequeDemandDraftNumber,
+    required String transactionChequeDemandDraftDate,
+    required MultiFilePickerModel chequeFile,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    Map<String, String> requestBody = {
+      "RefundedAmountLedgerId": refundedAmountLedgerId.toString(),
+      "Uniquekey": uniquekey,
+      "BookingId": bookingId.toString(),
+      "ProjectId": projectId.toString(),
+      "PaymentMode": paymentMode,
+      "ProjectBankListMasterId": projectBankListMasterId,
+      "AccountHolderName": accountHolderName,
+      "BankListMasterId": bankListMasterId,
+      "AccountNumber": accountNumber,
+      "IFSCCode": ifscCode,
+      "RefundedAmount": refundedAmount,
+      "TransactionChequeDemandDraftNumber": transactionChequeDemandDraftNumber,
+      "TransactionChequeDemandDraftDate": transactionChequeDemandDraftDate,
+    };
+
+    List<Map<String, dynamic>> fileList = [];
+    for (int i = 0; i < chequeFile.fileNameList.length; i++) {
+      if (chequeFile.fileNameList[i].contains("http")) {
+        continue;
+      }
+
+      fileList.add({
+        "key": "TransactionChequeDemandDraftURL",
+        "value": chequeFile.fileBytesList[i],
+        "fileName": chequeFile.fileNameList[i],
+      });
+    }
+
+    var addResult = await _requestManagementRepository
+        .addUpdateRefundedAmountLedger(body: requestBody, fileList: fileList);
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        goRouter.pop();
+
+        showSuccessMessage(
+          context,
+          subTitle: response['message'] ?? "Refund payment added successfully",
+        );
       },
     );
   }

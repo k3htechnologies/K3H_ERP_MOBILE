@@ -109,6 +109,42 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
     super.dispose();
   }
 
+  //  FETCH PROJECTS
+  Future<Map<String, dynamic>> _fetchProjects(
+    int pageNumber, {
+    String? value,
+  }) async {
+    final result = await _projectMasterRepository.getProjectList(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      queryParams:
+          value != null && value.isNotEmpty
+              ? {"ProjectName": value, "EmployeeId": _user!.employeeId}
+              : {"EmployeeId": _user!.employeeId},
+    );
+
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final project = response['data'] as List<ProjectModel>;
+
+        return {
+          "itemList":
+              project.map((pr) {
+                return {
+                  "zAttributesId": pr.projectId,
+                  "DisplayName": pr.projectName,
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
+        };
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
@@ -247,6 +283,66 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+class DashboardFilterTabs extends StatelessWidget {
+  final int selectedIndex;
+  final Function(int) onChanged;
+
+  const DashboardFilterTabs({
+    super.key,
+    required this.selectedIndex,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tabs = ["Today", "Weekly", "Monthly", "Datewise", "Overall"];
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 6.0),
+      decoration: BoxDecoration(
+        color: const Color(0xffEDEDF6),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xffC3C6D5), width: 0.5),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          spacing: 10.0,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(tabs.length, (index) {
+            final selected = selectedIndex == index;
+            return GestureDetector(
+              onTap: () => onChanged(index),
+              child: AnimatedContainer(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 3.0,
+                  horizontal: 9,
+                ),
+                duration: const Duration(milliseconds: 200),
+                decoration: BoxDecoration(
+                  color: selected ? AppColor.primary : Colors.transparent,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Center(
+                  child: Text(
+                    tabs[index],
+                    style:
+                        selected
+                            ? AppTextStyle.ts14SB(color: AppColor.white)
+                            : AppTextStyle.ts12R(
+                              color: AppColor.black.withValues(alpha: 0.5),
+                            ),
+                  ),
+                ),
+              ),
+            );
+          }),
         ),
       ),
     );

@@ -215,15 +215,17 @@ String dateFormatterHourOnly(String? timeString) {
   try {
     final parts = timeString.split(':');
 
+    if (parts.length < 2) return "-";
+
     final hour = int.tryParse(parts[0]) ?? 0;
-    final minute = parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0;
+    final minute = int.tryParse(parts[1]) ?? 0;
 
     final now = DateTime.now();
 
     final dateTime = DateTime(now.year, now.month, now.day, hour, minute);
 
-    return DateFormat('h:mm a').format(dateTime).toLowerCase();
-  } catch (_) {
+    return DateFormat('hh:mm a').format(dateTime).toLowerCase();
+  } catch (e) {
     return "-";
   }
 }
@@ -251,3 +253,5 @@ DateTime? parseApiDate(String? value) {
     dt.millisecond,
   );
 }
+
+

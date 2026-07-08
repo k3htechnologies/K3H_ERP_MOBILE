@@ -1234,12 +1234,6 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                       employeeName,
                       style: AppTextStyle.ts16M(color: AppColor.primary),
                     ),
-                    Text(
-                      "Software Developer",
-                      style: AppTextStyle.ts10R(
-                        color: AppColor.black.withValues(alpha: 0.50),
-                      ),
-                    ),
                   ],
                 ),
               ),

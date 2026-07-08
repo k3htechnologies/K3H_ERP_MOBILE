@@ -262,4 +262,11 @@ class AppAssets {
   static const String payRollDashboardFilledIcon =
       "$svgPath/payRollModuleFillIcon.svg";
   static const String boxIcon = "$svgPath/box.svg";
+  static const String tickIcon = "$pngPath/tick.png";
+
+  static const String totalRevenueIcon = "$svgPath/totalRevenue.svg";
+  static const String newLeadIcon = "$svgPath/newLead.svg";
+  static const String overdueIcon = "$svgPath/overdue.svg";
+
+  static const String conversionIcon = "$svgPath/conversion.svg";
 }

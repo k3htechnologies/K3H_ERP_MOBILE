@@ -168,6 +168,7 @@ class AppRoutes {
 
   // SALES BOOKING
   static String salesDashboard = "/salesDashboard";
+  static String salesAttendanceScreen = "/salesAttendanceScreen";
   static String projectWiseSalesDashboard = "/projectWiseSalesDashboard";
   static String booking = "/booking";
   static String addBooking = "/addBooking";
@@ -225,9 +226,11 @@ class AppRoutes {
   static String viewPayTrackMaster = "/viewPayTrackMaster";
   static String addBankLoanDocument = "/addBankLoanDocument";
   static String addActiveBank = "/addActiveBank";
+  static String paymentScheduleDemandSummary = "/paymentScheduleDemandSummary";
   static String addPaymentLedger = "/addPaymentLedger";
   static String viewPaymentLedger = "/viewPaymentLedger";
   static String addRefundScreen = "/addRefundScreen";
+  static String cancelBookingScreen = "/cancelBookingScreen";
   static String addApplicantDetailsRequests = "/addApplicantDetailsRequests";
   static String swapBookedParking = "/swapBookedParking";
   static String addFlatSpecificationRemarkScreen =

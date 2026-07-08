@@ -10,6 +10,14 @@ abstract interface class PayTrackRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>> getPayTrackListById({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  });
+
   Future<Either<Failure, Map<String, dynamic>>> getPayTrackCallLog({
     required int pageNumber,
     required int pageSize,
@@ -19,6 +27,7 @@ abstract interface class PayTrackRepository {
   Future<Either<Failure, Map<String, dynamic>>> exportPayTrackList({
     required int pageNumber,
     required int pageSize,
+    required int projectId,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -38,6 +47,28 @@ class PayTrackRepositoryImpl extends PayTrackRepository {
         pageNumber: pageNumber,
         pageSize: pageSize,
         projectId: projectId,
+        queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getPayTrackListById({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await payTrackDatasource.apiCallPullPayTrackByBookingId(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        projectId: projectId,
+        bookingId: bookingId,
         queryParams: queryParams,
       );
       return right(result);
@@ -70,12 +101,14 @@ class PayTrackRepositoryImpl extends PayTrackRepository {
   Future<Either<Failure, Map<String, dynamic>>> exportPayTrackList({
     required int pageNumber,
     required int pageSize,
+    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     try {
       var result = await payTrackDatasource.apiCallPullPayTrackForExport(
         pageNumber: pageNumber,
         pageSize: pageSize,
+        projectId: projectId,
         queryParams: queryParams,
       );
       return right(result);

@@ -10,6 +10,14 @@ abstract interface class PayTrackDatasource {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>> apiCallPullPayTrackByBookingId({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  });
+
   Future<Map<String, dynamic>> apiCallPullPayTrackCallLog({
     required int pageNumber,
     required int pageSize,
@@ -20,6 +28,7 @@ abstract interface class PayTrackDatasource {
   Future<Map<String, dynamic>> apiCallPullPayTrackForExport({
     required int pageNumber,
     required int pageSize,
+    required int projectId,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -52,6 +61,57 @@ class PayTrackDatasourceImpl extends PayTrackDatasource {
           pageSize: pageSize,
           projectId: projectId,
           pageNumber: pageNumber,
+          queryParams: queryParams,
+        ),
+      );
+
+      return {
+        'data': List<PayTrackModel>.from(
+          networkResponse['data'].map((e) => PayTrackModel.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallPullPayTrack(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          projectId: projectId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallPullPayTrackByBookingId({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullPayTrackUrl({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      required int bookingId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "PayTrack/PullPayTrackBooking?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&BookingId=$bookingId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullPayTrackUrl(
+          pageSize: pageSize,
+          projectId: projectId,
+          pageNumber: pageNumber,
+          bookingId: bookingId,
           queryParams: queryParams,
         ),
       );
@@ -127,15 +187,17 @@ class PayTrackDatasourceImpl extends PayTrackDatasource {
   Future<Map<String, dynamic>> apiCallPullPayTrackForExport({
     required int pageNumber,
     required int pageSize,
+    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     String pullPayTrackExportUrl({
       required int pageSize,
       required int pageNumber,
+      required int projectId,
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "PayTrack/PullPayTrackBooking?PageSize=$pageSize&PageNumber=$pageNumber";
+          "PayTrack/PullPayTrackBooking?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }
@@ -145,6 +207,7 @@ class PayTrackDatasourceImpl extends PayTrackDatasource {
         pullPayTrackExportUrl(
           pageSize: pageSize,
           pageNumber: pageNumber,
+          projectId: projectId,
           queryParams: queryParams,
         ),
       );
@@ -157,6 +220,7 @@ class PayTrackDatasourceImpl extends PayTrackDatasource {
         apiCallPullPayTrackForExport(
           pageNumber: pageNumber,
           pageSize: pageSize,
+          projectId: projectId,
           queryParams: queryParams,
         );
       }

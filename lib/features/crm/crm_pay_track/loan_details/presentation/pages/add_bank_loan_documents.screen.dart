@@ -56,14 +56,10 @@ class _AddBankLoanDocumentScreenState extends State<AddBankLoanDocumentScreen> {
   ) {
     _fileName.text = payTrackBookingFilesModel.fileName;
 
-    selectedUploadedFilePopUpFile = MultiFilePickerModel(
-      fileBytesList: [],
-      fileNameList:
-          payTrackBookingFilesModel.payTrackBookingFilesUrl.isEmpty
-              ? []
-              : [payTrackBookingFilesModel.payTrackBookingFilesUrl],
-      deletedFileList: "",
-    );
+    selectedUploadedFilePopUpFile.fileNameList =
+        payTrackBookingFilesModel.payTrackBookingFilesUrl.isEmpty
+            ? []
+            : payTrackBookingFilesModel.payTrackBookingFilesUrl.split(",");
 
     setState(() {});
   }
@@ -74,7 +70,6 @@ class _AddBankLoanDocumentScreenState extends State<AddBankLoanDocumentScreen> {
     _fileName.dispose();
   }
 
-  // SUBMIT FORM BY OTP VARIFICATION
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -126,17 +121,16 @@ class _AddBankLoanDocumentScreenState extends State<AddBankLoanDocumentScreen> {
                 isRequired: true,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return "Full Name is required";
+                    return "File Name is required";
                   }
                   return null;
                 },
               ),
               CustomMultiFilePicker(
-                title: "Document",
+                title: "File",
                 isRequired: true,
                 filePickType: FilePickType.both,
                 initialFileList: selectedUploadedFilePopUpFile.fileNameList,
-
                 onFilePickedCallback: (bytesList, fileNameList) {
                   selectedUploadedFilePopUpFile.fileNameList = fileNameList;
                   selectedUploadedFilePopUpFile.fileBytesList = bytesList;
@@ -154,7 +148,7 @@ class _AddBankLoanDocumentScreenState extends State<AddBankLoanDocumentScreen> {
 
                 validator: (fileList) {
                   if ((fileList == null || fileList.isEmpty)) {
-                    return "Document is required";
+                    return "File is required";
                   }
 
                   return null;

@@ -33,6 +33,11 @@ abstract interface class PaymentRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>> exportPaymentSchedule({
+    required int bookingId,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
   Future<Either<Failure, Map<String, dynamic>>>
   addUpdatePayTrackPaymentScheduleDemand({required Map<String, String> body});
   Future<Either<Failure, Map<String, dynamic>>>
@@ -43,9 +48,12 @@ abstract interface class PaymentRepository {
     Map<String, dynamic>? queryParams,
   });
 
-  Future<Either<Failure, Map<String, dynamic>>> addUpdateRefundedAmountLedger({
-    required Map<String, String> body,
-    required List<Map<String, dynamic>> fileList,
+  Future<Either<Failure, Map<String, dynamic>>>
+  getPayTrackPaymentScheduleDemandSummaryList({
+    required int bookingId,
+    required int projectId,
+    required int bookingPaymentScheduleId,
+    Map<String, dynamic>? queryParams,
   });
 }
 
@@ -146,6 +154,25 @@ class PaymentRepositoryImpl extends PaymentRepository {
   }
 
   @override
+  Future<Either<Failure, Map<String, dynamic>>> exportPaymentSchedule({
+    required int bookingId,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await paymentDatasource
+          .apicallPullPayTrackPaymentScheduleForExport(
+            bookingId: bookingId,
+            projectId: projectId,
+            queryParams: queryParams,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
   Future<Either<Failure, Map<String, dynamic>>>
   addUpdatePayTrackPaymentScheduleDemand({
     required Map<String, String> body,
@@ -182,15 +209,21 @@ class PaymentRepositoryImpl extends PaymentRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> addUpdateRefundedAmountLedger({
-    required Map<String, String> body,
-    required List<Map<String, dynamic>> fileList,
+  Future<Either<Failure, Map<String, dynamic>>>
+  getPayTrackPaymentScheduleDemandSummaryList({
+    required int bookingId,
+    required int projectId,
+    required int bookingPaymentScheduleId,
+    Map<String, dynamic>? queryParams,
   }) async {
     try {
-      var result = await paymentDatasource.apicallAddUpdateRefundedAmountLedger(
-        body: body,
-        fileList: fileList,
-      );
+      var result = await paymentDatasource
+          .apicallPullPayTrackPaymentScheduleDemandSummary(
+            bookingId: bookingId,
+            projectId: projectId,
+            bookingPaymentScheduleId: bookingPaymentScheduleId,
+            queryParams: queryParams,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

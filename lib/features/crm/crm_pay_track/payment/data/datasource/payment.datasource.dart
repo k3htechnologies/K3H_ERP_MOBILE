@@ -1,5 +1,8 @@
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger_summary.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_schedule_demand_summary.model.dart';
+// ignore: unused_import
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/refund_amount_payment_ledger.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
@@ -34,6 +37,12 @@ abstract interface class PaymentDatasource {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>> apicallPullPayTrackPaymentScheduleForExport({
+    required int bookingId,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
+
   Future<Map<String, dynamic>> apicallAddUpdatePayTrackPaymentScheduleDemand({
     required Map<String, String> body,
   });
@@ -44,9 +53,12 @@ abstract interface class PaymentDatasource {
     required String paymentFor,
     Map<String, dynamic>? queryParams,
   });
-  Future<Map<String, dynamic>> apicallAddUpdateRefundedAmountLedger({
-    required Map<String, String> body,
-    required List<Map<String, dynamic>> fileList,
+
+  Future<Map<String, dynamic>> apicallPullPayTrackPaymentScheduleDemandSummary({
+    required int bookingId,
+    required int projectId,
+    required int bookingPaymentScheduleId,
+    Map<String, dynamic>? queryParams,
   });
 }
 
@@ -265,25 +277,64 @@ class PaymentDatasourceImpl extends PaymentDatasource {
   }
 
   @override
+  Future<Map<String, dynamic>> apicallPullPayTrackPaymentScheduleForExport({
+    required int bookingId,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String url({
+      required int bookingId,
+      required int projectId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String finalUrl =
+          "PayTrack/PullPayTrackPaymentSchedule?BookingId=$bookingId&ProjectId=$projectId";
+
+      queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
+      return finalUrl;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        url(
+          bookingId: bookingId,
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
+      );
+
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallPullPayTrackPaymentScheduleForExport(
+          bookingId: bookingId,
+          projectId: projectId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
   Future<Map<String, dynamic>> apicallAddUpdatePayTrackPaymentScheduleDemand({
     required Map<String, String> body,
   }) async {
-    String url = "PayTrack/AddUpdatePayTrackPaymentScheduleDemand";
+    const url = "PayTrack/AddUpdatePayTrackPaymentScheduleDemand";
 
     try {
-      var networkResponse = await baseClient.postRequestWithAuthentication(
+      final networkResponse = await baseClient.postRequestWithAuthentication(
         url,
         body,
       );
 
       return {
-        'data': List<PayTrackPaymentLedgerModel>.from(
-          networkResponse["data"].map(
-            (e) => PayTrackPaymentLedgerModel.fromJson(e),
-          ),
-        ),
-        'message': networkResponse['message'],
-        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        "data": networkResponse["data"],
+        "successMessage": networkResponse["successMessage"],
+        "totalNumberOfRecord": networkResponse["totalNumberOfRecord"],
       };
     } catch (error) {
       if (error is TokenExpiredException) {
@@ -345,30 +396,50 @@ class PaymentDatasourceImpl extends PaymentDatasource {
   }
 
   @override
-  Future<Map<String, dynamic>> apicallAddUpdateRefundedAmountLedger({
-    required Map<String, String> body,
-    required List<Map<String, dynamic>> fileList,
+  Future<Map<String, dynamic>> apicallPullPayTrackPaymentScheduleDemandSummary({
+    required int bookingId,
+    required int projectId,
+    required int bookingPaymentScheduleId,
+    Map<String, dynamic>? queryParams,
   }) async {
-    String url = "AmountRefundedAgainstBooking/AddUpdateRefundedAmountLedger";
+    String url({
+      required int bookingId,
+      required int projectId,
+      required int bookingPaymentScheduleId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String finalUrl =
+          "PayTrack/PullPayTrackPaymentScheduleDemandSummary?ProjectId=$projectId&BookingId=$bookingId&BookingPaymentScheduleId=$bookingPaymentScheduleId";
+
+      queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
+      return finalUrl;
+    }
 
     try {
-      var networkResponse = await baseClient
-          .multipartRequestWithAuthenticationBytes(url, fileList, body);
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        url(
+          bookingId: bookingId,
+          projectId: projectId,
+          bookingPaymentScheduleId: bookingPaymentScheduleId,
+          queryParams: queryParams,
+        ),
+      );
 
       return {
-        'data': List<PayTrackPaymentLedgerSummaryModel>.from(
+        'data': List<PayTrackPaymentScheduleDemandSummaryModel>.from(
           networkResponse["data"].map(
-            (e) => PayTrackPaymentLedgerSummaryModel.fromJson(e),
+            (e) => PayTrackPaymentScheduleDemandSummaryModel.fromJson(e),
           ),
         ),
-        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        return apicallAddUpdatePayTrackPaymentLedger(
-          body: body,
-          fileList: fileList,
+        return apicallPullPayTrackPaymentScheduleDemandSummary(
+          bookingId: bookingId,
+          projectId: projectId,
+          bookingPaymentScheduleId: bookingPaymentScheduleId,
+          queryParams: queryParams,
         );
       }
       rethrow;

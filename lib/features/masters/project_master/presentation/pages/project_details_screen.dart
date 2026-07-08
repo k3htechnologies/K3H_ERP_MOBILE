@@ -850,43 +850,54 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 Text("Project Documentation", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
                 Row(
-                  spacing: 10,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildColumnTitleValue(
-                      title: "RERA Number",
-                      value:
-                          widget.project.reraNumber.isNotEmpty
-                              ? widget.project.reraNumber
-                              : "-",
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "RERA Number",
+                        value:
+                            widget.project.reraNumber.isNotEmpty
+                                ? widget.project.reraNumber
+                                : "-",
+                      ),
                     ),
-                    buildColumnTitleValue(
-                      title: "RERA Certificate Date",
-                      value:
-                          widget.project.reraCertificateDate != null
-                              ? formatDateTimeAsDDMMMYYYY(
-                                widget.project.reraCertificateDate!,
-                              )
-                              : "-",
+                    horizontalSpacing(),
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "RERA Certificate Date",
+                        value:
+                            widget.project.reraCertificateDate != null
+                                ? formatDateTimeAsDDMMMYYYY(
+                                  widget.project.reraCertificateDate!,
+                                )
+                                : "-",
+                      ),
                     ),
                   ],
                 ),
                 verticalSpacing(),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildColumnTitleValue(
-                      title: "RERA Completion Date",
-                      value:
-                          widget.project.reraComplitionDate != null
-                              ? formatDateTimeAsDDMMMYYYY(
-                                widget.project.reraComplitionDate!,
-                              )
-                              : "-",
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "RERA Completion Date",
+                        value:
+                            widget.project.reraComplitionDate != null
+                                ? formatDateTimeAsDDMMMYYYY(
+                                  widget.project.reraComplitionDate!,
+                                )
+                                : "-",
+                      ),
                     ),
-                    buildColumnTitleValue(
-                      title: "APF Number",
-                      value: widget.project.apfNumber.toString(),
+                    horizontalSpacing(),
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "APF Number",
+                        value: widget.project.apfNumber.toString(),
+                      ),
                     ),
                   ],
                 ),

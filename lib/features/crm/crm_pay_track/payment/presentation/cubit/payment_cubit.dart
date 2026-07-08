@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger_summary.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_schedule_demand_summary.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/repository/payment.repository.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_state.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
@@ -39,14 +40,15 @@ class PaymentCubit extends Cubit<PaymentState> {
   Future getPaymentScheduleList(
     BuildContext context,
     int projectId,
-    int bookingId,
-  ) async {
+    int bookingId, {
+    String searchText = "",
+  }) async {
     emit(state.copyWith(isLoading: true));
 
     var result = await paymentRepository.getPayTrackPaymentScheduleList(
       bookingId: bookingId,
       projectId: projectId,
-      queryParams: {"IsCheckPermission": true},
+      queryParams: {"IsCheckPermission": true, "Name": searchText},
     );
 
     result.fold(
@@ -65,6 +67,61 @@ class PaymentCubit extends Cubit<PaymentState> {
     );
   }
 
+  void search({
+    required BuildContext context,
+    required String searchText,
+    required int bookingId,
+    required int projectId,
+    required int selectedTab,
+  }) {
+    emit(state.copyWith(searchText: searchText));
+
+    if (selectedTab == 0) {
+      getPaymentScheduleList(
+        context,
+        projectId,
+        bookingId,
+        searchText: searchText,
+      );
+    } else {
+      getPaymentLedgerList(
+        context,
+        bookingId,
+        projectId,
+        searchText: searchText,
+      );
+    }
+  }
+
+  double get totalPaymentScheduleAmount {
+    return state.payTrackPaymentScheduleList.fold(
+      0.0,
+      (sum, item) =>
+          sum +
+          item.paymentScheduleAmount +
+          item.paymentScheduleGstAmount +
+          item.paymentScheduleTdsAmount,
+    );
+  }
+
+  double get totalAgreementAmount {
+    return state.payTrackPaymentScheduleList.fold(
+      0.0,
+      (sum, item) => sum + item.paymentScheduleAmount,
+    );
+  }
+
+  double get totalAmount {
+    return state.payTrackPaymentScheduleList.fold(
+      0.0,
+      (sum, item) =>
+          sum +
+          item.paymentScheduleAmount +
+          item.paymentScheduleGstAmount +
+          item.paymentScheduleTdsAmount,
+    );
+  }
+
   Future addDemandDraft({
     required BuildContext context,
     required int bookingPaymentScheduleId,
@@ -77,9 +134,9 @@ class PaymentCubit extends Cubit<PaymentState> {
       "BookingPaymentScheduleId": bookingPaymentScheduleId.toString(),
       "BookingId": bookingId.toString(),
       "ProjectId": projectId.toString(),
-      "PaymentScheduleDemandType": paymentScheduleDemandType,
+      "PaymentScheduleDemandType": apiDemandType(paymentScheduleDemandType),
     };
-
+    print(requestBody);
     var addResult = await paymentRepository
         .addUpdatePayTrackPaymentScheduleDemand(body: requestBody);
     goRouter.pop();
@@ -88,31 +145,42 @@ class PaymentCubit extends Cubit<PaymentState> {
         showErrorMessage(context, 'Error', failure.message);
         return;
       },
-      (response) {
+      (response) async {
         goRouter.pop();
-        emit(
-          state.copyWith(
-            paymentLedger: [
-              response['data'][0] as PayTrackPaymentLedgerModel,
-              ...state.paymentLedger,
-            ],
-          ),
+
+        showSuccessMessage(
+          context,
+          subTitle: response["message"] ?? "Generated Successfully",
         );
-        showSuccessMessage(context);
+
+        await getPaymentScheduleList(context, projectId, bookingId);
       },
     );
   }
 
-  // GET PAYMENT LEDGER LIST
+  String apiDemandType(String value) {
+    switch (value.trim().toLowerCase()) {
+      case "demand":
+        return "Demand Letter";
+      case "reminder":
+        return "Reminder Letter";
+      default:
+        return value;
+    }
+  }
+
+  // <---- GET PAYMENT LEDGER LIST ---->
   Future getPaymentLedgerList(
     BuildContext context,
     int bookingId,
-    int projectId,
-  ) async {
+    int projectId, {
+    String searchText = "",
+  }) async {
     emit(state.copyWith(isLoading: true));
     var result = await paymentRepository.getPayTrackPayTrackPaymentLedgerList(
       bookingId: bookingId,
       projectId: projectId,
+      queryParams: {"PaymentFor": searchText},
     );
     result.fold(
       (failure) {
@@ -161,7 +229,40 @@ class PaymentCubit extends Cubit<PaymentState> {
     );
   }
 
-  // ADD PAYMENT LEDGER
+  Future getPayTrackPaymentScheduleDemandSummaryList(
+    BuildContext context,
+    int bookingId,
+    int projectId,
+    int bookingPaymentScheduleId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+    var result = await paymentRepository
+        .getPayTrackPaymentScheduleDemandSummaryList(
+          bookingId: bookingId,
+          projectId: projectId,
+          bookingPaymentScheduleId: bookingPaymentScheduleId,
+          queryParams: {"IsCheckPermission": true},
+        );
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        // Always replace list to avoid duplicates on mobile refresh/approval
+        final updatedList =
+            response['data'] as List<PayTrackPaymentScheduleDemandSummaryModel>;
+        emit(
+          state.copyWith(
+            isLoading: false,
+            payTrackPaymentScheduleDemandSummaryModel: updatedList,
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- ADD PAYMENT LEDGER ---->
   Future addPaymentLedgerMaster({
     required BuildContext context,
     required String bookingId,
@@ -221,9 +322,9 @@ class PaymentCubit extends Cubit<PaymentState> {
         goRouter.pop();
         emit(
           state.copyWith(
-            paymentLedger: [
-              response['data'][0] as PayTrackPaymentLedgerModel,
-              ...state.paymentLedger,
+            payTrackPaymentLedgerSummaryList: [
+              response['data'][0] as PayTrackPaymentLedgerSummaryModel,
+              ...state.payTrackPaymentLedgerSummaryList,
             ],
           ),
         );
@@ -374,93 +475,7 @@ class PaymentCubit extends Cubit<PaymentState> {
     );
   }
 
-  Future refundAmountPaymentLedger({
-    required BuildContext context,
-    required String uniquekey,
-    required String bookingId,
-    required String projectId,
-    required String paymentFor,
-    required String paymentMode,
-    required String projectBankListMasterId,
-    required String accountHolderName,
-    required String bankListMasterId,
-    required String accountNumber,
-    required String ifscCode,
-    required String amountType,
-    required String paymentType,
-    required String refundedAmount,
-    required String transactionChequeDemandDraftNumber,
-    required String transactionChequeDemandDraftDate,
-    required MultiFilePickerModel chequeFile,
-    required MultiFilePickerModel paymentReceiptFile,
-  }) async {
-    DialogHelper.showProcessingOverlay(context);
-
-    Map<String, String> requestBody = {
-      "RefundedAmountLedgerId": "0",
-      "Uniquekey": uniquekey,
-      "BookingId": bookingId,
-      "ProjectId": projectId,
-      "PaymentFor": paymentFor,
-      "PaymentMode": paymentMode,
-      "ProjectBankListMasterId": projectBankListMasterId,
-      "AccountHolderName": accountHolderName,
-      "BankListMasterId": bankListMasterId,
-      "AccountNumber": accountNumber,
-      "IFSCCode": ifscCode,
-      "AmountType": amountType,
-      "PaymentType": paymentType,
-      "RefundedAmount": refundedAmount,
-      "TransactionChequeDemandDraftNumber": transactionChequeDemandDraftNumber,
-      "RemoveTransactionChequeDemandDraftURL": "",
-      "TransactionChequeDemandDraftDate": transactionChequeDemandDraftDate,
-      "RemovePaymentReceiptURL": "",
-    };
-
-    List<Map<String, dynamic>> fileList = [];
-    for (int i = 0; i < chequeFile.fileNameList.length; i++) {
-      if (chequeFile.fileNameList[i].contains("http")) {
-        continue;
-      }
-
-      fileList.add({
-        "key": "TransactionChequeDemandDraftURL",
-        "value": chequeFile.fileBytesList[i],
-        "fileName": chequeFile.fileNameList[i],
-      });
-    }
-    for (int i = 0; i < paymentReceiptFile.fileNameList.length; i++) {
-      if (paymentReceiptFile.fileNameList[i].contains("http")) {
-        continue;
-      }
-
-      fileList.add({
-        "key": "PaymentReceiptURL",
-        "value": paymentReceiptFile.fileBytesList[i],
-        "fileName": paymentReceiptFile.fileNameList[i],
-      });
-    }
-    var addResult = await paymentRepository.addUpdateRefundedAmountLedger(
-      body: requestBody,
-      fileList: fileList,
-    );
-    goRouter.pop();
-    addResult.fold(
-      (failure) {
-        showErrorMessage(context, 'Error', failure.message);
-      },
-      (response) {
-        goRouter.pop();
-
-        showSuccessMessage(
-          context,
-          subTitle: response['message'] ?? "Refund payment added successfully",
-        );
-      },
-    );
-  }
-
-  // EXPORT PAYMENT LEDGER
+  // <---- EXPORT PAYMENT LEDGER ---->
   Future exportPaymentLedger(
     BuildContext context,
     int bookingId,
@@ -485,6 +500,38 @@ class PaymentCubit extends Cubit<PaymentState> {
           exportType.toLowerCase() == "pdf"
               ? "${projectName}_payment_ledger_${DateTime.now()}.pdf"
               : "${projectName}_payment_ledger_${DateTime.now()}.xlsx",
+        );
+      },
+    );
+  }
+
+  Future exportPaymentSchedule(
+    BuildContext context,
+    int bookingId,
+    int projectId,
+    String projectName,
+    String exportType,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    var result = await paymentRepository.exportPaymentSchedule(
+      bookingId: bookingId,
+      projectId: projectId,
+      queryParams: {"ExportType": exportType},
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "${projectName}_payment_schedule_${DateTime.now()}.pdf"
+              : "${projectName}_payment_schedule_${DateTime.now()}.xlsx",
         );
       },
     );

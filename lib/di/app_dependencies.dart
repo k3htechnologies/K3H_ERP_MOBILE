@@ -42,6 +42,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/sales/report/performance_rep
 import 'package:k3h_erp_app/di/feature_dependencies/sales/sales_dashboard/sales_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/setting_dashboard/setting_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/stock_management/stock_management.dependency.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/tax_tracker/tax_tracker.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
 
 import 'feature_dependencies/calendar/calendar.dependencies.dart';
@@ -259,4 +260,5 @@ void initDependencies() {
   registerStockManagementrDependencies(serviceLocator);
   // CRM DASHBOARD
   registerCrmDashboardDependencies(serviceLocator);
+  registerTaxTrackerDependencies(serviceLocator);
 }

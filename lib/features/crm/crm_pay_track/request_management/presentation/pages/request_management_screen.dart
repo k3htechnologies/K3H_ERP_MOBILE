@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/activity_tab.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/refund_payment_ledger.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/request_tab.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -13,6 +14,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -31,9 +33,11 @@ class RequestManagementScreen extends StatefulWidget {
 }
 
 class _RequestManagementScreenState extends State<RequestManagementScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late TabController _tabController;
   late RequestManagementCubit _requestManagementCubit;
+
+  bool _showRefundTab = false;
 
   @override
   void initState() {
@@ -41,12 +45,41 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_handleTabChange);
     _requestManagementCubit = context.read<RequestManagementCubit>();
-    _requestManagementCubit.getBookingById(
+    _loadBooking();
+  }
+
+  Future<void> _loadBooking() async {
+    await _requestManagementCubit.getBookingById(
       context,
       1,
       widget.projectId,
       widget.bookingId,
     );
+
+    final show = _requestManagementCubit.state.showRefundPaymentLedgerTab;
+
+    if (_showRefundTab != show) {
+      _showRefundTab = show;
+      _recreateController();
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _recreateController() {
+    final currentIndex = _tabController.index;
+
+    _tabController.dispose();
+
+    _tabController = TabController(
+      length: _showRefundTab ? 4 : 3,
+      vsync: this,
+      initialIndex: currentIndex.clamp(0, (_showRefundTab ? 4 : 3) - 1),
+    );
+
+    _tabController.addListener(_handleTabChange);
   }
 
   // HANDLE TAB CHANGE
@@ -61,47 +94,55 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
             widget.bookingId,
           );
           break;
-
-        // case 1:
-        //   await _paymentCubit.getPaymentLedgerList(
-        //     context,
-        //     widget.bookingId,
-        //     widget.projectId,
-        //   );
-        //   break;
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<RequestManagementCubit, RequestManagementState>(
-      builder: (context, state) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            verticalSpacing(),
-            ChipStyleTabBar(
-              controller: _tabController,
-              tabs: ['Summary', 'Request', 'Activity'],
+    return BlocListener<RequestManagementCubit, RequestManagementState>(
+      listenWhen:
+          (previous, current) =>
+              previous.showRefundPaymentLedgerTab !=
+              current.showRefundPaymentLedgerTab,
+      listener: (context, state) {},
+      child: BlocBuilder<RequestManagementCubit, RequestManagementState>(
+        builder: (context, state) {
+          final tabs = ['Summary', 'Requests', 'Activity'];
+
+          if (_showRefundTab) {
+            tabs.add('Refund Payment Ledger');
+          }
+
+          final pages = [
+            _buildSummaryTab(context),
+            RequestTabScreen(
+              projectId: widget.projectId,
+              bookingId: widget.bookingId,
             ),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                physics: NeverScrollableScrollPhysics(),
-                children: [
-                  _buildSummaryTab(context),
-                  RequestTabScreen(
-                    projectId: widget.projectId,
-                    bookingId: widget.bookingId,
-                  ),
-                  ActivityTabScreen(state: state),
-                ],
+            ActivityTabScreen(state: state),
+          ];
+
+          if (_showRefundTab) {
+            pages.add(RefundPaymentLedgerScreen(booking: state.bookingData!));
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              verticalSpacing(),
+              ChipStyleTabBar(controller: _tabController, tabs: tabs),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: pages,
+                ),
               ),
-            ),
-          ],
-        );
-      },
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -117,7 +158,59 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
         }
         final booking = bookingData;
         final applicant = bookingData.bookingApplicantData.first;
+        final isBookingCancelled = booking.cancelRemark.trim().isNotEmpty;
 
+        final isRefundStatus =
+            booking.approvalStatus.trim().toUpperCase() == "REFUND";
+
+        final isCancelApproved =
+            booking.cancelBookingApprovalStatus.trim().toUpperCase() ==
+            "APPROVED";
+
+        final canMakePayment =
+            booking.totalAmountRefundedAgainstBooking >
+            booking.refundedAmountOnTillDate;
+        Widget? actionButton;
+        if (!isBookingCancelled && !isRefundStatus) {
+          actionButton = CustomButton(
+            text: "Cancel Booking",
+            backgroundColor: AppColor.missingInformationRed.withValues(
+              alpha: 0.3,
+            ),
+            textColor: AppColor.missingInformationRed,
+            onPressed: () {
+              goRouter.pushNamed(AppRoutes.cancelBookingScreen, extra: booking);
+            },
+          );
+        } else if (isBookingCancelled && !isRefundStatus && isCancelApproved) {
+          actionButton = CustomButton(
+            text: "Initiate Refund",
+            backgroundColor: AppColor.primary.withValues(alpha: 0.15),
+            textColor: AppColor.primary,
+            onPressed: () {
+              goRouter.pushNamed(
+                AppRoutes.addRefundScreen,
+                extra: {"booking": booking},
+              );
+            },
+          );
+        } else if (isRefundStatus && canMakePayment) {
+          actionButton = CustomButton(
+            text: "Make Payment",
+            backgroundColor: AppColor.green,
+            textColor: AppColor.white,
+            onPressed: () {
+              goRouter.pushNamed(
+                AppRoutes.modifiedRequestsMakePayment,
+                extra: {
+                  "uniquekey": booking.uniquekey,
+                  "bookingId": booking.bookingId,
+                  "projectId": booking.projectId,
+                },
+              );
+            },
+          );
+        }
         return Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -179,16 +272,30 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                       children: [
                                         Expanded(
                                           child: buildColumnTitleValueNormal(
-                                            title: "Full Name",
+                                            title: "Applicant Name",
                                             value: applicant.applicantName,
+                                            customValueWidget:
+                                                DocumentPreviewText(
+                                                  text: applicant.applicantName,
+                                                  fileUrl: applicant.photoURL,
+                                                ),
                                           ),
                                         ),
                                         horizontalSpacing(),
                                         Expanded(
                                           child: buildColumnTitleValueNormal(
-                                            title: "Contact Number",
+                                            title: "Mobile Number",
                                             value:
                                                 applicant.applicantMobileNumber,
+                                            customValueWidget:
+                                                CustomClickToContactText(
+                                                  countryCode:
+                                                      applicant
+                                                          .applicantMobileNumberCountryCode,
+                                                  value:
+                                                      applicant
+                                                          .applicantMobileNumber,
+                                                ),
                                           ),
                                         ),
                                       ],
@@ -210,6 +317,7 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                             value: applicant.aadharCardNumber,
                                             customValueWidget:
                                                 DocumentPreviewText(
+                                                  title: "Aadhaar Card",
                                                   text:
                                                       applicant
                                                           .aadharCardNumber,
@@ -226,10 +334,11 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                       children: [
                                         Expanded(
                                           child: buildColumnTitleValueNormal(
-                                            title: "PAN Card No.",
+                                            title: "PAN No.",
                                             value: applicant.panNumber,
                                             customValueWidget:
                                                 DocumentPreviewText(
+                                                  title: "PAN Card",
                                                   text: applicant.panNumber,
                                                   fileUrl: applicant.panCardURL,
                                                 ),
@@ -243,6 +352,7 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                 applicant.drivingLicenseNumber,
                                             customValueWidget:
                                                 DocumentPreviewText(
+                                                  title: "Droivinh License",
                                                   text:
                                                       applicant
                                                           .drivingLicenseNumber,
@@ -264,6 +374,7 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                             value: applicant.votingIdNumber,
                                             customValueWidget:
                                                 DocumentPreviewText(
+                                                  title: "Voting ID",
                                                   text:
                                                       applicant.votingIdNumber,
                                                   fileUrl:
@@ -278,6 +389,7 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                             value: applicant.passportNumber,
                                             customValueWidget:
                                                 DocumentPreviewText(
+                                                  title: "Passport",
                                                   text:
                                                       applicant.passportNumber,
                                                   fileUrl:
@@ -297,6 +409,7 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                             value: applicant.gstNumber,
                                             customValueWidget:
                                                 DocumentPreviewText(
+                                                  title: "GST Number",
                                                   text: applicant.gstNumber,
                                                   fileUrl:
                                                       applicant.gstNumberURL,
@@ -310,6 +423,7 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                             value: applicant.cancelledChequeUrl,
                                             customValueWidget:
                                                 DocumentPreviewText(
+                                                  title: "Cancelled Cheque",
                                                   text:
                                                       applicant
                                                           .cancelledChequeUrl,
@@ -327,10 +441,12 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                       children: [
                                         Expanded(
                                           child: buildColumnTitleValueNormal(
-                                            title: "POA",
+                                            title: "POA (if NRI Execution)",
                                             value: applicant.poaurl,
                                             customValueWidget:
                                                 DocumentPreviewText(
+                                                  title:
+                                                      "POA (if NRI Execution)",
                                                   text: applicant.poaurl,
                                                   fileUrl: applicant.poaurl,
                                                 ),
@@ -339,17 +455,17 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                         horizontalSpacing(),
                                         Expanded(
                                           child: buildColumnTitleValueNormal(
-                                            title: "Income Form 16IT",
+                                            title:
+                                                "Income Docs (Form 16 / ITR)",
                                             value: applicant.incomeForm16Itrurl,
-                                            customValueWidget:
-                                                DocumentPreviewText(
-                                                  text:
-                                                      applicant
-                                                          .incomeForm16Itrurl,
-                                                  fileUrl:
-                                                      applicant
-                                                          .incomeForm16Itrurl,
-                                                ),
+                                            customValueWidget: DocumentPreviewText(
+                                              title:
+                                                  "Income Docs (Form 16 / ITR)",
+                                              text:
+                                                  applicant.incomeForm16Itrurl,
+                                              fileUrl:
+                                                  applicant.incomeForm16Itrurl,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -365,6 +481,7 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                 applicant.nreNroBankDetailsUrl,
                                             customValueWidget:
                                                 DocumentPreviewText(
+                                                  title: "Nre/Nro/Bank Details",
                                                   text:
                                                       applicant
                                                           .nreNroBankDetailsUrl,
@@ -381,6 +498,7 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                             value: applicant.nomineeFormUrl,
                                             customValueWidget:
                                                 DocumentPreviewText(
+                                                  title: "Nominee Form",
                                                   text:
                                                       applicant.nomineeFormUrl,
                                                   fileUrl:
@@ -402,6 +520,8 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                 applicant
                                                     .statementOfSourceOfFundsURL,
                                             customValueWidget: DocumentPreviewText(
+                                              title:
+                                                  "Statement Of Source Of Funds",
                                               text:
                                                   applicant
                                                       .statementOfSourceOfFundsURL,
@@ -418,6 +538,7 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                             value: applicant.paymentProofURL,
                                             customValueWidget:
                                                 DocumentPreviewText(
+                                                  title: "Payment Proof",
                                                   text:
                                                       applicant.paymentProofURL,
                                                   fileUrl:
@@ -480,105 +601,159 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                 style: AppTextStyle.ts14SB(),
                               ),
                               verticalSpacing(),
-                              Container(
-                                padding: EdgeInsets.all(16.0),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  border: Border.all(
-                                    color: AppColor.primary.withValues(
-                                      alpha: 0.3,
-                                    ),
-                                    width: 0.8,
-                                  ),
-                                ),
-                                child: Column(
-                                  spacing: 16.0,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        buildColumnTitleValueNormal(
-                                          title: "Parking Number",
-                                          value:
-                                              booking
-                                                  .parkingData
-                                                  .first
-                                                  .parkingNumber,
+                              Column(
+                                children: List.generate(booking.parkingData.length, (
+                                  index,
+                                ) {
+                                  final parking = booking.parkingData[index];
+
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: AppColor.primary.withValues(
+                                          alpha: 0.3,
                                         ),
-                                        horizontalSpacing(),
-                                        buildColumnTitleValueNormal(
-                                          title: "Category",
-                                          value:
-                                              booking
-                                                  .parkingData
-                                                  .first
-                                                  .parkingCategory,
-                                        ),
-                                      ],
+                                        width: 0.8,
+                                      ),
                                     ),
-                                    Row(
+                                    child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                      spacing: 10.0,
                                       children: [
-                                        buildColumnTitleValueNormal(
-                                          title: "Type",
-                                          value:
-                                              booking
-                                                  .parkingData
-                                                  .first
-                                                  .parkingType,
+                                        Text(
+                                          "Parking ${index + 1}",
+                                          style: AppTextStyle.ts14SB(
+                                            color: AppColor
+                                                .greyTitleAndValueColor
+                                                .withValues(alpha: 0.4),
+                                          ),
                                         ),
+                                        verticalSpacing(),
+
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child:
+                                                  buildColumnTitleValueNormal(
+                                                    title: "Parking Number",
+                                                    value:
+                                                        parking.parkingNumber,
+                                                  ),
+                                            ),
+                                            horizontalSpacing(),
+                                            Expanded(
+                                              child:
+                                                  buildColumnTitleValueNormal(
+                                                    title: "Building",
+                                                    value:
+                                                        parking.buildingNumber,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
+
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child:
+                                                  buildColumnTitleValueNormal(
+                                                    title: "Type",
+                                                    value: parking.parkingType,
+                                                  ),
+                                            ),
+                                            horizontalSpacing(),
+                                            Expanded(
+                                              child:
+                                                  buildColumnTitleValueNormal(
+                                                    title: "Size",
+                                                    value:
+                                                        parking.parkingSubType,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
+
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child:
+                                                  buildColumnTitleValueNormal(
+                                                    title: "Wing",
+                                                    value: parking.wing,
+                                                  ),
+                                            ),
+                                            horizontalSpacing(),
+                                            Expanded(
+                                              child:
+                                                  buildColumnTitleValueNormal(
+                                                    title: "Floor",
+                                                    value: parking.floor,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child:
+                                                  buildColumnTitleValueNormal(
+                                                    title: "Category",
+                                                    value:
+                                                        parking.parkingCategory,
+                                                  ),
+                                            ),
+                                            horizontalSpacing(),
+                                            Expanded(
+                                              child:
+                                                  buildColumnTitleValueNormal(
+                                                    title: "Dimensions",
+                                                    value:
+                                                        parking
+                                                            .parkingDimensions,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
+
                                         horizontalSpacing(),
-                                        buildColumnTitleValueNormal(
-                                          title: "Size",
-                                          value:
-                                              booking
-                                                  .parkingData
-                                                  .first
-                                                  .parkingSubType,
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child:
+                                                  buildColumnTitleValueNormal(
+                                                    title: "Approval Status",
+                                                    value:
+                                                        parking.approvalStatus,
+                                                  ),
+                                            ),
+                                            horizontalSpacing(),
+                                            Expanded(
+                                              child: buildColumnTitleValueNormal(
+                                                title: "EV Charging",
+                                                value:
+                                                    parking.isEVChargingAvailable
+                                                        ? "Yes"
+                                                        : "No",
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        buildColumnTitleValueNormal(
-                                          title: "Wing",
-                                          value: booking.parkingData.first.wing,
-                                        ),
-                                        horizontalSpacing(),
-                                        buildColumnTitleValueNormal(
-                                          title: "Floor",
-                                          value:
-                                              booking.parkingData.first.floor,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        buildColumnTitleValueNormal(
-                                          title: "Approval Status",
-                                          value:
-                                              booking
-                                                  .parkingData
-                                                  .first
-                                                  .approvalStatus,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                                  );
+                                }),
                               ),
                             ],
                           ),
@@ -611,9 +786,11 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                 children: [
                                   Row(
                                     children: [
-                                      Text(
-                                        bookingData.flatAlterationRemark,
-                                        style: AppTextStyle.ts14M(),
+                                      Expanded(
+                                        child: Text(
+                                          bookingData.flatAlterationRemark,
+                                          style: AppTextStyle.ts14M(),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -632,38 +809,7 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                 children: [
                   Container(
                     padding: const EdgeInsets.all(20.0),
-                    child:
-                        (booking.totalAmountRefundedAgainstBooking == 0 ||
-                                booking.totalAmountRefundedAgainstBooking ==
-                                    null)
-                            ? CustomButton(
-                              text: "Initiate Refund",
-                              onPressed: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.addRefundScreen,
-                                  extra: {"booking": booking},
-                                );
-                              },
-                              backgroundColor: AppColor.primary.withValues(
-                                alpha: 0.15,
-                              ),
-                              textColor: AppColor.primary,
-                            )
-                            : CustomButton(
-                              text: "Make Payment",
-                              onPressed: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.modifiedRequestsMakePayment,
-                                  extra: {
-                                    "uniquekey": booking.uniquekey,
-                                    "bookingId": booking.bookingId.toString(),
-                                    "projectId": booking.projectId.toString(),
-                                  },
-                                );
-                              },
-                              backgroundColor: AppColor.green,
-                              textColor: AppColor.white,
-                            ),
+                    child: actionButton,
                   ),
                 ],
               ),

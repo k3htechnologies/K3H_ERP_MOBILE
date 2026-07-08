@@ -103,14 +103,19 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
         emit(state.copyWith(isLoading: false));
         return;
       },
-      (response) {
+      (response) async {
         emit(
           state.copyWith(
             bankLoanDetails: response['data'][0],
             isLoading: false,
           ),
         );
-        showSuccessMessage(context, subTitle: response['message']);
+
+        await getBankLoanDetailsList(context, 50, 1, projectId, bookingId);
+        goRouter.pop();
+        if (context.mounted) {
+          showSuccessMessage(context, subTitle: response['message']);
+        }
       },
     );
   }
@@ -279,10 +284,17 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
+        if (bookingLoanDetailsId == null) return;
+
+        final updatedMap = Map<int, List<PayTrackBookingFilesModel>>.from(
+          state.bankDocumentMap,
+        );
+        updatedMap[bookingLoanDetailsId] =
+            response['data'] as List<PayTrackBookingFilesModel>;
+
         emit(
           state.copyWith(
-            bankDocumentList:
-                response['data'] as List<PayTrackBookingFilesModel>,
+            bankDocumentMap: updatedMap,
             totalNumberOfRecord: response['totalNumberOfRecord'],
             isLoading: false,
           ),
@@ -333,12 +345,18 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
         goRouter.pop();
 
         showSuccessMessage(context, subTitle: response['message']);
-        getBankDocumentList(
+
+        await getBankDocumentList(
           context: context,
           pageNumber: 1,
           projectId: projectId,
           bookingId: bookingId,
+          bookingLoanDetailsId: state.bankLoanDetails?.bookingLoanDetailsId,
         );
+
+        if (context.mounted) {
+          await getBankLoanDetailsList(context, 10, 1, projectId, bookingId);
+        }
       },
     );
   }
@@ -462,7 +480,8 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
         emit(state.copyWith(isLoading: false));
         return;
       },
-      (response) {
+      (response) async {
+        goRouter.pop();
         emit(
           state.copyWith(
             bankLoanDetails: response['data'][0],
@@ -470,6 +489,17 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
           ),
         );
         showSuccessMessage(context, subTitle: response['message']);
+        await getBankDocumentList(
+          context: context,
+          pageNumber: 1,
+          projectId: projectId,
+          bookingId: bookingId,
+          bookingLoanDetailsId: state.bankLoanDetails?.bookingLoanDetailsId,
+        );
+
+        if (context.mounted) {
+          await getBankLoanDetailsList(context, 10, 1, projectId, bookingId);
+        }
       },
     );
   }

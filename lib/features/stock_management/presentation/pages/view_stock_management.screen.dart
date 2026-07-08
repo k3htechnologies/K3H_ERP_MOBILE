@@ -336,15 +336,18 @@ class _ViewStockManagementScreenState extends State<ViewStockManagementScreen>
               buildRowTitleValue(
                 title: "Material Name",
                 value: summary.materialName,
+                singleLine: false,
               ),
               buildRowTitleValue(
                 title: "Sub Material Name",
                 value: summary.subMaterialName,
+                singleLine: false,
               ),
               buildRowTitleValue(title: "UOM", value: summary.uomCode),
               buildRowTitleValue(
                 title: "PO No.",
                 value: summary.systemGeneratedCode,
+                singleLine: false,
               ),
               buildRowTitleValue(
                 title: "Total Material Quantity in Stock",
