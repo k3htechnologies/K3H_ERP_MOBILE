@@ -448,13 +448,33 @@ class _ManagerAchievementReportScreenState
 
                             /// WALKINS
                             ExpansionTile(
-                              tilePadding: EdgeInsets.zero,
                               title: buildRowTitleValue(
                                 title: "Total Walkins",
+                                customValueWidget: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
+                                  child: Text(
+                                    achievement.totalWalkins.addCommas(),
+                                    maxLines: null,
+
+                                    style: AppTextStyle.ts14SB(
+                                      color: AppColor.grey,
+                                    ),
+                                  ),
+                                ),
                                 value: achievement.totalWalkins.addCommas(),
                               ),
                               trailing: const Icon(Icons.keyboard_arrow_down),
-                              childrenPadding: EdgeInsets.zero,
+                              backgroundColor: AppColor.lightBlueBg2.withValues(
+                                alpha: 0.5,
+                              ),
+                              tilePadding: EdgeInsets.symmetric(
+                                horizontal: 5.w,
+                              ),
+                              childrenPadding: EdgeInsets.symmetric(
+                                horizontal: 5.w,
+                              ),
                               children: [
                                 buildRowTitleCount(
                                   title: "By CP",
@@ -511,7 +531,6 @@ class _ManagerAchievementReportScreenState
 
                             /// BOOKINGS
                             ExpansionTile(
-                              tilePadding: EdgeInsets.zero,
                               title: buildRowTitleCount(
                                 title: "Total Booking",
                                 value: achievement.totalBooking.toString(),
@@ -525,7 +544,13 @@ class _ManagerAchievementReportScreenState
                                     ),
                               ),
                               trailing: const Icon(Icons.keyboard_arrow_down),
-                              childrenPadding: EdgeInsets.zero,
+                              backgroundColor: AppColor.lightRed2,
+                              tilePadding: EdgeInsets.symmetric(
+                                horizontal: 5.w,
+                              ),
+                              childrenPadding: EdgeInsets.symmetric(
+                                horizontal: 5.w,
+                              ),
                               children: [
                                 buildRowTitleCount(
                                   title: "By CP",
@@ -665,11 +690,19 @@ class _ManagerAchievementReportScreenState
 
                             /// WALKINS
                             ExpansionTile(
-                              tilePadding: EdgeInsets.zero,
-                              childrenPadding: EdgeInsets.zero,
                               shape: const Border(),
                               collapsedShape: const Border(),
                               trailing: const Icon(Icons.keyboard_arrow_down),
+                              backgroundColor: AppColor.lightBlueBg2.withValues(
+                                alpha: 0.5,
+                              ),
+                              tilePadding: EdgeInsets.symmetric(
+                                horizontal: 5.w,
+                              ),
+                              childrenPadding: EdgeInsets.symmetric(
+                                horizontal: 5.w,
+                              ),
+
                               title: buildRowTitleValue(
                                 title: "Total Walkins",
                                 value:
@@ -677,6 +710,22 @@ class _ManagerAchievementReportScreenState
                                             achievement.freshVisits +
                                             achievement.revisits)
                                         .addCommas(),
+                                customValueWidget: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
+                                  child: Text(
+                                    (achievement.walkinsByCp +
+                                            achievement.freshVisits +
+                                            achievement.revisits)
+                                        .addCommas(),
+                                    maxLines: null,
+
+                                    style: AppTextStyle.ts14SB(
+                                      color: AppColor.grey,
+                                    ),
+                                  ),
+                                ),
                               ),
                               children: [
                                 buildRowTitleCount(
@@ -720,8 +769,15 @@ class _ManagerAchievementReportScreenState
 
                             Divider(height: 1, color: AppColor.grey50),
                             ExpansionTile(
-                              tilePadding: EdgeInsets.zero,
-                              childrenPadding: EdgeInsets.zero,
+                              backgroundColor: AppColor.lightGreenBg.withValues(
+                                alpha: 0.2,
+                              ),
+                              tilePadding: EdgeInsets.symmetric(
+                                horizontal: 5.w,
+                              ),
+                              childrenPadding: EdgeInsets.symmetric(
+                                horizontal: 5.w,
+                              ),
                               shape: const Border(),
                               collapsedShape: const Border(),
                               trailing: const Icon(Icons.keyboard_arrow_down),

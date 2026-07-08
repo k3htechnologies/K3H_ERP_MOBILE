@@ -478,7 +478,7 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                       ),
                       buildRowTitleValue(
                         fixesWidth: 100.w,
-                        title: "Paid Amount",
+                        title: "Paid Invoice Amount",
                         value: (invoice.paymentAmount).toIndianCurrency(),
                       ),
                       buildRowTitleValue(

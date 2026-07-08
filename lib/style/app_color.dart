@@ -58,6 +58,7 @@ class AppColor {
   static const Color red = Color(0xffD60000);
   static const Color darkRed = Color(0xFFD32F2F);
   static const Color lightRed = Color(0xffFEE2E2);
+  static const Color lightRed2 = Color(0xffFBF5FF);
   static const Color missingInformationRed = Color(0xffE92C2C);
 
   // COMMON
