@@ -6870,14 +6870,6 @@ final GoRouter goRouter = GoRouter(
             return const AddTaxTrackerScreen();
           },
         ),
-
-        GoRoute(
-          name: AppRoutes.viewTaxTracker,
-          path: AppRoutes.viewTaxTracker,
-          builder: (context, state) {
-            return const ViewTaxTrackerScreen();
-          },
-        ),
       ],
     ),
     // TAX TRACKER
@@ -6893,21 +6885,6 @@ final GoRouter goRouter = GoRouter(
         );
       },
       routes: [
-        GoRoute(
-          name: AppRoutes.taxTracker,
-          path: AppRoutes.taxTracker,
-          builder: (context, state) {
-            return const TaxTrackerScreen();
-          },
-        ),
-        GoRoute(
-          name: AppRoutes.addTaxTracker,
-          path: AppRoutes.addTaxTracker,
-          builder: (context, state) {
-            return const AddTaxTrackerScreen();
-          },
-        ),
-
         GoRoute(
           name: AppRoutes.viewTaxTracker,
           path: AppRoutes.viewTaxTracker,
