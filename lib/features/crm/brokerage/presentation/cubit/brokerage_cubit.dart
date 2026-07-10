@@ -46,8 +46,8 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     await getBrokerageBookingList(context, 1, projectId);
   }
 
-  Future resetSearch() async {
-    emit(state.copyWith(searchText: ""));
+  Future resetViewSearch() async {
+    emit(state.copyWith(viewSearchText: ""));
   }
 
   Future searchInvoice(
@@ -60,7 +60,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     if (index == 0) {
       emit(
         state.copyWith(
-          searchText: value,
+          viewSearchText: value,
           brokerageInvoiceList: [],
           isLoading: true,
         ),
@@ -70,7 +70,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     } else {
       emit(
         state.copyWith(
-          searchText: value,
+          viewSearchText: value,
           brokeragePaidList: [],
           isLoading: true,
         ),
@@ -149,7 +149,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       pageSize: 10,
       projectId: projectId,
       bookingId: bookingId,
-      queryParams: {"InvoiceNumber": state.searchText},
+      queryParams: {"InvoiceNumber": state.viewSearchText},
     );
 
     result.fold(
@@ -372,7 +372,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       pageSize: 10,
       bookingId: bookingId,
       projectId: projectId,
-      queryParams: {"InvoiceNumber": state.searchText},
+      queryParams: {"InvoiceNumber": state.viewSearchText},
     );
 
     result.fold(
@@ -453,11 +453,18 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       },
       (response) {
         goRouter.pop();
+        getBrokerageInvoiceList(
+          context,
+          1,
+          int.parse(projectId),
+          int.parse(bookingId),
+        );
         showSuccessMessage(context, subTitle: "Payment Added Successfully");
       },
     );
   }
 
+  // CURRENTLY USED
   Future updateBrokeragePayment({
     required BuildContext context,
     required String paidBrokerageBookingId,
@@ -608,7 +615,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     required BuildContext context,
     required String exportType,
     required int projectId,
-    int? bookingId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _brokerageRepository.exportBrokerageBooking(
@@ -617,12 +623,8 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       projectId: projectId,
       queryParams:
           state.searchText != ""
-              ? {
-                "ApplicantName": state.searchText,
-                "ExportType": exportType,
-                "BookingId": bookingId,
-              }
-              : {"ExportType": exportType, "BookingId": bookingId},
+              ? {"ApplicantName": state.searchText, "ExportType": exportType}
+              : {"ExportType": exportType},
     );
     goRouter.pop();
     result.fold(
@@ -637,8 +639,62 @@ class BrokerageCubit extends Cubit<BrokerageState> {
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "${bookingId != null ? 'Invoice Paid Summary' : 'Brokerage Booking'} ${DateTime.now()}.pdf"
-              : "${bookingId != null ? 'Invoice Paid Summary' : 'Brokerage Booking'} ${DateTime.now()}.xlsx",
+              ? "Brokerage Booking ${DateTime.now()}.pdf"
+              : "Brokerage Booking ${DateTime.now()}.xlsx",
+        );
+      },
+    );
+  }
+
+  Future exportExcelForInvoiceOrPaid({
+    required BuildContext context,
+    required String exportType,
+    required int projectId,
+    required int bookingId,
+    required String tabName,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    final queryParams = {
+      "InvoiceNumber": state.viewSearchText,
+      "ExportType": exportType,
+    };
+
+    final result =
+        tabName.toLowerCase() == "invoice"
+            ? await _brokerageRepository.exportBrokerageInvoice(
+              pageNumber: 1,
+              pageSize: state.totalNumberOfRecord,
+              projectId: projectId,
+              bookingId: bookingId,
+              queryParams: queryParams,
+            )
+            : await _brokerageRepository.exportPaidBrokerageBooking(
+              pageNumber: 1,
+              pageSize: state.totalNumberOfRecord,
+              projectId: projectId,
+              bookingId: bookingId,
+              queryParams: queryParams,
+            );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+        final exportTitle =
+            tabName.toLowerCase() == "invoice" ? "Invoice" : "Paid";
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "Brokerage $exportTitle Summary ${DateTime.now()}.pdf"
+              : "Brokerage $exportTitle Summary ${DateTime.now()}.xlsx",
         );
       },
     );

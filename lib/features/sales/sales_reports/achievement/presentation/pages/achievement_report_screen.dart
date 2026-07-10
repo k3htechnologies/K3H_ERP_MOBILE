@@ -437,7 +437,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Achievement",
+        screenTitle: "Achievement Report",
         authorization: _routeAuthorizationModel,
         isMenuButton: true,
       ),
@@ -1494,6 +1494,8 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                         v,
                         filterType: _filterTypeNotifier.value,
                         secondTabIndex: _secondaryTabController?.index,
+                        fromDate: _fromDateNotifier.value,
+                        toDate: _toDateNotifier.value,
                       );
                     },
                   ),

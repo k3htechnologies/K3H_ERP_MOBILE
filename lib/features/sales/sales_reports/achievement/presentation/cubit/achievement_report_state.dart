@@ -42,7 +42,6 @@ class AchievementState extends BaseState {
   final List<AchievementDrillDownReportModel> achievementDrillDownReportList;
   final AchievementDrillDownType drillDownType;
   final int currentAchievementDrillDownReportPageNumber;
-
   final int achievementDrillDownTotalNumberOfRecord;
 
   const AchievementState({

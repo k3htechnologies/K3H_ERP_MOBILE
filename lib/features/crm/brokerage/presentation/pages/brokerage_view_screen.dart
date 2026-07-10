@@ -25,8 +25,9 @@ import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
-import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 
 class BrokerageViewScreen extends StatefulWidget {
   final BrokerageModel brokerageModel;
@@ -61,9 +62,11 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
     _utilsCubit = context.read<UtilsCubit>();
 
     _invoiceRouteAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.brokerageInvoice]!;
+        Authorization.routeAuthorizationMap[AppRoutes.brokerageInvoice] ??
+        AuthorizationModel();
     _makePaymentRouteAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.brokerageMakePayment]!;
+        Authorization.routeAuthorizationMap[AppRoutes.brokerageMakePayment] ??
+        AuthorizationModel();
     _tabs = [
       if (_invoiceRouteAuthorizationModel.isView) BrokerageTab.invoice,
       if (_makePaymentRouteAuthorizationModel.isView) BrokerageTab.payment,
@@ -99,6 +102,8 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
   void _onTabChanged() {
     if (_tabController.indexIsChanging) return;
     if (_tabController.index == 0) {
+      _searchC.clear();
+      _brokerageCubit.resetViewSearch();
       _brokerageCubit.getBrokerageInvoiceList(
         context,
         1,
@@ -106,6 +111,8 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
         widget.brokerageModel.bookingId,
       );
     } else {
+      _searchC.clear();
+      _brokerageCubit.resetViewSearch();
       _brokerageCubit.getBrokeragePaidList(
         context,
         1,
@@ -147,7 +154,7 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_paymentDebounce?.isActive ?? false) _paymentDebounce?.cancel();
         _paymentDebounce = Timer(const Duration(milliseconds: 300), () {
-          _brokerageCubit.getBrokerageInvoiceList(
+          _brokerageCubit.getBrokeragePaidList(
             context,
             _brokerageCubit.state.currentPagePaid + 1,
             widget.brokerageModel.projectId,
@@ -293,13 +300,22 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                                   isDisabled:
                                       !_invoiceRouteAuthorizationModel.isExport,
                                   onExport: (v) {
-                                    _brokerageCubit.exportExcelPdf(
+                                    if (state.brokerageInvoiceList.isEmpty) {
+                                      showErrorMessage(
+                                        context,
+                                        "Error",
+                                        "No Data Found",
+                                      );
+                                      return;
+                                    }
+                                    _brokerageCubit.exportExcelForInvoiceOrPaid(
                                       context: context,
                                       exportType: v,
                                       projectId:
                                           widget.brokerageModel.projectId,
                                       bookingId:
                                           widget.brokerageModel.bookingId,
+                                      tabName: _tabs[_tabController.index].name,
                                     );
                                   },
                                 ),
@@ -309,11 +325,20 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                               isDisabled:
                                   !_makePaymentRouteAuthorizationModel.isExport,
                               onExport: (v) {
-                                _brokerageCubit.exportExcelPdf(
+                                if (state.brokeragePaidList.isEmpty) {
+                                  showErrorMessage(
+                                    context,
+                                    "Error",
+                                    "No Data Found",
+                                  );
+                                  return;
+                                }
+                                _brokerageCubit.exportExcelForInvoiceOrPaid(
                                   context: context,
                                   exportType: v,
                                   projectId: widget.brokerageModel.projectId,
                                   bookingId: widget.brokerageModel.bookingId,
+                                  tabName: _tabs[_tabController.index].name,
                                 );
                               },
                             );
@@ -323,12 +348,30 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                 ),
               ],
             ),
-            Text(
-              widget.brokerageModel.applicantName,
-              style: AppTextStyle.ts14M(),
+            RichText(
+              text: TextSpan(
+                style: AppTextStyle.ts14R(),
+                children: [
+                  TextSpan(
+                    text: widget.brokerageModel.channelPartnerName,
+                    style: AppTextStyle.ts14M(),
+                  ),
+
+                  TextSpan(
+                    text: " | ",
+                    style: AppTextStyle.ts14R(color: AppColor.grey),
+                  ),
+
+                  TextSpan(
+                    text: widget.brokerageModel.channelPartnerCompany,
+                    style: AppTextStyle.ts14M(),
+                  ),
+                ],
+              ),
             ),
             Expanded(
               child: TabBarView(
+                physics: NeverScrollableScrollPhysics(),
                 controller: _tabController,
                 children: [
                   if (_invoiceRouteAuthorizationModel.isView)
@@ -354,24 +397,16 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
             (_) => ValueNotifier(false),
           ),
         );
-        if (state.isLoading ?? true) {
-          return Center(child: CircularProgressIndicator());
+        if ((state.isLoading ?? true) && state.brokerageInvoiceList.isEmpty) {
+          return Center(child: loader());
         }
         if (state.brokerageInvoiceList.isEmpty) {
           return Center(child: noDataWidget(message: 'No Invoice Data Found.'));
         }
         return ListView.builder(
           controller: _invoiceScrollController,
-          itemCount: state.brokerageInvoiceList.length,
+          itemCount: state.brokerageInvoiceList.length + 1,
           itemBuilder: (context, index) {
-            final invoice = state.brokerageInvoiceList[index];
-            final notifier = _invoiceExpandList[index];
-            final disabled =
-                !_invoiceRouteAuthorizationModel.isAction ||
-                invoice.approvalStatus.toLowerCase().contains('approved');
-            final disableMakePayment =
-                !_makePaymentRouteAuthorizationModel.isAction ||
-                invoice.invoiceAmount == invoice.paymentAmount;
             if (index == state.brokerageInvoiceList.length) {
               return state.brokerageInvoiceList.length <
                       state.totalNumberOfRecordInvoice
@@ -381,10 +416,20 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                   )
                   : const SizedBox.shrink();
             }
+            final invoice = state.brokerageInvoiceList[index];
+            final notifier = _invoiceExpandList[index];
+            final disabled =
+                !_invoiceRouteAuthorizationModel.isAction ||
+                invoice.approvalStatus.toLowerCase().contains('approved');
+            final disableMakePayment =
+                !_makePaymentRouteAuthorizationModel.isAction ||
+                invoice.invoiceAmount == invoice.paymentAmount;
             return ValueListenableBuilder<bool>(
               valueListenable: notifier,
               builder: (context, isExpanded, _) {
-                final isActionAlreadyPerformed = !invoice.isApproval;
+                final isActionAlreadyPerformed =
+                    !invoice.isApproval ||
+                    !_invoiceRouteAuthorizationModel.isAction;
                 return Container(
                   decoration: commonCardDecoration(),
                   padding: EdgeInsets.all(12),
@@ -397,10 +442,13 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                         value: invoice.invoiceNumber,
                         customValueWidget: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              invoice.invoiceNumber,
-                              style: AppTextStyle.ts14M(),
+                            Expanded(
+                              child: Text(
+                                invoice.invoiceNumber,
+                                style: AppTextStyle.ts14M(),
+                              ),
                             ),
                             Row(
                               spacing: 10,
@@ -488,7 +536,15 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                             (invoice.invoiceAmount - invoice.paymentAmount)
                                 .toIndianCurrency(),
                       ),
-
+                      buildRowTitleValue(
+                        fixesWidth: 100.w,
+                        title: "Approval Status",
+                        value: invoice.approvalStatus,
+                        customValueWidget: approvalStatusWidget(
+                          invoice.approvalStatus,
+                          textStyle: AppTextStyle.ts12M(),
+                        ),
+                      ),
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: 250),
                         child:
@@ -592,6 +648,11 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                                               "Invoice Log History",
                                             ),
                                           ),
+                                          "subTitle": Uri.encodeComponent(
+                                            EncryptionManager.encryptData(
+                                              "${widget.brokerageModel.channelPartnerName} > ${widget.brokerageModel.channelPartnerCompany} > ${invoice.invoiceAmount.toIndianCurrency()}",
+                                            ),
+                                          ),
                                           "approvalList": Uri.encodeComponent(
                                             EncryptionManager.encryptData(
                                               jsonEncode(
@@ -637,9 +698,19 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 10,
             children: [
-              Text(
-                "Invoice Details",
-                style: AppTextStyle.ts14M(color: AppColor.black),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Invoice Details",
+                    style: AppTextStyle.ts14M(color: AppColor.black),
+                  ),
+                  if ((invoice.invoiceAmount - invoice.paymentAmount) == 0)
+                    Text(
+                      "Full Paid",
+                      style: AppTextStyle.ts12M(color: AppColor.green20),
+                    ),
+                ],
               ),
 
               Row(
@@ -682,8 +753,35 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                   ),
                 ],
               ),
+              Row(
+                children: [
+                  buildColumnTitleValue(
+                    title: "Invoice Document",
+                    value: invoice.uploadInvoiceURL,
+                    customValueWidget: CustomButton.documentOutline(
+                      onPressed: () {
+                        if (invoice.uploadInvoiceURL.isNotEmpty) {
+                          showFilePreviewDialog(
+                            title: "Invoice Document",
+                            context,
+                            invoice.uploadInvoiceURL.split(","),
+                          );
+                        }
+                      },
+
+                      isDisable: invoice.uploadInvoiceURL.isEmpty,
+                    ),
+                  ),
+                  Spacer(),
+                ],
+              ),
+              Row(
+                children: [
+                  buildColumnTitleValue(title: "Remark", value: invoice.remark),
+                ],
+              ),
               Divider(height: 1, color: AppColor.grey50),
-              Text("k", style: AppTextStyle.ts14M()),
+              Text("Action Details", style: AppTextStyle.ts14M()),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -773,6 +871,11 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                     "title": Uri.encodeComponent(
                       EncryptionManager.encryptData("Invoice Log History"),
                     ),
+                    "subTitle": Uri.encodeComponent(
+                      EncryptionManager.encryptData(
+                        "${widget.brokerageModel.channelPartnerName} > ${widget.brokerageModel.channelPartnerCompany} > ${invoice.invoiceAmount.toIndianCurrency()}",
+                      ),
+                    ),
                     "approvalList": Uri.encodeComponent(
                       EncryptionManager.encryptData(
                         jsonEncode(
@@ -803,18 +906,16 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
           ),
         );
 
-        if (state.isLoading ?? true) {
-          return Center(child: CircularProgressIndicator());
+        if ((state.isLoading ?? true) && state.brokeragePaidList.isEmpty) {
+          return Center(child: loader());
         }
         if (state.brokeragePaidList.isEmpty) {
           return Center(child: noDataWidget(message: 'No Payment Data Found.'));
         }
         return ListView.builder(
           controller: _paymentScrollController,
-          itemCount: state.brokeragePaidList.length,
+          itemCount: state.brokeragePaidList.length + 1,
           itemBuilder: (context, index) {
-            final payment = state.brokeragePaidList[index];
-            final notifier = _paymentExpandList[index];
             if (index == state.brokeragePaidList.length) {
               return state.brokeragePaidList.length <
                       state.totalNumberOfRecordPaid
@@ -824,7 +925,8 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                   )
                   : const SizedBox.shrink();
             }
-
+            final payment = state.brokeragePaidList[index];
+            final notifier = _paymentExpandList[index];
             return ValueListenableBuilder<bool>(
               valueListenable: notifier,
               builder: (context, isExpanded, _) {
@@ -839,10 +941,13 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                         value: payment.invoiceNumber,
                         customValueWidget: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              payment.invoiceNumber,
-                              style: AppTextStyle.ts14M(),
+                            Expanded(
+                              child: Text(
+                                payment.invoiceNumber,
+                                style: AppTextStyle.ts14M(),
+                              ),
                             ),
                             Row(
                               spacing: 10,
@@ -961,7 +1066,7 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
           Row(
             children: [
               buildColumnTitleValue(
-                title: "Transaction Number / Receipt",
+                title: "Transaction/Cheque/Demand Draft No.",
                 value: payment.transactionReceiptURL,
                 customValueWidget: GestureDetector(
                   onTap: () {
@@ -1002,22 +1107,6 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
               buildColumnTitleValue(
                 title: "Created Date",
                 value: formatDate(payment.createdDate),
-              ),
-            ],
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildColumnTitleValue(
-                title: "Modified By",
-                value: payment.modifiedBy,
-              ),
-              buildColumnTitleValue(
-                title: "Modified Date",
-                value:
-                    (payment.modifiedDate == null)
-                        ? "-"
-                        : formatDate(payment.modifiedDate),
               ),
             ],
           ),

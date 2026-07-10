@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -294,6 +295,10 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                 CustomTextField(
                   textController: _transactionNumberC,
                   isRequired: true,
+                  inputFormatterList: [
+                    LengthLimitingTextInputFormatter(25),
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+                  ],
                   title: "Transaction/Cheque/Demand Draft No.",
                   hint: "Enter Transaction/Cheque/Demand Draft No.",
                   validator: (value) {

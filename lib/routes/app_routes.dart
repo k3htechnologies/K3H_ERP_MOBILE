@@ -189,11 +189,12 @@ class AppRoutes {
   static String addPaymentScheduleScheme = "/addPaymentScheduleScheme";
 
   // SALES REPORT
-  // PERFORMANCE
+  // PERFORMANCE REPORT
   static String performanceReport = "/performance";
   static String salesPerformanceReport = "/salesPerformance";
   static String viewPerformanceReport = "/viewPerformance";
-  // ACHIEVEMENT
+
+  // ACHIEVEMENT REPORT
   static String incentiveReport = "/incentiveReport";
   static String enquiryReport = "/enquiryReport";
   static String cpEnquiryReport = "/cpEnquiryReport";
@@ -205,12 +206,16 @@ class AppRoutes {
       "/achievementDrillDownReportForBooking";
   static String achievementDrillDownReportForChannelPartner =
       "/achievementDrillDownReportForChannelPartner";
-
   static String managerAchievementReport = "/managerAchievementReport";
 
+  // IBM OBM REPORT
   static String ibmObmReport = "/ibmObmReport";
   static String viewIbmObmReport = "/viewIbmObmReport";
 
+  // AOP REPORT
+  static String aopAchievement = "/aopAchievement";
+  static String aopAchievementDrillDownReport =
+      "/aopAchievementDrillDownReport";
   // SALES CLASSIFICATION PARAMETERS
   static String classificationParameter = "/classificationParameter";
   static String addClassificationParameter = "/addClassificationParameter";

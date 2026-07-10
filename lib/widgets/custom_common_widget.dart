@@ -5,7 +5,6 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
-import 'package:k3h_erp_app/widgets/custom_chip_for_status_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 // BUILD ROW TITLE VALUE
@@ -77,7 +76,7 @@ Widget buildRowTitleCount({
           overflow: singleLine ? TextOverflow.ellipsis : TextOverflow.visible,
           style: AppTextStyle.ts14SB(
             color:
-                (double.tryParse(value) ?? 0) > 0
+                ((double.tryParse(value) ?? 0) > 0 && onValueTap != null)
                     ? AppColor.primary
                     : AppColor.grey,
           ),
@@ -220,44 +219,6 @@ Widget buildDocumentRow({
         ),
     ],
   );
-}
-
-Widget approvalStatusWidget(String status) {
-  final trimmed = status.trim();
-  final formatted = formattedStatus(trimmed);
-
-  switch (trimmed.toLowerCase()) {
-    case 'approved':
-      return statusChip(formatted, Color(0xffDCFCE7), AppColor.green20);
-
-    case 'rejected':
-      return statusChip(
-        formatted,
-        AppColor.lightRed,
-        AppColor.missingInformationRed,
-      );
-
-    case 'pending':
-      return statusChip(formatted, AppColor.lightYellow, AppColor.brown);
-
-    case 'partial approved':
-      return statusChip(formatted, AppColor.lightPurple, Color(0xff561F64));
-
-    default:
-      return statusChip(
-        formatted,
-        AppColor.lightGreyBackground,
-        AppColor.black,
-      );
-  }
-}
-
-String formattedStatus(String status) {
-  return status
-      .toLowerCase()
-      .split(' ')
-      .map((e) => e.isEmpty ? e : '${e[0].toUpperCase()}${e.substring(1)}')
-      .join(' ');
 }
 
 Widget showSiteSelectedWidget({String? projectName}) {

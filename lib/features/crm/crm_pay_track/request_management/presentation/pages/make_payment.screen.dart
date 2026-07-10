@@ -105,8 +105,6 @@ class _ModifiedRequestsMakePaymentScreenState
       widget.projectId,
       widget.bookingId,
     );
-    print("refundData = ${widget.refundData}");
-    print("isEdit = $isEdit");
     if (isEdit) {
       final data = widget.refundData!;
 

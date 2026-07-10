@@ -13,7 +13,7 @@ class AchievementDrillDownReportForChannelPartnerScreen
     extends StatelessWidget {
   final ChannelPartnerSourcingModel channelPartnerModel;
   final String? employeeName;
-  final String tabName;
+  final String? tabName;
   final String columnName;
   final String projectName;
 
@@ -51,15 +51,18 @@ class AchievementDrillDownReportForChannelPartnerScreen
               text: TextSpan(
                 style: AppTextStyle.ts14R(),
                 children: [
-                  TextSpan(
-                    text: "Tab: ",
-                    style: AppTextStyle.ts14R(color: AppColor.grey),
-                  ),
-                  TextSpan(text: tabName, style: AppTextStyle.ts14M()),
-                  TextSpan(
-                    text: " | ",
-                    style: AppTextStyle.ts14R(color: AppColor.grey),
-                  ),
+                  if (tabName != null)
+                    TextSpan(
+                      text: "Tab: ",
+                      style: AppTextStyle.ts14R(color: AppColor.grey),
+                    ),
+                  if (tabName != null)
+                    TextSpan(text: tabName, style: AppTextStyle.ts14M()),
+                  if (tabName != null)
+                    TextSpan(
+                      text: " | ",
+                      style: AppTextStyle.ts14R(color: AppColor.grey),
+                    ),
                   TextSpan(
                     text: "Column: ",
                     style: AppTextStyle.ts14R(color: AppColor.grey),

@@ -6,7 +6,12 @@ List<String> achievementTimelineTabs = const [
   'Datewise',
   'Overall',
 ];
-
+List<String> aopAchievementTimelineTabs = const [
+  'Today',
+  'Weekly',
+  'Monthly',
+  'Datewise',
+];
 List<String> achievementTabs = const ['Project', 'Closing', 'Sourcing'];
 
 List<String> inwardOutwardTabs = const ['All', 'Inward', 'Outward'];

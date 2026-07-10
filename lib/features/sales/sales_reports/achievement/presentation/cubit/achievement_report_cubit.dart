@@ -83,8 +83,8 @@ class AchievementReportCubit extends Cubit<AchievementState> {
     emit(state.copyWith(isLoading: true));
     final Map<String, dynamic> queryParams = {
       'ProjectName': state.searchText.trim(),
-      'FromDate': fromDate?.toIso8601String(),
-      'ToDate': toDate?.toIso8601String(),
+      'FromDate': fromDate?.apiDate,
+      'ToDate': toDate?.apiDate,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     var result = await _achievementRepository.getProjectAchievementReport(
@@ -130,8 +130,8 @@ class AchievementReportCubit extends Cubit<AchievementState> {
     emit(state.copyWith(isLoading: true));
     final Map<String, dynamic> queryParams = {
       'EmployeeName': state.searchText.trim(),
-      'FromDate': fromDate?.toIso8601String(),
-      'ToDate': toDate?.toIso8601String(),
+      'FromDate': fromDate?.apiDate,
+      'ToDate': toDate?.apiDate,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     var result = await _achievementRepository.getClosingAchievementReport(
@@ -177,8 +177,8 @@ class AchievementReportCubit extends Cubit<AchievementState> {
     emit(state.copyWith(isLoading: true));
     final Map<String, dynamic> queryParams = {
       'EmployeeName': state.searchText.trim(),
-      'FromDate': fromDate?.toIso8601String(),
-      'ToDate': toDate?.toIso8601String(),
+      'FromDate': fromDate?.apiDate,
+      'ToDate': toDate?.apiDate,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     var result = await _achievementRepository.getSourcingAchievementReport(
@@ -280,8 +280,8 @@ class AchievementReportCubit extends Cubit<AchievementState> {
 
     final Map<String, dynamic> queryParams = {
       'EmployeeName': state.managerSearchText.trim(),
-      'FromDate': fromDate?.toIso8601String(),
-      'ToDate': toDate?.toIso8601String(),
+      'FromDate': fromDate?.apiDate,
+      'ToDate': toDate?.apiDate,
       'ProjectId': projectId,
       'SortBy':
           "${state.managerCurrentSortColumn} ${state.managerCurrentSortDirection}",
@@ -333,8 +333,8 @@ class AchievementReportCubit extends Cubit<AchievementState> {
 
     final Map<String, dynamic> queryParams = {
       'EmployeeName': state.managerSearchText.trim(),
-      'FromDate': fromDate?.toIso8601String(),
-      'ToDate': toDate?.toIso8601String(),
+      'FromDate': fromDate?.apiDate,
+      'ToDate': toDate?.apiDate,
       'ProjectId': projectId,
       'SortBy':
           "${state.managerCurrentSortColumn} ${state.managerCurrentSortDirection}",
@@ -473,16 +473,36 @@ class AchievementReportCubit extends Cubit<AchievementState> {
     String exportType, {
     required String filterType,
     required int? secondTabIndex,
+    DateTime? fromDate,
+    DateTime? toDate,
   }) async {
     switch (secondTabIndex) {
       case 0:
-        exportProjectExcelPdf(context, exportType, filterType: filterType);
+        exportProjectExcelPdf(
+          context,
+          exportType,
+          filterType: filterType,
+          fromDate: fromDate,
+          toDate: toDate,
+        );
         break;
       case 1:
-        exportClosingExcelPdf(context, exportType, filterType: filterType);
+        exportClosingExcelPdf(
+          context,
+          exportType,
+          filterType: filterType,
+          fromDate: fromDate,
+          toDate: toDate,
+        );
         break;
       case 2:
-        exportSourcingExcelPdf(context, exportType, filterType: filterType);
+        exportSourcingExcelPdf(
+          context,
+          exportType,
+          filterType: filterType,
+          fromDate: fromDate,
+          toDate: toDate,
+        );
         break;
       case null:
         break;
@@ -493,6 +513,8 @@ class AchievementReportCubit extends Cubit<AchievementState> {
     BuildContext context,
     String exportType, {
     required String filterType,
+    DateTime? fromDate,
+    DateTime? toDate,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _achievementRepository
@@ -500,10 +522,12 @@ class AchievementReportCubit extends Cubit<AchievementState> {
           pageNumber: 1,
           pageSize: state.projectAchievementTotalNumberOfRecord,
           filterType: filterType,
-          queryParams:
-              state.searchText != ""
-                  ? {"ProjectName": state.searchText, "ExportType": exportType}
-                  : {"ExportType": exportType},
+          queryParams: {
+            "ProjectName": state.searchText,
+            "ExportType": exportType,
+            'FromDate': fromDate?.apiDate,
+            'ToDate': toDate?.apiDate,
+          },
         );
     goRouter.pop();
     result.fold(
@@ -529,6 +553,8 @@ class AchievementReportCubit extends Cubit<AchievementState> {
     BuildContext context,
     String exportType, {
     required String filterType,
+    DateTime? fromDate,
+    DateTime? toDate,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _achievementRepository
@@ -536,10 +562,12 @@ class AchievementReportCubit extends Cubit<AchievementState> {
           pageNumber: 1,
           pageSize: state.closingAchievementTotalNumberOfRecord,
           filterType: filterType,
-          queryParams:
-              state.searchText != ""
-                  ? {"EmployeeName": state.searchText, "ExportType": exportType}
-                  : {"ExportType": exportType},
+          queryParams: {
+            "EmployeeName": state.searchText,
+            "ExportType": exportType,
+            'FromDate': fromDate?.apiDate,
+            'ToDate': toDate?.apiDate,
+          },
         );
     goRouter.pop();
     result.fold(
@@ -565,6 +593,8 @@ class AchievementReportCubit extends Cubit<AchievementState> {
     BuildContext context,
     String exportType, {
     required String filterType,
+    DateTime? fromDate,
+    DateTime? toDate,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _achievementRepository
@@ -572,10 +602,12 @@ class AchievementReportCubit extends Cubit<AchievementState> {
           pageNumber: 1,
           pageSize: state.sourcingAchievementTotalNumberOfRecord,
           filterType: filterType,
-          queryParams:
-              state.searchText != ""
-                  ? {"EmployeeName": state.searchText, "ExportType": exportType}
-                  : {"ExportType": exportType},
+          queryParams: {
+            "EmployeeName": state.searchText,
+            "ExportType": exportType,
+            'FromDate': fromDate?.apiDate,
+            'ToDate': toDate?.apiDate,
+          },
         );
     goRouter.pop();
     result.fold(
@@ -652,14 +684,14 @@ class AchievementReportCubit extends Cubit<AchievementState> {
                   ? {
                     "EmployeeName": state.managerSearchText,
                     "ExportType": exportType,
-                    'FromDate': fromDate?.toIso8601String(),
-                    'ToDate': toDate?.toIso8601String(),
+                    'FromDate': fromDate?.apiDate,
+                    'ToDate': toDate?.apiDate,
                     'ProjectId': projectId,
                   }
                   : {
                     "ExportType": exportType,
-                    'FromDate': fromDate?.toIso8601String(),
-                    'ToDate': toDate?.toIso8601String(),
+                    'FromDate': fromDate?.apiDate,
+                    'ToDate': toDate?.apiDate,
                     'ProjectId': projectId,
                   },
         );
@@ -700,16 +732,16 @@ class AchievementReportCubit extends Cubit<AchievementState> {
           queryParams:
               state.managerSearchText != ""
                   ? {
-                    'FromDate': fromDate?.toIso8601String(),
-                    'ToDate': toDate?.toIso8601String(),
+                    'FromDate': fromDate?.apiDate,
+                    'ToDate': toDate?.apiDate,
                     'ProjectId': projectId,
                     "EmployeeName": state.managerSearchText,
                     "ExportType": exportType,
                   }
                   : {
                     "ExportType": exportType,
-                    'FromDate': fromDate?.toIso8601String(),
-                    'ToDate': toDate?.toIso8601String(),
+                    'FromDate': fromDate?.apiDate,
+                    'ToDate': toDate?.apiDate,
                     'ProjectId': projectId,
                   },
         );

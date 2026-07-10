@@ -136,7 +136,6 @@ class PaymentCubit extends Cubit<PaymentState> {
       "ProjectId": projectId.toString(),
       "PaymentScheduleDemandType": apiDemandType(paymentScheduleDemandType),
     };
-    print(requestBody);
     var addResult = await paymentRepository
         .addUpdatePayTrackPaymentScheduleDemand(body: requestBody);
     goRouter.pop();

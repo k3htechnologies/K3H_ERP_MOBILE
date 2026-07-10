@@ -26,7 +26,6 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/payment_schedule_demand_letter_summary.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/cancel_booking.screen.dart';
-import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/sales_attendance.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/data/model/inward_outward.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inward_outward_cubit.dart';
@@ -41,6 +40,9 @@ import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentatio
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/widget/achievement_drill_down_report_for_booking_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/widget/achievement_drill_down_report_for_channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/widget/achievement_drill_down_report_for_enquiry_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/aop_achievement/presentation/cubit/aop_achievement_report_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/aop_achievement/presentation/pages/aop_achievement_drill_down_report_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/aop_achievement/presentation/pages/aop_achievement_report_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/cubit/ibm_obm_report_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pages/ibm_obm_report_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pages/ibm_obm_report_view_screen.dart';
@@ -427,10 +429,6 @@ import 'package:k3h_erp_app/features/stock_management/presentation/cubit/stock_m
 import 'package:k3h_erp_app/features/stock_management/presentation/pages/add_stock_management.screen.dart';
 import 'package:k3h_erp_app/features/stock_management/presentation/pages/stock_management.screen.dart';
 import 'package:k3h_erp_app/features/stock_management/presentation/pages/view_stock_management.screen.dart';
-import 'package:k3h_erp_app/features/tax_tracker/presentation/cubit/tax_tracker_cubit.dart';
-import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/add_tax_tracker.screen.dart';
-import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/tax_tracker.screen.dart';
-import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/view_tax_tracker.screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
@@ -521,6 +519,9 @@ final GoRouter goRouter = GoRouter(
     }
     return authenticateAndAuthorizeRoute(state);
   },
+  errorPageBuilder:
+      (context, state) =>
+          MaterialPage(child: ComingSoonScreen(title: "Coming Soon")),
   routes: [
     // SPLASH SCREEN
     GoRoute(
@@ -4474,6 +4475,7 @@ final GoRouter goRouter = GoRouter(
                     BlocProvider(create: (_) => PerformanceCubit()),
                     BlocProvider(create: (_) => AchievementReportCubit()),
                     BlocProvider(create: (_) => IbmObmReportCubit()),
+                    BlocProvider(create: (_) => AopAchievementReportCubit()),
                   ],
                   child: child,
                 );
@@ -4766,7 +4768,7 @@ final GoRouter goRouter = GoRouter(
                                     state.uri.queryParameters['tabName']!,
                                   ),
                                 )
-                                : '';
+                                : null;
 
                         final columnName =
                             state.uri.queryParameters['columnName'] != null
@@ -4831,7 +4833,7 @@ final GoRouter goRouter = GoRouter(
                                     state.uri.queryParameters['tabName']!,
                                   ),
                                 )
-                                : '';
+                                : null;
 
                         final columnName =
                             state.uri.queryParameters['columnName'] != null
@@ -4893,7 +4895,7 @@ final GoRouter goRouter = GoRouter(
                                     state.uri.queryParameters['tabName']!,
                                   ),
                                 )
-                                : '';
+                                : null;
 
                         final columnName =
                             state.uri.queryParameters['columnName'] != null
@@ -4959,6 +4961,98 @@ final GoRouter goRouter = GoRouter(
                         return IbmObmReportViewScreen(
                           employeeId: employeeId,
                           employeeName: employeeName,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                GoRoute(
+                  path: AppRoutes.aopAchievement,
+                  name: AppRoutes.aopAchievement,
+                  builder: (context, state) {
+                    return AopAchievementReportScreen();
+                  },
+                  routes: [
+                    GoRoute(
+                      name: AppRoutes.aopAchievementDrillDownReport,
+                      path: AppRoutes.aopAchievementDrillDownReport,
+                      builder: (context, state) {
+                        final employeeId =
+                            state.uri.queryParameters['employeeId'] != null
+                                ? int.tryParse(
+                                      EncryptionManager.decryptData(
+                                        Uri.decodeComponent(
+                                          state
+                                              .uri
+                                              .queryParameters['employeeId']!,
+                                        ),
+                                      ),
+                                    ) ??
+                                    0
+                                : null;
+                        final employeeName =
+                            state.uri.queryParameters['employeeName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['employeeName']!,
+                                  ),
+                                )
+                                : '';
+                        final tabName =
+                            state.uri.queryParameters['tabName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['tabName']!,
+                                  ),
+                                )
+                                : '';
+
+                        final columnName =
+                            state.uri.queryParameters['columnName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['columnName']!,
+                                  ),
+                                )
+                                : '';
+
+                        final filterType =
+                            state.uri.queryParameters['filterType'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['filterType']!,
+                                  ),
+                                )
+                                : '';
+
+                        final fromDate =
+                            state.uri.queryParameters['fromDate'] ?? '';
+                        final toDate =
+                            state.uri.queryParameters['toDate'] ?? '';
+                        final parseFromDate =
+                            fromDate.isNotEmpty
+                                ? DateTime.parse(
+                                  EncryptionManager.decryptData(
+                                    Uri.decodeComponent(fromDate),
+                                  ),
+                                )
+                                : null;
+                        final parseToDate =
+                            toDate.isNotEmpty
+                                ? DateTime.parse(
+                                  EncryptionManager.decryptData(
+                                    Uri.decodeComponent(toDate),
+                                  ),
+                                )
+                                : null;
+                        return AopAchievementDrillDownReportScreen(
+                          employeeId: employeeId,
+                          employeeName: employeeName,
+                          tabName: tabName,
+                          columnName: columnName,
+                          filterType: filterType,
+                          fromDate: parseFromDate,
+                          toDate: parseToDate,
                         );
                       },
                     ),
@@ -6687,7 +6781,6 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.modifiedRequestsMakePayment,
               builder: (context, state) {
                 final extra = state.extra as Map<String, dynamic>;
-                print(extra["refundData"]);
                 return ModifiedRequestsMakePaymentScreen(
                   uniquekey: extra["uniquekey"],
                   bookingId: extra["bookingId"],
@@ -6845,43 +6938,6 @@ final GoRouter goRouter = GoRouter(
               },
             ),
           ],
-        ),
-      ],
-    ),
-    // TAX TRACKER
-    ShellRoute(
-      builder: (context, state, child) {
-        return MultiBlocProvider(
-          providers: [
-            BlocProvider(create: (_) => TaxTrackerCubit()),
-            BlocProvider(create: (_) => EmployeeMasterCubit()),
-            BlocProvider(create: (_) => CompanyMasterCubit()),
-          ],
-          child: child,
-        );
-      },
-      routes: [
-        GoRoute(
-          name: AppRoutes.taxTracker,
-          path: AppRoutes.taxTracker,
-          builder: (context, state) {
-            return const TaxTrackerScreen();
-          },
-        ),
-        GoRoute(
-          name: AppRoutes.addTaxTracker,
-          path: AppRoutes.addTaxTracker,
-          builder: (context, state) {
-            return const AddTaxTrackerScreen();
-          },
-        ),
-
-        GoRoute(
-          name: AppRoutes.viewTaxTracker,
-          path: AppRoutes.viewTaxTracker,
-          builder: (context, state) {
-            return const ViewTaxTrackerScreen();
-          },
         ),
       ],
     ),

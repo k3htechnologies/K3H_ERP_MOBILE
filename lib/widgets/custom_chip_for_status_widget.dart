@@ -12,7 +12,7 @@ class StatusConfig {
 Widget statusChip(
   String text,
   Color bg,
-  Color txt, {
+  Color txtC, {
   bool expand = false,
   TextStyle? textStyle,
 }) {
@@ -25,7 +25,7 @@ Widget statusChip(
     child: Text(
       text,
       textAlign: TextAlign.center,
-      style: textStyle ?? AppTextStyle.ts10M(color: txt),
+      style: (textStyle ?? AppTextStyle.ts10M()).copyWith(color: txtC),
     ),
   );
 

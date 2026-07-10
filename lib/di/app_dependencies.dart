@@ -37,6 +37,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/sales/enquiry/enquiry.depend
 import 'package:k3h_erp_app/di/feature_dependencies/sales/master/other_charges/other_charges.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/master/payment_schedule/payment_schedule.dependency.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/master/payment_schedule_scheme/payment_schedule_scheme.dependency.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/sales/report/aop_achievement_report.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/report/ibm_obm_report.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/report/performance_report.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/sales_dashboard/sales_dashboard.dependencies.dart';
@@ -244,6 +245,8 @@ void initDependencies() {
   registerAchievementReportDependencies(serviceLocator);
   //IBM OBM REPORT DEPENDENCIES
   registerIbmObmReportDependencies(serviceLocator);
+  //AOP ACHIEVEMENT REPORT DEPENDENCIES
+  registerAopAchievementReportDependencies(serviceLocator);
   // PROCUREMENT
   registerMaterialRequisitionFinalizeVendorDependencies(serviceLocator);
   registerMaterialRequisitionInvoiceDependencies(serviceLocator);

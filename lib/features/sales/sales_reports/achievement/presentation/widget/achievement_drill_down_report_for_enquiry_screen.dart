@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/widget/common_achivement_widgets.dart';
-
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -14,7 +14,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AchievementDrillDownReportForEnquiryScreen extends StatelessWidget {
   final String? employeeName;
-  final String tabName;
+  final String? tabName;
   final String columnName;
   final String projectName;
   final EnquiryModel enquiryModel;
@@ -37,6 +37,7 @@ class AchievementDrillDownReportForEnquiryScreen extends StatelessWidget {
         enquiryModel.subSource == "Employee Reference";
     final bool isLoyalty = enquiryModel.subSource == "Loyalty";
     final bool isReference = enquiryModel.subSource == "Reference";
+    AppRoutes.achievementDrillDownReport;
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: "Enquiry",
@@ -59,17 +60,20 @@ class AchievementDrillDownReportForEnquiryScreen extends StatelessWidget {
               text: TextSpan(
                 style: AppTextStyle.ts14R(),
                 children: [
-                  TextSpan(
-                    text: "Tab: ",
-                    style: AppTextStyle.ts14R(color: AppColor.grey),
-                  ),
+                  if (tabName != null)
+                    TextSpan(
+                      text: "Tab: ",
+                      style: AppTextStyle.ts14R(color: AppColor.grey),
+                    ),
 
-                  TextSpan(text: tabName, style: AppTextStyle.ts14M()),
+                  if (tabName != null)
+                    TextSpan(text: tabName, style: AppTextStyle.ts14M()),
 
-                  TextSpan(
-                    text: " | ",
-                    style: AppTextStyle.ts14R(color: AppColor.grey),
-                  ),
+                  if (tabName != null)
+                    TextSpan(
+                      text: " | ",
+                      style: AppTextStyle.ts14R(color: AppColor.grey),
+                    ),
 
                   TextSpan(
                     text: "Column: ",
@@ -118,30 +122,6 @@ class AchievementDrillDownReportForEnquiryScreen extends StatelessWidget {
 
                             children: [
                               buildColumnTitleValue(
-                                title: "Enquiry Date",
-                                value:
-                                    enquiryModel.enquiryDate != null
-                                        ? formatDateTimeAsDDMMMYYYY(
-                                          enquiryModel.enquiryDate!,
-                                        )
-                                        : "-",
-                              ),
-                              buildColumnTitleValue(
-                                title: "Next Follow-Up Date",
-                                value:
-                                    enquiryModel.nextFollowUpDate != null
-                                        ? formatDateTimeAsDDMMMYYYY(
-                                          enquiryModel.nextFollowUpDate!,
-                                        )
-                                        : "-",
-                              ),
-                            ],
-                          ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-
-                            children: [
-                              buildColumnTitleValue(
                                 title: "Full Name",
                                 value:
                                     enquiryModel.name.isNotEmpty
@@ -168,18 +148,20 @@ class AchievementDrillDownReportForEnquiryScreen extends StatelessWidget {
 
                             children: [
                               buildColumnTitleValue(
-                                title: "E-Mail ID",
+                                title: "Enquiry Date",
                                 value:
-                                    enquiryModel.emailId.isNotEmpty
-                                        ? enquiryModel.emailId
+                                    enquiryModel.enquiryDate != null
+                                        ? formatDateTimeAsDDMMMYYYY(
+                                          enquiryModel.enquiryDate!,
+                                        )
                                         : "-",
                               ),
                               buildColumnTitleValue(
-                                title: "Date of Birth",
+                                title: "Next Follow-Up Date",
                                 value:
-                                    enquiryModel.dateOfBirth != null
+                                    enquiryModel.nextFollowUpDate != null
                                         ? formatDateTimeAsDDMMMYYYY(
-                                          enquiryModel.dateOfBirth!,
+                                          enquiryModel.nextFollowUpDate!,
                                         )
                                         : "-",
                               ),
@@ -190,15 +172,37 @@ class AchievementDrillDownReportForEnquiryScreen extends StatelessWidget {
 
                             children: [
                               buildColumnTitleValue(
-                                title: "Age",
-                                value: calculateAge(enquiryModel.dateOfBirth),
+                                title: "Enquiry Follow Up Days",
+                                value: enquiryModel.enquiryFollowUpDays,
+                                customValueWidget: followUpStatusTextWidget(
+                                  enquiryModel.enquiryFollowUpDays,
+                                ),
                               ),
                               buildColumnTitleValue(
-                                title: "Accommodation",
+                                title: "E-Mail ID",
                                 value:
-                                    enquiryModel.accommodation.isNotEmpty
-                                        ? enquiryModel.accommodation
+                                    enquiryModel.emailId.isNotEmpty
+                                        ? enquiryModel.emailId
                                         : "-",
+                              ),
+                            ],
+                          ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Date of Birth",
+                                value:
+                                    enquiryModel.dateOfBirth != null
+                                        ? formatDateTimeAsDDMMMYYYY(
+                                          enquiryModel.dateOfBirth!,
+                                        )
+                                        : "-",
+                              ),
+                              buildColumnTitleValue(
+                                title: "Age",
+                                value: calculateAge(enquiryModel.dateOfBirth),
                               ),
                             ],
                           ),
@@ -206,17 +210,17 @@ class AchievementDrillDownReportForEnquiryScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               buildColumnTitleValue(
+                                title: "Accommodation",
+                                value:
+                                    enquiryModel.accommodation.isNotEmpty
+                                        ? enquiryModel.accommodation
+                                        : "-",
+                              ),
+                              buildColumnTitleValue(
                                 title: "Occupation Type",
                                 value:
                                     enquiryModel.occupationType.isNotEmpty
                                         ? enquiryModel.occupationType
-                                        : "-",
-                              ),
-                              buildColumnTitleValue(
-                                title: "Nationality",
-                                value:
-                                    enquiryModel.nationality.isNotEmpty
-                                        ? enquiryModel.nationality
                                         : "-",
                               ),
                             ],
@@ -246,17 +250,17 @@ class AchievementDrillDownReportForEnquiryScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               buildColumnTitleValue(
-                                title: "Customer Time In",
+                                title: "Nationality",
                                 value:
-                                    enquiryModel.enquiryTimeIn.isNotEmpty
-                                        ? enquiryModel.enquiryTimeIn
+                                    enquiryModel.nationality.isNotEmpty
+                                        ? enquiryModel.nationality
                                         : "-",
                               ),
                               buildColumnTitleValue(
-                                title: "Customer Time Out",
+                                title: "Enquiry Time",
                                 value:
-                                    enquiryModel.enquiryTimeOut.isNotEmpty
-                                        ? enquiryModel.enquiryTimeOut
+                                    enquiryModel.enquiryTimeIn.isNotEmpty
+                                        ? "${enquiryModel.enquiryTimeIn} - ${enquiryModel.enquiryTimeOut.isNotEmpty ? enquiryModel.enquiryTimeOut : "00:00"}"
                                         : "-",
                               ),
                             ],
@@ -654,25 +658,7 @@ class AchievementDrillDownReportForEnquiryScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Location",
-                                value:
-                                    enquiryModel.villageName.isNotEmpty
-                                        ? enquiryModel.villageName
-                                        : "-",
-                              ),
-                              buildColumnTitleValue(
-                                title: "Timeline of Purchase",
-                                value:
-                                    enquiryModel.timeline.isNotEmpty
-                                        ? enquiryModel.timeline
-                                        : "-",
-                              ),
-                            ],
-                          ),
+
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -689,6 +675,18 @@ class AchievementDrillDownReportForEnquiryScreen extends StatelessWidget {
                                 value:
                                     enquiryModel.desiredFloorBand.isNotEmpty
                                         ? enquiryModel.desiredFloorBand
+                                        : "-",
+                              ),
+                            ],
+                          ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Timeline of Purchase",
+                                value:
+                                    enquiryModel.timeline.isNotEmpty
+                                        ? enquiryModel.timeline
                                         : "-",
                               ),
                             ],

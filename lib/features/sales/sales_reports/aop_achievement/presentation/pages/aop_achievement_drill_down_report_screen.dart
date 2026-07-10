@@ -8,8 +8,8 @@ import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/achivement_drill_down_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/channel_partner_sourcing.model.dart';
-import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/cubit/achievement_report_state.dart';
-import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/cubit/achievement_report_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/aop_achievement/presentation/cubit/aop_achievement_report_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/aop_achievement/presentation/cubit/aop_achievement_report_state.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -21,65 +21,53 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class AchievementDrillDownReportScreen extends StatefulWidget {
-  final int? projectId;
+class AopAchievementDrillDownReportScreen extends StatefulWidget {
   final int? employeeId;
   final String? employeeName;
   final String tabName;
   final String columnName;
-  final String? projectName;
   final String filterType;
   final DateTime? fromDate;
   final DateTime? toDate;
-  final AchievementDrillDownType? achievementDrillDownType;
-  const AchievementDrillDownReportScreen({
+  const AopAchievementDrillDownReportScreen({
     super.key,
-    this.projectId,
     this.employeeId,
     this.employeeName,
-    this.projectName,
     required this.tabName,
     required this.columnName,
     required this.filterType,
-    this.achievementDrillDownType,
     this.fromDate,
     this.toDate,
   });
 
   @override
-  State<AchievementDrillDownReportScreen> createState() =>
-      _AchievementDrillDownReportScreenState();
+  State<AopAchievementDrillDownReportScreen> createState() =>
+      _AopAchievementDrillDownReportScreenState();
 }
 
-class _AchievementDrillDownReportScreenState
-    extends State<AchievementDrillDownReportScreen> {
-  late AchievementReportCubit _achievementCubit;
+class _AopAchievementDrillDownReportScreenState
+    extends State<AopAchievementDrillDownReportScreen> {
+  late AopAchievementReportCubit _achievementCubit;
   late AuthorizationModel _routeAuthorizationModel;
   late ScrollController scrollController;
   Timer? _debounce;
 
   @override
   void initState() {
-    _achievementCubit = context.read<AchievementReportCubit>();
+    _achievementCubit = context.read<AopAchievementReportCubit>();
     _loadData();
     _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.achievementReport]!;
+        Authorization.routeAuthorizationMap[AppRoutes.aopAchievement]!;
 
     _onScroll();
     super.initState();
   }
 
   Future _loadData() async {
-    if (widget.achievementDrillDownType != null) {
-      await _achievementCubit.updateAchievementDrillDownType(
-        drillDownType: widget.achievementDrillDownType!,
-      );
-    }
     if (mounted) {
       _achievementCubit.getAchievementDrillDownReportList(
         context: context,
         pageNumber: 1,
-        projectId: widget.projectId,
         tabName: widget.tabName,
         columnName: widget.columnName,
         filterType: widget.filterType,
@@ -108,7 +96,6 @@ class _AchievementDrillDownReportScreenState
                     .state
                     .currentAchievementDrillDownReportPageNumber +
                 1,
-            projectId: widget.projectId,
             tabName: widget.tabName,
             columnName: widget.columnName,
             filterType: widget.filterType,
@@ -144,10 +131,9 @@ class _AchievementDrillDownReportScreenState
             showErrorMessage(context, "Error", "No Data Found");
             return;
           }
-          _achievementCubit.exportAchievementDrillDownExcelPdf(
-            context,
-            exportType,
-            projectId: widget.projectId,
+          _achievementCubit.getAchievementDrillDownReportForExport(
+            context: context,
+            exportType: exportType,
             employeeId: widget.employeeId,
             tabName: widget.tabName.toUpperCase(),
             columnName: widget.columnName,
@@ -160,11 +146,6 @@ class _AchievementDrillDownReportScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (widget.projectName != null &&
-                widget.projectName!.isNotEmpty) ...[
-              showSiteSelectedWidget(projectName: widget.projectName),
-              verticalSpacing(),
-            ],
             if (widget.employeeName != null &&
                 widget.employeeName!.isNotEmpty) ...[
               Text(widget.employeeName!, style: AppTextStyle.ts14M()),
@@ -174,18 +155,6 @@ class _AchievementDrillDownReportScreenState
               text: TextSpan(
                 style: AppTextStyle.ts14R(),
                 children: [
-                  TextSpan(
-                    text: "Tab: ",
-                    style: AppTextStyle.ts14R(color: AppColor.grey),
-                  ),
-
-                  TextSpan(text: widget.tabName, style: AppTextStyle.ts14M()),
-
-                  TextSpan(
-                    text: " | ",
-                    style: AppTextStyle.ts14R(color: AppColor.grey),
-                  ),
-
                   TextSpan(
                     text: "Column: ",
                     style: AppTextStyle.ts14R(color: AppColor.grey),
@@ -200,7 +169,10 @@ class _AchievementDrillDownReportScreenState
             ),
             verticalSpacing(),
             Expanded(
-              child: BlocBuilder<AchievementReportCubit, AchievementState>(
+              child: BlocBuilder<
+                AopAchievementReportCubit,
+                AopAchievementReportState
+              >(
                 builder: (context, state) {
                   if ((state.isLoading ?? true) &&
                       state.achievementDrillDownReportList.isEmpty) {
@@ -287,16 +259,12 @@ class _AchievementDrillDownReportScreenState
                   'enquiry': Uri.encodeQueryComponent(
                     EncryptionManager.encryptData(jsonEncode(enquiry.toJson())),
                   ),
-                  'tabName': Uri.encodeQueryComponent(
-                    EncryptionManager.encryptData(widget.tabName),
-                  ),
                   'columnName': Uri.encodeQueryComponent(
                     EncryptionManager.encryptData(widget.columnName),
                   ),
-                  if (widget.projectName != null)
-                    'projectName': Uri.encodeQueryComponent(
-                      EncryptionManager.encryptData(widget.projectName!),
-                    ),
+                  'projectName': Uri.encodeQueryComponent(
+                    EncryptionManager.encryptData(enquiry.projectName),
+                  ),
                   if (widget.employeeName != null)
                     'employeeName': Uri.encodeQueryComponent(
                       EncryptionManager.encryptData(widget.employeeName!),
@@ -333,6 +301,11 @@ class _AchievementDrillDownReportScreenState
                 ),
               ],
             ),
+          ),
+          buildRowTitleValue(
+            title: "Project Name",
+            value: enquiry.projectName,
+            singleLine: false,
           ),
           buildRowTitleValue(
             title: "Mobile Number",
@@ -403,17 +376,12 @@ class _AchievementDrillDownReportScreenState
                             jsonEncode(booking.toJson()),
                           ),
                         ),
-                        'tabName': Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(widget.tabName),
-                        ),
                         'columnName': Uri.encodeQueryComponent(
                           EncryptionManager.encryptData(widget.columnName),
                         ),
-                        if (widget.projectName != null)
-                          'projectName': Uri.encodeQueryComponent(
-                            EncryptionManager.encryptData(widget.projectName!),
-                          ),
-
+                        'projectName': Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(booking.projectName),
+                        ),
                         if (widget.employeeName != null)
                           'employeeName': Uri.encodeQueryComponent(
                             EncryptionManager.encryptData(widget.employeeName!),
@@ -457,6 +425,11 @@ class _AchievementDrillDownReportScreenState
                 ),
               ],
             ),
+          ),
+          buildRowTitleValue(
+            title: "Project Name",
+            value: booking.projectName,
+            singleLine: false,
           ),
           buildRowTitleValue(title: "Flat", value: booking.flat),
           buildRowTitleValue(title: "Category", value: booking.flatType),
@@ -502,16 +475,14 @@ class _AchievementDrillDownReportScreenState
                             jsonEncode(channelPartner.toJson()),
                           ),
                         ),
-                        'tabName': Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(widget.tabName),
-                        ),
                         'columnName': Uri.encodeQueryComponent(
                           EncryptionManager.encryptData(widget.columnName),
                         ),
-                        if (widget.projectName != null)
-                          'projectName': Uri.encodeQueryComponent(
-                            EncryptionManager.encryptData(widget.projectName!),
+                        'projectName': Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(
+                            channelPartner.projectName,
                           ),
+                        ),
                         if (widget.employeeName != null)
                           'employeeName': Uri.encodeQueryComponent(
                             EncryptionManager.encryptData(widget.employeeName!),
@@ -565,6 +536,11 @@ class _AchievementDrillDownReportScreenState
           buildRowTitleValue(
             title: "RERA Number",
             value: channelPartner.reraNumber,
+            singleLine: false,
+          ),
+          buildRowTitleValue(
+            title: "Project Name",
+            value: channelPartner.projectName,
             singleLine: false,
           ),
         ],

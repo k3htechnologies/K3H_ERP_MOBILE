@@ -448,22 +448,9 @@ class _ManagerAchievementReportScreenState
 
                             /// WALKINS
                             ExpansionTile(
-                              title: buildRowTitleValue(
+                              title: buildRowTitleCount(
                                 title: "Total Walkins",
-                                customValueWidget: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                  ),
-                                  child: Text(
-                                    achievement.totalWalkins.addCommas(),
-                                    maxLines: null,
-
-                                    style: AppTextStyle.ts14SB(
-                                      color: AppColor.grey,
-                                    ),
-                                  ),
-                                ),
-                                value: achievement.totalWalkins.addCommas(),
+                                value: achievement.totalWalkins.toString(),
                               ),
                               trailing: const Icon(Icons.keyboard_arrow_down),
                               backgroundColor: AppColor.lightBlueBg2.withValues(
@@ -703,29 +690,13 @@ class _ManagerAchievementReportScreenState
                                 horizontal: 5.w,
                               ),
 
-                              title: buildRowTitleValue(
+                              title: buildRowTitleCount(
                                 title: "Total Walkins",
                                 value:
                                     (achievement.walkinsByCp +
                                             achievement.freshVisits +
                                             achievement.revisits)
-                                        .addCommas(),
-                                customValueWidget: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                  ),
-                                  child: Text(
-                                    (achievement.walkinsByCp +
-                                            achievement.freshVisits +
-                                            achievement.revisits)
-                                        .addCommas(),
-                                    maxLines: null,
-
-                                    style: AppTextStyle.ts14SB(
-                                      color: AppColor.grey,
-                                    ),
-                                  ),
-                                ),
+                                        .toString(),
                               ),
                               children: [
                                 buildRowTitleCount(
