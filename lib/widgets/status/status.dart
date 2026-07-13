@@ -58,11 +58,18 @@ Widget approvalStatusWidget(String status, {TextStyle? textStyle}) {
   );
 }
 
-Widget aopStatusWidget(String status, {TextStyle? textStyle}) {
+Widget aopStatusWidget(
+  String status, {
+  TextStyle? textStyle,
+  Widget? leading,
+  Widget? trailing,
+}) {
   return commonStatusWidget(
     status: status,
     config: aopStatusConfig,
     textStyle: textStyle,
+    leading: leading,
+    trailing: trailing,
   );
 }
 

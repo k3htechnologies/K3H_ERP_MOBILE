@@ -4,6 +4,7 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
+import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner_aop.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner_dashboard.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/repository/channel_partner.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -20,6 +21,16 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
 
   void resetSearch() {
     emit(state.copyWith(searchText: ""));
+  }
+
+  Future resetAopState() async {
+    emit(
+      state.copyWith(
+        channelPartnerAopList: [],
+        currentChannelPartnerAopPage: 1,
+        totalNumberOfChannelPartnerAopRecord: 0,
+      ),
+    );
   }
 
   // SEARCH CHANNEL PARTNER
@@ -193,6 +204,9 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     required String otp,
     required String websiteURL,
     required String dob,
+    required MultiFilePickerModel aopDocumentURL,
+    required String aopFromDate,
+    required String aopToDate,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -223,6 +237,8 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       "PrimaryProjectPortfolioId": primaryProjectPortfolioId.toString(),
       "SecondaryProjectPortfolioId": secondaryProjectPortfolioId,
       "OTP": otp,
+      "AOPFromDate": aopFromDate,
+      "AOPToDate": aopToDate,
     };
 
     List<Map<String, dynamic>> fileList = [];
@@ -257,6 +273,17 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
         "key": "GSTCertificateURL",
         "value": gstCertificateURL.fileBytesList[i],
         "fileName": gstCertificateURL.fileNameList[i],
+      });
+    }
+
+    // AOP DOCUMENT
+    for (int i = 0; i < aopDocumentURL.fileNameList.length; i++) {
+      if (aopDocumentURL.fileNameList[i].contains("http")) continue;
+
+      fileList.add({
+        "key": "AOPDocumentURL",
+        "value": aopDocumentURL.fileBytesList[i],
+        "fileName": aopDocumentURL.fileNameList[i],
       });
     }
 
@@ -317,8 +344,10 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     required String websiteURL,
     required int? primaryProjectPortfolioId,
     required String secondaryProjectPortfolioId,
-
     required String dob,
+    required MultiFilePickerModel aopDocumentURL,
+    required String aopFromDate,
+    required String aopToDate,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> body = {
@@ -352,6 +381,9 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       "RemovePanCardURL": panCardDocuments.deletedFileList,
       "RemoveAadharCardURL": aadhaarCardDocuments.deletedFileList,
       "RemoveGSTCertificateURL": gstCertificateDocuments.deletedFileList,
+      "AOPFromDate": aopFromDate,
+      "AOPToDate": aopToDate,
+      "RemoveAOPDocumentURL": aopDocumentURL.deletedFileList,
     };
     List<Map<String, dynamic>> fileList = [];
 
@@ -385,6 +417,18 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
         "fileName": gstCertificateDocuments.fileNameList[i],
       });
     }
+
+    // AOP DOCUMENT
+    for (int i = 0; i < aopDocumentURL.fileNameList.length; i++) {
+      if (aopDocumentURL.fileNameList[i].contains("http")) continue;
+
+      fileList.add({
+        "key": "AOPDocumentURL",
+        "value": aopDocumentURL.fileBytesList[i],
+        "fileName": aopDocumentURL.fileNameList[i],
+      });
+    }
+
     final result = await _channelPartnerRepository.addUpdateChannelPartner(
       body: body,
       fileList: fileList,
@@ -522,5 +566,44 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       state.filterByNoOfOBM.trim().isNotEmpty,
       hasSort,
     ]);
+  }
+
+  Future getChannelPartnerAopList({
+    required BuildContext context,
+    required int pageNumber,
+    required int channelPartnerId,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+    Map<String, dynamic> queryParams = {"ChannelPartnerId": channelPartnerId};
+    var result = await _channelPartnerRepository.getChannelPartnerAOPList(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<ChannelPartnerAopModel> newData =
+            List<ChannelPartnerAopModel>.from(response['data'] ?? []);
+
+        final List<ChannelPartnerAopModel> updatedList =
+            pageNumber == 1
+                ? newData
+                : [...state.channelPartnerAopList, ...newData];
+        emit(
+          state.copyWith(
+            channelPartnerAopList: updatedList,
+            isLoading: false,
+            totalNumberOfChannelPartnerAopRecord:
+                response["totalNumberOfRecord"],
+            currentChannelPartnerAopPage: pageNumber,
+          ),
+        );
+      },
+    );
   }
 }

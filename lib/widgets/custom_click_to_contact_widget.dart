@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -138,7 +139,7 @@ class CustomClickToContactText extends StatelessWidget {
           (type == ContactType.phone || type == ContactType.landLine)
               ? SvgPicture.asset(AppAssets.phoneIcon, height: 16.h, width: 16.w)
               : SvgPicture.asset(AppAssets.mailIcon, height: 16.h, width: 16.w),
-          const SizedBox(width: 6),
+          horizontalSpacing(width: 6.w),
           Flexible(
             child: Text(
               displayValue,

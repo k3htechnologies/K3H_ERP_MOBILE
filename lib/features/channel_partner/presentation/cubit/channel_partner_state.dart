@@ -6,6 +6,10 @@ class ChannelPartnerState extends BaseState {
   final List<ChannelPartnerDashboardModel> channelPartnerDashboardModelList;
   final int totalNumberOfRecord;
   final int currentPage;
+  final List<ChannelPartnerAopModel> channelPartnerAopList;
+  final int totalNumberOfChannelPartnerAopRecord;
+  final int currentChannelPartnerAopPage;
+
   final String searchText;
   final String filterByCompanyName;
   final String filterByDesignation;
@@ -52,6 +56,9 @@ class ChannelPartnerState extends BaseState {
 
     required this.currentSortColumn,
     required this.currentSortDirection,
+    required this.channelPartnerAopList,
+    required this.totalNumberOfChannelPartnerAopRecord,
+    required this.currentChannelPartnerAopPage,
   });
 
   factory ChannelPartnerState.initial() => ChannelPartnerState(
@@ -78,6 +85,9 @@ class ChannelPartnerState extends BaseState {
     isLoading: true,
     currentSortColumn: "",
     currentSortDirection: "",
+    channelPartnerAopList: [],
+    totalNumberOfChannelPartnerAopRecord: 0,
+    currentChannelPartnerAopPage: 1,
   );
 
   ChannelPartnerState copyWith({
@@ -108,6 +118,10 @@ class ChannelPartnerState extends BaseState {
 
     String? currentSortColumn,
     String? currentSortDirection,
+
+    List<ChannelPartnerAopModel>? channelPartnerAopList,
+    int? totalNumberOfChannelPartnerAopRecord,
+    int? currentChannelPartnerAopPage,
   }) {
     return ChannelPartnerState(
       isLoading: isLoading ?? this.isLoading,
@@ -142,6 +156,13 @@ class ChannelPartnerState extends BaseState {
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
       filterByNoOfIBM: filterByNoOfIBM ?? this.filterByNoOfIBM,
       filterByNoOfOBM: filterByNoOfOBM ?? this.filterByNoOfOBM,
+      channelPartnerAopList:
+          channelPartnerAopList ?? this.channelPartnerAopList,
+      totalNumberOfChannelPartnerAopRecord:
+          totalNumberOfChannelPartnerAopRecord ??
+          this.totalNumberOfChannelPartnerAopRecord,
+      currentChannelPartnerAopPage:
+          currentChannelPartnerAopPage ?? this.currentChannelPartnerAopPage,
     );
   }
 
@@ -174,5 +195,8 @@ class ChannelPartnerState extends BaseState {
 
     currentSortColumn,
     currentSortDirection,
+    channelPartnerAopList,
+    currentChannelPartnerAopPage,
+    totalNumberOfChannelPartnerAopRecord,
   ];
 }

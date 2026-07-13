@@ -134,7 +134,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ChipStyleTabBar(
-                isSecondaryStyle: false,
+                style: ChipTabBarStyle.underline,
                 controller: _tabController,
                 tabs: ["Today", "Weekly", "Monthly", "Datewise", "Overall"],
               ),

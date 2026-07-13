@@ -487,7 +487,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
           ChipStyleTabBar(
             controller: _secondaryTabController!,
             tabs: achievementTabs,
-            isSecondaryStyle: true,
+            style: ChipTabBarStyle.underline,
           ),
           Expanded(
             child: TabBarView(

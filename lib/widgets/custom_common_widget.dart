@@ -193,6 +193,8 @@ Widget buildDocumentRow({
   required BuildContext context,
   required String docNumber,
   required String url,
+  required String title,
+  bool? iconWithoutBg,
 }) {
   return Row(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,18 +207,34 @@ Widget buildDocumentRow({
       ),
       horizontalSpacing(),
       if (url.isNotEmpty && url != "-")
-        CustomIconButton(
-          onPressed: () {
-            if (url.isNotEmpty && url != "-") {
-              showFilePreviewDialog(context, url.split(","));
-            }
-          },
-          icon: Icon(
-            Icons.remove_red_eye_outlined,
-            size: 16,
-            color: AppColor.primary,
-          ),
-        ),
+        (iconWithoutBg != null && iconWithoutBg == true)
+            ? GestureDetector(
+              onTap: () {
+                if (url.isNotEmpty && url != "-") {
+                  showFilePreviewDialog(context, url.split(","), title: title);
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: Icon(
+                  Icons.remove_red_eye_outlined,
+                  size: 16,
+                  color: AppColor.primary,
+                ),
+              ),
+            )
+            : CustomIconButton(
+              onPressed: () {
+                if (url.isNotEmpty && url != "-") {
+                  showFilePreviewDialog(context, url.split(","), title: title);
+                }
+              },
+              icon: Icon(
+                Icons.remove_red_eye_outlined,
+                size: 16,
+                color: AppColor.primary,
+              ),
+            ),
     ],
   );
 }

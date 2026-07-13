@@ -289,7 +289,7 @@ class _ViewStockManagementScreenState extends State<ViewStockManagementScreen>
               ),
 
               ChipStyleTabBar(
-                isSecondaryStyle: false,
+                style: ChipTabBarStyle.underline,
                 controller: _tabController,
                 tabs: const [
                   "Summary",

@@ -59,7 +59,7 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
             ),
           ),
           ChipStyleTabBar(
-            isSecondaryStyle: true,
+            style: ChipTabBarStyle.underline,
             controller: _tabController,
             tabs: inwardOutwardViewTabs,
           ),

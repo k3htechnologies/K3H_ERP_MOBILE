@@ -484,7 +484,7 @@ class _ParkingScreenState extends State<ParkingScreen>
 
     return ChipStyleTabBar(
       controller: _wingTabController!,
-      isSecondaryStyle: true,
+      style: ChipTabBarStyle.underline,
       tabs: wingKeys.map((w) => w).toList(),
     );
   }

@@ -75,7 +75,7 @@ class CustomButton extends StatelessWidget {
           // FOR OUTLINE BUTTONS
           border:
               borderColor != null
-                  ? Border.all(color: isDisable ? AppColor.grey : borderColor!)
+                  ? Border.all(color: isDisable ? AppColor.grey2 : borderColor!)
                   : null,
 
           borderRadius: BorderRadius.circular(borderRadius),

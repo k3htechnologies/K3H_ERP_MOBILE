@@ -112,7 +112,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
         children: [
           ChipStyleTabBar(
             controller: _tabController,
-            isSecondaryStyle: true,
+            style: ChipTabBarStyle.underline,
             tabs: [
               'Overview',
               'Bank Loans',

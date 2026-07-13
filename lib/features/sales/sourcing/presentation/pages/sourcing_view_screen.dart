@@ -1149,6 +1149,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                             ? first['number']!
                             : "-",
                     url: first['url'] ?? "-",
+                    title: first['title']!,
                   ),
                 ),
                 second != null
@@ -1167,6 +1168,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                 ? second['number']!
                                 : "-",
                         url: second['url'] ?? "-",
+                        title: second['title']!,
                       ),
                     )
                     : SizedBox.shrink(),

@@ -192,7 +192,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     child: showSiteSelectedWidget(),
                   ),
                   ChipStyleTabBar(
-                    isSecondaryStyle: true,
+                    style: ChipTabBarStyle.underline,
                     controller: _tabController,
                     tabs: [
                       'Overview',

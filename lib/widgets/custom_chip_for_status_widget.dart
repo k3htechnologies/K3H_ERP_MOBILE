@@ -15,6 +15,9 @@ Widget statusChip(
   Color txtC, {
   bool expand = false,
   TextStyle? textStyle,
+  Widget? leading,
+  Widget? trailing,
+  double spacing = 4,
 }) {
   final chip = Container(
     padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
@@ -22,18 +25,25 @@ Widget statusChip(
       color: bg,
       borderRadius: BorderRadius.circular(20),
     ),
-    child: Text(
-      text,
-      textAlign: TextAlign.center,
-      style: (textStyle ?? AppTextStyle.ts10M()).copyWith(color: txtC),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (leading != null) leading,
+        if (leading != null) SizedBox(width: spacing),
+
+        Text(
+          text,
+          textAlign: TextAlign.center,
+          style: (textStyle ?? AppTextStyle.ts10M()).copyWith(color: txtC),
+        ),
+
+        if (trailing != null) SizedBox(width: spacing),
+        if (trailing != null) trailing,
+      ],
     ),
   );
 
-  if (expand) {
-    return Flexible(child: chip);
-  }
-
-  return chip;
+  return expand ? Flexible(child: chip) : chip;
 }
 
 Widget commonStatusWidget({
@@ -41,11 +51,13 @@ Widget commonStatusWidget({
   required Map<String, StatusConfig> config,
   TextStyle? textStyle,
   bool showDashWhenEmpty = true,
+  Widget? leading,
+  Widget? trailing,
 }) {
   final trimmed = status.trim();
   final defaultStyle = AppTextStyle.ts12M();
 
-  if (trimmed.trim().isEmpty) {
+  if (trimmed.isEmpty) {
     if (!showDashWhenEmpty) {
       return const SizedBox.shrink();
     }
@@ -54,7 +66,6 @@ Widget commonStatusWidget({
   }
 
   final key = trimmed.toLowerCase();
-
   final statusConfig = config[key];
 
   if (statusConfig == null) {
@@ -63,6 +74,8 @@ Widget commonStatusWidget({
       const Color(0x261D1D1D),
       const Color(0xFF333333),
       textStyle: textStyle ?? defaultStyle,
+      leading: leading,
+      trailing: trailing,
     );
   }
 
@@ -73,5 +86,7 @@ Widget commonStatusWidget({
     textStyle: (textStyle ?? defaultStyle).copyWith(
       color: statusConfig.textColor,
     ),
+    leading: leading,
+    trailing: trailing,
   );
 }

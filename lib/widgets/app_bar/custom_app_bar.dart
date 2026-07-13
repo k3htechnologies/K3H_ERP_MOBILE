@@ -373,7 +373,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                           onPressed: () {
                             if (widget.textController != null) {
                               widget.textController!.clear();
-                              
+                              widget.onSearchSubmit!("");
                             }
                             widget.onAddCallback!();
                           },

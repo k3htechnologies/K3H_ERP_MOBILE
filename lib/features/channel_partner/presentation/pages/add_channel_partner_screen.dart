@@ -97,6 +97,11 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     fileNameList: [],
     deletedFileList: "",
   );
+  MultiFilePickerModel aopDocument = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
   late ValueNotifier<MultiFilePickerModel> selectedGSTCertificateForPopUpFile;
 
   ValueNotifier<bool> isCompanyPrefilled = ValueNotifier(false);
@@ -123,6 +128,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   ValueNotifier<Map<String, dynamic>?> selectedVillageVN = ValueNotifier(null);
 
   DateTime? _dob;
+  DateTime? _aopFromDate;
+  DateTime? _aopToDate;
   ValueNotifier<CountryCode> selectedMobileNoCountry = ValueNotifier(
     countryList.firstWhere((e) => e.code == "+91"),
   );
@@ -468,6 +475,13 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
               })
               .toList();
     }
+
+    aopDocument.fileNameList =
+        channelPartnerMasterModel.aopDocumentUrl.isEmpty
+            ? []
+            : channelPartnerMasterModel.aopDocumentUrl.split(",");
+    _aopFromDate = channelPartnerMasterModel.aopFromDate;
+    _aopToDate = channelPartnerMasterModel.aopToDate;
   }
 
   //  FETCH PROJECTS
@@ -619,6 +633,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                 ? getSecondaryProjectIds()
                 : "",
         otp: _otpController.text.trim(),
+        aopDocumentURL: aopDocument,
+        aopFromDate: _aopFromDate?.toIso8601String() ?? "",
+        aopToDate: _aopToDate?.toIso8601String() ?? "",
       );
     } else {
       _channelPartnerCubit.addChannelPartner(
@@ -658,6 +675,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
             _selectedSecondaryProjectNotifier.value.isNotEmpty
                 ? getSecondaryProjectIds()
                 : "",
+        aopDocumentURL: aopDocument,
+        aopFromDate: _aopFromDate?.toIso8601String() ?? "",
+        aopToDate: _aopToDate?.toIso8601String() ?? "",
       );
     }
   }
@@ -705,856 +725,839 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 10,
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 10.0),
-                child: Text(
-                  _isEditMode
-                      ? "Update Channel Partner"
-                      : "Add Channel Partner",
-                  style: AppTextStyle.ts16SB(),
-                ),
+              Text(
+                _isEditMode ? "Update Channel Partner" : "Add Channel Partner",
+                style: AppTextStyle.ts14M(),
               ),
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                margin: EdgeInsets.only(bottom: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Basic Details", style: AppTextStyle.ts16SB()),
-                    verticalSpacing(),
-                    CustomTextField(
-                      title: 'Full Name',
-                      isRequired: true,
-                      hint: "Enter Full Name",
-                      textController: _nameC,
-                      inputFormatterList: [
-                        LengthLimitingTextInputFormatter(50),
-                      ],
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Full Name is required";
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomDatePicker(
-                      title: 'DOB',
-                      initialDate: _dob,
-                      setValue: (value) => _dob = value,
-                      validator: (value) {
-                        if (value != null &&
-                            !InputValidator.isValidAge(value)) {
-                          return 'Age should be greater than or equal to 18.';
-                        }
 
-                        return null;
-                      },
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: selectedMobileNoCountry,
-                      builder: (context, value, child) {
-                        return CustomTextField(
-                          title: "Mobile Number",
-                          textController: _mobileNumberC,
-                          hint: "Enter Mobile Number",
-                          keyboardType: TextInputType.phone,
-                          isRequired: true,
-                          readOnly: _isEditMode,
-                          showCountryDropdown: true,
-                          selectedCountry: value,
-                          onCountryChanged: (country) {
-                            if (country == null) return;
+              _card("Basic Details", [
+                CustomTextField(
+                  title: 'Full Name',
+                  isRequired: true,
+                  hint: "Enter Full Name",
+                  textController: _nameC,
+                  inputFormatterList: [LengthLimitingTextInputFormatter(50)],
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Full Name is required";
+                    }
+                    return null;
+                  },
+                ),
+                CustomDatePicker(
+                  title: 'DOB',
+                  initialDate: _dob,
+                  setValue: (value) => _dob = value,
+                  validator: (value) {
+                    if (value != null && !InputValidator.isValidAge(value)) {
+                      return 'Age should be greater than or equal to 18.';
+                    }
 
-                            selectedMobileNoCountry.value = country;
-                          },
-                          inputFormatterList: [
-                            LengthLimitingTextInputFormatter(
-                              value.mobileLength,
-                            ),
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          onChangeFunction: (value) async {
-                            final country = selectedMobileNoCountry.value;
-
-                            if (value.isNotEmpty &&
-                                country.mobileLength == value.length) {
-                              _isAlreadyExist.value =
-                                  (await _channelPartnerCubit
-                                      .fetchChannelPartnersByMobile(
-                                        _mobileNumberC.text.trim(),
-                                      )).isNotEmpty;
-                            } else {
-                              _isAlreadyExist.value = false;
-                            }
-                          },
-                          validator: (value) {
-                            final mobile = value?.trim() ?? "";
-                            final country = selectedMobileNoCountry.value;
-                            if (value == null || value.isEmpty) {
-                              return "Mobile Number is required";
-                            }
-                            if (mobile.isNotEmpty) {
-                              // LENGTH AND REGEX VALIDATION
-                              if ((mobile.length != country.mobileLength) ||
-                                  country.regex != null &&
-                                      !country.regex!.hasMatch(mobile)) {
-                                return "Invalid Mobile Number";
-                              }
-                            }
-                            if (_isAlreadyExist.value && !_isEditMode) {
-                              return "Mobile Number already exists";
-                            }
-                            return null;
-                          },
-                        );
-                      },
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: selectedMobileNoCountry,
-                      builder: (context, selectedMobNovalue, child) {
-                        return CustomTextField(
-                          title: "E-mail ID",
-                          isRequired: selectedMobNovalue.countryCode != "IN",
-                          textController: _emailC,
-                          keyboardType: TextInputType.emailAddress,
-                          hint: "Enter Email",
-                          validator:
-                              (value) =>
-                                  (selectedMobNovalue.countryCode != "IN" &&
-                                          (value == null || value.isEmpty))
-                                      ? "E-mail ID is required"
-                                      : null,
-                        );
-                      },
-                    ),
-                    CustomTextField(
-                      title: 'Alternate Mobile Number',
-                      hint: "Enter Alternate Mobile Number",
-                      textController: _alternateMobileNumberC,
+                    return null;
+                  },
+                ),
+                ValueListenableBuilder(
+                  valueListenable: selectedMobileNoCountry,
+                  builder: (context, value, child) {
+                    return CustomTextField(
+                      title: "Mobile Number",
+                      textController: _mobileNumberC,
+                      hint: "Enter Mobile Number",
                       keyboardType: TextInputType.phone,
-                      inputFormatterList: InputValidator.digit(10),
-                      prefixWidget: IntrinsicHeight(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                      isRequired: true,
+                      readOnly: _isEditMode,
+                      showCountryDropdown: true,
+                      selectedCountry: value,
+                      onCountryChanged: (country) {
+                        if (country == null) return;
 
-                          children: [
-                            SizedBox(width: 10),
-                            Text("+91"),
-                            VerticalDivider(
-                              color: AppColor.black,
-                              thickness: 0.5,
-                              width: 15,
-                              indent: 5,
-                              endIndent: 5,
-                            ),
-                          ],
+                        selectedMobileNoCountry.value = country;
+                      },
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(value.mobileLength),
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                      onChangeFunction: (value) async {
+                        final country = selectedMobileNoCountry.value;
+
+                        if (value.isNotEmpty &&
+                            country.mobileLength == value.length) {
+                          _isAlreadyExist.value =
+                              (await _channelPartnerCubit
+                                  .fetchChannelPartnersByMobile(
+                                    _mobileNumberC.text.trim(),
+                                  )).isNotEmpty;
+                        } else {
+                          _isAlreadyExist.value = false;
+                        }
+                      },
+                      validator: (value) {
+                        final mobile = value?.trim() ?? "";
+                        final country = selectedMobileNoCountry.value;
+                        if (value == null || value.isEmpty) {
+                          return "Mobile Number is required";
+                        }
+                        if (mobile.isNotEmpty) {
+                          // LENGTH AND REGEX VALIDATION
+                          if ((mobile.length != country.mobileLength) ||
+                              country.regex != null &&
+                                  !country.regex!.hasMatch(mobile)) {
+                            return "Invalid Mobile Number";
+                          }
+                        }
+                        if (_isAlreadyExist.value && !_isEditMode) {
+                          return "Mobile Number already exists";
+                        }
+                        return null;
+                      },
+                    );
+                  },
+                ),
+                ValueListenableBuilder(
+                  valueListenable: selectedMobileNoCountry,
+                  builder: (context, selectedMobNovalue, child) {
+                    return CustomTextField(
+                      title: "E-mail ID",
+                      isRequired: selectedMobNovalue.countryCode != "IN",
+                      textController: _emailC,
+                      keyboardType: TextInputType.emailAddress,
+                      hint: "Enter Email",
+                      validator:
+                          (value) =>
+                              (selectedMobNovalue.countryCode != "IN" &&
+                                      (value == null || value.isEmpty))
+                                  ? "E-mail ID is required"
+                                  : null,
+                    );
+                  },
+                ),
+                CustomTextField(
+                  title: 'Alternate Mobile Number',
+                  hint: "Enter Alternate Mobile Number",
+                  textController: _alternateMobileNumberC,
+                  keyboardType: TextInputType.phone,
+                  inputFormatterList: InputValidator.digit(10),
+                  prefixWidget: IntrinsicHeight(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+
+                      children: [
+                        SizedBox(width: 10),
+                        Text("+91"),
+                        VerticalDivider(
+                          color: AppColor.black,
+                          thickness: 0.5,
+                          width: 15,
+                          indent: 5,
+                          endIndent: 5,
                         ),
-                      ),
+                      ],
                     ),
-                    if (!_isEditMode)
-                      ValueListenableBuilder<Map<String, dynamic>?>(
-                        valueListenable: selectedCompanyType,
-                        builder: (context, value, _) {
-                          return CustomDropDownWidget(
-                            key: ValueKey(value?['zAttributesId']),
-                            title: 'Company Type',
-                            hintText: "Select Company Type",
+                  ),
+                ),
+                if (!_isEditMode)
+                  ValueListenableBuilder<Map<String, dynamic>?>(
+                    valueListenable: selectedCompanyType,
+                    builder: (context, value, _) {
+                      return CustomDropDownWidget(
+                        key: ValueKey(value?['zAttributesId']),
+                        title: 'Company Type',
+                        hintText: "Select Company Type",
+                        isRequired: true,
+                        initialValue: value,
+                        dataList: companyTypeList,
+                        onSelected: (val) {
+                          if (selectedCompanyType.value?['zAttributesId'] !=
+                              val['zAttributesId']) {
+                            selectedCompanyType.value = val;
+                            _resetCompanyFields();
+                          }
+                        },
+                        onValueClear: () {
+                          selectedCompanyType.value = null;
+                          _resetCompanyFields();
+                        },
+                        validator: (value) {
+                          if (value == null || value['zAttributesId'] == -1) {
+                            return "Company Type is required";
+                          }
+                          return null;
+                        },
+                      );
+                    },
+                  ),
+                ValueListenableBuilder(
+                  valueListenable: selectedCompanyType,
+                  builder: (context, value, child) {
+                    final int companyTypeId = value?['zAttributesId'] ?? -1;
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (!_isEditMode && companyTypeId == 2) ...[
+                          CustomMultipleSelectPopup(
+                            title: "Company",
                             isRequired: true,
-                            initialValue: value,
-                            dataList: companyTypeList,
-                            onSelected: (val) {
-                              if (selectedCompanyType.value?['zAttributesId'] !=
-                                  val['zAttributesId']) {
-                                selectedCompanyType.value = val;
-                                _resetCompanyFields();
+                            isMultiSelect: false,
+                            initialValue: selectedCompany.value,
+                            dataFetchCallBack: _fetchChannelPartnerList,
+                            onClear: () {
+                              selectedCompany.value = [];
+                              isCompanyPrefilled.value = false;
+                              _companyNameC.clear();
+                              selectedFirmsType.value = null;
+                              selectedType.value = null;
+                              hasReraNumber.value = false;
+                              _reraNumberC.clear();
+                              _gstNumberC.clear();
+                              selectedGSTCertificateForPopUpFile
+                                  .value = MultiFilePickerModel(
+                                fileBytesList: [],
+                                fileNameList: [],
+                                deletedFileList: "",
+                              );
+                            },
+                            onSelected: (selectedValue) {
+                              selectedCompany.value = selectedValue;
+
+                              if (selectedValue.isNotEmpty) {
+                                final company = selectedValue.first;
+                                _companyNameC.text =
+                                    company['DisplayName'] ?? '';
+
+                                final int channelPartnerId =
+                                    company['zAttributesId'] ?? 0;
+                                if (channelPartnerId != 0) {
+                                  _pullChannelPartnerMaster(channelPartnerId);
+                                }
                               }
                             },
-                            onValueClear: () {
-                              selectedCompanyType.value = null;
-                              _resetCompanyFields();
-                            },
-                            validator: (value) {
-                              if (value == null ||
-                                  value['zAttributesId'] == -1) {
-                                return "Company Type is required";
+                            validator: (selectedValue) {
+                              if (companyTypeId == 2 &&
+                                  (selectedValue == null ||
+                                      selectedValue.isEmpty)) {
+                                return "Company is required";
                               }
                               return null;
                             },
-                          );
-                        },
-                      ),
-                    ValueListenableBuilder(
-                      valueListenable: selectedCompanyType,
-                      builder: (context, value, child) {
-                        final int companyTypeId = value?['zAttributesId'] ?? -1;
+                          ),
+                        ],
 
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (!_isEditMode && companyTypeId == 2) ...[
-                              CustomMultipleSelectPopup(
-                                title: "Company",
-                                isRequired: true,
-                                isMultiSelect: false,
-                                initialValue: selectedCompany.value,
-                                dataFetchCallBack: _fetchChannelPartnerList,
-                                onClear: () {
-                                  selectedCompany.value = [];
-                                  isCompanyPrefilled.value = false;
-                                  _companyNameC.clear();
-                                  selectedFirmsType.value = null;
-                                  selectedType.value = null;
-                                  hasReraNumber.value = false;
-                                  _reraNumberC.clear();
-                                  _gstNumberC.clear();
-                                  selectedGSTCertificateForPopUpFile
-                                      .value = MultiFilePickerModel(
-                                    fileBytesList: [],
-                                    fileNameList: [],
-                                    deletedFileList: "",
-                                  );
-                                },
-                                onSelected: (selectedValue) {
-                                  selectedCompany.value = selectedValue;
-
-                                  if (selectedValue.isNotEmpty) {
-                                    final company = selectedValue.first;
-                                    _companyNameC.text =
-                                        company['DisplayName'] ?? '';
-
-                                    final int channelPartnerId =
-                                        company['zAttributesId'] ?? 0;
-                                    if (channelPartnerId != 0) {
-                                      _pullChannelPartnerMaster(
-                                        channelPartnerId,
-                                      );
-                                    }
-                                  }
-                                },
-                                validator: (selectedValue) {
-                                  if (companyTypeId == 2 &&
-                                      (selectedValue == null ||
-                                          selectedValue.isEmpty)) {
-                                    return "Company is required";
-                                  }
-                                  return null;
-                                },
-                              ),
+                        if (companyTypeId == 1 || _isEditMode) ...[
+                          CustomTextField(
+                            title: 'Company Name',
+                            isRequired: true,
+                            hint: "Enter Company Name",
+                            textController: _companyNameC,
+                            inputFormatterList: [
+                              LengthLimitingTextInputFormatter(50),
                             ],
+                            validator: (value) {
+                              if (companyTypeId == 1 &&
+                                  (value == null || value.trim().isEmpty)) {
+                                return "Company Name is required";
+                              }
+                              return null;
+                            },
+                          ),
+                        ],
 
-                            if (companyTypeId == 1 || _isEditMode) ...[
-                              CustomTextField(
-                                title: 'Company Name',
+                        if (companyTypeId == 1) ...[
+                          ValueListenableBuilder(
+                            valueListenable: selectedFirmsType,
+                            builder: (context, firmsValue, _) {
+                              return CustomDropDownWidget(
+                                title: "Firms Type",
                                 isRequired: true,
-                                hint: "Enter Company Name",
-                                textController: _companyNameC,
-                                inputFormatterList: [
-                                  LengthLimitingTextInputFormatter(50),
-                                ],
+                                hintText: "Select Firms Type",
+                                dataList: firmTypeList,
+                                initialValue: firmsValue,
+                                onSelected: (value) {
+                                  selectedFirmsType.value = value;
+                                },
                                 validator: (value) {
                                   if (companyTypeId == 1 &&
-                                      (value == null || value.trim().isEmpty)) {
-                                    return "Company Name is required";
+                                      (value == null ||
+                                          value['zAttributesId'] == -1)) {
+                                    return "Firms Type is required";
                                   }
                                   return null;
                                 },
-                              ),
-                            ],
-
-                            if (companyTypeId == 1) ...[
-                              ValueListenableBuilder(
-                                valueListenable: selectedFirmsType,
-                                builder: (context, firmsValue, _) {
-                                  return CustomDropDownWidget(
-                                    title: "Firms Type",
-                                    isRequired: true,
-                                    hintText: "Select Firms Type",
-                                    dataList: firmTypeList,
-                                    initialValue: firmsValue,
-                                    onSelected: (value) {
-                                      selectedFirmsType.value = value;
-                                    },
-                                    validator: (value) {
-                                      if (companyTypeId == 1 &&
-                                          (value == null ||
-                                              value['zAttributesId'] == -1)) {
-                                        return "Firms Type is required";
-                                      }
-                                      return null;
-                                    },
-                                    onValueClear: () {
-                                      selectedFirmsType.value = null;
-                                    },
-                                  );
+                                onValueClear: () {
+                                  selectedFirmsType.value = null;
                                 },
-                              ),
-                            ],
+                              );
+                            },
+                          ),
+                        ],
 
-                            if (companyTypeId == 2) ...[
-                              ValueListenableBuilder(
-                                valueListenable: selectedFirmsType,
-                                builder: (context, firmsValue, _) {
-                                  return CustomTextField(
-                                    title: "Firms Type",
-                                    hint: "Select Firms Type",
-                                    isRequired: true,
-                                    readOnly: true,
-                                    textController: TextEditingController(
-                                      text: firmsValue?['DisplayName'] ?? '',
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ],
-                        );
-                      },
-                    ),
-                    ValueListenableBuilder<Map<String, dynamic>?>(
-                      valueListenable: selectedDesignation,
-                      builder: (context, value, _) {
-                        return CustomDropDownWidget(
-                          title: 'Designation',
-                          hintText: "Select Designation",
-                          isRequired: true,
-                          dataList: designationList,
-                          initialValue: value,
-                          onSelected: (val) {
-                            selectedDesignation.value = val;
-                          },
-                          validator: (val) {
-                            if (val == null) {
-                              return "Designation is required";
-                            }
-                            return null;
-                          },
-                          onValueClear: () {
-                            selectedDesignation.value = null;
-                          },
-                        );
-                      },
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: selectedCompanyType,
-                      builder: (context, companyType, _) {
-                        return ValueListenableBuilder<Map<String, dynamic>?>(
-                          valueListenable: selectedType,
-                          builder: (context, value, _) {
-                            return CustomDropDownWidget(
-                              title: "Type",
-                              isRequired: true,
-                              hintText: "Select Type",
-                              dataList: type,
-                              initialValue: value,
-                              onSelected: (val) {
-                                selectedType.value = val;
-                              },
-                              validator: (value) {
-                                if (value == null) {
-                                  return "Type is required";
-                                }
-                                return null;
-                              },
-                              onValueClear: () {
-                                selectedType.value = null;
-                              },
-                            );
-                          },
-                        );
-                      },
-                    ),
-                    CustomTextField(
-                      title: 'Website URL',
-                      hint: "Enter Website URL",
-                      textController: _websiteC,
-                      validator: (value) {
-                        if ((value != null && value.trim().isNotEmpty) &&
-                            !InputValidator.isValidURL(value)) {
-                          return "Enter a valid Website URL";
-                        }
-                        return null;
-                      },
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: selectedCompanyType,
-                      builder: (context, value, child) {
-                        return ValueListenableBuilder(
-                          valueListenable: hasReraNumber,
-                          builder: (context, hasRera, _) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    SizedBox(
-                                      height: 24,
-                                      width: 24,
-                                      child: Checkbox(
-                                        value: hasRera,
-                                        onChanged:
-                                            isNewCompany
-                                                ? (value) {
-                                                  hasReraNumber.value =
-                                                      value ?? false;
-
-                                                  if (!hasReraNumber.value) {
-                                                    _reraNumberC.clear();
-                                                  }
-                                                }
-                                                : null,
-                                      ),
-                                    ),
-                                    horizontalSpacing(width: 2),
-                                    Text(
-                                      "Do you have RERA Number",
-                                      style: AppTextStyle.ts14M().copyWith(
-                                        color:
-                                            hasRera
-                                                ? Colors.grey
-                                                : Colors.black,
-                                      ),
-                                    ),
-                                  ],
+                        if (companyTypeId == 2) ...[
+                          ValueListenableBuilder(
+                            valueListenable: selectedFirmsType,
+                            builder: (context, firmsValue, _) {
+                              return CustomTextField(
+                                title: "Firms Type",
+                                hint: "Select Firms Type",
+                                isRequired: true,
+                                readOnly: true,
+                                textController: TextEditingController(
+                                  text: firmsValue?['DisplayName'] ?? '',
                                 ),
-                                verticalSpacing(),
-                                CustomTextField(
-                                  title: 'RERA Number',
-                                  isRequired: hasRera,
-                                  readOnly: !isNewCompany,
-                                  hint: "Enter RERA Number",
-                                  textController: _reraNumberC,
-                                  inputFormatterList:
-                                      InputValidator.reraInputFormatters(),
-                                  validator: (value) {
-                                    if (hasRera &&
-                                        (value == null ||
-                                            value.trim().isEmpty)) {
-                                      return "RERA Number is required";
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ],
+                              );
+                            },
+                          ),
+                        ],
+                      ],
+                    );
+                  },
                 ),
-              ),
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                margin: EdgeInsets.only(bottom: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Speciality", style: AppTextStyle.ts16SB()),
-                    verticalSpacing(),
-                    CustomDropDownWidget(
-                      title: "Speciality",
-                      hintText: "Select Speciality",
+                ValueListenableBuilder<Map<String, dynamic>?>(
+                  valueListenable: selectedDesignation,
+                  builder: (context, value, _) {
+                    return CustomDropDownWidget(
+                      title: 'Designation',
+                      hintText: "Select Designation",
                       isRequired: true,
-                      dataList: specialityList,
-                      initialValue: selectedSpeciality,
-                      onSelected: (value) {
-                        selectedSpeciality = value;
+                      dataList: designationList,
+                      initialValue: value,
+                      onSelected: (val) {
+                        selectedDesignation.value = val;
                       },
-                      validator: (value) {
-                        if (value == null || value["zAttributesId"] == -1) {
-                          return "Speciality is required";
+                      validator: (val) {
+                        if (val == null) {
+                          return "Designation is required";
                         }
                         return null;
                       },
                       onValueClear: () {
-                        selectedSpeciality = null;
+                        selectedDesignation.value = null;
                       },
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              ),
-              const SizedBox(height: 10.0),
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Document Details", style: AppTextStyle.ts16SB()),
-                    verticalSpacing(),
-                    ValueListenableBuilder(
-                      valueListenable: aadhaarTrigger,
-                      builder: (context, _, __) {
-                        final hasAadhaar =
-                            _aadhaarNumberC.text.trim().isNotEmpty;
-                        final hasFile =
-                            selectedAadhaarForPopUpFile.fileNameList.isNotEmpty;
-
-                        return Column(
-                          children: [
-                            CustomTextField(
-                              title: 'Aadhaar Card Number',
-                              isRequired: hasFile,
-                              hint: "Enter Aadhaar Card Number",
-                              textController: _aadhaarNumberC,
-                              keyboardType: TextInputType.number,
-                              inputFormatterList:
-                                  InputValidator.aadhaarNumberInputFormatter(),
-                              validator: (value) {
-                                if (hasFile &&
-                                    (value == null || value.isEmpty)) {
-                                  return "Aadhaar Card Number is required";
-                                }
-
-                                if (value != null && value.isNotEmpty) {
-                                  if (!InputValidator.isValidAadharNumber(
-                                    value,
-                                  )) {
-                                    return "Aadhaar Card Number is invalid";
-                                  }
-                                }
-
-                                return null;
-                              },
-                            ),
-
-                            CustomMultiFilePicker(
-                              title: "Aadhaar Card",
-                              isRequired: hasAadhaar,
-                              filePickType: FilePickType.both,
-                              initialFileList:
-                                  selectedAadhaarForPopUpFile.fileNameList,
-
-                              onFilePickedCallback: (bytesList, fileNameList) {
-                                selectedAadhaarForPopUpFile.fileNameList =
-                                    fileNameList;
-                                selectedAadhaarForPopUpFile.fileBytesList =
-                                    bytesList;
-
-                                aadhaarTrigger.value = !aadhaarTrigger.value;
-                              },
-
-                              onFileDeleteCallback: (
-                                fileBytesList,
-                                fileNameList,
-                                deletedFile,
-                              ) {
-                                selectedAadhaarForPopUpFile.fileNameList =
-                                    fileNameList;
-                                selectedAadhaarForPopUpFile.fileBytesList =
-                                    fileBytesList;
-                                selectedAadhaarForPopUpFile.deletedFileList =
-                                    deletedFile;
-
-                                aadhaarTrigger.value = !aadhaarTrigger.value;
-                              },
-
-                              validator: (fileList) {
-                                if (hasAadhaar &&
-                                    (fileList == null || fileList.isEmpty)) {
-                                  return "Aadhaar Card document is required";
-                                }
-
-                                return null;
-                              },
-                            ),
-                          ],
+                ValueListenableBuilder(
+                  valueListenable: selectedCompanyType,
+                  builder: (context, companyType, _) {
+                    return ValueListenableBuilder<Map<String, dynamic>?>(
+                      valueListenable: selectedType,
+                      builder: (context, value, _) {
+                        return CustomDropDownWidget(
+                          title: "Type",
+                          isRequired: true,
+                          hintText: "Select Type",
+                          dataList: type,
+                          initialValue: value,
+                          onSelected: (val) {
+                            selectedType.value = val;
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return "Type is required";
+                            }
+                            return null;
+                          },
+                          onValueClear: () {
+                            selectedType.value = null;
+                          },
                         );
                       },
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: panTrigger,
-                      builder: (context, _, __) {
-                        final hasPan = _panNumberC.text.trim().isNotEmpty;
-                        final hasFile =
-                            selectedPANForPopUpFile.fileNameList.isNotEmpty;
-
+                    );
+                  },
+                ),
+                CustomTextField(
+                  title: 'Website URL',
+                  hint: "Enter Website URL",
+                  textController: _websiteC,
+                  validator: (value) {
+                    if ((value != null && value.trim().isNotEmpty) &&
+                        !InputValidator.isValidURL(value)) {
+                      return "Enter a valid Website URL";
+                    }
+                    return null;
+                  },
+                ),
+                ValueListenableBuilder(
+                  valueListenable: selectedCompanyType,
+                  builder: (context, value, child) {
+                    return ValueListenableBuilder(
+                      valueListenable: hasReraNumber,
+                      builder: (context, hasRera, _) {
                         return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CustomTextField(
-                              title: 'PAN Number',
-                              isRequired: hasFile,
-                              hint: "Enter PAN Number",
-                              textController: _panNumberC,
-                              inputFormatterList:
-                                  InputValidator.panInputFormatters(),
-                              validator: (value) {
-                                if (hasFile &&
-                                    (value == null || value.isEmpty)) {
-                                  return "PAN Number is required";
-                                }
+                            Row(
+                              children: [
+                                SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: Checkbox(
+                                    value: hasRera,
+                                    onChanged:
+                                        isNewCompany
+                                            ? (value) {
+                                              hasReraNumber.value =
+                                                  value ?? false;
 
-                                if (value != null && value.isNotEmpty) {
-                                  if (!InputValidator.isValidPAN(value)) {
-                                    return "PAN Number is invalid";
-                                  }
-                                }
-
-                                return null;
-                              },
-                            ),
-
-                            CustomMultiFilePicker(
-                              title: "Pan Card",
-                              isRequired: hasPan,
-                              filePickType: FilePickType.both,
-                              initialFileList:
-                                  selectedPANForPopUpFile.fileNameList,
-
-                              onFilePickedCallback: (bytesList, fileNameList) {
-                                selectedPANForPopUpFile.fileNameList =
-                                    fileNameList;
-                                selectedPANForPopUpFile.fileBytesList =
-                                    bytesList;
-
-                                panTrigger.value = !panTrigger.value;
-                                _formKey.currentState?.validate();
-                              },
-
-                              onFileDeleteCallback: (
-                                fileBytesList,
-                                fileNameList,
-                                deletedFile,
-                              ) {
-                                selectedPANForPopUpFile.fileNameList =
-                                    fileNameList;
-                                selectedPANForPopUpFile.fileBytesList =
-                                    fileBytesList;
-                                selectedPANForPopUpFile.deletedFileList =
-                                    deletedFile;
-
-                                panTrigger.value = !panTrigger.value;
-                                _formKey.currentState?.validate();
-                              },
-
-                              validator: (fileList) {
-                                if (hasPan &&
-                                    (fileList == null || fileList.isEmpty)) {
-                                  return "PAN Card document is required";
-                                }
-                                return null;
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: gstTrigger,
-                      builder: (context, _, __) {
-                        final hasGst = _gstNumberC.text.trim().isNotEmpty;
-
-                        return Column(
-                          children: [
-                            ValueListenableBuilder(
-                              valueListenable: isCompanyPrefilled,
-                              builder: (context, isPrefilled, _) {
-                                return CustomTextField(
-                                  title: 'GST Number',
-                                  hint: "Enter GST Number",
-                                  textController: _gstNumberC,
-                                  readOnly: isExistingCompany,
-                                  inputFormatterList:
-                                      InputValidator.gstInputFormatters(),
-                                  validator: (value) {
-                                    final hasFile =
-                                        selectedGSTCertificateForPopUpFile
-                                            .value
-                                            .fileNameList
-                                            .isNotEmpty;
-
-                                    if (hasFile &&
-                                        (value == null || value.isEmpty)) {
-                                      return "GST Number is required";
-                                    }
-
-                                    if (value != null && value.isNotEmpty) {
-                                      if (!InputValidator.isValidGST(value)) {
-                                        return "GST Number is invalid";
-                                      }
-                                    }
-
-                                    return null;
-                                  },
-                                );
-                              },
-                            ),
-
-                            IgnorePointer(
-                              ignoring: isExistingCompany,
-                              child: Opacity(
-                                opacity: isExistingCompany ? 0.6 : 1,
-                                child: CustomMultiFilePicker(
-                                  key: ValueKey(
-                                    selectedGSTCertificateForPopUpFile.value,
+                                              if (!hasReraNumber.value) {
+                                                _reraNumberC.clear();
+                                              }
+                                            }
+                                            : null,
                                   ),
-                                  title: "GST Certificate",
-                                  filePickType: FilePickType.both,
-                                  readOnly: isExistingCompany,
-                                  initialFileList:
-                                      selectedGSTCertificateForPopUpFile
-                                          .value
-                                          .fileNameList,
-
-                                  onFilePickedCallback: (
-                                    bytesList,
-                                    fileNameList,
-                                  ) {
-                                    selectedGSTCertificateForPopUpFile
-                                        .value
-                                        .fileNameList = fileNameList;
-                                    selectedGSTCertificateForPopUpFile
-                                        .value
-                                        .fileBytesList = bytesList;
-
-                                    gstTrigger.value = !gstTrigger.value;
-                                  },
-
-                                  onFileDeleteCallback: (
-                                    fileBytesList,
-                                    fileNameList,
-                                    deletedFile,
-                                  ) {
-                                    selectedGSTCertificateForPopUpFile
-                                        .value
-                                        .fileNameList = fileNameList;
-                                    selectedGSTCertificateForPopUpFile
-                                        .value
-                                        .fileBytesList = fileBytesList;
-                                    selectedGSTCertificateForPopUpFile
-                                        .value
-                                        .deletedFileList = deletedFile;
-
-                                    gstTrigger.value = !gstTrigger.value;
-                                    _formKey.currentState?.validate();
-                                  },
-
-                                  validator: (fileList) {
-                                    if (hasGst &&
-                                        (fileList == null ||
-                                            fileList.isEmpty)) {
-                                      return "GST Certificate document is required";
-                                    }
-                                    return null;
-                                  },
                                 ),
-                              ),
+                                horizontalSpacing(width: 2),
+                                Text(
+                                  "Do you have RERA Number",
+                                  style: AppTextStyle.ts14M().copyWith(
+                                    color: hasRera ? Colors.grey : Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(),
+                            CustomTextField(
+                              title: 'RERA Number',
+                              isRequired: hasRera,
+                              readOnly: !isNewCompany,
+                              hint: "Enter RERA Number",
+                              textController: _reraNumberC,
+                              inputFormatterList:
+                                  InputValidator.reraInputFormatters(),
+                              validator: (value) {
+                                if (hasRera &&
+                                    (value == null || value.trim().isEmpty)) {
+                                  return "RERA Number is required";
+                                }
+                                return null;
+                              },
                             ),
                           ],
                         );
                       },
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              ),
+              ]),
+
+              _card("Speciality", [
+                CustomDropDownWidget(
+                  title: "Speciality",
+                  hintText: "Select Speciality",
+                  isRequired: true,
+                  dataList: specialityList,
+                  initialValue: selectedSpeciality,
+                  onSelected: (value) {
+                    selectedSpeciality = value;
+                  },
+                  validator: (value) {
+                    if (value == null || value["zAttributesId"] == -1) {
+                      return "Speciality is required";
+                    }
+                    return null;
+                  },
+                  onValueClear: () {
+                    selectedSpeciality = null;
+                  },
+                ),
+              ]),
+
               const SizedBox(height: 10.0),
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Address Details", style: AppTextStyle.ts16SB()),
-                    verticalSpacing(),
-                    AnimatedBuilder(
-                      animation: Listenable.merge([
-                        selectedCountry,
-                        selectedStateVN,
-                      ]),
-                      builder: (context, _) {
-                        return AddressWidget(
-                          key: ValueKey(
-                            "${selectedStateVN.value?['zAttributesId']}_${selectedCityVN.value?['zAttributesId']}",
+              _card("Document Details", [
+                ValueListenableBuilder(
+                  valueListenable: aadhaarTrigger,
+                  builder: (context, _, __) {
+                    final hasAadhaar = _aadhaarNumberC.text.trim().isNotEmpty;
+                    final hasFile =
+                        selectedAadhaarForPopUpFile.fileNameList.isNotEmpty;
+
+                    return Column(
+                      children: [
+                        CustomTextField(
+                          title: 'Aadhaar Card Number',
+                          isRequired: hasFile,
+                          hint: "Enter Aadhaar Card Number",
+                          textController: _aadhaarNumberC,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList:
+                              InputValidator.aadhaarNumberInputFormatter(),
+                          validator: (value) {
+                            if (hasFile && (value == null || value.isEmpty)) {
+                              return "Aadhaar Card Number is required";
+                            }
+
+                            if (value != null && value.isNotEmpty) {
+                              if (!InputValidator.isValidAadharNumber(value)) {
+                                return "Aadhaar Card Number is invalid";
+                              }
+                            }
+
+                            return null;
+                          },
+                        ),
+
+                        CustomMultiFilePicker(
+                          title: "Aadhaar Card",
+                          isRequired: hasAadhaar,
+                          filePickType: FilePickType.both,
+                          initialFileList:
+                              selectedAadhaarForPopUpFile.fileNameList,
+
+                          onFilePickedCallback: (bytesList, fileNameList) {
+                            selectedAadhaarForPopUpFile.fileNameList =
+                                fileNameList;
+                            selectedAadhaarForPopUpFile.fileBytesList =
+                                bytesList;
+
+                            aadhaarTrigger.value = !aadhaarTrigger.value;
+                          },
+
+                          onFileDeleteCallback: (
+                            fileBytesList,
+                            fileNameList,
+                            deletedFile,
+                          ) {
+                            selectedAadhaarForPopUpFile.fileNameList =
+                                fileNameList;
+                            selectedAadhaarForPopUpFile.fileBytesList =
+                                fileBytesList;
+                            selectedAadhaarForPopUpFile.deletedFileList =
+                                deletedFile;
+
+                            aadhaarTrigger.value = !aadhaarTrigger.value;
+                          },
+
+                          validator: (fileList) {
+                            if (hasAadhaar &&
+                                (fileList == null || fileList.isEmpty)) {
+                              return "Aadhaar Card document is required";
+                            }
+
+                            return null;
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                ValueListenableBuilder(
+                  valueListenable: panTrigger,
+                  builder: (context, _, __) {
+                    final hasPan = _panNumberC.text.trim().isNotEmpty;
+                    final hasFile =
+                        selectedPANForPopUpFile.fileNameList.isNotEmpty;
+
+                    return Column(
+                      children: [
+                        CustomTextField(
+                          title: 'PAN Number',
+                          isRequired: hasFile,
+                          hint: "Enter PAN Number",
+                          textController: _panNumberC,
+                          inputFormatterList:
+                              InputValidator.panInputFormatters(),
+                          validator: (value) {
+                            if (hasFile && (value == null || value.isEmpty)) {
+                              return "PAN Number is required";
+                            }
+
+                            if (value != null && value.isNotEmpty) {
+                              if (!InputValidator.isValidPAN(value)) {
+                                return "PAN Number is invalid";
+                              }
+                            }
+
+                            return null;
+                          },
+                        ),
+
+                        CustomMultiFilePicker(
+                          title: "Pan Card",
+                          isRequired: hasPan,
+                          filePickType: FilePickType.both,
+                          initialFileList: selectedPANForPopUpFile.fileNameList,
+
+                          onFilePickedCallback: (bytesList, fileNameList) {
+                            selectedPANForPopUpFile.fileNameList = fileNameList;
+                            selectedPANForPopUpFile.fileBytesList = bytesList;
+
+                            panTrigger.value = !panTrigger.value;
+                            _formKey.currentState?.validate();
+                          },
+
+                          onFileDeleteCallback: (
+                            fileBytesList,
+                            fileNameList,
+                            deletedFile,
+                          ) {
+                            selectedPANForPopUpFile.fileNameList = fileNameList;
+                            selectedPANForPopUpFile.fileBytesList =
+                                fileBytesList;
+                            selectedPANForPopUpFile.deletedFileList =
+                                deletedFile;
+
+                            panTrigger.value = !panTrigger.value;
+                            _formKey.currentState?.validate();
+                          },
+
+                          validator: (fileList) {
+                            if (hasPan &&
+                                (fileList == null || fileList.isEmpty)) {
+                              return "PAN Card document is required";
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                ValueListenableBuilder(
+                  valueListenable: gstTrigger,
+                  builder: (context, _, __) {
+                    final hasGst = _gstNumberC.text.trim().isNotEmpty;
+
+                    return Column(
+                      children: [
+                        ValueListenableBuilder(
+                          valueListenable: isCompanyPrefilled,
+                          builder: (context, isPrefilled, _) {
+                            return CustomTextField(
+                              title: 'GST Number',
+                              hint: "Enter GST Number",
+                              textController: _gstNumberC,
+                              readOnly: isExistingCompany,
+                              inputFormatterList:
+                                  InputValidator.gstInputFormatters(),
+                              validator: (value) {
+                                final hasFile =
+                                    selectedGSTCertificateForPopUpFile
+                                        .value
+                                        .fileNameList
+                                        .isNotEmpty;
+
+                                if (hasFile &&
+                                    (value == null || value.isEmpty)) {
+                                  return "GST Number is required";
+                                }
+
+                                if (value != null && value.isNotEmpty) {
+                                  if (!InputValidator.isValidGST(value)) {
+                                    return "GST Number is invalid";
+                                  }
+                                }
+
+                                return null;
+                              },
+                            );
+                          },
+                        ),
+
+                        IgnorePointer(
+                          ignoring: isExistingCompany,
+                          child: Opacity(
+                            opacity: isExistingCompany ? 0.6 : 1,
+                            child: CustomMultiFilePicker(
+                              key: ValueKey(
+                                selectedGSTCertificateForPopUpFile.value,
+                              ),
+                              title: "GST Certificate",
+                              filePickType: FilePickType.both,
+                              readOnly: isExistingCompany,
+                              initialFileList:
+                                  selectedGSTCertificateForPopUpFile
+                                      .value
+                                      .fileNameList,
+
+                              onFilePickedCallback: (bytesList, fileNameList) {
+                                selectedGSTCertificateForPopUpFile
+                                    .value
+                                    .fileNameList = fileNameList;
+                                selectedGSTCertificateForPopUpFile
+                                    .value
+                                    .fileBytesList = bytesList;
+
+                                gstTrigger.value = !gstTrigger.value;
+                              },
+
+                              onFileDeleteCallback: (
+                                fileBytesList,
+                                fileNameList,
+                                deletedFile,
+                              ) {
+                                selectedGSTCertificateForPopUpFile
+                                    .value
+                                    .fileNameList = fileNameList;
+                                selectedGSTCertificateForPopUpFile
+                                    .value
+                                    .fileBytesList = fileBytesList;
+                                selectedGSTCertificateForPopUpFile
+                                    .value
+                                    .deletedFileList = deletedFile;
+
+                                gstTrigger.value = !gstTrigger.value;
+                                _formKey.currentState?.validate();
+                              },
+
+                              validator: (fileList) {
+                                if (hasGst &&
+                                    (fileList == null || fileList.isEmpty)) {
+                                  return "GST Certificate document is required";
+                                }
+                                return null;
+                              },
+                            ),
                           ),
-                          formKey: _formKey,
-                          incomingCountryId:
-                              selectedCountry.value?['zAttributesId'] ?? 1,
-
-                          incomingStateId:
-                              selectedStateVN.value?['zAttributesId'],
-                          incomingDistrictId:
-                              selectedDistrictVN.value?['zAttributesId'],
-                          incomingCityId:
-                              selectedCityVN.value?['zAttributesId'],
-                          incomingVillageId:
-                              selectedVillageVN.value?['zAttributesId'],
-                          stateChange: (val) => selectedStateVN.value = val,
-                          districtChange:
-                              (val) => selectedDistrictVN.value = val,
-                          cityChange: (val) => selectedCityVN.value = val,
-                          villageChange: (val) => selectedVillageVN.value = val,
-                          countryChange: (val) => selectedCountry.value = val,
-                        );
-                      },
-                    ),
-                    CustomTextField(
-                      textController: _officeAddressC,
-                      title: 'Office Address',
-                      isRequired: true,
-                      minLines: 3,
-                      maxLines: 10,
-                      hint: "Enter Office Address",
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Office Address is required";
-                        }
-                        return null;
-                      },
-                    ),
-                  ],
+                        ),
+                      ],
+                    );
+                  },
                 ),
-              ),
+              ]),
+              const SizedBox(height: 10.0),
+              _card("Address Details", [
+                AnimatedBuilder(
+                  animation: Listenable.merge([
+                    selectedCountry,
+                    selectedStateVN,
+                  ]),
+                  builder: (context, _) {
+                    return AddressWidget(
+                      key: ValueKey(
+                        "${selectedStateVN.value?['zAttributesId']}_${selectedCityVN.value?['zAttributesId']}",
+                      ),
+                      formKey: _formKey,
+                      incomingCountryId:
+                          selectedCountry.value?['zAttributesId'] ?? 1,
+
+                      incomingStateId: selectedStateVN.value?['zAttributesId'],
+                      incomingDistrictId:
+                          selectedDistrictVN.value?['zAttributesId'],
+                      incomingCityId: selectedCityVN.value?['zAttributesId'],
+                      incomingVillageId:
+                          selectedVillageVN.value?['zAttributesId'],
+                      stateChange: (val) => selectedStateVN.value = val,
+                      districtChange: (val) => selectedDistrictVN.value = val,
+                      cityChange: (val) => selectedCityVN.value = val,
+                      villageChange: (val) => selectedVillageVN.value = val,
+                      countryChange: (val) => selectedCountry.value = val,
+                    );
+                  },
+                ),
+                CustomTextField(
+                  textController: _officeAddressC,
+                  title: 'Office Address',
+                  isRequired: true,
+                  minLines: 3,
+                  maxLines: 10,
+                  hint: "Enter Office Address",
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Office Address is required";
+                    }
+                    return null;
+                  },
+                ),
+              ]),
               verticalSpacing(),
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Primary & Secondary Project Portfolio Details",
-                      style: AppTextStyle.ts16SB(),
-                    ),
-                    verticalSpacing(),
-
-                    ValueListenableBuilder(
-                      valueListenable: _selectedPrimaryProjectNotifier,
-                      builder: (context, value, child) {
-                        return CustomMultipleSelectPopup(
-                          title: 'Primary Project',
-                          isMultiSelect: false,
-                          hintText: "Select Primary Project",
-                          initialValue: value,
-                          dataList: const [],
-                          onSelected: (value) {
-                            _selectedPrimaryProjectNotifier.value = value;
-                          },
-                          dataFetchCallBack: _fetchProjects,
-                        );
+              _card("Primary & Secondary Project Portfolio Details", [
+                ValueListenableBuilder(
+                  valueListenable: _selectedPrimaryProjectNotifier,
+                  builder: (context, value, child) {
+                    return CustomMultipleSelectPopup(
+                      title: 'Primary Project',
+                      isMultiSelect: false,
+                      hintText: "Select Primary Project",
+                      initialValue: value,
+                      dataList: const [],
+                      onSelected: (value) {
+                        _selectedPrimaryProjectNotifier.value = value;
                       },
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: _selectedSecondaryProjectNotifier,
-                      builder: (context, value, child) {
-                        return CustomMultipleSelectPopup(
-                          title: 'Secondary Project',
-                          isMultiSelect: true,
-                          hintText: "Select Secondary Project",
-                          initialValue: value,
-                          dataList: const [],
-                          onSelected: (value) {
-                            _selectedSecondaryProjectNotifier.value = value;
-                          },
-                          dataFetchCallBack: _fetchProjects,
-                        );
-                      },
-                    ),
-                  ],
+                      dataFetchCallBack: _fetchProjects,
+                    );
+                  },
                 ),
-              ),
+                ValueListenableBuilder(
+                  valueListenable: _selectedSecondaryProjectNotifier,
+                  builder: (context, value, child) {
+                    return CustomMultipleSelectPopup(
+                      title: 'Secondary Project',
+                      isMultiSelect: true,
+                      hintText: "Select Secondary Project",
+                      initialValue: value,
+                      dataList: const [],
+                      onSelected: (value) {
+                        _selectedSecondaryProjectNotifier.value = value;
+                      },
+                      dataFetchCallBack: _fetchProjects,
+                    );
+                  },
+                ),
+              ]),
+              _card("AOP Details", [
+                CustomMultiFilePicker(
+                  title: "AOP Document",
+                  filePickType: FilePickType.both,
+                  initialFileList: aopDocument.fileNameList,
+
+                  onFilePickedCallback: (bytesList, fileNameList) {
+                    aopDocument.fileNameList = fileNameList;
+                    aopDocument.fileBytesList = bytesList;
+                  },
+
+                  onFileDeleteCallback: (
+                    fileBytesList,
+                    fileNameList,
+                    deletedFile,
+                  ) {
+                    aopDocument.fileNameList = fileNameList;
+                    aopDocument.fileBytesList = fileBytesList;
+                    aopDocument.deletedFileList = deletedFile;
+                  },
+                  validator: (value) {
+                    if ((value == null || value.isEmpty) &&
+                        (_aopFromDate != null || _aopToDate != null)) {
+                      return 'AOP Document is required.';
+                    }
+
+                    return null;
+                  },
+                ),
+                CustomDatePicker(
+                  title: 'From Date',
+                  initialDate: _aopFromDate,
+                  setValue: (value) => _aopFromDate = value,
+                  validator: (value) {
+                    if (value == null &&
+                        (_aopToDate != null ||
+                            aopDocument.fileNameList.isNotEmpty)) {
+                      return 'From Date is required.';
+                    }
+
+                    return null;
+                  },
+                ),
+                CustomDatePicker(
+                  title: 'To Date',
+                  initialDate: _aopToDate,
+                  setValue: (value) => _aopToDate = value,
+                  validator: (value) {
+                    if (value == null &&
+                        (_aopFromDate != null ||
+                            aopDocument.fileNameList.isNotEmpty)) {
+                      return 'To Date is required.';
+                    }
+                    if (value != null &&
+                        _aopFromDate != null &&
+                        value.isBefore(_aopFromDate!)) {
+                      return 'To Date must be greater than or equal to From Date.';
+                    }
+
+                    return null;
+                  },
+                ),
+              ]),
             ],
           ),
         ),
@@ -1574,6 +1577,22 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
             onPressed: _verifyAndSubmitForm,
           ),
         ),
+      ),
+    );
+  }
+
+  // HELPER
+  Widget _card(String title, List<Widget> children) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
+          verticalSpacing(),
+          ...children,
+        ],
       ),
     );
   }

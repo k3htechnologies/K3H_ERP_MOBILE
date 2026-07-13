@@ -1722,7 +1722,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
             verticalSpacing(),
             ChipStyleTabBar(
               controller: _approvalTabController!,
-              isSecondaryStyle: true,
+              style: ChipTabBarStyle.underline,
               tabs: moduleNames.map((m) => m).toList(),
             ),
             verticalSpacing(),

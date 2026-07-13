@@ -21,6 +21,7 @@ import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_dashboard.screen.dart';
+import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_sales_matrics_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
@@ -3523,6 +3524,28 @@ final GoRouter goRouter = GoRouter(
 
                 return ChannelPartnerViewScreen(
                   channelPartnerModel: channelPartner!,
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.channelPartnerSalesMatrics,
+              name: AppRoutes.channelPartnerSalesMatrics,
+              builder: (context, state) {
+                final channelPartnerId =
+                    state.uri.queryParameters['channelPartnerId'] != null
+                        ? int.tryParse(
+                              EncryptionManager.decryptData(
+                                Uri.decodeComponent(
+                                  state
+                                      .uri
+                                      .queryParameters['channelPartnerId']!,
+                                ),
+                              ),
+                            ) ??
+                            0
+                        : 0;
+                return ChannelPartnerSalesMatricsScreen(
+                  channelPartnerId: channelPartnerId,
                 );
               },
             ),

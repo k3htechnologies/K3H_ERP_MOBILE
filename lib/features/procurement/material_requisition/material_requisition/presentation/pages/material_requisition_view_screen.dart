@@ -319,7 +319,7 @@ class _MaterialRequisitionViewScreenState
           children: [
             ChipStyleTabBar(
               controller: _tabController,
-              isSecondaryStyle: true,
+              style: ChipTabBarStyle.underline,
               tabs: _tabs.map((e) => e.title).toList(),
             ),
             BlocBuilder<MaterialRequisitionCubit, MaterialRequisitionState>(

@@ -597,7 +597,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                           children: [
                             Flexible(
                               child: GestureDetector(
-                                onTap: () async {
+                                onTap: () {
                                   goRouter.pushNamed(
                                     AppRoutes.channelPartnerView,
                                     queryParameters: {

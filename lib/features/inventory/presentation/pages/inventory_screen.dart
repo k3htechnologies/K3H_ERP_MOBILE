@@ -906,7 +906,7 @@ class _InventoryScreenState extends State<InventoryScreen>
 
     return ChipStyleTabBar(
       controller: _wingTabController!,
-      isSecondaryStyle: true,
+      style: ChipTabBarStyle.underline,
       tabs: wingList.map((w) => w.wing.toString()).toList(),
     );
   }
