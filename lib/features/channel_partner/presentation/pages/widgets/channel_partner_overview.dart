@@ -74,9 +74,73 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              channelPartnerModel.name,
-                              style: AppTextStyle.ts18SB(),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    channelPartnerModel.name,
+                                    style: AppTextStyle.ts18SB(),
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color:
+                                        (channelPartnerModel.noOfEnquiry > 0)
+                                            ? AppColor.lightGreenBg.withValues(
+                                              alpha: .3,
+                                            )
+                                            : AppColor.lightRed2,
+                                    borderRadius: BorderRadius.circular(30),
+                                    border: Border.all(
+                                      color:
+                                          channelPartnerModel.noOfEnquiry > 0
+                                              ? AppColor.darkGreen.withValues(
+                                                alpha: 0.2,
+                                              )
+                                              : AppColor.red.withValues(
+                                                alpha: 0.2,
+                                              ),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        width: 8,
+                                        height: 8,
+                                        decoration: BoxDecoration(
+                                          color:
+                                              (channelPartnerModel.noOfEnquiry >
+                                                      0)
+                                                  ? AppColor.darkGreen
+                                                      .withValues(alpha: 0.8)
+                                                  : AppColor.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      horizontalSpacing(width: 6),
+                                      Text(
+                                        channelPartnerModel.noOfEnquiry > 0
+                                            ? "ACTIVE"
+                                            : "INACTIVE",
+                                        style: AppTextStyle.ts12SB(
+                                          color:
+                                              channelPartnerModel.noOfEnquiry >
+                                                      0
+                                                  ? AppColor.darkGreen
+                                                      .withValues(alpha: 0.8)
+                                                  : AppColor.darkRed,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
 
                             verticalSpacing(height: 2),
@@ -105,58 +169,6 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                                   ),
                                 ),
                               ],
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              (channelPartnerModel.noOfEnquiry > 0)
-                                  ? AppColor.lightGreenBg.withValues(alpha: .3)
-                                  : AppColor.lightRed2,
-                          borderRadius: BorderRadius.circular(30),
-                          border: Border.all(
-                            color:
-                                channelPartnerModel.noOfEnquiry > 0
-                                    ? AppColor.darkGreen.withValues(alpha: 0.2)
-                                    : AppColor.red.withValues(alpha: 0.2),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color:
-                                    (channelPartnerModel.noOfEnquiry > 0)
-                                        ? AppColor.darkGreen.withValues(
-                                          alpha: 0.8,
-                                        )
-                                        : AppColor.red,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            horizontalSpacing(width: 6),
-                            Text(
-                              channelPartnerModel.noOfEnquiry > 0
-                                  ? "ACTIVE"
-                                  : "INACTIVE",
-                              style: AppTextStyle.ts12SB(
-                                color:
-                                    channelPartnerModel.noOfEnquiry > 0
-                                        ? AppColor.darkGreen.withValues(
-                                          alpha: 0.8,
-                                        )
-                                        : AppColor.darkRed,
-                              ),
                             ),
                           ],
                         ),
