@@ -47,21 +47,24 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                               style: AppTextStyle.ts18SB(color: AppColor.white),
                             ),
                           ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                LucideIcons.badgeCheck,
-                                size: 18,
-                                color: AppColor.primary,
+                          if (channelPartnerModel.verifiedNonVerified
+                                  .toLowerCase() ==
+                              'verified')
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  LucideIcons.badgeCheck,
+                                  size: 18,
+                                  color: AppColor.primary,
+                                ),
                               ),
                             ),
-                          ),
                         ],
                       ),
 
@@ -199,19 +202,24 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                   },
                   child: buildRowTitleValue(
                     singleLine: false,
-
                     title: "Status",
                     value: channelPartnerModel.aopStatus,
                     customValueWidget: aopStatusWidget(
                       channelPartnerModel.aopStatus,
-                      trailing: Icon(
-                        Icons.remove_red_eye_outlined,
-                        color:
-                            channelPartnerModel.aopDocumentUrl.isNotEmpty
-                                ? AppColor.primary
-                                : AppColor.grey,
-                        size: 16,
-                      ),
+                      trailing:
+                          channelPartnerModel.aopStatus.toLowerCase() ==
+                                  "non - aop"
+                              ? null
+                              : Icon(
+                                Icons.remove_red_eye_outlined,
+                                color:
+                                    channelPartnerModel
+                                            .aopDocumentUrl
+                                            .isNotEmpty
+                                        ? AppColor.primary
+                                        : AppColor.grey,
+                                size: 16,
+                              ),
                     ),
                   ),
                 ),
@@ -224,6 +232,7 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                           ? "-"
                           : "${formatDateTimeAsDDMMMYYYY(channelPartnerModel.aopFromDate)} - ${formatDateTimeAsDDMMMYYYY(channelPartnerModel.aopToDate)}",
                 ),
+                verticalSpacing(height: 5),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -257,7 +266,6 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                 ),
               ],
             ),
-
             _sectionCard(
               title: "Personal Information",
               bgColor: AppColor.lightBlue,
@@ -266,13 +274,11 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
               children: [
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "Full Name",
                   value: channelPartnerModel.name,
                 ),
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "DOB",
                   value:
                       channelPartnerModel.dob != null
@@ -281,7 +287,6 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                 ),
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "Mobile Number",
                   value: channelPartnerModel.mobileNumber,
                   customValueWidget: CustomClickToContactText(
@@ -292,7 +297,6 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                 ),
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "E-Mail ID",
                   value: channelPartnerModel.emailId,
                   customValueWidget: CustomClickToContactText(
@@ -302,7 +306,6 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                 ),
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "Website",
                   value: channelPartnerModel.websiteURL,
                   customValueWidget: GestureDetector(
@@ -353,7 +356,6 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
               children: [
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "Company Name",
                   value: channelPartnerModel.companyName,
                 ),
@@ -364,13 +366,11 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                 ),
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "Speciality",
                   value: channelPartnerModel.speciality,
                 ),
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "RERA Number",
                   value: channelPartnerModel.reraNumber,
                 ),
@@ -382,13 +382,11 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                 ),
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "Designation",
                   value: channelPartnerModel.designation,
                 ),
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "Alternate Contact No.",
                   value: channelPartnerModel.alternativeMobileNumber,
                   customValueWidget: CustomClickToContactText(
@@ -397,7 +395,6 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                 ),
               ],
             ),
-
             _sectionCard(
               title: "Address Details",
               bgColor: AppColor.lightOrange.withValues(alpha: 0.4),
@@ -406,33 +403,28 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
               children: [
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "Country",
                   value: channelPartnerModel.countryName,
                 ),
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "State",
                   value: channelPartnerModel.stateName,
                 ),
 
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "District",
                   value: channelPartnerModel.districtName,
                 ),
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "City",
                   value: channelPartnerModel.cityName,
                 ),
 
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "Village",
                   value: channelPartnerModel.villageName,
                 ),
@@ -452,40 +444,34 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
               children: [
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "No Of Enquiry",
                   value: channelPartnerModel.noOfEnquiry.addCommas(),
                 ),
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "No Of Booking",
                   value: channelPartnerModel.noOfBooking.addCommas(),
                 ),
 
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "Brokerage Percentage (%)",
                   value: channelPartnerModel.brokeragePercentage.addCommas(),
                 ),
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "Brokerage Amount (₹)",
                   value: channelPartnerModel.brokerageAmount.toIndianCurrency(),
                 ),
 
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "No Of IBM",
                   value: channelPartnerModel.noOfIbm.addCommas(),
                 ),
 
                 buildRowTitleValue(
                   singleLine: false,
-
                   title: "No Of OBM",
                   value: channelPartnerModel.noOfObm.addCommas(),
                 ),
@@ -497,10 +483,12 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
               iconColor: AppColor.primary,
               icon: LucideIcons.building2,
               children: [
-                projectPortfolioWidget(
+                _projectPortfolioWidget(
                   primaryProject: channelPartnerModel.primaryProjectPortfolio,
                   secondaryProjects:
                       channelPartnerModel.secondaryProjectPortfolio,
+                  micromarketProximity:
+                      channelPartnerModel.micromarketProximity,
                 ),
               ],
             ),
@@ -510,44 +498,36 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
               iconColor: AppColor.grey,
               icon: LucideIcons.history,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Created By",
-                      value: channelPartnerModel.createdBy,
-                    ),
-                    horizontalSpacing(width: 20.0),
-                    buildColumnTitleValue(
-                      title: "Created Date",
-                      value: formatDate(channelPartnerModel.createdDate),
-                    ),
-                  ],
+                buildRowTitleValue(
+                  title: "Created By",
+                  value: channelPartnerModel.createdBy,
+                  singleLine: false,
                 ),
-                verticalSpacing(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Modified By",
-                      value:
-                          (channelPartnerModel.modifiedBy.isNotEmpty)
-                              ? channelPartnerModel.modifiedBy
-                              : "-",
-                    ),
-                    horizontalSpacing(width: 20.0),
-                    buildColumnTitleValue(
-                      title: "Modified Date",
-                      value:
-                          (channelPartnerModel.modifiedDate == null ||
-                                  channelPartnerModel.modifiedDate
-                                      .toString()
-                                      .trim()
-                                      .isEmpty)
-                              ? "-"
-                              : formatDate(channelPartnerModel.modifiedDate),
-                    ),
-                  ],
+                buildRowTitleValue(
+                  title: "Created Date",
+                  value: formatDate(channelPartnerModel.createdDate),
+                  singleLine: false,
+                ),
+
+                buildRowTitleValue(
+                  title: "Modified By",
+                  value:
+                      (channelPartnerModel.modifiedBy.isNotEmpty)
+                          ? channelPartnerModel.modifiedBy
+                          : "-",
+                  singleLine: false,
+                ),
+                buildRowTitleValue(
+                  title: "Modified Date",
+                  value:
+                      (channelPartnerModel.modifiedDate == null ||
+                              channelPartnerModel.modifiedDate
+                                  .toString()
+                                  .trim()
+                                  .isEmpty)
+                          ? "-"
+                          : formatDate(channelPartnerModel.modifiedDate),
+                  singleLine: false,
                 ),
               ],
             ),
@@ -612,9 +592,10 @@ Widget _verificationChip(String title, IconData icon) {
   );
 }
 
-Widget projectPortfolioWidget({
+Widget _projectPortfolioWidget({
   required String primaryProject,
   required String secondaryProjects,
+  required String micromarketProximity,
 }) {
   if (primaryProject.isEmpty && secondaryProjects.isEmpty) {
     return noDataWidget(message: "No Assigned Project Found.", iconSize: 100);
@@ -642,14 +623,25 @@ Widget projectPortfolioWidget({
         ),
         verticalSpacing(height: 10),
         SizedBox(
-          height: secondaryList.length > 6 ? 350 : null,
+          height: secondaryList.length > 6 ? 350.h : null,
           child: SingleChildScrollView(
             child: Column(
               children: secondaryList.map(_secondaryProjectCard).toList(),
             ),
           ),
         ),
+        verticalSpacing(height: 10),
       ],
+
+      Text(
+        "MICROMARKET PROXIMICITY",
+        style: AppTextStyle.ts12SB(color: AppColor.grey),
+      ),
+      verticalSpacing(height: 10),
+      Text(
+        micromarketProximity.trim().isEmpty ? "-" : micromarketProximity,
+        style: AppTextStyle.ts14M(),
+      ),
     ],
   );
 }

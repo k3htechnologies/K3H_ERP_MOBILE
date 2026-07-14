@@ -45,7 +45,10 @@ Widget channelPartnerDocumentView({
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 12,
       children: [
-        Text("Verification Documents", style: AppTextStyle.ts14M()),
+        Text(
+          "Verification Documents",
+          style: AppTextStyle.ts14SB(color: AppColor.grey),
+        ),
         Expanded(
           child: ListView.separated(
             itemCount: validDocuments.length,
