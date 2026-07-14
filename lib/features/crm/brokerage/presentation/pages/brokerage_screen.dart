@@ -145,6 +145,11 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
     _startDateNotifier.value = s.filterByFromDate;
     _endDateNotifier.value = s.filterByToDate;
 
+    String? selectedDirection =
+        s.currentSortColumn == "ChannelPartnerName"
+            ? s.currentSortDirection
+            : null;
+    final String? initialDirection = selectedDirection;
     bool manualClose = false;
     bool applied = false;
 
@@ -167,7 +172,8 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                 s.filterAgreementValue ||
             _filterBookingTypeC.text.trim() != s.filterBookingType ||
             _startDateNotifier.value != s.filterByFromDate ||
-            _endDateNotifier.value != s.filterByToDate;
+            _endDateNotifier.value != s.filterByToDate ||
+            (selectedDirection != initialDirection);
 
         applyEnabled.value = manualClose;
       });
@@ -178,11 +184,64 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
       title: "Filter Brokerage",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
           return SingleChildScrollView(
             padding: EdgeInsets.only(right: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text("Sort By Full Name", style: AppTextStyle.ts14M()),
+                verticalSpacing(),
+
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+
+                    horizontalSpacing(),
+
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
                 verticalSpacing(),
 
                 CustomTextField(
@@ -357,6 +416,8 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
           filterFlat: '',
           filterAgreementValue: 0,
           filterBookingType: '',
+          sortColumn: '',
+          sortDirection: '',
         );
       },
 
@@ -401,6 +462,8 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
           filterAgreementValue:
               double.tryParse(_filterAgreementValueC.text.trim()) ?? 0,
           filterBookingType: _filterBookingTypeC.text.trim(),
+          sortColumn: selectedDirection != null ? "ChannelPartnerName" : null,
+          sortDirection: selectedDirection,
         );
       },
 

@@ -106,6 +106,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       "FromDate": state.filterByFromDate,
       "ToDate": state.filterByToDate,
       "ProjectId": projectId,
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     var result = await _brokerageRepository.getBrokerageBookingList(
       pageNumber: pageNumber,
@@ -591,6 +592,8 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     required String filterBookingType,
     required DateTime? filterByFromDate,
     required DateTime? filterByToDate,
+    required String? sortColumn,
+    required String? sortDirection,
   }) {
     emit(
       state.copyWith(
@@ -605,6 +608,8 @@ class BrokerageCubit extends Cubit<BrokerageState> {
         filterBookingType: filterBookingType,
         filterByFromDate: filterByFromDate,
         filterByToDate: filterByToDate,
+        currentSortColumn: sortColumn ?? '',
+        currentSortDirection: sortDirection ?? '',
       ),
     );
 
@@ -701,6 +706,10 @@ class BrokerageCubit extends Cubit<BrokerageState> {
   }
 
   int updateFilterCount(BrokerageState state) {
+    final hasSort =
+        state.currentSortColumn == "ChannelPartnerName" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
     return getActiveFilterCount([
       state.searchText.trim().isNotEmpty,
       state.filterCpCompany.trim().isNotEmpty,
@@ -713,6 +722,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       state.filterBookingType.trim().isNotEmpty,
       state.filterByFromDate != null,
       state.filterByToDate != null,
+      hasSort,
     ]);
   }
 }

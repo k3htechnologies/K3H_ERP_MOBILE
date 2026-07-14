@@ -22,6 +22,8 @@ class BrokerageState extends BaseState {
   final String filterBookingType;
   final DateTime? filterByFromDate;
   final DateTime? filterByToDate;
+  final String currentSortColumn;
+  final String currentSortDirection;
 
   const BrokerageState({
     super.isLoading,
@@ -46,6 +48,8 @@ class BrokerageState extends BaseState {
     required this.filterByFromDate,
     required this.filterByToDate,
     required this.viewSearchText,
+    required this.currentSortColumn,
+    required this.currentSortDirection,
   });
 
   factory BrokerageState.initial() => BrokerageState(
@@ -71,6 +75,8 @@ class BrokerageState extends BaseState {
     filterByFromDate: null,
     filterByToDate: null,
     viewSearchText: '',
+    currentSortColumn: "",
+    currentSortDirection: "",
   );
   static const _noChange = Object();
 
@@ -97,6 +103,8 @@ class BrokerageState extends BaseState {
     Object? filterBookingType = _noChange,
     Object? filterByFromDate = _noChange,
     Object? filterByToDate = _noChange,
+    String? currentSortColumn,
+    String? currentSortDirection,
   }) {
     return BrokerageState(
       isLoading: isLoading ?? this.isLoading,
@@ -164,6 +172,8 @@ class BrokerageState extends BaseState {
           filterByToDate == _noChange
               ? this.filterByToDate
               : filterByToDate as DateTime?,
+      currentSortColumn: currentSortColumn ?? this.currentSortColumn,
+      currentSortDirection: currentSortDirection ?? this.currentSortDirection,
     );
   }
 
@@ -191,5 +201,7 @@ class BrokerageState extends BaseState {
     filterByFromDate,
     filterByToDate,
     viewSearchText,
+    currentSortColumn,
+    currentSortDirection,
   ];
 }

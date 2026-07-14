@@ -310,7 +310,6 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                                         child: Text(
                                           project.projectName,
                                           style: AppTextStyle.ts16M(),
-                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     ],
