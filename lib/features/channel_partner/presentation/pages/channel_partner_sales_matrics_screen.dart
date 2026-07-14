@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner_aop.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
@@ -15,9 +16,11 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ChannelPartnerSalesMatricsScreen extends StatefulWidget {
   final int channelPartnerId;
+  final String channelPartnerName;
   const ChannelPartnerSalesMatricsScreen({
     super.key,
     required this.channelPartnerId,
+    required this.channelPartnerName,
   });
 
   @override
@@ -79,37 +82,57 @@ class _ChannelPartnerSalesMatricsScreenState
         screenTitle: "Channel Partner",
         authorization: AuthorizationModel(),
       ),
-      body: BlocBuilder<ChannelPartnerCubit, ChannelPartnerState>(
-        builder: (context, state) {
-          if (state.isLoading == true && state.channelPartnerAopList.isEmpty) {
-            return Center(child: loader());
-          }
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+        child: Column(
+          spacing: 12.h,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.channelPartnerName,
+              style: AppTextStyle.ts14SB(color: AppColor.grey),
+            ),
+            Expanded(
+              child: BlocBuilder<ChannelPartnerCubit, ChannelPartnerState>(
+                builder: (context, state) {
+                  if (state.isLoading == true &&
+                      state.channelPartnerAopList.isEmpty) {
+                    return Center(child: loader());
+                  }
 
-          if (state.channelPartnerAopList.isEmpty) {
-            return Center(child: noDataWidget(message: "No AOP Data Found."));
-          }
+                  if (state.channelPartnerAopList.isEmpty) {
+                    return Center(
+                      child: noDataWidget(message: "No Data Found."),
+                    );
+                  }
 
-          return ListView.separated(
-            padding: const EdgeInsets.all(16),
-            controller: scrollController,
-            itemCount: state.channelPartnerAopList.length + 1,
-            separatorBuilder: (_, __) => verticalSpacing(height: 12),
-            itemBuilder: (_, index) {
-              if (index == state.channelPartnerAopList.length) {
-                return state.channelPartnerAopList.length <
-                        state.totalNumberOfChannelPartnerAopRecord
-                    ? Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              final item = state.channelPartnerAopList[index];
+                  return ListView.separated(
+                    controller: scrollController,
+                    itemCount: state.channelPartnerAopList.length + 1,
+                    separatorBuilder: (_, __) => verticalSpacing(height: 12),
+                    itemBuilder: (_, index) {
+                      if (index == state.channelPartnerAopList.length) {
+                        return state.channelPartnerAopList.length <
+                                state.totalNumberOfChannelPartnerAopRecord
+                            ? Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                            : const SizedBox.shrink();
+                      }
+                      final item = state.channelPartnerAopList[index];
 
-              return _AopCard(model: item, initiallyExpanded: index == 0);
-            },
-          );
-        },
+                      return _AopCard(
+                        model: item,
+                        initiallyExpanded: index == 0,
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

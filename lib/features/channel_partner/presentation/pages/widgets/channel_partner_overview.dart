@@ -258,6 +258,11 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                                 channelPartnerModel.channelPartnerId.toString(),
                               ),
                             ),
+                            "channelPartnerName": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(
+                                channelPartnerModel.name,
+                              ),
+                            ),
                           },
                         );
                         await context

@@ -3544,8 +3544,17 @@ final GoRouter goRouter = GoRouter(
                             ) ??
                             0
                         : 0;
+                final channelPartnerName =
+                    state.uri.queryParameters['channelPartnerName'] != null
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeComponent(
+                            state.uri.queryParameters['channelPartnerName']!,
+                          ),
+                        )
+                        : "";
                 return ChannelPartnerSalesMatricsScreen(
                   channelPartnerId: channelPartnerId,
+                  channelPartnerName: channelPartnerName
                 );
               },
             ),
