@@ -37,7 +37,7 @@ class FlatHandoverCubit extends Cubit<FlatHandoverState> {
   }) async {
     emit(state.copyWith(isLoading: true));
 
-    Map<String, dynamic> queryParams = {"ApplicantName": state.searchText};
+    Map<String, dynamic> queryParams = {"FileName": state.searchText};
 
     var result = await _payTrackBookingFilesRepository
         .getPayTrackBookingFilesList(

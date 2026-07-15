@@ -15,6 +15,7 @@ class FlatAlterationRequestsModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  String proofOfDocumentUrl;
 
   FlatAlterationRequestsModel({
     required this.flatAlterationRequestId,
@@ -31,6 +32,7 @@ class FlatAlterationRequestsModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.proofOfDocumentUrl,
   });
 
   factory FlatAlterationRequestsModel.fromJson(Map<String, dynamic> json) =>
@@ -58,6 +60,7 @@ class FlatAlterationRequestsModel {
             json["ModifiedDate"] == null
                 ? null
                 : parseValue<DateTime>(json, "ModifiedDate"),
+        proofOfDocumentUrl: parseValue<String>(json, "ProofOfDocumentURL"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -75,5 +78,6 @@ class FlatAlterationRequestsModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "ProofOfDocumentURL": proofOfDocumentUrl,
   };
 }

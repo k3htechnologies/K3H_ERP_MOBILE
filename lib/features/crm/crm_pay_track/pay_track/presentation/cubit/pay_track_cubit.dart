@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/features/sales/booking/data/repository/booking.repos
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/repository/enquiry.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/utils/common_enums.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
@@ -27,6 +28,25 @@ class PayTrackCubit extends Cubit<PayTrackState> {
 
   Future resetOverview() async {
     emit(state.copyWith(payTrackOverview: null));
+  }
+
+  // TAB CHANGED
+  void onTabChanged(
+    BuildContext context,
+    PayTrackTab tab, {
+    int? projectId,
+    int? employeeId,
+  }) {
+    if (tab == PayTrackTab.bankLoan && projectId != null) {
+      emit(
+        state.copyWith(
+          payTrackList: [],
+          currentPage: 1,
+          totalNumberOfRecord: 0,
+        ),
+      );
+      getPayTrackList(context, 1, projectId);
+    }
   }
 
   Future getPayTrackList(
@@ -178,7 +198,7 @@ class PayTrackCubit extends Cubit<PayTrackState> {
     await getPayTrackList(context, 1, projectId);
   }
 
-  Future applyChannelPartnerFilterAndSort({
+  Future applyPaytrackFilterAndSort({
     required BuildContext context,
     String? applicantName,
     String? mobileNumber,
@@ -353,6 +373,47 @@ class PayTrackCubit extends Cubit<PayTrackState> {
     );
   }
 
+  Future applyCallLogsFilter({
+    required int bookingId,
+    required BuildContext context,
+    String? callLogApplicantName,
+    String? callLogApplicantMobileNumber,
+    String? callLogStatus,
+    String? callLogPurpose,
+    DateTime? fromDate,
+    DateTime? toDate,
+    bool? isClear,
+  }) async {
+    if (isClear ?? false) {
+      emit(
+        state.copyWith(
+          searchText: "",
+          filterByCallLogApplicantName: "",
+          filterCallLogApplicantMobileNumber: "",
+          filterCallStatus: "",
+          filterCallPurpose: "",
+          filterCallLogFromDate: null,
+          filterCallLogToDate: null,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          filterByCallLogApplicantName:
+              callLogApplicantName ?? state.filterByCallLogApplicantName,
+          filterCallLogApplicantMobileNumber:
+              callLogApplicantMobileNumber ??
+              state.filterCallLogApplicantMobileNumber,
+          filterCallStatus: callLogStatus ?? state.filterCallStatus,
+          filterCallPurpose: callLogPurpose ?? state.filterCallPurpose,
+          filterCallLogFromDate: fromDate,
+          filterCallLogToDate: toDate,
+        ),
+      );
+    }
+    await getPayTrackCallLog(context, 1, getProject().projectId, bookingId);
+  }
+
   Future getPayTrackCallLog(
     BuildContext context,
     int pageNumber,
@@ -369,6 +430,33 @@ class PayTrackCubit extends Cubit<PayTrackState> {
       return;
     }
     Map<String, dynamic> queryParams = {"BookingId": bookingId};
+
+    if (state.filterByCallLogApplicantName.isNotEmpty) {
+      queryParams["ApplicantName"] = state.filterByCallLogApplicantName;
+    }
+
+    if (state.filterCallLogApplicantMobileNumber.isNotEmpty) {
+      queryParams["ApplicantMobileNumber"] =
+          state.filterCallLogApplicantMobileNumber;
+    }
+
+    if (state.filterCallStatus.isNotEmpty) {
+      queryParams["CallStatus"] = state.filterCallStatus;
+    }
+
+    if (state.filterCallPurpose.isNotEmpty) {
+      queryParams["CallPurpose"] = state.filterCallPurpose;
+    }
+
+    if (state.filterCallLogFromDate != null) {
+      queryParams["RescheduleDateFromDate"] =
+          state.filterCallLogFromDate!.toIso8601String();
+    }
+
+    if (state.filterCallLogToDate != null) {
+      queryParams["RescheduleDateToDate"] =
+          state.filterCallLogToDate!.toIso8601String();
+    }
 
     var result = await _payTrackRepository.getPayTrackCallLog(
       pageSize: 10,

@@ -25,15 +25,13 @@ class FilesState extends BaseState {
 
   FilesState copyWith({
     bool? isLoading,
-
     List<PayTrackBookingFilesModel>? payTrackBookingFileList,
     int? currentPage,
     int? totalNumberOfRecord,
     String? searchText,
-    String? currentSortColumn,
-    String? currentSortDirection,
   }) {
     return FilesState(
+      isLoading: isLoading ?? this.isLoading,
       payTrackBookingFileList:
           payTrackBookingFileList ?? this.payTrackBookingFileList,
       currentPage: currentPage ?? this.currentPage,

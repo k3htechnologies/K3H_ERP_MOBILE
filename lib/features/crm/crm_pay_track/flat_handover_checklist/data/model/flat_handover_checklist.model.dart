@@ -14,7 +14,7 @@ class FlatHandoverChecklistModel {
   DateTime createdDate;
   int modifiedById;
   String modifiedBy;
-  DateTime modifiedDate;
+  DateTime? modifiedDate;
 
   FlatHandoverChecklistModel({
     required this.flatHandOverCheckListId,
@@ -57,7 +57,7 @@ class FlatHandoverChecklistModel {
         modifiedDate:
             json["ModifiedDate"] != null
                 ? DateTime.parse(json["ModifiedDate"])
-                : DateTime.now(),
+                : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -74,6 +74,6 @@ class FlatHandoverChecklistModel {
     "CreatedDate": createdDate.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
-    "ModifiedDate": modifiedDate.toIso8601String(),
+    "ModifiedDate": modifiedDate?.toIso8601String(),
   };
 }

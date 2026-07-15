@@ -15,6 +15,10 @@ class PayTrackBookingFilesModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  int bookingLoanDetailsId;
+  String bankStatusClosedActive;
+  String approvalStatus;
+  bool isApproval;
 
   PayTrackBookingFilesModel({
     required this.payTrackBookingFilesId,
@@ -31,6 +35,10 @@ class PayTrackBookingFilesModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.bookingLoanDetailsId,
+    required this.bankStatusClosedActive,
+    required this.approvalStatus,
+    required this.isApproval,
   });
 
   factory PayTrackBookingFilesModel.fromJson(Map<String, dynamic> json) =>
@@ -55,6 +63,13 @@ class PayTrackBookingFilesModel {
             json["ModifiedDate"] == null
                 ? null
                 : DateTime.parse(json["ModifiedDate"]),
+        bookingLoanDetailsId: parseValue<int>(json, "BookingLoanDetailsId"),
+        bankStatusClosedActive: parseValue<String>(
+          json,
+          "BankStatusClosedActive",
+        ),
+        approvalStatus: parseValue<String>(json, "ApprovalStatus"),
+        isApproval: parseValue<bool>(json, "IsApproval"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -72,5 +87,9 @@ class PayTrackBookingFilesModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "BookingLoanDetailsId": bookingLoanDetailsId,
+    "BankStatusClosedActive": bankStatusClosedActive,
+    "ApprovalStatus": approvalStatus,
+    "IsApproval": isApproval,
   };
 }

@@ -30,7 +30,11 @@ abstract interface class RequestManagementDatasource {
     required int bookingId,
     Map<String, dynamic>? queryParams,
   });
-
+  Future<Map<String, dynamic>> deleteBookingApplicantModificationRequest({
+    required int projectId,
+    required int bookingApplicantModificationRequestId,
+    required int bookingId,
+  });
   Future<Map<String, dynamic>> apicallAddFlatAlterationRequest({
     required Map<String, dynamic> body,
   });
@@ -57,6 +61,12 @@ abstract interface class RequestManagementDatasource {
   Future<Map<String, dynamic>> apicallAddUpdateRefundedAmountLedger({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
+  });
+  Future<Map<String, dynamic>> deleteRefundedAmountLedger({
+    required int projectId,
+    required int refundedAmountLedgerId,
+    required int bookingId,
+    required String uniqueKey,
   });
 }
 
@@ -431,6 +441,90 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
         return apicallAddUpdateRefundedAmountLedger(
           body: body,
           fileList: fileList,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> deleteRefundedAmountLedger({
+    required int projectId,
+    required int refundedAmountLedgerId,
+    required int bookingId,
+    required String uniqueKey,
+  }) async {
+    String deleteRefundedAmountLedgerUrl({
+      required int projectId,
+      required int refundedAmountLedgerId,
+      required int bookingId,
+      required String uniqueKey,
+    }) {
+      return "AmountRefundedAgainstBooking/DeleteRefundedAmountLedger?RefundedAmountLedgerId=$refundedAmountLedgerId&Uniquekey=$uniqueKey&BookingId=$bookingId&ProjectId=$projectId";
+    }
+
+    try {
+      final networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteRefundedAmountLedgerUrl(
+          projectId: projectId,
+          refundedAmountLedgerId: refundedAmountLedgerId,
+          bookingId: bookingId,
+          uniqueKey: uniqueKey,
+        ),
+      );
+      return {
+        'data': networkResponse['data'],
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        deleteRefundedAmountLedger(
+          projectId: projectId,
+          refundedAmountLedgerId: refundedAmountLedgerId,
+          bookingId: bookingId,
+          uniqueKey: uniqueKey,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> deleteBookingApplicantModificationRequest({
+    required int projectId,
+    required int bookingApplicantModificationRequestId,
+    required int bookingId,
+  }) async {
+    String deleteBookingApplicantModificationRequestUrl({
+      required int projectId,
+      required int bookingApplicantModificationRequestId,
+      required int bookingId,
+    }) {
+      return "BookingModificationRequest/DeleteBookingApplicantModificationRequest?BookingApplicantModificationRequestId=$bookingApplicantModificationRequestId&BookingId=$bookingId&ProjectId=$projectId";
+    }
+
+    try {
+      final networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteBookingApplicantModificationRequestUrl(
+          projectId: projectId,
+          bookingApplicantModificationRequestId:
+              bookingApplicantModificationRequestId,
+          bookingId: bookingId,
+        ),
+      );
+      return {
+        'data': networkResponse['data'],
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        deleteBookingApplicantModificationRequest(
+          projectId: projectId,
+          bookingApplicantModificationRequestId:
+              bookingApplicantModificationRequestId,
+          bookingId: bookingId,
         );
       }
       rethrow;

@@ -47,5 +47,6 @@ class FlatHandoverState extends BaseState {
     flatHandoverFileList,
     currentPage,
     totalNumberOfRecord,
+    searchText,
   ];
 }

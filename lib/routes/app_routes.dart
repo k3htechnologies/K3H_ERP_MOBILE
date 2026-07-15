@@ -240,6 +240,18 @@ class AppRoutes {
   static String addFiles = "/addFiles";
   static String crmDashbaord = "/crmDashboard";
 
+  // TAB ACCESS ROUTES (PAY TRACK VIEW TABS)
+  static String bookingPayTrack = "/bookingPayTrack";
+  static String bankLoans = '/bankLoan';
+  static String paymentLedger = '/paymentLedger';
+  static String modificationRequest = '/modificationRequest';
+  static String paymentSchedules = '/paymentSchedule';
+  static String flatHandover = '/flatHandover';
+  static String files = '/files';
+  static String payTrackCallLog = "/payTrackCallLog";
+  static String snagChecklist = "/snagChecklist";
+  static String flatHandoverChecklist = "/flatHandoverChecklist";
+
   /// BROKERAGE
   static String brokerage = "/brokerage";
   static String bookingBrokerage = "/bookingBrokerage";
@@ -250,6 +262,11 @@ class AppRoutes {
   // TAB ACCESS
   static String brokerageInvoice = '/invoice';
   static String brokerageMakePayment = '/makePayment';
+
+  // CRM REPORT
+  static String dailyCollectionReport = "/dailyCollectionReport";
+  static String collectionReport = "/collectionReport";
+  static String collectionReportOverview = "/collectionReportOverview";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// PAYROLL MASTER

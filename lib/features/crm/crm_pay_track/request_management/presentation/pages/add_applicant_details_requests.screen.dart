@@ -243,6 +243,16 @@ class _AddApplicantDetailsRequestsScreenState
       modifiedById: 0,
       modifiedBy: "",
       modifiedDate: DateTime.now(),
+      applicantMobileNumberCountryCode: "",
+      cancelledChequeUrl: chequeFile.fileNameList.join(","),
+      poaurl: poaFile.fileNameList.join(","),
+      incomeForm16Itrurl: incomeForm16ItrFile.fileNameList.join(","),
+      nreNroBankDetailsUrl: nreNroBankDetailsFile.fileNameList.join(","),
+      nomineeFormUrl: nomineeFormFile.fileNameList.join(","),
+      statementOfSourceOfFundsUrl: statementOfSourceOfFundsFile.fileNameList
+          .join(","),
+      paymentProofUrl: paymentProofFile.fileNameList.join(","),
+      proofOfDocumentUrl: prrofOfDocumentFile.fileNameList.join(","),
     );
 
     if (context.mounted) {

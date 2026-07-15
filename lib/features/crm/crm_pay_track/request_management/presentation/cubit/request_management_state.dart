@@ -11,6 +11,8 @@ class RequestManagementState extends BaseState {
   final List<BookingModel> refundRequestList;
   final bool showRefundPaymentLedgerTab;
   final List<RefundedAmountLedgerModel> refundAmountLedgerList;
+  final int totalNumberOfRecord;
+  final bool isActivityLoading;
   const RequestManagementState({
     super.isLoading,
     required this.bookingData,
@@ -22,6 +24,8 @@ class RequestManagementState extends BaseState {
     required this.refundRequestList,
     required this.showRefundPaymentLedgerTab,
     required this.refundAmountLedgerList,
+    required this.totalNumberOfRecord,
+    required this.isActivityLoading,
   });
 
   factory RequestManagementState.initial() => RequestManagementState(
@@ -35,6 +39,8 @@ class RequestManagementState extends BaseState {
     refundRequestList: [],
     showRefundPaymentLedgerTab: false,
     refundAmountLedgerList: [],
+    totalNumberOfRecord: 0,
+    isActivityLoading: false,
   );
 
   RequestManagementState copyWith({
@@ -49,6 +55,8 @@ class RequestManagementState extends BaseState {
     List<BookingModel>? refundRequestList,
     bool? showRefundPaymentLedgerTab,
     List<RefundedAmountLedgerModel>? refundAmountLedgerList,
+    int? totalNumberOfRecord,
+    bool? isActivityLoading,
   }) {
     return RequestManagementState(
       isLoading: isLoading ?? this.isLoading,
@@ -69,6 +77,8 @@ class RequestManagementState extends BaseState {
           showRefundPaymentLedgerTab ?? this.showRefundPaymentLedgerTab,
       refundAmountLedgerList:
           refundAmountLedgerList ?? this.refundAmountLedgerList,
+      totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
+      isActivityLoading: isActivityLoading ?? this.isActivityLoading,
     );
   }
 
@@ -84,5 +94,7 @@ class RequestManagementState extends BaseState {
     refundRequestList,
     showRefundPaymentLedgerTab,
     refundAmountLedgerList,
+    totalNumberOfRecord,
+    isActivityLoading,
   ];
 }

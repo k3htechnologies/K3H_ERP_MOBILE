@@ -12,10 +12,13 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class PlumbingTabChecklistScreen extends StatefulWidget {
   final int projectId;
   final int bookingId;
+  final String categoryName;
+
   const PlumbingTabChecklistScreen({
     super.key,
     required this.projectId,
     required this.bookingId,
+    required this.categoryName,
   });
 
   @override
@@ -42,25 +45,31 @@ class _PlumbingTabChecklistScreenState
     super.dispose();
   }
 
+  Map<String, List<SnagChecklistModel>> _groupData(
+    List<SnagChecklistModel> list,
+  ) {
+    final grouped = <String, List<SnagChecklistModel>>{};
+    for (final item in list) {
+      final key = "${item.subCategoryName}__${item.title}__${item.tags}";
+      grouped.putIfAbsent(key, () => []).add(item);
+    }
+    return grouped;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SnagChecklistCubit, SnagChecklistState>(
       builder: (context, state) {
-        if (state.isLoading ?? true && state.snagChecklist.isEmpty) {
-          return Center(child: CircularProgressIndicator());
+        if ((state.isLoading ?? true) ||
+            state.currentCategory != widget.categoryName) {
+          return const Center(child: CircularProgressIndicator());
         }
 
-        final groupedData = <String, List<SnagChecklistModel>>{};
-
-        for (var item in state.snagChecklist) {
-          final key = "${item.subCategoryName}__${item.title}";
-          if (groupedData.containsKey(key)) {
-            groupedData[key]!.add(item);
-          } else {
-            groupedData[key] = [item];
-          }
+        if (state.snagChecklist.isEmpty) {
+          return Center(child: noDataWidget(message: "No checklist found"));
         }
 
+        final groupedData = _groupData(state.snagChecklist);
         final groupedList = groupedData.entries.toList();
         return Padding(
           padding: EdgeInsets.all(20.0),

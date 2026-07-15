@@ -136,7 +136,6 @@ class PaymentCubit extends Cubit<PaymentState> {
       "ProjectId": projectId.toString(),
       "PaymentScheduleDemandType": apiDemandType(paymentScheduleDemandType),
     };
-    print(requestBody);
     var addResult = await paymentRepository
         .addUpdatePayTrackPaymentScheduleDemand(body: requestBody);
     goRouter.pop();
@@ -435,7 +434,7 @@ class PaymentCubit extends Cubit<PaymentState> {
     );
   }
 
-  // PROJECT WISE BANK DROPDOWN \
+  // PROJECT WISE BANK DROPDOWN
   Future<Map<String, dynamic>> getProjectWithBankDropdown(
     int pageNumber, {
     String? value,
@@ -452,25 +451,30 @@ class PaymentCubit extends Cubit<PaymentState> {
       },
       (response) {
         final data = response["data"] as List<dynamic>? ?? [];
-
-        return {
-          "itemList": List<Map<String, dynamic>>.from(
-            data.map(
-              (e) => {
-                "zAttributesId": e["ProjectWithBankDetailsId"],
-                "ProjectWithBankDetailsId": e["ProjectWithBankDetailsId"],
-                "BankListMasterId": e["BankListMasterId"],
-                "DisplayName": "${e["BankName"]} - ${e["NatureOfAccount"]}",
-                "AccountHolderName": e["BeneficiaryAccountHolderName"],
-                "AccountNumber": e["AccountNumber"],
-                "Branch": e["Branch"],
-                "IFSCCode": e["IFSCCode"],
-                "AcType": e["AcType"],
-              },
-            ),
+        List<Map<String, dynamic>> items = List<Map<String, dynamic>>.from(
+          data.map(
+            (e) => {
+              "zAttributesId": e["ProjectWithBankDetailsId"],
+              "ProjectWithBankDetailsId": e["ProjectWithBankDetailsId"],
+              "BankListMasterId": e["BankListMasterId"],
+              "DisplayName": "${e["BankName"]} - ${e["NatureOfAccount"]}",
+              "AccountHolderName": e["BeneficiaryAccountHolderName"],
+              "AccountNumber": e["AccountNumber"],
+              "Branch": e["Branch"],
+              "IFSCCode": e["IFSCCode"],
+              "AcType": e["AcType"],
+            },
           ),
-          "totalNumberOfRecord": data.length,
-        };
+        );
+        if (value != null && value.trim().isNotEmpty) {
+          items =
+              items.where((e) {
+                return e["DisplayName"].toString().toLowerCase().contains(
+                  value.toLowerCase(),
+                );
+              }).toList();
+        }
+        return {"itemList": items, "totalNumberOfRecord": items.length};
       },
     );
   }

@@ -57,6 +57,48 @@ extension MaterialRequisitionTabExtension on MaterialRequisitionTab {
   }
 }
 
+// CRM : PAYTRACK TABS -----------------------------------
+
+enum PayTrackTab {
+  bookingPayTrack,
+  bankLoan,
+  paymentLedger,
+  modificationRequest,
+  paymentSchedule,
+  flatHandover,
+  files,
+  payTrackCallLog,
+  snagChecklist,
+  flatHandoverChecklist,
+}
+
+extension PayTrackTabExtension on PayTrackTab {
+  String get title {
+    switch (this) {
+      case PayTrackTab.bookingPayTrack:
+        return "Overview";
+      case PayTrackTab.bankLoan:
+        return "Bank Loan";
+      case PayTrackTab.paymentLedger:
+        return "Payment Ledger";
+      case PayTrackTab.modificationRequest:
+        return "Modification Request";
+      case PayTrackTab.paymentSchedule:
+        return "Payment Schedule";
+      case PayTrackTab.flatHandover:
+        return "Flat Handover";
+      case PayTrackTab.files:
+        return "Files";
+      case PayTrackTab.payTrackCallLog:
+        return "Pay Track Call Log";
+      case PayTrackTab.snagChecklist:
+        return "Snag Checklist";
+      case PayTrackTab.flatHandoverChecklist:
+        return "Flat Handover Checklist";
+    }
+  }
+}
+
 // CRM : BROKERAGE TABS -----------------------------------
 
 enum BrokerageTab { invoice, payment }

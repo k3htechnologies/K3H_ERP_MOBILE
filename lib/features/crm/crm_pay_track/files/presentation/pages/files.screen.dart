@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -42,7 +43,6 @@ class _FilesScreenState extends State<FilesScreen> {
     );
   }
 
-  // DELETE DEPARTMENT
   Future<void> _showPopupToDeleteFiles(
     BuildContext context,
     PayTrackBookingFilesModel obj,
@@ -87,10 +87,16 @@ class _FilesScreenState extends State<FilesScreen> {
           Expanded(
             child: BlocBuilder<FilesCubit, FilesState>(
               builder: (context, state) {
-                if ((state.isLoading ?? true) &&
-                    state.payTrackBookingFileList.isEmpty) {
-                  return Expanded(
-                    child: Center(child: CircularProgressIndicator()),
+                if (state.isLoading == true) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (state.payTrackBookingFileList.isEmpty) {
+                  return Center(
+                    child: noDataWidget(
+                      message: "No Files Found",
+                      iconSize: 180,
+                    ),
                   );
                 }
                 return ListView.builder(
@@ -110,8 +116,9 @@ class _FilesScreenState extends State<FilesScreen> {
                             title: "File Name",
                             value: file.payTrackBookingFilesUrl,
                             customValueWidget: DocumentPreviewText(
+                              title: file.fileName,
                               text: file.fileName,
-                              fileUrl: file.fileName,
+                              fileUrl: file.payTrackBookingFilesUrl,
                             ),
                           ),
                           buildRowTitleValue(
@@ -162,6 +169,23 @@ class _FilesScreenState extends State<FilesScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget buildRowTitleValueNormal({
+    required String title,
+    required String value,
+  }) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 170,
+          child: Text(title, style: AppTextStyle.ts14R(color: Colors.grey)),
+        ),
+        const Text(":", style: TextStyle(fontSize: 18, color: Colors.grey)),
+        const SizedBox(width: 20),
+        Expanded(child: Text(value, style: AppTextStyle.ts14M())),
+      ],
     );
   }
 }

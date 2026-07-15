@@ -23,9 +23,15 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_chan
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/cubit/flat_handover_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/payment_schedule_demand_letter_summary.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/cancel_booking.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentation/cubit/collection_report_cubit.dart';
+import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentation/pages/collection_report.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentation/pages/collection_report_overall.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/cubit/dcr_cubit.dart';
+import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/pages/dcr.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/data/model/inward_outward.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inward_outward_cubit.dart';
@@ -6315,6 +6321,7 @@ final GoRouter goRouter = GoRouter(
                   create: (_) => FlatHandoverChecklistCubit(),
                   child: child,
                 ),
+                BlocProvider(create: (_) => FlatHandoverCubit(), child: child),
               ],
               child: child,
             );
@@ -6682,7 +6689,6 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.modifiedRequestsMakePayment,
               builder: (context, state) {
                 final extra = state.extra as Map<String, dynamic>;
-                print(extra["refundData"]);
                 return ModifiedRequestsMakePaymentScreen(
                   uniquekey: extra["uniquekey"],
                   bookingId: extra["bookingId"],
@@ -6695,7 +6701,11 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addFlatHandoverDocuments,
               name: AppRoutes.addFlatHandoverDocuments,
               builder: (context, state) {
-                return AddFlatHandoverScreen();
+                final extra = state.extra as Map<String, dynamic>?;
+                return AddFlatHandoverScreen(
+                  flatHandoverDocument: extra?['document'],
+                  index: extra?["index"],
+                );
               },
             ),
             GoRoute(
@@ -6704,11 +6714,11 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final extra = state.extra as Map<String, dynamic>? ?? {};
                 return AddFilesScreen(
-                  projectId: extra['projectId'],
-                  bookingId: extra['bookingId'],
-                  filesModel: extra['file'],
-                  index: extra['index'],
-                  isEdit: extra['isEdit'] ?? false,
+                  projectId: extra['projectId'] as int,
+                  bookingId: extra['bookingId'] as int,
+                  filesModel: extra['file'] as PayTrackBookingFilesModel?,
+                  index: extra['index'] as int? ?? 0,
+                  isEdit: extra['isEdit'] as bool? ?? false,
                 );
               },
             ),
@@ -6837,6 +6847,57 @@ final GoRouter goRouter = GoRouter(
                         : null;
 
                 return AddBrokeragePayment(invoiceModel: invoice!);
+              },
+            ),
+          ],
+        ),
+        // CRM REPORT
+        ShellRoute(
+          builder: (context, state, child) {
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => DcrCubit(), child: child),
+                BlocProvider(
+                  create: (_) => CollectionReportCubit(),
+                  child: child,
+                ),
+              ],
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.dailyCollectionReport,
+              path: AppRoutes.dailyCollectionReport,
+              builder: (context, state) {
+                return DCRScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.collectionReport,
+              path: AppRoutes.collectionReport,
+              builder: (context, state) {
+                return CollectionReportScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.collectionReportOverview,
+              path: AppRoutes.collectionReportOverview,
+              builder: (context, state) {
+                final projectName = EncryptionManager.decryptData(
+                  state.uri.queryParameters['projectName'] ?? '',
+                );
+
+                final projectId =
+                    int.tryParse(
+                      state.uri.queryParameters['projectId'] ?? '0',
+                    ) ??
+                    0;
+
+                return CollectionReportOverallScreen(
+                  projectId: projectId,
+                  projectName: projectName,
+                );
               },
             ),
           ],

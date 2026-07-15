@@ -31,8 +31,6 @@ class AddFilesScreen extends StatefulWidget {
 class _AddFilesScreenState extends State<AddFilesScreen> {
   late FilesCubit _filesCubit;
 
-  //EDIT MODE
-  bool get _isEditMode => widget.filesModel != null;
   late TextEditingController _fileNameC;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -47,8 +45,9 @@ class _AddFilesScreenState extends State<AddFilesScreen> {
     super.initState();
     _filesCubit = context.read<FilesCubit>();
     _fileNameC = TextEditingController();
-    if (_isEditMode) {}
-    _prefillFiles(widget.filesModel!);
+    if (widget.filesModel != null) {
+      _prefillFiles(widget.filesModel!);
+    }
   }
 
   @override
@@ -118,6 +117,7 @@ class _AddFilesScreenState extends State<AddFilesScreen> {
                     ),
                     CustomMultiFilePicker(
                       title: "File",
+
                       filePickType: FilePickType.kycDocument,
                       initialFileList: selectedFileForUpload.fileNameList,
                       initialFileBytes: selectedFileForUpload.fileBytesList,

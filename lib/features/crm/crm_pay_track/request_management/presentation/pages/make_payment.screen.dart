@@ -105,11 +105,27 @@ class _ModifiedRequestsMakePaymentScreenState
       widget.projectId,
       widget.bookingId,
     );
-    print("refundData = ${widget.refundData}");
-    print("isEdit = $isEdit");
     if (isEdit) {
       final data = widget.refundData!;
-
+      _selectedProjectBankNameNotifier.value = [
+        {
+          "zAttributesId": data.projectBankListMasterId,
+          "ProjectWithBankDetailsId": data.projectBankListMasterId,
+          "DisplayName": data.projectBankName,
+          "AccountNumber": data.projectAccountNumber,
+          "IFSCCode": data.projectIfscCode,
+          "Branch": "",
+          "AcType": data.projectAcType,
+          "NatureOfAccount": data.projectNatureOfAccount,
+        },
+      ];
+      _selectedBankNotifier.value = [
+        {"zAttributesId": data.bankListMasterId, "DisplayName": data.bankName},
+      ];
+      _selectedPaymentModeNotifier.value = paymentModeList.firstWhere(
+        (e) => e["DisplayName"] == data.paymentMode,
+        orElse: () => {},
+      );
       _accountHolderNameC.text = data.accountHolderName;
       _customersAccountNumberC.text = data.accountNumber;
       _customersIFSCCodeC.text = data.ifscCode;
@@ -335,7 +351,7 @@ class _ModifiedRequestsMakePaymentScreenState
 
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
-                                          return "Bank Name is required";
+                                          return "Project Bank Name is required";
                                         }
                                         return null;
                                       },

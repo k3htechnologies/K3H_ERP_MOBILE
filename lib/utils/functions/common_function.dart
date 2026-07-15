@@ -472,3 +472,28 @@ String formatToKLCr(num value) {
   }
   return "₹$value";
 }
+
+String formatIndianAmount(num value, {bool showCurrency = true}) {
+  final prefix = showCurrency ? "₹" : "";
+
+  const double thousand = 1e3;
+  const double lakh = 1e5;
+  const double crore = 1e7;
+
+  String format(double val) {
+    String result = val.toStringAsFixed(2);
+    result = result.replaceAll(RegExp(r'0+$'), '');
+    result = result.replaceAll(RegExp(r'\.$'), '');
+    return result;
+  }
+
+  if (value >= crore) {
+    return "$prefix${format(value / crore)} CR";
+  } else if (value >= lakh) {
+    return "$prefix${format(value / lakh)} L";
+  } else if (value >= thousand) {
+    return "$prefix${format(value / thousand)} K";
+  }
+
+  return "$prefix${format(value.toDouble())}";
+}

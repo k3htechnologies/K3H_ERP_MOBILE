@@ -23,10 +23,12 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class LoanDetailsScreen extends StatefulWidget {
   final int projectId;
   final int bookingId;
+  final String? approvalStatus;
   const LoanDetailsScreen({
     super.key,
     required this.projectId,
     required this.bookingId,
+    required this.approvalStatus,
   });
 
   @override
@@ -118,6 +120,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
         final hasActiveBank = state.bankDetailsList.any(
           (e) => e.bankStatusClosedActive.toLowerCase() == "active",
         );
+        final isApproved = widget.approvalStatus?.toLowerCase() == "approved";
         return Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
@@ -430,7 +433,8 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                                     ],
                                   ),
                                   if (bankDetail.noOfBankDocument > 0 &&
-                                      status != "closed")
+                                      status != "closed" &&
+                                      !isApproved)
                                     ValueListenableBuilder<Map<int, bool>>(
                                       valueListenable: closeAccountNotifier,
                                       builder: (context, selectedMap, child) {
@@ -515,7 +519,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
             child: noDataWidget(message: "No Bank Loan Found", iconSize: 180),
           );
         }
-
+        final isApproved = widget.approvalStatus?.toLowerCase() == "approved";
         return ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           itemCount: state.bankDetailsList.length,
@@ -717,10 +721,10 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                                           children: [
                                             CustomIconButton.edit(
                                               isDisabled:
-                                                  document
-                                                      .bankStatusClosedActive
-                                                      .toLowerCase() ==
-                                                  "closed",
+                                                  document.bankStatusClosedActive
+                                                          .toLowerCase() ==
+                                                      "closed" ||
+                                                  isApproved,
                                               onPressed: () {
                                                 goRouter.pushNamed(
                                                   AppRoutes.addBankLoanDocument,
@@ -755,10 +759,10 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                                             horizontalSpacing(width: 12),
                                             CustomIconButton.delete(
                                               isDisabled:
-                                                  document
-                                                      .bankStatusClosedActive
-                                                      .toLowerCase() ==
-                                                  "closed",
+                                                  document.bankStatusClosedActive
+                                                          .toLowerCase() ==
+                                                      "closed" ||
+                                                  isApproved,
                                               onPressed: () {
                                                 _loanDetailsCubit
                                                     .deleteBankDocument(

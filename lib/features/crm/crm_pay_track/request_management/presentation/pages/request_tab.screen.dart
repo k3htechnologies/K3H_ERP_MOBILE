@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/booking_applicant_modification_request.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
@@ -16,16 +17,19 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class RequestTabScreen extends StatefulWidget {
   final int projectId;
   final int bookingId;
+  final String? approvalStatus;
   const RequestTabScreen({
     super.key,
     required this.projectId,
     required this.bookingId,
+    this.approvalStatus,
   });
 
   @override
@@ -35,6 +39,91 @@ class RequestTabScreen extends StatefulWidget {
 class _RequestTabScreenState extends State<RequestTabScreen> {
   late RequestManagementCubit _requestManagementCubit;
   late UtilsCubit _utilsCubit;
+  // FILE VARIABLES
+  MultiFilePickerModel selectedPANForPopUpFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel selectedAadhaarForPopUpFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel selectedVotingForPopUpFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel selectedPOAForPopUpFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel selectedPaymentProofForPopUpFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel selectedNreNroBankDetailsForPopUpFile =
+      MultiFilePickerModel(
+        fileBytesList: [],
+        fileNameList: [],
+        deletedFileList: "",
+      );
+  MultiFilePickerModel selectedDrivingLicenseForPopUpFile =
+      MultiFilePickerModel(
+        fileBytesList: [],
+        fileNameList: [],
+        deletedFileList: "",
+      );
+  MultiFilePickerModel selectedProofOfDocumentForPopUpFile =
+      MultiFilePickerModel(
+        fileBytesList: [],
+        fileNameList: [],
+        deletedFileList: "",
+      );
+  MultiFilePickerModel selectedStatementOfSourceOfFundsForPopUpFile =
+      MultiFilePickerModel(
+        fileBytesList: [],
+        fileNameList: [],
+        deletedFileList: "",
+      );
+  MultiFilePickerModel selectedIncomeForm16ITRForPopUpFile =
+      MultiFilePickerModel(
+        fileBytesList: [],
+        fileNameList: [],
+        deletedFileList: "",
+      );
+
+  MultiFilePickerModel selectedNomineeFormPhotoForPopUpFile =
+      MultiFilePickerModel(
+        fileBytesList: [],
+        fileNameList: [],
+        deletedFileList: "",
+      );
+  MultiFilePickerModel selectedCancelledChequePhotoForPopUpFile =
+      MultiFilePickerModel(
+        fileBytesList: [],
+        fileNameList: [],
+        deletedFileList: "",
+      );
+  MultiFilePickerModel selectedPhotoPhotoForPopUpFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel selectedPassportPhotoForPopUpFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel selectedGstNumberPhotForPopUpFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+
   @override
   void initState() {
     super.initState();
@@ -78,6 +167,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
         return SingleChildScrollView(
           padding: EdgeInsets.all(20.0),
           child: Column(
+            spacing: 10.0,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildApplicantDetailsWidget(context, state),
@@ -90,6 +180,15 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
     );
   }
 
+  void setFileLists(MultiFilePickerModel target, String url) {
+    if (url.isEmpty) {
+      target.fileNameList = [];
+      target.fileBytesList = [];
+    } else {
+      target.fileNameList = url.split(",");
+    }
+  }
+
   Widget _buildApplicantDetailsWidget(
     BuildContext context,
     RequestManagementState state,
@@ -99,6 +198,8 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
     );
 
     final hasApplicantData = applicantList.isNotEmpty;
+    final bool isApproved = widget.approvalStatus?.toLowerCase() == "approved";
+
     return Column(
       spacing: 10.0,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,29 +209,90 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
           children: [
             Text("Applicant Details", style: AppTextStyle.ts16SB()),
             horizontalSpacing(),
-            CustomButton(
-              leading: Icon(Icons.add, size: 18, color: AppColor.white),
-              text: "Create Requests",
-              onPressed: () async {
-                final result = await goRouter.pushNamed(
-                  AppRoutes.addApplicantDetailsRequests,
-                  extra: {
-                    "bookingId": widget.bookingId,
-                    "projectId": widget.projectId,
-                  },
-                );
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (isApproved)
+                  CustomButton(
+                    text: "Save",
+                    onPressed: () {
+                      _requestManagementCubit
+                          .updateBookingApplicantModificationRequest(
+                            context,
+                            bookingId: widget.bookingId,
+                            projectId: widget.projectId,
+                            panCardPhoto: selectedPANForPopUpFile,
+                            aadharCardPhoto: selectedAadhaarForPopUpFile,
+                            votingCardPhoto: selectedVotingForPopUpFile,
+                            poaCardPhoto: selectedPOAForPopUpFile,
+                            paymentProofPhoto: selectedPaymentProofForPopUpFile,
+                            nreNroBankDetailsPhoto:
+                                selectedNreNroBankDetailsForPopUpFile,
+                            drivingLicensePhoto:
+                                selectedDrivingLicenseForPopUpFile,
+                            proofOfDocumentPhoto:
+                                selectedProofOfDocumentForPopUpFile,
+                            statementOfSourceOfFundsPhoto:
+                                selectedStatementOfSourceOfFundsForPopUpFile,
+                            incomeForm16ITRPhoto:
+                                selectedIncomeForm16ITRForPopUpFile,
+                            nomineeFormPhoto:
+                                selectedNomineeFormPhotoForPopUpFile,
+                            cancelledChequePhoto:
+                                selectedCancelledChequePhotoForPopUpFile,
+                            photoPhoto: selectedPhotoPhotoForPopUpFile,
+                            passportPhoto: selectedPassportPhotoForPopUpFile,
+                            gstNumberPhoto: selectedGstNumberPhotForPopUpFile,
+                          );
+                    },
+                  ),
 
-                if (context.mounted && result == true) {
-                  await _requestManagementCubit
-                      .getBookingApplicantModificationRequestList(
-                        context,
-                        10,
-                        1,
-                        widget.bookingId,
-                        widget.projectId,
-                      );
-                }
-              },
+                horizontalSpacing(),
+                isApproved
+                    ? CustomButton(
+                      leading: Icon(Icons.add, size: 18, color: AppColor.white),
+                      text: "Add",
+                      onPressed: () async {
+                        final result = await goRouter.pushNamed(
+                          AppRoutes.addApplicantDetailsRequests,
+                          extra: {
+                            "bookingId": widget.bookingId,
+                            "projectId": widget.projectId,
+                            "aadharFile": selectedAadhaarForPopUpFile,
+                            "panFile": selectedPANForPopUpFile,
+                            "passportFile": selectedPassportPhotoForPopUpFile,
+                            "photoFile": selectedPhotoPhotoForPopUpFile,
+                            "gstFile": selectedGstNumberPhotForPopUpFile,
+                            "votingFile": selectedVotingForPopUpFile,
+                            "drivingFile": selectedDrivingLicenseForPopUpFile,
+                            "poaFile": selectedPOAForPopUpFile,
+                            "paymentProofFile":
+                                selectedPaymentProofForPopUpFile,
+                            "proofDocumentFile":
+                                selectedProofOfDocumentForPopUpFile,
+                            "statementFile":
+                                selectedStatementOfSourceOfFundsForPopUpFile,
+                            "incomeFile": selectedIncomeForm16ITRForPopUpFile,
+                            "nomineeFile": selectedNomineeFormPhotoForPopUpFile,
+                            "cancelledChequeFile":
+                                selectedCancelledChequePhotoForPopUpFile,
+                            "nreFile": selectedNreNroBankDetailsForPopUpFile,
+                          },
+                        );
+
+                        if (result is Map &&
+                            result["isSuccess"] == true &&
+                            result["applicant"] != null) {
+                          _requestManagementCubit.addApplicantLocally(
+                            result["applicant"]
+                                as BookingApplicantModificationRequestModel,
+                          );
+                        }
+                      },
+                    )
+                    : SizedBox.shrink(),
+              ],
             ),
           ],
         ),
@@ -153,9 +315,29 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                   spacing: 6.0,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildRowTitleValue(
-                      title: "Applicant Type",
-                      value: applicant.applicantType,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: buildColumnTitleValueNormal(
+                            title: "Applicant Type",
+                            value: applicant.applicantType,
+                          ),
+                        ),
+                        CustomIconButton.delete(
+                          onPressed: () {
+                            _requestManagementCubit
+                                .deleteBookingApplicantModificationRequest(
+                                  context: context,
+                                  model: applicant,
+                                  bookingId: widget.bookingId,
+                                  projectId: widget.projectId,
+                                  index: index,
+                                );
+                          },
+                        ),
+                      ],
                     ),
                     buildRowTitleValue(
                       title: "Full Name",
@@ -291,11 +473,9 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Center(
-                  child: Text(
-                    "No Booking Applicant details to show",
-                    style: AppTextStyle.ts14R(
-                      color: AppColor.black.withValues(alpha: 0.5),
-                    ),
+                  child: noDataWidget(
+                    message: "No Applicant Found",
+                    iconSize: 160.0,
                   ),
                 ),
               ],
@@ -313,6 +493,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
     final hasParkingData =
         state.parkingModificationRequestList.isNotEmpty &&
         state.parkingModificationRequestList.first.parkingData.isNotEmpty;
+    final bool isApproved = widget.approvalStatus?.toLowerCase() == "approved";
     return Column(
       spacing: 10.0,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,13 +502,15 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text("Parking Details", style: AppTextStyle.ts16SB()),
-            CustomButton(
-              leading: Icon(Icons.add, size: 18, color: AppColor.white),
-              text: "Create Requests",
-              onPressed: () {
-                goRouter.pushNamed(AppRoutes.swapBookedParking);
-              },
-            ),
+            (isApproved)
+                ? CustomButton(
+                  leading: Icon(Icons.add, size: 18, color: AppColor.white),
+                  text: "Add",
+                  onPressed: () {
+                    goRouter.pushNamed(AppRoutes.swapBookedParking);
+                  },
+                )
+                : SizedBox.shrink(),
           ],
         ),
         if (hasParkingData) ...{
@@ -411,11 +594,9 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Center(
-                  child: Text(
-                    "No Parking details to show",
-                    style: AppTextStyle.ts14R(
-                      color: AppColor.black.withValues(alpha: 0.5),
-                    ),
+                  child: noDataWidget(
+                    message: "No data available",
+                    iconSize: 160.0,
                   ),
                 ),
               ],
@@ -432,6 +613,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
   ) {
     final hasFlatSpecificationRemark =
         state.flatAlterationRequestsModel.isNotEmpty;
+    final bool isApproved = widget.approvalStatus?.toLowerCase() == "approved";
     return Column(
       spacing: 10.0,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -441,17 +623,21 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
           children: [
             Expanded(
               child: Text(
-                "Flat Specification Remark",
+                "Unit / Modulation / Customization Details",
                 style: AppTextStyle.ts16SB(),
               ),
             ),
-            CustomButton(
-              leading: Icon(Icons.add, size: 18, color: AppColor.white),
-              text: "Create Requests",
-              onPressed: () {
-                goRouter.pushNamed(AppRoutes.addFlatSpecificationRemarkScreen);
-              },
-            ),
+            (isApproved)
+                ? CustomButton(
+                  leading: Icon(Icons.add, size: 18, color: AppColor.white),
+                  text: "Add",
+                  onPressed: () {
+                    goRouter.pushNamed(
+                      AppRoutes.addFlatSpecificationRemarkScreen,
+                    );
+                  },
+                )
+                : SizedBox.shrink(),
           ],
         ),
         if (hasFlatSpecificationRemark) ...{
@@ -461,7 +647,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
             itemCount: state.flatAlterationRequestsModel.length,
             itemBuilder: (context, index) {
               final remark = state.flatAlterationRequestsModel[index];
-
+              final isActionAlreadyPerformed = !remark.isApproval;
               return Container(
                 margin: EdgeInsets.only(
                   bottom:
@@ -472,16 +658,132 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                 padding: EdgeInsets.all(12.0),
                 decoration: commonCardDecoration(),
                 child: Column(
+                  spacing: 10.0,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildRowTitleValue(
-                      title: "Remark",
-                      value: remark.flatAlterationRemark,
-                      singleLine: false,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 10.0,
+                      children: [
+                        Expanded(
+                          child: buildColumnTitleValueNormal(
+                            title: "Unit / Modulation / Customization Remark",
+                            value: remark.flatAlterationRemark,
+                            customValueWidget: DocumentPreviewText(
+                              title: "Proof of Document",
+                              text: remark.flatAlterationRemark,
+                              fileUrl: remark.proofOfDocumentUrl,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CustomIconButton.edit(onPressed: () async {}),
+                              horizontalSpacing(),
+                              CustomIconButton.delete(onPressed: () {}),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    buildRowTitleValue(
-                      title: "Approval Status",
-                      value: remark.approvalStatus,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: buildColumnTitleValueNormal(
+                            title: "Approval Status",
+                            value: remark.approvalStatus,
+                            customValueWidget: ApproveRejectWidget(
+                              isActionAlreadyPerformed:
+                                  isActionAlreadyPerformed,
+                              actionTitle:
+                                  remark.isApproval ? "Approval" : "History",
+                              onApprove: (value) async {
+                                final isSuccess = await _utilsCubit
+                                    .updateModulesWorkflowApproval(
+                                      context: context,
+                                      moduleName: "FLAT ALTERATION APPROVAL",
+                                      id: widget.bookingId,
+                                      subId: remark.flatAlterationRequestId,
+                                      projectId: widget.projectId,
+                                      isApproved: true,
+                                      remark: value.trim(),
+                                    );
+
+                                if (context.mounted && isSuccess) {
+                                  _requestManagementCubit
+                                      .getFlatAlterationRequestList(
+                                        context,
+                                        10,
+                                        1,
+                                        widget.bookingId,
+                                        widget.projectId,
+                                      );
+                                }
+                              },
+                              onReject: (value) async {
+                                final isSuccess = await _utilsCubit
+                                    .updateModulesWorkflowApproval(
+                                      context: context,
+                                      moduleName: "FLAT ALTERATION APPROVAL",
+                                      id: widget.bookingId,
+                                      subId: remark.flatAlterationRequestId,
+                                      projectId: widget.projectId,
+                                      isApproved: false,
+                                      remark: value.trim(),
+                                    );
+
+                                if (context.mounted && isSuccess) {
+                                  _requestManagementCubit
+                                      .getFlatAlterationRequestList(
+                                        context,
+                                        10,
+                                        1,
+                                        widget.bookingId,
+                                        widget.projectId,
+                                      );
+                                }
+                              },
+                              onThirdTap: () async {
+                                final approvalLogHistoryList = await _utilsCubit
+                                    .getApprovalLogHistory(
+                                      context: context,
+                                      id: widget.bookingId,
+                                      subId: remark.flatAlterationRequestId,
+                                      projectId: widget.projectId,
+                                      moduleName: "FLAT ALTERATION APPROVAL",
+                                    );
+                                if (context.mounted) {
+                                  goRouter.pushNamed(
+                                    AppRoutes.approvalLogHistory,
+                                    queryParameters: {
+                                      "title": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          "Unit / Modulation / Customization Remark Log History",
+                                        ),
+                                      ),
+                                      "approvalList": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(
+                                            approvalLogHistoryList
+                                                .map((e) => e.toJson())
+                                                .toList(),
+                                          ),
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                }
+                              },
+                              popupTitle:
+                                  "Unit / Modulation / Customization Remark",
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -496,11 +798,9 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Center(
-                  child: Text(
-                    "No Flat Specification Remark to show",
-                    style: AppTextStyle.ts14R(
-                      color: AppColor.black.withValues(alpha: 0.5),
-                    ),
+                  child: noDataWidget(
+                    message: "No data available",
+                    iconSize: 160.0,
                   ),
                 ),
               ],

@@ -21,10 +21,12 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class RequestManagementScreen extends StatefulWidget {
   final int projectId;
   final int bookingId;
+  final String? approvalStatus;
   const RequestManagementScreen({
     super.key,
     required this.projectId,
     required this.bookingId,
+    this.approvalStatus,
   });
 
   @override
@@ -119,6 +121,7 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
             RequestTabScreen(
               projectId: widget.projectId,
               bookingId: widget.bookingId,
+              approvalStatus: widget.approvalStatus,
             ),
             ActivityTabScreen(state: state),
           ];
@@ -164,8 +167,8 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
             booking.approvalStatus.trim().toUpperCase() == "REFUND";
 
         final isCancelApproved =
-            booking.cancelBookingApprovalStatus.trim().toUpperCase() ==
-            "APPROVED";
+            (booking.cancelBookingApprovalStatus.trim().toUpperCase() ==
+                "APPROVED");
 
         final canMakePayment =
             booking.totalAmountRefundedAgainstBooking >
@@ -942,7 +945,7 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                           title: "Paid",
                                           value:
                                               bookingData
-                                                  .totalAmountRefundedAgainstBooking
+                                                  .refundedAmountOnTillDate
                                                   .toIndianCurrency(),
                                         ),
                                       ),
@@ -958,8 +961,9 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                         child: buildColumnTitleValueNormal(
                                           title: "Pending",
                                           value:
-                                              bookingData
-                                                  .totalAmountRefundedAgainstBooking
+                                              (bookingData.totalAmountRefundedAgainstBooking -
+                                                      bookingData
+                                                          .refundedAmountOnTillDate)
                                                   .toIndianCurrency(),
                                         ),
                                       ),

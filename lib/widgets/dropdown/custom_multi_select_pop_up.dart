@@ -553,12 +553,16 @@ class _DropdownListState extends State<DropdownList> {
     });
   }
 
-  Future<void> search(String searchText) async {
-    this.searchText = searchText;
+  Future<void> search(String value) async {
+    searchText = value.trim();
     currentPage = 1;
     totalNumberOfRecord = 0;
-    tempDataListForSearch.clear();
-    _fetchData();
+
+    setState(() {
+      tempDataListForSearch.clear();
+    });
+
+    await _fetchData();
   }
 
   void _onScroll() {
@@ -714,6 +718,7 @@ class _DropdownListState extends State<DropdownList> {
             isFilterOn: false,
             hintText: "Search ${widget.title}",
             textController: searchC,
+
             onSubmit: (string) async => await search(string),
           ),
         ),
@@ -813,7 +818,16 @@ class _DropdownListState extends State<DropdownList> {
             ),
           ),
         isLoading && tempDataListForSearch.isEmpty
-            ? const Expanded(child: Center(child: CircularProgressIndicator()))
+            ? Expanded(
+              child: Center(
+                child: Text(
+                  "No records found",
+                  style: AppTextStyle.ts14R(
+                    color: AppColor.black.withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+            )
             : tempDataListForSearch.isEmpty
             ? Expanded(
               child: Center(

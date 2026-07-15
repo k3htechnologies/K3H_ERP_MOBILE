@@ -48,7 +48,7 @@ class FilesCubit extends Cubit<FilesState> {
           pageNumber: pageNumber,
           projectId: projectId,
           bookingId: bookingId,
-          fileType: fileType,
+          fileType: "FILES",
           queryParams: queryParams,
         );
 

@@ -125,100 +125,6 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
     );
   }
 
-  Future<void> saveApplicantRequests(
-    BuildContext context, {
-    required int bookingId,
-    required int projectId,
-  }) async {
-    DialogHelper.showProcessingOverlay(context);
-
-    try {
-      final pendingApplicants =
-          state.bookingApplicantModificationRequestModel
-              .where((e) => e.bookingApplicantModificationRequestId == 0)
-              .toList();
-
-      if (pendingApplicants.isEmpty) {
-        goRouter.pop();
-
-        showErrorMessage(context, "Error", "No applicant requests to save");
-        return;
-      }
-
-      for (final applicant in pendingApplicants) {
-        final Map<String, String> requestBody = {
-          "BookingApplicantModificationRequestId":
-              applicant.bookingApplicantModificationRequestId.toString(),
-
-          "BookingId": bookingId.toString(),
-
-          "ProjectId": projectId.toString(),
-
-          "ApplicantType": applicant.applicantType,
-
-          "ApplicantName": applicant.applicantName,
-
-          "ApplicantMobileNumber": applicant.applicantMobileNumber,
-
-          "ApplicantEmailId": applicant.applicantEmailId,
-
-          "AadharCardNumber": applicant.aadharCardNumber,
-
-          "PanNumber": applicant.panNumber,
-
-          "PassportNumber": applicant.passportNumber,
-
-          "DrivingLicenseNumber": applicant.drivingLicenseNumber,
-
-          "VotingIdNumber": applicant.votingIdNumber,
-
-          "GSTNumber": applicant.gstNumber,
-
-          "ApprovalStatus": applicant.approvalStatus,
-
-          "VersionNumber": applicant.versionNumber,
-        };
-
-        final result = await _requestManagementRepository
-            .updateBookingApplicantModificationRequest(
-              bookingId: bookingId,
-              projectId: projectId,
-              body: requestBody,
-              fileList: [],
-            );
-
-        result.fold((failure) {
-          throw Exception(failure.message);
-        }, (_) {});
-      }
-
-      goRouter.pop();
-
-      if (context.mounted) {
-        showSuccessMessage(
-          context,
-          subTitle: "Applicant requests saved successfully",
-        );
-      }
-
-      if (context.mounted) {
-        await getBookingApplicantModificationRequestList(
-          context,
-          10,
-          1,
-          bookingId,
-          projectId,
-        );
-      }
-    } catch (e) {
-      goRouter.pop();
-
-      if (context.mounted) {
-        showErrorMessage(context, "Error", e.toString());
-      }
-    }
-  }
-
   Future cancelBooking(
     BuildContext context, {
     required String uniquekey,
@@ -287,7 +193,9 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
           pageNumber: pageNumber,
           projectId: projectId,
           bookingId: bookingId,
+          queryParams: {"TabName": "REQUESTS"},
         );
+
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -307,34 +215,47 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
     );
   }
 
-  Future getBookingApplicantModificationRequestList(
-    BuildContext context,
-    int pageSize,
-    int pageNumber,
-    int bookingId,
-    int projectId,
-  ) async {
-    emit(state.copyWith(isLoading: true));
-    var result = await _requestManagementRepository
-        .getBookingApplicantModificationRequestList(
-          pageSize: pageSize,
-          pageNumber: pageNumber,
+  Future deleteBookingApplicantModificationRequest({
+    required BuildContext context,
+    required BookingApplicantModificationRequestModel model,
+    required int bookingId,
+    required int projectId,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    final deleteResult = await _requestManagementRepository
+        .deleteBookingApplicantModificationRequest(
           projectId: projectId,
+          bookingApplicantModificationRequestId:
+              model.bookingApplicantModificationRequestId,
           bookingId: bookingId,
         );
-    result.fold(
+
+    goRouter.pop();
+
+    deleteResult.fold(
       (failure) {
-        emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, 'Error', failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
       (response) {
-        final updatedList =
-            response['data'] as List<BookingApplicantModificationRequestModel>;
+        showSuccessMessage(context, subTitle: "Applicant deleted successfully");
+
+        final updatedList = List<BookingApplicantModificationRequestModel>.from(
+          state.bookingApplicantModificationRequestModel,
+        );
+
+        updatedList.removeAt(index);
+
         emit(
-          state.copyWith(
-            isLoading: false,
-            bookingApplicantModificationRequestModel: updatedList,
-          ),
+          state.copyWith(bookingApplicantModificationRequestModel: updatedList),
+        );
+        getBookingApplicantModificationRequestList(
+          context,
+          10,
+          1,
+          bookingId,
+          projectId,
         );
       },
     );
@@ -354,6 +275,7 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
           pageNumber: pageNumber,
           projectId: projectId,
           bookingId: bookingId,
+          queryParams: {"TabName": "REQUESTS"},
         );
     result.fold(
       (failure) {
@@ -371,6 +293,16 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
         );
       },
     );
+  }
+
+  void addApplicantLocally(BookingApplicantModificationRequestModel applicant) {
+    final list = List<BookingApplicantModificationRequestModel>.from(
+      state.bookingApplicantModificationRequestModel,
+    );
+
+    list.add(applicant);
+
+    emit(state.copyWith(bookingApplicantModificationRequestModel: list));
   }
 
   Future initiateRefund(
@@ -412,21 +344,290 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
 
   Future updateBookingApplicantModificationRequest(
     BuildContext context, {
-    required String uniquekey,
     required int projectId,
     required int bookingId,
-    required int inventoryFlatId,
-    required String parkingId,
+    required MultiFilePickerModel panCardPhoto,
+    required MultiFilePickerModel aadharCardPhoto,
+    required MultiFilePickerModel votingCardPhoto,
+    required MultiFilePickerModel poaCardPhoto,
+    required MultiFilePickerModel paymentProofPhoto,
+    required MultiFilePickerModel nreNroBankDetailsPhoto,
+    required MultiFilePickerModel drivingLicensePhoto,
+    required MultiFilePickerModel proofOfDocumentPhoto,
+    required MultiFilePickerModel statementOfSourceOfFundsPhoto,
+    required MultiFilePickerModel incomeForm16ITRPhoto,
+    required MultiFilePickerModel nomineeFormPhoto,
+    required MultiFilePickerModel cancelledChequePhoto,
+    required MultiFilePickerModel photoPhoto,
+    required MultiFilePickerModel passportPhoto,
+    required MultiFilePickerModel gstNumberPhoto,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
       "BookingId": bookingId.toString(),
-      "Uniquekey": uniquekey,
       "ProjectId": projectId.toString(),
-      "InventoryFlatId": inventoryFlatId.toString(),
-      "ParkingId": parkingId,
     };
     final List<Map<String, dynamic>> fileList = [];
+    for (
+      int applicantIndex = 0;
+      applicantIndex < state.bookingApplicantModificationRequestModel.length;
+      applicantIndex++
+    ) {
+      final e = state.bookingApplicantModificationRequestModel[applicantIndex];
+
+      requestBody.addAll({
+        "bookingApplicantModificationRequests[$applicantIndex].BookingApplicantModificationRequestId":
+            e.bookingApplicantModificationRequestId.toString(),
+
+        "bookingApplicantModificationRequests[$applicantIndex].ApplicantType":
+            e.applicantType,
+
+        "bookingApplicantModificationRequests[$applicantIndex].ApplicantName":
+            e.applicantName,
+
+        "bookingApplicantModificationRequests[$applicantIndex].ApplicantMobileNumberCountryCode":
+            "+91",
+
+        "bookingApplicantModificationRequests[$applicantIndex].ApplicantMobileNumber":
+            e.applicantMobileNumber,
+
+        "bookingApplicantModificationRequests[$applicantIndex].ApplicantEmailId":
+            e.applicantEmailId,
+
+        "bookingApplicantModificationRequests[$applicantIndex].AadharCardNumber":
+            e.aadharCardNumber,
+
+        "bookingApplicantModificationRequests[$applicantIndex].PanNumber":
+            e.panNumber,
+
+        "bookingApplicantModificationRequests[$applicantIndex].PassportNumber":
+            e.passportNumber,
+
+        "bookingApplicantModificationRequests[$applicantIndex].DrivingLicenseNumber":
+            e.drivingLicenseNumber,
+
+        "bookingApplicantModificationRequests[$applicantIndex].VotingIdNumber":
+            e.votingIdNumber,
+
+        "bookingApplicantModificationRequests[$applicantIndex].GSTNumber":
+            e.gstNumber,
+
+        // Remove fields
+        "bookingApplicantModificationRequests[$applicantIndex].RemovePhotoURL":
+            photoPhoto.deletedFileList,
+
+        "bookingApplicantModificationRequests[$applicantIndex].RemoveAadharCardURL":
+            aadharCardPhoto.deletedFileList,
+
+        "bookingApplicantModificationRequests[$applicantIndex].RemovePanCardURL":
+            panCardPhoto.deletedFileList,
+
+        "bookingApplicantModificationRequests[$applicantIndex].RemovePassportURL":
+            passportPhoto.deletedFileList,
+
+        "bookingApplicantModificationRequests[$applicantIndex].RemoveDrivingLicenseURL":
+            drivingLicensePhoto.deletedFileList,
+
+        "bookingApplicantModificationRequests[$applicantIndex].RemoveVotingIdURL":
+            votingCardPhoto.deletedFileList,
+
+        "bookingApplicantModificationRequests[$applicantIndex].RemoveGSTNumberURL":
+            gstNumberPhoto.deletedFileList,
+
+        "bookingApplicantModificationRequests[$applicantIndex].RemoveCancelledChequeURL":
+            cancelledChequePhoto.deletedFileList,
+
+        "bookingApplicantModificationRequests[$applicantIndex].RemovePOAURL":
+            poaCardPhoto.deletedFileList,
+
+        "bookingApplicantModificationRequests[$applicantIndex].RemoveIncomeForm16ITRURL":
+            incomeForm16ITRPhoto.deletedFileList,
+
+        "bookingApplicantModificationRequests[$applicantIndex].RemoveNreNroBankDetailsURL":
+            nreNroBankDetailsPhoto.deletedFileList,
+
+        "bookingApplicantModificationRequests[$applicantIndex].RemoveNomineeFormURL":
+            nomineeFormPhoto.deletedFileList,
+
+        "bookingApplicantModificationRequests[$applicantIndex].RemoveStatementOfSourceOfFundsURL":
+            statementOfSourceOfFundsPhoto.deletedFileList,
+
+        "bookingApplicantModificationRequests[$applicantIndex].RemovePaymentProofURL":
+            paymentProofPhoto.deletedFileList,
+
+        "bookingApplicantModificationRequests[$applicantIndex].RemoveProofOfDocumentURL":
+            proofOfDocumentPhoto.deletedFileList,
+      });
+
+      for (int i = 0; i < panCardPhoto.fileNameList.length; i++) {
+        if (panCardPhoto.fileNameList[i].contains("http")) continue;
+
+        fileList.add({
+          "key":
+              "bookingApplicantModificationRequests[$applicantIndex].PanCardURL",
+          "value": panCardPhoto.fileBytesList[i],
+          "fileName": panCardPhoto.fileNameList[i],
+        });
+      }
+      for (int i = 0; i < aadharCardPhoto.fileNameList.length; i++) {
+        if (aadharCardPhoto.fileNameList[i].contains("http")) continue;
+
+        fileList.add({
+          "key":
+              "bookingApplicantModificationRequests[$applicantIndex].AadharCardURL",
+          "value": aadharCardPhoto.fileBytesList[i],
+          "fileName": aadharCardPhoto.fileNameList[i],
+        });
+      }
+      for (int i = 0; i < votingCardPhoto.fileNameList.length; i++) {
+        if (votingCardPhoto.fileNameList[i].contains("http")) continue;
+
+        fileList.add({
+          "key":
+              "bookingApplicantModificationRequests[$applicantIndex].VotingIdURL",
+          "value": votingCardPhoto.fileBytesList[i],
+          "fileName": votingCardPhoto.fileNameList[i],
+        });
+      }
+      for (int i = 0; i < poaCardPhoto.fileNameList.length; i++) {
+        if (poaCardPhoto.fileNameList[i].contains("http")) continue;
+
+        fileList.add({
+          "key": "bookingApplicantModificationRequests[$applicantIndex].POAURL",
+          "value": poaCardPhoto.fileBytesList[i],
+          "fileName": poaCardPhoto.fileNameList[i],
+        });
+      }
+      for (int i = 0; i < paymentProofPhoto.fileNameList.length; i++) {
+        if (paymentProofPhoto.fileNameList[i].contains("http")) continue;
+
+        fileList.add({
+          "key":
+              "bookingApplicantModificationRequests[$applicantIndex].PaymentProofURL",
+          "value": paymentProofPhoto.fileBytesList[i],
+          "fileName": paymentProofPhoto.fileNameList[i],
+        });
+      }
+      for (int i = 0; i < nreNroBankDetailsPhoto.fileNameList.length; i++) {
+        if (nreNroBankDetailsPhoto.fileNameList[i].contains("http")) continue;
+
+        fileList.add({
+          "key":
+              "bookingApplicantModificationRequests[$applicantIndex].NreNroBankDetailsURL",
+          "value": nreNroBankDetailsPhoto.fileBytesList[i],
+          "fileName": nreNroBankDetailsPhoto.fileNameList[i],
+        });
+      }
+      for (int i = 0; i < drivingLicensePhoto.fileNameList.length; i++) {
+        if (drivingLicensePhoto.fileNameList[i].contains("http")) continue;
+
+        fileList.add({
+          "key":
+              "bookingApplicantModificationRequests[$applicantIndex].DrivingLicenseURL",
+          "value": drivingLicensePhoto.fileBytesList[i],
+          "fileName": drivingLicensePhoto.fileNameList[i],
+        });
+      }
+      for (int i = 0; i < proofOfDocumentPhoto.fileNameList.length; i++) {
+        if (proofOfDocumentPhoto.fileNameList[i].contains("http")) continue;
+
+        fileList.add({
+          "key":
+              "bookingApplicantModificationRequests[$applicantIndex].ProofOfDocumentURL",
+          "value": proofOfDocumentPhoto.fileBytesList[i],
+          "fileName": proofOfDocumentPhoto.fileNameList[i],
+        });
+      }
+      for (
+        int i = 0;
+        i < statementOfSourceOfFundsPhoto.fileNameList.length;
+        i++
+      ) {
+        if (statementOfSourceOfFundsPhoto.fileNameList[i].contains("http")) {
+          continue;
+        }
+
+        fileList.add({
+          "key":
+              "bookingApplicantModificationRequests[$applicantIndex].StatementOfSourceOfFundsURL",
+          "value": statementOfSourceOfFundsPhoto.fileBytesList[i],
+          "fileName": statementOfSourceOfFundsPhoto.fileNameList[i],
+        });
+      }
+      for (int i = 0; i < incomeForm16ITRPhoto.fileNameList.length; i++) {
+        if (incomeForm16ITRPhoto.fileNameList[i].contains("http")) {
+          continue;
+        }
+
+        fileList.add({
+          "key":
+              "bookingApplicantModificationRequests[$applicantIndex].IncomeForm16ITRURL",
+          "value": incomeForm16ITRPhoto.fileBytesList[i],
+          "fileName": incomeForm16ITRPhoto.fileNameList[i],
+        });
+      }
+      for (int i = 0; i < nomineeFormPhoto.fileNameList.length; i++) {
+        if (nomineeFormPhoto.fileNameList[i].contains("http")) {
+          continue;
+        }
+
+        fileList.add({
+          "key":
+              "bookingApplicantModificationRequests[$applicantIndex].NomineeFormURL",
+          "value": nomineeFormPhoto.fileBytesList[i],
+          "fileName": nomineeFormPhoto.fileNameList[i],
+        });
+      }
+      for (int i = 0; i < cancelledChequePhoto.fileNameList.length; i++) {
+        if (cancelledChequePhoto.fileNameList[i].contains("http")) {
+          continue;
+        }
+
+        fileList.add({
+          "key":
+              "bookingApplicantModificationRequests[$applicantIndex].CancelledChequeURL",
+          "value": cancelledChequePhoto.fileBytesList[i],
+          "fileName": cancelledChequePhoto.fileNameList[i],
+        });
+      }
+      for (int i = 0; i < photoPhoto.fileNameList.length; i++) {
+        if (photoPhoto.fileNameList[i].contains("http")) {
+          continue;
+        }
+
+        fileList.add({
+          "key":
+              "bookingApplicantModificationRequests[$applicantIndex].PhotoURL",
+          "value": photoPhoto.fileBytesList[i],
+          "fileName": photoPhoto.fileNameList[i],
+        });
+      }
+      for (int i = 0; i < passportPhoto.fileNameList.length; i++) {
+        if (passportPhoto.fileNameList[i].contains("http")) {
+          continue;
+        }
+
+        fileList.add({
+          "key":
+              "bookingApplicantModificationRequests[$applicantIndex].PassportURL",
+          "value": passportPhoto.fileBytesList[i],
+          "fileName": passportPhoto.fileNameList[i],
+        });
+      }
+      for (int i = 0; i < gstNumberPhoto.fileNameList.length; i++) {
+        if (gstNumberPhoto.fileNameList[i].contains("http")) {
+          continue;
+        }
+
+        fileList.add({
+          "key":
+              "bookingApplicantModificationRequests[$applicantIndex].GSTNumberURL",
+          "value": gstNumberPhoto.fileBytesList[i],
+          "fileName": gstNumberPhoto.fileNameList[i],
+        });
+      }
+    }
+
     var result = await _requestManagementRepository
         .updateBookingApplicantModificationRequest(
           bookingId: bookingId,
@@ -446,7 +647,47 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
           subTitle: response['message'] ?? "Booking cancelled successfully",
         );
 
-        await getBookingById(context, 1, projectId, bookingId);
+        await getBookingApplicantModificationRequestList(
+          context,
+          10,
+          1,
+          bookingId,
+          projectId,
+        );
+      },
+    );
+  }
+
+  Future getBookingApplicantModificationRequestList(
+    BuildContext context,
+    int pageSize,
+    int pageNumber,
+    int bookingId,
+    int projectId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+    var result = await _requestManagementRepository
+        .getBookingApplicantModificationRequestList(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          bookingId: bookingId,
+          queryParams: {"TabName": "REQUESTS"},
+        );
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final updatedList =
+            response['data'] as List<BookingApplicantModificationRequestModel>;
+        emit(
+          state.copyWith(
+            isLoading: false,
+            bookingApplicantModificationRequestModel: updatedList,
+          ),
+        );
       },
     );
   }
@@ -628,10 +869,49 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
       },
       (response) {
         goRouter.pop();
-
+        getRefundAmountPaymentLedger(context, projectId, bookingId);
         showSuccessMessage(
           context,
           subTitle: response['message'] ?? "Refund payment added successfully",
+        );
+      },
+    );
+  }
+
+  Future deleteRefundedAmountLedger({
+    required BuildContext context,
+    required RefundedAmountLedgerModel refundModel,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _requestManagementRepository
+        .deleteRefundedAmountLedger(
+          projectId: refundModel.projectId,
+          refundedAmountLedgerId: refundModel.refundedAmountLedgerId,
+          bookingId: refundModel.bookingId,
+          uniqueKey: refundModel.uniquekey,
+        );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(context, subTitle: 'Invoice Deleted Successfully');
+        final updatedList = List<RefundedAmountLedgerModel>.from(
+          state.refundAmountLedgerList,
+        );
+        updatedList.removeAt(index);
+
+        emit(
+          state.copyWith(
+            refundAmountLedgerList: updatedList,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
         );
       },
     );

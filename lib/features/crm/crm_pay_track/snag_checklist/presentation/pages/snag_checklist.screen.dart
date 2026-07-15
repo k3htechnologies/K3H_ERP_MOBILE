@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class SnagCheckListScreen extends StatefulWidget {
   final int projectId;
   final int bookingId;
+
   const SnagCheckListScreen({
     super.key,
     required this.projectId,
@@ -91,14 +92,17 @@ class _SnagCheckListScreenState extends State<SnagCheckListScreen>
               CivilTabChecklistScreen(
                 projectId: widget.projectId,
                 bookingId: widget.bookingId,
+                categoryName: "Civil",
               ),
               ElectricalTabChecklistScreen(
                 projectId: widget.projectId,
                 bookingId: widget.bookingId,
+                categoryName: "Electrical",
               ),
               PlumbingTabChecklistScreen(
                 projectId: widget.projectId,
                 bookingId: widget.bookingId,
+                categoryName: "Plumbing",
               ),
             ],
           ),

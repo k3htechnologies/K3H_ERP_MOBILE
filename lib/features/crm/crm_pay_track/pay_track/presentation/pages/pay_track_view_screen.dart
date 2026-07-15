@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -12,8 +14,10 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cu
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/payment_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/request_management_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/snag_checklist/presentation/pages/snag_checklist.screen.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_enums.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -49,14 +53,68 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
   late TabController _tabController;
   late PayTrackCubit _payTrackCubit;
   late ValueNotifier<bool> isExpanded;
+  late AuthorizationModel _bankLoansRouteAuthorizationModel,
+      _accountRouteAuthorizationModel,
+      _modifiedRequestsAuthorizationModel,
+      _snagChecklistAuthorizationModel,
+      _flatHandoverChecklistAuthorizationModel,
+      _flatHandoverAuthoriationModel,
+      _filesAuthorizationModel,
+      _callLogsAuthorizationModel;
+
+  late List<PayTrackTab> _tabs;
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 9, vsync: this);
+    _initAuth();
+    _tabs = [
+      if (_bankLoansRouteAuthorizationModel.isView) PayTrackTab.bankLoan,
+      if (_accountRouteAuthorizationModel.isView) PayTrackTab.paymentLedger,
+      if (_modifiedRequestsAuthorizationModel.isView)
+        PayTrackTab.modificationRequest,
+      if (_snagChecklistAuthorizationModel.isView) PayTrackTab.snagChecklist,
+      if (_flatHandoverChecklistAuthorizationModel.isView)
+        PayTrackTab.flatHandoverChecklist,
+      if (_flatHandoverChecklistAuthorizationModel.isView)
+        PayTrackTab.flatHandoverChecklist,
+      if (_flatHandoverAuthoriationModel.isView) PayTrackTab.flatHandover,
+      if (_filesAuthorizationModel.isView) PayTrackTab.files,
+      if (_callLogsAuthorizationModel.isView) PayTrackTab.payTrackCallLog,
+    ];
+    _tabController = TabController(length: _tabs.length, vsync: this);
     _tabController.addListener(_handleTabChange);
     _payTrackCubit = context.read<PayTrackCubit>();
     isExpanded = ValueNotifier(false);
     initOverview();
+    log("Approval Status = ${widget.approvalStatus}");
+  }
+
+  void _initAuth() {
+    _bankLoansRouteAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.bankLoans] ??
+        AuthorizationModel();
+    _accountRouteAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.paymentLedger] ??
+        AuthorizationModel();
+    _modifiedRequestsAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.modificationRequest] ??
+        AuthorizationModel();
+    _snagChecklistAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.snagChecklist] ??
+        AuthorizationModel();
+    _flatHandoverChecklistAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.flatHandoverChecklist] ??
+        AuthorizationModel();
+    _flatHandoverAuthoriationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.flatHandover] ??
+        AuthorizationModel();
+    _filesAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.files] ??
+        AuthorizationModel();
+    _callLogsAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.payTrackCallLog] ??
+        AuthorizationModel();
   }
 
   void initOverview() async {
@@ -85,13 +143,23 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
 
   // HANDLE TAB CHANGE
   void _handleTabChange() async {
-    if (!_tabController.indexIsChanging) {
-      switch (_tabController.index) {
-        case 0:
-          initOverview();
-          break;
-      }
-    }
+    final index = _tabController.index;
+    final selectedTab = _tabs[index];
+    context.read<PayTrackCubit>().onTabChanged(
+      context,
+      selectedTab,
+      projectId: widget.projectId,
+      employeeId: 0,
+    );
+    // if (!_tabController.indexIsChanging) {
+    //   if (_tabController.index == 0) {
+    //     switch (_tabController.index) {
+    //       case 0:
+    //         initOverview();
+    //         break;
+    //     }
+    //   }
+    // }
   }
 
   @override
@@ -113,17 +181,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
           ChipStyleTabBar(
             controller: _tabController,
             isSecondaryStyle: true,
-            tabs: [
-              'Overview',
-              'Bank Loans',
-              'Account',
-              'Modified Request',
-              'Flat Handover',
-              'Files',
-              'Call Logs',
-              'Snag Cheklist',
-              'Flat Handover Checklist',
-            ],
+            tabs: _tabs.map((m) => m.title).toList(),
           ),
           BlocBuilder<PayTrackCubit, PayTrackState>(
             builder: (context, state) {
@@ -133,41 +191,53 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                   physics: NeverScrollableScrollPhysics(),
                   children: [
                     _buildOverviewTab(state),
-                    LoanDetailsScreen(
-                      projectId: widget.projectId,
-                      bookingId: widget.bookingId,
-                    ),
-                    PaymentScreen(
-                      projectId: widget.projectId,
-                      bookingId: widget.bookingId,
-                      applicantName: widget.applicantName,
-                      bookingApprovalStatus: widget.bookingApprovalStatus,
-                      approvalStatus: widget.approvalStatus,
-                    ),
-                    RequestManagementScreen(
-                      projectId: widget.projectId,
-                      bookingId: widget.bookingId,
-                    ),
-                    FlatHandoverScreen(
-                      projectId: widget.projectId,
-                      bookingId: widget.bookingId,
-                    ),
-                    FilesScreen(
-                      projectId: widget.projectId,
-                      bookingId: widget.bookingId,
-                    ),
-                    CallLogsScreen(
-                      projectId: widget.projectId,
-                      bookingId: widget.bookingId,
-                    ),
-                    SnagCheckListScreen(
-                      projectId: widget.projectId,
-                      bookingId: widget.bookingId,
-                    ),
-                    FlatHandoverChecklistScreen(
-                      projectId: widget.projectId,
-                      bookingId: widget.bookingId,
-                    ),
+                    if (_bankLoansRouteAuthorizationModel.isView) ...{
+                      LoanDetailsScreen(
+                        projectId: widget.projectId,
+                        bookingId: widget.bookingId,
+                        approvalStatus: "Approved",
+                      ),
+                    },
+                    if (_accountRouteAuthorizationModel.isView) ...{
+                      PaymentScreen(
+                        projectId: widget.projectId,
+                        bookingId: widget.bookingId,
+                        applicantName: widget.applicantName,
+                        bookingApprovalStatus: widget.bookingApprovalStatus,
+                        approvalStatus: widget.approvalStatus,
+                      ),
+                    },
+                    if (_modifiedRequestsAuthorizationModel.isView)
+                      RequestManagementScreen(
+                        projectId: widget.projectId,
+                        bookingId: widget.bookingId,
+                        approvalStatus: widget.bookingApprovalStatus,
+                      ),
+                    if (_snagChecklistAuthorizationModel.isView)
+                      SnagCheckListScreen(
+                        projectId: widget.projectId,
+                        bookingId: widget.bookingId,
+                      ),
+                    if (_flatHandoverChecklistAuthorizationModel.isView)
+                      FlatHandoverChecklistScreen(
+                        projectId: widget.projectId,
+                        bookingId: widget.bookingId,
+                      ),
+                    if (_flatHandoverAuthoriationModel.isView)
+                      FlatHandoverScreen(
+                        projectId: widget.projectId,
+                        bookingId: widget.bookingId,
+                      ),
+                    if (_filesAuthorizationModel.isView)
+                      FilesScreen(
+                        projectId: widget.projectId,
+                        bookingId: widget.bookingId,
+                      ),
+                    if (_callLogsAuthorizationModel.isView)
+                      CallLogsScreen(
+                        projectId: widget.projectId,
+                        bookingId: widget.bookingId,
+                      ),
                   ],
                 ),
               );
@@ -204,6 +274,10 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
     final pendingAmount =
         booking.totalAmountRefundedAgainstBooking -
         booking.refundedAmountOnTillDate;
+    final bool isEmployeeReference =
+        enquiry.subSource.trim().toLowerCase() == "employee reference";
+    final payTrackData = state.payTrackModel;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
       child: Column(
@@ -215,17 +289,20 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             widget.applicantName,
             style: AppTextStyle.ts16M(color: AppColor.primary),
           ),
-          Row(
-            children: [
-              Expanded(child: CustomButton(text: "Message", onPressed: () {})),
-              horizontalSpacing(),
-              CustomButton(
-                text: "Update Registration Date & Parking",
-                onPressed: () {},
-              ),
-            ],
-          ),
-
+          payTrackData?.approvalStatus.toLowerCase() != "approved"
+              ? Row(
+                children: [
+                  Expanded(
+                    child: CustomButton(text: "Message", onPressed: () {}),
+                  ),
+                  horizontalSpacing(),
+                  CustomButton(
+                    text: "Update Registration Date & Parking",
+                    onPressed: () {},
+                  ),
+                ],
+              )
+              : SizedBox.shrink(),
           Container(
             decoration: BoxDecoration(
               color: AppColor.lightBlue,
@@ -308,6 +385,30 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                     ),
                   ],
                 ),
+                if (isEmployeeReference)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Employee Name",
+                          value: enquiry.employeeReferenceName,
+                        ),
+                      ),
+                      horizontalSpacing(),
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Employee Mobile Number",
+                          value: enquiry.employeeReferenceMobileNumber,
+                          customValueWidget: CustomClickToContactText(
+                            countryCode: "+91",
+                            value: enquiry.employeeReferenceMobileNumber,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -1189,7 +1290,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                     Row(
                                       children: [
                                         buildColumnTitleValue(
-                                          title: "Name",
+                                          title: "Charges",
                                           value: extraCharge.chargeName,
                                         ),
                                         buildColumnTitleValue(

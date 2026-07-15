@@ -340,6 +340,16 @@ const callStatusValues = [
   'Disconnected',
   'Rescheduled',
 ];
+const callPurposeValues = [
+  'Complaint',
+  'Welcome Call',
+  'Payment Follow - UP',
+  'Registration Follow - UP',
+  'Reminder',
+  'Query Resolution',
+  'Feedback',
+  'Other',
+];
 
 const statusModeValues = [
   'Open',

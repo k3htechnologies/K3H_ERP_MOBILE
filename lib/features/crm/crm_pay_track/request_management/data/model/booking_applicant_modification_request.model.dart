@@ -28,6 +28,15 @@ class BookingApplicantModificationRequestModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  String applicantMobileNumberCountryCode;
+  String cancelledChequeUrl;
+  String poaurl;
+  String incomeForm16Itrurl;
+  String nreNroBankDetailsUrl;
+  String nomineeFormUrl;
+  String statementOfSourceOfFundsUrl;
+  String paymentProofUrl;
+  String proofOfDocumentUrl;
 
   BookingApplicantModificationRequestModel({
     required this.bookingApplicantModificationRequestId,
@@ -57,6 +66,15 @@ class BookingApplicantModificationRequestModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.applicantMobileNumberCountryCode,
+    required this.cancelledChequeUrl,
+    required this.poaurl,
+    required this.incomeForm16Itrurl,
+    required this.nreNroBankDetailsUrl,
+    required this.nomineeFormUrl,
+    required this.statementOfSourceOfFundsUrl,
+    required this.paymentProofUrl,
+    required this.proofOfDocumentUrl,
   });
 
   factory BookingApplicantModificationRequestModel.fromJson(
@@ -98,6 +116,21 @@ class BookingApplicantModificationRequestModel {
         json["ModifiedDate"] == null
             ? null
             : parseValue<DateTime>(json, "ModifiedDate"),
+    cancelledChequeUrl: parseValue<String>(json, "CancelledChequeURL"),
+    poaurl: parseValue<String>(json, "POAURL"),
+    incomeForm16Itrurl: parseValue<String>(json, "IncomeForm16ITRURL"),
+    nreNroBankDetailsUrl: parseValue<String>(json, "NreNroBankDetailsURL"),
+    nomineeFormUrl: parseValue<String>(json, "NomineeFormURL"),
+    statementOfSourceOfFundsUrl: parseValue<String>(
+      json,
+      "StatementOfSourceOfFundsURL",
+    ),
+    paymentProofUrl: parseValue<String>(json, "PaymentProofURL"),
+    proofOfDocumentUrl: parseValue<String>(json, "ProofOfDocumentURL"),
+    applicantMobileNumberCountryCode: parseValue<String>(
+      json,
+      "ApplicantMobileNumberCountryCode",
+    ),
   );
 
   Map<String, dynamic> toJson() => {
@@ -129,5 +162,14 @@ class BookingApplicantModificationRequestModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "ApplicantMobileNumberCountryCode": applicantMobileNumberCountryCode,
+    "CancelledChequeURL": cancelledChequeUrl,
+    "POAURL": poaurl,
+    "IncomeForm16ITRURL": incomeForm16Itrurl,
+    "NreNroBankDetailsURL": nreNroBankDetailsUrl,
+    "NomineeFormURL": nomineeFormUrl,
+    "StatementOfSourceOfFundsURL": statementOfSourceOfFundsUrl,
+    "PaymentProofURL": paymentProofUrl,
+    "ProofOfDocumentURL": proofOfDocumentUrl,
   };
 }
