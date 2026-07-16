@@ -845,15 +845,15 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                           final item = displayList[index];
 
                           final isLast = index == displayList.length - 1;
-                          final isModifiedInLast2Days =
-                              !DateUtils.dateOnly(
-                                item.modifiedDate ?? item.createdDate!,
-                              ).isBefore(
-                                DateUtils.dateOnly(
-                                  DateTime.now(),
-                                ).subtract(const Duration(days: 2)),
-                              );
+                          final isWithin2Days = isDateWithinPastDays(
+                            item.modifiedDate ?? item.createdDate,
+                            2,
+                          );
 
+                          final isDisable =
+                              !(item.isAction &&
+                                  _routeAuthorizationModel.isAction) ||
+                              !isWithin2Days;
                           return IntrinsicHeight(
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -902,7 +902,10 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                           children: [
                                             Flexible(
                                               child: Text(
-                                                formatDate(item.createdDate),
+                                                formatDate(
+                                                  item.modifiedDate ??
+                                                      item.createdDate,
+                                                ),
                                                 style: AppTextStyle.ts14M(),
                                               ),
                                             ),
@@ -911,11 +914,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 CustomIconButton.edit(
-                                                  isDisabled:
-                                                      !(item.isAction &&
-                                                          _routeAuthorizationModel
-                                                              .isAction &&
-                                                          isModifiedInLast2Days),
+                                                  isDisabled: isDisable,
                                                   onPressed: () {
                                                     _showBottomSheetToUpdateRemark(
                                                       context,
@@ -925,11 +924,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                                 ),
                                                 horizontalSpacing(),
                                                 CustomIconButton.delete(
-                                                  isDisabled:
-                                                      !(item.isAction &&
-                                                          _routeAuthorizationModel
-                                                              .isAction &&
-                                                          isModifiedInLast2Days),
+                                                  isDisabled: isDisable,
                                                   onPressed: () {
                                                     _showPopupToDeleteRemark(
                                                       context,

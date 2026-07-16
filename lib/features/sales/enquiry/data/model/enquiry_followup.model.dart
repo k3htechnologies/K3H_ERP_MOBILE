@@ -46,7 +46,10 @@ class EnquiryFollowUpModel {
       createdDate: parseValue<DateTime>(json, "CreatedDate"),
       modifiedById: parseValue<int>(json, "ModifiedById"),
       modifiedBy: parseValue<String>(json, "ModifiedBy"),
-      modifiedDate: parseValue<DateTime>(json, "ModifiedDate"),
+      modifiedDate:
+          json["ModifiedDate"] != null
+              ? DateTime.parse(json["ModifiedDate"])
+              : null,
     );
   }
 

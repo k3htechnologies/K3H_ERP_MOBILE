@@ -52,6 +52,12 @@ abstract interface class BuildingDatasource {
     required String uniqueKey,
     required int projectId,
   });
+  Future<Map<String, dynamic>> apicallDeleteBuildingDocument({
+    required int buildingId,
+    required String uniqueKey,
+    required int projectId,
+    required int buildingDocumentId,
+  });
 }
 
 class BuildingDatasourceImpl implements BuildingDatasource {
@@ -219,6 +225,7 @@ class BuildingDatasourceImpl implements BuildingDatasource {
         'data': List<BuildingDocumentModel>.from(
           networkResponse["data"].map((e) => BuildingDocumentModel.fromJson(e)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -292,7 +299,7 @@ class BuildingDatasourceImpl implements BuildingDatasource {
     }) {
       String url =
           "Building/PullBuilding?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -354,6 +361,49 @@ class BuildingDatasourceImpl implements BuildingDatasource {
           buildingId: buildingId,
           uniqueKey: uniqueKey,
           projectId: projectId,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeleteBuildingDocument({
+    required int buildingId,
+    required String uniqueKey,
+    required int projectId,
+    required int buildingDocumentId,
+  }) async {
+    String deleteBuildingDocumentUrl({
+      required int buildingId,
+      required String uniqueKey,
+      required int projectId,
+      required int buildingDocumentId,
+    }) {
+      return "BuildingDocument/DeleteBuildingDocument?BuildingDocumentId=$buildingDocumentId&BuildingId=$buildingId&Uniquekey=$uniqueKey&ProjectId=$projectId";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteBuildingDocumentUrl(
+          buildingId: buildingId,
+          uniqueKey: uniqueKey,
+          projectId: projectId,
+          buildingDocumentId: buildingDocumentId,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'message': networkResponse["message"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallDeleteBuildingDocument(
+          buildingId: buildingId,
+          uniqueKey: uniqueKey,
+          projectId: projectId,
+          buildingDocumentId: buildingDocumentId,
         );
       }
       rethrow;

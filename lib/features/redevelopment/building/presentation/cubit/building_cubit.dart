@@ -28,7 +28,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     int buildingId,
   ) {
     if (isClosed) return;
-    emit(state.copyWith(currentTabIndex: index));
+    emit(state.copyWith(currentTabIndex: index, documentSearchText: ''));
 
     if (index == 1) {
       // DETAILS TAB
@@ -38,7 +38,12 @@ class BuildingCubit extends Cubit<BuildingState> {
         projectId: projectId,
       );
     } else if (index == 2) {
-      getBuildingDocumentList(context, projectId, buildingId, 1, 100, null);
+      getBuildingDocumentList(
+        context: context,
+        projectId: projectId,
+        buildingId: buildingId,
+        pageNumber: 1,
+      );
     }
   }
 
@@ -52,12 +57,37 @@ class BuildingCubit extends Cubit<BuildingState> {
     await getBuildingList(context, 1, projectId);
   }
 
+  // SEARCH DOCUMENTS
+  Future searchDocument({
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+    required String value,
+  }) async {
+    emit(
+      state.copyWith(
+        documentSearchText: value,
+        buildingDocumentList: [],
+        currentPageDocument: 1,
+      ),
+    );
+    await await getBuildingDocumentList(
+      context: context,
+      projectId: projectId,
+      buildingId: buildingId,
+      pageNumber: 1,
+    );
+  }
+
   // APPLY FILTER AND SORT
   Future applyFilterAndSort({
     required BuildContext context,
     required int projectId,
     required String filterBuildingName,
     required String filterCTSNumber,
+    required String filterRoadWidth,
+    required String filterCity,
+    required String filterVillage,
     String? sortColumn,
     String? sortDirection,
   }) async {
@@ -65,6 +95,9 @@ class BuildingCubit extends Cubit<BuildingState> {
       state.copyWith(
         searchText: filterBuildingName,
         filterCTSNumber: filterCTSNumber,
+        filterRoadWidth: filterRoadWidth,
+        filterCity: filterCity,
+        filterVillage: filterVillage,
         currentSortColumn: sortColumn ?? state.currentSortColumn,
         currentSortDirection: sortDirection ?? state.currentSortDirection,
         buildingList: [],
@@ -93,6 +126,9 @@ class BuildingCubit extends Cubit<BuildingState> {
       "BuildingName": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
       "CTSNumber": state.filterCTSNumber,
+      "RoadWidth": state.filterRoadWidth,
+      "CityName": state.filterCity,
+      "VillageName": state.filterVillage,
     };
 
     final result = await _buildingRepository.pullBuilding(
@@ -137,7 +173,15 @@ class BuildingCubit extends Cubit<BuildingState> {
     required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
-    emit(state.copyWith(isLoading: true));
+    emit(
+      state.copyWith(
+        isLoading: true,
+        buildingDocumentList: [],
+        currentPageDocument: 1,
+        totalNumberOfRecordDocument: 0,
+        documentSearchText: '',
+      ),
+    );
 
     var result = await _buildingRepository.pullBuildingDetails(
       buildingId: buildingId,
@@ -169,14 +213,14 @@ class BuildingCubit extends Cubit<BuildingState> {
   }
 
   // GET BUILDING DOCUMENT LIST
-  Future getBuildingDocumentList(
-    BuildContext context,
-    int projectId,
-    int buildingId,
-    int pageNumber,
-    int pageSize,
+  Future getBuildingDocumentList({
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+    required int pageNumber,
+
     int? buildingDocumentId,
-  ) async {
+  }) async {
     final bool isParentRequest =
         buildingDocumentId == null || buildingDocumentId == 0;
     if (isParentRequest) {
@@ -185,12 +229,13 @@ class BuildingCubit extends Cubit<BuildingState> {
 
     final queryParameter = {
       "IsCheckPermission": true,
-      "BuildingDocumentId": buildingDocumentId ?? 0,
+      "BuildingDocumentId": buildingDocumentId,
+      "DocumentName": state.documentSearchText,
     };
 
     final result = await _buildingRepository.pullBuildingDocument(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 20,
       buildingId: buildingId,
       projectId: projectId,
       queryParams: queryParameter,
@@ -255,29 +300,12 @@ class BuildingCubit extends Cubit<BuildingState> {
   }
 
   // ADD BUILDING DOCUMENT
-  Future addBuildingDocument({
+  Future addBuildingParentDocument({
     required BuildContext context,
     required int projectId,
     required int buildingId,
     required String documentName,
-    required MultiFilePickerModel files,
   }) async {
-    if (isClosed) return;
-
-    List<Map<String, dynamic>> fileList = [];
-    for (int i = 0; i < files.fileNameList.length; i++) {
-      if (files.fileNameList[i].contains("http")) {
-        continue;
-      }
-      if (i < files.fileBytesList.length && files.fileBytesList[i].isNotEmpty) {
-        fileList.add({
-          "key": "DocumentURL",
-          "value": files.fileBytesList[i],
-          "fileName": files.fileNameList[i],
-        });
-      }
-    }
-
     DialogHelper.showProcessingOverlay(context);
 
     final body = <String, String>{
@@ -289,7 +317,7 @@ class BuildingCubit extends Cubit<BuildingState> {
 
     var addResult = await _buildingRepository.addUpdateBuildingDocument(
       body: body,
-      fileList: fileList,
+      fileList: [],
     );
     goRouter.pop();
 
@@ -299,65 +327,93 @@ class BuildingCubit extends Cubit<BuildingState> {
         return;
       },
       (response) async {
-        showSuccessMessage(context, subTitle: "Document Added Successfully");
+        showSuccessMessage(context, subTitle: response['message']);
+        goRouter.pop();
         await getBuildingDocumentList(
-          context,
-          projectId,
-          buildingId,
-          1,
-          100,
-          null,
+          context: context,
+          projectId: projectId,
+          buildingId: buildingId,
+          pageNumber: 1,
+        );
+      },
+    );
+  }
+
+  Future updateBuildingParentDocument({
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+    required String documentName,
+    required int buildingDocumentId,
+    required String uniquekey,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    final body = <String, String>{
+      'ProjectId': projectId.toString(),
+      'BuildingId': buildingId.toString(),
+      'DocumentName': documentName,
+      "IsMaster": "1",
+      "BuildingDocumentId": buildingDocumentId.toString(),
+      "Uniquekey": uniquekey,
+    };
+
+    var addResult = await _buildingRepository.addUpdateBuildingDocument(
+      body: body,
+      fileList: [],
+    );
+    goRouter.pop();
+
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error Message', failure.message);
+        return;
+      },
+      (response) async {
+        showSuccessMessage(context, subTitle: response['message']);
+        goRouter.pop();
+        await getBuildingDocumentList(
+          context: context,
+          projectId: projectId,
+          buildingId: buildingId,
+          pageNumber: 1,
         );
       },
     );
   }
 
   // ADD/UPDATE BUILDING DOCUMENT
-  Future updateBuildingDocument({
+  Future updateBuildingChildDocument({
     required BuildContext context,
     required int buildingDocumentId,
     required String uniqueKey,
     required int projectId,
     required int buildingId,
     required String documentName,
+    required String documentRemark,
     required MultiFilePickerModel files,
   }) async {
-    if (isClosed) return;
-
-    final isAddMode = buildingDocumentId == 0 || buildingDocumentId == -1;
-
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < files.fileNameList.length; i++) {
-      if (files.fileNameList[i].contains("http")) {
-        continue;
-      }
-      if (i < files.fileBytesList.length && files.fileBytesList[i].isNotEmpty) {
-        fileList.add({
-          "key": "DocumentURL",
-          "value": files.fileBytesList[i],
-          "fileName": files.fileNameList[i],
-        });
-      }
-    }
+      if (files.fileNameList[i].contains("http")) continue;
 
-    if (isAddMode && fileList.isEmpty && files.deletedFileList.isEmpty) {
-      showErrorMessage(
-        context,
-        'Error',
-        'Please select at least one file to upload',
-      );
-      return;
+      fileList.add({
+        "key": "DocumentURL",
+        "value": files.fileBytesList[i],
+        "fileName": files.fileNameList[i],
+      });
     }
-
     DialogHelper.showProcessingOverlay(context);
 
     final body = <String, String>{
-      'BuildingDocumentId': isAddMode ? '0' : buildingDocumentId.toString(),
-      'Uniquekey': isAddMode ? '' : uniqueKey,
+      'BuildingDocumentId': buildingDocumentId.toString(),
+      'Uniquekey': uniqueKey,
       'ProjectId': projectId.toString(),
       'BuildingId': buildingId.toString(),
       'DocumentName': documentName,
       'RemoveDocumentURL': files.deletedFileList,
+      'IsMaster': '0',
+      'DocumentRemark': documentRemark,
     };
 
     var updateResult = await _buildingRepository.addUpdateBuildingDocument(
@@ -373,13 +429,12 @@ class BuildingCubit extends Cubit<BuildingState> {
       },
       (response) async {
         showSuccessMessage(context, subTitle: "Upload Successfully");
-        await getBuildingDocumentList(
-          context,
-          projectId,
-          buildingId,
-          1,
-          100,
-          null,
+        goRouter.pop(true);
+        await await getBuildingDocumentList(
+          context: context,
+          projectId: projectId,
+          buildingId: buildingId,
+          pageNumber: 1,
         );
       },
     );
@@ -497,6 +552,39 @@ class BuildingCubit extends Cubit<BuildingState> {
     );
   }
 
+  // DELETE BUILDING DOCUMENT
+  Future deleteBuildingDocument({
+    required BuildingDocumentModel document,
+    required BuildContext context,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    final result = await _buildingRepository.deleteBuildingDocument(
+      buildingId: document.buildingId,
+      uniqueKey: document.uniquekey,
+      projectId: document.projectId,
+      buildingDocumentId: document.buildingDocumentId,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (success) {
+        showSuccessMessage(context, subTitle: success['message']);
+
+        getBuildingDocumentList(
+          context: context,
+          projectId: document.projectId,
+          buildingId: document.buildingId,
+          pageNumber: state.currentPage,
+        );
+      },
+    );
+  }
+
   // EXPORT
   Future exportExcelPdf(
     BuildContext context,
@@ -575,6 +663,9 @@ class BuildingCubit extends Cubit<BuildingState> {
     return getActiveFilterCount([
       state.searchText.isNotEmpty,
       state.filterCTSNumber.isNotEmpty,
+      state.filterCity.isNotEmpty,
+      state.filterRoadWidth.isNotEmpty,
+      state.filterVillage.isNotEmpty,
       hasSort,
     ]);
   }

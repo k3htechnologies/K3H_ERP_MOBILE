@@ -34,6 +34,8 @@ import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/add_
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_screen.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_view_screen.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/revert_inward_outward_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/data/model/building_document.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/add_update_document_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/project_wise_sales_achievement_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/achivement_drill_down_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/channel_partner_sourcing.model.dart';
@@ -348,10 +350,9 @@ import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/cubit/building_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/add_building_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/add_update_document_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_view_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/edit_building_details_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/update_building_details_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/dashboard/presentation/cubit/redevlopment_dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/dashboard/presentation/pages/redevelopment_dashboard_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
@@ -2358,21 +2359,36 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addUpdateBuildingDoc,
               path: AppRoutes.addUpdateBuildingDoc,
               builder: (context, state) {
-                final queryParameterBuilding =
-                    state.uri.queryParameters['building'];
+                final queryParameterDocument =
+                    state.uri.queryParameters['document'];
+                final queryParameterSubDocument =
+                    state.uri.queryParameters['subDocument'];
 
-                final RedevelopmentBuildingModel? building =
-                    queryParameterBuilding != null
-                        ? RedevelopmentBuildingModel.fromJson(
+                final BuildingDocumentModel? document =
+                    queryParameterDocument != null
+                        ? BuildingDocumentModel.fromJson(
                           jsonDecode(
                             EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterBuilding),
+                              Uri.decodeComponent(queryParameterDocument),
                             ),
                           ),
                         )
                         : null;
 
-                return AddUpdateDocumentScreen(building: building!);
+                final BuildingDocumentModel? subDocument =
+                    queryParameterSubDocument != null
+                        ? BuildingDocumentModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterSubDocument),
+                            ),
+                          ),
+                        )
+                        : null;
+                return AddUpdateDocumentScreen(
+                  documentModel: document!,
+                  subDocumentModel: subDocument,
+                );
               },
             ),
             GoRoute(
@@ -2456,7 +2472,7 @@ final GoRouter goRouter = GoRouter(
                       ),
                     );
 
-                return EditBuildingDetailsScreen(
+                return UpdateBuildingDetailsScreen(
                   buildingDetailsModel: buildingDetail,
                 );
               },
@@ -3554,7 +3570,7 @@ final GoRouter goRouter = GoRouter(
                         : "";
                 return ChannelPartnerSalesMatricsScreen(
                   channelPartnerId: channelPartnerId,
-                  channelPartnerName: channelPartnerName
+                  channelPartnerName: channelPartnerName,
                 );
               },
             ),

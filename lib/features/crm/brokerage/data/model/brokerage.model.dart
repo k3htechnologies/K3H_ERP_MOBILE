@@ -40,6 +40,8 @@ class BrokerageModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  double tdsAmount;
+  String bookingType;
 
   BrokerageModel({
     required this.bookingId,
@@ -74,6 +76,8 @@ class BrokerageModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.tdsAmount,
+    required this.bookingType,
   });
 
   factory BrokerageModel.fromJson(Map<String, dynamic> json) => BrokerageModel(
@@ -125,6 +129,8 @@ class BrokerageModel {
         json["ModifiedDate"] == null
             ? null
             : parseValue<DateTime>(json, "ModifiedDate"),
+    tdsAmount: parseValue<double>(json, "TDSAmount"),
+    bookingType: parseValue<String>(json, "BookingType"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -168,5 +174,7 @@ class BrokerageModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "TDSAmount": tdsAmount,
+    "BookingType": bookingType,
   };
 }

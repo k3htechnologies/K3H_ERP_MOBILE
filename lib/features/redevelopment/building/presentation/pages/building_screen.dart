@@ -42,8 +42,11 @@ class _BuildingScreenState extends State<BuildingScreen> {
   final ScrollController scrollController = ScrollController();
 
   // TEXT EDITING CONTROLLER
-  late TextEditingController _searchC, _filterCTSNumberC;
-
+  late TextEditingController _searchC,
+      _filterCTSNumberC,
+      _filterRoadWidthC,
+      _filterCityC,
+      _filterVillageC;
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   @override
@@ -70,6 +73,9 @@ class _BuildingScreenState extends State<BuildingScreen> {
     _searchC.dispose();
     _filterCTSNumberC.dispose();
     _filterCount.dispose();
+    _filterRoadWidthC.dispose();
+    _filterCityC.dispose();
+    _filterVillageC.dispose();
     super.dispose();
   }
 
@@ -77,6 +83,9 @@ class _BuildingScreenState extends State<BuildingScreen> {
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
     _filterCTSNumberC = TextEditingController();
+    _filterRoadWidthC = TextEditingController();
+    _filterCityC = TextEditingController();
+    _filterVillageC = TextEditingController();
   }
 
   // PAGINATION
@@ -120,6 +129,11 @@ class _BuildingScreenState extends State<BuildingScreen> {
 
     _filterCTSNumberC.text = state.filterCTSNumber;
     _searchC.text = state.searchText;
+    _filterCTSNumberC.text = state.filterCTSNumber;
+    _filterRoadWidthC.text = state.filterRoadWidth;
+    _filterCityC.text = state.filterCity;
+    _filterVillageC.text = state.filterVillage;
+    _searchC.text = state.searchText;
     String? selectedDirection =
         state.currentSortColumn == "Building Name"
             ? state.currentSortDirection
@@ -127,8 +141,10 @@ class _BuildingScreenState extends State<BuildingScreen> {
 
     final String initialBuildingName = _searchC.text;
     final String initialCTSNumber = _filterCTSNumberC.text;
+    final String initialRoadWidth = _filterRoadWidthC.text;
+    final String initialCity = _filterCityC.text;
+    final String initialVillage = _filterVillageC.text;
     final String? initialDirection = selectedDirection;
-
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     bool applied = false;
@@ -138,7 +154,11 @@ class _BuildingScreenState extends State<BuildingScreen> {
         manualClose =
             (_searchC.text.trim() != initialBuildingName) ||
             (_filterCTSNumberC.text.trim() != initialCTSNumber) ||
+            (_filterRoadWidthC.text.trim() != initialRoadWidth) ||
+            (_filterCityC.text.trim() != initialCity) ||
+            (_filterVillageC.text.trim() != initialVillage) ||
             (selectedDirection != initialDirection);
+
         applyEnabled.value = manualClose;
       });
     }
@@ -156,6 +176,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
           }
 
           return SingleChildScrollView(
+            padding: EdgeInsets.only(right: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -216,6 +237,26 @@ class _BuildingScreenState extends State<BuildingScreen> {
                   textController: _filterCTSNumberC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
+                CustomTextField(
+                  title: "Road Width",
+                  hint: "Enter Road Width",
+                  textController: _filterRoadWidthC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
+                CustomTextField(
+                  title: "City",
+                  hint: "Enter City",
+                  textController: _filterCityC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+
+                CustomTextField(
+                  title: "Village",
+                  hint: "Enter Village",
+                  textController: _filterVillageC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
                 verticalSpacing(),
               ],
             ),
@@ -226,8 +267,11 @@ class _BuildingScreenState extends State<BuildingScreen> {
         _buildingCubit.applyFilterAndSort(
           context: context,
           projectId: _project.projectId,
-          filterCTSNumber: "",
           filterBuildingName: "",
+          filterCTSNumber: "",
+          filterRoadWidth: "",
+          filterCity: "",
+          filterVillage: "",
           sortColumn: "Created Date",
           sortDirection: "DESC",
         );
@@ -236,9 +280,12 @@ class _BuildingScreenState extends State<BuildingScreen> {
         applied = true;
         _buildingCubit.applyFilterAndSort(
           context: context,
+          projectId: _project.projectId,
           filterBuildingName: _searchC.text,
           filterCTSNumber: _filterCTSNumberC.text,
-          projectId: _project.projectId,
+          filterRoadWidth: _filterRoadWidthC.text,
+          filterCity: _filterCityC.text,
+          filterVillage: _filterVillageC.text,
           sortColumn: selectedDirection != null ? "Building Name" : null,
           sortDirection: selectedDirection,
         );
@@ -251,6 +298,9 @@ class _BuildingScreenState extends State<BuildingScreen> {
     if (!applied && manualClose) {
       _searchC.clear();
       _filterCTSNumberC.clear();
+      _filterRoadWidthC.clear();
+      _filterCityC.clear();
+      _filterVillageC.clear();
     }
   }
 
@@ -291,81 +341,63 @@ class _BuildingScreenState extends State<BuildingScreen> {
             _showBottomSheetToFilterBuilding(context);
           },
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: BlocBuilder<BuildingCubit, BuildingState>(
-                key: ValueKey('building_list_${_project.projectId}'),
-                bloc: _buildingCubit,
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            children: [
+              BlocBuilder<BuildingCubit, BuildingState>(
                 builder: (context, state) {
-                  if (state.isLoading == true && state.buildingList.isEmpty) {
-                    return Center(child: loader());
-                  }
-                  if (state.buildingList.isEmpty) {
-                    return Center(
-                      child: noDataWidget(message: "No Buildings Data Found"),
-                    );
-                  }
-                  return ListView.builder(
-                    controller: scrollController,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    itemCount: state.buildingList.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index == state.buildingList.length) {
-                        return state.buildingList.length <
-                                state.totalNumberOfRecord
-                            ? const Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Center(child: CircularProgressIndicator()),
-                            )
-                            : const SizedBox.shrink();
-                      }
-                      var building = state.buildingList[index];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.all(12),
-                        decoration: commonCardDecoration(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              spacing: 10,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      goRouter.pushNamed(
-                                        AppRoutes.viewBuilding,
-                                        queryParameters: {
-                                          "building": Uri.encodeQueryComponent(
-                                            EncryptionManager.encryptData(
-                                              jsonEncode(building.toJson()),
-                                            ),
-                                          ),
-                                        },
-                                      );
-                                    },
-                                    child: Text(
-                                      building.buildingName,
-                                      style: AppTextStyle.ts16M(
-                                        color: AppColor.primary,
-                                      ).copyWith(
-                                        decoration: TextDecoration.underline,
-                                        decorationColor: AppColor.primary,
-                                      ),
-                                    ),
-                                  ),
+                  return showSiteSelectedWidget(
+                    projectName: _project.projectName,
+                  );
+                },
+              ),
+              Expanded(
+                child: BlocBuilder<BuildingCubit, BuildingState>(
+                  key: ValueKey('building_list_${_project.projectId}'),
+                  bloc: _buildingCubit,
+                  builder: (context, state) {
+                    if (state.isLoading == true && state.buildingList.isEmpty) {
+                      return Center(child: loader());
+                    }
+                    if (state.buildingList.isEmpty) {
+                      return Center(
+                        child: noDataWidget(message: "No Buildings Data Found"),
+                      );
+                    }
+                    return ListView.builder(
+                      controller: scrollController,
+                      itemCount: state.buildingList.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == state.buildingList.length) {
+                          return state.buildingList.length <
+                                  state.totalNumberOfRecord
+                              ? const Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
                                 ),
-                                Row(
-                                  children: [
-                                    CustomIconButton.edit(
-                                      onPressed: () async {
-                                        await goRouter.pushNamed(
-                                          AppRoutes.addBuilding,
+                              )
+                              : const SizedBox.shrink();
+                        }
+                        var building = state.buildingList[index];
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.all(12),
+                          decoration: commonCardDecoration(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                spacing: 10,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Flexible(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        goRouter.pushNamed(
+                                          AppRoutes.viewBuilding,
                                           queryParameters: {
                                             "building":
                                                 Uri.encodeQueryComponent(
@@ -375,58 +407,89 @@ class _BuildingScreenState extends State<BuildingScreen> {
                                                     ),
                                                   ),
                                                 ),
-                                            'index': index.toString(),
-                                            'projectId':
-                                                _project.projectId.toString(),
                                           },
                                         );
                                       },
+                                      child: Text(
+                                        building.buildingName,
+                                        style: AppTextStyle.ts16M(
+                                          color: AppColor.primary,
+                                        ),
+                                      ),
                                     ),
-                                    const SizedBox(width: 8),
-                                    CustomIconButton.delete(
-                                      onPressed: () {
-                                        _showPopupToDeleteBuilding(
-                                          context,
-                                          building,
-                                          state.currentPage,
-                                          index,
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            verticalSpacing(height: 8),
-                            buildRowTitleValue(
-                              title: "CTS Number",
-                              value: building.ctsNumber,
-                            ),
-                            buildRowTitleValue(
-                              title: "Total Plot Area(Sq. ft)",
-                              value: building.totalPlotAreaSqFt.toString(),
-                            ),
-                            buildRowTitleValue(
-                              title: "Road Width",
-                              value: building.roadWidth,
-                            ),
-                            buildRowTitleValue(
-                              title: "Total Floor",
-                              value: building.numberOfFloors.toString(),
-                            ),
-                            buildRowTitleValue(
-                              title: "Total Units",
-                              value: building.totalNumberOfUnits.toString(),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
+                                  ),
+                                  Row(
+                                    children: [
+                                      CustomIconButton.edit(
+                                        isDisabled:
+                                            !_routeAuthorizationModel.isAction,
+                                        onPressed: () async {
+                                          await goRouter.pushNamed(
+                                            AppRoutes.addBuilding,
+                                            queryParameters: {
+                                              "building":
+                                                  Uri.encodeQueryComponent(
+                                                    EncryptionManager.encryptData(
+                                                      jsonEncode(
+                                                        building.toJson(),
+                                                      ),
+                                                    ),
+                                                  ),
+                                              'index': index.toString(),
+                                              'projectId':
+                                                  _project.projectId.toString(),
+                                            },
+                                          );
+                                        },
+                                      ),
+                                      const SizedBox(width: 8),
+                                      CustomIconButton.delete(
+                                        isDisabled:
+                                            !_routeAuthorizationModel.isAction,
+                                        onPressed: () {
+                                          _showPopupToDeleteBuilding(
+                                            context,
+                                            building,
+                                            state.currentPage,
+                                            index,
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              verticalSpacing(height: 8),
+                              buildRowTitleValue(
+                                title: "CTS Number",
+                                value: building.ctsNumber,
+                              ),
+                              buildRowTitleValue(
+                                title: "Total Plot Area(Sq. ft)",
+                                value: building.totalPlotAreaSqFt.toString(),
+                              ),
+                              buildRowTitleValue(
+                                title: "Road Width",
+                                value: building.roadWidth,
+                              ),
+                              buildRowTitleValue(
+                                title: "Total Floor",
+                                value: building.numberOfFloors.toString(),
+                              ),
+                              buildRowTitleValue(
+                                title: "Total Units",
+                                value: building.totalNumberOfUnits.toString(),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

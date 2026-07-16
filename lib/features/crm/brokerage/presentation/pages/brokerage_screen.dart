@@ -146,9 +146,7 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
     _endDateNotifier.value = s.filterByToDate;
 
     String? selectedDirection =
-        s.currentSortColumn == "ChannelPartnerName"
-            ? s.currentSortDirection
-            : null;
+        s.currentSortColumn == "CP Name" ? s.currentSortDirection : null;
     final String? initialDirection = selectedDirection;
     bool manualClose = false;
     bool applied = false;
@@ -462,7 +460,7 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
           filterAgreementValue:
               double.tryParse(_filterAgreementValueC.text.trim()) ?? 0,
           filterBookingType: _filterBookingTypeC.text.trim(),
-          sortColumn: selectedDirection != null ? "ChannelPartnerName" : null,
+          sortColumn: selectedDirection != null ? "CP Name" : null,
           sortDirection: selectedDirection,
         );
       },
@@ -613,10 +611,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                             brokerage.channelPartnerName,
                                             style: AppTextStyle.ts16M(
                                               color: AppColor.primary,
-                                            ).copyWith(
-                                              decoration:
-                                                  TextDecoration.underline,
-                                              decorationColor: AppColor.primary,
                                             ),
                                           ),
                                         ),
@@ -705,7 +699,11 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                                 brokerage.paymentPaidAmount)
                                             .toIndianCurrency(),
                                   ),
-
+                                  buildRowTitleValue(
+                                    title: "TDS Amount",
+                                    value:
+                                        brokerage.tdsAmount.toIndianCurrency(),
+                                  ),
                                   verticalSpacing(height: 10),
                                   ExpansionTile(
                                     tilePadding: const EdgeInsets.symmetric(
@@ -749,12 +747,21 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                             Row(
                                               children: [
                                                 buildColumnTitleValue(
+                                                  title: "Booking Type",
+                                                  value: brokerage.bookingType,
+                                                ),
+                                                horizontalSpacing(),
+                                                buildColumnTitleValue(
                                                   title: "Building",
                                                   value:
                                                       brokerage.buildingNumber,
                                                 ),
+                                              ],
+                                            ),
+                                            verticalSpacing(),
 
-                                                horizontalSpacing(),
+                                            Row(
+                                              children: [
                                                 buildColumnTitleValue(
                                                   title: "Wing",
                                                   value:
@@ -762,36 +769,32 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                                           ? "-"
                                                           : brokerage.wing,
                                                 ),
-                                              ],
-                                            ),
-                                            verticalSpacing(),
-
-                                            Row(
-                                              children: [
+                                                horizontalSpacing(),
                                                 buildColumnTitleValue(
                                                   title: "Flat",
                                                   value: brokerage.flat,
                                                 ),
-
-                                                horizontalSpacing(),
-                                                buildColumnTitleValue(
-                                                  title: "Type",
-                                                  value: brokerage.flatType,
-                                                ),
                                               ],
                                             ),
                                             verticalSpacing(),
 
                                             Row(
                                               children: [
+                                                buildColumnTitleValue(
+                                                  title: "Type",
+                                                  value: brokerage.flatType,
+                                                ),
+                                                horizontalSpacing(),
                                                 buildColumnTitleValue(
                                                   title: "Configuration",
                                                   value:
                                                       brokerage
                                                           .flatConfiguration,
                                                 ),
-
-                                                horizontalSpacing(),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
                                                 buildColumnTitleValue(
                                                   title:
                                                       "RERA Carpet Area (Sq FT)",

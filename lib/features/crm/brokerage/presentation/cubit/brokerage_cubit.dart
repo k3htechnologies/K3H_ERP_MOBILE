@@ -707,7 +707,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
 
   int updateFilterCount(BrokerageState state) {
     final hasSort =
-        state.currentSortColumn == "ChannelPartnerName" &&
+        state.currentSortColumn == "CP Name" &&
         (state.currentSortDirection == "ASC" ||
             state.currentSortDirection == "DESC");
     return getActiveFilterCount([

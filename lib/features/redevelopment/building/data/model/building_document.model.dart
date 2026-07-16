@@ -14,6 +14,7 @@ class BuildingDocumentModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  String documentRemark;
 
   BuildingDocumentModel({
     required this.buildingDocumentId,
@@ -29,6 +30,7 @@ class BuildingDocumentModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.documentRemark,
   });
 
   factory BuildingDocumentModel.fromJson(Map<String, dynamic> json) =>
@@ -39,7 +41,10 @@ class BuildingDocumentModel {
         projectId: parseValue<int>(json, "ProjectId"),
         documentName: parseValue<String>(json, "DocumentName"),
         documentURL: parseValue<String>(json, "DocumentURL"),
-        uploadedBuildingDocumentCount: parseValue<int>(json, "UploadedBuildingDocumentCount"),
+        uploadedBuildingDocumentCount: parseValue<int>(
+          json,
+          "UploadedBuildingDocumentCount",
+        ),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
         createdDate:
@@ -52,6 +57,7 @@ class BuildingDocumentModel {
             json["ModifiedDate"] == null
                 ? null
                 : parseValue<DateTime>(json, "ModifiedDate"),
+        documentRemark: parseValue<String>(json, "DocumentRemark"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -68,53 +74,6 @@ class BuildingDocumentModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "DocumentRemark": documentRemark,
   };
-
-  factory BuildingDocumentModel.empty() => BuildingDocumentModel(
-    buildingDocumentId: -1,
-    uniquekey: '',
-    buildingId: -1,
-    projectId: -1,
-    documentName: '',
-    documentURL: '',
-    uploadedBuildingDocumentCount: 0,
-    createdById: -1,
-    createdBy: '',
-    createdDate: DateTime.now(),
-    modifiedById: -1,
-    modifiedBy: '',
-    modifiedDate: null,
-  );
-
-  BuildingDocumentModel copyWith({
-    int? buildingDocumentId,
-    String? uniquekey,
-    int? buildingId,
-    int? projectId,
-    String? documentName,
-    String? documentURL,
-    int? uploadedBuildingDocumentCount,
-    int? createdById,
-    String? createdBy,
-    DateTime? createdDate,
-    int? modifiedById,
-    String? modifiedBy,
-    DateTime? modifiedDate,
-  }) {
-    return BuildingDocumentModel(
-      buildingDocumentId: buildingDocumentId ?? this.buildingDocumentId,
-      uniquekey: uniquekey ?? this.uniquekey,
-      buildingId: buildingId ?? this.buildingId,
-      projectId: projectId ?? this.projectId,
-      documentName: documentName ?? this.documentName,
-      documentURL: documentURL ?? this.documentURL,
-      uploadedBuildingDocumentCount: uploadedBuildingDocumentCount ?? this.uploadedBuildingDocumentCount,
-      createdById: createdById ?? this.createdById,
-      createdBy: createdBy ?? this.createdBy,
-      createdDate: createdDate ?? this.createdDate,
-      modifiedById: modifiedById ?? this.modifiedById,
-      modifiedBy: modifiedBy ?? this.modifiedBy,
-      modifiedDate: modifiedDate ?? this.modifiedDate,
-    );
-  }
 }

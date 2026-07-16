@@ -50,6 +50,12 @@ abstract interface class BuildingRepository {
     required String uniqueKey,
     required int projectId,
   });
+  Future<Either<Failure, Map<String, dynamic>>> deleteBuildingDocument({
+    required int buildingId,
+    required String uniqueKey,
+    required int projectId,
+    required int buildingDocumentId,
+  });
 }
 
 class BuildingRepositoryImpl implements BuildingRepository {
@@ -123,8 +129,10 @@ class BuildingRepositoryImpl implements BuildingRepository {
     required List<Map<String, dynamic>> fileList,
   }) async {
     try {
-      var result = await buildingDatasource
-          .apicallAddUpdateBuildingDocument(body: body, fileList: fileList);
+      var result = await buildingDatasource.apicallAddUpdateBuildingDocument(
+        body: body,
+        fileList: fileList,
+      );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -190,6 +198,26 @@ class BuildingRepositoryImpl implements BuildingRepository {
         buildingId: buildingId,
         uniqueKey: uniqueKey,
         projectId: projectId,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteBuildingDocument({
+    required int buildingId,
+    required String uniqueKey,
+    required int projectId,
+    required int buildingDocumentId,
+  }) async {
+    try {
+      var result = await buildingDatasource.apicallDeleteBuildingDocument(
+        buildingId: buildingId,
+        uniqueKey: uniqueKey,
+        projectId: projectId,
+        buildingDocumentId: buildingDocumentId,
       );
       return right(result);
     } catch (error) {

@@ -16,6 +16,7 @@ class AopAchievementReportModel {
   final int ipcObm;
   final int icpObm;
   final int rcpObm;
+  final String type;
 
   const AopAchievementReportModel({
     required this.channelPartnerId,
@@ -33,6 +34,7 @@ class AopAchievementReportModel {
     required this.ipcObm,
     required this.icpObm,
     required this.rcpObm,
+    required this.type,
   });
 
   factory AopAchievementReportModel.fromJson(Map<String, dynamic> json) {
@@ -55,6 +57,7 @@ class AopAchievementReportModel {
       ipcObm: parseValue<int>(json, "IPC_OBM"),
       icpObm: parseValue<int>(json, "ICP_OBM"),
       rcpObm: parseValue<int>(json, "RCP_OBM"),
+      type: parseValue<String>(json, "Type"),
     );
   }
 
@@ -78,6 +81,7 @@ class AopAchievementReportModel {
       "IPC_OBM": ipcObm,
       "ICP_OBM": icpObm,
       "RCP_OBM": rcpObm,
+      "Type": type,
     };
   }
 
@@ -88,18 +92,4 @@ class AopAchievementReportModel {
 
   /// Total IBM + OBM
   int get totalIbmObm => totalIbm + totalObm;
-
-  /// Detect Channel Partner Category
-  String get partnerType {
-    if (ipcIbm > 0 || ipcObm > 0) {
-      return "IPC";
-    }
-    if (icpIbm > 0 || icpObm > 0) {
-      return "ICP";
-    }
-    if (rcpIbm > 0 || rcpObm > 0) {
-      return "RCP";
-    }
-    return "";
-  }
 }

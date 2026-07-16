@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:k3h_erp_app/core/services/app_call_tracker_service.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -13,7 +13,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-enum ContactType { phone, email, landLine }
+enum ContactType { phone, email, landLine, url }
 
 class CustomClickToContactText extends StatelessWidget {
   final String value;
@@ -38,7 +38,6 @@ class CustomClickToContactText extends StatelessWidget {
 
     if (trimmed.isEmpty) return '';
 
-    // Landline should be shown as-is
     if (type == ContactType.landLine) {
       return trimmed;
     }
@@ -108,8 +107,16 @@ class CustomClickToContactText extends StatelessWidget {
         service.setPendingCall(phoneNumber);
         service.forceStartCall(phoneNumber);
       } catch (_) {}
-    } else {
+    } else if (type == ContactType.email) {
       uri = Uri(scheme: 'mailto', path: value.trim());
+    } else {
+      // URL / Google Map / Website
+      try {
+        uri = Uri.parse(value.trim());
+      } catch (_) {
+        debugPrint("Invalid URL: $value");
+        return;
+      }
     }
 
     if (await canLaunchUrl(uri)) {
@@ -122,24 +129,45 @@ class CustomClickToContactText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final displayValue =
-        type == ContactType.email ? value.trim() : _getFormattedPhoneNumber();
+        (type == ContactType.email || type == ContactType.url)
+            ? value.trim()
+            : _getFormattedPhoneNumber();
+
     if (displayValue.isEmpty) {
       return Text(
         "-",
-        style: textStyle ?? const TextStyle(fontSize: 14, color: Colors.black),
+        style: textStyle ?? AppTextStyle.ts14M(color: AppColor.black),
       );
+    }
+
+    Widget? icon;
+
+    switch (type) {
+      case ContactType.phone:
+      case ContactType.landLine:
+        icon = SvgPicture.asset(AppAssets.phoneIcon, height: 16.h, width: 16.w);
+        break;
+
+      case ContactType.email:
+        icon = SvgPicture.asset(AppAssets.mailIcon, height: 16.h, width: 16.w);
+        break;
+
+      case ContactType.url:
+        // icon = const Icon(
+        //   Icons.location_on_outlined,
+        //   size: 16,
+        //   color: AppColor.primary,
+        // );
+        break;
     }
 
     return InkWell(
       onTap: () => launchContact(context),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          (type == ContactType.phone || type == ContactType.landLine)
-              ? SvgPicture.asset(AppAssets.phoneIcon, height: 16.h, width: 16.w)
-              : SvgPicture.asset(AppAssets.mailIcon, height: 16.h, width: 16.w),
-          horizontalSpacing(width: 6.w),
+          if (icon != null) ...[icon, horizontalSpacing(width: 6.w)],
           Flexible(
             child: Text(
               displayValue,

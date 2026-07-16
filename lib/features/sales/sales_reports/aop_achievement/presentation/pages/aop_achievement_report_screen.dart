@@ -429,9 +429,7 @@ class _AopAchievementReportScreenState extends State<AopAchievementReportScreen>
                                     ),
                                   ),
                                   channelPartnerCategoryStatusWidget(
-                                    achievement.partnerType,
-                                    showDashWhenEmpty:
-                                        achievement.partnerType.isNotEmpty,
+                                    achievement.type,
                                   ),
                                 ],
                               ),

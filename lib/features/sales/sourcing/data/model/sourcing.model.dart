@@ -61,13 +61,13 @@ class SourcingModel {
       createdDate:
           json["CreatedDate"] == null
               ? null
-              : DateTime.tryParse(json["CreatedDate"].toString()),
+              : parseValue<DateTime>(json, "CreatedDate"),
       modifiedById: parseValue<int>(json, "ModifiedById"),
       modifiedBy: parseValue<String>(json, "ModifiedBy"),
       modifiedDate:
           json["ModifiedDate"] == null
               ? null
-              : DateTime.tryParse(json["ModifiedDate"].toString()),
+              : parseValue<DateTime>(json, "ModifiedDate"),
     );
   }
 

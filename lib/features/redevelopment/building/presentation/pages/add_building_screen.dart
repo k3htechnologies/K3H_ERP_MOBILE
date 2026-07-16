@@ -259,7 +259,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
             children: [
               Text(
                 _isEditMode ? "Update Building" : "Add Building",
-                style: AppTextStyle.ts16SB(),
+                style: AppTextStyle.ts14M(),
               ),
               verticalSpacing(),
               Container(
@@ -496,23 +496,26 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                               ],
                             ),
                             verticalSpacing(),
-                            if (_isGarden)
-                              CustomTextField(
-                                textController: _totalGardenAreaC,
-                                isRequired: true,
-                                title: 'Garden Area (Sq Ft)',
-                                keyboardType: TextInputType.number,
-                                inputFormatterList:
-                                    inputFormatterListForDecimalValuesFixedToTwo(
-                                      7,
-                                    ),
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'Garden Area is required';
-                                  }
-                                  return null;
-                                },
-                              ),
+
+                            CustomTextField(
+                              textController: _totalGardenAreaC,
+                              isRequired: _isGarden,
+                              readOnly: !_isGarden,
+                              title: 'Garden Area (Sq Ft)',
+                              hint: 'Enter Garden Area (Sq Ft)',
+                              keyboardType: TextInputType.number,
+                              inputFormatterList:
+                                  inputFormatterListForDecimalValuesFixedToTwo(
+                                    7,
+                                  ),
+                              validator: (value) {
+                                if ((value == null || value.trim().isEmpty) &&
+                                    _isGarden) {
+                                  return 'Garden Area is required';
+                                }
+                                return null;
+                              },
+                            ),
                           ],
                         );
                       },
@@ -540,23 +543,25 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                               ],
                             ),
                             verticalSpacing(),
-                            if (_isReligiousStructure)
-                              CustomTextField(
-                                isRequired: true,
-                                textController: _totalReligiousStructureAreaC,
-                                title: 'Religious Structure Area (Sq Ft)',
-                                keyboardType: TextInputType.number,
-                                inputFormatterList:
-                                    inputFormatterListForDecimalValuesFixedToTwo(
-                                      7,
-                                    ),
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'Religious Structure Area is required';
-                                  }
-                                  return null;
-                                },
-                              ),
+                            CustomTextField(
+                              isRequired: _isReligiousStructure,
+                              readOnly: !_isReligiousStructure,
+                              textController: _totalReligiousStructureAreaC,
+                              title: 'Religious Structure Area (Sq Ft)',
+                              hint: 'Enter Religious Structure Area (Sq Ft)',
+                              keyboardType: TextInputType.number,
+                              inputFormatterList:
+                                  inputFormatterListForDecimalValuesFixedToTwo(
+                                    7,
+                                  ),
+                              validator: (value) {
+                                if ((value == null || value.trim().isEmpty) &&
+                                    _isReligiousStructure) {
+                                  return 'Religious Structure Area is required';
+                                }
+                                return null;
+                              },
+                            ),
                           ],
                         );
                       },
@@ -581,24 +586,25 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                               ],
                             ),
                             verticalSpacing(),
-                            if (_isLitigation)
-                              CustomTextField(
-                                isRequired: true,
-                                textController: _litigationRemarksC,
-                                title: 'Litigation Remarks',
-                                inputFormatterList: InputValidator.textDigit(
-                                  500,
-                                ),
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
+                            CustomTextField(
+                              isRequired: _isLitigation,
+                              textController: _litigationRemarksC,
+                              title: 'Litigation Remarks',
+                              readOnly: !_isLitigation,
+                              hint: 'Enter Litigation Remarks',
+                              inputFormatterList: InputValidator.textDigit(500),
+                              validator: (value) {
+                                if (_isLitigation) {
+                                  if ((value == null || value.trim().isEmpty)) {
                                     return 'Litigation remark is required';
                                   }
                                   if (value.trim().length < 10) {
                                     return 'Litigation remarks must be at least 10 characters';
                                   }
-                                  return null;
-                                },
-                              ),
+                                }
+                                return null;
+                              },
+                            ),
                           ],
                         );
                       },

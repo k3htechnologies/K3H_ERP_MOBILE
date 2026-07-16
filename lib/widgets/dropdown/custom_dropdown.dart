@@ -77,18 +77,28 @@ class CustomDropDownWidget extends StatelessWidget {
                     ),
                     hintText: hintText ?? 'Select',
                     decoration: CustomDropdownDecoration(
+                      closedSuffixIcon: Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        color:
+                            isDisabled
+                                ? AppColor.grey.withValues(alpha: 0.3)
+                                : AppColor.black.withValues(alpha: 0.7),
+                      ),
                       closedFillColor:
                           isDisabled
-                              ? AppColor.grey.withValues(alpha: 0.1)
+                              ? AppColor.lightGrey.withValues(alpha: 0.3)
                               : Colors.white,
 
                       expandedFillColor:
                           isDisabled
-                              ? AppColor.grey.withValues(alpha: 0.1)
+                              ? AppColor.lightGrey.withValues(alpha: 0.3)
                               : Colors.white,
 
                       hintStyle: AppTextStyle.ts14R().copyWith(
-                        color: AppColor.grey,
+                        color:
+                            isDisabled
+                                ? AppColor.grey.withValues(alpha: 0.5)
+                                : AppColor.grey,
                       ),
                       expandedBorderRadius: BorderRadius.circular(6),
                       closedBorderRadius: BorderRadius.circular(6),
@@ -99,10 +109,10 @@ class CustomDropDownWidget extends StatelessWidget {
                       ),
                       closedBorder: Border.all(
                         color:
-                            isDisabled
-                                ? AppColor.grey.withValues(alpha: 0.3)
-                                : hasError
+                            hasError
                                 ? AppColor.error
+                                : isDisabled
+                                ? AppColor.grey.withValues(alpha: 0.1)
                                 : AppColor.grey30,
                         width: 1.0,
                       ),

@@ -22,6 +22,7 @@ class AppColor {
   static const Color lightGreyBackground = Color(0xFFF9FAFB); // BACKGROUND
   static const Color darkPurple = Color(0xFF570C57); // BACKGROUND
   static const Color purple = Color(0xFF8A38F5); // BOTTOM SHEET BACKGROUND
+  static const Color purple700 = Color(0xFF6D28D9);
   static const Color purple20 = Color(0x338A38F5);
   static const Color priorityHighColor = Color(0xFFB91C1C);
 
@@ -40,6 +41,7 @@ class AppColor {
   static const Color grey2 = Color(0xFFD4D4D4); // GREY
   static const Color grey5 = Color(0x138F8F8F);
   static const Color grey10 = Color(0x1A8F8F8F); // GREY WITH 10% OPACITY
+  static const Color grey20 = Color(0x338F8F8F); // GREY WITH 20% OPACITY
   static const Color grey30 = Color(0x4D8F8F8F); // GREY WITH 30% OPACITY
   static const Color grey50 = Color(0x7F8F8F8F); // GREY WITH 50% OPACITY
   static const Color lightGrey = Color(0xFFEEEEEE); // LIGHT GREY

@@ -76,12 +76,25 @@ Widget aopStatusWidget(
 Widget channelPartnerCategoryStatusWidget(
   String status, {
   TextStyle? textStyle,
-  bool showDashWhenEmpty = true,
 }) {
+  String localStatus = '';
+  switch (status.toLowerCase()) {
+    case String s when s.contains('ipc'):
+      localStatus = "IPC";
+      break;
+
+    case String s when s.contains('icp'):
+      localStatus = "ICP";
+      break;
+    case String s when s.contains('rcp'):
+      localStatus = "RCP";
+      break;
+    default:
+      break;
+  }
   return commonStatusWidget(
-    status: status,
+    status: localStatus,
     config: channelPartnerCategoryStatusConfig,
     textStyle: textStyle,
-    showDashWhenEmpty: showDashWhenEmpty,
   );
 }

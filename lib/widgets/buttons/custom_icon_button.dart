@@ -67,7 +67,7 @@ class CustomIconButton extends StatelessWidget {
          icon: Icon(
            Icons.add,
            size: 16,
-           color: isDisabled ? AppColor.grey2 : AppColor.black,
+           color: isDisabled ? AppColor.grey2 : AppColor.primary,
          ),
          backgroundColor:
              isDisabled ? AppColor.lightGreyBackground : AppColor.lightBlue,
@@ -99,10 +99,7 @@ class CustomIconButton extends StatelessWidget {
       onTap: isDisable ? null : onPressed,
       child: Container(
         decoration: BoxDecoration(
-          color:
-              isDisable
-                  ? AppColor.grey2.withValues(alpha: 0.2)
-                  : backgroundColor,
+          color: isDisable ? AppColor.lightGreyBackground : backgroundColor,
           borderRadius: BorderRadius.circular(8),
         ),
         padding: const EdgeInsets.all(6),
