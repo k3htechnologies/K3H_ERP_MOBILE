@@ -1,33 +1,41 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/corpus_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
+import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
-import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class CorpusDetails extends StatefulWidget {
+class HardshipDetails extends StatefulWidget {
   final int projectId;
   final int buildingId;
-  const CorpusDetails({
+  final ValueChanged<VoidCallback> onSave;
+  const HardshipDetails({
     super.key,
     required this.projectId,
     required this.buildingId,
+    required this.onSave,
   });
 
   @override
-  State<CorpusDetails> createState() => _CorpusDetailsState();
+  State<HardshipDetails> createState() => _HardshipDetailsState();
 }
 
-class _CorpusDetailsState extends State<CorpusDetails> {
+class _HardshipDetailsState extends State<HardshipDetails> {
   // CUBIT
   late ProposedOfferCubit _cubit;
 
@@ -35,34 +43,22 @@ class _CorpusDetailsState extends State<CorpusDetails> {
   final _formKey = GlobalKey<FormState>();
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _residentialAmountController;
-  late TextEditingController _commercialAmountController;
-  final List<Map<String, dynamic>> _litigationTypeList = [
-    {'zAttributesId': 1, 'DisplayName': 'Residential'},
-    {'zAttributesId': 2, 'DisplayName': 'Commercial'},
-  ];
+  late TextEditingController _residentialAmountC, _commercialAmountC, _remarkC;
 
-  final ValueNotifier<List<ProposedOfferCorpusDetailsWithPaymentStageData>>
+  final ValueNotifier<List<ProposedOfferHardshipDetailsWithPaymentStageData>>
   _corpusListNotifier =
-      ValueNotifier<List<ProposedOfferCorpusDetailsWithPaymentStageData>>([]);
+      ValueNotifier<List<ProposedOfferHardshipDetailsWithPaymentStageData>>([]);
 
-  List<ProposedOfferCorpusDetailsWithPaymentStageData> get _corpusList =>
+  List<ProposedOfferHardshipDetailsWithPaymentStageData> get _corpusList =>
       _corpusListNotifier.value;
-
-  // LITIGATION FORM CONTROLLERS
-  final ValueNotifier<Map<String, dynamic>?> _selectedCorpusType =
-      ValueNotifier<Map<String, dynamic>?>(null);
-  late TextEditingController _stageController;
-  late TextEditingController _stagePercentageController;
-  late TextEditingController _amountController;
-  final GlobalKey<FormState> _corpusFormKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
     _initializeControllers();
-    _cubit.pullCorpusDetails(
+    widget.onSave(_onSave);
+    _cubit.pullHardshipDetails(
       projectId: widget.projectId,
       buildingId: widget.buildingId,
     );
@@ -70,100 +66,65 @@ class _CorpusDetailsState extends State<CorpusDetails> {
 
   @override
   void dispose() {
-    _residentialAmountController.dispose();
-    _commercialAmountController.dispose();
-    _stageController.dispose();
-    _stagePercentageController.dispose();
-    _amountController.dispose();
+    _residentialAmountC.dispose();
+    _commercialAmountC.dispose();
     _corpusListNotifier.dispose();
-    _selectedCorpusType.dispose();
+    _remarkC.dispose();
     super.dispose();
   }
 
   // INITIALIZE CONTROLLERS
   void _initializeControllers() {
-    _residentialAmountController = TextEditingController();
-    _commercialAmountController = TextEditingController();
-    _stageController = TextEditingController();
-    _stagePercentageController = TextEditingController();
-    _amountController = TextEditingController();
-  }
-
-  // CHECK IF AMOUNT EXCEEDS ALLOCATED LIMIT
-  bool _isAmountExceedingForSelectedType(int? editIndex) {
-    final selectedType = _selectedCorpusType.value;
-    if (selectedType == null) return false;
-
-    double limit = 0;
-    final typeId = selectedType['zAttributesId'];
-
-    if (typeId == 1) {
-      limit = double.tryParse(_residentialAmountController.text) ?? 0;
-    } else if (typeId == 2) {
-      limit = double.tryParse(_commercialAmountController.text) ?? 0;
-    }
-
-    double currentAmount = double.tryParse(_amountController.text) ?? 0;
-    double sum = currentAmount;
-
-    for (int i = 0; i < _corpusList.length; i++) {
-      if (editIndex != null && i == editIndex) continue;
-
-      final item = _corpusList[i];
-
-      if (item.type == selectedType['DisplayName']) {
-        sum += item.amount;
-      }
-    }
-
-    return sum > limit;
+    _residentialAmountC = TextEditingController();
+    _commercialAmountC = TextEditingController();
+    _remarkC = TextEditingController();
   }
 
   // FILL DATA
   void fillData() {
     var corpusDetailsModel = _cubit.state.corpusDetails!;
-    _residentialAmountController.text =
+    _residentialAmountC.text =
         corpusDetailsModel.corpusOfferedToResidentialAmount.toString();
-    _commercialAmountController.text =
+    _commercialAmountC.text =
         corpusDetailsModel.corpusOfferedToCommercialAmount.toString();
 
     _corpusListNotifier.value = List.from(
-      corpusDetailsModel.proposedOfferCorpusDetailsWithPaymentStageData,
+      corpusDetailsModel.proposedOfferHardshipDetailsWithPaymentStageData,
     );
+    _remarkC.text = corpusDetailsModel.remark;
   }
 
   // SAVE
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       if (_corpusList.isEmpty) {
-        showErrorMessage(context, 'Error', 'Please add at least one corpus.');
+        showErrorMessage(context, 'Error', 'Please add at least one hardship.');
         return;
       }
-      _cubit.addUpdateCorpusDetails(
+      _cubit.addUpdateHardshipDetails(
         context,
         buildingId: widget.buildingId,
         projectId: widget.projectId,
         corpusOfferedToResidentialAmount: double.parse(
-          _residentialAmountController.text,
+          _residentialAmountC.text,
         ),
-        corpusOfferedToCommercialAmount: double.parse(
-          _commercialAmountController.text,
-        ),
+        corpusOfferedToCommercialAmount: double.parse(_commercialAmountC.text),
         paymentStageList: _corpusList,
+        remark: _remarkC.text.trim(),
       );
     }
   }
 
   // HANDLE AMOUNT CHANGE
   void _handleResidentialAmountChange(double value) {
-    final newList = List<ProposedOfferCorpusDetailsWithPaymentStageData>.from(
+    final newList = List<ProposedOfferHardshipDetailsWithPaymentStageData>.from(
       _corpusList,
     );
     for (int i = 0; i < newList.length; i++) {
       if (newList[i].type == 'Residential') {
-        newList[i] = ProposedOfferCorpusDetailsWithPaymentStageData(
-          proposedOfferCorpusDetailsWithPaymentStageId:
-              newList[i].proposedOfferCorpusDetailsWithPaymentStageId,
+        newList[i] = ProposedOfferHardshipDetailsWithPaymentStageData(
+          proposedOfferHardshipDetailsWithPaymentStageId:
+              newList[i].proposedOfferHardshipDetailsWithPaymentStageId,
           uniquekey: newList[i].uniquekey,
           buildingId: newList[i].buildingId,
           projectId: newList[i].projectId,
@@ -177,6 +138,8 @@ class _CorpusDetailsState extends State<CorpusDetails> {
           modifiedById: newList[i].modifiedById,
           modifiedBy: newList[i].modifiedBy,
           modifiedDate: newList[i].modifiedDate,
+          unitSqFtLumsum: '',
+          carpetAreaSqFt: 0,
         );
       }
     }
@@ -185,14 +148,14 @@ class _CorpusDetailsState extends State<CorpusDetails> {
 
   // HANDLE AMOUNT CHANGE
   void _handleCommercialAmountChange(double value) {
-    final newList = List<ProposedOfferCorpusDetailsWithPaymentStageData>.from(
+    final newList = List<ProposedOfferHardshipDetailsWithPaymentStageData>.from(
       _corpusList,
     );
     for (int i = 0; i < newList.length; i++) {
       if (newList[i].type == 'Commercial') {
-        newList[i] = ProposedOfferCorpusDetailsWithPaymentStageData(
-          proposedOfferCorpusDetailsWithPaymentStageId:
-              newList[i].proposedOfferCorpusDetailsWithPaymentStageId,
+        newList[i] = ProposedOfferHardshipDetailsWithPaymentStageData(
+          proposedOfferHardshipDetailsWithPaymentStageId:
+              newList[i].proposedOfferHardshipDetailsWithPaymentStageId,
           uniquekey: newList[i].uniquekey,
           buildingId: newList[i].buildingId,
           projectId: newList[i].projectId,
@@ -206,270 +169,46 @@ class _CorpusDetailsState extends State<CorpusDetails> {
           modifiedById: newList[i].modifiedById,
           modifiedBy: newList[i].modifiedBy,
           modifiedDate: newList[i].modifiedDate,
+          unitSqFtLumsum: '',
+          carpetAreaSqFt: 0,
         );
       }
     }
     _corpusListNotifier.value = newList;
   }
 
-  // PREFILL BOTTOM SHEET
-  void _prefillBottomSheet(
-    ProposedOfferCorpusDetailsWithPaymentStageData corpus,
-  ) {
-    _selectedCorpusType.value = _litigationTypeList.firstWhere(
-      (e) => e['DisplayName'] == corpus.type,
-      orElse: () => _litigationTypeList.first,
-    );
-    _stageController.text = corpus.stage;
-    _stagePercentageController.text = corpus.stagePercentage.toString();
-    _amountController.text = corpus.amount.toString();
-  }
-
-  // CLEAR DIALOG
-  void _clearDialog() {
-    _selectedCorpusType.value = null;
-    _stageController.clear();
-    _stagePercentageController.clear();
-    _amountController.clear();
-  }
-
-  // SHOW CORPUS BOTTOM SHEET
-  Future<void> _showCorpusBottomSheet({
-    ProposedOfferCorpusDetailsWithPaymentStageData? corpus,
-    int? index,
-  }) async {
-    if (corpus != null) {
-      _prefillBottomSheet(corpus);
-    }
-
-    await DialogHelper.showCustomBottomSheet(
+  Future<void> _showPopupToDeleteHardshipData() async {
+    var result = await DialogHelper.deleteDialog(
       context,
-      "Corpus Details",
-      contentWidget: ValueListenableBuilder<Map<String, dynamic>?>(
-        valueListenable: _selectedCorpusType,
-        builder: (context, selectedCorpusType, _) {
-          return Form(
-            key: _corpusFormKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                /// TYPE
-                CustomDropDownWidget(
-                  isRequired: true,
-                  initialValue: selectedCorpusType,
-                  dataList: _litigationTypeList,
-                  onSelected: (value) {
-                    _selectedCorpusType.value = value;
-                    _amountController.text = '0.0';
-                    _stagePercentageController.text = '0.0';
-                  },
-                  title: "Type",
-                  hintText: "Select Type",
-                  validator: (value) {
-                    if (value == null || value['zAttributesId'] == -1) {
-                      return "Type is required";
-                    }
-                    return null;
-                  },
-                  onValueClear: () {
-                    _selectedCorpusType.value = null;
-                  },
-                ),
-
-                // STAGE
-                CustomTextField(
-                  title: "Stage",
-                  isRequired: true,
-                  hint: "Enter Stage",
-                  textController: _stageController,
-                  inputFormatterList: [LengthLimitingTextInputFormatter(150)],
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Stage is required";
-                    }
-                    return null;
-                  },
-                ),
-
-                // STAGE %
-                CustomTextField(
-                  title: "Stage Percentage (%)",
-                  isRequired: true,
-                  hint: "Enter Stage Percentage",
-                  textController: _stagePercentageController,
-                  keyboardType: TextInputType.number,
-                  inputFormatterList:
-                      inputFormatterListForDecimalValuesFixedToTwo(3),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Amount is required";
-                    }
-
-                    if (_isAmountExceedingForSelectedType(index)) {
-                      return "Amount exceeds allocated limit";
-                    }
-                    return null;
-                  },
-                  onChangeFunction: (value) {
-                    if (selectedCorpusType == null) {
-                      return;
-                    }
-
-                    double percentage = double.tryParse(value) ?? 0;
-
-                    if (selectedCorpusType['zAttributesId'] == 1) {
-                      _amountController.text =
-                          ((double.tryParse(
-                                        _residentialAmountController.text,
-                                      ) ??
-                                      0) *
-                                  percentage /
-                                  100)
-                              .toString();
-                    } else if (selectedCorpusType['zAttributesId'] == 2) {
-                      _amountController.text =
-                          ((double.tryParse(_commercialAmountController.text) ??
-                                      0) *
-                                  percentage /
-                                  100)
-                              .toString();
-                    }
-                  },
-                ),
-
-                // AMOUNT
-                CustomTextField(
-                  title: "Amount (₹)",
-                  textController: _amountController,
-                  hint: "Enter Amount",
-                  keyboardType: TextInputType.number,
-                  readOnly: true,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Amount is required";
-                    }
-
-                    double amount = double.tryParse(value) ?? 0;
-
-                    if (selectedCorpusType == null) {
-                      return "Type must be selected first";
-                    }
-
-                    if (selectedCorpusType['zAttributesId'] == 1 &&
-                        (double.tryParse(_residentialAmountController.text) ??
-                                0) ==
-                            0) {
-                      return "Residential amount is required";
-                    }
-
-                    if (selectedCorpusType['zAttributesId'] == 2 &&
-                        (double.tryParse(_commercialAmountController.text) ??
-                                0) ==
-                            0) {
-                      return "Commercial amount is required";
-                    }
-
-                    if (amount == 0) {
-                      return "Amount cannot be zero";
-                    }
-
-                    return null;
-                  },
-                ),
-
-                verticalSpacing(height: 15),
-              ],
-            ),
-          );
-        },
-      ),
-      bottomActions: ValueListenableBuilder<Map<String, dynamic>?>(
-        valueListenable: _selectedCorpusType,
-        builder: (context, selectedCorpusType, _) {
-          return CustomButton(
-            text: "Save",
-            onPressed: () {
-              if (_corpusFormKey.currentState!.validate()) {
-                if (selectedCorpusType!['zAttributesId'] == 1 &&
-                    (double.tryParse(_residentialAmountController.text) ?? 0) ==
-                        0) {
-                  showErrorMessage(
-                    context,
-                    'Error',
-                    'Residential amount is required.',
-                  );
-                  return;
-                }
-
-                if (selectedCorpusType['zAttributesId'] == 2 &&
-                    (double.tryParse(_commercialAmountController.text) ?? 0) ==
-                        0) {
-                  showErrorMessage(
-                    context,
-                    'Error',
-                    'Commercial amount is required.',
-                  );
-                  return;
-                }
-
-                final newList =
-                    List<ProposedOfferCorpusDetailsWithPaymentStageData>.from(
-                      _corpusList,
-                    );
-                if (corpus == null) {
-                  newList.add(
-                    ProposedOfferCorpusDetailsWithPaymentStageData(
-                      proposedOfferCorpusDetailsWithPaymentStageId: 0,
-                      uniquekey: '',
-                      buildingId: widget.buildingId,
-                      projectId: widget.projectId,
-                      type: selectedCorpusType['DisplayName'],
-                      stage: _stageController.text,
-                      stagePercentage: double.parse(
-                        _stagePercentageController.text,
-                      ),
-                      amount: double.parse(_amountController.text),
-                      createdById: 1,
-                      createdBy: 'Current User',
-                      createdDate: DateTime.now(),
-                      modifiedById: 0,
-                      modifiedBy: '',
-                      modifiedDate: null,
-                    ),
-                  );
-                } else {
-                  newList[index!] =
-                      ProposedOfferCorpusDetailsWithPaymentStageData(
-                        proposedOfferCorpusDetailsWithPaymentStageId:
-                            corpus.proposedOfferCorpusDetailsWithPaymentStageId,
-                        uniquekey: corpus.uniquekey,
-                        buildingId: corpus.buildingId,
-                        projectId: corpus.projectId,
-                        type: selectedCorpusType['DisplayName'],
-                        stage: _stageController.text,
-                        stagePercentage: double.parse(
-                          _stagePercentageController.text,
-                        ),
-                        amount: double.parse(_amountController.text),
-                        createdById: corpus.createdById,
-                        createdBy: corpus.createdBy,
-                        createdDate: corpus.createdDate,
-                        modifiedById: corpus.modifiedById,
-                        modifiedBy: corpus.modifiedBy,
-                        modifiedDate: corpus.modifiedDate,
-                      );
-                }
-
-                _corpusListNotifier.value = newList;
-                Navigator.pop(context);
-              }
-            },
-          );
-        },
-      ),
+      'You are about to delete a hardship payment stage?',
+      'Deleting this corpus payment stage will permanently remove all associated data.',
     );
+    if (result && context.mounted) {
+      _cubit.deleteHardshipDetails(
+        // ignore: use_build_context_synchronously
+        context: context,
+        projectId: widget.projectId,
+        buildingId: widget.buildingId,
+      );
+    }
+  }
 
-    _clearDialog();
+  Future<void> _showPopupToDeleteHardship(int index) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a hardship payment stage?',
+      'Deleting this corpus payment stage will permanently remove all associated data.',
+    );
+    if (result && context.mounted) {
+      final newList =
+          List<ProposedOfferHardshipDetailsWithPaymentStageData>.from(
+            _corpusList,
+          );
+      newList.removeAt(index);
+      _corpusListNotifier.value = newList;
+      // ignore: use_build_context_synchronously
+      showSuccessMessage(context, subTitle: 'Hardship Payment Stage Removed');
+    }
   }
 
   @override
@@ -480,13 +219,10 @@ class _CorpusDetailsState extends State<CorpusDetails> {
           if (state.corpusDetails != null) {
             fillData();
           } else {
-            _residentialAmountController.clear();
-            _commercialAmountController.clear();
-            _selectedCorpusType.value = null;
+            _residentialAmountC.clear();
+            _commercialAmountC.clear();
             _corpusListNotifier.value = [];
-            _stageController.clear();
-            _stagePercentageController.clear();
-            _amountController.clear();
+            _remarkC.clear();
           }
         },
         builder: (context, state) {
@@ -503,15 +239,29 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Corpus Details", style: AppTextStyle.ts16M()),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: ProposedOfferTile(
+                            icon: AppAssets.corpusDetailsIcon,
+                            title: "Hardship Details",
+                          ),
+                        ),
+                        CustomIconButton.delete(
+                          isDisabled: state.corpusDetails == null,
+                          onPressed: _showPopupToDeleteHardshipData,
+                        ),
+                      ],
+                    ),
                     verticalSpacing(height: 15),
                     Text(
-                      "Corpus Amount Details",
+                      "Hardship Amount Details",
                       style: AppTextStyle.ts14M(color: AppColor.grey),
                     ),
                     verticalSpacing(),
                     ValueListenableBuilder<
-                      List<ProposedOfferCorpusDetailsWithPaymentStageData>
+                      List<ProposedOfferHardshipDetailsWithPaymentStageData>
                     >(
                       valueListenable: _corpusListNotifier,
                       builder: (context, corpusList, _) {
@@ -526,10 +276,10 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                         return Column(
                           children: [
                             CustomTextField(
-                              title: "Residential Corpus Amount (₹)",
+                              title: "Residential Hardship Amount (₹)",
                               isRequired: true,
-                              hint: "Enter Residential Corpus Amount (₹)",
-                              textController: _residentialAmountController,
+                              hint: "Enter Residential Hardship Amount (₹)",
+                              textController: _residentialAmountC,
                               keyboardType: TextInputType.number,
                               readOnly: isResidentialReadOnly,
                               inputFormatterList:
@@ -552,10 +302,10 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                               },
                             ),
                             CustomTextField(
-                              title: "Commercial Corpus Amount (₹)",
+                              title: "Commercial Hardship Amount (₹)",
                               isRequired: true,
-                              hint: "Enter Commercial Corpus Amount (₹)",
-                              textController: _commercialAmountController,
+                              hint: "Enter Commercial Hardship Amount (₹)",
+                              textController: _commercialAmountC,
                               keyboardType: TextInputType.number,
                               readOnly: isCommercialReadOnly,
                               inputFormatterList:
@@ -577,6 +327,13 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                                 );
                               },
                             ),
+                            CustomTextField(
+                              title: "Remark",
+                              hint: "Enter Remark",
+                              textController: _remarkC,
+                              maxLines: 3,
+                              minLines: 3,
+                            ),
                           ],
                         );
                       },
@@ -589,17 +346,61 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Corpus List', style: AppTextStyle.ts16M()),
-                            CustomButton(
-                              onPressed: () => _showCorpusBottomSheet(),
-                              text: "Add Corpus",
-                              leading: Icon(Icons.add, color: AppColor.white),
+                            Text(
+                              'Hardship List',
+                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                            ),
+                            CustomIconButton.add(
+                              onPressed: () async {
+                                if (_commercialAmountC.text.isEmpty ||
+                                    _residentialAmountC.text.isEmpty) {
+                                  showErrorMessage(
+                                    context,
+                                    'Error',
+                                    'Please complete amount details',
+                                  );
+                                  return;
+                                }
+                                final result = await goRouter.pushNamed(
+                                  AppRoutes.addUpdateHardshipDetails,
+                                  extra: _corpusList,
+                                  queryParameters: {
+                                    'projectId': Uri.encodeComponent(
+                                      EncryptionManager.encryptData(
+                                        widget.projectId.toString(),
+                                      ),
+                                    ),
+                                    'buildingId': Uri.encodeComponent(
+                                      EncryptionManager.encryptData(
+                                        widget.buildingId.toString(),
+                                      ),
+                                    ),
+                                    'residentialAmount': Uri.encodeComponent(
+                                      EncryptionManager.encryptData(
+                                        _residentialAmountC.text.toString(),
+                                      ),
+                                    ),
+                                    'commercialAmount': Uri.encodeComponent(
+                                      EncryptionManager.encryptData(
+                                        _commercialAmountC.text.toString(),
+                                      ),
+                                    ),
+                                  },
+                                );
+                                if (result != null &&
+                                    result
+                                        is List<
+                                          ProposedOfferHardshipDetailsWithPaymentStageData
+                                        >) {
+                                  _corpusListNotifier.value = result;
+                                }
+                              },
                             ),
                           ],
                         ),
                         verticalSpacing(height: 20),
                         ValueListenableBuilder<
-                          List<ProposedOfferCorpusDetailsWithPaymentStageData>
+                          List<ProposedOfferHardshipDetailsWithPaymentStageData>
                         >(
                           valueListenable: _corpusListNotifier,
                           builder: (context, corpusList, _) {
@@ -610,81 +411,97 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                                 ) {
                                   final corpus = corpusList[index];
 
-                                  return Container(
-                                    margin: const EdgeInsets.only(bottom: 12),
-                                    decoration: BoxDecoration(
-                                      color: AppColor.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: AppColor.grey.withAlpha(80),
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withAlpha(10),
-                                          blurRadius: 6,
-                                          offset: const Offset(0, 2),
+                                  return CommonInfoCard(
+                                    title: corpus.stage,
+                                    tag: corpus.type,
+                                    onEdit: () async {
+                                      final result = await goRouter.pushNamed(
+                                        AppRoutes.addUpdateHardshipDetails,
+                                        extra: _corpusList,
+                                        queryParameters: {
+                                          'hardship': Uri.encodeComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(corpus.toJson()),
+                                            ),
+                                          ),
+                                          'index': index.toString(),
+                                          'projectId': Uri.encodeComponent(
+                                            EncryptionManager.encryptData(
+                                              widget.projectId.toString(),
+                                            ),
+                                          ),
+                                          'buildingId': Uri.encodeComponent(
+                                            EncryptionManager.encryptData(
+                                              widget.buildingId.toString(),
+                                            ),
+                                          ),
+                                          'residentialAmount':
+                                              Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  _residentialAmountC.text
+                                                      .toString(),
+                                                ),
+                                              ),
+                                          'commercialAmount':
+                                              Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  _commercialAmountC.text
+                                                      .toString(),
+                                                ),
+                                              ),
+                                        },
+                                      );
+                                      if (result != null &&
+                                          result
+                                              is List<
+                                                ProposedOfferHardshipDetailsWithPaymentStageData
+                                              >) {
+                                        print("WE ARE --------------->");
+                                        _corpusListNotifier.value = result;
+                                      }
+                                    },
+                                    onDelete: () {
+                                      _showPopupToDeleteHardship(index);
+                                    },
+                                    child: Column(
+                                      spacing: 10,
+                                      children: [
+                                        Row(
+                                          spacing: 10,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            buildColumnTitleValue(
+                                              title: "Percentage",
+                                              value:
+                                                  "${corpus.stagePercentage.toStringAsFixed(2)}%",
+                                            ),
+                                            buildColumnTitleValue(
+                                              title: "Amount",
+                                              value:
+                                                  (corpus.amount)
+                                                      .toIndianCurrency(),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          spacing: 10,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            buildColumnTitleValue(
+                                              title: "Unit / Sq Ft / Lumsum",
+                                              value: corpus.unitSqFtLumsum,
+                                            ),
+                                            buildColumnTitleValue(
+                                              title: "Carpet Area\n(Sq Ft)",
+                                              value:
+                                                  corpus.carpetAreaSqFt
+                                                      .addCommas(),
+                                            ),
+                                          ],
                                         ),
                                       ],
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          /// HEADER ROW (TYPE + ACTIONS)
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                corpus.type,
-                                                style: AppTextStyle.ts16M(),
-                                              ),
-
-                                              Row(
-                                                children: [
-                                                  CustomIconButton.edit(
-                                                    onPressed: () {
-                                                      _showCorpusBottomSheet(
-                                                        corpus: corpus,
-                                                        index: index,
-                                                      );
-                                                    },
-                                                  ),
-
-                                                  const SizedBox(width: 12),
-
-                                                  CustomIconButton.delete(
-                                                    onPressed: () {
-                                                      final newList = List<
-                                                        ProposedOfferCorpusDetailsWithPaymentStageData
-                                                      >.from(corpusList);
-                                                      newList.removeAt(index);
-                                                      _corpusListNotifier
-                                                          .value = newList;
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-
-                                          Divider(
-                                            color: AppColor.grey.withAlpha(60),
-                                          ),
-
-                                          _buildInfoRow("Stage", corpus.stage),
-                                          _buildInfoRow(
-                                            "Stage %",
-                                            "${corpus.stagePercentage.toStringAsFixed(2)}%",
-                                          ),
-                                          _buildInfoRow(
-                                            "Amount",
-                                            (corpus.amount).toIndianCurrency(),
-                                          ),
-                                        ],
-                                      ),
                                     ),
                                   );
                                 }),
@@ -693,20 +510,15 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                               return Container(
                                 padding: const EdgeInsets.all(40),
                                 child: Center(
-                                  child: Text(
-                                    'No details added',
-                                    style: AppTextStyle.ts16R(
-                                      color: AppColor.grey,
-                                    ),
+                                  child: noDataWidget(
+                                    message: 'No Hardship Details Found',
+                                    iconSize: 100,
                                   ),
                                 ),
                               );
                             }
                           },
                         ),
-                        verticalSpacing(height: 20),
-                        CustomButton(text: "Save", onPressed: _onSave),
-                        verticalSpacing(height: 20),
                       ],
                     ),
                   ],
@@ -715,24 +527,6 @@ class _CorpusDetailsState extends State<CorpusDetails> {
             ),
           );
         },
-      ),
-    );
-  }
-
-  // HELPER METHODS
-  Widget _buildInfoRow(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          ),
-          Text(": "),
-          Expanded(child: Text(value, style: AppTextStyle.ts14R())),
-        ],
       ),
     );
   }

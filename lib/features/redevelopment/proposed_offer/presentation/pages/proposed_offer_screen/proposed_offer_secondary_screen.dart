@@ -10,7 +10,11 @@ import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/p
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/security_deposit.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/shifting_details.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 
 class ProposedOfferSecondaryScreen extends StatefulWidget {
   final int projectId;
@@ -34,6 +38,7 @@ class ProposedOfferSecondaryScreen extends StatefulWidget {
 
 class _ProposedOfferSecondaryScreenState
     extends State<ProposedOfferSecondaryScreen> {
+  VoidCallback? _onSave;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,37 +50,32 @@ class _ProposedOfferSecondaryScreenState
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
+            child: Column(
               spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColor.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColor.grey50),
-                    ),
-                    child: Text(widget.projectName),
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColor.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColor.grey50),
-                    ),
-                    child: Text(widget.buildingName),
-                  ),
+                showSiteSelectedWidget(projectName: widget.projectName),
+                Text(
+                  toTitleCase(widget.buildingName),
+                  style: AppTextStyle.ts14M(color: AppColor.grey),
                 ),
               ],
             ),
           ),
           _buildTypeWidget(widget.type, widget.projectId, widget.buildingId),
         ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          height: 70,
+          padding: EdgeInsets.all(16),
+          child: CustomButton(
+            text: "Save",
+            onPressed: () {
+              _onSave?.call();
+            },
+          ),
+        ),
       ),
     );
   }
@@ -84,10 +84,18 @@ class _ProposedOfferSecondaryScreenState
   Widget _buildTypeWidget(String type, int projectId, int buildingId) {
     switch (type) {
       case "Extra Carpet Area":
-        return ExtraCarpetArea(projectId: projectId, buildingId: buildingId);
+        return ExtraCarpetArea(
+          projectId: projectId,
+          buildingId: buildingId,
+          onSave: (callback) => _onSave = callback,
+        );
 
-      case "Corpus Details":
-        return CorpusDetails(projectId: projectId, buildingId: buildingId);
+      case "Hardship Details":
+        return HardshipDetails(
+          projectId: projectId,
+          buildingId: buildingId,
+          onSave: (callback) => _onSave = callback,
+        );
       case "Security Deposit":
         return SecurityDeposit(projectId: projectId, buildingId: buildingId);
       case "Shifting Details":

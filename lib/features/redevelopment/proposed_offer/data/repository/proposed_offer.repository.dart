@@ -13,15 +13,19 @@ abstract interface class ProposedOfferRepository {
     required Map<String, dynamic> body,
   });
 
-  Future<Either<Failure, Map<String, dynamic>>> pullCorpusDetails({
+  Future<Either<Failure, Map<String, dynamic>>> pullHardshipDetails({
     required int projectId,
     required int buildingId,
   });
 
-  Future<Either<Failure, Map<String, dynamic>>> addUpdateCorpusDetails({
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateHardshipDetails({
     required Map<String, dynamic> body,
   });
 
+  Future<Either<Failure, Map<String, dynamic>>> deleteHardshipDetails({
+    required int projectId,
+    required int buildingId,
+  });
   Future<Either<Failure, Map<String, dynamic>>> pullShiftingDetails({
     required int projectId,
     required int buildingId,
@@ -126,12 +130,12 @@ class ProposedOfferRepositoryImpl implements ProposedOfferRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> pullCorpusDetails({
+  Future<Either<Failure, Map<String, dynamic>>> pullHardshipDetails({
     required int projectId,
     required int buildingId,
   }) async {
     try {
-      var result = await proposedOfferDatasource.apicallPullCorpusDetails(
+      var result = await proposedOfferDatasource.apicallPullHardshipDetails(
         projectId: projectId,
         buildingId: buildingId,
       );
@@ -142,13 +146,28 @@ class ProposedOfferRepositoryImpl implements ProposedOfferRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> addUpdateCorpusDetails({
+  Future<Either<Failure, Map<String, dynamic>>> deleteHardshipDetails({
+    required int projectId,
+    required int buildingId,
+  }) async {
+    try {
+      var result = await proposedOfferDatasource.apicallDeleteHardshipDetails(
+        projectId: projectId,
+        buildingId: buildingId,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateHardshipDetails({
     required Map<String, dynamic> body,
   }) async {
     try {
-      var result = await proposedOfferDatasource.apicallAddUpdateCorpusDetails(
-        body: body,
-      );
+      var result = await proposedOfferDatasource
+          .apicallAddUpdateHardshipDetails(body: body);
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

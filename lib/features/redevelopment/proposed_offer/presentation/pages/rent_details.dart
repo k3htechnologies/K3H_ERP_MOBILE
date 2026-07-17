@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
@@ -77,11 +78,7 @@ class _RentDetailsState extends State<RentDetails> {
     {"zAttributesId": 5, "DisplayName": "Tenure 5"},
   ];
 
-  // UNIT SQ FT LUMSUM LIST
-  final List<Map<String, dynamic>> _unitSqFtLumsumList = [
-    {"zAttributesId": 1, "DisplayName": "Per Sq Ft"},
-    {"zAttributesId": 2, "DisplayName": "Lump Sum"},
-  ];
+
 
   @override
   void initState() {
@@ -160,9 +157,9 @@ class _RentDetailsState extends State<RentDetails> {
       orElse: () => _tenureList.first,
     );
 
-    _selectedUnitSqFtLumsum.value = _unitSqFtLumsumList.firstWhere(
+    _selectedUnitSqFtLumsum.value = unitSqFtLumsumList.firstWhere(
       (e) => e['DisplayName'] == rentDetailsModel.unitSqFtLumsum,
-      orElse: () => _unitSqFtLumsumList.first,
+      orElse: () => unitSqFtLumsumList.first,
     );
   }
 
@@ -360,7 +357,7 @@ class _RentDetailsState extends State<RentDetails> {
                                 return CustomDropDownWidget(
                                   title: 'Unit Sq Ft Lumsum',
                                   isRequired: true,
-                                  dataList: _unitSqFtLumsumList,
+                                  dataList: unitSqFtLumsumList,
                                   initialValue: value,
                                   onSelected:
                                       (v) => _selectedUnitSqFtLumsum.value = v,

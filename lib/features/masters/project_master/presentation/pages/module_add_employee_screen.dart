@@ -46,8 +46,7 @@ class _ModuleAddEmployeeScreenState extends State<ModuleAddEmployeeScreen> {
       pageNumber: pageNumber,
       pageSize: 15,
       projectId: widget.projectId,
-      queryParams:
-          value != null && value.isNotEmpty ? {"FullName": value} : {},
+      queryParams: value != null && value.isNotEmpty ? {"FullName": value} : {},
     );
 
     return result.fold(

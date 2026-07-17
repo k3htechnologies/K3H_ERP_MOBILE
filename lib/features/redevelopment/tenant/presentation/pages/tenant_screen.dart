@@ -560,46 +560,52 @@ class _TenantScreenState extends State<TenantScreen> {
           onFilterTap: () {
             _showBottomSheetToFilterTenant(context);
           },
-          extraHeight: 90,
+          extraHeight: 140.h,
           widgets: BlocBuilder<TenantCubit, TenantState>(
             bloc: _tenantCubit,
             builder: (context, state) {
               return ValueListenableBuilder<List<Map<String, dynamic>>>(
                 valueListenable: _selectedBuildingNotifier,
                 builder: (context, selectedBuilding, child) {
-                  return CustomMultipleSelectPopup(
-                    title: "Building",
-                    isRequired: true,
-                    isMultiSelect: false,
-                    initialValue: selectedBuilding,
-                    dataList: const [],
-                    onSelected: (value) async {
-                      _selectedBuildingNotifier.value = value;
-                      if (value.isNotEmpty &&
-                          value.first['zAttributesId'] != null &&
-                          mounted) {
-                        final newBuildingId =
-                            value.first['zAttributesId'] as int;
-                        if (_lastFetchedBuildingId != newBuildingId) {
-                          _lastFetchedBuildingId = newBuildingId;
-                          await _tenantCubit.getTenantList(
-                            context: context,
-                            projectId: _project.projectId,
-                            buildingId: newBuildingId,
-                            pageNumber: 1,
-                          );
-                        }
-                      } else if (mounted) {
-                        _lastFetchedBuildingId = null;
-                      }
-                    },
-                    dataFetchCallBack: _fetchBuildings,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Building is required";
-                      }
-                      return null;
-                    },
+                  return Column(
+                    children: [
+                      verticalSpacing(),
+                      showSiteSelectedWidget(projectName: _project.projectName),
+                      CustomMultipleSelectPopup(
+                        title: "Building",
+                        isRequired: true,
+                        isMultiSelect: false,
+                        initialValue: selectedBuilding,
+                        dataList: const [],
+                        onSelected: (value) async {
+                          _selectedBuildingNotifier.value = value;
+                          if (value.isNotEmpty &&
+                              value.first['zAttributesId'] != null &&
+                              mounted) {
+                            final newBuildingId =
+                                value.first['zAttributesId'] as int;
+                            if (_lastFetchedBuildingId != newBuildingId) {
+                              _lastFetchedBuildingId = newBuildingId;
+                              await _tenantCubit.getTenantList(
+                                context: context,
+                                projectId: _project.projectId,
+                                buildingId: newBuildingId,
+                                pageNumber: 1,
+                              );
+                            }
+                          } else if (mounted) {
+                            _lastFetchedBuildingId = null;
+                          }
+                        },
+                        dataFetchCallBack: _fetchBuildings,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Building is required";
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
                   );
                 },
               );
@@ -608,7 +614,6 @@ class _TenantScreenState extends State<TenantScreen> {
         ),
         body: Column(
           children: [
-            verticalSpacing(),
             Expanded(
               child: ValueListenableBuilder<List<Map<String, dynamic>>>(
                 valueListenable: _selectedBuildingNotifier,

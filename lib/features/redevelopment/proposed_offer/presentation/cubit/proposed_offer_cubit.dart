@@ -146,6 +146,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     required String extraCarpetAreaOfferedType,
     required double residentialExtraCarpetPercent,
     required double commercialExtraCarpetPercent,
+    required String remark,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> body = {
@@ -158,6 +159,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
       "ExtraCarpetAreaOfferedType": extraCarpetAreaOfferedType,
       "ResidentialExtraCarpetPercent": residentialExtraCarpetPercent,
       "CommercialExtraCarpetPercent": commercialExtraCarpetPercent,
+      "Remark": remark,
     };
 
     final result = await _proposedOfferRepository.addUpdateExtraCarpetArea(
@@ -186,13 +188,13 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
   // < ---------------------------------------------------------------------------------------------------------- >
 
   // PULL CORPUS DETAILS
-  Future pullCorpusDetails({
+  Future pullHardshipDetails({
     required int projectId,
     required int buildingId,
   }) async {
     emit(state.copyWith(isLoading: true, clearCorpus: true));
 
-    final result = await _proposedOfferRepository.pullCorpusDetails(
+    final result = await _proposedOfferRepository.pullHardshipDetails(
       projectId: projectId,
       buildingId: buildingId,
     );
@@ -219,13 +221,14 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
   }
 
   // ADD UPDATE CORPUS DETAILS
-  Future<void> addUpdateCorpusDetails(
+  Future<void> addUpdateHardshipDetails(
     BuildContext context, {
     required int buildingId,
     required int projectId,
     required double corpusOfferedToResidentialAmount,
     required double corpusOfferedToCommercialAmount,
-    required List<ProposedOfferCorpusDetailsWithPaymentStageData>
+    required String remark,
+    required List<ProposedOfferHardshipDetailsWithPaymentStageData>
     paymentStageList,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -234,27 +237,32 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
         paymentStageList
             .map(
               (item) => {
+                "ProposedOfferHardshipDetailsWithPaymentStageId":
+                    item.proposedOfferHardshipDetailsWithPaymentStageId,
                 "Type": item.type,
                 "Stage": item.stage,
                 "StagePercentage": item.stagePercentage,
                 "Amount": item.amount,
+                "UnitSqFtLumsum": item.unitSqFtLumsum,
+                "CarpetAreaSqFt": item.carpetAreaSqFt,
               },
             )
             .toList();
 
     Map<String, dynamic> body = {
-      "ProposedOfferCorpusDetailsId":
-          state.corpusDetails?.proposedOfferCorpusDetailsId ?? 0,
+      "ProposedOfferHardshipDetailsId":
+          state.corpusDetails?.proposedOfferHardshipDetailsId ?? 0,
       if (state.corpusDetails != null)
         "Uniquekey": state.corpusDetails!.uniquekey,
       "BuildingId": buildingId,
       "ProjectId": projectId,
-      "CorpusOfferedToResidentialAmount": corpusOfferedToResidentialAmount,
-      "CorpusOfferedToCommercialAmount": corpusOfferedToCommercialAmount,
-      "CorpusDetailsWithPaymentStageJSON": jsonEncode(paymentStageListJson),
+      "HardshipOfferedToResidentialAmount": corpusOfferedToResidentialAmount,
+      "HardshipOfferedToCommercialAmount": corpusOfferedToCommercialAmount,
+      "HardshipDetailsWithPaymentStageJSON": jsonEncode(paymentStageListJson),
+      "Remark": remark,
     };
 
-    final result = await _proposedOfferRepository.addUpdateCorpusDetails(
+    final result = await _proposedOfferRepository.addUpdateHardshipDetails(
       body: body,
     );
 
@@ -271,7 +279,31 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
             corpusDetails: (response['data'] as List<CorpusDetailsModel>)[0],
           ),
         );
+        showSuccessMessage(context, subTitle: response['message']);
+      },
+    );
+  }
+
+  Future deleteHardshipDetails({
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _proposedOfferRepository.deleteHardshipDetails(
+      projectId: projectId,
+      buildingId: buildingId,
+    );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
         showSuccessMessage(context);
+
+        emit(state.copyWith(clearCorpus: true));
       },
     );
   }

@@ -1,7 +1,7 @@
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
-class ProposedOfferCorpusDetailsWithPaymentStageData {
-  int proposedOfferCorpusDetailsWithPaymentStageId;
+class ProposedOfferHardshipDetailsWithPaymentStageData {
+  int proposedOfferHardshipDetailsWithPaymentStageId;
   String uniquekey;
   int buildingId;
   int projectId;
@@ -9,6 +9,8 @@ class ProposedOfferCorpusDetailsWithPaymentStageData {
   String stage;
   double stagePercentage;
   double amount;
+  String unitSqFtLumsum;
+  double carpetAreaSqFt;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -16,8 +18,8 @@ class ProposedOfferCorpusDetailsWithPaymentStageData {
   String modifiedBy;
   DateTime? modifiedDate;
 
-  ProposedOfferCorpusDetailsWithPaymentStageData({
-    required this.proposedOfferCorpusDetailsWithPaymentStageId,
+  ProposedOfferHardshipDetailsWithPaymentStageData({
+    required this.proposedOfferHardshipDetailsWithPaymentStageId,
     required this.uniquekey,
     required this.buildingId,
     required this.projectId,
@@ -25,6 +27,8 @@ class ProposedOfferCorpusDetailsWithPaymentStageData {
     required this.stage,
     required this.stagePercentage,
     required this.amount,
+    required this.unitSqFtLumsum,
+    required this.carpetAreaSqFt,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -33,12 +37,12 @@ class ProposedOfferCorpusDetailsWithPaymentStageData {
     required this.modifiedDate,
   });
 
-  factory ProposedOfferCorpusDetailsWithPaymentStageData.fromJson(
+  factory ProposedOfferHardshipDetailsWithPaymentStageData.fromJson(
     Map<String, dynamic> json,
-  ) => ProposedOfferCorpusDetailsWithPaymentStageData(
-    proposedOfferCorpusDetailsWithPaymentStageId: parseValue<int>(
+  ) => ProposedOfferHardshipDetailsWithPaymentStageData(
+    proposedOfferHardshipDetailsWithPaymentStageId: parseValue<int>(
       json,
-      "ProposedOfferCorpusDetailsWithPaymentStageId",
+      "ProposedOfferHardshipDetailsWithPaymentStageId",
     ),
     uniquekey: parseValue<String>(json, "Uniquekey"),
     buildingId: parseValue<int>(json, "BuildingId"),
@@ -47,6 +51,8 @@ class ProposedOfferCorpusDetailsWithPaymentStageData {
     stage: parseValue<String>(json, "Stage"),
     stagePercentage: parseValue<double>(json, "StagePercentage"),
     amount: parseValue<double>(json, "Amount"),
+    unitSqFtLumsum: parseValue<String>(json, "UnitSqFtLumsum"),
+    carpetAreaSqFt: parseValue<double>(json, "CarpetAreaSqFt"),
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
     createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -59,8 +65,8 @@ class ProposedOfferCorpusDetailsWithPaymentStageData {
   );
 
   Map<String, dynamic> toJson() => {
-    "ProposedOfferCorpusDetailsWithPaymentStageId":
-        proposedOfferCorpusDetailsWithPaymentStageId,
+    "ProposedOfferHardshipDetailsWithPaymentStageId":
+        proposedOfferHardshipDetailsWithPaymentStageId,
     "Uniquekey": uniquekey,
     "BuildingId": buildingId,
     "ProjectId": projectId,
@@ -68,6 +74,8 @@ class ProposedOfferCorpusDetailsWithPaymentStageData {
     "Stage": stage,
     "StagePercentage": stagePercentage,
     "Amount": amount,
+    "UnitSqFtLumsum": unitSqFtLumsum,
+    "CarpetAreaSqFt": carpetAreaSqFt,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),
@@ -78,60 +86,62 @@ class ProposedOfferCorpusDetailsWithPaymentStageData {
 }
 
 class CorpusDetailsModel {
-  int proposedOfferCorpusDetailsId;
+  int proposedOfferHardshipDetailsId;
   String uniquekey;
   int buildingId;
   int projectId;
   double corpusOfferedToResidentialAmount;
   double corpusOfferedToCommercialAmount;
-  List<ProposedOfferCorpusDetailsWithPaymentStageData>
-  proposedOfferCorpusDetailsWithPaymentStageData;
+  List<ProposedOfferHardshipDetailsWithPaymentStageData>
+  proposedOfferHardshipDetailsWithPaymentStageData;
   int createdById;
   String createdBy;
   DateTime createdDate;
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  String remark;
 
   CorpusDetailsModel({
-    required this.proposedOfferCorpusDetailsId,
+    required this.proposedOfferHardshipDetailsId,
     required this.uniquekey,
     required this.buildingId,
     required this.projectId,
     required this.corpusOfferedToResidentialAmount,
     required this.corpusOfferedToCommercialAmount,
-    required this.proposedOfferCorpusDetailsWithPaymentStageData,
+    required this.proposedOfferHardshipDetailsWithPaymentStageData,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.remark,
   });
 
   factory CorpusDetailsModel.fromJson(Map<String, dynamic> json) =>
       CorpusDetailsModel(
-        proposedOfferCorpusDetailsId: parseValue<int>(
+        proposedOfferHardshipDetailsId: parseValue<int>(
           json,
-          "ProposedOfferCorpusDetailsId",
+          "ProposedOfferHardshipDetailsId",
         ),
         uniquekey: parseValue<String>(json, "Uniquekey"),
         buildingId: parseValue<int>(json, "BuildingId"),
         projectId: parseValue<int>(json, "ProjectId"),
         corpusOfferedToResidentialAmount: parseValue<double>(
           json,
-          "CorpusOfferedToResidentialAmount",
+          "HardshipOfferedToResidentialAmount",
         ),
         corpusOfferedToCommercialAmount: parseValue<double>(
           json,
-          "CorpusOfferedToCommercialAmount",
+          "HardshipOfferedToCommercialAmount",
         ),
-        proposedOfferCorpusDetailsWithPaymentStageData:
-            (json["ProposedOfferCorpusDetailsWithPaymentStageData"]
+        proposedOfferHardshipDetailsWithPaymentStageData:
+            (json["ProposedOfferHardshipDetailsWithPaymentStageData"]
                     as List<dynamic>?)
                 ?.map(
                   (item) =>
-                      ProposedOfferCorpusDetailsWithPaymentStageData.fromJson(
+                      ProposedOfferHardshipDetailsWithPaymentStageData.fromJson(
                         item as Map<String, dynamic>,
                       ),
                 )
@@ -146,17 +156,18 @@ class CorpusDetailsModel {
             json["ModifiedDate"] == null
                 ? null
                 : parseValue<DateTime>(json, "ModifiedDate"),
+        remark: parseValue<String>(json, "Remark"),
       );
 
   Map<String, dynamic> toJson() => {
-    "ProposedOfferCorpusDetailsId": proposedOfferCorpusDetailsId,
+    "ProposedOfferHardshipDetailsId": proposedOfferHardshipDetailsId,
     "Uniquekey": uniquekey,
     "BuildingId": buildingId,
     "ProjectId": projectId,
-    "CorpusOfferedToResidentialAmount": corpusOfferedToResidentialAmount,
-    "CorpusOfferedToCommercialAmount": corpusOfferedToCommercialAmount,
-    "ProposedOfferCorpusDetailsWithPaymentStageData":
-        proposedOfferCorpusDetailsWithPaymentStageData
+    "HardshipOfferedToResidentialAmount": corpusOfferedToResidentialAmount,
+    "HardshipOfferedToCommercialAmount": corpusOfferedToCommercialAmount,
+    "ProposedOfferHardshipDetailsWithPaymentStageData":
+        proposedOfferHardshipDetailsWithPaymentStageData
             .map((item) => item.toJson())
             .toList(),
     "CreatedById": createdById,
@@ -165,5 +176,6 @@ class CorpusDetailsModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "Remark": remark,
   };
 }

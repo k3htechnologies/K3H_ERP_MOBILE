@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
+import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -13,10 +15,12 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class ExtraCarpetArea extends StatefulWidget {
   final int projectId;
   final int buildingId;
+  final ValueChanged<VoidCallback> onSave;
   const ExtraCarpetArea({
     super.key,
     required this.projectId,
     required this.buildingId,
+    required this.onSave,
   });
 
   @override
@@ -31,9 +35,9 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
   final _formKey = GlobalKey<FormState>();
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _residentialPercentController;
-
-  late TextEditingController _commercialPercentController;
+  late TextEditingController _residentialPercentC,
+      _commercialPercentC,
+      _remarkC;
 
   // DROPDOWN SELECTIONS
   final ValueNotifier<Map<String, dynamic>?> _selectedExtraCarpetType =
@@ -50,6 +54,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
     _initializeControllers();
+    widget.onSave(_onSave);
     _cubit.pullExtraCarpetArea(
       projectId: widget.projectId,
       buildingId: widget.buildingId,
@@ -58,31 +63,34 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
 
   @override
   void dispose() {
-    _residentialPercentController.dispose();
-    _commercialPercentController.dispose();
+    _residentialPercentC.dispose();
+    _commercialPercentC.dispose();
+    _remarkC.dispose();
     super.dispose();
   }
 
   // INITIALIZE CONTROLLERS
   void _initializeControllers() {
-    _residentialPercentController = TextEditingController();
-    _commercialPercentController = TextEditingController();
+    _residentialPercentC = TextEditingController();
+    _commercialPercentC = TextEditingController();
+    _remarkC = TextEditingController();
   }
 
   // FILL DATA
   void fillData() {
     var extraCarpetModel = _cubit.state.extraCarpetArea!;
 
-    _residentialPercentController.text =
+    _residentialPercentC.text =
         extraCarpetModel.residentialExtraCarpetPercent.toString();
 
-    _commercialPercentController.text =
+    _commercialPercentC.text =
         extraCarpetModel.commercialExtraCarpetPercent.toString();
 
     _selectedExtraCarpetType.value = _extraCarpetTypeList.firstWhere(
       (e) => e['DisplayName'] == extraCarpetModel.extraCarpetAreaOfferedType,
       orElse: () => _extraCarpetTypeList.first,
     );
+    _remarkC.text = extraCarpetModel.remark;
   }
 
   // SAVE
@@ -94,12 +102,9 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
         projectId: widget.projectId,
         extraCarpetAreaOfferedType:
             _selectedExtraCarpetType.value!['DisplayName'],
-        residentialExtraCarpetPercent: double.parse(
-          _residentialPercentController.text,
-        ),
-        commercialExtraCarpetPercent: double.parse(
-          _commercialPercentController.text,
-        ),
+        residentialExtraCarpetPercent: double.parse(_residentialPercentC.text),
+        commercialExtraCarpetPercent: double.parse(_commercialPercentC.text),
+        remark: _remarkC.text.trim(),
       );
     }
   }
@@ -112,8 +117,8 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
           if (state.extraCarpetArea != null) {
             fillData();
           } else {
-            _residentialPercentController.clear();
-            _commercialPercentController.clear();
+            _residentialPercentC.clear();
+            _commercialPercentC.clear();
             _selectedExtraCarpetType.value = null;
           }
         },
@@ -131,12 +136,16 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Extra Carpet Area", style: AppTextStyle.ts16M()),
-                    verticalSpacing(height: 15),
+                    ProposedOfferTile(
+                      icon: AppAssets.extraCarpetAreaIcon,
+                      title: "Extra Carpet Area",
+                    ),
+                    verticalSpacing(),
                     Text(
                       "Basic Details",
                       style: AppTextStyle.ts14M(color: AppColor.grey),
                     ),
+                    verticalSpacing(),
                     ValueListenableBuilder(
                       valueListenable: _selectedExtraCarpetType,
                       builder: (context, value, child) {
@@ -160,6 +169,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                         );
                       },
                     ),
+                    Divider(height: 1, color: AppColor.lightBlue),
                     verticalSpacing(),
                     Text(
                       "Percentage Details",
@@ -170,7 +180,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                       title: "Residential Extra Carpet Percent (%)",
                       isRequired: true,
                       hint: "Enter Residential Extra Carpet Percent (%)",
-                      textController: _residentialPercentController,
+                      textController: _residentialPercentC,
                       keyboardType: TextInputType.number,
                       inputFormatterList:
                           inputFormatterListForDecimalValuesFixedToTwo(3),
@@ -189,7 +199,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                       isRequired: true,
                       hint: "Enter Commercial Extra Carpet Percent (%)",
                       keyboardType: TextInputType.number,
-                      textController: _commercialPercentController,
+                      textController: _commercialPercentC,
                       inputFormatterList:
                           inputFormatterListForDecimalValuesFixedToTwo(3),
                       validator: (value) {
@@ -202,9 +212,13 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                         return null;
                       },
                     ),
-                    verticalSpacing(height: 30),
-                    CustomButton(text: "Save", onPressed: _onSave),
-                    verticalSpacing(height: 30),
+                    CustomTextField(
+                      title: "Remark",
+                      hint: "Enter Remarks",
+                      textController: _remarkC,
+                      maxLines: 3,
+                      minLines: 3,
+                    ),
                   ],
                 ),
               ),

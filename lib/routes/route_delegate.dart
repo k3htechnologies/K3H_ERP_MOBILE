@@ -36,6 +36,8 @@ import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inwa
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/revert_inward_outward_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building_document.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/add_update_document_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/corpus_details.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/add_hardship_details.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/project_wise_sales_achievement_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/achivement_drill_down_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/channel_partner_sourcing.model.dart';
@@ -2721,7 +2723,86 @@ final GoRouter goRouter = GoRouter(
                 );
               },
             ),
-          ],
+      GoRoute(
+              name: AppRoutes.addUpdateHardshipDetails,
+              path: AppRoutes.addUpdateHardshipDetails,
+              builder: (context, state) {
+                final hardshipList =
+                    (state.extra
+                        as List<
+                          ProposedOfferHardshipDetailsWithPaymentStageData
+                        >?) ??
+                    [];
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                final queryParameterHardship =
+                    state.uri.queryParameters['hardship'];
+
+                final ProposedOfferHardshipDetailsWithPaymentStageData?
+                hardship =
+                    queryParameterHardship != null
+                        ? ProposedOfferHardshipDetailsWithPaymentStageData.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterHardship),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final projectId =
+                    int.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['projectId'] ?? '',
+                        ),
+                      ),
+                    ) ??
+                    0;
+
+                final buildingId =
+                    int.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['buildingId'] ?? '',
+                        ),
+                      ),
+                    ) ??
+                    0;
+
+                final residentialAmount =
+                    double.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['residentialAmount'] ?? '',
+                        ),
+                      ),
+                    ) ??
+                    0.0;
+
+                final commercialAmount =
+                    double.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['commercialAmount'] ?? '',
+                        ),
+                      ),
+                    ) ??
+                    0.0;
+
+                return AddHardshipDetails(
+                  hardshipList: hardshipList,
+                  index: hardship == null ? null : index,
+                  hardship: hardship,
+                  projectId: projectId,
+                  buildingId: buildingId,
+                  residentialAmount: residentialAmount,
+                  commercialAmount: commercialAmount,
+                );
+              },
+            ),    ],
         ),
         // CALENDAR
         ShellRoute(

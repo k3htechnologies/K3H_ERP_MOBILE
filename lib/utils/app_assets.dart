@@ -2,7 +2,7 @@ class AppAssets {
   static const String gifPath = "assets/images";
   static const String pngPath = "assets/images";
   static const String svgPath = "assets/icons";
-  static const String salesSvgPath = "assets/icons/sales";
+  static const String redevelopmentSvgPath = "assets/icons/redevelopment";
   static const String sideDrawerIconsPath = "assets/sideDrawer";
 
   //PNG IMAGES
@@ -269,4 +269,41 @@ class AppAssets {
   static const String overdueIcon = "$svgPath/overdue.svg";
 
   static const String conversionIcon = "$svgPath/conversion.svg";
+
+  // REDEVELOPMENT
+  static const String extraCarpetAreaIcon =
+      "$redevelopmentSvgPath/extra_carpet_area.svg";
+  static const String corpusDetailsIcon =
+      "$redevelopmentSvgPath/corpus_details.svg";
+  static const String additionalInfoIcon =
+      "$redevelopmentSvgPath/additional_info.svg";
+
+  static const String bankGuaranteeIcon =
+      "$redevelopmentSvgPath/bank_guarantee.svg";
+
+  static const String carpetAreaIcon = "$redevelopmentSvgPath/carpet_area.svg";
+
+  static const String gstDetailsIcon = "$redevelopmentSvgPath/gst_details.svg";
+
+  static const String lienToSocietyIcon =
+      "$redevelopmentSvgPath/lien_to_society.svg";
+
+  static const String parkingIcon = "$redevelopmentSvgPath/parking.svg";
+
+  static const String plotAreaIcon = "$redevelopmentSvgPath/plot_area.svg";
+
+  static const String projectCompletionIcon =
+      "$redevelopmentSvgPath/project_completion.svg";
+
+  static const String readyReckonerIcon =
+      "$redevelopmentSvgPath/ready_reckoner.svg";
+
+  static const String rentDetailsIcon =
+      "$redevelopmentSvgPath/rent_details.svg";
+
+  static const String securityDepositIcon =
+      "$redevelopmentSvgPath/security_deposit.svg";
+
+  static const String shiftingDetailsIcon =
+      "$redevelopmentSvgPath/shifting_details.svg";
 }

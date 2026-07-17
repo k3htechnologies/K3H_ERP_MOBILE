@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
-import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -287,93 +286,3 @@ class BuildingOverview extends StatelessWidget {
     );
   }
 }
-
-Widget buildingViewSectionCard({
-  required String title,
-  required Color? textColor,
-  required Color? bgColor,
-  required List<Widget> children,
-}) {
-  return Container(
-    decoration: commonCardDecoration(),
-    margin: EdgeInsets.only(bottom: 16.h),
-    clipBehavior: Clip.antiAlias,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          color: bgColor ?? const Color(0xFFDCE8F6),
-          child: Text(
-            title,
-            style: AppTextStyle.ts14SB(
-              color: textColor ?? const Color(0xFF1F5CC4),
-            ),
-          ),
-        ),
-
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: children.length,
-            separatorBuilder:
-                (_, __) => Divider(height: 20.h, color: AppColor.lightBlue),
-            itemBuilder: (context, index) => children[index],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-/*
-
-Widget buildingOverviewSectionCard({
-  required String title,
-  required Color? textColor,
-  required Color? bgColor,
-  required List<Widget> children,
-}) {
-  return Container(
-    margin: EdgeInsets.only(bottom: 12.h),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(10),
-      border: Border.all(color: const Color(0xFFD0D7E2)),
-    ),
-    clipBehavior: Clip.antiAlias,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Header
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: const BoxDecoration(
-            color: Color(0xFFDCE8F6), // Light blue header
-            border: Border(bottom: BorderSide(color: Color(0xFFD0D7E2))),
-          ),
-          child: Text(
-            title,
-            style: AppTextStyle.ts14SB(
-              color: const Color(0xFF1F5CC4), // Blue text
-            ),
-          ),
-        ),
-
-        // Body
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: children,
-          ),
-        ),
-      ],
-    ),
-  );
-}
-*/

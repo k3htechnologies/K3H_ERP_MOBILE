@@ -21,13 +21,18 @@ abstract interface class ProposedOfferDatasource {
     required Map<String, dynamic> body,
   });
 
-  Future<Map<String, dynamic>> apicallPullCorpusDetails({
+  Future<Map<String, dynamic>> apicallPullHardshipDetails({
     required int projectId,
     required int buildingId,
   });
 
-  Future<Map<String, dynamic>> apicallAddUpdateCorpusDetails({
+  Future<Map<String, dynamic>> apicallAddUpdateHardshipDetails({
     required Map<String, dynamic> body,
+  });
+
+  Future<Map<String, dynamic>> apicallDeleteHardshipDetails({
+    required int projectId,
+    required int buildingId,
   });
 
   Future<Map<String, dynamic>> apicallPullShiftingDetails({
@@ -174,25 +179,25 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
   }
 
   @override
-  Future<Map<String, dynamic>> apicallPullCorpusDetails({
+  Future<Map<String, dynamic>> apicallPullHardshipDetails({
     required int projectId,
     required int buildingId,
     Map<String, dynamic>? queryParams,
   }) async {
-    String pullCorpusDetailsUrl({
+    String PullHardshipDetailsUrl({
       required int projectId,
       required int buildingId,
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "ProposedOffer/PullCorpusDetails?ProjectId=$projectId&BuildingId=$buildingId";
+          "ProposedOffer/PullHardshipDetails?ProjectId=$projectId&BuildingId=$buildingId";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullCorpusDetailsUrl(
+        PullHardshipDetailsUrl(
           projectId: projectId,
           buildingId: buildingId,
           queryParams: queryParams,
@@ -206,7 +211,7 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apicallPullCorpusDetails(
+        apicallPullHardshipDetails(
           projectId: projectId,
           buildingId: buildingId,
           queryParams: queryParams,
@@ -217,25 +222,59 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
   }
 
   @override
-  Future<Map<String, dynamic>> apicallAddUpdateCorpusDetails({
+  Future<Map<String, dynamic>> apicallAddUpdateHardshipDetails({
     required Map<String, dynamic> body,
   }) async {
-    String addUpdateCorpusDetailsUrl = "ProposedOffer/AddUpdateCorpusDetails";
+    String addUpdateHardshipDetailsUrl =
+        "ProposedOffer/AddUpdateHardshipDetails";
 
     try {
       var networkResponse = await baseClient.postRequestWithAuthentication(
-        addUpdateCorpusDetailsUrl,
+        addUpdateHardshipDetailsUrl,
         body,
       );
       return {
         'data': List<CorpusDetailsModel>.from(
           networkResponse['data'].map((x) => CorpusDetailsModel.fromJson(x)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apicallAddUpdateCorpusDetails(body: body);
+        apicallAddUpdateHardshipDetails(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeleteHardshipDetails({
+    required int projectId,
+    required int buildingId,
+  }) async {
+    String deleteHardshipDetailsUrl({
+      required int projectId,
+      required int buildingId,
+    }) {
+      return "ProposedOffer/DeleteHardshipDetails?ProjectId=$projectId&BuildingId=$buildingId";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteHardshipDetailsUrl(projectId: projectId, buildingId: buildingId),
+      );
+
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return await apicallDeleteHardshipDetails(
+          projectId: projectId,
+          buildingId: buildingId,
+        );
       }
       rethrow;
     }

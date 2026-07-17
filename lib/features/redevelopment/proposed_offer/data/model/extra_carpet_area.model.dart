@@ -14,6 +14,7 @@ class ExtraCarpetAreaModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  String remark;
 
   ExtraCarpetAreaModel({
     required this.proposedOfferExtraCarpetAreaId,
@@ -29,6 +30,7 @@ class ExtraCarpetAreaModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.remark,
   });
 
   factory ExtraCarpetAreaModel.fromJson(Map<String, dynamic> json) =>
@@ -61,6 +63,7 @@ class ExtraCarpetAreaModel {
             json["ModifiedDate"] == null
                 ? null
                 : parseValue<DateTime>(json, "ModifiedDate"),
+        remark: parseValue<String>(json, "Remark"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -77,5 +80,6 @@ class ExtraCarpetAreaModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "Remark": remark,
   };
 }
