@@ -301,7 +301,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
         return;
       },
       (response) {
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: response['message']);
 
         emit(state.copyWith(clearCorpus: true));
       },
@@ -398,6 +398,30 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
           ),
         );
         showSuccessMessage(context, subTitle: "Shifting Details Updated");
+      },
+    );
+  }
+
+  Future deleteShiftingDetails({
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _proposedOfferRepository.deleteShiftingDetails(
+      projectId: projectId,
+      buildingId: buildingId,
+    );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(context, subTitle: response['message']);
+
+        emit(state.copyWith(clearShifting: true));
       },
     );
   }
@@ -593,6 +617,31 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
           ),
         );
         showSuccessMessage(context, subTitle: "Security Deposit Updated");
+      },
+    );
+  }
+
+  Future deleteSecurityDepositDetails({
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _proposedOfferRepository
+        .deleteSecurityDepositDetails(
+          projectId: projectId,
+          buildingId: buildingId,
+        );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(context, subTitle: response['message']);
+
+        emit(state.copyWith(clearSecurityDeposit: true));
       },
     );
   }

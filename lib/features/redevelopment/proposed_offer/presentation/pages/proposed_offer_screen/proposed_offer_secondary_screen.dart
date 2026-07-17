@@ -97,13 +97,22 @@ class _ProposedOfferSecondaryScreenState
           onSave: (callback) => _onSave = callback,
         );
       case "Security Deposit":
-        return SecurityDeposit(projectId: projectId, buildingId: buildingId);
+        return SecurityDeposit(
+          projectId: projectId,
+          buildingId: buildingId,
+          onSave: (callback) => _onSave = callback,
+        );
       case "Shifting Details":
-        return ShiftingDetails(projectId: projectId, buildingId: buildingId);
+        return ShiftingDetails(
+          projectId: projectId,
+          buildingId: buildingId,
+          onSave: (callback) => _onSave = callback,
+        );
       case "Lien to Society Details":
         return LienToSocietyDetails(
           projectId: projectId,
           buildingId: buildingId,
+          onSave: (callback) => _onSave = callback,
         );
       case "Parking Allotment":
         return ParkingAllotment(projectId: projectId, buildingId: buildingId);

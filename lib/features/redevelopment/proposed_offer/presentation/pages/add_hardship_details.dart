@@ -93,9 +93,9 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
     ProposedOfferHardshipDetailsWithPaymentStageData? hardship,
   }) {
     if (hardship == null) return;
-    _selectedHardshipType.value = hardshipTypeList.firstWhere(
+    _selectedHardshipType.value = propertyTypeList.firstWhere(
       (e) => e['DisplayName'] == hardship.type,
-      orElse: () => hardshipTypeList.first,
+      orElse: () => propertyTypeList.first,
     );
     _stageC.text = hardship.stage;
     _stagePercentageC.text = hardship.stagePercentage.toString();
@@ -171,7 +171,7 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                         CustomDropDownWidget(
                           isRequired: true,
                           initialValue: selectedHardshipType,
-                          dataList: hardshipTypeList,
+                          dataList: propertyTypeList,
                           onSelected: (value) {
                             _selectedHardshipType.value = value;
                             _amountC.text = '0.0';

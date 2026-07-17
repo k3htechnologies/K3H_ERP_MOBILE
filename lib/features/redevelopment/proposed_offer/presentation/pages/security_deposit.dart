@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/security_deposite.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
+import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -16,10 +20,12 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class SecurityDeposit extends StatefulWidget {
   final int projectId;
   final int buildingId;
+  final ValueChanged<VoidCallback> onSave;
   const SecurityDeposit({
     super.key,
     required this.projectId,
     required this.buildingId,
+    required this.onSave,
   });
 
   @override
@@ -35,10 +41,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
 
   // TEXT EDITING CONTROLLERS
   late TextEditingController _securityDepositAmountController;
-  final List<Map<String, dynamic>> _securityDepositTypeList = [
-    {'zAttributesId': 1, 'DisplayName': 'Residential'},
-    {'zAttributesId': 2, 'DisplayName': 'Commercial'},
-  ];
 
   final ValueNotifier<
     List<ProposedOfferSecurityDepositDetailsWithPaymentStageData>
@@ -62,6 +64,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
     _initializeControllers();
+    widget.onSave(_onSave);
     _cubit.pullSecurityDepositDetails(
       projectId: widget.projectId,
       buildingId: widget.buildingId,
@@ -143,7 +146,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                 CustomDropDownWidget(
                   isRequired: true,
                   initialValue: selectedSecurityDepositType,
-                  dataList: _securityDepositTypeList,
+                  dataList: propertyTypeList,
                   onSelected: (value) {
                     _selectedSecurityDepositType.value = value;
                   },
@@ -283,9 +286,9 @@ class _SecurityDepositState extends State<SecurityDeposit> {
   void _prefillBottomSheet(
     ProposedOfferSecurityDepositDetailsWithPaymentStageData securityDeposit,
   ) {
-    _selectedSecurityDepositType.value = _securityDepositTypeList.firstWhere(
+    _selectedSecurityDepositType.value = propertyTypeList.firstWhere(
       (e) => e['DisplayName'] == securityDeposit.type,
-      orElse: () => _securityDepositTypeList.first,
+      orElse: () => propertyTypeList.first,
     );
     _stageController.text = securityDeposit.stage;
     _amountController.text = securityDeposit.amount.toString();
@@ -295,6 +298,44 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     _selectedSecurityDepositType.value = null;
     _stageController.clear();
     _amountController.clear();
+  }
+
+  Future<void> _showPopupToDeleteSecurityDepositData() async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'Are sure you want delete Security Deposit Amount?',
+      'Deleting this security deposit will permanently remove all associated data.',
+      deleteButtonTxt: 'Delete All',
+    );
+    if (result && context.mounted) {
+      _cubit.deleteSecurityDepositDetails(
+        // ignore: use_build_context_synchronously
+        context: context,
+        projectId: widget.projectId,
+        buildingId: widget.buildingId,
+      );
+    }
+  }
+
+  Future<void> _showPopupToDeleteShifting(int index) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a security deposit payment stage ?',
+      'Deleting this security deposit payment stage will permanently remove all associated data.',
+    );
+    if (result && context.mounted) {
+      final newList =
+          List<ProposedOfferSecurityDepositDetailsWithPaymentStageData>.from(
+            _securityDepositList,
+          );
+      newList.removeAt(index);
+      _securityDepositListNotifier.value = newList;
+      showSuccessMessage(
+        // ignore: use_build_context_synchronously
+        context,
+        subTitle: 'Security Deposit Payment Stage Removed',
+      );
+    }
   }
 
   @override
@@ -326,7 +367,22 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Security Deposit", style: AppTextStyle.ts16M()),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: ProposedOfferTile(
+                            icon: AppAssets.securityDepositIcon,
+                            title: "Security Deposit Amount Details",
+                          ),
+                        ),
+                        CustomIconButton.delete(
+                          isDisabled: state.securityDepositDetails == null,
+                          onPressed: _showPopupToDeleteSecurityDepositData,
+                        ),
+                      ],
+                    ),
+
                     verticalSpacing(height: 15),
                     CustomTextField(
                       title: 'Security Deposit Amount',
@@ -348,13 +404,19 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            CustomButton(
-                              onPressed:
-                                  () => _showSecurityDepositBottomSheet(),
-                              text: "Add Security Deposit",
-                              leading: Icon(Icons.add, color: AppColor.white),
+                            Text(
+                              'Security Deposit List',
+                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                            ),
+                            CustomIconButton.add(
+                              onPressed: () {
+                                if (!_formKey.currentState!.validate()) {
+                                  return;
+                                }
+                                _showSecurityDepositBottomSheet();
+                              },
                             ),
                           ],
                         ),
@@ -368,109 +430,64 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                           builder: (context, securityDepositList, _) {
                             if (securityDepositList.isNotEmpty) {
                               return Column(
-                                children: List.generate(securityDepositList.length, (
-                                  index,
-                                ) {
-                                  final securityDeposit =
-                                      securityDepositList[index];
+                                children: List.generate(
+                                  securityDepositList.length,
+                                  (index) {
+                                    final securityDeposit =
+                                        securityDepositList[index];
 
-                                  return Container(
-                                    margin: const EdgeInsets.only(bottom: 12),
-                                    decoration: BoxDecoration(
-                                      color: AppColor.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: AppColor.grey.withAlpha(80),
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withAlpha(10),
-                                          blurRadius: 6,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16),
+                                    return CommonInfoCard(
+                                      title: securityDeposit.stage,
+                                      tag: securityDeposit.type,
+                                      onEdit: () async {
+                                        if (!_formKey.currentState!
+                                            .validate()) {
+                                          return;
+                                        }
+                                        _showSecurityDepositBottomSheet(
+                                          securityDeposit: securityDeposit,
+                                          index: index,
+                                        );
+                                      },
+                                      onDelete: () {
+                                        _showPopupToDeleteShifting(index);
+                                      },
                                       child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        spacing: 10,
                                         children: [
-                                          /// HEADER (TYPE + ACTIONS)
                                           Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
+                                            spacing: 10,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              Text(
-                                                securityDeposit.type,
-                                                style: AppTextStyle.ts16M(),
-                                              ),
-                                              Row(
-                                                children: [
-                                                  CustomIconButton.edit(
-                                                    onPressed: () {
-                                                      _showSecurityDepositBottomSheet(
-                                                        securityDeposit:
-                                                            securityDeposit,
-                                                        index: index,
-                                                      );
-                                                    },
-                                                  ),
-                                                  const SizedBox(width: 12),
-                                                  CustomIconButton.delete(
-                                                    onPressed: () {
-                                                      final newList = List<
-                                                        ProposedOfferSecurityDepositDetailsWithPaymentStageData
-                                                      >.from(
-                                                        securityDepositList,
-                                                      );
-                                                      newList.removeAt(index);
-                                                      _securityDepositListNotifier
-                                                          .value = newList;
-                                                    },
-                                                  ),
-                                                ],
+                                              buildColumnTitleValue(
+                                                title: "Amount",
+                                                value:
+                                                    (securityDeposit.amount)
+                                                        .toIndianCurrency(),
                                               ),
                                             ],
                                           ),
-
-                                          Divider(
-                                            color: AppColor.grey.withAlpha(60),
-                                          ),
-
-                                          _buildSecurityInfoRow(
-                                            "Stage",
-                                            securityDeposit.stage,
-                                          ),
-                                          _buildSecurityInfoRow(
-                                            "Amount",
-                                            securityDeposit.amount
-                                                .toIndianCurrency(),
-                                          ),
                                         ],
                                       ),
-                                    ),
-                                  );
-                                }),
+                                    );
+                                  },
+                                ),
                               );
                             } else {
                               return Container(
                                 padding: const EdgeInsets.all(40),
                                 child: Center(
-                                  child: Text(
-                                    'No details added',
-                                    style: AppTextStyle.ts16R(
-                                      color: AppColor.grey,
-                                    ),
+                                  child: noDataWidget(
+                                    message:
+                                        'No Security Deposit Details Found',
+                                    iconSize: 100,
                                   ),
                                 ),
                               );
                             }
                           },
                         ),
-                        verticalSpacing(height: 20),
-                        CustomButton(text: "Save", onPressed: _onSave),
-                        verticalSpacing(),
                       ],
                     ),
                   ],
@@ -479,24 +496,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
             ),
           );
         },
-      ),
-    );
-  }
-
-  // HELPER METHODS
-  Widget _buildSecurityInfoRow(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          ),
-          Text(": "),
-          Expanded(child: Text(value, style: AppTextStyle.ts14R())),
-        ],
       ),
     );
   }

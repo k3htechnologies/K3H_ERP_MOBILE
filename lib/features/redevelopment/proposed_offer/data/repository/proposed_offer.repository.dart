@@ -35,6 +35,11 @@ abstract interface class ProposedOfferRepository {
     required Map<String, dynamic> body,
   });
 
+  Future<Either<Failure, Map<String, dynamic>>> deleteShiftingDetails({
+    required int projectId,
+    required int buildingId,
+  });
+
   Future<Either<Failure, Map<String, dynamic>>> pullSecurityDepositDetails({
     required int projectId,
     required int buildingId,
@@ -42,6 +47,11 @@ abstract interface class ProposedOfferRepository {
 
   Future<Either<Failure, Map<String, dynamic>>>
   addUpdateSecurityDepositDetails({required Map<String, dynamic> body});
+
+  Future<Either<Failure, Map<String, dynamic>>> deleteSecurityDepositDetails({
+    required int projectId,
+    required int buildingId,
+  });
 
   Future<Either<Failure, Map<String, dynamic>>> pullLienToSocietyDetails({
     required int projectId,
@@ -204,6 +214,22 @@ class ProposedOfferRepositoryImpl implements ProposedOfferRepository {
   }
 
   @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteShiftingDetails({
+    required int projectId,
+    required int buildingId,
+  }) async {
+    try {
+      var result = await proposedOfferDatasource.apicallDeleteShiftingDetails(
+        projectId: projectId,
+        buildingId: buildingId,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
   Future<Either<Failure, Map<String, dynamic>>> pullSecurityDepositDetails({
     required int projectId,
     required int buildingId,
@@ -226,6 +252,23 @@ class ProposedOfferRepositoryImpl implements ProposedOfferRepository {
     try {
       var result = await proposedOfferDatasource
           .apicallAddUpdateSecurityDepositDetails(body: body);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteSecurityDepositDetails({
+    required int projectId,
+    required int buildingId,
+  }) async {
+    try {
+      var result = await proposedOfferDatasource
+          .apicallDeleteSecurityDepositDetails(
+            projectId: projectId,
+            buildingId: buildingId,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

@@ -3,13 +3,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/shifting_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
+import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -17,10 +21,13 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class ShiftingDetails extends StatefulWidget {
   final int projectId;
   final int buildingId;
+  final ValueChanged<VoidCallback> onSave;
+
   const ShiftingDetails({
     super.key,
     required this.projectId,
     required this.buildingId,
+    required this.onSave,
   });
 
   @override
@@ -37,10 +44,6 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
   // TEXT EDITING CONTROLLERS
   late TextEditingController _residentialAmountController;
   late TextEditingController _commercialAmountController;
-  final List<Map<String, dynamic>> _configurationTypeList = [
-    {'zAttributesId': 1, 'DisplayName': 'Residential'},
-    {'zAttributesId': 2, 'DisplayName': 'Commercial'},
-  ];
 
   final ValueNotifier<List<ProposedOfferShiftingDetailsWithPaymentStageData>>
   _shiftingListNotifier =
@@ -62,6 +65,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
     _initializeControllers();
+    widget.onSave(_onSave);
     _cubit.pullShiftingDetails(
       projectId: widget.projectId,
       buildingId: widget.buildingId,
@@ -162,9 +166,9 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
   void _prefillDialog(
     ProposedOfferShiftingDetailsWithPaymentStageData shifting,
   ) {
-    _selectedShiftingType.value = _configurationTypeList.firstWhere(
+    _selectedShiftingType.value = propertyTypeList.firstWhere(
       (e) => e['DisplayName'] == shifting.type,
-      orElse: () => _configurationTypeList.first,
+      orElse: () => propertyTypeList.first,
     );
     _stageController.text = shifting.stage;
     _stagePercentageController.text = shifting.stagePercentage.toString();
@@ -203,7 +207,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                 return CustomDropDownWidget(
                   isRequired: true,
                   initialValue: _selectedShiftingType.value,
-                  dataList: _configurationTypeList,
+                  dataList: propertyTypeList,
                   onSelected: (value) {
                     _selectedShiftingType.value = value;
                     _amountController.text = '0.0';
@@ -468,6 +472,41 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     _shiftingListNotifier.value = newList;
   }
 
+  Future<void> _showPopupToDeleteShiftingData() async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'Are sure you want delete Shifting Amount?',
+      'Deleting this shifting will permanently remove all associated data.',
+      deleteButtonTxt: 'Delete All',
+    );
+    if (result && context.mounted) {
+      _cubit.deleteShiftingDetails(
+        // ignore: use_build_context_synchronously
+        context: context,
+        projectId: widget.projectId,
+        buildingId: widget.buildingId,
+      );
+    }
+  }
+
+  Future<void> _showPopupToDeleteShifting(int index) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a shifting payment stage ?',
+      'Deleting this shifting payment stage will permanently remove all associated data.',
+    );
+    if (result && context.mounted) {
+      final newList =
+          List<ProposedOfferShiftingDetailsWithPaymentStageData>.from(
+            _shiftingList,
+          );
+      newList.removeAt(index);
+      _shiftingListNotifier.value = newList;
+      // ignore: use_build_context_synchronously
+      showSuccessMessage(context, subTitle: 'Shifting Payment Stage Removed');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -499,8 +538,23 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Shifting Details", style: AppTextStyle.ts16M()),
-                    verticalSpacing(height: 15),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: ProposedOfferTile(
+                            icon: AppAssets.shiftingDetailsIcon,
+                            title: "Shifting Amount Details",
+                          ),
+                        ),
+                        CustomIconButton.delete(
+                          isDisabled: state.shiftingDetails == null,
+                          onPressed: _showPopupToDeleteShiftingData,
+                        ),
+                      ],
+                    ),
+
+                    verticalSpacing(),
                     CustomTextField(
                       title: "Residential Shifting Amount (₹)",
                       hint: "Enter Residential Shifting Amount",
@@ -556,15 +610,21 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Shifting List', style: AppTextStyle.ts16M()),
-                        CustomButton(
-                          onPressed: () => _showShiftingBottomSheet(),
-                          text: "Add Shifting",
-                          leading: Icon(Icons.add, color: AppColor.white),
+                        Text(
+                          'Shifting List',
+                          style: AppTextStyle.ts14M(color: AppColor.grey),
+                        ),
+                        CustomIconButton.add(
+                          onPressed: () {
+                            if (!_formKey.currentState!.validate()) {
+                              return;
+                            }
+                            _showShiftingBottomSheet();
+                          },
                         ),
                       ],
                     ),
-                    verticalSpacing(height: 20),
+                    verticalSpacing(height: 16),
                     ValueListenableBuilder<
                       List<ProposedOfferShiftingDetailsWithPaymentStageData>
                     >(
@@ -577,90 +637,43 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                             ) {
                               final shifting = shiftingList[index];
 
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                decoration: BoxDecoration(
-                                  color: AppColor.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: AppColor.grey.withValues(alpha: 0.3),
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.05,
-                                      ),
-                                      blurRadius: 6,
-                                      offset: const Offset(0, 2),
+                              return CommonInfoCard(
+                                title: shifting.stage,
+                                tag: shifting.type,
+                                onEdit: () async {
+                                  if (!_formKey.currentState!.validate()) {
+                                    return;
+                                  }
+                                  _showShiftingBottomSheet(
+                                    shifting: shifting,
+                                    index: index,
+                                  );
+                                },
+                                onDelete: () {
+                                  _showPopupToDeleteShifting(index);
+                                },
+                                child: Column(
+                                  spacing: 10,
+                                  children: [
+                                    Row(
+                                      spacing: 10,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Percentage",
+                                          value:
+                                              "${shifting.stagePercentage.toStringAsFixed(2)}%",
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Amount",
+                                          value:
+                                              (shifting.amount)
+                                                  .toIndianCurrency(),
+                                        ),
+                                      ],
                                     ),
                                   ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // HEADER (TYPE + ACTIONS)
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            shifting.type,
-                                            style: AppTextStyle.ts16M(),
-                                          ),
-
-                                          Row(
-                                            children: [
-                                              CustomIconButton.edit(
-                                                onPressed: () {
-                                                  _showShiftingBottomSheet(
-                                                    shifting: shifting,
-                                                    index: index,
-                                                  );
-                                                },
-                                              ),
-
-                                              const SizedBox(width: 12),
-
-                                              CustomIconButton.delete(
-                                                onPressed: () {
-                                                  final newList = List<
-                                                    ProposedOfferShiftingDetailsWithPaymentStageData
-                                                  >.from(shiftingList);
-                                                  newList.removeAt(index);
-                                                  _shiftingListNotifier.value =
-                                                      newList;
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-
-                                      Divider(
-                                        color: AppColor.grey.withValues(
-                                          alpha: 0.4,
-                                        ),
-                                      ),
-
-                                      _buildShiftingInfoRow(
-                                        "Stage",
-                                        shifting.stage,
-                                      ),
-
-                                      _buildShiftingInfoRow(
-                                        "Stage %",
-                                        "${shifting.stagePercentage.toStringAsFixed(2)}%",
-                                      ),
-
-                                      _buildShiftingInfoRow(
-                                        "Amount",
-                                        shifting.amount.toIndianCurrency(),
-                                      ),
-                                    ],
-                                  ),
                                 ),
                               );
                             }),
@@ -678,9 +691,6 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                         }
                       },
                     ),
-                    verticalSpacing(height: 20),
-                    CustomButton(text: "Save", onPressed: _onSave),
-                    verticalSpacing(),
                   ],
                 ),
               ),

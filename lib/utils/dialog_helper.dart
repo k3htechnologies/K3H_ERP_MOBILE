@@ -156,8 +156,9 @@ class DialogHelper {
   static Future<bool> deleteDialog(
     BuildContext context,
     String title,
-    String subTitle,
-  ) async {
+    String subTitle, {
+    String deleteButtonTxt = 'Delete',
+  }) async {
     return await showDialog(
       context: context,
       barrierDismissible: false,
@@ -208,7 +209,7 @@ class DialogHelper {
                           backgroundColor: AppColor.error,
                           textColor: AppColor.white,
                           onPressed: () => goRouter.pop(true),
-                          text: "Delete",
+                          text: deleteButtonTxt,
                           padding: EdgeInsets.symmetric(
                             horizontal: 12,
                             vertical: 9,

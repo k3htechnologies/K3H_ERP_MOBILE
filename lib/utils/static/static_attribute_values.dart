@@ -444,4 +444,4 @@ const paymentForValues = [
 
 const unitSqFtLumsumValues = ["Per Sq Ft", "Lump Sum"];
 
-const hardshipTypeValues = ['Residential', 'Commercial'];
+const propertyTypeValues = ['Residential', 'Commercial'];

@@ -44,6 +44,11 @@ abstract interface class ProposedOfferDatasource {
     required Map<String, dynamic> body,
   });
 
+  Future<Map<String, dynamic>> apicallDeleteShiftingDetails({
+    required int projectId,
+    required int buildingId,
+  });
+
   Future<Map<String, dynamic>> apicallPullSecurityDepositDetails({
     required int projectId,
     required int buildingId,
@@ -51,6 +56,11 @@ abstract interface class ProposedOfferDatasource {
 
   Future<Map<String, dynamic>> apicallAddUpdateSecurityDepositDetails({
     required Map<String, dynamic> body,
+  });
+
+  Future<Map<String, dynamic>> apicallDeleteSecurityDepositDetails({
+    required int projectId,
+    required int buildingId,
   });
 
   Future<Map<String, dynamic>> apicallPullLienToSocietyDetails({
@@ -184,7 +194,7 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
     required int buildingId,
     Map<String, dynamic>? queryParams,
   }) async {
-    String PullHardshipDetailsUrl({
+    String pullHardshipDetailsUrl({
       required int projectId,
       required int buildingId,
       Map<String, dynamic>? queryParams,
@@ -197,7 +207,7 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        PullHardshipDetailsUrl(
+        pullHardshipDetailsUrl(
           projectId: projectId,
           buildingId: buildingId,
           queryParams: queryParams,
@@ -267,6 +277,7 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
 
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -348,6 +359,39 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
       rethrow;
     }
   }
+  @override
+  Future<Map<String, dynamic>> apicallDeleteShiftingDetails({
+    required int projectId,
+    required int buildingId,
+  }) async {
+    String deleteShiftingDetailsUrl({
+      required int projectId,
+      required int buildingId,
+    }) {
+      return "ProposedOffer/DeleteShiftingDetails?ProjectId=$projectId&BuildingId=$buildingId";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteShiftingDetailsUrl(projectId: projectId, buildingId: buildingId),
+      );
+
+      return {
+        'data': networkResponse["data"],
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return await apicallDeleteShiftingDetails(
+          projectId: projectId,
+          buildingId: buildingId,
+        );
+      }
+      rethrow;
+    }
+  }
+
 
   @override
   Future<Map<String, dynamic>> apicallPullSecurityDepositDetails({
@@ -415,6 +459,42 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
         apicallAddUpdateSecurityDepositDetails(body: body);
       }
 
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeleteSecurityDepositDetails({
+    required int projectId,
+    required int buildingId,
+  }) async {
+    String deleteSecurityDepositDetailsUrl({
+      required int projectId,
+      required int buildingId,
+    }) {
+      return "ProposedOffer/DeleteSecurityDepositDetails?ProjectId=$projectId&BuildingId=$buildingId";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteSecurityDepositDetailsUrl(
+          projectId: projectId,
+          buildingId: buildingId,
+        ),
+      );
+
+      return {
+        'data': networkResponse["data"],
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return await apicallDeleteSecurityDepositDetails(
+          projectId: projectId,
+          buildingId: buildingId,
+        );
+      }
       rethrow;
     }
   }

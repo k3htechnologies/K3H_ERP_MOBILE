@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/lien_to_society_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
+import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -17,11 +22,13 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class LienToSocietyDetails extends StatefulWidget {
   final int projectId;
   final int buildingId;
+  final ValueChanged<VoidCallback> onSave;
 
   const LienToSocietyDetails({
     super.key,
     required this.projectId,
     required this.buildingId,
+    required this.onSave,
   });
 
   @override
@@ -40,10 +47,6 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
   late TextEditingController _commercialAreaController;
   late TextEditingController _residentialUnitsController;
   late TextEditingController _commercialUnitsController;
-  final List<Map<String, dynamic>> _lienTypeList = [
-    {'zAttributesId': 1, 'DisplayName': 'Residential'},
-    {'zAttributesId': 2, 'DisplayName': 'Commercial'},
-  ];
 
   final ValueNotifier<
     List<ProposedOfferLienToSocietyDetailsWithPaymentStageData>
@@ -72,6 +75,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
       projectId: widget.projectId,
       buildingId: widget.buildingId,
     );
+    widget.onSave(_onSave);
   }
 
   @override
@@ -184,7 +188,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                     CustomDropDownWidget(
                       isRequired: true,
                       initialValue: selectedLienType,
-                      dataList: _lienTypeList,
+                      dataList: propertyTypeList,
                       onSelected: (value) {
                         _selectedLienType.value = value;
                       },
@@ -281,14 +285,13 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                     // RELEASE CHECKBOX
                     Row(
                       children: [
-                        Checkbox(
-                          activeColor: AppColor.green,
-                          value: isRelease,
+                        CustomCheckBox(
+                          isSelected: isRelease,
+                          title: "Is Release",
                           onChanged: (value) {
-                            _isRelease.value = value ?? false;
+                            _isRelease.value = value;
                           },
                         ),
-                        const Text("Is Release"),
                       ],
                     ),
 
@@ -378,9 +381,9 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
   void _prefillBottomSheet(
     ProposedOfferLienToSocietyDetailsWithPaymentStageData lien,
   ) {
-    _selectedLienType.value = _lienTypeList.firstWhere(
+    _selectedLienType.value = propertyTypeList.firstWhere(
       (e) => e['DisplayName'] == lien.type,
-      orElse: () => _lienTypeList.first,
+      orElse: () => propertyTypeList.first,
     );
     _stageController.text = lien.stage;
     _carpetAreaController.text = lien.carpetAreaSqFt.toString();
@@ -400,6 +403,29 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
 
   void _handleCommercialAreaChange(double value) {
     // This method can be used if you want to recalculate something when commercial area changes
+  }
+
+  Future<void> _showPopupToDeleteLienToSocietyPaymentStage(int index) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a lien to society payment stage ?',
+      'Deleting this lien to society payment stage will permanently remove all associated data.',
+    );
+    if (result && context.mounted) {
+      final newList =
+          List<ProposedOfferLienToSocietyDetailsWithPaymentStageData>.from(
+            _lienList,
+          );
+      newList.removeAt(index);
+      _lienListNotifier.value = newList;
+      _updateLienUnitCounts();
+
+      showSuccessMessage(
+        // ignore: use_build_context_synchronously
+        context,
+        subTitle: 'Lien to Society Payment Stage Removed',
+      );
+    }
   }
 
   @override
@@ -436,10 +462,11 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Lien To Society Details",
-                      style: AppTextStyle.ts16M(),
+                    ProposedOfferTile(
+                      icon: AppAssets.lienToSocietyIcon,
+                      title: "Lien To Society Area Details",
                     ),
+
                     verticalSpacing(height: 15),
                     CustomTextField(
                       title: "Residential Area (Sq Ft)",
@@ -524,12 +551,19 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                       },
                     ),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        CustomButton(
-                          onPressed: () => _showLienBottomSheet(),
-                          text: "Add Lien To Society",
-                          leading: Icon(Icons.add, color: AppColor.white),
+                        Text(
+                          'Lien to Society List',
+                          style: AppTextStyle.ts14M(color: AppColor.grey),
+                        ),
+                        CustomIconButton.add(
+                          onPressed: () {
+                            if (!_formKey.currentState!.validate()) {
+                              return;
+                            }
+                            _showLienBottomSheet();
+                          },
                         ),
                       ],
                     ),
@@ -546,88 +580,47 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                             children: List.generate(lienList.length, (index) {
                               final lien = lienList[index];
 
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                decoration: BoxDecoration(
-                                  color: AppColor.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: AppColor.grey.withValues(alpha: 0.3),
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.05,
-                                      ),
-                                      blurRadius: 6,
-                                      offset: const Offset(0, 2),
+                              return CommonInfoCard(
+                                title: lien.stage,
+                                tag: lien.type,
+                                onEdit: () async {
+                                  if (!_formKey.currentState!.validate()) {
+                                    return;
+                                  }
+
+                                  _showLienBottomSheet(
+                                    lien: lien,
+                                    index: index,
+                                  );
+                                },
+                                onDelete: () {
+                                  _showPopupToDeleteLienToSocietyPaymentStage(
+                                    index,
+                                  );
+                                },
+                                child: Column(
+                                  spacing: 10,
+                                  children: [
+                                    Row(
+                                      spacing: 10,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Carpet Area (Sq Ft)",
+                                          value: lien.carpetAreaSqFt
+                                              .toStringAsFixed(2),
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Is Release",
+                                          value:
+                                              lien.isRelease == true
+                                                  ? 'Yes'
+                                                  : 'No',
+                                        ),
+                                      ],
                                     ),
                                   ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      /// HEADER (TYPE + ACTIONS)
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            lien.type,
-                                            style: AppTextStyle.ts16M(),
-                                          ),
-
-                                          Row(
-                                            children: [
-                                              CustomIconButton.edit(
-                                                onPressed: () {
-                                                  _showLienBottomSheet(
-                                                    lien: lien,
-                                                    index: index,
-                                                  );
-                                                },
-                                              ),
-
-                                              const SizedBox(width: 12),
-
-                                              CustomIconButton.delete(
-                                                onPressed: () {
-                                                  final newList = List<
-                                                    ProposedOfferLienToSocietyDetailsWithPaymentStageData
-                                                  >.from(lienList);
-                                                  newList.removeAt(index);
-                                                  _lienListNotifier.value =
-                                                      newList;
-                                                  _updateLienUnitCounts();
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-
-                                      Divider(
-                                        color: AppColor.grey.withValues(
-                                          alpha: 0.4,
-                                        ),
-                                      ),
-
-                                      _buildLienInfoRow("Stage", lien.stage),
-
-                                      _buildLienInfoRow(
-                                        "Carpet Area",
-                                        "${lien.carpetAreaSqFt.toStringAsFixed(2)} Sq Ft",
-                                      ),
-
-                                      _buildLienInfoRow(
-                                        "Is Release",
-                                        lien.isRelease ? "Yes" : "No",
-                                      ),
-                                    ],
-                                  ),
                                 ),
                               );
                             }),
@@ -645,33 +638,12 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                         }
                       },
                     ),
-                    verticalSpacing(height: 30),
-                    CustomButton(text: "Save", onPressed: _onSave),
-                    verticalSpacing(),
                   ],
                 ),
               ),
             ),
           );
         },
-      ),
-    );
-  }
-
-  // HELPER METHODS
-  Widget _buildLienInfoRow(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          ),
-          const Text(": "),
-          Expanded(child: Text(value, style: AppTextStyle.ts14R())),
-        ],
       ),
     );
   }

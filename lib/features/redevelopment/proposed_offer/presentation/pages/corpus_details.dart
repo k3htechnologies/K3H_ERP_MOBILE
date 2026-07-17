@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/corpus_details.model.dart';
@@ -180,8 +179,9 @@ class _HardshipDetailsState extends State<HardshipDetails> {
   Future<void> _showPopupToDeleteHardshipData() async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a hardship payment stage?',
-      'Deleting this corpus payment stage will permanently remove all associated data.',
+      'Are sure you want delete hardship amount?',
+      'Deleting this hardship will permanently remove all associated data.',
+      deleteButtonTxt: 'Delete All',
     );
     if (result && context.mounted) {
       _cubit.deleteHardshipDetails(
@@ -197,7 +197,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
     var result = await DialogHelper.deleteDialog(
       context,
       'You are about to delete a hardship payment stage?',
-      'Deleting this corpus payment stage will permanently remove all associated data.',
+      'Deleting this hardship payment stage will permanently remove all associated data.',
     );
     if (result && context.mounted) {
       final newList =
@@ -352,13 +352,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                             ),
                             CustomIconButton.add(
                               onPressed: () async {
-                                if (_commercialAmountC.text.isEmpty ||
-                                    _residentialAmountC.text.isEmpty) {
-                                  showErrorMessage(
-                                    context,
-                                    'Error',
-                                    'Please complete amount details',
-                                  );
+                                if (!_formKey.currentState!.validate()) {
                                   return;
                                 }
                                 final result = await goRouter.pushNamed(
@@ -415,6 +409,9 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                                     title: corpus.stage,
                                     tag: corpus.type,
                                     onEdit: () async {
+                                      if (!_formKey.currentState!.validate()) {
+                                        return;
+                                      }
                                       final result = await goRouter.pushNamed(
                                         AppRoutes.addUpdateHardshipDetails,
                                         extra: _corpusList,
@@ -456,7 +453,6 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                                               is List<
                                                 ProposedOfferHardshipDetailsWithPaymentStageData
                                               >) {
-                                        print("WE ARE --------------->");
                                         _corpusListNotifier.value = result;
                                       }
                                     },
