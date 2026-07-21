@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/refund_amount_payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
@@ -31,9 +32,13 @@ class RefundPaymentLedgerScreen extends StatefulWidget {
 
 class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
   late RequestManagementCubit _requestManagementCubit;
+  late AuthorizationModel _modifiedRequestsAuthorization;
   @override
   void initState() {
     super.initState();
+    _modifiedRequestsAuthorization =
+        Authorization.routeAuthorizationMap[AppRoutes.modificationRequest] ??
+        AuthorizationModel();
     _requestManagementCubit = context.read<RequestManagementCubit>();
     _requestManagementCubit.getRefundAmountPaymentLedger(
       context,
@@ -75,9 +80,12 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
             ),
           );
         }
-        final refundData = state.refundAmountLedgerList.first;
-        final approvalStatus = refundData.approvalStatus;
+        final refundDataDetails = state.refundAmountLedgerList.first;
+
+        final approvalStatus = refundDataDetails.approvalStatus;
+
         final isAlreadyApproved = approvalStatus.toLowerCase() == "approved";
+
         final isRejected = approvalStatus.toLowerCase() == "rejected";
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -151,8 +159,10 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                 shrinkWrap: true,
                 physics: AlwaysScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
-                  final refundDataDetails = state.refundAmountLedgerList[index];
+                  final refundDataDetailsDetails =
+                      state.refundAmountLedgerList[index];
                   return Container(
+                    margin: EdgeInsets.only(bottom: 10.0),
                     padding: EdgeInsets.all(12.0),
                     decoration: BoxDecoration(
                       color: AppColor.formBackground,
@@ -176,146 +186,160 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                                 buildColumnTitleValueNormal(
                                   title: "Refunded Amount",
                                   value:
-                                      refundDataDetails.refundedAmount
+                                      refundDataDetailsDetails.refundedAmount
                                           .toIndianCurrency(),
                                 ),
                                 verticalSpacing(),
                                 buildColumnTitleValueNormal(
                                   title: "Payment Mode",
-                                  value: refundDataDetails.paymentMode,
+                                  value: refundDataDetailsDetails.paymentMode,
                                 ),
                               ],
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                CustomIconButton.edit(
-                                  onPressed: () async {
-                                    final result = await goRouter.pushNamed(
-                                      AppRoutes.modifiedRequestsMakePayment,
-                                      extra: {
-                                        "uniquekey":
-                                            refundDataDetails.uniquekey,
-                                        "bookingId":
-                                            refundDataDetails.bookingId,
-                                        "projectId":
-                                            refundDataDetails.projectId,
-                                        "refundData": refundDataDetails,
-                                      },
-                                    );
-                                    if (result == true && context.mounted) {
-                                      _requestManagementCubit
-                                          .getRefundAmountPaymentLedger(
-                                            context,
-                                            widget.booking.projectId,
-                                            widget.booking.bookingId,
-                                          );
-                                    }
-                                  },
-                                  isDisabled:
-                                      refundDataDetails.approvalStatus
-                                          .toLowerCase() ==
-                                      "approved",
-                                ),
-                                horizontalSpacing(),
-                                CustomIconButton.delete(
-                                  onPressed: () {
-                                    _showPopupToDeleteRefundPaymentLedger(
-                                      context,
-                                      refundDataDetails,
-                                      index,
-                                    );
-                                  },
-                                  isDisabled:
-                                      refundDataDetails.approvalStatus
-                                          .toLowerCase() ==
-                                      "approved",
-                                ),
-                              ],
-                            ),
+                            if (_modifiedRequestsAuthorization.isAction)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  CustomIconButton.edit(
+                                    onPressed: () async {
+                                      final result = await goRouter.pushNamed(
+                                        AppRoutes.modifiedRequestsMakePayment,
+                                        extra: {
+                                          "uniquekey":
+                                              refundDataDetailsDetails
+                                                  .uniquekey,
+                                          "bookingId":
+                                              refundDataDetailsDetails
+                                                  .bookingId,
+                                          "projectId":
+                                              refundDataDetailsDetails
+                                                  .projectId,
+                                          "refundDataDetails":
+                                              refundDataDetailsDetails,
+                                        },
+                                      );
+                                      if (result == true && context.mounted) {
+                                        _requestManagementCubit
+                                            .getRefundAmountPaymentLedger(
+                                              context,
+                                              widget.booking.projectId,
+                                              widget.booking.bookingId,
+                                            );
+                                      }
+                                    },
+                                    isDisabled:
+                                        approvalStatus.toLowerCase() ==
+                                        "approved",
+                                  ),
+                                  horizontalSpacing(),
+                                  CustomIconButton.delete(
+                                    onPressed: () {
+                                      _showPopupToDeleteRefundPaymentLedger(
+                                        context,
+                                        refundDataDetailsDetails,
+                                        index,
+                                      );
+                                    },
+                                    isDisabled:
+                                        approvalStatus.toLowerCase() ==
+                                        "approved",
+                                  ),
+                                ],
+                              ),
                           ],
                         ),
                         Divider(
                           thickness: 0.3,
                           color: AppColor.black.withValues(alpha: 0.3),
                         ),
-                        ApproveRejectWidget(
-                          isActionAlreadyPerformed:
-                              isAlreadyApproved || isRejected,
-                          actionTitle:
-                              refundData.approvalStatus.isEmpty
-                                  ? "Pending"
-                                  : approvalStatus,
-                          approveIcon: Icons.check,
-                          onApprove: (onApprove) async {
-                            final isSuccess = await context
-                                .read<UtilsCubit>()
-                                .updateModulesWorkflowApproval(
-                                  context: context,
-                                  moduleName: 'REFUND PAYMENT LEDGER APPROVAL',
-                                  id: refundData.bookingId,
-                                  subId: refundData.refundedAmountLedgerId,
-                                  projectId: refundData.projectId,
-                                  isApproved: true,
-                                  remark: onApprove.trim(),
-                                );
-                            if (context.mounted && isSuccess) {
-                              await _requestManagementCubit
-                                  .getRefundAmountPaymentLedger(
-                                    context,
-                                    widget.booking.projectId,
-                                    widget.booking.bookingId,
+                        if (_modifiedRequestsAuthorization.isAction)
+                          ApproveRejectWidget(
+                            isActionAlreadyPerformed:
+                                isAlreadyApproved || isRejected,
+                            actionTitle:
+                                refundDataDetails.approvalStatus.isEmpty
+                                    ? "Pending"
+                                    : approvalStatus,
+                            approveIcon: Icons.check,
+                            onApprove: (onApprove) async {
+                              final isSuccess = await context
+                                  .read<UtilsCubit>()
+                                  .updateModulesWorkflowApproval(
+                                    context: context,
+                                    moduleName:
+                                        'REFUND PAYMENT LEDGER APPROVAL',
+                                    id: refundDataDetails.bookingId,
+                                    subId:
+                                        refundDataDetails
+                                            .refundedAmountLedgerId,
+                                    projectId: refundDataDetails.projectId,
+                                    isApproved: true,
+                                    remark: onApprove.trim(),
                                   );
-                            }
-                          },
-                          onReject: (onReject) async {
-                            await context
-                                .read<UtilsCubit>()
-                                .updateModulesWorkflowApproval(
-                                  context: context,
-                                  isApproved: false,
-                                  moduleName: 'REFUND PAYMENT LEDGER APPROVAL',
-                                  id: refundData.bookingId,
-                                  subId: refundData.refundedAmountLedgerId,
-                                  projectId: refundData.projectId,
-                                  remark: onReject.trim(),
-                                );
-                          },
-                          onThirdTap: () async {
-                            final approvalLogHistoryList = await context
-                                .read<UtilsCubit>()
-                                .getApprovalLogHistory(
-                                  context: context,
-                                  projectId: refundData.projectId,
-                                  id: refundData.bookingId,
-                                  subId: refundData.refundedAmountLedgerId,
-                                  moduleName: 'REFUND PAYMENT LEDGER APPROVAL',
-                                );
-                            if (context.mounted) {
-                              goRouter.pushNamed(
-                                AppRoutes.approvalLogHistory,
-                                queryParameters: {
-                                  "title": Uri.encodeComponent(
-                                    EncryptionManager.encryptData(
-                                      "REFUND PAYMENT LEDGER APPROVAL",
-                                    ),
-                                  ),
-                                  "approvalList": Uri.encodeComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(
-                                        approvalLogHistoryList
-                                            .map((e) => e.toJson())
-                                            .toList(),
+                              if (context.mounted && isSuccess) {
+                                await _requestManagementCubit
+                                    .getRefundAmountPaymentLedger(
+                                      context,
+                                      widget.booking.projectId,
+                                      widget.booking.bookingId,
+                                    );
+                              }
+                            },
+                            onReject: (onReject) async {
+                              await context
+                                  .read<UtilsCubit>()
+                                  .updateModulesWorkflowApproval(
+                                    context: context,
+                                    isApproved: false,
+                                    moduleName:
+                                        'REFUND PAYMENT LEDGER APPROVAL',
+                                    id: refundDataDetails.bookingId,
+                                    subId:
+                                        refundDataDetails
+                                            .refundedAmountLedgerId,
+                                    projectId: refundDataDetails.projectId,
+                                    remark: onReject.trim(),
+                                  );
+                            },
+                            onThirdTap: () async {
+                              final approvalLogHistoryList = await context
+                                  .read<UtilsCubit>()
+                                  .getApprovalLogHistory(
+                                    context: context,
+                                    projectId: refundDataDetails.projectId,
+                                    id: refundDataDetails.bookingId,
+                                    subId:
+                                        refundDataDetails
+                                            .refundedAmountLedgerId,
+                                    moduleName:
+                                        'REFUND PAYMENT LEDGER APPROVAL',
+                                  );
+                              if (context.mounted) {
+                                goRouter.pushNamed(
+                                  AppRoutes.approvalLogHistory,
+                                  queryParameters: {
+                                    "title": Uri.encodeComponent(
+                                      EncryptionManager.encryptData(
+                                        "REFUND PAYMENT LEDGER APPROVAL",
                                       ),
                                     ),
-                                  ),
-                                },
-                              );
-                            }
-                          },
-                          popupTitle: "REFUND PAYMENT LEDGER APPROVAL",
-                        ),
-                        verticalSpacing(),
+                                    "approvalList": Uri.encodeComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(
+                                          approvalLogHistoryList
+                                              .map((e) => e.toJson())
+                                              .toList(),
+                                        ),
+                                      ),
+                                    ),
+                                  },
+                                );
+                              }
+                            },
+                            popupTitle: "REFUND PAYMENT LEDGER APPROVAL",
+                          ),
+                        if (_modifiedRequestsAuthorization.isAction)
+                          verticalSpacing(),
                         Text("Payment Details", style: AppTextStyle.ts16SB()),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -325,14 +349,14 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                             Expanded(
                               child: buildColumnTitleValueNormal(
                                 title: "Payment Mode",
-                                value: refundData.paymentMode,
+                                value: refundDataDetailsDetails.paymentMode,
                               ),
                             ),
                             Expanded(
                               child: buildColumnTitleValueNormal(
                                 title: "Refunded Amount",
                                 value:
-                                    refundData.refundedAmount
+                                    refundDataDetailsDetails.refundedAmount
                                         .toIndianCurrency(),
                               ),
                             ),
@@ -347,15 +371,15 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                               child: buildColumnTitleValueNormal(
                                 title: "Transaction / Cheque / Demand Draft",
                                 value:
-                                    refundData
+                                    refundDataDetailsDetails
                                         .transactionChequeDemandDraftNumber,
                                 customValueWidget: DocumentPreviewText(
                                   title: "Transaction / Cheque / Demand Draft",
                                   text:
-                                      refundData
+                                      refundDataDetailsDetails
                                           .transactionChequeDemandDraftNumber,
                                   fileUrl:
-                                      refundData
+                                      refundDataDetailsDetails
                                           .transactionChequeDemandDraftUrl,
                                 ),
                               ),
@@ -364,7 +388,7 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                               child: buildColumnTitleValueNormal(
                                 title: "Refunded Amount",
                                 value:
-                                    refundData.refundedAmount
+                                    refundDataDetailsDetails.refundedAmount
                                         .toIndianCurrency(),
                               ),
                             ),
@@ -383,13 +407,15 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                             Expanded(
                               child: buildColumnTitleValueNormal(
                                 title: "Project Bank name",
-                                value: refundData.projectBankName,
+                                value: refundDataDetailsDetails.projectBankName,
                               ),
                             ),
                             Expanded(
                               child: buildColumnTitleValueNormal(
                                 title: "Account Number",
-                                value: refundData.projectAccountNumber,
+                                value:
+                                    refundDataDetailsDetails
+                                        .projectAccountNumber,
                               ),
                             ),
                           ],
@@ -402,13 +428,15 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                             Expanded(
                               child: buildColumnTitleValueNormal(
                                 title: "IFSC Code",
-                                value: refundData.projectIfscCode,
+                                value: refundDataDetailsDetails.projectIfscCode,
                               ),
                             ),
                             Expanded(
                               child: buildColumnTitleValueNormal(
                                 title: "Nature Of Account",
-                                value: refundData.projectNatureOfAccount,
+                                value:
+                                    refundDataDetailsDetails
+                                        .projectNatureOfAccount,
                               ),
                             ),
                           ],
@@ -421,7 +449,7 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                             Expanded(
                               child: buildColumnTitleValueNormal(
                                 title: "Account Type",
-                                value: refundData.projectAcType,
+                                value: refundDataDetails.projectAcType,
                               ),
                             ),
                           ],
@@ -439,13 +467,13 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                             Expanded(
                               child: buildColumnTitleValueNormal(
                                 title: "Account Holder Name",
-                                value: refundData.accountHolderName,
+                                value: refundDataDetails.accountHolderName,
                               ),
                             ),
                             Expanded(
                               child: buildColumnTitleValueNormal(
                                 title: "Bank Name",
-                                value: refundData.bankName,
+                                value: refundDataDetails.bankName,
                               ),
                             ),
                           ],
@@ -458,13 +486,13 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                             Expanded(
                               child: buildColumnTitleValueNormal(
                                 title: "Account Number",
-                                value: refundData.accountNumber,
+                                value: refundDataDetails.accountNumber,
                               ),
                             ),
                             Expanded(
                               child: buildColumnTitleValueNormal(
                                 title: "IFSC Code",
-                                value: refundData.ifscCode,
+                                value: refundDataDetails.ifscCode,
                               ),
                             ),
                           ],
@@ -482,14 +510,14 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                             Expanded(
                               child: buildColumnTitleValueNormal(
                                 title: "Created By",
-                                value: refundData.createdBy,
+                                value: refundDataDetails.createdBy,
                               ),
                             ),
                             Expanded(
                               child: buildColumnTitleValueNormal(
                                 title: "Created Date",
                                 value: formatDateTimeAsDDMMMYYYY(
-                                  refundData.createdDate,
+                                  refundDataDetails.createdDate,
                                 ),
                               ),
                             ),
@@ -503,14 +531,14 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                             Expanded(
                               child: buildColumnTitleValueNormal(
                                 title: "Modified By",
-                                value: refundData.modifiedBy,
+                                value: refundDataDetails.modifiedBy,
                               ),
                             ),
                             Expanded(
                               child: buildColumnTitleValueNormal(
                                 title: "Modified Date",
                                 value: formatDateTimeAsDDMMMYYYY(
-                                  refundData.modifiedDate,
+                                  refundDataDetails.modifiedDate,
                                 ),
                               ),
                             ),

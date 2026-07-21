@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/cubit/files_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/presentation/cubit/loan_details_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/presentation/cubit/loan_details_state.dart';
@@ -41,10 +42,14 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
   late TabController _tabController;
   late LoanDetailsCubit _loanDetailsCubit;
   late ValueNotifier<Map<int, bool>> closeAccountNotifier;
+  late AuthorizationModel _bankLoanAuthorization;
 
   @override
   void initState() {
     super.initState();
+    _bankLoanAuthorization =
+        Authorization.routeAuthorizationMap[AppRoutes.bankLoans] ??
+        AuthorizationModel();
     closeAccountNotifier = ValueNotifier({});
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
@@ -144,30 +149,32 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                         ),
                       ),
                       horizontalSpacing(),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: CustomButton(
-                          text: "Add Bank Details ",
-                          onPressed: () {
-                            goRouter.pushNamed(
-                              AppRoutes.addActiveBank,
-                              queryParameters: {
-                                'bookingId': Uri.encodeComponent(
-                                  EncryptionManager.encryptData(
-                                    widget.bookingId.toString(),
+                      if (isApproved && hasActiveBank)
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: CustomButton(
+                            text: "Add Bank Details ",
+                            isDisable: !_bankLoanAuthorization.isAction,
+                            onPressed: () {
+                              goRouter.pushNamed(
+                                AppRoutes.addActiveBank,
+                                queryParameters: {
+                                  'bookingId': Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      widget.bookingId.toString(),
+                                    ),
                                   ),
-                                ),
 
-                                'projectId': Uri.encodeComponent(
-                                  EncryptionManager.encryptData(
-                                    widget.projectId.toString(),
+                                  'projectId': Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      widget.projectId.toString(),
+                                    ),
                                   ),
-                                ),
-                              },
-                            );
-                          },
+                                },
+                              );
+                            },
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -434,7 +441,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                                   ),
                                   if (bankDetail.noOfBankDocument > 0 &&
                                       status != "closed" &&
-                                      !isApproved)
+                                      isApproved)
                                     ValueListenableBuilder<Map<int, bool>>(
                                       valueListenable: closeAccountNotifier,
                                       builder: (context, selectedMap, child) {
@@ -724,7 +731,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                                                   document.bankStatusClosedActive
                                                           .toLowerCase() ==
                                                       "closed" ||
-                                                  isApproved,
+                                                  !isApproved,
                                               onPressed: () {
                                                 goRouter.pushNamed(
                                                   AppRoutes.addBankLoanDocument,
@@ -762,11 +769,13 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                                                   document.bankStatusClosedActive
                                                           .toLowerCase() ==
                                                       "closed" ||
-                                                  isApproved,
+                                                  !isApproved,
                                               onPressed: () {
                                                 _loanDetailsCubit
                                                     .deleteBankDocument(
-                                                      docIndex,
+                                                      index,
+                                                      document
+                                                          .bookingLoanDetailsId,
                                                       file,
                                                       context,
                                                     );

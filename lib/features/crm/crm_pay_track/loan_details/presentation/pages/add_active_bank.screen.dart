@@ -216,7 +216,7 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
                   title: "Branch Name",
                   hint: "Enter Bank Branch Name",
                   isRequired: true,
-                  inputFormatterList: [LengthLimitingTextInputFormatter(200)],
+                  inputFormatterList: InputValidator.textDigit(50),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return "Bank Branch Name is required";
@@ -291,7 +291,7 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
                   maxLines: 10,
                   isRequired: true,
                   suffixWidget: SpeechToTextIcon(controller: _addressC),
-                  inputFormatterList: [LengthLimitingTextInputFormatter(200)],
+                  inputFormatterList: [LengthLimitingTextInputFormatter(250)],
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return "Address is required";

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_state.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/widget/custom_expansion_tile.dart';
@@ -42,19 +43,22 @@ class _PaymentScreenState extends State<PaymentScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late PaymentCubit _paymentCubit;
-  // TabController? _primaryTabController;
-  // TabController? _secondaryTabController;
-  late TextEditingController _searchTextC;
-  // final ValueNotifier<String> _searchTextNotifier = ValueNotifier<String>(
-  //   'Search By Project Name',
-  // );
+  late TextEditingController _scheduleSearchC;
+  late TextEditingController _ledgerSearchC;
+
+  late AuthorizationModel _accountAuthorization;
+
   @override
   void initState() {
     super.initState();
+    _accountAuthorization =
+        Authorization.routeAuthorizationMap[AppRoutes.paymentLedger] ??
+        AuthorizationModel();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
     _paymentCubit = context.read<PaymentCubit>();
-    _searchTextC = TextEditingController();
+    _scheduleSearchC = TextEditingController();
+    _ledgerSearchC = TextEditingController();
     _paymentCubit.getPaymentScheduleList(
       context,
       widget.projectId,
@@ -65,6 +69,9 @@ class _PaymentScreenState extends State<PaymentScreen>
   // HANDLE TAB CHANGE
   void _handleTabChange() async {
     if (!_tabController.indexIsChanging) {
+      _scheduleSearchC.clear();
+      _ledgerSearchC.clear();
+
       switch (_tabController.index) {
         case 0:
           await _paymentCubit.getPaymentScheduleList(
@@ -87,7 +94,8 @@ class _PaymentScreenState extends State<PaymentScreen>
 
   @override
   void dispose() {
-    _searchTextC.dispose();
+    _scheduleSearchC.dispose();
+    _ledgerSearchC.dispose();
     super.dispose();
   }
 
@@ -123,7 +131,9 @@ class _PaymentScreenState extends State<PaymentScreen>
             state.payTrackPaymentScheduleList.isEmpty) {
           return Center(child: CircularProgressIndicator());
         }
-
+        final showAddButton =
+            widget.bookingApprovalStatus.toLowerCase() != "cancel" &&
+            widget.bookingApprovalStatus.toLowerCase() != "refund";
         return Padding(
           padding: EdgeInsets.all(20.0),
           child: Column(
@@ -153,12 +163,6 @@ class _PaymentScreenState extends State<PaymentScreen>
                         paymentSchedules.type.toLowerCase() == "stage" ||
                         paymentSchedules.type.toLowerCase() == "date";
                     final showDemand = !hideDemand && isStageOrDate;
-                    final disableDemand =
-                        widget.bookingApprovalStatus.trim().toLowerCase() ==
-                            "cancel" ||
-                        widget.bookingApprovalStatus.trim().toLowerCase() ==
-                            "refund" ||
-                        paymentSchedules.demandType.trim().isEmpty;
                     final hasDemandType =
                         paymentSchedules.demandType.trim().isNotEmpty;
                     return CustomExpandableCard(
@@ -206,64 +210,68 @@ class _PaymentScreenState extends State<PaymentScreen>
                                   paymentSchedules.demandType.trim().isNotEmpty
                               ? verticalSpacing()
                               : SizedBox.shrink(),
+                          if (showAddButton)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (hasDemandType && showDemand)
+                                  Expanded(
+                                    child: CustomButton(
+                                      isDisable: _accountAuthorization.isAction,
+                                      text:
+                                          paymentSchedules.demandType
+                                                  .trim()
+                                                  .isEmpty
+                                              ? "-"
+                                              : paymentSchedules.demandType
+                                                  .trim(),
 
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (hasDemandType && showDemand)
-                                Expanded(
-                                  child: CustomButton(
-                                    text:
-                                        paymentSchedules.demandType
-                                                .trim()
-                                                .isEmpty
-                                            ? "-"
-                                            : paymentSchedules.demandType
-                                                .trim(),
-                                    isDisable: disableDemand,
-                                    onPressed: () {
-                                      _paymentCubit.addDemandDraft(
-                                        context: context,
-                                        bookingPaymentScheduleId:
-                                            paymentSchedules
-                                                .bookingPaymentScheduleId,
-                                        bookingId: widget.bookingId,
-                                        projectId: widget.projectId,
-                                        paymentScheduleDemandType:
-                                            paymentSchedules.demandType,
-                                      );
-                                    },
-                                  ),
-                                ),
-
-                              if (showDemand && showTrackLetter)
-                                horizontalSpacing(),
-                              if (showTrackLetter)
-                                Expanded(
-                                  child: CustomButton(
-                                    text: "Track Letter",
-                                    backgroundColor: AppColor.white,
-                                    textColor: AppColor.primary,
-                                    borderColor: AppColor.primary,
-                                    onPressed: () {
-                                      goRouter.pushNamed(
-                                        AppRoutes.paymentScheduleDemandSummary,
-                                        extra: {
-                                          "projectId": widget.projectId,
-                                          "bookingId": widget.bookingId,
-                                          "bookingPaymentScheduleId":
+                                      onPressed: () {
+                                        _paymentCubit.addDemandDraft(
+                                          context: context,
+                                          bookingPaymentScheduleId:
                                               paymentSchedules
                                                   .bookingPaymentScheduleId,
-                                          "stageName": paymentSchedules.name,
-                                          "applicantName": widget.applicantName,
-                                        },
-                                      );
-                                    },
+                                          bookingId: widget.bookingId,
+                                          projectId: widget.projectId,
+                                          paymentScheduleDemandType:
+                                              paymentSchedules.demandType,
+                                        );
+                                      },
+                                    ),
                                   ),
-                                ),
-                            ],
-                          ),
+
+                                if (showDemand && showTrackLetter)
+                                  horizontalSpacing(),
+                                if (showTrackLetter &&
+                                    !_accountAuthorization.isAction)
+                                  Expanded(
+                                    child: CustomButton(
+                                      text: "Track Letter",
+                                      backgroundColor: AppColor.white,
+                                      textColor: AppColor.primary,
+                                      borderColor: AppColor.primary,
+                                      onPressed: () {
+                                        goRouter.pushNamed(
+                                          AppRoutes
+                                              .paymentScheduleDemandSummary,
+                                          extra: {
+                                            "projectId": widget.projectId,
+                                            "bookingId": widget.bookingId,
+                                            "bookingPaymentScheduleId":
+                                                paymentSchedules
+                                                    .bookingPaymentScheduleId,
+                                            "stageName": paymentSchedules.name,
+                                            "applicantName":
+                                                widget.applicantName,
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  ),
+                              ],
+                            ),
                         ],
                       ),
                       body: Column(
@@ -435,7 +443,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                   spacing: 10.0,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    showAddButton
+                    showAddButton && !_accountAuthorization.isAction
                         ? Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -662,7 +670,14 @@ class _PaymentScreenState extends State<PaymentScreen>
             children: [
               Expanded(
                 child: SearchWidget(
-                  hintText: "Search by Stage / Milestone",
+                  hintText:
+                      _tabController.index == 0
+                          ? "Search by Stage / Milestone"
+                          : "Search by Stage",
+                  textController:
+                      _tabController.index == 0
+                          ? _scheduleSearchC
+                          : _ledgerSearchC,
                   onSubmit: (value) {
                     _paymentCubit.search(
                       context: context,
@@ -672,31 +687,32 @@ class _PaymentScreenState extends State<PaymentScreen>
                       selectedTab: _tabController.index,
                     );
                   },
-                  textController: _searchTextC,
                 ),
               ),
               horizontalSpacing(),
-              CustomExportButton(
-                onExport: (type) {
-                  if (_tabController.index == 1) {
-                    _paymentCubit.exportPaymentLedger(
-                      context,
-                      widget.bookingId,
-                      widget.projectId,
-                      getProject().projectName,
-                      type,
-                    );
-                  } else {
-                    _paymentCubit.exportPaymentSchedule(
-                      context,
-                      widget.bookingId,
-                      widget.projectId,
-                      getProject().projectName,
-                      type,
-                    );
-                  }
-                },
-              ),
+              !AuthorizationModel().isAccess
+                  ? CustomExportButton(
+                    onExport: (type) {
+                      if (_tabController.index == 1) {
+                        _paymentCubit.exportPaymentLedger(
+                          context,
+                          widget.bookingId,
+                          widget.projectId,
+                          getProject().projectName,
+                          type,
+                        );
+                      } else {
+                        _paymentCubit.exportPaymentSchedule(
+                          context,
+                          widget.bookingId,
+                          widget.projectId,
+                          getProject().projectName,
+                          type,
+                        );
+                      }
+                    },
+                  )
+                  : SizedBox.shrink(),
             ],
           ),
         );

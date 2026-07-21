@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/cubit/flat_handover_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/cubit/flat_handover_state.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_cubit.dart';
+import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -19,10 +22,12 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class FlatHandoverScreen extends StatefulWidget {
   final int projectId;
   final int bookingId;
+  final BookingModel? bookingModel;
   const FlatHandoverScreen({
     super.key,
     required this.projectId,
     required this.bookingId,
+    this.bookingModel,
   });
 
   @override
@@ -32,10 +37,14 @@ class FlatHandoverScreen extends StatefulWidget {
 class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
   late FlatHandoverCubit _flatHandoverCubit;
   late TextEditingController _searchTextC;
+  late AuthorizationModel _flatHandoverAuthorization;
 
   @override
   void initState() {
     super.initState();
+    _flatHandoverAuthorization =
+        Authorization.routeAuthorizationMap[AppRoutes.bankLoans] ??
+        AuthorizationModel();
     _flatHandoverCubit = context.read<FlatHandoverCubit>();
     _searchTextC = TextEditingController();
     _flatHandoverCubit.getFlatHandoverFilesList(
@@ -83,6 +92,12 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
                   final isAlreadyApproved =
                       approvalStatus.toLowerCase() == "approved";
                   final isRejected = approvalStatus.toLowerCase() == "rejected";
+                  final booking =
+                      context.read<PayTrackCubit>().state.bookingData;
+
+                  if (booking == null) {
+                    return const SizedBox.shrink();
+                  }
                   return Container(
                     margin: const EdgeInsets.only(bottom: 10),
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
@@ -103,32 +118,33 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
                               ),
                             ),
                             horizontalSpacing(),
-                            Row(
-                              spacing: 10.0,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                CustomIconButton.edit(
-                                  isDisabled:
-                                      flatHandoverDocuments.approvalStatus
-                                          .toLowerCase() ==
-                                      "approved",
-                                  onPressed: () {
-                                    goRouter.pushNamed(
-                                      AppRoutes.addFlatHandoverDocuments,
-                                      extra: {
-                                        "document": flatHandoverDocuments,
-                                        "index": index,
-                                      },
-                                    );
-                                  },
-                                ),
-                                CustomIconButton.delete(
-                                  isDisabled: true,
-                                  onPressed: () {},
-                                ),
-                              ],
-                            ),
+                            if (!_flatHandoverAuthorization.isAction)
+                              Row(
+                                spacing: 10.0,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  CustomIconButton.edit(
+                                    isDisabled:
+                                        flatHandoverDocuments.approvalStatus
+                                            .toLowerCase() ==
+                                        "approved",
+                                    onPressed: () {
+                                      goRouter.pushNamed(
+                                        AppRoutes.addFlatHandoverDocuments,
+                                        extra: {
+                                          "document": flatHandoverDocuments,
+                                          "index": index,
+                                        },
+                                      );
+                                    },
+                                  ),
+                                  CustomIconButton.delete(
+                                    isDisabled: true,
+                                    onPressed: () {},
+                                  ),
+                                ],
+                              ),
                           ],
                         ),
                         verticalSpacing(),
@@ -145,14 +161,28 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
                         ),
 
                         verticalSpacing(),
-                        flatHandoverDocuments.payTrackBookingFilesUrl.isNotEmpty
+                        flatHandoverDocuments
+                                    .payTrackBookingFilesUrl
+                                    .isNotEmpty &&
+                                !_flatHandoverAuthorization.isAction
                             ? ApproveRejectWidget(
+                              openDetailsBeforeApproval: true,
                               isActionAlreadyPerformed:
                                   isAlreadyApproved || isRejected,
                               actionTitle:
                                   flatHandoverDocuments.approvalStatus.isEmpty
                                       ? "Pending"
                                       : approvalStatus,
+                              onOpenDetails: (isApprove) {
+                                goRouter.pushNamed(
+                                  AppRoutes.flatHandoverApprovalDetails,
+                                  extra: {
+                                    "document": flatHandoverDocuments,
+                                    "booking": booking,
+                                    "isApprove": isApprove,
+                                  },
+                                );
+                              },
                               approveIcon: Icons.check,
                               onApprove: (onApprove) async {
                                 final isSuccess = await context
@@ -210,6 +240,13 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
                                               .payTrackBookingFilesId,
                                       moduleName: "FLAT HANDOVER APPROVAL",
                                     );
+                                debugPrint(
+                                  jsonEncode(
+                                    approvalLogHistoryList
+                                        .map((e) => e.toJson())
+                                        .toList(),
+                                  ),
+                                );
                                 if (context.mounted) {
                                   goRouter.pushNamed(
                                     AppRoutes.approvalLogHistory,

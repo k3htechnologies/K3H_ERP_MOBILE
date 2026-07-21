@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/snag_checklist/data/model/snag_checklist.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/snag_checklist/presentation/cubit/snag_checklist_cubit.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/functions/common_date_function.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -29,10 +32,14 @@ class _ElectricalTabChecklistScreenState
     extends State<ElectricalTabChecklistScreen> {
   late SnagChecklistCubit _snagChecklistCubit;
   final Map<int, ValueNotifier<bool>> _checkboxNotifiers = {};
+  late AuthorizationModel _snagChecklistAuthorization;
 
   @override
   void initState() {
     super.initState();
+    _snagChecklistAuthorization =
+        Authorization.routeAuthorizationMap[AppRoutes.snagChecklist] ??
+        AuthorizationModel();
     _snagChecklistCubit = context.read<SnagChecklistCubit>();
   }
 
@@ -203,46 +210,80 @@ class _ElectricalTabChecklistScreenState
                                             horizontal: 12.0,
                                             vertical: 16.0,
                                           ),
-                                          child: Row(
+                                          child: Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Expanded(
-                                                child: Text(
-                                                  snag.checkFor,
-                                                  style: AppTextStyle.ts14M(),
-                                                ),
-                                              ),
-                                              horizontalSpacing(),
-                                              ValueListenableBuilder(
-                                                valueListenable:
-                                                    _checkboxNotifiers[uniqueIndex]!,
-                                                builder: (
-                                                  context,
-                                                  isInactive,
-                                                  child,
-                                                ) {
-                                                  return Align(
-                                                    alignment:
-                                                        Alignment.centerRight,
-                                                    child: CustomCheckBox(
-                                                      isSelected: isInactive,
-                                                      onChanged: (value) {
-                                                        final updatedValue =
-                                                            value;
-
-                                                        _checkboxNotifiers[uniqueIndex]!
-                                                                .value =
-                                                            updatedValue;
-
-                                                        snag.isCheck =
-                                                            updatedValue;
-                                                      },
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      snag.checkFor,
+                                                      style:
+                                                          AppTextStyle.ts14M(),
                                                     ),
-                                                  );
-                                                },
+                                                  ),
+                                                  horizontalSpacing(),
+                                                  ValueListenableBuilder(
+                                                    valueListenable:
+                                                        _checkboxNotifiers[uniqueIndex]!,
+                                                    builder: (
+                                                      context,
+                                                      isInactive,
+                                                      child,
+                                                    ) {
+                                                      return Align(
+                                                        alignment:
+                                                            Alignment
+                                                                .centerRight,
+                                                        child: CustomCheckBox(
+                                                          isDisabled:
+                                                              _snagChecklistAuthorization
+                                                                  .isAction,
+                                                          isSelected:
+                                                              isInactive,
+                                                          onChanged: (value) {
+                                                            final updatedValue =
+                                                                value;
+
+                                                            _checkboxNotifiers[uniqueIndex]!
+                                                                    .value =
+                                                                updatedValue;
+
+                                                            snag.isCheck =
+                                                                updatedValue;
+                                                          },
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                              verticalSpacing(),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  buildRowTitleValue(
+                                                    title: "Last Modified By",
+                                                    value: snag.modifiedBy,
+                                                  ),
+                                                  verticalSpacing(),
+                                                  buildRowTitleValue(
+                                                    title: "Last Modified Date",
+                                                    value: formatDate(
+                                                      snag.modifiedDate,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ],
                                           ),
@@ -272,17 +313,18 @@ class _ElectricalTabChecklistScreenState
                   ],
                 ),
               ),
-              CustomButton(
-                text: "Save",
-                onPressed: () {
-                  _snagChecklistCubit.addUpdateSnagChecklist(
-                    context,
-                    projectId: widget.projectId,
-                    bookingId: widget.bookingId,
-                    snagChecklist: state.snagChecklist,
-                  );
-                },
-              ),
+              if (!_snagChecklistAuthorization.isAction)
+                CustomButton(
+                  text: "Save",
+                  onPressed: () {
+                    _snagChecklistCubit.addUpdateSnagChecklist(
+                      context,
+                      projectId: widget.projectId,
+                      bookingId: widget.bookingId,
+                      snagChecklist: state.snagChecklist,
+                    );
+                  },
+                ),
             ],
           ),
         );

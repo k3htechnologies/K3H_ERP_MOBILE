@@ -376,6 +376,7 @@ class _AddApplicantDetailsRequestsScreenState
                       hint: "Enter Aadhaar Card Number",
                       inputFormatterList:
                           InputValidator.aadhaarNumberInputFormatter(),
+                      isRequired: true,
                       validator: (value) {
                         if (value != null &&
                             value.trim().isNotEmpty &&
@@ -407,6 +408,7 @@ class _AddApplicantDetailsRequestsScreenState
                       title: 'PAN Number',
                       textController: _panC,
                       hint: "Enter PAN Number",
+                      isRequired: true,
                       inputFormatterList: InputValidator.panInputFormatters(),
                       validator: (value) {
                         if (value != null &&
@@ -418,7 +420,7 @@ class _AddApplicantDetailsRequestsScreenState
                       },
                     ),
                     CustomMultiFilePicker(
-                      title: "Upload PAN",
+                      title: "PAN Card",
                       filePickType: FilePickType.kycDocument,
                       initialFileList: panFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {

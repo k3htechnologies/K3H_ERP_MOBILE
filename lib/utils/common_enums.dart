@@ -80,7 +80,7 @@ extension PayTrackTabExtension on PayTrackTab {
       case PayTrackTab.bankLoan:
         return "Bank Loan";
       case PayTrackTab.paymentLedger:
-        return "Payment Ledger";
+        return "Account";
       case PayTrackTab.modificationRequest:
         return "Modification Request";
       case PayTrackTab.paymentSchedule:

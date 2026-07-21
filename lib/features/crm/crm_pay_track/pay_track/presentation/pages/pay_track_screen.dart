@@ -485,10 +485,12 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                       : const SizedBox.shrink();
                 }
                 final payTrack = state.payTrackList[index];
-                final approvalStatus = payTrack.approvalStatus;
+                final cancelBookingApprovalStatus =
+                    payTrack.cancelBookingApprovalStatus;
                 final isAlreadyApproved =
-                    approvalStatus.toLowerCase() == "approved";
-                final isRejected = approvalStatus.toLowerCase() == "rejected";
+                    cancelBookingApprovalStatus.toLowerCase() == "approved";
+                final isRejected =
+                    cancelBookingApprovalStatus.toLowerCase() == "rejected";
                 final List<Map<String, dynamic>> summaryItems = [
                   {
                     "type": "Stamp Duty",
@@ -542,17 +544,22 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                   totalPaidAmount += paid;
                   totalPendingAmount += pending;
                 }
-                final cancelStatus =
-                    payTrack.cancelBookingApprovalStatus.toLowerCase().trim();
 
-                final bookingStatus =
-                    payTrack.bookingApprovalStatus.toLowerCase().trim();
+                final status = payTrack.bookingApprovalStatus.toLowerCase();
 
-                final shouldShowApproval =
-                    bookingStatus == "refund" &&
-                    (cancelStatus == "pending" ||
-                        cancelStatus == "approved" ||
-                        cancelStatus == "partial approved");
+                Color backgroundColor;
+                Color textColor;
+
+                if (status == "refund") {
+                  backgroundColor = const Color(0xFFE0E9FD);
+                  textColor = const Color(0xFF2F5BEA);
+                } else if (status == "cancel") {
+                  backgroundColor = const Color(0xFFE9EFF7);
+                  textColor = const Color(0xFF1F1F1F);
+                } else {
+                  backgroundColor = const Color(0xFFF0FDF4);
+                  textColor = const Color(0xFF15803D);
+                }
                 return Container(
                   padding: EdgeInsets.all(16.0),
                   margin: EdgeInsets.only(bottom: 10.0),
@@ -657,51 +664,54 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                               ),
                             ),
                           ),
-                          horizontalSpacing(),
-                          Text(" > ", style: AppTextStyle.ts20SB()),
-                          horizontalSpacing(),
-                          Container(
-                            padding: EdgeInsets.only(
-                              left: 12.0,
-                              right: 12.0,
-                              top: 3.5,
-                              bottom: 4.5,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(6.0),
-                              color:
-                                  payTrack.tenantId == 0
-                                      ? Color(0xffF0FDF4)
-                                      : AppColor.lightPurpleBg2,
-                              border: Border.all(
-                                width: 1,
-                                color:
-                                    payTrack.tenantId == 0
-                                        ? Color(0xffDCFCE7)
-                                        : AppColor.lightPurple,
+                          if (status.toLowerCase() == "refund" ||
+                              status.toLowerCase() == "cancel") ...{
+                            horizontalSpacing(width: 6),
+                            Text(
+                              " > ",
+                              style: AppTextStyle.ts16SB(
+                                color: AppColor.black.withValues(alpha: 0.5),
                               ),
                             ),
-                            child: Text(
-                              payTrack.tenantId == 0 ? "Booked" : "Alloted",
-                              style: AppTextStyle.ts12M(
-                                color:
-                                    payTrack.tenantId == 0
-                                        ? Color(0xff15803D)
-                                        : Color(0xff561F64),
+                            horizontalSpacing(width: 6),
+                            Container(
+                              padding: const EdgeInsets.only(
+                                left: 12,
+                                right: 12,
+                                top: 3.5,
+                                bottom: 4.5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: backgroundColor,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  payTrack.bookingApprovalStatus,
+                                  style: AppTextStyle.ts12M(color: textColor),
+                                ),
                               ),
                             ),
-                          ),
+                          } else ...{
+                            SizedBox.shrink(),
+                          },
                         ],
                       ),
-                      verticalSpacing(height: 16.0),
-                      shouldShowApproval
+                      payTrack.bookingApprovalStatus.toLowerCase() !=
+                                  "refund" &&
+                              payTrack.cancelRemark.isNotEmpty
+                          ? verticalSpacing(height: 16.0)
+                          : SizedBox.shrink(),
+                      payTrack.bookingApprovalStatus.toLowerCase() !=
+                                  "refund" &&
+                              payTrack.cancelRemark.isNotEmpty
                           ? ApproveRejectWidget(
                             isActionAlreadyPerformed:
                                 isAlreadyApproved || isRejected,
                             actionTitle:
-                                payTrack.approvalStatus.isEmpty
+                                payTrack.cancelBookingApprovalStatus.isEmpty
                                     ? "Pending"
-                                    : approvalStatus,
+                                    : cancelBookingApprovalStatus,
                             approveIcon: Icons.check,
                             onApprove: (onApprove) async {
                               final isSuccess = await context
@@ -750,7 +760,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                                   queryParameters: {
                                     "title": Uri.encodeComponent(
                                       EncryptionManager.encryptData(
-                                        "Cancel Booking",
+                                        "CANCEL BOOKING APPROVAL",
                                       ),
                                     ),
                                     "approvalList": Uri.encodeComponent(

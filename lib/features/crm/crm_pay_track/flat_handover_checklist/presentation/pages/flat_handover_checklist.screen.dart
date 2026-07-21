@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover_checklist/data/model/flat_handover_checklist.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover_checklist/presentation/cubit/flat_handover_checklist_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -33,6 +35,7 @@ class _FlatHandoverChecklistScreenState
     with TickerProviderStateMixin {
   late FlatHandoverChecklistCubit _flatHandoverChecklistCubit;
   late TabController _tabController;
+  late AuthorizationModel _flatHandoverChecklistAuthorization;
   final TextEditingController _sectionC = TextEditingController();
   final TextEditingController _itemsC = TextEditingController();
   final TextEditingController _remarkC = TextEditingController();
@@ -48,6 +51,9 @@ class _FlatHandoverChecklistScreenState
   @override
   void initState() {
     super.initState();
+    _flatHandoverChecklistAuthorization =
+        Authorization.routeAuthorizationMap[AppRoutes.flatHandoverChecklist] ??
+        AuthorizationModel();
     _flatHandoverChecklistCubit = context.read<FlatHandoverChecklistCubit>();
     _selectedStatusNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     _tabController = TabController(length: 1, vsync: this);
@@ -175,18 +181,19 @@ class _FlatHandoverChecklistScreenState
                     );
                   },
                 ),
-                CustomButton(
-                  padding: EdgeInsets.symmetric(vertical: 10),
-                  text: index != null ? "Update" : "Save",
-                  onPressed: () {
-                    if (!_statusFormKey.currentState!.validate()) return;
+                if (!_flatHandoverChecklistAuthorization.isAction)
+                  CustomButton(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    text: index != null ? "Update" : "Save",
+                    onPressed: () {
+                      if (!_statusFormKey.currentState!.validate()) return;
 
-                    _submitForm(
-                      flatHandoverChecklistModel: flatHandoverChecklistModel,
-                      index: index,
-                    );
-                  },
-                ),
+                      _submitForm(
+                        flatHandoverChecklistModel: flatHandoverChecklistModel,
+                        index: index,
+                      );
+                    },
+                  ),
               ],
             ),
           );
@@ -349,15 +356,17 @@ class _FlatHandoverChecklistScreenState
                                       ),
                                     ),
                                     horizontalSpacing(),
-                                    CustomIconButton.edit(
-                                      onPressed: () {
-                                        _showAddUpdateFlatHandoverChecklistBottomSheet(
-                                          context,
-                                          flatHandoverChecklistModel: item,
-                                          index: index,
-                                        );
-                                      },
-                                    ),
+                                    if (!_flatHandoverChecklistAuthorization
+                                        .isAction)
+                                      CustomIconButton.edit(
+                                        onPressed: () {
+                                          _showAddUpdateFlatHandoverChecklistBottomSheet(
+                                            context,
+                                            flatHandoverChecklistModel: item,
+                                            index: index,
+                                          );
+                                        },
+                                      ),
                                   ],
                                 ),
                                 verticalSpacing(),

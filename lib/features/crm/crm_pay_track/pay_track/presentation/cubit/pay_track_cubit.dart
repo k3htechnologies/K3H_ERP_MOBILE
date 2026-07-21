@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_call_log.model.dart';
@@ -133,6 +134,7 @@ class PayTrackCubit extends Cubit<PayTrackState> {
         emit(
           state.copyWith(
             payTrackList: updatedList,
+            payTrackOverview: newList.isNotEmpty ? newList.first : null,
             currentPage: pageNumber,
             totalNumberOfRecord: response['totalNumberOfRecord'],
             isLoading: false,
@@ -289,15 +291,21 @@ class PayTrackCubit extends Cubit<PayTrackState> {
     BuildContext context,
     int pageNumber,
     int projectId,
-    int bookingId,
-  ) async {
+    int bookingId, {
+    String? exportType,
+  }) async {
     emit(state.copyWith(isLoading: true));
 
     Map<String, dynamic> queryParams = {"BookingId": bookingId};
 
+    if (exportType != null) {
+      queryParams["IsCheckPermission"] = false;
+      queryParams["ExportType"] = exportType;
+    }
+
     final result = await _bookingRepository.getBookingList(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 1,
       projectId: projectId,
       queryParams: queryParams,
     );
@@ -478,6 +486,67 @@ class PayTrackCubit extends Cubit<PayTrackState> {
             isLoading: false,
           ),
         );
+      },
+    );
+  }
+
+  Future updateRegistrationDateAndParking(
+    BuildContext context, {
+    required int projectId,
+    required int bookingId,
+    required String uniquekey,
+    required DateTime finalRegistrationDate,
+    required String parkingId,
+    required bool isFinalRegistrationCompleted,
+    required MultiFilePickerModel finalRegistrationDocument,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    final Map<String, String> requestBody = {
+      "BookingId": bookingId.toString(),
+      "ProjectId": projectId.toString(),
+      "Uniquekey": uniquekey,
+      "FinalRegistrationDate": finalRegistrationDate.toIso8601String(),
+      "ParkingId": parkingId,
+      "IsFinalRegistrationCompleted": isFinalRegistrationCompleted.toString(),
+      "RemoveProofOfDocumentURL": finalRegistrationDocument.deletedFileList,
+    };
+
+    final List<Map<String, dynamic>> fileList = [];
+
+    for (int i = 0; i < finalRegistrationDocument.fileNameList.length; i++) {
+      if (finalRegistrationDocument.fileNameList[i].contains("http")) {
+        continue;
+      }
+
+      fileList.add({
+        "key": "FinalRegistrationURL",
+        "value": finalRegistrationDocument.fileBytesList[i],
+        "fileName": finalRegistrationDocument.fileNameList[i],
+      });
+    }
+
+    final result = await _payTrackRepository
+        .updatePayTrackBookingRegistrationDateParking(
+          body: requestBody,
+          fileList: fileList,
+        );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) async {
+        showSuccessMessage(
+          context,
+          subTitle: response["message"] ?? "Registration updated successfully",
+        );
+
+        goRouter.pop();
+
+        await getBookingById(context, 1, projectId, bookingId);
       },
     );
   }

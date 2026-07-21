@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/flat_alteration_requests.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -9,7 +10,8 @@ import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
 class AddFlatSpecificationRemarkScreen extends StatefulWidget {
-  const AddFlatSpecificationRemarkScreen({super.key});
+  final FlatAlterationRequestsModel? remark;
+  const AddFlatSpecificationRemarkScreen({super.key, this.remark});
 
   @override
   State<AddFlatSpecificationRemarkScreen> createState() =>
@@ -27,11 +29,21 @@ class _AddFlatSpecificationRemarkScreenState
     fileNameList: [],
     deletedFileList: "",
   );
+
   @override
   void initState() {
     super.initState();
+
     _requestManagementCubit = context.read<RequestManagementCubit>();
     _remarkC = TextEditingController();
+
+    if (widget.remark != null) {
+      _remarkC.text = widget.remark!.flatAlterationRemark;
+
+      if (widget.remark!.proofOfDocumentUrl.isNotEmpty) {
+        prrofOfDocumentFile.fileNameList = [widget.remark!.proofOfDocumentUrl];
+      }
+    }
   }
 
   @override
@@ -42,25 +54,39 @@ class _AddFlatSpecificationRemarkScreenState
 
   void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
-    final booking = _requestManagementCubit.state.bookingData;
 
+    final booking = _requestManagementCubit.state.bookingData;
     if (booking == null) return;
 
-    _requestManagementCubit.addFlatAlterationRequest(
-      context: context,
-      projectId: booking.projectId,
-      bookingId: booking.bookingId,
-      uniquekey: booking.uniquekey,
-      flatAlterationRemark: _remarkC.text.trim(),
-      proofDocumentFile: prrofOfDocumentFile,
-    );
+    if (widget.remark == null) {
+      _requestManagementCubit.addFlatAlterationRequest(
+        context: context,
+        projectId: booking.projectId,
+        bookingId: booking.bookingId,
+        flatAlterationRemark: _remarkC.text.trim(),
+        proofDocumentFile: prrofOfDocumentFile,
+      );
+    } else {
+      _requestManagementCubit.updateFlatAlterationRequest(
+        context: context,
+        flatAlterationRequestId: widget.remark!.flatAlterationRequestId,
+        projectId: widget.remark!.projectId,
+        bookingId: widget.remark!.bookingId,
+        uniquekey: widget.remark!.uniqueKey,
+        flatAlterationRemark: _remarkC.text.trim(),
+        proofDocumentFile: prrofOfDocumentFile,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Flat Alteration Request",
+        screenTitle:
+            widget.remark == null
+                ? "Flat Alteration Request"
+                : "Edit Flat Alteration Request",
         authorization: AuthorizationModel(),
       ),
       body: Column(
@@ -116,7 +142,12 @@ class _AddFlatSpecificationRemarkScreenState
             padding: const EdgeInsets.all(20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: [CustomButton(text: "Add", onPressed: _submitForm)],
+              children: [
+                CustomButton(
+                  text: widget.remark == null ? "Add" : "Update",
+                  onPressed: _submitForm,
+                ),
+              ],
             ),
           ),
         ],

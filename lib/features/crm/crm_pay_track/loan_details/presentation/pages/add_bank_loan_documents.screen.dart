@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -119,6 +120,7 @@ class _AddBankLoanDocumentScreenState extends State<AddBankLoanDocumentScreen> {
                 title: "File Name",
                 hint: "Enter File Name",
                 isRequired: true,
+                inputFormatterList: [LengthLimitingTextInputFormatter(150)],
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return "File Name is required";

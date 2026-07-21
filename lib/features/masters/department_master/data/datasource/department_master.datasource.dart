@@ -64,7 +64,7 @@ class DepartmentMasterDataSourceImpl implements DepartmentMasterDatasource {
         return apicallPullDepartmentMaster(
           pageNumber: pageNumber,
           pageSize: pageSize,
-          queryParams: queryParams
+          queryParams: queryParams,
         );
       }
       rethrow;

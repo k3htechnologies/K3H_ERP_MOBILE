@@ -692,24 +692,141 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
     );
   }
 
+  Future getBookingApplicantModificationActivitytList(
+    BuildContext context,
+    int pageSize,
+    int pageNumber,
+    int bookingId,
+    int projectId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+    var result = await _requestManagementRepository
+        .getBookingApplicantModificationRequestList(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          bookingId: bookingId,
+          queryParams: {"TabName": "ACTIVITY"},
+        );
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final updatedList =
+            response['data'] as List<BookingApplicantModificationRequestModel>;
+        emit(
+          state.copyWith(
+            isLoading: false,
+            bookingApplicantModificationRequestModel: updatedList,
+          ),
+        );
+      },
+    );
+  }
+
+  Future getParkingModificationActivityList(
+    BuildContext context,
+    int pageSize,
+    int pageNumber,
+    int bookingId,
+    int projectId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+    var result = await _requestManagementRepository
+        .getParkingModificationRequestList(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          bookingId: bookingId,
+          queryParams: {"TabName": "ACTIVITY"},
+        );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final updatedList =
+            response['data'] as List<ParkingModificationRequestModel>;
+        emit(
+          state.copyWith(
+            isLoading: false,
+            parkingModificationRequestList: updatedList,
+          ),
+        );
+      },
+    );
+  }
+
+  Future getFlatAlterationActivityList(
+    BuildContext context,
+    int pageSize,
+    int pageNumber,
+    int bookingId,
+    int projectId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+    var result = await _requestManagementRepository
+        .getFlatAlterationRequestList(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          bookingId: bookingId,
+          queryParams: {"TabName": "ACTIVITY"},
+        );
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final updatedList =
+            response['data'] as List<FlatAlterationRequestsModel>;
+        emit(
+          state.copyWith(
+            isLoading: false,
+            flatAlterationRequestsModel: updatedList,
+          ),
+        );
+      },
+    );
+  }
+
   Future addParkingModificationRequest(
     BuildContext context, {
     required int bookingId,
     required int projectId,
     required String parkingId,
-    required String uniquekey,
+    required MultiFilePickerModel proofDocumentFile,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
-    Map<String, dynamic> requestBody = {
-      "ParkingModificationRequestId": 0,
-      "BookingId": bookingId,
-      "ProjectId": projectId,
+    Map<String, String> requestBody = {
+      "BookingId": bookingId.toString(),
+      "ProjectId": projectId.toString(),
       "ParkingId": parkingId,
-      "Uniquekey": uniquekey,
     };
+    List<Map<String, dynamic>> fileList = [];
+
+    // PAN
+    for (int i = 0; i < proofDocumentFile.fileNameList.length; i++) {
+      if (proofDocumentFile.fileNameList[i].contains("http")) continue;
+
+      fileList.add({
+        "key": "ProofOfDocumentURL",
+        "value": proofDocumentFile.fileBytesList[i],
+        "fileName": proofDocumentFile.fileNameList[i],
+      });
+    }
+
     final result = await _requestManagementRepository
-        .addUpdateParkingModificationRequest(body: requestBody);
+        .addUpdateParkingModificationRequest(
+          body: requestBody,
+          fileList: fileList,
+        );
     goRouter.pop();
     result.fold(
       (failure) {
@@ -736,19 +853,131 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
     );
   }
 
+  Future updateParkingModificationRequest(
+    BuildContext context, {
+    required int parkingModificationRequestId,
+    required int bookingId,
+    required int projectId,
+    required String uniquekey,
+    required String parkingId,
+    required MultiFilePickerModel proofDocumentFile,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    Map<String, String> body = {
+      "ParkingModificationRequestId": parkingModificationRequestId.toString(),
+      "BookingId": bookingId.toString(),
+      "ProjectId": projectId.toString(),
+      "ParkingId": parkingId,
+      "Uniquekey": uniquekey,
+      "RemoveProofOfDocumentURL": proofDocumentFile.deletedFileList,
+    };
+
+    List<Map<String, dynamic>> fileList = [];
+
+    for (int i = 0; i < proofDocumentFile.fileNameList.length; i++) {
+      if (proofDocumentFile.fileNameList[i].contains("http")) continue;
+
+      fileList.add({
+        "key": "ProofOfDocumentURL",
+        "value": proofDocumentFile.fileBytesList[i],
+        "fileName": proofDocumentFile.fileNameList[i],
+      });
+    }
+
+    final result = await _requestManagementRepository
+        .addUpdateParkingModificationRequest(body: body, fileList: fileList);
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) async {
+        showSuccessMessage(
+          context,
+          subTitle: "Parking modification updated successfully",
+        );
+
+        await getParkingModificationRequestList(
+          context,
+          10,
+          1,
+          bookingId,
+          projectId,
+        );
+
+        goRouter.pop();
+      },
+    );
+  }
+
+  Future deleteParkingModificationRequest({
+    required BuildContext context,
+    required int parkingModificationRequestId,
+    required String uniqueKey,
+    required int bookingId,
+    required int projectId,
+    int? index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _requestManagementRepository
+        .deleteParkingModificationRequest(
+          parkingModificationRequestId: parkingModificationRequestId,
+          uniqueKey: uniqueKey,
+          bookingId: bookingId,
+          projectId: projectId,
+        );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Department Deleted Successfully',
+        );
+        if (index != null) {
+          final updatedList = List<ParkingModificationRequestModel>.from(
+            state.parkingModificationRequestList,
+          );
+          updatedList.removeAt(index);
+
+          emit(
+            state.copyWith(
+              parkingModificationRequestList: updatedList,
+              totalNumberOfRecord:
+                  state.totalNumberOfRecord > 0
+                      ? state.totalNumberOfRecord - 1
+                      : 0,
+            ),
+          );
+        } else {
+          getParkingModificationRequestList(
+            context,
+            10,
+            1,
+            bookingId,
+            projectId,
+          );
+        }
+      },
+    );
+  }
+
   Future addFlatAlterationRequest({
     required BuildContext context,
     required int projectId,
     required int bookingId,
-    required String uniquekey,
     required String flatAlterationRemark,
     required MultiFilePickerModel proofDocumentFile,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
     Map<String, String> requestBody = {
-      "FlatAlterationRequestId": 0.toString(),
-      "UniqueKey": uniquekey,
       "BookingId": bookingId.toString(),
       "ProjectId": projectId.toString(),
       "FlatAlterationRemark": flatAlterationRemark,
@@ -756,8 +985,22 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
       "VersionNumber": "",
     };
 
+    List<Map<String, dynamic>> fileList = [];
+    for (int i = 0; i < proofDocumentFile.fileNameList.length; i++) {
+      if (proofDocumentFile.fileNameList[i].contains("http")) {
+        continue;
+      }
+
+      fileList.add({
+        "key": "ProofOfDocumentURL",
+        "value": proofDocumentFile.fileBytesList[i],
+        "fileName": proofDocumentFile.fileNameList[i],
+      });
+    }
+
     var addResult = await _requestManagementRepository.addFlatAlterationRequest(
       body: requestBody,
+      fileList: fileList,
     );
 
     goRouter.pop();
@@ -780,6 +1023,119 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
           projectId,
         );
         goRouter.pop();
+      },
+    );
+  }
+
+  Future updateFlatAlterationRequest({
+    required BuildContext context,
+    required int flatAlterationRequestId,
+    required int projectId,
+    required int bookingId,
+    required String uniquekey,
+    required String flatAlterationRemark,
+    required MultiFilePickerModel proofDocumentFile,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    Map<String, String> body = {
+      "FlatAlterationRequestId": flatAlterationRequestId.toString(),
+      "UniqueKey": uniquekey,
+      "BookingId": bookingId.toString(),
+      "ProjectId": projectId.toString(),
+      "FlatAlterationRemark": flatAlterationRemark,
+      "ApprovalStatus": "",
+      "VersionNumber": "",
+      "RemoveProofOfDocumentURL": proofDocumentFile.deletedFileList,
+    };
+
+    List<Map<String, dynamic>> fileList = [];
+    for (int i = 0; i < proofDocumentFile.fileNameList.length; i++) {
+      if (proofDocumentFile.fileNameList[i].contains("http")) {
+        continue;
+      }
+
+      fileList.add({
+        "key": "ProofOfDocumentURL",
+        "value": proofDocumentFile.fileBytesList[i],
+        "fileName": proofDocumentFile.fileNameList[i],
+      });
+    }
+
+    var addResult = await _requestManagementRepository.addFlatAlterationRequest(
+      body: body,
+      fileList: fileList,
+    );
+
+    goRouter.pop();
+
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+
+        emit(state.copyWith(isLoading: false));
+
+        return;
+      },
+      (response) async {
+        showSuccessMessage(context, subTitle: "Request done successfully");
+        await getFlatAlterationRequestList(
+          context,
+          10,
+          1,
+          bookingId,
+          projectId,
+        );
+        goRouter.pop();
+      },
+    );
+  }
+
+  Future deleteFlatAlterationRequest({
+    required BuildContext context,
+    required int flatAlterationRequestId,
+    required String uniqueKey,
+    required int bookingId,
+    required int projectId,
+    int? index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _requestManagementRepository
+        .deleteFlatAlterationRequest(
+          flatAlterationRequestId: flatAlterationRequestId,
+          uniqueKey: uniqueKey,
+          bookingId: bookingId,
+          projectId: projectId,
+        );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Department Deleted Successfully',
+        );
+        if (index != null) {
+          final updatedList = List<FlatAlterationRequestsModel>.from(
+            state.flatAlterationRequestsModel,
+          );
+          updatedList.removeAt(index);
+
+          emit(
+            state.copyWith(
+              flatAlterationRequestsModel: updatedList,
+              totalNumberOfRecord:
+                  state.totalNumberOfRecord > 0
+                      ? state.totalNumberOfRecord - 1
+                      : 0,
+            ),
+          );
+        } else {
+          getFlatAlterationRequestList(context, 10, 1, bookingId, projectId);
+        }
       },
     );
   }

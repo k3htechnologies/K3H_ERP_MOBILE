@@ -27,6 +27,8 @@ class ApproveRejectWidget extends StatelessWidget {
   final String? subTitle;
   // FOLLOWING FUNCTION CAN BE USED TO CONTROL WHETHER THE APPROVE/REJECT DIALOG CAN BE OPENED OR NOT. (USED IN MULTI APPROVAL SCENARIO)
   final bool Function()? canOpenDialog;
+  final Function(bool isApprove)? onOpenDetails;
+  final bool openDetailsBeforeApproval;
 
   const ApproveRejectWidget({
     super.key,
@@ -43,6 +45,8 @@ class ApproveRejectWidget extends StatelessWidget {
     required this.popupTitle,
     this.subTitle,
     this.canOpenDialog,
+    this.onOpenDetails,
+    this.openDetailsBeforeApproval = false,
   });
   // HANDLER FOR APPROVE/REJECT TAP - TO CHECK IF DIALOG CAN BE OPENED OR NOT
   void _handleApprovalTap(
@@ -150,12 +154,18 @@ class ApproveRejectWidget extends StatelessWidget {
                 Expanded(
                   flex: 1,
                   child: InkWell(
-                    onTap:
-                        () => _showRemarkDialog(
-                          context,
-                          actionType: "Approve",
-                          onSubmit: onApprove,
-                        ),
+                    onTap: () {
+                      if (openDetailsBeforeApproval) {
+                        onOpenDetails?.call(true);
+                        return;
+                      }
+
+                      _showRemarkDialog(
+                        context,
+                        actionType: "Approve",
+                        onSubmit: onApprove,
+                      );
+                    },
                     child: Container(
                       height: double.infinity,
                       alignment: Alignment.center,
@@ -173,12 +183,18 @@ class ApproveRejectWidget extends StatelessWidget {
                 Expanded(
                   flex: 1,
                   child: InkWell(
-                    onTap:
-                        () => _showRemarkDialog(
-                          context,
-                          actionType: "Reject",
-                          onSubmit: onReject,
-                        ),
+                    onTap: () {
+                      if (openDetailsBeforeApproval) {
+                        onOpenDetails?.call(false);
+                        return;
+                      }
+
+                      _showRemarkDialog(
+                        context,
+                        actionType: "Reject",
+                        onSubmit: onReject,
+                      );
+                    },
                     child: Container(
                       height: double.infinity,
                       alignment: Alignment.center,

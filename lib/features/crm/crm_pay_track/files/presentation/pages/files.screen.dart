@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/cubit/files_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/cubit/files_state.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_booking_files.model.dart';
@@ -29,10 +30,14 @@ class FilesScreen extends StatefulWidget {
 
 class _FilesScreenState extends State<FilesScreen> {
   late FilesCubit _filesCubit;
+  late AuthorizationModel _filesAuthorization;
 
   @override
   void initState() {
     super.initState();
+    _filesAuthorization =
+        Authorization.routeAuthorizationMap[AppRoutes.files] ??
+        AuthorizationModel();
     _filesCubit = context.read<FilesCubit>();
     _filesCubit.getFilesList(
       context: context,
@@ -66,23 +71,24 @@ class _FilesScreenState extends State<FilesScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              CustomButton(
-                text: "Add",
-                onPressed: () {
-                  goRouter.pushNamed(
-                    AppRoutes.addFiles,
-                    extra: {
-                      'bookingId': widget.bookingId,
-                      'projectId': widget.projectId,
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
+          if (!_filesAuthorization.isAction)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                CustomButton(
+                  text: "Add",
+                  onPressed: () {
+                    goRouter.pushNamed(
+                      AppRoutes.addFiles,
+                      extra: {
+                        'bookingId': widget.bookingId,
+                        'projectId': widget.projectId,
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
           verticalSpacing(),
           Expanded(
             child: BlocBuilder<FilesCubit, FilesState>(
@@ -129,36 +135,37 @@ class _FilesScreenState extends State<FilesScreen> {
                             title: "Last Created Date",
                             value: formatDateTimeAsDDMMMYYYY(file.createdDate),
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addFiles,
-                                    extra: {
-                                      'bookingId': widget.bookingId,
-                                      'projectId': widget.projectId,
-                                      'file': file,
-                                      'index': index,
-                                      'isEdit': true,
-                                    },
-                                  );
-                                },
-                              ),
-                              horizontalSpacing(),
-                              CustomIconButton.delete(
-                                onPressed: () {
-                                  _showPopupToDeleteFiles(
-                                    context,
-                                    file,
-                                    state.currentPage,
-                                    index,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
+                          if (!_filesAuthorization.isAction)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                CustomIconButton.edit(
+                                  onPressed: () async {
+                                    await goRouter.pushNamed(
+                                      AppRoutes.addFiles,
+                                      extra: {
+                                        'bookingId': widget.bookingId,
+                                        'projectId': widget.projectId,
+                                        'file': file,
+                                        'index': index,
+                                        'isEdit': true,
+                                      },
+                                    );
+                                  },
+                                ),
+                                horizontalSpacing(),
+                                CustomIconButton.delete(
+                                  onPressed: () {
+                                    _showPopupToDeleteFiles(
+                                      context,
+                                      file,
+                                      state.currentPage,
+                                      index,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
                         ],
                       ),
                     );

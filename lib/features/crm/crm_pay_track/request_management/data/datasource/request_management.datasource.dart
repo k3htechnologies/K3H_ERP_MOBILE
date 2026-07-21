@@ -36,12 +36,26 @@ abstract interface class RequestManagementDatasource {
     required int bookingId,
   });
   Future<Map<String, dynamic>> apicallAddFlatAlterationRequest({
-    required Map<String, dynamic> body,
-  });
-  Future<Map<String, dynamic>> apicallAddParkingModificationRequest({
-    required Map<String, dynamic> body,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   });
 
+  Future<Map<String, dynamic>> apicallDeleteFlatAlterationRequest({
+    required int flatAlterationRequestId,
+    required String uniqueKey,
+    required int bookingId,
+    required int projectId,
+  });
+  Future<Map<String, dynamic>> apicallAddParkingModificationRequest({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
+  Future<Map<String, dynamic>> apicallDeletParkingModificationRequest({
+    required int parkingModificationRequestId,
+    required String uniqueKey,
+    required int bookingId,
+    required int projectId,
+  });
   Future<Map<String, dynamic>>
   apicallUpdateBookingApplicantModificationRequest({
     required int bookingId,
@@ -243,15 +257,14 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
 
   @override
   Future<Map<String, dynamic>> apicallAddFlatAlterationRequest({
-    required Map<String, dynamic> body,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   }) async {
     const url = "BookingModificationRequest/AddFlatAlterationRequest";
 
     try {
-      var networkResponse = await baseClient.postRequestWithAuthentication(
-        url,
-        body,
-      );
+      var networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(url, fileList, body);
 
       return {
         'data': List<FlatAlterationRequestsModel>.from(
@@ -264,7 +277,7 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        return apicallAddFlatAlterationRequest(body: body);
+        return apicallAddFlatAlterationRequest(body: body, fileList: fileList);
       }
       rethrow;
     }
@@ -272,15 +285,14 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
 
   @override
   Future<Map<String, dynamic>> apicallAddParkingModificationRequest({
-    required Map<String, dynamic> body,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   }) async {
     const url = "BookingModificationRequest/AddParkingModificationRequest";
 
     try {
-      var networkResponse = await baseClient.postRequestWithAuthentication(
-        url,
-        body,
-      );
+      var networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(url, fileList, body);
 
       return {
         'data': List<ParkingModificationRequestModel>.from(
@@ -293,7 +305,10 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        return apicallAddParkingModificationRequest(body: body);
+        return apicallAddParkingModificationRequest(
+          body: body,
+          fileList: fileList,
+        );
       }
       rethrow;
     }
@@ -525,6 +540,90 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
           bookingApplicantModificationRequestId:
               bookingApplicantModificationRequestId,
           bookingId: bookingId,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeleteFlatAlterationRequest({
+    required int flatAlterationRequestId,
+    required String uniqueKey,
+    required int bookingId,
+    required int projectId,
+  }) async {
+    String deleteDepartmentUrl({
+      required int flatAlterationRequestId,
+      required String uniqueKey,
+      required int bookingId,
+      required int projectId,
+    }) {
+      return "BookingModificationRequest/DeleteFlatAlterationRequest?FlatAlterationRequestId=$flatAlterationRequestId&Uniquekey=$uniqueKey&BookingId=$bookingId&ProjectId=$projectId";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteDepartmentUrl(
+          flatAlterationRequestId: flatAlterationRequestId,
+          uniqueKey: uniqueKey,
+          bookingId: bookingId,
+          projectId: projectId,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['TotalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallDeleteFlatAlterationRequest(
+          flatAlterationRequestId: flatAlterationRequestId,
+          uniqueKey: uniqueKey,
+          bookingId: bookingId,
+          projectId: projectId,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeletParkingModificationRequest({
+    required int parkingModificationRequestId,
+    required String uniqueKey,
+    required int bookingId,
+    required int projectId,
+  }) async {
+    String deleteDepartmentUrl({
+      required int parkingModificationRequestId,
+      required String uniqueKey,
+      required int bookingId,
+      required int projectId,
+    }) {
+      return "BookingModificationRequest/DeleteParkingModificationRequest?ParkingModificationRequestId=$parkingModificationRequestId&Uniquekey=$uniqueKey&BookingId=$bookingId&ProjectId=$projectId";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteDepartmentUrl(
+          parkingModificationRequestId: parkingModificationRequestId,
+          uniqueKey: uniqueKey,
+          bookingId: bookingId,
+          projectId: projectId,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['TotalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallDeletParkingModificationRequest(
+          parkingModificationRequestId: parkingModificationRequestId,
+          uniqueKey: uniqueKey,
+          bookingId: bookingId,
+          projectId: projectId,
         );
       }
       rethrow;

@@ -224,11 +224,19 @@ class AppRoutes {
   /// PAY TRACK
   static String payTrackMaster = "/payTrack";
   static String viewPayTrackMaster = "/viewPayTrackMaster";
+  static String updateRegistrationDateAndParking =
+      "/updateRegistrationDateAndParking";
   static String addBankLoanDocument = "/addBankLoanDocument";
   static String addActiveBank = "/addActiveBank";
   static String paymentScheduleDemandSummary = "/paymentScheduleDemandSummary";
   static String addPaymentLedger = "/addPaymentLedger";
   static String viewPaymentLedger = "/viewPaymentLedger";
+  static String viewVersionWiseBookingApplicantHistory =
+      "/viewVersionWiseBookingApplicantHistory";
+  static String viewVersionWiseParkingHistory =
+      "/viewVersionWiseParkingHistory";
+  static String viewUnitModulationCustomizationHistory =
+      "/viewUnitModulationCustomizationHistory";
   static String addRefundScreen = "/addRefundScreen";
   static String cancelBookingScreen = "/cancelBookingScreen";
   static String addApplicantDetailsRequests = "/addApplicantDetailsRequests";
@@ -247,6 +255,7 @@ class AppRoutes {
   static String modificationRequest = '/modificationRequest';
   static String paymentSchedules = '/paymentSchedule';
   static String flatHandover = '/flatHandover';
+  static String flatHandoverApprovalDetails = "/flatHandoverApprovalDetails";
   static String files = '/files';
   static String payTrackCallLog = "/payTrackCallLog";
   static String snagChecklist = "/snagChecklist";

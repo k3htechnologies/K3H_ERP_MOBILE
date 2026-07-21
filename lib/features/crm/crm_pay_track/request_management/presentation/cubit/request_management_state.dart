@@ -13,6 +13,7 @@ class RequestManagementState extends BaseState {
   final List<RefundedAmountLedgerModel> refundAmountLedgerList;
   final int totalNumberOfRecord;
   final bool isActivityLoading;
+  final int currentPage;
   const RequestManagementState({
     super.isLoading,
     required this.bookingData,
@@ -26,6 +27,7 @@ class RequestManagementState extends BaseState {
     required this.refundAmountLedgerList,
     required this.totalNumberOfRecord,
     required this.isActivityLoading,
+    required this.currentPage,
   });
 
   factory RequestManagementState.initial() => RequestManagementState(
@@ -41,6 +43,7 @@ class RequestManagementState extends BaseState {
     refundAmountLedgerList: [],
     totalNumberOfRecord: 0,
     isActivityLoading: false,
+    currentPage: 1,
   );
 
   RequestManagementState copyWith({
@@ -57,6 +60,7 @@ class RequestManagementState extends BaseState {
     List<RefundedAmountLedgerModel>? refundAmountLedgerList,
     int? totalNumberOfRecord,
     bool? isActivityLoading,
+    int? currentPage,
   }) {
     return RequestManagementState(
       isLoading: isLoading ?? this.isLoading,
@@ -79,6 +83,7 @@ class RequestManagementState extends BaseState {
           refundAmountLedgerList ?? this.refundAmountLedgerList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       isActivityLoading: isActivityLoading ?? this.isActivityLoading,
+      currentPage: currentPage ?? this.currentPage,
     );
   }
 
@@ -96,5 +101,6 @@ class RequestManagementState extends BaseState {
     refundAmountLedgerList,
     totalNumberOfRecord,
     isActivityLoading,
+    currentPage,
   ];
 }

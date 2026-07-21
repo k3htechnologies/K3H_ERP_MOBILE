@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -15,6 +13,7 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/page
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/request_management_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/snag_checklist/presentation/pages/snag_checklist.screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_enums.dart';
@@ -53,7 +52,8 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
   late TabController _tabController;
   late PayTrackCubit _payTrackCubit;
   late ValueNotifier<bool> isExpanded;
-  late AuthorizationModel _bankLoansRouteAuthorizationModel,
+  late AuthorizationModel _bookingPayTrackRouteAuthorizationModel,
+      _bankLoansRouteAuthorizationModel,
       _accountRouteAuthorizationModel,
       _modifiedRequestsAuthorizationModel,
       _snagChecklistAuthorizationModel,
@@ -69,28 +69,32 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
     super.initState();
     _initAuth();
     _tabs = [
+      if (_bookingPayTrackRouteAuthorizationModel.isView)
+        PayTrackTab.bookingPayTrack,
       if (_bankLoansRouteAuthorizationModel.isView) PayTrackTab.bankLoan,
+
       if (_accountRouteAuthorizationModel.isView) PayTrackTab.paymentLedger,
       if (_modifiedRequestsAuthorizationModel.isView)
         PayTrackTab.modificationRequest,
       if (_snagChecklistAuthorizationModel.isView) PayTrackTab.snagChecklist,
       if (_flatHandoverChecklistAuthorizationModel.isView)
         PayTrackTab.flatHandoverChecklist,
-      if (_flatHandoverChecklistAuthorizationModel.isView)
-        PayTrackTab.flatHandoverChecklist,
       if (_flatHandoverAuthoriationModel.isView) PayTrackTab.flatHandover,
       if (_filesAuthorizationModel.isView) PayTrackTab.files,
       if (_callLogsAuthorizationModel.isView) PayTrackTab.payTrackCallLog,
     ];
+
     _tabController = TabController(length: _tabs.length, vsync: this);
     _tabController.addListener(_handleTabChange);
     _payTrackCubit = context.read<PayTrackCubit>();
     isExpanded = ValueNotifier(false);
     initOverview();
-    log("Approval Status = ${widget.approvalStatus}");
   }
 
   void _initAuth() {
+    _bookingPayTrackRouteAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.bookingPayTrack] ??
+        AuthorizationModel();
     _bankLoansRouteAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.bankLoans] ??
         AuthorizationModel();
@@ -173,7 +177,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Pay Tarck",
+        screenTitle: "Pay Track",
         authorization: AuthorizationModel(),
       ),
       body: Column(
@@ -190,7 +194,8 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                   controller: _tabController,
                   physics: NeverScrollableScrollPhysics(),
                   children: [
-                    _buildOverviewTab(state),
+                    if (_bookingPayTrackRouteAuthorizationModel.isView)
+                      _buildOverviewTab(state, context),
                     if (_bankLoansRouteAuthorizationModel.isView) ...{
                       LoanDetailsScreen(
                         projectId: widget.projectId,
@@ -248,7 +253,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
     );
   }
 
-  Widget _buildOverviewTab(PayTrackState state) {
+  Widget _buildOverviewTab(PayTrackState state, BuildContext context) {
     if ((state.isLoading ?? false)) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -276,8 +281,12 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
         booking.refundedAmountOnTillDate;
     final bool isEmployeeReference =
         enquiry.subSource.trim().toLowerCase() == "employee reference";
-    final payTrackData = state.payTrackModel;
 
+    final bool showUpdateRegistrationButton =
+        _bookingPayTrackRouteAuthorizationModel.isAction &&
+        _tabController.index == 0 &&
+        !booking.isFinalRegistrationCompleted &&
+        widget.bookingApprovalStatus.trim().toUpperCase() == "APPROVED";
     return SingleChildScrollView(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
       child: Column(
@@ -289,20 +298,61 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             widget.applicantName,
             style: AppTextStyle.ts16M(color: AppColor.primary),
           ),
-          payTrackData?.approvalStatus.toLowerCase() != "approved"
-              ? Row(
-                children: [
-                  Expanded(
-                    child: CustomButton(text: "Message", onPressed: () {}),
+          if (showUpdateRegistrationButton)
+            Row(
+              children: [
+                Expanded(
+                  child: CustomMessageButton(
+                    onMessage: () async {
+                      final result = await _payTrackCubit.getBookingById(
+                        context,
+                        1,
+                        widget.projectId,
+                        widget.bookingId,
+                        exportType: "WELCOME MESSAGE",
+                      );
+
+                      if (result != null && context.mounted) {
+                        showSuccessMessage(
+                          context,
+                          subTitle: "Message sent successfully.",
+                        );
+                      }
+                    },
+                    onEmail: () async {
+                      final result = await _payTrackCubit.getBookingById(
+                        context,
+                        1,
+                        widget.projectId,
+                        widget.bookingId,
+                        exportType: "WELCOME MESSAGE ON MAIL",
+                      );
+
+                      if (result != null && context.mounted) {
+                        showSuccessMessage(
+                          context,
+                          subTitle: "Email sent successfully.",
+                        );
+                      }
+                    },
                   ),
-                  horizontalSpacing(),
-                  CustomButton(
-                    text: "Update Registration Date & Parking",
-                    onPressed: () {},
-                  ),
-                ],
-              )
-              : SizedBox.shrink(),
+                ),
+                horizontalSpacing(),
+                CustomButton(
+                  text: "Update Registration Date & Parking",
+                  onPressed: () {
+                    goRouter.pushNamed(
+                      AppRoutes.updateRegistrationDateAndParking,
+                      extra: {
+                        "projectId": widget.projectId,
+                        "bookingId": widget.bookingId,
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+
           Container(
             decoration: BoxDecoration(
               color: AppColor.lightBlue,
@@ -2019,6 +2069,159 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                   ? AppColor.primary
                   : AppColor.purple,
         ),
+      ),
+    );
+  }
+}
+
+class CustomMessageButton extends StatefulWidget {
+  final bool isDisabled;
+  final VoidCallback onMessage;
+  final VoidCallback onEmail;
+
+  const CustomMessageButton({
+    super.key,
+    required this.onMessage,
+    required this.onEmail,
+    this.isDisabled = false,
+  });
+
+  @override
+  State<CustomMessageButton> createState() => _CustomMessageButtonState();
+}
+
+class _CustomMessageButtonState extends State<CustomMessageButton> {
+  final LayerLink _layerLink = LayerLink();
+  final GlobalKey _buttonKey = GlobalKey();
+
+  OverlayEntry? _overlayEntry;
+
+  void _toggleOverlay() {
+    if (_overlayEntry != null) {
+      _removeOverlay();
+    } else {
+      _showOverlay();
+    }
+  }
+
+  void _showOverlay() {
+    const double dropdownWidth = 160.0;
+
+    final RenderBox buttonBox =
+        _buttonKey.currentContext!.findRenderObject() as RenderBox;
+
+    final Offset buttonPosition = buttonBox.localToGlobal(Offset.zero);
+
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+    double shiftX = 0;
+
+    final overflowRight = buttonPosition.dx + dropdownWidth - screenWidth;
+
+    if (overflowRight > 0) {
+      shiftX = -overflowRight - 8;
+    }
+
+    _overlayEntry = OverlayEntry(
+      builder: (_) {
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: _removeOverlay,
+              ),
+            ),
+            CompositedTransformFollower(
+              link: _layerLink,
+              showWhenUnlinked: false,
+              offset: Offset(shiftX, 42),
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  width: dropdownWidth,
+                  decoration: BoxDecoration(
+                    color: AppColor.white,
+                    borderRadius: BorderRadius.circular(6),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: .12),
+                        blurRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildItem(
+                        icon: Icons.message_outlined,
+                        label: "Send Message",
+                        onTap: () {
+                          _removeOverlay();
+                          widget.onMessage();
+                        },
+                      ),
+                      _buildItem(
+                        icon: Icons.email_outlined,
+                        label: "Send e-mail",
+                        onTap: () {
+                          _removeOverlay();
+                          widget.onEmail();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
+  }
+
+  Widget _buildItem({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Text(
+          label,
+          style: AppTextStyle.ts14R(
+            color: AppColor.black.withValues(alpha: 0.5),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  @override
+  void dispose() {
+    _removeOverlay();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: CustomButton(
+        key: _buttonKey,
+        text: "Message",
+        isDisable: widget.isDisabled,
+        onPressed: _toggleOverlay,
       ),
     );
   }

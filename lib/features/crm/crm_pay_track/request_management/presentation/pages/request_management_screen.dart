@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/activity_tab.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/refund_payment_ledger.screen.dart';
@@ -40,10 +41,14 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
   late RequestManagementCubit _requestManagementCubit;
 
   bool _showRefundTab = false;
+  late AuthorizationModel _modifiedRequestsAuthorization;
 
   @override
   void initState() {
     super.initState();
+    _modifiedRequestsAuthorization =
+        Authorization.routeAuthorizationMap[AppRoutes.modificationRequest] ??
+        AuthorizationModel();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_handleTabChange);
     _requestManagementCubit = context.read<RequestManagementCubit>();
@@ -123,7 +128,10 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
               bookingId: widget.bookingId,
               approvalStatus: widget.approvalStatus,
             ),
-            ActivityTabScreen(state: state),
+            ActivityTabScreen(
+              bookingId: widget.bookingId,
+              projectId: widget.projectId,
+            ),
           ];
 
           if (_showRefundTab) {
@@ -174,7 +182,9 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
             booking.totalAmountRefundedAgainstBooking >
             booking.refundedAmountOnTillDate;
         Widget? actionButton;
-        if (!isBookingCancelled && !isRefundStatus) {
+        if (!isBookingCancelled &&
+            !isRefundStatus &&
+            _modifiedRequestsAuthorization.isAction) {
           actionButton = CustomButton(
             text: "Cancel Booking",
             backgroundColor: AppColor.missingInformationRed.withValues(
@@ -185,7 +195,10 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
               goRouter.pushNamed(AppRoutes.cancelBookingScreen, extra: booking);
             },
           );
-        } else if (isBookingCancelled && !isRefundStatus && isCancelApproved) {
+        } else if (isBookingCancelled &&
+            !isRefundStatus &&
+            isCancelApproved &&
+            _modifiedRequestsAuthorization.isAction) {
           actionButton = CustomButton(
             text: "Initiate Refund",
             backgroundColor: AppColor.primary.withValues(alpha: 0.15),
@@ -197,7 +210,9 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
               );
             },
           );
-        } else if (isRefundStatus && canMakePayment) {
+        } else if (isRefundStatus &&
+            canMakePayment &&
+            _modifiedRequestsAuthorization.isAction) {
           actionButton = CustomButton(
             text: "Make Payment",
             backgroundColor: AppColor.green,
@@ -769,7 +784,7 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Flat Specification Remark",
+                              "Unit / Modulation / Customization Remark",
                               style: AppTextStyle.ts14SB(),
                             ),
                             verticalSpacing(),

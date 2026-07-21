@@ -1,5 +1,6 @@
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_call_log.model.dart';
+import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
@@ -30,6 +31,11 @@ abstract interface class PayTrackDatasource {
     required int pageSize,
     required int projectId,
     Map<String, dynamic>? queryParams,
+  });
+  Future<Map<String, dynamic>>
+  apiCallUpdatePayTrackBookingRegistrationDateParking({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   });
 }
 
@@ -222,6 +228,40 @@ class PayTrackDatasourceImpl extends PayTrackDatasource {
           pageSize: pageSize,
           projectId: projectId,
           queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>>
+  apiCallUpdatePayTrackBookingRegistrationDateParking({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    String addUpdatePayTrackBookingFilesUrl =
+        "Booking/UpdatePayTrackBookingRegistrationDateParking";
+
+    try {
+      var networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(
+            addUpdatePayTrackBookingFilesUrl,
+            fileList,
+            body,
+          );
+      return {
+        'data': List<BookingModel>.from(
+          networkResponse["data"].map((e) => BookingModel.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        'message': networkResponse['message'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallUpdatePayTrackBookingRegistrationDateParking(
+          body: body,
+          fileList: fileList,
         );
       }
       rethrow;

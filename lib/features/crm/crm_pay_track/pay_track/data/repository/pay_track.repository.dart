@@ -30,6 +30,11 @@ abstract interface class PayTrackRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>>
+  updatePayTrackBookingRegistrationDateParking({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
 }
 
 class PayTrackRepositoryImpl extends PayTrackRepository {
@@ -111,6 +116,24 @@ class PayTrackRepositoryImpl extends PayTrackRepository {
         projectId: projectId,
         queryParams: queryParams,
       );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  updatePayTrackBookingRegistrationDateParking({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    try {
+      var result = await payTrackDatasource
+          .apiCallUpdatePayTrackBookingRegistrationDateParking(
+            body: body,
+            fileList: fileList,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

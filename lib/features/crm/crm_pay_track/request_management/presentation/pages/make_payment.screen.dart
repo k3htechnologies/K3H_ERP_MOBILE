@@ -262,8 +262,6 @@ class _ModifiedRequestsMakePaymentScreenState
           if (payTrack == null) {
             return const Center(child: CircularProgressIndicator());
           }
-          final maxRefundableAmount =
-              state.bookingData?.totalAmountReceivedAgainstBooking ?? 0.0;
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

@@ -1,5 +1,6 @@
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_booking_files.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_call_log.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
@@ -14,7 +15,9 @@ class PayTrackState extends BaseState {
   final String currentSortColumn;
   final String currentSortDirection;
   final PayTrackModel? payTrackOverview;
+  final PayTrackBookingFilesModel? payTrackBookingFilesOverview;
   final BookingModel? bookingData;
+  final List<BookingModel>? bookingDataList;
   final EnquiryModel? currentEnquiryDetails;
   final bool isFetchingEnquiryDetails;
   final String filterByApplicantName;
@@ -46,6 +49,7 @@ class PayTrackState extends BaseState {
     required this.currentSortColumn,
     required this.currentSortDirection,
     required this.payTrackOverview,
+    required this.payTrackBookingFilesOverview,
     required this.bookingData,
     required this.currentEnquiryDetails,
     required this.isFetchingEnquiryDetails,
@@ -66,6 +70,7 @@ class PayTrackState extends BaseState {
     required this.filterCallLogApplicantMobileNumber,
     this.filterCallLogFromDate,
     this.filterCallLogToDate,
+    this.bookingDataList,
   });
 
   factory PayTrackState.initial() => PayTrackState(
@@ -78,6 +83,7 @@ class PayTrackState extends BaseState {
     currentSortDirection: "DESC",
     isLoading: true,
     payTrackOverview: null,
+    payTrackBookingFilesOverview: null,
     bookingData: null,
     currentEnquiryDetails: null,
     isFetchingEnquiryDetails: false,
@@ -99,6 +105,7 @@ class PayTrackState extends BaseState {
     filterCallLogApplicantMobileNumber: "",
     filterCallLogFromDate: null,
     filterCallLogToDate: null,
+    bookingDataList: [],
   );
   static const _noChange = Object();
   PayTrackState copyWith({
@@ -125,6 +132,7 @@ class PayTrackState extends BaseState {
     String? currentSortColumn,
     String? currentSortDirection,
     PayTrackModel? payTrackOverview,
+    PayTrackBookingFilesModel? payTrackBookingFilesOverview,
     BookingModel? bookingData,
     EnquiryModel? currentEnquiryDetails,
     bool? isFetchingEnquiryDetails,
@@ -134,6 +142,7 @@ class PayTrackState extends BaseState {
     String? filterCallLogApplicantMobileNumber,
     Object? filterCallLogFromDate = _noChange,
     Object? filterCallLogToDate = _noChange,
+    List<BookingModel>? bookingDataList,
   }) {
     return PayTrackState(
       isLoading: isLoading ?? this.isLoading,
@@ -169,6 +178,8 @@ class PayTrackState extends BaseState {
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
       payTrackOverview: payTrackOverview ?? this.payTrackOverview,
+      payTrackBookingFilesOverview:
+          payTrackBookingFilesOverview ?? this.payTrackBookingFilesOverview,
       bookingData: bookingData ?? this.bookingData,
       currentEnquiryDetails:
           currentEnquiryDetails ?? this.currentEnquiryDetails,
@@ -192,6 +203,7 @@ class PayTrackState extends BaseState {
           filterCallLogToDate == _noChange
               ? this.filterCallLogToDate
               : filterCallLogToDate as DateTime?,
+      bookingDataList: bookingDataList ?? this.bookingDataList,
     );
   }
 
@@ -219,6 +231,7 @@ class PayTrackState extends BaseState {
     currentSortColumn,
     currentSortDirection,
     payTrackOverview,
+    payTrackBookingFilesOverview,
     bookingData,
     currentEnquiryDetails,
     isFetchingEnquiryDetails,
@@ -228,5 +241,6 @@ class PayTrackState extends BaseState {
     filterCallLogApplicantMobileNumber,
     filterCallLogFromDate,
     filterCallLogToDate,
+    bookingDataList,
   ];
 }

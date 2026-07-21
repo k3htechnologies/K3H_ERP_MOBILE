@@ -24,8 +24,16 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/cubit/flat_handover_cubit.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/pages/flat_handover_details.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/pages/update_registration_date_parking.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/payment_schedule_demand_letter_summary.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/booking_applicant_modification_request.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/flat_alteration_requests.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/parking_modification_request.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/activity_internal_tab/view_booking_applicant_history.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/activity_internal_tab/view_parking_history.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/activity_internal_tab/view_unit_modulation_customization_history.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/cancel_booking.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentation/cubit/collection_report_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentation/pages/collection_report.screen.dart';
@@ -6415,6 +6423,18 @@ final GoRouter goRouter = GoRouter(
               },
             ),
             GoRoute(
+              path: AppRoutes.updateRegistrationDateAndParking,
+              name: AppRoutes.updateRegistrationDateAndParking,
+              builder: (context, state) {
+                final data = state.extra as Map<String, dynamic>;
+
+                return UpdateRegistrationDateParkingScreen(
+                  projectId: data["projectId"] as int,
+                  bookingId: data["bookingId"] as int,
+                );
+              },
+            ),
+            GoRoute(
               path: AppRoutes.addBankLoanDocument,
               name: AppRoutes.addBankLoanDocument,
               builder: (context, state) {
@@ -6526,7 +6546,6 @@ final GoRouter goRouter = GoRouter(
                 );
               },
             ),
-
             GoRoute(
               path: AppRoutes.paymentScheduleDemandSummary,
               name: AppRoutes.paymentScheduleDemandSummary,
@@ -6640,6 +6659,44 @@ final GoRouter goRouter = GoRouter(
               },
             ),
             GoRoute(
+              path: AppRoutes.viewVersionWiseBookingApplicantHistory,
+              name: AppRoutes.viewVersionWiseBookingApplicantHistory,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>;
+
+                return ViewBookingApplicantHistoryScreen(
+                  applicantDetail:
+                      extra["applicant"]
+                          as BookingApplicantModificationRequestModel,
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.viewVersionWiseParkingHistory,
+              name: AppRoutes.viewVersionWiseParkingHistory,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>;
+
+                return ViewParkingHistoryScreen(
+                  parkingDetail:
+                      extra["parking"] as ParkingModificationRequestModel,
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.viewUnitModulationCustomizationHistory,
+              name: AppRoutes.viewUnitModulationCustomizationHistory,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>;
+
+                return ViewUnitModulationCustomizationHistoryScreen(
+                  unitModulationDetail:
+                      extra["unitModulationCustomization"]
+                          as FlatAlterationRequestsModel,
+                );
+              },
+            ),
+            GoRoute(
               path: AppRoutes.addRefundScreen,
               name: AppRoutes.addRefundScreen,
               builder: (context, state) {
@@ -6674,14 +6731,18 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.swapBookedParking,
               name: AppRoutes.swapBookedParking,
               builder: (context, state) {
-                return AddParkingDetailsScreen();
+                return AddParkingDetailsScreen(
+                  parking: state.extra as ParkingModificationRequestModel?,
+                );
               },
             ),
             GoRoute(
               path: AppRoutes.addFlatSpecificationRemarkScreen,
               name: AppRoutes.addFlatSpecificationRemarkScreen,
               builder: (context, state) {
-                return AddFlatSpecificationRemarkScreen();
+                return AddFlatSpecificationRemarkScreen(
+                  remark: state.extra as FlatAlterationRequestsModel?,
+                );
               },
             ),
             GoRoute(
@@ -6705,6 +6766,20 @@ final GoRouter goRouter = GoRouter(
                 return AddFlatHandoverScreen(
                   flatHandoverDocument: extra?['document'],
                   index: extra?["index"],
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.flatHandoverApprovalDetails,
+              name: AppRoutes.flatHandoverApprovalDetails,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>;
+
+                return FlatHandoverDetailsScreen(
+                  flatHandoverDocument:
+                      extra["document"] as PayTrackBookingFilesModel,
+                  bookingModel: extra["booking"] as BookingModel?,
+                  isApprove: extra["isApprove"] as bool,
                 );
               },
             ),

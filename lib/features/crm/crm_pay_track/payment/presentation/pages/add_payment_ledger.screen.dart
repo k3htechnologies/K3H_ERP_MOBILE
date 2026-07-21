@@ -511,7 +511,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                       title: "Transaction / Cheque / Demand Draft No.",
                       isRequired: true,
                       keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.digit(6),
+                      inputFormatterList: InputValidator.digit(25),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return "Transaction / Cheque / Demand Draft No. is required";
