@@ -33,6 +33,7 @@ import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
 class DashboardScreen extends StatefulWidget {
   final AttendanceModel? data;
   const DashboardScreen({super.key, this.data});
@@ -218,17 +219,28 @@ class _DashboardScreenState extends State<DashboardScreen>
   LatLng? lastPoint;
   double totalDistance = 0.0;
 
-  Future<void> punchIn(BuildContext context) async {
+  Future<bool> punchIn(BuildContext context) async {
     try {
       Position pos = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.bestForNavigation,
       );
 
+      if (pos.isMocked) {
+        if (context.mounted) {
+          showErrorMessage(
+            context,
+            "Mock Location Detected",
+            "Please disable Fake GPS / Mock Location before punching in.",
+          );
+        }
+        return false;
+      }
+
       final address = await _getAddressFromGPS();
 
       if (address == null) {
         showErrorMessage(context, "Error", "Unable to fetch location");
-        return;
+        return false;
       }
 
       await storage.setString(
@@ -262,8 +274,10 @@ class _DashboardScreenState extends State<DashboardScreen>
         currentAttendanceId = result['AttendanceId'];
         currentUniquekey = result['Uniquekey'];
       }
+      return true;
     } catch (e) {
       debugPrint("Punch In GPS Error: $e");
+      return false;
     }
   }
 
@@ -365,6 +379,10 @@ class _DashboardScreenState extends State<DashboardScreen>
         distanceFilter: 5,
       ),
     ).listen((Position position) async {
+      if (position.isMocked) {
+        debugPrint("Mock location detected");
+        return;
+      }
       if (position.accuracy > 30) return;
 
       final currentPoint = LatLng(position.latitude, position.longitude);
@@ -810,16 +828,38 @@ class _DashboardScreenState extends State<DashboardScreen>
                                                         ),
                                                       );
 
-                                                      isPunchedInNotifier
-                                                          .value = true;
+                                                      /// COMMENTING THIS IF THE NEWER VERSION WILL NOT WORK THIS IS THE STABLE CODE
 
-                                                      if (context.mounted) {
-                                                        await punchIn(context);
+                                                      // isPunchedInNotifier
+                                                      //     .value = true;
+
+                                                      // if (context.mounted) {
+                                                      //   await punchIn(context);
+                                                      // }
+
+                                                      // _startTimerFrom(
+                                                      //   DateTime.now(),
+                                                      // );
+                                                      final success =
+                                                          await punchIn(
+                                                            context,
+                                                          );
+
+                                                      if (success) {
+                                                        isPunchedInNotifier
+                                                            .value = true;
+                                                        _startTimerFrom(
+                                                          DateTime.now(),
+                                                        );
+                                                        dragPositionNotifier
+                                                            .value = maxWidth;
+                                                        HapticFeedback.mediumImpact();
+                                                      } else {
+                                                        isPunchedInNotifier
+                                                            .value = false;
+                                                        dragPositionNotifier
+                                                            .value = 0;
                                                       }
-
-                                                      _startTimerFrom(
-                                                        DateTime.now(),
-                                                      );
 
                                                       HapticFeedback.mediumImpact();
 
@@ -929,6 +969,138 @@ class _DashboardScreenState extends State<DashboardScreen>
               ],
             ),
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDashboardPunchInPunchOutWidget(BuildContext context) {
+    return BlocBuilder<DashboardCubit, DashboardState>(
+      builder: (context, state) {
+        final bool hasLocation =
+            state.data != null &&
+            state.data!.startLatitude != 0 &&
+            state.data!.startLongitude != 0 &&
+            state.data!.endLatitude != 0 &&
+            state.data!.endLongitude != 0;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Punch In : ',
+                    style: AppTextStyle.ts14M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                  TextSpan(
+                    text:
+                        (state.data != null && state.data?.punchIn != null)
+                            ? DateFormat('hh:mm a').format(state.data!.punchIn!)
+                            : "--",
+                    style: AppTextStyle.ts14M(color: AppColor.black),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: '',
+                    style: AppTextStyle.ts14M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                  TextSpan(
+                    text:
+                        (state.data != null &&
+                                state.data!.punchInAddress.isNotEmpty)
+                            ? state.data!.punchInAddress
+                            : "--",
+                    style: AppTextStyle.ts14M(color: AppColor.black),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Punch Out : ',
+                    style: AppTextStyle.ts14M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                  TextSpan(
+                    text:
+                        (state.data != null && state.data?.punchOut != null)
+                            ? DateFormat(
+                              'hh:mm a',
+                            ).format(state.data!.punchOut!)
+                            : "--",
+                    style: AppTextStyle.ts14M(color: AppColor.black),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: '',
+                    style: AppTextStyle.ts14M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                  TextSpan(
+                    text:
+                        (state.data != null &&
+                                state.data!.punchOutAddress.isNotEmpty)
+                            ? state.data!.punchOutAddress
+                            : "--",
+                    style: AppTextStyle.ts14M(color: AppColor.black),
+                  ),
+                ],
+              ),
+            ),
+            if (hasLocation) ...[
+              verticalSpacing(height: 5),
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (_) => MapScreen(
+                            startLatitude: state.data!.startLatitude,
+                            startLongitude: state.data!.startLongitude,
+                            endLatitude: state.data!.endLatitude,
+                            endLongitude: state.data!.endLongitude,
+                            polyline: state.data!.polyline,
+                            distance: state.data!.distance.toDouble(),
+                            attendanceDataModel: state.data!,
+                          ),
+                    ),
+                  );
+                },
+                child: Text(
+                  "View Location",
+                  style: AppTextStyle.ts12M().copyWith(
+                    color: AppColor.primary,
+                    decoration: TextDecoration.underline,
+                    decorationColor: AppColor.primary,
+                  ),
+                ),
+              ),
+            ],
+          ],
         );
       },
     );
@@ -1175,138 +1347,6 @@ class _DashboardScreenState extends State<DashboardScreen>
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildDashboardPunchInPunchOutWidget(BuildContext context) {
-    return BlocBuilder<DashboardCubit, DashboardState>(
-      builder: (context, state) {
-        final bool hasLocation =
-            state.data != null &&
-            state.data!.startLatitude != 0 &&
-            state.data!.startLongitude != 0 &&
-            state.data!.endLatitude != 0 &&
-            state.data!.endLongitude != 0;
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'Punch In : ',
-                    style: AppTextStyle.ts14M(
-                      color: AppColor.black.withValues(alpha: 0.50),
-                    ),
-                  ),
-                  TextSpan(
-                    text:
-                        (state.data != null && state.data?.punchIn != null)
-                            ? DateFormat('hh:mm a').format(state.data!.punchIn!)
-                            : "--",
-                    style: AppTextStyle.ts14M(color: AppColor.black),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: '',
-                    style: AppTextStyle.ts14M(
-                      color: AppColor.black.withValues(alpha: 0.50),
-                    ),
-                  ),
-                  TextSpan(
-                    text:
-                        (state.data != null &&
-                                state.data!.punchInAddress.isNotEmpty)
-                            ? state.data!.punchInAddress
-                            : "--",
-                    style: AppTextStyle.ts14M(color: AppColor.black),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'Punch Out : ',
-                    style: AppTextStyle.ts14M(
-                      color: AppColor.black.withValues(alpha: 0.50),
-                    ),
-                  ),
-                  TextSpan(
-                    text:
-                        (state.data != null && state.data?.punchOut != null)
-                            ? DateFormat(
-                              'hh:mm a',
-                            ).format(state.data!.punchOut!)
-                            : "--",
-                    style: AppTextStyle.ts14M(color: AppColor.black),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: '',
-                    style: AppTextStyle.ts14M(
-                      color: AppColor.black.withValues(alpha: 0.50),
-                    ),
-                  ),
-                  TextSpan(
-                    text:
-                        (state.data != null &&
-                                state.data!.punchOutAddress.isNotEmpty)
-                            ? state.data!.punchOutAddress
-                            : "--",
-                    style: AppTextStyle.ts14M(color: AppColor.black),
-                  ),
-                ],
-              ),
-            ),
-            if (hasLocation) ...[
-              verticalSpacing(height: 5),
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (_) => MapScreen(
-                            startLatitude: state.data!.startLatitude,
-                            startLongitude: state.data!.startLongitude,
-                            endLatitude: state.data!.endLatitude,
-                            endLongitude: state.data!.endLongitude,
-                            polyline: state.data!.polyline,
-                            distance: state.data!.distance.toDouble(),
-                            attendanceDataModel: state.data!,
-                          ),
-                    ),
-                  );
-                },
-                child: Text(
-                  "View Location",
-                  style: AppTextStyle.ts12M().copyWith(
-                    color: AppColor.primary,
-                    decoration: TextDecoration.underline,
-                    decorationColor: AppColor.primary,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        );
-      },
     );
   }
 
